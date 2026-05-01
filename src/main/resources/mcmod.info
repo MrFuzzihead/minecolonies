@@ -1,0 +1,20 @@
+[
+    {
+        "modid" : "${modId}",
+        "name" : "${modName}",
+        "version" : "${modVersion}",
+        "mcversion" : "${minecraftVersion}",
+        "url" : "https://github.com/MrFuzzihead/minecolonies",
+        "credits" : "LDT Team",
+        "authors" : [
+            "LDT Team",
+            "MrFuzzihead"
+        ],
+        "description" : "Minecolonies minecraft mod",
+        "logoFile" : "pack.png",
+        "updateUrl" : "https://github.com/MrFuzzihead/minecolonies/releases/latest",
+        "parent" : "",
+        "screenshots": [
+        ]
+    }
+]
