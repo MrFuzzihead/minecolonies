@@ -1,12 +1,12 @@
 package com.minecolonies.core.items;
 
 import com.minecolonies.api.entity.ModEntities;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+// [1.7.10] world.entity removed
 import net.minecraft.world.item.ArrowItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -34,7 +34,7 @@ public class ItemFireArrow extends ArrowItem
 
     @NotNull
     @Override
-    public AbstractArrow createArrow(@NotNull final Level worldIn, @NotNull final ItemStack stack, final LivingEntity shooter)
+    public AbstractArrow createArrow(@NotNull final World worldIn, @NotNull final ItemStack stack, final EntityLivingBase shooter)
     {
         AbstractArrow entity = ModEntities.FIREARROW.create(worldIn);
         entity.setOwner(shooter);
@@ -43,8 +43,11 @@ public class ItemFireArrow extends ArrowItem
 
     @Nullable
     @Override
-    public Entity createEntity(final Level world, final Entity location, final ItemStack itemstack)
+    public Entity createEntity(final World world, final Entity location, final ItemStack itemstack)
     {
         return ModEntities.FIREARROW.create(world);
     }
 }
+
+
+

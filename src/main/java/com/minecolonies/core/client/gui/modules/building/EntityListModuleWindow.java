@@ -1,17 +1,17 @@
 package com.minecolonies.core.client.gui.modules.building;
 
+// [1.7.10] blockui replaced by ModularUI2
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.controls.Button;
 import com.ldtteam.blockui.controls.Text;
-import com.ldtteam.blockui.controls.TextField;
 import com.ldtteam.blockui.views.ScrollingList;
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.buildings.modules.IEntityListModuleView;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.AbstractModuleWindow;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ import static com.minecolonies.api.util.constant.WindowConstants.*;
 import static org.jline.utils.AttributedStyle.WHITE;
 
 /**
- * BOWindow for all the filterable entity lists.
+ * Object (BOWindow: todo ModularUI2 removed) for all the filterable entity lists.
  */
 public class EntityListModuleWindow extends AbstractModuleWindow<IEntityListModuleView>
 {
@@ -118,7 +118,7 @@ public class EntityListModuleWindow extends AbstractModuleWindow<IEntityListModu
     {
         final int row = resourceList.getListElementIndexByPane(button);
         final ResourceLocation item = currentDisplayedList.get(row);
-        final boolean on = button.getText().equals(Component.translatable(ON));
+        final boolean on = button.getText().equals(String.translatable(ON));
         final boolean add = (on && isInverted) || (!on && !isInverted);
         final IEntityListModuleView module = buildingView.getModuleViewMatching(IEntityListModuleView.class, view -> view.getId().equals(id));
 
@@ -220,13 +220,17 @@ public class EntityListModuleWindow extends AbstractModuleWindow<IEntityListModu
 
                 if ((isInverted && !isAllowedItem) || (!isInverted && isAllowedItem))
                 {
-                    switchButton.setText(Component.translatable(ON));
+                    switchButton.setText(String.translatable(ON));
                 }
                 else
                 {
-                    switchButton.setText(Component.translatable(OFF));
+                    switchButton.setText(String.translatable(OFF));
                 }
             }
         });
     }
 }
+
+
+
+

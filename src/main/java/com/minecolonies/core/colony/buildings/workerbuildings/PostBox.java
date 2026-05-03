@@ -2,7 +2,7 @@ package com.minecolonies.core.colony.buildings.workerbuildings;
 
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.colony.buildings.IRSComponent;
@@ -17,12 +17,12 @@ import com.minecolonies.core.client.gui.WindowPostBoxMinStock;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.moduleviews.MinimumStockModuleView;
 import com.minecolonies.core.colony.buildings.views.AbstractBuildingView;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.util.Tuple;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import com.minecolonies.api.util.Tuple;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -41,7 +41,7 @@ public class PostBox extends AbstractBuilding implements IRSComponent
      * @param c the colony.
      * @param l the location.
      */
-    public PostBox(final IColony c, final BlockPos l)
+    public PostBox(final IColony c, final int[] l)
     {
         super(c, l);
     }
@@ -62,14 +62,14 @@ public class PostBox extends AbstractBuilding implements IRSComponent
     @Override
     public int getMaxBuildingLevel()
     {
-        /* We set the PostBox to level 1 by force to enable the minimum stock feature */
+        /* We set the PostBox to World 1 by force to enable the minimum stock feature */
         return 1;
     }
 
     @Override
     public int getBuildingLevel()
     {
-        /* We set the PostBox to level 1 by force to enable the minimum stock feature */
+        /* We set the PostBox to World 1 by force to enable the minimum stock feature */
         return 1;
     }
 
@@ -91,7 +91,7 @@ public class PostBox extends AbstractBuilding implements IRSComponent
     }
 
     @Override
-    public Tuple<BlockPos, BlockPos> getCorners()
+    public Tuple<int[], int[]> getCorners()
     {
         return new Tuple<>(getPosition(),getPosition());
     }
@@ -113,23 +113,23 @@ public class PostBox extends AbstractBuilding implements IRSComponent
          * @param c the colonyView.
          * @param l the location of the block.
          */
-        public View(final IColonyView c, final BlockPos l)
+        public View(final IColonyView c, final int[] l)
         {
             super(c, l);
         }
 
         @NotNull
         @Override
-        public BOWindow getWindow()
+        public Object /* BOWindow: todo ModularUI2 */ getWindow()
         {
             return new WindowPostBoxMain(this);
         }
 
         @NotNull
         @Override
-        public MutableComponent getRequesterDisplayName(@NotNull final IRequestManager manager, @NotNull final IRequest<?> request)
+        public String getRequesterDisplayName(@NotNull final IRequestManager manager, @NotNull final IRequest<?> request)
         {
-            return Component.translatable("block.minecolonies.blockpostbox.name");
+            return String.translatable("block.minecolonies.blockpostbox.name");
         }
     }
 
@@ -140,9 +140,12 @@ public class PostBox extends AbstractBuilding implements IRSComponent
     {
         @Override
         @OnlyIn(Dist.CLIENT)
-        public BOWindow getWindow()
+        public Object /* BOWindow: todo ModularUI2 */ getWindow()
         {
             return new WindowPostBoxMinStock(this);
         }
     }
 }
+
+
+

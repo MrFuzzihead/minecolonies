@@ -1,15 +1,32 @@
 package com.minecolonies.core.client.gui.townhall;
 
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
 import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.PaneParams;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
 import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
 import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.colony.connections.*;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.core.Network;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingTownHall;
 import com.minecolonies.core.network.messages.server.colony.TriggerConnectionEventMessage;
-import net.minecraft.network.chat.Component;
+import net.minecraft.util.IChatComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -18,7 +35,7 @@ import java.util.List;
 import static com.minecolonies.api.util.constant.WindowConstants.*;
 
 /**
- * BOWindow for the town hall ally list.
+ * Object (BOWindow: todo ModularUI2 removed) for the town hall ally list.
  */
 public class WindowAlliancePage extends AbstractWindowTownHall
 {
@@ -174,10 +191,10 @@ public class WindowAlliancePage extends AbstractWindowTownHall
             public void updateElement(final int index, @NotNull final Pane rowPane)
             {
                 final ColonyConnection colonyData = connectionData.get(index);
-                rowPane.findPaneOfTypeByID("name", Text.class).setText(Component.literal(colonyData.name));
+                rowPane.findPaneOfTypeByID("name", Text.class).setText(String.literal(colonyData.name));
                 rowPane.findPaneOfTypeByID("distance", Text.class)
-                    .setText(Component.translatable("com.minecolonies.coremod.dist.blocks", (int) BlockPosUtil.dist(colonyData.pos, buildingView.getColony().getCenter())));
-                rowPane.findPaneOfTypeByID("state", Text.class).setText(Component.translatable(colonyData.diplomacyStatus.translationKey()));
+                    .setText(String.translatable("com.minecolonies.coremod.dist.blocks", (int) BlockPosUtil.dist(colonyData.pos, buildingView.getColony().getCenter())));
+                rowPane.findPaneOfTypeByID("state", Text.class).setText(String.translatable(colonyData.diplomacyStatus.translationKey()));
 
                 rowPane.findPaneOfTypeByID("requestally", Button.class).setVisible(colonyData.diplomacyStatus == DiplomacyStatus.NEUTRAL);
                 rowPane.findPaneOfTypeByID("startfeud", Button.class).setVisible(colonyData.diplomacyStatus == DiplomacyStatus.NEUTRAL);
@@ -217,8 +234,8 @@ public class WindowAlliancePage extends AbstractWindowTownHall
                 final int revIndex = list.size() - 1 - index;
                 final ConnectionEvent eventData = list.get(revIndex);
                 final DiplomacyStatus diplomacyStatus = buildingView.getColony().getConnectionManager().getColonyDiplomacyStatus(eventData.id());
-                rowPane.findPaneOfTypeByID("name", Text.class).setText(Component.literal(eventData.name()));
-                rowPane.findPaneOfTypeByID("desc", Text.class).setText(Component.translatable(eventData.connectionEventType().translationKey()));
+                rowPane.findPaneOfTypeByID("name", Text.class).setText(String.literal(eventData.name()));
+                rowPane.findPaneOfTypeByID("desc", Text.class).setText(String.translatable(eventData.connectionEventType().translationKey()));
 
                 rowPane.findPaneOfTypeByID("acceptally", Button.class).setVisible(eventData.connectionEventType() == ConnectionEventType.ALLY_REQUEST && diplomacyStatus != DiplomacyStatus.ALLIES);
             }
@@ -231,3 +248,7 @@ public class WindowAlliancePage extends AbstractWindowTownHall
         return BUTTON_ALLIANCE;
     }
 }
+
+
+
+

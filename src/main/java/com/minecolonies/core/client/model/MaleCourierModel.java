@@ -3,13 +3,21 @@
 // Paste this class into your mod and generate all required imports
 package com.minecolonies.core.client.model;
 
+import net.minecraft.client.model.CubeDeformation;
+import net.minecraft.client.model.CubeListBuilder;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.LayerDefinition;
+import net.minecraft.client.model.MeshDefinition;
+import net.minecraft.client.model.PartDefinition;
+import net.minecraft.client.model.PartPose;
+import net.minecraft.client.model.geom.ModelPart;
 import com.minecolonies.api.client.render.modeltype.CitizenModel;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.*;
-import net.minecraft.world.entity.Pose;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] world.entity removed
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.core.entity.ai.workers.service.EntityAIWorkDeliveryman.RENDER_META_BACKPACK;
@@ -74,3 +82,4 @@ public class MaleCourierModel extends CitizenModel<AbstractEntityCitizen>
         rightArm.y = showBackPack ? 2f : 2.5f;
     }
 }
+

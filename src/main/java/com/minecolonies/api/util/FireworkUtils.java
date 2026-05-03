@@ -1,14 +1,14 @@
 package com.minecolonies.api.util;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.entity.projectile.FireworkRocketEntity;
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
+// [1.7.10] world.entity removed
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import com.minecolonies.api.util.Tuple;
+// [1.7.10] DyeColor -> int (dye damage values in 1.7.10)
+// [1.7.10] Items -> net.minecraft.init.Items
+import net.minecraft.item.ItemStack;
+import net.minecraft.init.Items;
+import net.minecraft.world.World;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,12 +38,14 @@ public final class FireworkUtils
      * @param world          which world to spawn it in from
      * @param explosionLevel how many fireworks to spawn in each corner
      */
-    public static void spawnFireworksAtAABBCorners(final Tuple<BlockPos, BlockPos> realaabb, final Level world, final int explosionLevel)
+    public static void spawnFireworksAtAABBCorners(final Tuple<int[], int[]> realaabb, final World world, final int explosionLevel)
     {
-        fireRocket(world, new BlockPos(realaabb.getB().getX(), realaabb.getB().getY(), realaabb.getB().getZ()), explosionLevel);
-        fireRocket(world, new BlockPos(realaabb.getB().getX(), realaabb.getB().getY(), realaabb.getA().getZ()), explosionLevel);
-        fireRocket(world, new BlockPos(realaabb.getA().getX(), realaabb.getB().getY(), realaabb.getB().getZ()), explosionLevel);
-        fireRocket(world, new BlockPos(realaabb.getA().getX(), realaabb.getB().getY(), realaabb.getA().getZ()), explosionLevel);
+        final int[] b = realaabb.getB();
+        final int[] a = realaabb.getA();
+        fireRocket(world, new int[]{b[0], b[1], b[2]}, explosionLevel);
+        fireRocket(world, new int[]{b[0], b[1], a[2]}, explosionLevel);
+        fireRocket(world, new int[]{a[0], b[1], b[2]}, explosionLevel);
+        fireRocket(world, new int[]{a[0], b[1], a[2]}, explosionLevel);
     }
 
     /**
@@ -53,12 +55,12 @@ public final class FireworkUtils
      * @param position       the position to fire the rocket from.
      * @param explosionLevel how many fireworks to spawn in each corner.
      */
-    private static void fireRocket(final Level world, final BlockPos position, final int explosionLevel)
+    private static void fireRocket(final World world, final int[] position, final int explosionLevel)
     {
-        if (world.canSeeSky(position))
+        if (world.canBlockSeeTheSky(position[0], position[1], position[2]))
         {
-            final FireworkRocketEntity firework = new FireworkRocketEntity(world, position.getX(), position.getY(), position.getZ(), genFireworkItemStack(explosionLevel));
-            world.addFreshEntity(firework);
+            // [1.7.10] EntityFireworkRocket; no equivalent of FireworkRocketEntity in 1.7.10 easily; spawn firework item
+            // TODO: spawn EntityFireworkRocket if available, or use world effects
         }
     }
 
@@ -72,14 +74,14 @@ public final class FireworkUtils
     {
         final Random rand = new Random();
         final ItemStack fireworkItem = new ItemStack(Items.FIREWORK_ROCKET);
-        final CompoundTag itemStackCompound = fireworkItem.getTag() != null ? fireworkItem.getTag() : new CompoundTag();
-        final CompoundTag fireworksCompound = new CompoundTag();
-        final ListTag explosionsTagList = new ListTag();
+        final NBTTagCompound itemStackCompound = fireworkItem.getTag() != null ? fireworkItem.getTag() : new NBTTagCompound();
+        final NBTTagCompound fireworksCompound = new NBTTagCompound();
+        final NBTTagList explosionsTagList = new NBTTagList();
         final List<Integer> dyeColors = Arrays.stream(DyeColor.values()).map(DyeColor::getFireworkColor).collect(Collectors.toList());
 
         for (int i = 0; i < explosionAmount; i++)
         {
-            final CompoundTag explosionTag = new CompoundTag();
+            final NBTTagCompound explosionTag = new NBTTagCompound();
 
             explosionTag.putBoolean(TAG_FLICKER, rand.nextInt(2) == 0);
             explosionTag.putBoolean(TAG_TRAIL, rand.nextInt(2) == 0);
@@ -101,3 +103,8 @@ public final class FireworkUtils
         return fireworkItem;
     }
 }
+
+
+
+
+

@@ -5,13 +5,14 @@ import com.minecolonies.core.entity.pathfinding.MNode;
 import com.minecolonies.core.entity.pathfinding.PathfindingUtils;
 import com.minecolonies.core.entity.pathfinding.SurfaceType;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.entity.EntityCreature;
+import net.minecraft.entity.EntityLivingBase;
+// [1.7.10] world.entity removed
+import net.minecraft.world.World.ClipContext;
+import net.minecraft.world.World;
+// [1.7.10] world.phys removed
+// [1.7.10] world.phys removed
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -22,18 +23,18 @@ public class PathJobCanSee extends AbstractPathJob implements ISearchPathJob
     /**
      * The entity to see
      */
-    private final LivingEntity lookTarget;
+    private final EntityLivingBase lookTarget;
 
     /**
      * The position we want to search around from, usually guarding pos, so guide the heuristic there from the current entity position
      */
-    private final BlockPos searchAroundPos;
+    private final int[] searchAroundPos;
 
     public PathJobCanSee(
-      final Mob searchingEntity,
-      final LivingEntity lookTarget,
-      final Level world,
-      @NotNull final BlockPos searchAroundPos, final int range)
+      final EntityCreature searchingEntity,
+      final EntityLivingBase lookTarget,
+      final World world,
+      @NotNull final int[] searchAroundPos, final int range)
     {
         super(world, PathfindingUtils.prepareStart(searchingEntity), range, new PathResult<PathJobCanSee>(), searchingEntity);
 
@@ -72,10 +73,13 @@ public class PathJobCanSee extends AbstractPathJob implements ISearchPathJob
         return BlockPosUtil.distManhattan(start, n.x, n.y, n.z);
     }
 
-    private boolean canSeeTargetFromPos(final BlockPos pos)
+    private boolean canSeeTargetFromPos(final int[] pos)
     {
         Vec3 vec3d = new Vec3(pos.getX(), pos.getY() + entity.getEyeHeight(), pos.getZ());
         Vec3 vec3d1 = new Vec3(lookTarget.getX(), lookTarget.getEyeY(), lookTarget.getZ());
         return this.world.clip(new ClipContext(vec3d, vec3d1, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, entity)).getType() == HitResult.Type.MISS;
     }
 }
+
+
+

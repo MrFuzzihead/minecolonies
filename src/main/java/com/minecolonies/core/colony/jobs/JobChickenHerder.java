@@ -6,8 +6,8 @@ import com.minecolonies.api.util.StatsUtil;
 import com.minecolonies.core.colony.buildings.modules.BuildingModules;
 import com.minecolonies.core.colony.buildings.modules.WorkerBuildingModule;
 import com.minecolonies.core.entity.ai.workers.production.herders.EntityAIWorkChickenHerder;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -76,3 +76,4 @@ public class JobChickenHerder extends AbstractJob<EntityAIWorkChickenHerder, Job
         return super.onStackPickUp(pickedUpStack);
     }
 }
+

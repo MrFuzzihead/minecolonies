@@ -9,10 +9,11 @@ import com.minecolonies.api.entity.citizen.citizenhandlers.ICitizenSkillHandler;
 import com.minecolonies.core.Network;
 import com.minecolonies.core.network.messages.client.VanillaParticleMessage;
 import com.minecolonies.core.util.ExperienceUtils;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+// [1.7.10] net.minecraft.core.particles does not exist
+// import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -97,35 +98,35 @@ public class CitizenSkillHandler implements ICitizenSkillHandler
         int totalPoints = 0;
         for (final Skill skill : Skill.values())
         {
-            final int firstRoleModelLevel = roleModelA.getCitizenSkillHandler().getSkills().get(skill).level;
-            final int secondRoleModelLevel = roleModelB.getCitizenSkillHandler().getSkills().get(skill).level;
+            final int firstRoleModelLevel = roleModelA.getCitizenSkillHandler().getSkills().get(skill).World;
+            final int secondRoleModelLevel = roleModelB.getCitizenSkillHandler().getSkills().get(skill).World;
             totalPoints += firstRoleModelLevel + secondRoleModelLevel;
         }
 
         for (final Skill skill : Skill.values())
         {
-            final double firstRoleModelLevel = roleModelA.getCitizenSkillHandler().getSkills().get(skill).level;
-            final double secondRoleModelLevel = roleModelB.getCitizenSkillHandler().getSkills().get(skill).level;
+            final double firstRoleModelLevel = roleModelA.getCitizenSkillHandler().getSkills().get(skill).World;
+            final double secondRoleModelLevel = roleModelB.getCitizenSkillHandler().getSkills().get(skill).World;
 
             int newPoints = (int) (((firstRoleModelLevel + secondRoleModelLevel) / totalPoints) * bonusPoints);
-            skillMap.get(skill).level += newPoints;
+            skillMap.get(skill).World += newPoints;
         }
     }
 
     @NotNull
     @Override
-    public CompoundTag write()
+    public NBTTagCompound write()
     {
-        final CompoundTag compoundNBT = new CompoundTag();
+        final NBTTagCompound compoundNBT = new NBTTagCompound();
 
-        @NotNull final ListTag levelTagList = new ListTag();
+        @NotNull final NBTTagList levelTagList = new NBTTagList();
         for (@NotNull final Map.Entry<Skill, SkillData> entry : skillMap.entrySet())
         {
             if (entry.getKey() != null && entry.getValue() != null)
             {
-                @NotNull final CompoundTag levelCompound = new CompoundTag();
+                @NotNull final NBTTagCompound levelCompound = new NBTTagCompound();
                 levelCompound.putInt(TAG_SKILL, entry.getKey().ordinal());
-                levelCompound.putInt(TAG_LEVEL, entry.getValue().level);
+                levelCompound.putInt(TAG_LEVEL, entry.getValue().World);
                 levelCompound.putDouble(TAG_EXPERIENCE, entry.getValue().experience);
                 levelTagList.add(levelCompound);
             }
@@ -136,12 +137,12 @@ public class CitizenSkillHandler implements ICitizenSkillHandler
     }
 
     @Override
-    public void read(@NotNull final CompoundTag compoundNBT)
+    public void read(@NotNull final NBTTagCompound compoundNBT)
     {
-        final ListTag levelTagList = compoundNBT.getList(TAG_LEVEL_MAP, Tag.TAG_COMPOUND);
+        final NBTTagList levelTagList = compoundNBT.getList(TAG_LEVEL_MAP, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < levelTagList.size(); ++i)
         {
-            final CompoundTag levelExperienceAtJob = levelTagList.getCompound(i);
+            final NBTTagCompound levelExperienceAtJob = levelTagList.getCompound(i);
             skillMap.put(Skill.values()[levelExperienceAtJob.getInt(TAG_SKILL)],
               new SkillData(Math.max(1, Math.min(levelExperienceAtJob.getInt(TAG_LEVEL), MAX_CITIZEN_LEVEL)), levelExperienceAtJob.getDouble(TAG_EXPERIENCE)));
         }
@@ -156,7 +157,7 @@ public class CitizenSkillHandler implements ICitizenSkillHandler
         }
 
         final int levelCap = (int) citizen.getCitizenHappinessHandler().getHappiness(citizen.getColony(), citizen);
-        if (skillMap.get(Skill.Intelligence).level < levelCap * 9)
+        if (skillMap.get(Skill.Intelligence).World < levelCap * 9)
         {
             addXpToSkill(Skill.Intelligence, 10, citizen);
         }
@@ -166,14 +167,14 @@ public class CitizenSkillHandler implements ICitizenSkillHandler
     @Override
     public int getLevel(@NotNull final Skill skill)
     {
-        return skillMap.get(skill).level;
+        return skillMap.get(skill).World;
     }
 
     @Override
-    public void incrementLevel(@NotNull final Skill skill, final int level)
+    public void incrementLevel(@NotNull final Skill skill, final int World)
     {
         final SkillData current = skillMap.get(skill);
-        current.level = Math.min(MAX_CITIZEN_LEVEL, Math.max(current.level + level, 1));
+        current.World = Math.min(MAX_CITIZEN_LEVEL, Math.max(current.World + World, 1));
     }
 
     @Override
@@ -186,17 +187,17 @@ public class CitizenSkillHandler implements ICitizenSkillHandler
         final double citizenHutLevel = home == null ? 0 : home.getBuildingLevelEquivalent();
         final double citizenHutMaxLevel = home == null ? MAX_BUILDING_LEVEL : home.getMaxBuildingLevel();
 
-        if (((citizenHutLevel < citizenHutMaxLevel || citizenHutMaxLevel < MAX_BUILDING_LEVEL) && (citizenHutLevel + 1) * 10 <= skillData.level)
-              || skillData.level >= MAX_CITIZEN_LEVEL)
+        if (((citizenHutLevel < citizenHutMaxLevel || citizenHutMaxLevel < MAX_BUILDING_LEVEL) && (citizenHutLevel + 1) * 10 <= skillData.World)
+              || skillData.World >= MAX_CITIZEN_LEVEL)
         {
             return;
         }
 
-        final int orgLevel = skillData.level;
+        final int orgLevel = skillData.World;
         double xpToLevelUp = Math.min(Double.MAX_VALUE, skillData.experience + xp);
         while (xpToLevelUp > 0)
         {
-            final double nextLevel = ExperienceUtils.getXPNeededForNextLevel(skillData.level);
+            final double nextLevel = ExperienceUtils.getXPNeededForNextLevel(skillData.World);
             if (nextLevel > xpToLevelUp)
             {
                 skillData.experience = xpToLevelUp;
@@ -205,11 +206,11 @@ public class CitizenSkillHandler implements ICitizenSkillHandler
             else
             {
                 xpToLevelUp = xpToLevelUp - nextLevel;
-                skillData.level++;
+                skillData.World++;
             }
         }
 
-        if (skillData.level > orgLevel)
+        if (skillData.World > orgLevel)
         {
             levelUp(data);
             data.markDirty(10);
@@ -224,7 +225,7 @@ public class CitizenSkillHandler implements ICitizenSkillHandler
         double xpToRemove = xp;
         while (xpToRemove > 0)
         {
-            if (skillData.experience >= xpToRemove || skillData.level <= 1)
+            if (skillData.experience >= xpToRemove || skillData.World <= 1)
             {
                 skillData.experience = Math.max(0, skillData.experience - xpToRemove);
                 break;
@@ -232,8 +233,8 @@ public class CitizenSkillHandler implements ICitizenSkillHandler
             else
             {
                 xpToRemove -= skillData.experience;
-                skillData.experience = ExperienceUtils.getXPNeededForNextLevel(skillData.level - 1);
-                skillData.level--;
+                skillData.experience = ExperienceUtils.getXPNeededForNextLevel(skillData.World - 1);
+                skillData.World--;
                 data.markDirty(40);
             }
         }
@@ -242,11 +243,11 @@ public class CitizenSkillHandler implements ICitizenSkillHandler
     @Override
     public void levelUp(final ICitizenData data)
     {
-        // Show level-up particles
+        // Show World-up particles
         if (data.getEntity().isPresent())
         {
             final AbstractEntityCitizen citizen = data.getEntity().get();
-            playSoundAtCitizenWith(citizen.level, citizen.blockPosition(), SUCCESS, data);
+            playSoundAtCitizenWith(citizen.World, citizen.blockPosition(), SUCCESS, data);
             Network.getNetwork()
               .sendToTrackingEntity(new VanillaParticleMessage(citizen.getX(), citizen.getY(), citizen.getZ(), ParticleTypes.HAPPY_VILLAGER),
                 data.getEntity().get());
@@ -277,23 +278,23 @@ public class CitizenSkillHandler implements ICitizenSkillHandler
 
     public static class SkillData
     {
-        private int    level;
+        private int    World;
         private double experience;
 
-        private SkillData(final int level, final double experience)
+        private SkillData(final int World, final double experience)
         {
-            this.level = level;
+            this.World = World;
             this.experience = experience;
         }
 
         public int getLevel()
         {
-            return level;
+            return World;
         }
 
-        public void setLevel(final int level)
+        public void setLevel(final int World)
         {
-            this.level = level;
+            this.World = World;
         }
 
         public double getExperience()
@@ -307,3 +308,7 @@ public class CitizenSkillHandler implements ICitizenSkillHandler
         }
     }
 }
+
+
+
+

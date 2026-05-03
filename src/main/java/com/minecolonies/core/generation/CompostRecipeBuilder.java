@@ -4,8 +4,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.minecolonies.api.crafting.CompostRecipe;
 import com.minecolonies.api.crafting.registry.ModRecipeSerializer;
-import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] data removed
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraftforge.common.crafting.CraftingHelper;
@@ -96,3 +96,4 @@ public class CompostRecipeBuilder
         }
     }
 }
+

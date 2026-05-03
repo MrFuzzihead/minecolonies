@@ -12,14 +12,14 @@ import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.colony.events.raid.AbstractShipRaidEvent;
 import com.minecolonies.core.entity.pathfinding.PathfindingUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.pathfinder.Path;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] world.entity removed
+import net.minecraft.world.Mirror;
+import net.minecraft.world.World.pathfinder.Path;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.Constants.STORAGE_STYLE;
@@ -82,7 +82,7 @@ public class DrownedPirateRaidEvent extends AbstractShipRaidEvent
                 final Path path = spawnPathResult.getPath();
                 if (path != null && path.canReach())
                 {
-                    final BlockPos endpoint = path.getEndNode().asBlockPos().below();
+                    final int[] endpoint = path.getEndNode().asBlockPos().below();
                     if (ShipBasedRaiderUtils.canPlaceShipAt(endpoint, blueprint, colony.getWorld(), DEPTH_REQ))
                     {
                         spawnPoint = endpoint;
@@ -124,7 +124,7 @@ public class DrownedPirateRaidEvent extends AbstractShipRaidEvent
      * @param compound the NBT compound
      * @return the colony to load.
      */
-    public static IColonyEvent loadFromNBT(@NotNull final IColony colony, @NotNull final CompoundTag compound)
+    public static IColonyEvent loadFromNBT(@NotNull final IColony colony, @NotNull final NBTTagCompound compound)
     {
         final DrownedPirateRaidEvent raidEvent = new DrownedPirateRaidEvent(colony);
         raidEvent.deserializeNBT(compound);
@@ -156,9 +156,9 @@ public class DrownedPirateRaidEvent extends AbstractShipRaidEvent
     }
 
     @Override
-    protected MutableComponent getDisplayName()
+    protected String getDisplayName()
     {
-        return Component.translatable(RAID_PIRATE);
+        return String.translatable(RAID_PIRATE);
     }
 
     @Override
@@ -168,3 +168,7 @@ public class DrownedPirateRaidEvent extends AbstractShipRaidEvent
         raidBar.setDarkenScreen(true);
     }
 }
+
+
+
+

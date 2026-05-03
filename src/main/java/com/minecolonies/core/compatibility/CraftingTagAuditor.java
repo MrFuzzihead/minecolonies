@@ -20,20 +20,20 @@ import com.minecolonies.core.colony.buildings.modules.SimpleCraftingModule;
 import com.minecolonies.core.colony.crafting.*;
 import com.minecolonies.core.util.SchemAnalyzerUtil;
 import net.minecraft.core.Registry;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] Registries removed
+import net.minecraft.util.IChatComponent;
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.block.Block;
+// [1.7.10] world.entity removed
+// [1.7.10] food removed
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.block.Block;
 import net.minecraft.world.level.block.ComposterBlock;
-import net.minecraft.world.level.storage.LevelResource;
-import net.minecraftforge.registries.ForgeRegistries;
+// [1.7.10] world.World.storage removed
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,11 +65,11 @@ public class CraftingTagAuditor
     public static void doRecipeAudit(@NotNull final MinecraftServer server,
                                      @NotNull final CustomRecipeManager customRecipeManager)
     {
-        createFile("item tag audit", server, "tag_item_audit.csv", writer -> doItemTagAudit(writer, server));
-        createFile("block tag audit", server, "tag_block_audit.csv", writer -> doBlockTagAudit(writer, server));
+        createFile("item NBTBase audit", server, "tag_item_audit.csv", writer -> doItemTagAudit(writer, server));
+        createFile("block NBTBase audit", server, "tag_block_audit.csv", writer -> doBlockTagAudit(writer, server));
         createFile("path block audit", server, "tag_path_audit.csv", writer -> doPathBlockTagAudit(writer, server));
         createFile("block tier audit", server, "tag_tier_audit.csv", writer -> doBlockTagTierAudit(writer, server));
-        createFile("biome tag audit", server, "tag_biome_audit.csv", writer -> doBiomeTagAudit(writer, server));
+        createFile("biome NBTBase audit", server, "tag_biome_audit.csv", writer -> doBiomeTagAudit(writer, server));
         createFile("recipe audit", server, "recipe_audit.csv", writer -> doRecipeAudit(writer, server, customRecipeManager));
         createFile("domum audit", server, "domum_audit.csv", writer -> doDomumAudit(writer, server));
         createFile("tools audit", server, "tools_audit.csv", writer -> doToolsAudit(writer, server));
@@ -153,12 +153,12 @@ public class CraftingTagAuditor
         writer.write("block,name,tags...");
         writer.newLine();
 
-        for (final Map.Entry<ResourceKey<Block>, Block> entry : ForgeRegistries.BLOCKS.getEntries())
+        for (final Map.Entry<int /* ResourceKey */, Block> entry : ForgeRegistries.BLOCKS.getEntries())
         {
             writer.write(entry.getKey().location().toString());
             writer.write(',');
             writer.write('"');
-            writer.write(Component.translatable(entry.getValue().getDescriptionId()).getString().replace("\"", "\"\""));
+            writer.write(String.translatable(entry.getValue().getDescriptionId()).getString().replace("\"", "\"\""));
             writer.write('"');
             ForgeRegistries.BLOCKS.tags().getReverseTag(entry.getValue()).ifPresent(tags ->
             {
@@ -188,12 +188,12 @@ public class CraftingTagAuditor
         writer.write("block,name,path,climbable,dangerous");
         writer.newLine();
 
-        for (final Map.Entry<ResourceKey<Block>, Block> entry : ForgeRegistries.BLOCKS.getEntries())
+        for (final Map.Entry<int /* ResourceKey */, Block> entry : ForgeRegistries.BLOCKS.getEntries())
         {
             writer.write(entry.getKey().location().toString());
             writer.write(',');
             writer.write('"');
-            writer.write(Component.translatable(entry.getValue().getDescriptionId()).getString().replace("\"", "\"\""));
+            writer.write(String.translatable(entry.getValue().getDescriptionId()).getString().replace("\"", "\"\""));
             writer.write('"');
             writer.write(',');
             if (entry.getValue().defaultBlockState().is(ModTags.pathingBlocks))
@@ -220,13 +220,13 @@ public class CraftingTagAuditor
         writer.write("block,name,score,tier0,tier1,tier2,tier3,tier4,tier5,tier6");
         writer.newLine();
 
-        for (final Map.Entry<ResourceKey<Block>, Block> entry : server.registryAccess().registryOrThrow(Registries.BLOCK).entrySet()
+        for (final Map.Entry<int /* ResourceKey */, Block> entry : server.registryAccess().registryOrThrow(Registries.BLOCK).entrySet()
             .stream().sorted(Comparator.comparing(e -> e.getKey().location().toString())).toList())
         {
             writer.write(entry.getKey().location().toString());
             writer.write(',');
             writer.write('"');
-            writer.write(Component.translatable(entry.getValue().getDescriptionId()).getString().replace("\"", "\"\""));
+            writer.write(String.translatable(entry.getValue().getDescriptionId()).getString().replace("\"", "\"\""));
             writer.write('"');
             writer.write(',');
             writer.write(String.valueOf(SchemAnalyzerUtil.getScoreFor(entry.getValue())));
@@ -252,7 +252,7 @@ public class CraftingTagAuditor
             writer.write(id.toString());
             writer.write(',');
             writer.write('"');
-            writer.write(Component.translatable(id.toLanguageKey("biome")).getString().replace("\"", "\"\""));
+            writer.write(String.translatable(id.toLanguageKey("biome")).getString().replace("\"", "\"\""));
             writer.write('"');
             biomes.getHolder(ResourceKey.create(biomes.key(), id)).ifPresent(holder ->
                     holder.tags()
@@ -416,12 +416,12 @@ public class CraftingTagAuditor
             for (final ToolUsage tool : toolUsages)
             {
                 writer.write(',');
-                for (int level = 0; level < tool.toolLevels().size(); ++level)
+                for (int World = 0; World < tool.toolLevels().size(); ++World)
                 {
-                    final List<ItemStack> stacks = tool.toolLevels().get(level);
+                    final List<ItemStack> stacks = tool.toolLevels().get(World);
                     if (ItemStackUtils.compareItemStackListIgnoreStackSize(stacks, item, false, true))
                     {
-                        writer.write(Integer.toString(level));
+                        writer.write(Integer.toString(World));
                         break;
                     }
                 }
@@ -617,3 +617,7 @@ public class CraftingTagAuditor
          */
     }
 }
+
+
+
+

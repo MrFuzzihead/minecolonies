@@ -16,18 +16,18 @@ import com.minecolonies.core.colony.buildings.modules.AnimalHerdingModule;
 import com.minecolonies.core.colony.buildings.modules.settings.BeekeeperCollectionSetting;
 import com.minecolonies.core.colony.buildings.modules.settings.SettingKey;
 import com.minecolonies.core.colony.buildings.views.AbstractBuildingView;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.Bee;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+// [1.7.10] NbtUtils removed
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] tags removed
+import com.minecolonies.api.util.Tuple;
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
+import net.minecraft.init.Items;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -62,7 +62,7 @@ public class BuildingBeekeeper extends AbstractBuilding
     /**
      * List of hives.
      */
-    private Set<BlockPos> hives = new HashSet<>();
+    private Set<int[]> hives = new HashSet<>();
 
     /**
      * The abstract constructor of the building.
@@ -70,11 +70,11 @@ public class BuildingBeekeeper extends AbstractBuilding
      * @param c the colony
      * @param l the position
      */
-    public BuildingBeekeeper(@NotNull final IColony c, final BlockPos l)
+    public BuildingBeekeeper(@NotNull final IColony c, final int[] l)
     {
         super(c, l);
-        keepX.put(stack -> Items.SHEARS == stack.getItem(), new Tuple<>(1, true));
-        keepX.put(stack -> Items.GLASS_BOTTLE == stack.getItem(), new Tuple<>(4, true));
+        keepX.put(stack -> Items.shears == stack.getItem(), new Tuple<>(1, true));
+        keepX.put(stack -> Items.glass_bottle == stack.getItem(), new Tuple<>(4, true));
         keepX.put(stack -> stack.is(ItemTags.FLOWERS), new Tuple<>(STACKSIZE,true));
     }
 
@@ -91,9 +91,9 @@ public class BuildingBeekeeper extends AbstractBuilding
     }
 
     /**
-     * Children must return their max building level.
+     * Children must return their max building World.
      *
-     * @return Max building level.
+     * @return Max building World.
      */
     @Override
     public int getMaxBuildingLevel()
@@ -102,29 +102,29 @@ public class BuildingBeekeeper extends AbstractBuilding
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
-        NBTUtils.streamCompound(compound.getList(NbtTagConstants.TAG_HIVES, Tag.TAG_COMPOUND))
+        NBTUtils.streamCompound(compound.getList(NbtTagConstants.TAG_HIVES, NBTBase.TAG_COMPOUND))
           .map(NbtUtils::readBlockPos)
           .forEach(this.hives::add);
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag nbt = super.serializeNBT();
+        final NBTTagCompound nbt = super.serializeNBT();
         nbt.put(NbtTagConstants.TAG_HIVES, this.hives.stream().map(NbtUtils::writeBlockPos).collect(NBTUtils.toListNBT()));
         return nbt;
     }
 
     @Override
-    public void serializeToView(@NotNull final FriendlyByteBuf buf, final boolean fullSync)
+    public void serializeToView(@NotNull final PacketBuffer buf, final boolean fullSync)
     {
         super.serializeToView(buf, fullSync);
 
         buf.writeVarInt(hives.size());
-        for (final BlockPos hive : hives)
+        for (final int[] hive : hives)
         {
             buf.writeBlockPos(hive);
         }
@@ -133,7 +133,7 @@ public class BuildingBeekeeper extends AbstractBuilding
     @Override
     public boolean canEat(final ItemStack stack)
     {
-        if (stack.getItem() == Items.HONEY_BOTTLE)
+        if (stack.getItem() == null /* [1.7.10] HONEY_BOTTLE does not exist */)
         {
             return false;
         }
@@ -146,7 +146,7 @@ public class BuildingBeekeeper extends AbstractBuilding
      *
      * @return te set of positions of hives/nests that belong to this beekeeper
      */
-    public Set<BlockPos> getHives()
+    public Set<int[]> getHives()
     {
         return Collections.unmodifiableSet(new HashSet<>(hives));
     }
@@ -156,7 +156,7 @@ public class BuildingBeekeeper extends AbstractBuilding
      *
      * @param pos the position to remove
      */
-    public void removeHive(final BlockPos pos)
+    public void removeHive(final int[] pos)
     {
         hives.remove(pos);
     }
@@ -166,7 +166,7 @@ public class BuildingBeekeeper extends AbstractBuilding
      *
      * @param pos the position to add
      */
-    public void addHive(final BlockPos pos)
+    public void addHive(final int[] pos)
     {
         hives.add(pos);
     }
@@ -196,7 +196,7 @@ public class BuildingBeekeeper extends AbstractBuilding
      */
     public static class View extends AbstractBuildingView
     {
-        private Set<BlockPos> hives;
+        private Set<int[]> hives;
 
         /**
          * Instantiates the view of the building.
@@ -204,13 +204,13 @@ public class BuildingBeekeeper extends AbstractBuilding
          * @param c the colonyView.
          * @param l the location of the block.
          */
-        public View(final IColonyView c, final BlockPos l)
+        public View(final IColonyView c, final int[] l)
         {
             super(c, l);
         }
 
         @Override
-        public void deserialize(@NotNull FriendlyByteBuf buf)
+        public void deserialize(@NotNull PacketBuffer buf)
         {
             super.deserialize(buf);
 
@@ -222,7 +222,7 @@ public class BuildingBeekeeper extends AbstractBuilding
             }
         }
 
-        public Set<BlockPos> getHives()
+        public Set<int[]> getHives()
         {
             return Collections.unmodifiableSet(new HashSet<>(hives));
         }
@@ -259,23 +259,16 @@ public class BuildingBeekeeper extends AbstractBuilding
 
         @NotNull
         @Override
-        public List<IGenericRecipe> getRecipesForDisplayPurposesOnly(@NotNull Animal animal)
+        public List<IGenericRecipe> getRecipesForDisplayPurposesOnly(@NotNull net.minecraft.entity.passive.EntityAnimal animal)
         {
-            final List<IGenericRecipe> recipes = new ArrayList<>(); // we don't kill the bees so don't use the default
-
-            recipes.add(GenericRecipe.builder()
-                    .withOutput(Items.HONEYCOMB)
-                    .withRequiredTool(ModEquipmentTypes.shears.get())
-                    .withRequiredEntity(animal.getType())
-                    .build());
-
-            recipes.add(GenericRecipe.builder()
-                    .withOutput(Items.HONEY_BOTTLE)
-                    .withInputs(List.of(List.of(Items.GLASS_BOTTLE.getDefaultInstance())))
-                    .withRequiredEntity(animal.getType())
-                    .build());
-
-            return recipes;
+            // [1.7.10] Bees don't exist in 1.7.10; return empty list
+            return new ArrayList<>();
         }
     }
 }
+
+
+
+
+
+

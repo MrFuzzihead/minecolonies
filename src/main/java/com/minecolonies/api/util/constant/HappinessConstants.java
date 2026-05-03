@@ -36,7 +36,7 @@ public final class HappinessConstants
     public static final int IDLE_AT_JOB_DEMANDS_DAYS   = 14;
 
     /**
-     * Storage tag for the handler.
+     * Storage NBTBase for the handler.
      */
     public static final String TAG_HAPPINESS = "happinessHandler";
     public static final String TAG_NEW_HAPPINESS = "newhappinesshandler";
@@ -86,3 +86,4 @@ public final class HappinessConstants
          */
     }
 }
+

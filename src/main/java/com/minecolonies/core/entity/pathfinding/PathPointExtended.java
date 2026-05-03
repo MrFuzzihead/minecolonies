@@ -1,23 +1,24 @@
 package com.minecolonies.core.entity.pathfinding;
 
-import net.minecraft.world.level.pathfinder.Node;
-import net.minecraft.core.Direction;
-import net.minecraft.core.BlockPos;
+import net.minecraft.pathfinding.PathPoint;
+import net.minecraft.util.EnumFacing;
+// [1.7.10] Direction -> EnumFacing
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Class extending pathPoint for our usage with ladders.
  */
-public class PathPointExtended extends Node
+public class PathPointExtended extends PathPoint
 {
     /**
      * Is the point on a ladder.
      */
-    private boolean   onLadder     = false;
+    private boolean     onLadder     = false;
     /**
-     * What direction does the ladder face. Should be instantiated to something he doesn't recognize as climbable.
+     * What direction does the ladder face.
      */
-    private Direction ladderFacing = Direction.DOWN;
+    private EnumFacing  ladderFacing = EnumFacing.DOWN;
 
     /**
      * Rails params.
@@ -31,9 +32,9 @@ public class PathPointExtended extends Node
      *
      * @param pos the position.
      */
-    public PathPointExtended(@NotNull final BlockPos pos)
+    public PathPointExtended(@NotNull final int[] pos)
     {
-        super(pos.getX(), pos.getY(), pos.getZ());
+        super(pos[0], pos[1], pos[2]);
     }
 
     /**
@@ -61,7 +62,7 @@ public class PathPointExtended extends Node
      *
      * @return Direction.
      */
-    public Direction getLadderFacing()
+    public EnumFacing getLadderFacing()
     {
         return ladderFacing;
     }
@@ -71,7 +72,7 @@ public class PathPointExtended extends Node
      *
      * @param ladderFacing facing to set.
      */
-    public void setLadderFacing(final Direction ladderFacing)
+    public void setLadderFacing(final EnumFacing ladderFacing)
     {
         this.ladderFacing = ladderFacing;
     }

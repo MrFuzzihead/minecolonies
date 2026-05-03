@@ -1,8 +1,8 @@
 package com.minecolonies.api.colony.permissions;
 
 import com.mojang.authlib.GameProfile;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -75,15 +75,15 @@ public interface IPermissions
     Rank getRankFriend();
 
     /**
-     * Returns whether the player has the permission for an action.
+     * Returns whether the EntityPlayer has the permission for an action.
      *
-     * @param player {@link Player} player.
+     * @param EntityPlayer {@link EntityPlayer} EntityPlayer.
      * @param action {@link Action} action.
      * @return true if has permission, otherwise false.
      */
-    boolean hasPermission(Player player, Action action);
+    boolean hasPermission(EntityPlayer EntityPlayer, Action action);
 
-    boolean addPlayer(@NotNull String player, Rank rank, Level world);
+    boolean addPlayer(@NotNull String EntityPlayer, Rank rank, World world);
 
     boolean addPlayer(@NotNull UUID id, String name, Rank rank);
 
@@ -91,12 +91,12 @@ public interface IPermissions
     String getOwnerName();
 
     /**
-     * Returns whether the player is a member of the colony.
+     * Returns whether the EntityPlayer is a member of the colony.
      *
-     * @param player {@link Player} to check.
-     * @return true if the player is a member of the colony.
+     * @param EntityPlayer {@link EntityPlayer} to check.
+     * @return true if the EntityPlayer is a member of the colony.
      */
-    boolean isColonyMember(Player player);
+    boolean isColonyMember(EntityPlayer EntityPlayer);
 
     /**
      * Alters the permission through an actor, checks for allowance before altering.
@@ -112,7 +112,7 @@ public interface IPermissions
     @Nullable
     Map.Entry<UUID, ColonyPlayer> getOwnerEntry();
 
-    boolean setOwner(Player player);
+    boolean setOwner(EntityPlayer EntityPlayer);
 
     /**
      * Check if a specific permission can be altered.
@@ -134,31 +134,31 @@ public interface IPermissions
     /**
      * Returns an unmodifiable map of the players list.
      *
-     * @return map of UUIDs and player objects.
+     * @return map of UUIDs and EntityPlayer objects.
      */
     @NotNull
     Map<UUID, ColonyPlayer> getPlayers();
 
-    boolean setPlayerRank(UUID id, Rank rank, Level world);
+    boolean setPlayerRank(UUID id, Rank rank, World world);
 
     boolean addPlayer(@NotNull GameProfile gameprofile, Rank rank);
 
     /**
      * Get the rank of a UUID.
      *
-     * @param player UUID to check rank of.
-     * @return rank of the player.
+     * @param EntityPlayer UUID to check rank of.
+     * @return rank of the EntityPlayer.
      */
     @NotNull
-    Rank getRank(UUID player);
+    Rank getRank(UUID EntityPlayer);
 
     /**
-     * Get the rank of a certain player.
+     * Get the rank of a certain EntityPlayer.
      *
-     * @param player the player.
+     * @param EntityPlayer the EntityPlayer.
      * @return the rank.
      */
-    Rank getRank(Player player);
+    Rank getRank(EntityPlayer EntityPlayer);
 
     void restoreOwnerIfNull();
 
@@ -189,3 +189,6 @@ public interface IPermissions
 
     Set<ColonyPlayer> getFilteredPlayers(Predicate<Rank> p);
 }
+
+
+

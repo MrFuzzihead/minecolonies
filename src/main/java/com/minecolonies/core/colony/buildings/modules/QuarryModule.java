@@ -13,9 +13,9 @@ import com.minecolonies.core.colony.buildings.workerbuildings.BuildingMiner;
 import com.minecolonies.core.colony.jobs.JobQuarrier;
 import com.minecolonies.core.colony.requestsystem.resolvers.StationRequestResolver;
 import com.minecolonies.core.util.BuildingUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Tuple;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import com.minecolonies.api.util.Tuple;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -73,7 +73,7 @@ public class QuarryModule extends AbstractAssignedCitizenModule implements IAssi
     }
 
     @Override
-    public void deserializeNBT(CompoundTag compound)
+    public void deserializeNBT(NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
 
@@ -95,7 +95,7 @@ public class QuarryModule extends AbstractAssignedCitizenModule implements IAssi
     }
 
     @Override
-    public void serializeNBT(final CompoundTag compound)
+    public void serializeNBT(final NBTTagCompound compound)
     {
         super.serializeNBT(compound);
 
@@ -178,8 +178,12 @@ public class QuarryModule extends AbstractAssignedCitizenModule implements IAssi
     }
 
     @Override
-    public net.minecraft.util.Tuple<BlockPos, BlockPos> getAdditionalCorners()
+    public com.minecolonies.api.util.Tuple<int[], int[]> getAdditionalCorners()
     {
-        return new Tuple<>(new BlockPos(0, this.height, 0), new BlockPos(0, 0, 0));
+        return new Tuple<>(new int[]{0, this.height, 0}, new int[]{0, 0, 0});
     }
 }
+
+
+
+

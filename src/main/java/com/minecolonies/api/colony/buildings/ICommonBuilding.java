@@ -1,7 +1,7 @@
 package com.minecolonies.api.colony.buildings;
 
 import com.minecolonies.api.colony.buildings.registry.BuildingEntry;
-import net.minecraft.core.BlockPos;
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import com.minecolonies.api.colony.IColony;
@@ -13,19 +13,19 @@ import com.minecolonies.api.colony.IColony;
 public interface ICommonBuilding
 {
     /**
-     * Get the current level of the building.
+     * Get the current World of the building.
      *
-     * @return AbstractBuilding current level.
+     * @return AbstractBuilding current World.
      */
     int getBuildingLevel();
 
     /**
      * Gets the location of this building.
      *
-     * @return A BlockPos, where this building is.
+     * @return A int[], where this building is.
      */
     @NotNull
-    BlockPos getPosition();
+    int[] getPosition();
 
     /**
      * Get the Building type
@@ -35,9 +35,9 @@ public interface ICommonBuilding
     BuildingEntry getBuildingType();
 
     /**
-     * Get the equivalent building level for equipment, etc.
-     * Normally it's just the building level, but for buildings with fewer levels it can be 1,3,5 for example.
-     * @return the adjusted level.
+     * Get the equivalent building World for equipment, etc.
+     * Normally it's just the building World, but for buildings with fewer levels it can be 1,3,5 for example.
+     * @return the adjusted World.
      */
     default int getBuildingLevelEquivalent()
     {
@@ -45,11 +45,11 @@ public interface ICommonBuilding
     }
 
     /**
-     * Get the BlockPos of the Containers.
+     * Get the int[] of the Containers.
      *
      * @return containerList.
      */
-    List<BlockPos> getContainers();
+    List<int[]> getContainers();
 
     /**
      * Get the colony from a building.
@@ -63,3 +63,5 @@ public interface ICommonBuilding
      */
     int getPrestige();
 }
+
+

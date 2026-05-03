@@ -1,21 +1,19 @@
 package com.minecolonies.api.tileentities;
 
 import com.minecolonies.api.colony.IColony;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.tileentity.TileEntity;
 
 /**
  * The abstract implementation for farmer field tile entities.
  */
-public abstract class AbstractTileEntityScarecrow extends BlockEntity
+public abstract class AbstractTileEntityScarecrow extends TileEntity
 {
     /**
      * Default constructor.
      */
-    protected AbstractTileEntityScarecrow(final BlockPos pos, final BlockState state)
+    protected AbstractTileEntityScarecrow()
     {
-        super(MinecoloniesTileEntities.SCARECROW.get(), pos, state);
+        super();
     }
 
     /**

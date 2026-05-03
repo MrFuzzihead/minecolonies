@@ -3,7 +3,7 @@ package com.minecolonies.api.crafting.registry;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.crafting.AbstractRecipeType;
 import com.minecolonies.api.crafting.IRecipeStorage;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import org.apache.commons.lang3.Validate;
 
 import java.util.function.Function;
@@ -83,3 +83,4 @@ public final class RecipeTypeEntry
         this.registryName = registryName;
     }
 }
+

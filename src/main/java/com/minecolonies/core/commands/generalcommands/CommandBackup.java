@@ -4,7 +4,7 @@ import com.minecolonies.core.commands.commandTypes.IMCOPCommand;
 import com.minecolonies.core.util.BackUpHelper;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
+import net.minecraft.util.IChatComponent;
 
 import static com.minecolonies.api.util.constant.translation.CommandTranslationConstants.COMMAND_BACKUP_FAILED;
 import static com.minecolonies.api.util.constant.translation.CommandTranslationConstants.COMMAND_BACKUP_SUCCESS;
@@ -22,11 +22,11 @@ public class CommandBackup implements IMCOPCommand
         BackUpHelper.lastBackupTime = 0;
         if (BackUpHelper.backupColonyData())
         {
-            context.getSource().sendSuccess(() -> Component.translatable(COMMAND_BACKUP_SUCCESS), true);
+            context.getSource().sendSuccess(() -> String.translatable(COMMAND_BACKUP_SUCCESS), true);
         }
         else
         {
-            context.getSource().sendSuccess(() -> Component.translatable(COMMAND_BACKUP_FAILED), true);
+            context.getSource().sendSuccess(() -> String.translatable(COMMAND_BACKUP_FAILED), true);
         }
         return 1;
     }
@@ -40,3 +40,5 @@ public class CommandBackup implements IMCOPCommand
         return "backup";
     }
 }
+
+

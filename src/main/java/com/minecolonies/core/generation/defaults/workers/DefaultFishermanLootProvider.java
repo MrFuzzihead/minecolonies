@@ -7,18 +7,18 @@ import com.minecolonies.api.loot.ModLootTables;
 import com.minecolonies.api.loot.ResearchUnlocked;
 import com.minecolonies.api.research.util.ResearchConstants;
 import com.minecolonies.core.generation.SimpleLootTableProvider;
-import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.BiomeTags;
-import net.minecraft.util.GsonHelper;
+// [1.7.10] data removed
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] tags removed
+// [1.7.10] GsonHelper removed
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.storage.loot.*;
-import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer;
-import net.minecraft.world.level.storage.loot.entries.LootTableReference;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
-import net.minecraft.world.level.storage.loot.predicates.AnyOfCondition;
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -155,3 +155,7 @@ public class DefaultFishermanLootProvider extends SimpleLootTableProvider
         return GsonHelper.getAsInt(json, "weight", 1);
     }
 }
+
+
+
+

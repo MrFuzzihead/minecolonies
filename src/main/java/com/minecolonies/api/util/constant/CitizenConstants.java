@@ -174,7 +174,7 @@ public final class CitizenConstants
     public static final long MIN_OPEN_SLOTS = 5;
 
     /**
-     * The max citizen level.
+     * The max citizen World.
      */
     public static final int MAX_CITIZEN_LEVEL = 99;
 
@@ -199,7 +199,7 @@ public final class CitizenConstants
     public static final String GUARD_HEALTH_MOD_CONFIG_NAME = "MinecoloniesGuardConfigHP";
 
     /**
-     * The guard's level based health bonus mod's name
+     * The guard's World based health bonus mod's name
      */
     public static final String GUARD_HEALTH_MOD_LEVEL_NAME = "MinecoloniesGuardLevelHealth";
 
@@ -214,17 +214,17 @@ public final class CitizenConstants
     public static final int CHANCE_TO_DUMP = 8;
 
     /**
-     * Disease tag,
+     * Disease NBTBase,
      */
     public static final String TAG_DISEASE = "disease";
 
     /**
-     * Disease iod tag.
+     * Disease iod NBTBase.
      */
     public static final String TAG_DISEASE_ID = "disease_id";
 
     /**
-     * Disease immunity tag,
+     * Disease immunity NBTBase,
      */
     public static final String TAG_IMMUNITY = "immunity";
 
@@ -254,7 +254,7 @@ public final class CitizenConstants
     public static final double XP_EACH_BUILDING = 8.0D;
 
     /**
-     * Increase this value to make the building speed slower. Used to balance worker level speed increase.
+     * Increase this value to make the building speed slower. Used to balance worker World speed increase.
      */
     public static final int PROGRESS_MULTIPLIER = 10;
 
@@ -278,3 +278,4 @@ public final class CitizenConstants
      */
     public static final int DISABLED = -1;
 }
+

@@ -19,30 +19,30 @@ import com.minecolonies.core.items.ItemBowlFood;
 import com.minecolonies.core.util.AdvancementUtils;
 import com.minecolonies.core.util.FurnaceRecipes;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.TagParser;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.entity.decoration.ItemFrame;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.*;
-import net.minecraft.world.level.block.entity.BrewingStandBlockEntity;
-import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraftforge.common.Tags;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+// [1.7.10] TagParser removed
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] tags removed
+import net.minecraft.entity.Entity;
+// [1.7.10] world.entity removed
+import net.minecraft.entity.EntityLivingBase;
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+// [1.7.10] Inventory removed
+import net.minecraft.entity.player.EntityPlayer;
+// [1.7.10] food removed
+import net.minecraft.item.Item; import net.minecraft.item.ItemStack; import net.minecraft.item.ItemBlock; import net.minecraft.item.ItemArmor;
+// [1.7.10] block.entity removed
+// [1.7.10] block.entity removed
+// [1.7.10] world.phys removed
+// [1.7.10] Tags not available
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,7 +51,6 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.minecolonies.api.items.ModTags.fungi;
 import static com.minecolonies.api.util.constant.Constants.*;
 import static com.minecolonies.api.util.constant.HappinessConstants.HADGREATFOOD;
 import static java.util.Map.entry;
@@ -91,11 +90,11 @@ public final class ItemStackUtils
       entry(Items.NETHERITE_LEGGINGS, 5),
       entry(Items.NETHERITE_BOOTS, 5));
 
-    private static final Map<EquipmentSlot, List<Item>> VANILLA_ARMOR_MAPPING =
-      Map.ofEntries(entry(EquipmentSlot.HEAD, List.of(Items.LEATHER_HELMET, Items.CHAINMAIL_HELMET, Items.IRON_HELMET, Items.DIAMOND_HELMET)),
-        entry(EquipmentSlot.CHEST, List.of(Items.LEATHER_CHESTPLATE, Items.CHAINMAIL_CHESTPLATE, Items.IRON_CHESTPLATE, Items.DIAMOND_CHESTPLATE)),
-        entry(EquipmentSlot.LEGS, List.of(Items.LEATHER_LEGGINGS, Items.CHAINMAIL_LEGGINGS, Items.IRON_LEGGINGS, Items.DIAMOND_LEGGINGS)),
-        entry(EquipmentSlot.FEET, List.of(Items.LEATHER_BOOTS, Items.CHAINMAIL_BOOTS, Items.IRON_BOOTS, Items.DIAMOND_BOOTS)));
+    private static final Map<Integer, List<Item>> VANILLA_ARMOR_MAPPING =
+      Map.ofEntries(entry(0, List.of(Items.LEATHER_HELMET, Items.CHAINMAIL_HELMET, Items.IRON_HELMET, Items.DIAMOND_HELMET)),
+        entry(1, List.of(Items.LEATHER_CHESTPLATE, Items.CHAINMAIL_CHESTPLATE, Items.IRON_CHESTPLATE, Items.DIAMOND_CHESTPLATE)),
+        entry(2, List.of(Items.LEATHER_LEGGINGS, Items.CHAINMAIL_LEGGINGS, Items.IRON_LEGGINGS, Items.DIAMOND_LEGGINGS)),
+        entry(3, List.of(Items.LEATHER_BOOTS, Items.CHAINMAIL_BOOTS, Items.IRON_BOOTS, Items.DIAMOND_BOOTS)));
 
     /**
      * Variable representing the empty itemstack in 1.10. Used for easy updating to 1.11
@@ -115,12 +114,12 @@ public final class ItemStackUtils
     public static final Predicate<ItemStack> NOT_EMPTY_PREDICATE = EMPTY_PREDICATE.negate();
 
     /**
-     * The compound tag for fortune enchantment id.
+     * The compound NBTBase for fortune enchantment id.
      */
     private static final String NBT_TAG_ENCHANT_ID = "id";
 
     /**
-     * The compound tag for fortune enchantment level.
+     * The compound NBTBase for fortune enchantment World.
      */
     private static final String NBT_TAG_ENCHANT_LEVEL = "lvl";
 
@@ -217,12 +216,12 @@ public final class ItemStackUtils
     }
 
     /**
-     * Verifies if there is equipment with an acceptable level in a worker's inventory.
+     * Verifies if there is equipment with an acceptable World in a worker's inventory.
      *
      * @param stack        the stack to test.
      * @param equipmentType     the type of equipment needed
-     * @param minimalLevel the minimum level for the equipment to find.
-     * @param maximumLevel the maximum level for the equipment to find.
+     * @param minimalLevel the minimum World for the equipment to find.
+     * @param maximumLevel the maximum World for the equipment to find.
      * @return true if equipment is acceptable
      */
     public static boolean hasEquipmentLevel(@Nullable final ItemStack stack, final EquipmentTypeEntry equipmentType, final int minimalLevel, final int maximumLevel)
@@ -255,9 +254,9 @@ public final class ItemStackUtils
      * Verifies if an item has an appropriated grade.
      *
      * @param itemStack    the equipment
-     * @param equipmentLevel    the equipment level
-     * @param minimalLevel the minimum level needed
-     * @param maximumLevel the maximum level needed (usually the worker's hut level)
+     * @param equipmentLevel    the equipment World
+     * @param minimalLevel the minimum World needed
+     * @param maximumLevel the maximum World needed (usually the worker's hut World)
      * @return true if equipment is acceptable
      */
     public static boolean verifyEquipmentLevel(@NotNull final ItemStack itemStack, final int equipmentLevel, final int minimalLevel, final int maximumLevel)
@@ -270,10 +269,10 @@ public final class ItemStackUtils
     }
 
     /**
-     * Calculates the max level enchantment this equipment has.
+     * Calculates the max World enchantment this equipment has.
      *
      * @param itemStack the equipment to check.
-     * @return max enchantment level.
+     * @return max enchantment World.
      */
     public static int getMaxEnchantmentLevel(final ItemStack itemStack)
     {
@@ -284,14 +283,14 @@ public final class ItemStackUtils
         int maxLevel = 0;
         if (itemStack != null)
         {
-            final ListTag ListNBT = itemStack.getEnchantmentTags();
+            final NBTTagList ListNBT = itemStack.getEnchantmentTags();
 
             if (ListNBT != null)
             {
                 for (int j = 0; j < ListNBT.size(); ++j)
                 {
-                    final int level = ListNBT.getCompound(j).getShort("lvl");
-                    maxLevel = level > maxLevel ? level : maxLevel;
+                    final int World = ListNBT.getCompound(j).getShort("lvl");
+                    maxLevel = World > maxLevel ? World : maxLevel;
                 }
             }
         }
@@ -300,10 +299,10 @@ public final class ItemStackUtils
 
     /**
      * This routine converts the {@link ItemStackUtils#getArmorValue(ItemStack)} of an item stack into a given
-     * request system level, based on the standard leather - netherite armor levels.
+     * request system World, based on the standard leather - netherite armor levels.
      *
      * @param itemStack the input item stack.
-     * @return armor level
+     * @return armor World
      */
     public static int getArmorLevel(final ItemStack itemStack)
     {
@@ -313,7 +312,7 @@ public final class ItemStackUtils
             return value;
         }
 
-        final EquipmentSlot targetEquipmentSlot = LivingEntity.getEquipmentSlotForItem(itemStack);
+        final int /* EquipmentSlot */ targetEquipmentSlot = EntityLivingBase.getEquipmentSlotForItem(itemStack);
         final List<Item> armorItems = VANILLA_ARMOR_MAPPING.get(targetEquipmentSlot);
         if (armorItems == null)
         {
@@ -335,8 +334,8 @@ public final class ItemStackUtils
     }
 
     /**
-     * Calculate the armor level for an item stack.
-     * (Level is determined by taking the base armor rating, and 4 points for each toughness level.)
+     * Calculate the armor World for an item stack.
+     * (World is determined by taking the base armor rating, and 4 points for each toughness World.)
      *
      * @param itemStack the input item stack.
      * @return the armor value.
@@ -369,10 +368,10 @@ public final class ItemStackUtils
     }
 
     /**
-     * Calculates the fortune level this tool has.
+     * Calculates the fortune World this tool has.
      *
      * @param tool the tool to check.
-     * @return fortune level.
+     * @return fortune World.
      */
     public static int getFortuneOf(@Nullable final ItemStack tool)
     {
@@ -384,7 +383,7 @@ public final class ItemStackUtils
         int fortune = 0;
         if (tool.isEnchanted())
         {
-            final ListTag t = tool.getEnchantmentTags();
+            final NBTTagList t = tool.getEnchantmentTags();
 
             for (int i = 0; i < t.size(); i++)
             {
@@ -415,15 +414,15 @@ public final class ItemStackUtils
      * @param toolGrade the number of the grade of a tool
      * @return a string corresponding to the tool
      */
-    public static MutableComponent swapArmorGrade(final int toolGrade)
+    public static String swapArmorGrade(final int toolGrade)
     {
         if (toolGrade >= 0 && toolGrade <= 4)
         {
-            return Component.translatable("com.minecolonies.coremod.armorlevel." + toolGrade);
+            return String.translatable("com.minecolonies.coremod.armorlevel." + toolGrade);
         }
 
         // this shouldn't really ever happen, but just in case...
-        return Component.translatable("com.minecolonies.coremod.armorlevel.etc");
+        return String.translatable("com.minecolonies.coremod.armorlevel.etc");
     }
 
     /**
@@ -432,14 +431,14 @@ public final class ItemStackUtils
      * @param toolGrade the number of the grade of an armor
      * @return a string corresponding to the armor
      */
-    public static MutableComponent swapToolGrade(final int toolGrade)
+    public static String swapToolGrade(final int toolGrade)
     {
         if (toolGrade >= 0 && toolGrade <= 4)
         {
-            return Component.translatable("com.minecolonies.coremod.toollevel." + toolGrade);
+            return String.translatable("com.minecolonies.coremod.toollevel." + toolGrade);
         }
 
-        return Component.translatable("com.minecolonies.coremod.toollevel.etc");
+        return String.translatable("com.minecolonies.coremod.toollevel.etc");
     }
 
     /**
@@ -591,8 +590,8 @@ public final class ItemStackUtils
                     return true;
                 }
 
-                CompoundTag nbt1 = itemStack1.getTag();
-                CompoundTag nbt2 = itemStack2.getTag();
+                NBTTagCompound nbt1 = itemStack1.getTag();
+                NBTTagCompound nbt2 = itemStack2.getTag();
 
                 for (final CheckedNbtKey key : checkedKeys)
                 {
@@ -688,7 +687,7 @@ public final class ItemStackUtils
      * @return The ItemStack stored in the NBT Data.
      */
     @NotNull
-    public static ItemStack deserializeFromNBT(@NotNull final CompoundTag compound)
+    public static ItemStack deserializeFromNBT(@NotNull final NBTTagCompound compound)
     {
         return ItemStack.of(compound);
     }
@@ -706,7 +705,7 @@ public final class ItemStackUtils
             return false;
         }
 
-        return stack.is(ItemTags.SAPLINGS) || stack.is(Tags.Items.MUSHROOMS) || stack.is(fungi) || Compatibility.isDynamicTreeSapling(stack);
+        return Compatibility.isDynamicTreeSapling(stack);
     }
 
     /**
@@ -715,10 +714,10 @@ public final class ItemStackUtils
      * @param entity the furnace.
      * @return true if so.
      */
-    public static boolean hasSmeltableInFurnaceAndNoFuel(final FurnaceBlockEntity entity)
+    public static boolean hasSmeltableInFurnaceAndNoFuel(final net.minecraft.tileentity.TileEntityFurnace entity)
     {
-        return !ItemStackUtils.isEmpty(entity.getItem(SMELTABLE_SLOT))
-                 && ItemStackUtils.isEmpty(entity.getItem(FUEL_SLOT));
+        return !ItemStackUtils.isEmpty(entity.getStackInSlot(SMELTABLE_SLOT))
+                 && ItemStackUtils.isEmpty(entity.getStackInSlot(FUEL_SLOT));
     }
 
     /**
@@ -727,10 +726,10 @@ public final class ItemStackUtils
      * @param entity the furnace.
      * @return true if so.
      */
-    public static boolean hasNeitherFuelNorSmeltAble(final FurnaceBlockEntity entity)
+    public static boolean hasNeitherFuelNorSmeltAble(final net.minecraft.tileentity.TileEntityFurnace entity)
     {
-        return ItemStackUtils.isEmpty(entity.getItem(SMELTABLE_SLOT))
-                 && ItemStackUtils.isEmpty(entity.getItem(FUEL_SLOT));
+        return ItemStackUtils.isEmpty(entity.getStackInSlot(SMELTABLE_SLOT))
+                 && ItemStackUtils.isEmpty(entity.getStackInSlot(FUEL_SLOT));
     }
 
     /**
@@ -739,10 +738,10 @@ public final class ItemStackUtils
      * @param entity the furnace.
      * @return true if so.
      */
-    public static boolean hasFuelInFurnaceAndNoSmeltable(final FurnaceBlockEntity entity)
+    public static boolean hasFuelInFurnaceAndNoSmeltable(final net.minecraft.tileentity.TileEntityFurnace entity)
     {
-        return ItemStackUtils.isEmpty(entity.getItem(SMELTABLE_SLOT))
-                 && !ItemStackUtils.isEmpty(entity.getItem(FUEL_SLOT));
+        return ItemStackUtils.isEmpty(entity.getStackInSlot(SMELTABLE_SLOT))
+                 && !ItemStackUtils.isEmpty(entity.getStackInSlot(FUEL_SLOT));
     }
 
     /**
@@ -751,10 +750,10 @@ public final class ItemStackUtils
      * @param entity the brewingStand.
      * @return true if so.
      */
-    public static boolean hasBrewableAndNoFuel(final BrewingStandBlockEntity entity)
+    public static boolean hasBrewableAndNoFuel(final net.minecraft.tileentity.TileEntityBrewingStand entity)
     {
-        return !ItemStackUtils.isEmpty(entity.getItem(INGREDIENT_SLOT))
-                 && ItemStackUtils.isEmpty(entity.getItem(BREWING_FUEL_SLOT));
+        return !ItemStackUtils.isEmpty(entity.getStackInSlot(INGREDIENT_SLOT))
+                 && ItemStackUtils.isEmpty(entity.getStackInSlot(BREWING_FUEL_SLOT));
     }
 
     /**
@@ -763,10 +762,10 @@ public final class ItemStackUtils
      * @param entity the brewingStand.
      * @return true if so.
      */
-    public static boolean hasNeitherFuelNorBrewable(final BrewingStandBlockEntity entity)
+    public static boolean hasNeitherFuelNorBrewable(final net.minecraft.tileentity.TileEntityBrewingStand entity)
     {
-        return ItemStackUtils.isEmpty(entity.getItem(INGREDIENT_SLOT))
-                 && ItemStackUtils.isEmpty(entity.getItem(BREWING_FUEL_SLOT));
+        return ItemStackUtils.isEmpty(entity.getStackInSlot(INGREDIENT_SLOT))
+                 && ItemStackUtils.isEmpty(entity.getStackInSlot(BREWING_FUEL_SLOT));
     }
 
     /**
@@ -775,10 +774,10 @@ public final class ItemStackUtils
      * @param entity the brewingStand.
      * @return true if so.
      */
-    public static boolean hasFuelAndNoBrewable(final BrewingStandBlockEntity entity)
+    public static boolean hasFuelAndNoBrewable(final net.minecraft.tileentity.TileEntityBrewingStand entity)
     {
-        return ItemStackUtils.isEmpty(entity.getItem(INGREDIENT_SLOT))
-                 && !ItemStackUtils.isEmpty(entity.getItem(BREWING_FUEL_SLOT));
+        return ItemStackUtils.isEmpty(entity.getStackInSlot(INGREDIENT_SLOT))
+                 && !ItemStackUtils.isEmpty(entity.getStackInSlot(BREWING_FUEL_SLOT));
     }
 
     /**
@@ -791,7 +790,7 @@ public final class ItemStackUtils
     {
         String itemId = itemData;
         final int tagIndex = itemId.indexOf("{");
-        final String tag = tagIndex > 0 ? itemId.substring(tagIndex) : null;
+        final String NBTBase = tagIndex > 0 ? itemId.substring(tagIndex) : null;
         itemId = tagIndex > 0 ? itemId.substring(0, tagIndex) : itemId;
         String[] split = itemId.split(":");
         if (split.length != 2)
@@ -808,11 +807,11 @@ public final class ItemStackUtils
         }
         final Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(split[0], split[1]));
         final ItemStack stack = new ItemStack(item);
-        if (tag != null)
+        if (NBTBase != null)
         {
             try
             {
-                stack.setTag(TagParser.parseTag(tag));
+                stack.setTag(TagParser.parseTag(NBTBase));
             }
             catch (CommandSyntaxException e1)
             {
@@ -867,9 +866,9 @@ public final class ItemStackUtils
     }
 
     /**
-     * Reports if this stack has a custom Tag value that is not purely a damage value.
+     * Reports if this stack has a custom NBTBase value that is not purely a damage value.
      * @param stack the stack to inspect
-     * @return      true if the stack has a non-damage tag value
+     * @return      true if the stack has a non-damage NBTBase value
      */
     public static boolean hasTag(@NotNull final ItemStack stack)
     {
@@ -883,7 +882,7 @@ public final class ItemStackUtils
      * @param player The player whose inventory to check.
      * @return The set of items.
      */
-    public static List<ItemStack> allItemsPlusInventory(@NotNull final Player player)
+    public static List<ItemStack> allItemsPlusInventory(@NotNull final EntityPlayer player)
     {
         // get all known items first
         final Set<ItemStorage> allItems = new HashSet<>(IColonyManager.getInstance().getCompatibilityManager().getSetOfAllItems());
@@ -927,13 +926,13 @@ public final class ItemStackUtils
      * @param citizen     the citizen entity.
      * @param inventory optional inventory to insert stack into if not citizen.
      */
-    public static void consumeFood(final ItemStack foodStack, final AbstractEntityCitizen citizen, final Inventory inventory)
+    public static void consumeFood(final ItemStack foodStack, final AbstractEntityCitizen citizen, final net.minecraftforge.items.IItemHandler inventory)
     {
         final ICitizenData citizenData = citizen.getCitizenData();
         final double satIncrease = FoodUtils.getFoodValue(foodStack, citizen);
         citizenData.increaseSaturation(satIncrease);
 
-        ItemStack itemUseReturn = foodStack.finishUsingItem(citizen.level(), citizen);
+        ItemStack itemUseReturn = foodStack.finishUsingItem(citizen.World(), citizen);
         // Special handling for these as those are stackable + have a return per item.
         if (foodStack.getItem() instanceof HoneyBottleItem)
         {
@@ -949,7 +948,7 @@ public final class ItemStackUtils
             if (citizenData.getInventory().isFull() || (inventory != null && !inventory.add(itemUseReturn)))
             {
                 InventoryUtils.spawnItemStack(
-                  citizen.level,
+                  citizen.World,
                   citizen.getX(),
                   citizen.getY(),
                   citizen.getZ(),
@@ -982,19 +981,16 @@ public final class ItemStackUtils
      * @param attribute the attribute to get the value for.
      * @return the computed value of the attribute with all modifiers.
      */
-    public static double getItemStackAttributeValue(final ItemStack itemStack, final Attribute attribute)
+    // [1.7.10] Attribute/AttributeInstance do not exist in 1.7.10 as separate API; stubbed to return 0.
+    public static double getItemStackAttributeValue(final ItemStack itemStack, final net.minecraft.entity.ai.attributes.IAttribute attribute)
     {
-        try
-        {
-            final AttributeInstance instance = new AttributeInstance(attribute, (f) -> {});
-            itemStack.getAttributeModifiers(LivingEntity.getEquipmentSlotForItem(itemStack)).get(attribute).forEach(instance::addTransientModifier);
-            return instance.getValue();
-        }
-        catch (final Exception e)
-        {
-            Log.getLogger().warn("Could not get attribute value for '{}' on item '{}'", attribute.getDescriptionId(), itemStack.getDescriptionId(), e);
-            return 0;
-        }
+        return 0;
     }
 }
+
+
+
+
+
+
 

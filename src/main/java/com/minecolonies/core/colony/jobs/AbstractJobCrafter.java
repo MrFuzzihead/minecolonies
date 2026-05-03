@@ -17,12 +17,12 @@ import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.entity.ai.workers.AbstractEntityAIBasic;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -100,21 +100,21 @@ public abstract class AbstractJobCrafter<AI extends AbstractEntityAIBasic<J, ? e
     }
 
     @Override
-    public void serializeToView(final FriendlyByteBuf buffer)
+    public void serializeToView(final PacketBuffer buffer)
     {
         super.serializeToView(buffer);
         StandardFactoryController.getInstance().serialize(buffer, rsDataStoreToken);
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compound = super.serializeNBT();
+        final NBTTagCompound compound = super.serializeNBT();
         compound.put(NbtTagConstants.TAG_RS_DMANJOB_DATASTORE, StandardFactoryController.getInstance().serialize(rsDataStoreToken));
         compound.putInt(NbtTagConstants.TAG_PROGRESS, progress);
         compound.putInt(NbtTagConstants.TAG_MAX_COUNTER, maxCraftingCount);
         compound.putInt(NbtTagConstants.TAG_CRAFT_COUNTER, craftCounter);
-        final ListTag items = new ListTag();
+        final NBTTagList items = new NBTTagList();
         for (final Map.Entry<ItemStorage, Integer> item : secondaryOutputs.object2IntEntrySet())
         {
             items.add(item.getKey().getItemStack().copyWithCount(item.getValue()).serializeNBT());
@@ -124,7 +124,7 @@ public abstract class AbstractJobCrafter<AI extends AbstractEntityAIBasic<J, ? e
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
 
@@ -156,12 +156,12 @@ public abstract class AbstractJobCrafter<AI extends AbstractEntityAIBasic<J, ? e
         if (compound.contains(NbtTagConstants.TAG_SECONDARY_OUTPUTS))
         {
             final HashMap<ItemStorage, Integer> newItems = new HashMap<>();
-            final ListTag list = compound.getList(NbtTagConstants.TAG_SECONDARY_OUTPUTS, ListTag.TAG_COMPOUND);
-            for (final Tag tag : list)
+            final NBTTagList list = compound.getList(NbtTagConstants.TAG_SECONDARY_OUTPUTS, NBTTagList.TAG_COMPOUND);
+            for (final NBTBase NBTBase : list)
             {
-                if (tag instanceof CompoundTag compoundTag)
+                if (NBTBase instanceof NBTTagCompound NBTTagCompound)
                 {
-                    final ItemStorage item = new ItemStorage(ItemStackUtils.deserializeFromNBT(compoundTag));
+                    final ItemStorage item = new ItemStorage(ItemStackUtils.deserializeFromNBT(NBTTagCompound));
                     newItems.put(item, item.getAmount());
                 }
             }
@@ -397,11 +397,16 @@ public abstract class AbstractJobCrafter<AI extends AbstractEntityAIBasic<J, ? e
 
     /**
      * Play a job specific work sound at a pos.
-     * @param blockPos the pos to play it at.
+     * @param int[] the pos to play it at.
      * @param worker the worker to play it for.
      */
-    public void playSound(final BlockPos blockPos, final EntityCitizen worker)
+    public void playSound(final int[] blockPos, final EntityCitizen worker)
     {
         // Child override if necessary
     }
 }
+
+
+
+
+

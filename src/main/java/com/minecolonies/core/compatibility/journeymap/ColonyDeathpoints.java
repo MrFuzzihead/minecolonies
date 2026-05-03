@@ -9,16 +9,16 @@ import com.minecolonies.api.tileentities.AbstractTileEntityGrave;
 import journeymap.client.api.display.DisplayType;
 import journeymap.client.api.display.Waypoint;
 import journeymap.client.api.model.MapImage;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkStatus;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World.ChunkPos;
+import net.minecraft.world.World;
+// [1.7.10] block.entity removed
+import net.minecraft.world.World.chunk.ChunkAccess;
+import net.minecraft.world.World.chunk.ChunkStatus;
 import net.minecraftforge.common.util.Lazy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -33,7 +33,7 @@ import static com.minecolonies.api.util.constant.TranslationConstants.PARTIAL_JO
  */
 public class ColonyDeathpoints
 {
-    private static final Map<ResourceKey<Level>, Map<Integer, Map<BlockPos, Waypoint>>> overlays = new HashMap<>();
+    private static final Map<int /* ResourceKey */, Map<Integer, Map<int[], Waypoint>>> overlays = new HashMap<>();
     private static final Lazy<MapImage> deathIcon = Lazy.of(ColonyDeathpoints::loadIcon);
 
     /**
@@ -57,11 +57,11 @@ public class ColonyDeathpoints
      * @param dimension The dimension to unload.
      */
     public static void unload(@NotNull final Journeymap jmap,
-                              @NotNull final ResourceKey<Level> dimension)
+                              @NotNull final int /* ResourceKey */ dimension)
     {
-        for (final Map<BlockPos, Waypoint> waypoints : overlays.getOrDefault(dimension, Collections.emptyMap()).values())
+        for (final Map<int[], Waypoint> waypoints : overlays.getOrDefault(dimension, Collections.emptyMap()).values())
         {
-            for (final Map.Entry<BlockPos, Waypoint> waypointEntry : waypoints.entrySet())
+            for (final Map.Entry<int[], Waypoint> waypointEntry : waypoints.entrySet())
             {
                 if (waypointEntry.getValue() != null)
                 {
@@ -82,18 +82,18 @@ public class ColonyDeathpoints
      */
     public static void updateGraves(@NotNull final Journeymap jmap,
                                     @NotNull final IColonyView colony,
-                                    @NotNull final Set<BlockPos> graves)
+                                    @NotNull final Set<int[]> graves)
     {
-        final Map<BlockPos, Waypoint> waypoints = overlays
+        final Map<int[], Waypoint> waypoints = overlays
                 .computeIfAbsent(colony.getDimension(), k -> new HashMap<>())
                 .computeIfAbsent(colony.getID(), k -> new HashMap<>());
         final boolean permitted = colony.getPermissions().hasPermission(Minecraft.getInstance().player, Action.MAP_DEATHS)
                 && JourneymapOptions.getDeathpoints(jmap.getOptions());
 
-        final Iterator<Map.Entry<BlockPos, Waypoint>> iterator = waypoints.entrySet().iterator();
+        final Iterator<Map.Entry<int[], Waypoint>> iterator = waypoints.entrySet().iterator();
         while (iterator.hasNext())
         {
-            final Map.Entry<BlockPos, Waypoint> waypointEntry = iterator.next();
+            final Map.Entry<int[], Waypoint> waypointEntry = iterator.next();
             if (!permitted || !graves.contains(waypointEntry.getKey()))
             {
                 if (waypointEntry.getValue() != null)
@@ -106,7 +106,7 @@ public class ColonyDeathpoints
 
         if (permitted)
         {
-            for (final BlockPos grave : graves)
+            for (final int[] grave : graves)
             {
                 waypoints.computeIfAbsent(grave, k -> tryCreatingWaypoint(jmap, colony, k));
             }
@@ -121,12 +121,12 @@ public class ColonyDeathpoints
      * @param chunk The chunk that was just loaded.
      */
     public static void updateChunk(@NotNull final Journeymap jmap,
-                                   @NotNull final ResourceKey<Level> dimension,
+                                   @NotNull final int /* ResourceKey */ dimension,
                                    @NotNull final ChunkAccess chunk)
     {
         final IColonyManager colonyManager = MinecoloniesAPIProxy.getInstance().getColonyManager();
 
-        for (final Map.Entry<Integer, Map<BlockPos, Waypoint>> colonyEntry : overlays.getOrDefault(dimension, Collections.emptyMap()).entrySet())
+        for (final Map.Entry<Integer, Map<int[], Waypoint>> colonyEntry : overlays.getOrDefault(dimension, Collections.emptyMap()).entrySet())
         {
             final IColonyView colony = colonyManager.getColonyView(colonyEntry.getKey(), dimension);
             if (colony == null)
@@ -143,7 +143,7 @@ public class ColonyDeathpoints
                 continue;
             }
 
-            for (final Map.Entry<BlockPos, Waypoint> waypointEntry : colonyEntry.getValue().entrySet())
+            for (final Map.Entry<int[], Waypoint> waypointEntry : colonyEntry.getValue().entrySet())
             {
                 if (waypointEntry.getValue() == null && chunk.getPos().equals(new ChunkPos(waypointEntry.getKey())))
                 {
@@ -156,7 +156,7 @@ public class ColonyDeathpoints
     @Nullable
     private static Waypoint tryCreatingWaypoint(@NotNull final Journeymap jmap,
                                                 @NotNull final IColonyView colony,
-                                                @NotNull final BlockPos pos)
+                                                @NotNull final int[] pos)
     {
         final ChunkPos chunkPos = new ChunkPos(pos);
         final ChunkAccess chunk = colony.getWorld().getChunk(chunkPos.x, chunkPos.z, ChunkStatus.FULL, false);
@@ -168,7 +168,7 @@ public class ColonyDeathpoints
     private static Waypoint tryCreatingWaypoint(@NotNull final Journeymap jmap,
                                                 @NotNull final IColonyView colony,
                                                 @NotNull final ChunkAccess chunk,
-                                                @NotNull final BlockPos pos)
+                                                @NotNull final int[] pos)
     {
         if (!jmap.getApi().playerAccepts(MOD_ID, DisplayType.Waypoint)) return null;
 
@@ -178,9 +178,9 @@ public class ColonyDeathpoints
             final IGraveData grave = ((AbstractTileEntityGrave) blockEntity).getGraveData();
             if (grave != null)
             {
-                final Component text = grave.getCitizenJobName() == null
-                                              ? Component.translatable(PARTIAL_JOURNEY_MAP_INFO + "deathpoint_name", grave.getCitizenName())
-                                              : Component.translatable(PARTIAL_JOURNEY_MAP_INFO + "deathpoint_namejob", grave.getCitizenName(), grave.getCitizenJobName());
+                final String text = grave.getCitizenJobName() == null
+                                              ? String.translatable(PARTIAL_JOURNEY_MAP_INFO + "deathpoint_name", grave.getCitizenName())
+                                              : String.translatable(PARTIAL_JOURNEY_MAP_INFO + "deathpoint_namejob", grave.getCitizenName(), grave.getCitizenJobName());
                 final Waypoint waypoint = new Waypoint(MOD_ID, text.getString(), colony.getDimension(), pos);
                 waypoint.setEditable(true)
                         .setPersistent(false)
@@ -200,3 +200,6 @@ public class ColonyDeathpoints
         return new MapImage(new ResourceLocation(MOD_ID, "textures/icons/grave_icon.png"), 16, 16);
     }
 }
+
+
+

@@ -5,21 +5,19 @@ import com.minecolonies.api.colony.buildings.ModBuildings;
 import com.minecolonies.api.colony.buildings.registry.BuildingEntry;
 import com.minecolonies.api.tileentities.MinecoloniesTileEntities;
 import com.minecolonies.core.tileentities.TileEntityWareHouse;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Hut for the warehouse. No different from {@link AbstractBlockHut}
+ * Hut for the warehouse.
+ * [1.7.10] Ported: createTileEntity returns TileEntityWareHouse; removed BlockEntity/BlockState params.
  */
-
 public class BlockHutWareHouse extends AbstractBlockHut<BlockHutWareHouse>
 {
     public BlockHutWareHouse()
     {
-        //No different from Abstract parent
         super();
     }
 
@@ -32,9 +30,9 @@ public class BlockHutWareHouse extends AbstractBlockHut<BlockHutWareHouse>
 
     @Nullable
     @Override
-    public BlockEntity newBlockEntity(@NotNull final BlockPos blockPos, @NotNull final BlockState blockState)
+    public TileEntity createTileEntity(final World world, final int metadata)
     {
-        final TileEntityWareHouse building = (TileEntityWareHouse) MinecoloniesTileEntities.WAREHOUSE.get().create(blockPos, blockState);
+        final TileEntityWareHouse building = (TileEntityWareHouse) MinecoloniesTileEntities.WAREHOUSE.get().create();
         building.registryName = this.getBuildingEntry().getRegistryName();
         return building;
     }

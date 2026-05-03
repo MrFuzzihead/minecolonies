@@ -2,7 +2,7 @@ package com.minecolonies.api.entity.citizen.happiness;
 
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.util.constant.NbtTagConstants;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NBTTagCompound;
 
 import static com.minecolonies.api.util.constant.NbtTagConstants.*;
 
@@ -77,7 +77,7 @@ public final class ExpirationBasedHappinessModifier extends AbstractHappinessMod
     }
 
     @Override
-    public void read(final CompoundTag compoundNBT, final boolean persist)
+    public void read(final NBTTagCompound compoundNBT, final boolean persist)
     {
         super.read(compoundNBT, persist);
         this.days = compoundNBT.getInt(TAG_DAY);
@@ -85,7 +85,7 @@ public final class ExpirationBasedHappinessModifier extends AbstractHappinessMod
     }
 
     @Override
-    public void write(final CompoundTag compoundNBT, final boolean persist)
+    public void write(final NBTTagCompound compoundNBT, final boolean persist)
     {
         super.write(compoundNBT, persist);
         compoundNBT.putString(NbtTagConstants.TAG_MODIFIER_TYPE, HappinessRegistry.EXPIRATION_MODIFIER.toString());
@@ -93,3 +93,5 @@ public final class ExpirationBasedHappinessModifier extends AbstractHappinessMod
         compoundNBT.putInt(TAG_PERIOD, period);
     }
 }
+
+

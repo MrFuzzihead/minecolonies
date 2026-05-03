@@ -3,13 +3,13 @@ package com.minecolonies.core.compatibility.jei;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.OverlayTexture;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
 import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] BlockState -> int metadata
 import net.minecraftforge.client.model.data.ModelData;
 
 /**
@@ -59,3 +59,5 @@ public class RenderHelper
         matrixStack.popPose();
     }
 }
+
+

@@ -1,6 +1,6 @@
 package com.minecolonies.core.colony.buildings.moduleviews;
 
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.buildings.modules.AbstractBuildingModuleView;
 import com.minecolonies.api.colony.jobs.ModJobs;
 import com.minecolonies.api.colony.workorders.IWorkOrderView;
@@ -8,12 +8,12 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.modules.building.WindowHutMinerModule;
 import com.minecolonies.core.colony.workorders.AbstractWorkOrder;
 import com.minecolonies.core.colony.workorders.view.WorkOrderMinerView;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Tuple;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import com.minecolonies.api.util.Tuple;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ public class MinerLevelManagementModuleView extends AbstractBuildingModuleView
     public List<Tuple<Integer, Integer>> levelsInfo;
 
     /**
-     * The level the miner currently works on.
+     * The World the miner currently works on.
      */
     public int current;
 
@@ -40,7 +40,7 @@ public class MinerLevelManagementModuleView extends AbstractBuildingModuleView
     private List<WorkOrderMinerView> workOrders = new ArrayList<>();
 
     @Override
-    public void deserialize(@NotNull final FriendlyByteBuf buf)
+    public void deserialize(@NotNull final PacketBuffer buf)
     {
         current = buf.readInt();
         final int size = buf.readInt();
@@ -65,7 +65,7 @@ public class MinerLevelManagementModuleView extends AbstractBuildingModuleView
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public BOWindow getWindow()
+    public Object /* BOWindow: todo ModularUI2 */ getWindow()
     {
         return new WindowHutMinerModule(this);
     }
@@ -77,9 +77,9 @@ public class MinerLevelManagementModuleView extends AbstractBuildingModuleView
     }
 
     @Override
-    public Component getDesc()
+    public String getDesc()
     {
-        return Component.translatable("com.minecolonies.coremod.gui.miner.levels");
+        return String.translatable("com.minecolonies.coremod.gui.miner.levels");
     }
 
     @Override
@@ -98,7 +98,7 @@ public class MinerLevelManagementModuleView extends AbstractBuildingModuleView
     /**
      * Check if there is a workorder for this node already.
      *
-     * @param row the row of the level.
+     * @param row the row of the World.
      * @return true if so.
      */
     public boolean doesWorkOrderExist(final int row)
@@ -114,3 +114,6 @@ public class MinerLevelManagementModuleView extends AbstractBuildingModuleView
         return false;
     }
 }
+
+
+

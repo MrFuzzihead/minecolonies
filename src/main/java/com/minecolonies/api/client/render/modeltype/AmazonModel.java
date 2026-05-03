@@ -1,28 +1,30 @@
 package com.minecolonies.api.client.render.modeltype;
 
 import com.minecolonies.api.entity.mobs.AbstractEntityMinecoloniesMonster;
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.ModelBiped;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Amazon model.
+ * Amazon model (1.7.10 ModelBiped port).
  */
-public class AmazonModel<T extends AbstractEntityMinecoloniesMonster> extends HumanoidModel<AbstractEntityMinecoloniesMonster>
+@SideOnly(Side.CLIENT)
+public class AmazonModel<T extends AbstractEntityMinecoloniesMonster> extends ModelBiped
 {
-    public AmazonModel(final ModelPart part)
+    public AmazonModel()
     {
-        super(part);
+        super();
     }
 
     @Override
-    public void setupAnim(@NotNull final AbstractEntityMinecoloniesMonster entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch)
+    public void setRotationAngles(float f1, float f2, float f3, float f4, float f5, float f6, net.minecraft.entity.Entity entity)
     {
-        super.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
-        head.y -= 3;
-        rightLeg.y -= 3.5;
-        leftLeg.y -= 3.5;
-        rightArm.y -= 2;
-        leftArm.y -= 2;
+        super.setRotationAngles(f1, f2, f3, f4, f5, f6, entity);
+        bipedHead.rotationPointY -= 3;
+        bipedLegRight.rotationPointY -= 3.5f;
+        bipedLegLeft.rotationPointY -= 3.5f;
+        bipedArmRight.rotationPointY -= 2;
+        bipedArmLeft.rotationPointY -= 2;
     }
 }

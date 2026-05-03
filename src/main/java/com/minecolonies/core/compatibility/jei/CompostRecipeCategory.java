@@ -15,11 +15,11 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
+import net.minecraft.util.IChatComponent;
+import net.minecraft.item.ItemStack;
+// [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -39,7 +39,7 @@ public class CompostRecipeCategory implements IRecipeCategory<CompostRecipe>
 
     public CompostRecipeCategory(@NotNull final IGuiHelper guiHelper)
     {
-        this.title = Component.translatable(ModBlocks.blockBarrel.getDescriptionId()).getString();
+        this.title = String.translatable(ModBlocks.blockBarrel.getDescriptionId()).getString();
 
         this.background = guiHelper.createBlankDrawable(80, 50);
         this.icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(ModBlocks.blockBarrel));
@@ -78,9 +78,9 @@ public class CompostRecipeCategory implements IRecipeCategory<CompostRecipe>
 
     @NotNull
     @Override
-    public Component getTitle()
+    public String getTitle()
     {
-        return Component.literal(this.title);
+        return String.literal(this.title);
     }
 
     @Override
@@ -110,3 +110,6 @@ public class CompostRecipeCategory implements IRecipeCategory<CompostRecipe>
         RenderHelper.renderBlock(stack.pose(), barrel, 40, 20, 100, -30F, 20F, 25F);
     }
 }
+
+
+

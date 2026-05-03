@@ -1,16 +1,35 @@
 package com.minecolonies.core.client.gui;
 
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
+import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
 import com.ldtteam.blockui.controls.Button;
 import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
+import com.ldtteam.blockui.controls.DropDownList;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
+import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.controls.TextField;
 import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
+import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
@@ -18,7 +37,7 @@ import static com.minecolonies.api.util.constant.TranslationConstants.WARNING_NA
 import static com.minecolonies.api.util.constant.WindowConstants.*;
 
 /**
- * BOWindow for a hut name entry.
+ * Object (BOWindow: todo ModularUI2 removed) for a hut name entry.
  */
 public class WindowHutNameEntry extends BOWindow implements ButtonHandler
 {
@@ -46,7 +65,7 @@ public class WindowHutNameEntry extends BOWindow implements ButtonHandler
     @Override
     public void onOpened()
     {
-        findPaneOfTypeByID(INPUT_NAME, TextField.class).setText(Component.translatable(building.getCustomName().toLowerCase(Locale.US)).getString());
+        findPaneOfTypeByID(INPUT_NAME, TextField.class).setText(String.translatable(building.getCustomName().toLowerCase(Locale.US)).getString());
     }
 
     @Override
@@ -75,3 +94,7 @@ public class WindowHutNameEntry extends BOWindow implements ButtonHandler
         }
     }
 }
+
+
+
+

@@ -4,9 +4,9 @@ import com.minecolonies.api.colony.jobs.ModJobs;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.core.generation.CustomRecipeProvider;
-import net.minecraft.data.PackOutput;
-import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] data removed
+// [1.7.10] data removed
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,7 +37,7 @@ public class DefaultLumberjackCraftingProvider extends CustomRecipeProvider
     @Override
     protected void registerRecipes(@NotNull final Consumer<FinishedRecipe> consumer)
     {
-        // Bamboo blocks, whilst they can be stripped, do not fall under the logs tag, hence they do not appear as part of the strip_logs.json
+        // Bamboo blocks, whilst they can be stripped, do not fall under the logs NBTBase, hence they do not appear as part of the strip_logs.json
         CustomRecipeBuilder.create(LUMBERJACK, MODULE_CUSTOM, "strip_bamboo_block")
           .inputs(List.of(new ItemStorage(new ItemStack(Items.BAMBOO_BLOCK))))
           .result(new ItemStack(Items.STRIPPED_BAMBOO_BLOCK))
@@ -45,3 +45,6 @@ public class DefaultLumberjackCraftingProvider extends CustomRecipeProvider
           .build(consumer);
     }
 }
+
+
+

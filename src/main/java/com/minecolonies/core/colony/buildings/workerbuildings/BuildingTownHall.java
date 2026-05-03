@@ -1,7 +1,13 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.google.common.collect.ImmutableList;
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.MinecoloniesAPIProxy;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyView;
@@ -22,14 +28,14 @@ import com.minecolonies.core.colony.buildings.modules.BuildingModules;
 import com.minecolonies.core.colony.buildings.modules.settings.BoolSetting;
 import com.minecolonies.core.colony.buildings.modules.settings.SettingKey;
 import com.minecolonies.core.colony.buildings.views.AbstractBuildingView;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.MapItem;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.World;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import org.jetbrains.annotations.NotNull;
 
@@ -49,7 +55,7 @@ public class BuildingTownHall extends AbstractBuilding implements ITownHall
     private static final String TOWN_HALL = "townhall";
 
     /**
-     * Max building level of the hut.
+     * Max building World of the hut.
      */
     private static final int MAX_BUILDING_LEVEL = 5;
 
@@ -88,7 +94,7 @@ public class BuildingTownHall extends AbstractBuilding implements ITownHall
      * @param c the colony.
      * @param l the location.
      */
-    public BuildingTownHall(final IColony c, final BlockPos l)
+    public BuildingTownHall(final IColony c, final int[] l)
     {
         super(c, l);
     }
@@ -130,7 +136,7 @@ public class BuildingTownHall extends AbstractBuilding implements ITownHall
     }
 
     @Override
-    public void serializeToView(@NotNull final FriendlyByteBuf buf, final boolean fullSync)
+    public void serializeToView(@NotNull final PacketBuffer buf, final boolean fullSync)
     {
         super.serializeToView(buf, fullSync);
 
@@ -152,14 +158,14 @@ public class BuildingTownHall extends AbstractBuilding implements ITownHall
             }
         }
 
-        final Level level = colony.getWorld();
+        final World World = colony.getWorld();
 
         final List<MapItemSavedData> mapDataList = new ArrayList<>();
         for (final ItemStack stack : maps)
         {
             try
             {
-                final MapItemSavedData mapData = MapItem.getSavedData(stack, level);
+                final MapItemSavedData mapData = MapItem.getSavedData(stack, World);
                 if (mapData != null)
                 {
                     mapDataList.add(mapData);
@@ -174,7 +180,7 @@ public class BuildingTownHall extends AbstractBuilding implements ITownHall
         buf.writeInt(mapDataList.size());
         for (final MapItemSavedData mapData : mapDataList)
         {
-            buf.writeNbt(mapData.save(new CompoundTag()));
+            buf.writeNbt(mapData.save(new NBTTagCompound()));
         }
     }
 
@@ -236,20 +242,20 @@ public class BuildingTownHall extends AbstractBuilding implements ITownHall
          * @param c the colonyView.
          * @param l the location of the block.
          */
-        public View(final IColonyView c, final BlockPos l)
+        public View(final IColonyView c, final int[] l)
         {
             super(c, l);
         }
 
         @NotNull
         @Override
-        public BOWindow getWindow()
+        public Object /* BOWindow: todo ModularUI2 */ getWindow()
         {
             return new WindowMainPage(this);
         }
 
         @Override
-        public void deserialize(@NotNull final FriendlyByteBuf buf)
+        public void deserialize(@NotNull final PacketBuffer buf)
         {
             super.deserialize(buf);
 
@@ -316,3 +322,7 @@ public class BuildingTownHall extends AbstractBuilding implements ITownHall
         }
     }
 }
+
+
+
+

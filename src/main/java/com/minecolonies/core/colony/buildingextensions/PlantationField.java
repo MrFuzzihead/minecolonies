@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.buildingextensions;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.blocks.ModBlocks;
 import com.minecolonies.api.colony.IColony;
@@ -6,10 +12,10 @@ import com.minecolonies.api.colony.buildingextensions.plantation.IPlantationModu
 import com.minecolonies.api.colony.buildingextensions.registry.BuildingExtensionRegistries;
 import com.minecolonies.api.colony.buildingextensions.registry.BuildingExtensionRegistries.BuildingExtensionEntry;
 import com.minecolonies.api.util.BlockPosUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+// [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -25,7 +31,7 @@ public class PlantationField extends AbstractBuildingExtensionModule
     /**
      * A list of all found tagged working positions.
      */
-    private List<BlockPos> workingPositions = new ArrayList<>();
+    private List<int[]> workingPositions = new ArrayList<>();
 
     /**
      * Constructor used in NBT deserialization.
@@ -33,7 +39,7 @@ public class PlantationField extends AbstractBuildingExtensionModule
      * @param fieldType the type of field.
      * @param position  the position of the field.
      */
-    public PlantationField(final @NotNull BuildingExtensionRegistries.BuildingExtensionEntry fieldType, final @NotNull BlockPos position)
+    public PlantationField(final @NotNull BuildingExtensionRegistries.BuildingExtensionEntry fieldType, final @NotNull int[] position)
     {
         super(fieldType, position);
     }
@@ -44,7 +50,7 @@ public class PlantationField extends AbstractBuildingExtensionModule
      * @param fieldEntry the type of field we want to produce.
      * @param position   the position it is placed in.
      */
-    public static PlantationField create(final BuildingExtensionEntry fieldEntry, final BlockPos position)
+    public static PlantationField create(final BuildingExtensionEntry fieldEntry, final int[] position)
     {
         return (PlantationField) fieldEntry.produceExtension(position);
     }
@@ -62,7 +68,7 @@ public class PlantationField extends AbstractBuildingExtensionModule
      *
      * @return an unmodifiable collection of working positions.
      */
-    public List<BlockPos> getWorkingPositions()
+    public List<int[]> getWorkingPositions()
     {
         return workingPositions.stream().toList();
     }
@@ -72,7 +78,7 @@ public class PlantationField extends AbstractBuildingExtensionModule
      *
      * @param workingPositions the new list of working positions.
      */
-    public void setWorkingPositions(final List<BlockPos> workingPositions)
+    public void setWorkingPositions(final List<int[]> workingPositions)
     {
         this.workingPositions = workingPositions;
     }
@@ -88,33 +94,33 @@ public class PlantationField extends AbstractBuildingExtensionModule
     }
 
     @Override
-    public @NotNull CompoundTag serializeNBT()
+    public @NotNull NBTTagCompound serializeNBT()
     {
-        CompoundTag compound = super.serializeNBT();
+        NBTTagCompound compound = super.serializeNBT();
         BlockPosUtil.writePosListToNBT(compound, TAG_WORKING_POS, workingPositions);
         return compound;
     }
 
     @Override
-    public void deserializeNBT(@NotNull CompoundTag compound)
+    public void deserializeNBT(@NotNull NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
         workingPositions = BlockPosUtil.readPosListFromNBT(compound, TAG_WORKING_POS);
     }
 
     @Override
-    public void serialize(final @NotNull FriendlyByteBuf buf)
+    public void serialize(final @NotNull PacketBuffer buf)
     {
         super.serialize(buf);
         buf.writeInt(workingPositions.size());
-        for (BlockPos workingPosition : workingPositions)
+        for (int[] workingPosition : workingPositions)
         {
             buf.writeBlockPos(workingPosition);
         }
     }
 
     @Override
-    public void deserialize(final @NotNull FriendlyByteBuf buf)
+    public void deserialize(final @NotNull PacketBuffer buf)
     {
         super.deserialize(buf);
         workingPositions = new ArrayList<>();
@@ -125,3 +131,6 @@ public class PlantationField extends AbstractBuildingExtensionModule
         }
     }
 }
+
+
+

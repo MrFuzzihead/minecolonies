@@ -15,10 +15,10 @@ import com.minecolonies.api.colony.requestsystem.requester.IRequester;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.Log;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Component;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.IChatComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -421,7 +421,7 @@ public abstract class AbstractRequest<R extends IRequestable> implements IReques
 
     @NotNull
     @Override
-    public Component getLongDisplayString()
+    public String getLongDisplayString()
     {
         return getShortDisplayString();
     }
@@ -434,7 +434,7 @@ public abstract class AbstractRequest<R extends IRequestable> implements IReques
     }
 
     @Override
-    public List<MutableComponent> getResolverToolTip(final IColonyView colony)
+    public List<String> getResolverToolTip(final IColonyView colony)
     {
         return Collections.emptyList();
     }
@@ -541,3 +541,6 @@ public abstract class AbstractRequest<R extends IRequestable> implements IReques
         return requested.getSuperClasses();
     }
 }
+
+
+

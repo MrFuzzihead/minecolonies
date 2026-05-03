@@ -1,20 +1,17 @@
 package com.minecolonies.api.client.render.modeltype;
 
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
-import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.builders.CubeDeformation;
-import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.Pose;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Citizen model.
+ * Citizen model (1.7.10 ModelBiped port).
  */
-public class CitizenModel<T extends AbstractEntityCitizen> extends HumanoidModel<AbstractEntityCitizen>
+@SideOnly(Side.CLIENT)
+public class CitizenModel<T extends AbstractEntityCitizen> extends ModelBiped
 {
     /**
      * Working render meta.
@@ -23,69 +20,41 @@ public class CitizenModel<T extends AbstractEntityCitizen> extends HumanoidModel
 
     public static boolean isItApril1st = false;
 
-    public CitizenModel(final ModelPart part)
+    public CitizenModel()
     {
-        super(part, RenderType::entityCutoutNoCull);
+        super();
+    }
+
+    public CitizenModel(float modelSize)
+    {
+        super(modelSize);
+    }
+
+    /**
+     * [1.7.10] Compatibility: 1.21 models pass a ModelPart. We ignore it and use default super().
+     */
+    public CitizenModel(ModelPart part)
+    {
+        super();
     }
 
     @Override
-    public void setupAnim(@NotNull final AbstractEntityCitizen citizen, float f1, float f2, float f3, float f4, float f5)
+    public void setRotationAngles(float f1, float f2, float f3, float f4, float f5, float f6, net.minecraft.entity.Entity entity)
     {
-        super.setupAnim(citizen, f1, f2, f3, f4, f5);
-        if (body.xRot == 0)
+        super.setRotationAngles(f1, f2, f3, f4, f5, f6, entity);
+        if (entity instanceof AbstractEntityCitizen citizen)
         {
-            body.xRot = getActualRotation(citizen);
-        }
-
-        if (head.xRot == 0)
-        {
-            head.xRot = getActualRotation(citizen);
-        }
-
-        if (citizen.getCitizenDataView() != null && citizen.getCitizenDataView().getCustomTextureUUID() != null)
-        {
-            head.visible = false;
-            hat.visible = false;
-        }
-        else
-        {
-            head.visible = true;
-            hat.visible = true;
-        }
-
-        if (isItApril1st)
-        {
-            switch (citizen.getCivilianID() % 7)
+            if (citizen.getCitizenDataView() != null && citizen.getCitizenDataView().getCustomTextureUUID() != null)
             {
-                case 0:
-                    leftArm.visible = false;
-                    break;
-                case 1:
-                    rightArm.visible = false;
-                    break;
-                case 2:
-                    body.visible = false;
-                    break;
-                case 3:
-                    head.visible = false;
-                    break;
-                case 4:
-                    hat.visible = false;
-                    break;
-                case 5:
-                    leftLeg.visible = false;
-                    break;
-                case 6:
-                    rightLeg.visible = false;
-                    break;
+                bipedHead.isHidden = true;
+                bipedHeadwear.isHidden = true;
+            }
+            else
+            {
+                bipedHead.isHidden = false;
+                bipedHeadwear.isHidden = false;
             }
         }
-    }
-
-    public static LayerDefinition createMesh()
-    {
-        MeshDefinition meshdefinition = HumanoidModel.createMesh(CubeDeformation.NONE, 0.0F);
-        return LayerDefinition.create(meshdefinition, 64, 32);
     }
 
     /**
@@ -106,19 +75,5 @@ public class CitizenModel<T extends AbstractEntityCitizen> extends HumanoidModel
     public boolean isWorking(final AbstractEntityCitizen citizen)
     {
         return citizen.getRenderMetadata().contains(RENDER_META_WORKING);
-    }
-
-    /**
-     * Check if the hat should be displayed.
-     * @param citizen the citizen entity to check.
-     * @return true if so.
-     */
-    public boolean displayHat(final AbstractEntityCitizen citizen)
-    {
-        if (citizen.getPose() == Pose.SLEEPING || !citizen.getItemBySlot(EquipmentSlot.HEAD).isEmpty())
-        {
-            return false;
-        }
-        return citizen.getCitizenDataView() == null || (citizen.getCitizenDataView().getDisplayArmor(EquipmentSlot.HEAD).isEmpty() && citizen.getCitizenDataView().getCustomTextureUUID() == null);
     }
 }

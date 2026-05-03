@@ -9,15 +9,19 @@ import com.minecolonies.core.Network;
 import com.minecolonies.core.colony.buildings.moduleviews.CraftingModuleView;
 import com.minecolonies.core.colony.buildings.views.AbstractBuildingView;
 import com.minecolonies.core.network.messages.server.colony.building.worker.AddRemoveRecipeMessage;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.MathHelper;
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
+import net.minecraft.init.Blocks;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -73,13 +77,13 @@ public class WindowBrewingstandCrafting extends AbstractContainerScreen<Containe
      *
      * @param container       the container.
      * @param playerInventory the player inv.
-     * @param iTextComponent  the display text component.
+     * @param iTextComponent  the display text String.
      */
-    public WindowBrewingstandCrafting(final ContainerCraftingBrewingstand container, final Inventory playerInventory, final Component iTextComponent)
+    public WindowBrewingstandCrafting(final ContainerCraftingBrewingstand container, final Inventory playerInventory, final String iTextComponent)
     {
         super(container, playerInventory, iTextComponent);
         this.container = container;
-        this.building = (AbstractBuildingView) IColonyManager.getInstance().getBuildingView(playerInventory.player.level.dimension(), container.getPos());
+        this.building = (AbstractBuildingView) IColonyManager.getInstance().getBuildingView(playerInventory.player.World.dimension(), container.getPos());
         this.module = (CraftingModuleView) building.getModuleView(container.getModuleId());
     }
 
@@ -93,7 +97,7 @@ public class WindowBrewingstandCrafting extends AbstractContainerScreen<Containe
     protected void init()
     {
         super.init();
-        final Component buttonDisplay = Component.translatable(module.canLearn(ModCraftingTypes.BREWING.get()) ? BASE_GUI_DONE : WARNING_MAXIMUM_NUMBER_RECIPES);
+        final String buttonDisplay = String.translatable(module.canLearn(ModCraftingTypes.BREWING.get()) ? BASE_GUI_DONE : WARNING_MAXIMUM_NUMBER_RECIPES);
         /*
          * The button to click done after finishing the recipe.
          */
@@ -147,3 +151,7 @@ public class WindowBrewingstandCrafting extends AbstractContainerScreen<Containe
         }
     }
 }
+
+
+
+

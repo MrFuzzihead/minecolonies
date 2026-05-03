@@ -1,10 +1,10 @@
 package com.minecolonies.core.colony.eventhooks.citizenEvents;
 
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -31,7 +31,7 @@ public class VisitorSpawnedEvent extends AbstractCitizenEvent
      * @param eventPos    the position of the hut block of the building.
      * @param citizenName the name of the building.
      */
-    public VisitorSpawnedEvent(final BlockPos eventPos, final String citizenName)
+    public VisitorSpawnedEvent(final int[] eventPos, final String citizenName)
     {
         super(false, eventPos, citizenName);
     }
@@ -54,7 +54,7 @@ public class VisitorSpawnedEvent extends AbstractCitizenEvent
      * @param compound the NBT compound
      * @return the colony to load.
      */
-    public static VisitorSpawnedEvent loadFromNBT(@NotNull final CompoundTag compound)
+    public static VisitorSpawnedEvent loadFromNBT(@NotNull final NBTTagCompound compound)
     {
         final VisitorSpawnedEvent spawnEvent = new VisitorSpawnedEvent();
         spawnEvent.deserializeNBT(compound);
@@ -67,10 +67,13 @@ public class VisitorSpawnedEvent extends AbstractCitizenEvent
      * @param buf the packet buffer.
      * @return the colony to load.
      */
-    public static VisitorSpawnedEvent loadFromFriendlyByteBuf(@NotNull final FriendlyByteBuf buf)
+    public static VisitorSpawnedEvent loadFromFriendlyByteBuf(@NotNull final PacketBuffer buf)
     {
         final VisitorSpawnedEvent spawnEvent = new VisitorSpawnedEvent();
         spawnEvent.deserialize(buf);
         return spawnEvent;
     }
 }
+
+
+

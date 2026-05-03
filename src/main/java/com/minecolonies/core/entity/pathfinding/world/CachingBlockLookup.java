@@ -1,88 +1,41 @@
 package com.minecolonies.core.entity.pathfinding.world;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkStatus;
-import net.minecraft.world.level.material.FluidState;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.world.IBlockAccess;
+// [1.7.10] ChunkAccess/ChunkStatus/BlockGetter/LevelReader removed; using IBlockAccess directly
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Small block lookup cache, to avoid repeated lookups
+ * Small block lookup cache, to avoid repeated lookups.
+ * [1.7.10] Reimplemented using IBlockAccess (Block + metadata) instead of BlockState objects.
  */
-public class CachingBlockLookup implements BlockGetter
+public class CachingBlockLookup implements IBlockAccess
 {
     private final static int SIZE         = 5;
     private final static int MIDDLEOFFSET = SIZE / 2;
 
-    /**
-     * Center of the cache
-     */
     private int centerX;
     private int centerY;
     private int centerZ;
 
-    /**
-     * Original world lookup
-     */
-    private final LevelReader world;
+    private final IBlockAccess world;
 
-    /**
-     * Temp world access
-     */
-    private final BlockPos.MutableBlockPos temp = new BlockPos.MutableBlockPos();
-
-    /**
-     * States array, exchange is just used for switching over blockstates from previous positions
-     */
     private BlockState[] states   = new BlockState[SIZE * SIZE * SIZE];
     private BlockState[] exchange = new BlockState[SIZE * SIZE * SIZE];
 
-    private ChunkAccess chunk = null;
-
-    public CachingBlockLookup(final BlockPos center, final LevelReader world)
+    public CachingBlockLookup(final int[] center, final IBlockAccess world)
     {
-        centerX = center.getX() + MIDDLEOFFSET;
-        centerY = center.getY() + MIDDLEOFFSET;
-        centerZ = center.getZ() + MIDDLEOFFSET;
+        centerX = center[0] + MIDDLEOFFSET;
+        centerY = center[1] + MIDDLEOFFSET;
+        centerZ = center[2] + MIDDLEOFFSET;
         this.world = world;
     }
 
-    @Nullable
-    @Override
-    public BlockEntity getBlockEntity(final BlockPos p_45570_)
+    public BlockState getBlockState(final int[] pos)
     {
-        return null;
+        return getBlockState(pos[0], pos[1], pos[2]);
     }
 
-    /**
-     * Get a blockstate
-     *
-     * @param pos
-     * @return
-     */
-    public BlockState getBlockState(final BlockPos pos)
-    {
-        return getBlockState(pos.getX(), pos.getY(), pos.getZ());
-    }
-
-    @Override
-    public FluidState getFluidState(final BlockPos pos)
-    {
-        return getBlockState(pos).getFluidState();
-    }
-
-    /**
-     * Get a blockstate
-     *
-     * @param x
-     * @param y
-     * @param z
-     * @return
-     */
     public BlockState getBlockState(final int x, final int y, final int z)
     {
         final int xPos = centerX - x;
@@ -91,38 +44,19 @@ public class CachingBlockLookup implements BlockGetter
 
         if (xPos < 0 || xPos >= SIZE || yPos < 0 || yPos >= SIZE || zPos < 0 || zPos >= SIZE)
         {
-            return world.getBlockState(temp.set(x, y, z));
+            return BlockState.of(world, x, y, z);
         }
-        else
+
+        final int index = xPos + yPos * SIZE + zPos * SIZE * SIZE;
+        BlockState state = states[index];
+        if (state == null)
         {
-            final int index = xPos + yPos * SIZE + zPos * SIZE * SIZE;
-            BlockState state = states[index];
-            if (state == null)
-            {
-                if (chunk == null || chunk.getPos().x != x >> 4 || chunk.getPos().z != z >> 4)
-                {
-                    chunk = world.getChunk(x >> 4, z >> 4, ChunkStatus.FULL, false);
-                }
-
-                if (chunk != null)
-                {
-                    state = chunk.getBlockState(temp.set(x, y, z));
-                }
-                else
-                {
-                    state = world.getBlockState(temp.set(x, y, z));
-                }
-
-                states[index] = state;
-            }
-
-            return state;
+            state = BlockState.of(world, x, y, z);
+            states[index] = state;
         }
+        return state;
     }
 
-    /**
-     * Resets the cache's position and data
-     */
     public void resetToNextPos(final int x, final int y, final int z)
     {
         final int xDiff = (x + MIDDLEOFFSET) - centerX;
@@ -131,10 +65,7 @@ public class CachingBlockLookup implements BlockGetter
 
         if (Math.abs(xDiff) >= SIZE || Math.abs(yDiff) >= SIZE || Math.abs(zDiff) >= SIZE)
         {
-            for (int i = 0; i < states.length; i++)
-            {
-                states[i] = null;
-            }
+            for (int i = 0; i < states.length; i++) { states[i] = null; }
         }
         else
         {
@@ -144,33 +75,58 @@ public class CachingBlockLookup implements BlockGetter
                 if (state != null)
                 {
                     states[i] = null;
-
                     int zPos = i / (SIZE * SIZE);
                     int yPos = (i - (zPos * SIZE * SIZE)) / SIZE;
                     int xPos = (i - (zPos * SIZE * SIZE) - (yPos * SIZE));
-
-                    zPos += zDiff;
-                    yPos += yDiff;
-                    xPos += xDiff;
-
-                    if (xPos < 0 || xPos >= SIZE || yPos < 0 || yPos >= SIZE || zPos < 0 || zPos >= SIZE)
-                    {
-                        continue;
-                    }
-
-                    final int newIndex = xPos + yPos * SIZE + zPos * SIZE * SIZE;
-                    exchange[newIndex] = state;
+                    zPos += zDiff; yPos += yDiff; xPos += xDiff;
+                    if (xPos < 0 || xPos >= SIZE || yPos < 0 || yPos >= SIZE || zPos < 0 || zPos >= SIZE) { continue; }
+                    exchange[xPos + yPos * SIZE + zPos * SIZE * SIZE] = state;
                 }
             }
-
-            final BlockState[] temp = states;
-            states = exchange;
-            exchange = temp;
+            final BlockState[] tmp = states; states = exchange; exchange = tmp;
         }
 
         centerX = x + MIDDLEOFFSET;
         centerY = y + MIDDLEOFFSET;
         centerZ = z + MIDDLEOFFSET;
+    }
+
+    // ---- IBlockAccess implementation ----
+
+    @Override
+    public net.minecraft.block.Block getBlock(final int x, final int y, final int z)
+    {
+        return getBlockState(x, y, z).block;
+    }
+
+    @Override
+    public net.minecraft.tileentity.TileEntity getTileEntity(final int x, final int y, final int z)
+    {
+        return null;
+    }
+
+    @Override
+    public int getBlockMetadata(final int x, final int y, final int z)
+    {
+        return getBlockState(x, y, z).meta;
+    }
+
+    @Override
+    public int isBlockProvidingPowerTo(final int x, final int y, final int z, final int side)
+    {
+        return 0;
+    }
+
+    @Override
+    public boolean isAirBlock(final int x, final int y, final int z)
+    {
+        return getBlock(x, y, z).isAir(this, x, y, z);
+    }
+
+    @Override
+    public net.minecraft.world.biome.BiomeGenBase getBiomeGenForCoords(final int x, final int z)
+    {
+        return world.getBiomeGenForCoords(x, z);
     }
 
     @Override
@@ -180,8 +136,14 @@ public class CachingBlockLookup implements BlockGetter
     }
 
     @Override
-    public int getMinBuildHeight()
+    public boolean extendedLevelsInChunkCache()
     {
-        return world.getMinBuildHeight();
+        return false;
+    }
+
+    @Override
+    public boolean isSideSolid(final int x, final int y, final int z, final net.minecraft.util.Direction side, final boolean def)
+    {
+        return def;
     }
 }

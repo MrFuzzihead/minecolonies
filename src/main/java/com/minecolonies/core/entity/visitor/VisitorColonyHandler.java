@@ -5,7 +5,7 @@ import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.core.entity.citizen.citizenhandlers.CitizenColonyHandler;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.entity.Entity;
 
 /**
  * Colony handler for visitors
@@ -39,7 +39,7 @@ public class VisitorColonyHandler extends CitizenColonyHandler
             return;
         }
 
-        final IColony colony = IColonyManager.getInstance().getColonyByWorld(colonyId, citizen.level);
+        final IColony colony = IColonyManager.getInstance().getColonyByWorld(colonyId, citizen.World);
 
         if (colony == null)
         {
@@ -63,3 +63,5 @@ public class VisitorColonyHandler extends CitizenColonyHandler
         }
     }
 }
+
+

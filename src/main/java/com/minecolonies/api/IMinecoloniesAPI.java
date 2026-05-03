@@ -24,12 +24,11 @@ import com.minecolonies.api.entity.pathfinding.registry.IPathNavigateRegistry;
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.api.eventbus.EventBus;
 import com.minecolonies.api.quests.registries.QuestRegistries;
+import com.minecolonies.api.registry.SimpleRegistry;
 import com.minecolonies.api.research.IGlobalResearchTree;
 import com.minecolonies.api.research.ModResearchCosts.ResearchCostEntry;
 import com.minecolonies.api.research.ModResearchEffects;
 import com.minecolonies.api.research.ModResearchRequirements;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.NewRegistryEvent;
 
 public interface IMinecoloniesAPI
 {
@@ -49,19 +48,19 @@ public interface IMinecoloniesAPI
 
     IBuildingDataManager getBuildingDataManager();
 
-    IForgeRegistry<BuildingEntry> getBuildingRegistry();
+    SimpleRegistry<BuildingEntry> getBuildingRegistry();
 
-    IForgeRegistry<BuildingExtensionEntry> getBuildingExtensionRegistry();
+    SimpleRegistry<BuildingExtensionEntry> getBuildingExtensionRegistry();
 
     IJobDataManager getJobDataManager();
 
-    IForgeRegistry<JobEntry> getJobRegistry();
+    SimpleRegistry<JobEntry> getJobRegistry();
 
-    IForgeRegistry<InteractionResponseHandlerEntry> getInteractionResponseHandlerRegistry();
+    SimpleRegistry<InteractionResponseHandlerEntry> getInteractionResponseHandlerRegistry();
 
     IGuardTypeDataManager getGuardTypeDataManager();
 
-    IForgeRegistry<GuardType> getGuardTypeRegistry();
+    SimpleRegistry<GuardType> getGuardTypeRegistry();
 
     IModelTypeRegistry getModelTypeRegistry();
 
@@ -73,35 +72,33 @@ public interface IMinecoloniesAPI
 
     IGlobalResearchTree getGlobalResearchTree();
 
-    IForgeRegistry<ModResearchRequirements.ResearchRequirementEntry> getResearchRequirementRegistry();
+    SimpleRegistry<ModResearchRequirements.ResearchRequirementEntry> getResearchRequirementRegistry();
 
-    IForgeRegistry<ModResearchEffects.ResearchEffectEntry> getResearchEffectRegistry();
+    SimpleRegistry<ModResearchEffects.ResearchEffectEntry> getResearchEffectRegistry();
 
-    IForgeRegistry<ResearchCostEntry> getResearchCostRegistry();
+    SimpleRegistry<ResearchCostEntry> getResearchCostRegistry();
 
-    IForgeRegistry<ColonyEventTypeRegistryEntry> getColonyEventRegistry();
+    SimpleRegistry<ColonyEventTypeRegistryEntry> getColonyEventRegistry();
 
-    IForgeRegistry<ColonyEventDescriptionTypeRegistryEntry> getColonyEventDescriptionRegistry();
+    SimpleRegistry<ColonyEventDescriptionTypeRegistryEntry> getColonyEventDescriptionRegistry();
 
-    IForgeRegistry<RecipeTypeEntry> getRecipeTypeRegistry();
+    SimpleRegistry<RecipeTypeEntry> getRecipeTypeRegistry();
 
-    IForgeRegistry<CraftingType> getCraftingTypeRegistry();
+    SimpleRegistry<CraftingType> getCraftingTypeRegistry();
 
-    IForgeRegistry<QuestRegistries.RewardEntry> getQuestRewardRegistry();
+    SimpleRegistry<QuestRegistries.RewardEntry> getQuestRewardRegistry();
 
-    IForgeRegistry<QuestRegistries.ObjectiveEntry> getQuestObjectiveRegistry();
+    SimpleRegistry<QuestRegistries.ObjectiveEntry> getQuestObjectiveRegistry();
 
-    IForgeRegistry<QuestRegistries.TriggerEntry> getQuestTriggerRegistry();
+    SimpleRegistry<QuestRegistries.TriggerEntry> getQuestTriggerRegistry();
 
-    IForgeRegistry<QuestRegistries.DialogueAnswerEntry> getQuestDialogueAnswerRegistry();
+    SimpleRegistry<QuestRegistries.DialogueAnswerEntry> getQuestDialogueAnswerRegistry();
 
-    IForgeRegistry<HappinessRegistry.HappinessFactorTypeEntry> getHappinessTypeRegistry();
+    SimpleRegistry<HappinessRegistry.HappinessFactorTypeEntry> getHappinessTypeRegistry();
 
-    IForgeRegistry<HappinessRegistry.HappinessFunctionEntry> getHappinessFunctionRegistry();
+    SimpleRegistry<HappinessRegistry.HappinessFunctionEntry> getHappinessFunctionRegistry();
 
-    void onRegistryNewRegistry(NewRegistryEvent event);
-
-    IForgeRegistry<EquipmentTypeEntry> getEquipmentTypeRegistry();
+    SimpleRegistry<EquipmentTypeEntry> getEquipmentTypeRegistry();
 
     EventBus getEventBus();
 }

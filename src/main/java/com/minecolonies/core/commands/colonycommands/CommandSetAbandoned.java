@@ -7,9 +7,9 @@ import com.minecolonies.core.commands.commandTypes.IMCCommand;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 
 import static com.minecolonies.api.util.constant.translation.CommandTranslationConstants.COMMAND_OWNER_CHANGE_SUCCESS;
 import static com.minecolonies.core.commands.CommandArgumentNames.COLONYID_ARG;
@@ -40,7 +40,7 @@ public class CommandSetAbandoned implements IMCColonyOfficerCommand
             colony.getPermissions().addPlayer(((Player) sender).getGameProfile(), colony.getPermissions().getRankOfficer());
         }
 
-        context.getSource().sendSuccess(() -> Component.translatable(COMMAND_OWNER_CHANGE_SUCCESS, "[abandoned]", colony.getName()), true);
+        context.getSource().sendSuccess(() -> String.translatable(COMMAND_OWNER_CHANGE_SUCCESS, "[abandoned]", colony.getName()), true);
         return 1;
     }
 
@@ -60,3 +60,5 @@ public class CommandSetAbandoned implements IMCColonyOfficerCommand
                  .then(IMCCommand.newArgument(COLONYID_ARG, ColonyIdArgument.id()).executes(this::checkPreConditionAndExecute));
     }
 }
+
+

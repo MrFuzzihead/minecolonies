@@ -1,17 +1,8 @@
 package com.minecolonies.api.advancements.undertaker_totem;
-
-import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.advancements.critereon.AbstractCriterionTriggerInstance;
-import net.minecraft.advancements.critereon.ContextAwarePredicate;
-import net.minecraft.resources.ResourceLocation;
-
-/**
- * An undertaker recieves a totem of undying criterion instance.
- */
-public class UndertakerTotemCriterionInstance extends AbstractCriterionTriggerInstance
+// [1.7.10 BACKPORT] Stubbed out — advancements do not exist in Minecraft 1.7.10.
+// Original 1.21 class extended AbstractCriterionTriggerInstance.
+/** Stub criterion instance — no-op in 1.7.10. */
+public class UndertakerTotemCriterionInstance
 {
-    public UndertakerTotemCriterionInstance()
-    {
-        super(new ResourceLocation(Constants.MOD_ID, Constants.CRITERION_UNDERTAKER_TOTEM), ContextAwarePredicate.ANY);
-    }
+    public UndertakerTotemCriterionInstance() { /* no-op */ }
 }

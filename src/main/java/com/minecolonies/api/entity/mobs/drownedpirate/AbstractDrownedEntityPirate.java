@@ -6,12 +6,7 @@ import com.minecolonies.api.entity.mobs.RaiderType;
 import com.minecolonies.api.entity.pathfinding.registry.IPathNavigateRegistry;
 import com.minecolonies.core.entity.pathfinding.navigation.AbstractAdvancedPathNavigate;
 import com.minecolonies.core.entity.pathfinding.navigation.PathingStuckHandler;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.core.colony.events.raid.RaiderConstants.ONE;
@@ -35,68 +30,21 @@ public abstract class AbstractDrownedEntityPirate extends AbstractEntityMinecolo
     /**
      * Constructor method for Abstract Barbarians.
      *
-     * @param type  the type.
      * @param world the world.
      */
-    public AbstractDrownedEntityPirate(final EntityType<? extends AbstractDrownedEntityPirate> type, final Level world)
+    public AbstractDrownedEntityPirate(final World world)
     {
-        super(type, world, PIRATE_TEXTURES);
+        super(world, PIRATE_TEXTURES);
     }
 
     @Override
-    public void playAmbientSound()
+    public void playLivingSound()
     {
-        if (level().random.nextInt(OUT_OF_ONE_HUNDRED) <= ONE)
+        if (worldObj.rand.nextInt(OUT_OF_ONE_HUNDRED) <= ONE)
         {
-            this.playSound(this.isInWater() ? SoundEvents.DROWNED_AMBIENT_WATER : SoundEvents.DROWNED_AMBIENT, this.getSoundVolume(), this.getVoicePitch());
+            // TODO: no SoundEvents.DROWNED_AMBIENT in 1.7.10; use placeholder
+            this.playSound("EntityCreature.zombie.say", this.getSoundVolume(), this.getSoundPitch());
         }
-    }
-
-    @Override
-    public boolean checkSpawnObstruction(final LevelReader level)
-    {
-        return level.isUnobstructed(this);
-    }
-
-    @Override
-    public boolean checkSpawnRules(final LevelAccessor worldIn, final MobSpawnType spawnReasonIn)
-    {
-        return true;
-    }
-
-    @NotNull
-    @Override
-    public AbstractAdvancedPathNavigate getNavigation()
-    {
-        if (this.newNavigator == null)
-        {
-            this.newNavigator = IPathNavigateRegistry.getInstance().getNavigateFor(this);
-            this.navigation = newNavigator;
-            newNavigator.setSwimSpeedFactor(getSwimSpeedFactor());
-            newNavigator.setSpeedModifier(0.5);
-            newNavigator.getPathingOptions().withStartSwimCost(0.0D).withSwimCost(0.0D).withDivingCost(0.0D).withCanEnterDoors(true).withCanEnterGates(true).withDropCost(0.0D).withJumpCost(0.0D).withWalkUnderWater(true).withNonLadderClimbableCost(0.0D).setPassDanger(true);
-            PathingStuckHandler stuckHandler = PathingStuckHandler.createStuckHandler()
-                                                 .withTakeDamageOnStuck(0.4f)
-                                                 .withBuildLeafBridges()
-                                                 .withChanceToByPassMovingAway(0.20)
-                                                 .withPlaceLadders();
-
-            if (MinecoloniesAPIProxy.getInstance().getConfig().getServer().raidersbreakblocks.get())
-            {
-                stuckHandler.withBlockBreaks();
-                stuckHandler.withCompleteStuckBlockBreak(6);
-            }
-
-            newNavigator.setStuckHandler(stuckHandler);
-            this.newNavigator.setCanFloat(true);
-        }
-        return newNavigator;
-    }
-
-    @Override
-    protected int decreaseAirSupply(final int supply)
-    {
-        return supply;
     }
 
     @Override
@@ -111,3 +59,4 @@ public abstract class AbstractDrownedEntityPirate extends AbstractEntityMinecolo
         return PIRATE_SWIM_BONUS;
     }
 }
+

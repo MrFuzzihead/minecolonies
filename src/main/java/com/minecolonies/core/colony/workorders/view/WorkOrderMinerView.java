@@ -1,7 +1,7 @@
 package com.minecolonies.core.colony.workorders.view;
 
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
-import net.minecraft.network.chat.Component;
+import net.minecraft.util.IChatComponent;
 
 /**
  * The client side representation for a work order that the builder can take to build mineshafts.
@@ -9,9 +9,9 @@ import net.minecraft.network.chat.Component;
 public class WorkOrderMinerView extends AbstractWorkOrderView
 {
     @Override
-    public Component getDisplayName()
+    public String getDisplayName()
     {
-        return Component.translatable(getTranslationKey());
+        return String.translatable(getTranslationKey());
     }
 
     @Override
@@ -20,3 +20,5 @@ public class WorkOrderMinerView extends AbstractWorkOrderView
         return false;
     }
 }
+
+

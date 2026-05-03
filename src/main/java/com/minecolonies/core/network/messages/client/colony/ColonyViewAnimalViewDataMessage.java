@@ -8,13 +8,12 @@ import com.minecolonies.api.colony.IVisitorData;
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.api.util.Log;
 import io.netty.buffer.Unpooled;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] Registries removed
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,7 +32,7 @@ public class ColonyViewAnimalViewDataMessage implements IMessage
     /**
      * The dimension the citizen is in.
      */
-    private ResourceKey<Level> dimension;
+    private int /* ResourceKey */ dimension;
 
     /**
      * Visiting entity data
@@ -43,7 +42,7 @@ public class ColonyViewAnimalViewDataMessage implements IMessage
     /**
      * Visitor buf to read on client side.
      */
-    private FriendlyByteBuf animalBuf;
+    private PacketBuffer animalBuf;
 
     /**
      * If a general refresh is necessary,
@@ -71,7 +70,7 @@ public class ColonyViewAnimalViewDataMessage implements IMessage
         this.animals = animals;
         this.refresh = refresh;
 
-        animalBuf = new FriendlyByteBuf(Unpooled.buffer());
+        animalBuf = new PacketBuffer(Unpooled.buffer());
         for (final IAnimalData data : animals)
         {
             animalBuf.writeInt(data.getId());
@@ -80,16 +79,16 @@ public class ColonyViewAnimalViewDataMessage implements IMessage
     }
 
     @Override
-    public void fromBytes(@NotNull final FriendlyByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
         colonyId = buf.readInt();
         dimension = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(buf.readUtf(32767)));
         refresh = buf.readBoolean();
-        this.animalBuf = new FriendlyByteBuf(buf.retain());
+        this.animalBuf = new PacketBuffer(buf.retain());
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
         animalBuf.resetReaderIndex();
         buf.writeInt(colonyId);
@@ -101,13 +100,13 @@ public class ColonyViewAnimalViewDataMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.CLIENT;
+        return Boolean.FALSE;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
         final IColonyView colony = IColonyManager.getInstance().getColonyView(colonyId, dimension);
 
@@ -122,3 +121,6 @@ public class ColonyViewAnimalViewDataMessage implements IMessage
         animalBuf.release();
     }
 }
+
+
+

@@ -22,9 +22,9 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.commands.arguments.coordinates.Coordinates;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +34,7 @@ import static com.minecolonies.core.commands.CommandArgumentNames.*;
 public class CommandRaid implements IMCOPCommand
 {
     private static final DynamicCommandExceptionType ERROR_INVALID_COLONY_EVENT_TYPE =
-        new DynamicCommandExceptionType(entry -> Component.translatable("com.minecolonies.command.raid.colony_type.invalid", entry));
+        new DynamicCommandExceptionType(entry -> String.translatable("com.minecolonies.command.raid.colony_type.invalid", entry));
 
     /**
      * Run the command with all fields including the raid type and ship set.
@@ -79,7 +79,7 @@ public class CommandRaid implements IMCOPCommand
             final String raidType = getRaidType(context);
             final boolean allowShips = BoolArgumentType.getBool(context, SHIP_ARG);
             final int raidAmount = IntegerArgumentType.getInteger(context, RAID_AMOUNT_ARG);
-            final BlockPos raidLocation = BlockPosArgument.getBlockPos(context, RAID_LOCATION_ARG);
+            final int[] raidLocation = BlockPosArgument.getBlockPos(context, RAID_LOCATION_ARG);
             return raidExecute(context, new IRaiderManager.RaidSettings(true, raidType, allowShips, raidAmount, raidLocation));
         });
     }
@@ -179,11 +179,11 @@ public class CommandRaid implements IMCOPCommand
 
             if (result == IRaiderManager.RaidSpawnResult.SUCCESS)
             {
-                context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_RAID_NOW_SUCCESS, colony.getName()), true);
+                context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_RAID_NOW_SUCCESS, colony.getName()), true);
             }
             else
             {
-                context.getSource().sendFailure(Component.translatable(CommandTranslationConstants.COMMAND_RAID_NOW_FAILURE, colony.getName(), result));
+                context.getSource().sendFailure(String.translatable(CommandTranslationConstants.COMMAND_RAID_NOW_FAILURE, colony.getName(), result));
             }
         }
         return 1;
@@ -202,7 +202,7 @@ public class CommandRaid implements IMCOPCommand
         for (final IColony colony : colonies)
         {
             colony.getRaiderManager().setRaidNextNight(raidSettings);
-            context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_RAID_TONIGHT_SUCCESS, colony.getName()), true);
+            context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_RAID_TONIGHT_SUCCESS, colony.getName()), true);
         }
         return 1;
     }
@@ -213,3 +213,5 @@ public class CommandRaid implements IMCOPCommand
         return "raid";
     }
 }
+
+

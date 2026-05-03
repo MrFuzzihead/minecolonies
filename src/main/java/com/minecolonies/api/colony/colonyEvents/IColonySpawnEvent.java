@@ -1,6 +1,6 @@
 package com.minecolonies.api.colony.colonyEvents;
 
-import net.minecraft.core.BlockPos;
+// [1.7.10] int[] -> int x,y,z
 
 /**
  * An colony event which spawns at a certain position
@@ -12,12 +12,14 @@ public interface IColonySpawnEvent extends IColonyEvent
      *
      * @param spawnPoint the spawn point to set.
      */
-    void setSpawnPoint(BlockPos spawnPoint);
+    void setSpawnPoint(int[] spawnPoint);
 
     /**
      * The position the event starts at
      *
      * @return the spawn pos.
      */
-    BlockPos getSpawnPos();
+    int[] getSpawnPos();
 }
+
+

@@ -6,9 +6,9 @@ import com.minecolonies.core.commands.commandTypes.IMCCommand;
 import com.minecolonies.core.util.TeleportHelper;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 
 import static com.minecolonies.api.util.constant.translation.CommandTranslationConstants.COMMAND_DISABLED_IN_CONFIG;
 
@@ -30,7 +30,7 @@ public class CommandHomeTeleport implements IMCCommand
             return 0;
         }
 
-        TeleportHelper.homeTeleport((ServerPlayer) sender);
+        TeleportHelper.homeTeleport((EntityPlayerMP) sender);
         return 1;
     }
 
@@ -43,3 +43,5 @@ public class CommandHomeTeleport implements IMCCommand
         return "home";
     }
 }
+
+

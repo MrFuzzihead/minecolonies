@@ -10,8 +10,8 @@ import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.items.ModItems;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.core.colony.buildings.AbstractBuildingGuards;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -41,7 +41,7 @@ public class ColonyPatrolPointRenderer
             return;
         }
 
-        final CompoundTag itemStackNbt = ctx.mainHandItem.getTag();
+        final NBTTagCompound itemStackNbt = ctx.mainHandItem.getTag();
         final IColonyView colony = IColonyManager.getInstance().getColonyView(itemStackNbt.getInt(TAG_ID), ctx.clientLevel.dimension());
 
         if (colony == null)
@@ -66,7 +66,7 @@ public class ColonyPatrolPointRenderer
             {
                 final BlueprintPreviewData tempPreviewData = new BlueprintPreviewData();
                 tempPreviewData.setBlueprint(pendingTemplate.get());
-                tempPreviewData.setPos(BlockPos.ZERO);
+                tempPreviewData.setPos(new int[]{0,0,0});
                 partolPointTemplate = tempPreviewData;
                 pendingTemplate = null;
             }
@@ -83,3 +83,7 @@ public class ColonyPatrolPointRenderer
         }
     }
 }
+
+
+
+

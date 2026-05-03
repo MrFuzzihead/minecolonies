@@ -3,19 +3,19 @@ package com.minecolonies.core.event;
 import com.google.gson.*;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.core.Holder;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] Holder removed
+// [1.7.10] RegistryAccess removed
+// [1.7.10] Registries removed
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
-import net.minecraft.tags.TagKey;
+// [1.7.10] tags removed
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraftforge.api.distmarker.Dist;
+import net.minecraft.world.biome.Biome;
+import cpw.mods.fml.relauncher.Side;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+// [1.7.10] eventbus removed
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
@@ -184,7 +184,7 @@ public class ColonyStoryListener extends SimpleJsonResourceReloadListener
     }
 
     /**
-     * A biome filter; either by id or by tag.
+     * A biome filter; either by id or by NBTBase.
      */
     private record BiomeFilter(Predicate<Holder<Biome>> filter) implements Predicate<Holder<Biome>>
     {
@@ -226,7 +226,7 @@ public class ColonyStoryListener extends SimpleJsonResourceReloadListener
             else
             {
                 final RegistryAccess registryAccess = ServerLifecycleHooks.getCurrentServer().registryAccess();
-                final ResourceKey<Biome> key = ResourceKey.create(Registries.BIOME, new ResourceLocation(value));
+                final int /* ResourceKey */ key = ResourceKey.create(Registries.BIOME, new ResourceLocation(value));
                 final Holder<Biome> biome = registryAccess.registryOrThrow(Registries.BIOME).getHolderOrThrow(key);
                 return new BiomeFilter(b -> b.equals(biome));
             }
@@ -262,3 +262,7 @@ public class ColonyStoryListener extends SimpleJsonResourceReloadListener
         }
     }
 }
+
+
+
+

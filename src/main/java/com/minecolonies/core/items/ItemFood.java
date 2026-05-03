@@ -3,11 +3,11 @@ package com.minecolonies.core.items;
 import com.minecolonies.api.items.IMinecoloniesFoodItem;
 import com.minecolonies.api.util.constant.TranslationConstants;
 import com.minecolonies.core.client.gui.containers.WindowCitizenInventory;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -36,11 +36,11 @@ public class ItemFood extends Item implements IMinecoloniesFoodItem
     }
 
     @Override
-    public void appendHoverText(@NotNull final ItemStack stack, @Nullable final Level worldIn, @NotNull final List<Component> tooltip, @NotNull final TooltipFlag flagIn)
+    public void appendHoverText(@NotNull final ItemStack stack, @Nullable final World worldIn, @NotNull final List<String> tooltip, @NotNull final TooltipFlag flagIn)
     {
         if (WindowCitizenInventory.activeCitizenInventory == null)
         {
-            tooltip.add(Component.translatable(TranslationConstants.TIER_TOOLTIP + this.tier));
+            tooltip.add(String.translatable(TranslationConstants.TIER_TOOLTIP + this.tier));
         }
     }
 
@@ -50,3 +50,5 @@ public class ItemFood extends Item implements IMinecoloniesFoodItem
         return this.tier;
     }
 }
+
+

@@ -8,7 +8,7 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
+import net.minecraft.util.IChatComponent;
 
 import static com.minecolonies.api.util.constant.translation.CommandTranslationConstants.COMMAND_COLONY_DELETABLE_SUCCESS;
 import static com.minecolonies.core.commands.CommandArgumentNames.COLONYID_ARG;
@@ -31,7 +31,7 @@ public class CommandSetDeletable implements IMCOPCommand
 
         colony.setCanBeAutoDeleted(BoolArgumentType.getBool(context, DELETEABLE_ARG));
         context.getSource()
-          .sendSuccess(() -> Component.translatable(COMMAND_COLONY_DELETABLE_SUCCESS, colony.getID(), BoolArgumentType.getBool(context, DELETEABLE_ARG)), true);
+          .sendSuccess(() -> String.translatable(COMMAND_COLONY_DELETABLE_SUCCESS, colony.getID(), BoolArgumentType.getBool(context, DELETEABLE_ARG)), true);
         return 1;
     }
 
@@ -52,3 +52,5 @@ public class CommandSetDeletable implements IMCOPCommand
                          .then(IMCCommand.newArgument(DELETEABLE_ARG, BoolArgumentType.bool()).executes(this::checkPreConditionAndExecute)));
     }
 }
+
+

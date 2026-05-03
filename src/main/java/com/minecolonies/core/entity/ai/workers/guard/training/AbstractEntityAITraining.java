@@ -6,7 +6,7 @@ import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.jobs.AbstractJob;
 import com.minecolonies.core.entity.ai.workers.AbstractEntityAIInteract;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
-import net.minecraft.core.BlockPos;
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState.*;
@@ -30,7 +30,7 @@ public abstract class AbstractEntityAITraining<J extends AbstractJob<?, J>, B ex
     /**
      * The current pathing target to walk to.
      */
-    protected BlockPos currentPathingTarget;
+    protected int[] currentPathingTarget;
 
     /**
      * State to go to after pathing.
@@ -127,3 +127,5 @@ public abstract class AbstractEntityAITraining<J extends AbstractJob<?, J>, B ex
         }
     }
 }
+
+

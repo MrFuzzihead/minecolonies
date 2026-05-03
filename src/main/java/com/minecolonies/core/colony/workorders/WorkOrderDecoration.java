@@ -8,7 +8,7 @@ import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingBuilder;
 import com.minecolonies.core.colony.jobs.JobBuilder;
 import com.minecolonies.core.entity.ai.workers.util.ConstructionTapeHelper;
-import net.minecraft.core.BlockPos;
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.Suppression.UNUSED_METHOD_PARAMETERS_SHOULD_BE_REMOVED;
@@ -24,7 +24,7 @@ public class WorkOrderDecoration extends AbstractWorkOrder
       final String packName,
       final String path,
       final String translationKey,
-      final BlockPos location,
+      final int[] location,
       final int rotation,
       final boolean mirror,
       final int currentLevel)
@@ -64,7 +64,7 @@ public class WorkOrderDecoration extends AbstractWorkOrder
     }
 
     private WorkOrderDecoration(
-      String packName, String path, final String translationKey, WorkOrderType workOrderType, BlockPos location, int rotation, boolean isMirrored, int currentLevel,
+      String packName, String path, final String translationKey, WorkOrderType workOrderType, int[] location, int rotation, boolean isMirrored, int currentLevel,
       int targetLevel)
     {
         super(packName, path, translationKey, workOrderType, location, rotation, isMirrored, currentLevel, targetLevel);
@@ -86,13 +86,13 @@ public class WorkOrderDecoration extends AbstractWorkOrder
      * Checks if a builder may accept this workOrder while ignoring the distance to the builder.
      * <p>
      * @param position position of the builders own hut.
-     * @param level    level of the builders hut.
+     * @param World    World of the builders hut.
      * @return true if so.
      */
     @SuppressWarnings(UNUSED_METHOD_PARAMETERS_SHOULD_BE_REMOVED)
-    public boolean canBuildIgnoringDistance(@NotNull IBuilding building, final BlockPos position, final int level)
+    public boolean canBuildIgnoringDistance(@NotNull IBuilding building, final int[] position, final int World)
     {
-        return level > 0;
+        return World > 0;
     }
 
     @Override
@@ -119,3 +119,5 @@ public class WorkOrderDecoration extends AbstractWorkOrder
         ConstructionTapeHelper.removeConstructionTape(this, colony.getWorld());
     }
 }
+
+

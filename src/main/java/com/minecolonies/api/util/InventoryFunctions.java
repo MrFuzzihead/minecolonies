@@ -1,8 +1,9 @@
 package com.minecolonies.api.util;
 
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
+// [1.7.10] capabilities removed - ICapabilityProvider shim provided
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.items.IItemHandler;
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,7 +56,7 @@ public final class InventoryFunctions
         }
 
         boolean foundOne = false;
-        for (final IItemHandler handler : InventoryUtils.getItemHandlersFromProvider(provider))
+        for (final net.minecraftforge.items.IItemHandler handler : InventoryUtils.getItemHandlersFromProvider(provider))
         {
             final int size = handler.getSlots();
             for (int slot = 0; slot < size; slot++)
@@ -129,7 +130,7 @@ public final class InventoryFunctions
      * @return true if it found a stack
      */
     public static boolean matchFirstInHandlerWithAction(
-      @NotNull final IItemHandler itemHandler,
+      @NotNull final net.minecraftforge.items.IItemHandler itemHandler,
       @NotNull final Predicate<ItemStack> tester,
       @NotNull final IMatchActionResultHandler action)
     {
@@ -154,8 +155,8 @@ public final class InventoryFunctions
      * @return true if it found a stack
      */
     private static boolean matchInHandler(
-      @Nullable final IItemHandler handler,
-      @NotNull final Function<IItemHandler, Function<Integer, Predicate<ItemStack>>> tester)
+      @Nullable final net.minecraftforge.items.IItemHandler handler,
+      @NotNull final Function<net.minecraftforge.items.IItemHandler, Function<Integer, Predicate<ItemStack>>> tester)
     {
         if (handler == null)
         {
@@ -235,7 +236,7 @@ public final class InventoryFunctions
      * Functional interface describing a Action that is executed ones a Match (the given ItemStack) is found in the given slot.
      */
     @FunctionalInterface
-    public interface IMatchActionResultHandler extends ObjIntConsumer<IItemHandler>
+    public interface IMatchActionResultHandler extends ObjIntConsumer<net.minecraftforge.items.IItemHandler>
     {
         /**
          * Method executed when a match has been found.
@@ -244,6 +245,9 @@ public final class InventoryFunctions
          * @param slotIndex The slotindex in which this itemstack was found.
          */
         @Override
-        void accept(IItemHandler handler, int slotIndex);
+        void accept(net.minecraftforge.items.IItemHandler handler, int slotIndex);
     }
 }
+
+
+

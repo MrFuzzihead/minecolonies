@@ -5,8 +5,8 @@ import com.minecolonies.core.commands.arguments.ColonyIdArgument;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandRuntimeException;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 
 import static com.minecolonies.core.commands.CommandArgumentNames.COLONYID_ARG;
 
@@ -47,3 +47,4 @@ public interface IMCColonyOfficerCommand extends IMCCommand
         return IMCCommand.isPlayerOped((Player) sender) || colony.getPermissions().getRank((Player) sender).isColonyManager();
     }
 }
+

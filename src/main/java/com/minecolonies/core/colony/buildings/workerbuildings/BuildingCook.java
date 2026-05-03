@@ -9,8 +9,8 @@ import com.minecolonies.api.util.MathUtils;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.ItemListModule;
 import com.minecolonies.core.entity.other.SittingEntity;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,7 +39,7 @@ public class BuildingCook extends AbstractBuilding
     public static final String FOOD_EXCLUSION_LIST = "food";
 
     /**
-     * Max building level of the cook.
+     * Max building World of the cook.
      */
     private static final int MAX_BUILDING_LEVEL = 5;
 
@@ -49,7 +49,7 @@ public class BuildingCook extends AbstractBuilding
      * @param c the colony.
      * @param l the location
      */
-    public BuildingCook(final IColony c, final BlockPos l)
+    public BuildingCook(final IColony c, final int[] l)
     {
         super(c, l);
     }
@@ -65,7 +65,7 @@ public class BuildingCook extends AbstractBuilding
      *
      * @return eating position to sit at
      */
-    public BlockPos getNextSittingPosition()
+    public int[] getNextSittingPosition()
     {
         if (getLocationsFromTag(TAG_SITTING).isEmpty() && getLocationsFromTag(TAG_SIT_IN).isEmpty() && getLocationsFromTag(TAG_SIT_OUT).isEmpty())
         {
@@ -86,7 +86,7 @@ public class BuildingCook extends AbstractBuilding
 
             if (rng < sittingSize)
             {
-                final BlockPos pos = getLocationsFromTag(TAG_SITTING).get(rng);
+                final int[] pos = getLocationsFromTag(TAG_SITTING).get(rng);
                 if (!SittingEntity.isSittingPosOccupied(pos, colony.getWorld()))
                 {
                     return pos;
@@ -94,7 +94,7 @@ public class BuildingCook extends AbstractBuilding
             }
             else if (rng < sittingSize + sitInSize)
             {
-                final BlockPos pos = getLocationsFromTag(TAG_SIT_IN).get(rng - sittingSize);
+                final int[] pos = getLocationsFromTag(TAG_SIT_IN).get(rng - sittingSize);
                 if (!SittingEntity.isSittingPosOccupied(pos, colony.getWorld()))
                 {
                     return pos;
@@ -102,7 +102,7 @@ public class BuildingCook extends AbstractBuilding
             }
             else
             {
-                final BlockPos pos = getLocationsFromTag(TAG_SIT_OUT).get(rng - sittingSize - sitInSize);
+                final int[] pos = getLocationsFromTag(TAG_SIT_OUT).get(rng - sittingSize - sitInSize);
                 if (!SittingEntity.isSittingPosOccupied(pos, colony.getWorld()))
                 {
                     return pos;
@@ -149,3 +149,5 @@ public class BuildingCook extends AbstractBuilding
         return super.buildingRequiresCertainAmountOfItem(stack, localAlreadyKept, inventory, jobEntry);
     }
 }
+
+

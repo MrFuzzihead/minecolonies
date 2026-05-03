@@ -3,7 +3,7 @@ package com.minecolonies.core.datalistener;
 import com.google.gson.*;
 import com.minecolonies.api.colony.CitizenNameFile;
 import com.minecolonies.api.util.Log;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -87,3 +87,4 @@ public class CitizenNameListener extends SimpleJsonResourceReloadListener
         }
     }
 }
+

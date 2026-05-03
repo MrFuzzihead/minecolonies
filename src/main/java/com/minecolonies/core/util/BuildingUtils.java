@@ -15,14 +15,14 @@ import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.WorldUtil;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingTownHall;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Inventory;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] world.entity removed
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 import net.minecraft.world.level.block.DirectionalBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.registries.ForgeRegistries;
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.stringtemplate.v4.compiler.STParser.region_return;
@@ -76,11 +76,11 @@ public final class BuildingUtils
      *                    it returns {@link #UNRESTRICTED} when there are no explicit restrictions.
      */
     @NotNull
-    public static Predicate<JobEntry> getAllowedJobs(@NotNull final Level world, @NotNull final BlockPos buildingPos)
+    public static Predicate<JobEntry> getAllowedJobs(@NotNull final World world, @NotNull final int[] buildingPos)
     {
         if (world.getBlockEntity(buildingPos) instanceof final IBlueprintDataProviderBE provider)
         {
-            final Set<String> jobTags = provider.getPositionedTags().getOrDefault(BlockPos.ZERO, new ArrayList<>()).stream()
+            final Set<String> jobTags = provider.getPositionedTags().getOrDefault(new int[]{0,0,0}, new ArrayList<>()).stream()
                     .filter(t -> t.startsWith("job="))
                     .map(t -> t.substring(4))
                     .collect(Collectors.toSet());
@@ -121,7 +121,7 @@ public final class BuildingUtils
      * @param pos   the anchor pos.
      * @return the number of rotations, or -1 if unable to calculate.
      */
-    public static int getRotationFromBlueprint(@NotNull final Level world, @NotNull final BlockPos pos)
+    public static int getRotationFromBlueprint(@NotNull final World world, @NotNull final int[] pos)
     {
         if (!WorldUtil.isBlockLoaded(world, pos))
         {
@@ -192,15 +192,15 @@ public final class BuildingUtils
     }
 
     /**
-     * Retrieves the ICommonBuilding at the given position in the given level.
+     * Retrieves the ICommonBuilding at the given position in the given World.
      * 
-     * @param level the level to search in.
+     * @param World the World to search in.
      * @param pos the position to search for.
      * @return the ICommonBuilding at the given position, or null if none exists.
      */
-    public static ICommonBuilding commonBuildingFromPosition(@NotNull final Level level, @NotNull final BlockPos pos)
+    public static ICommonBuilding commonBuildingFromPosition(@NotNull final World World, @NotNull final int[] pos)
     {
-        IColony colony = IColonyManager.getInstance().getIColony(level, pos);
+        IColony colony = IColonyManager.getInstance().getIColony(World, pos);
         if (colony != null)
         {
             return colony.getCommonBuildingManager().getBuilding(pos);
@@ -209,3 +209,7 @@ public final class BuildingUtils
         return null;
     }
 }
+
+
+
+

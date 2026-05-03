@@ -2,7 +2,7 @@ package com.minecolonies.api.client.render.modeltype.registry;
 
 import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.client.render.modeltype.IModelType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -36,3 +36,4 @@ public interface IModelTypeRegistry
     @Nullable
     IModelType getModelType(ResourceLocation name);
 }
+

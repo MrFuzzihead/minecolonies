@@ -10,11 +10,11 @@ import com.minecolonies.api.util.WorldUtil;
 import com.minecolonies.core.colony.buildings.modules.WorkerBuildingModule;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.ExperienceOrb;
-import net.minecraft.world.level.GameRules;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.entity.Entity;
+// [1.7.10] world.entity removed
+import net.minecraft.world.GameRules;
+// [1.7.10] world.phys removed
+// [1.7.10] world.phys removed
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.research.util.ResearchConstants.LEVELING;
@@ -163,7 +163,7 @@ public class CitizenExperienceHandler implements ICitizenExperienceHandler
     @Override
     public void gatherXp()
     {
-        if (citizen.level.isClientSide)
+        if (citizen.World.isClientSide)
         {
             return;
         }
@@ -171,14 +171,14 @@ public class CitizenExperienceHandler implements ICitizenExperienceHandler
         final int growSize = counterMovedXp > 0 || citizen.getRandom().nextInt(100) < 20 ? 4 : 2;
 
         final AABB box = citizen.getBoundingBox().inflate(growSize);
-        if (!WorldUtil.isAABBLoaded(citizen.level, box))
+        if (!WorldUtil.isAABBLoaded(citizen.World, box))
         {
             return;
         }
 
         boolean movedXp = false;
 
-        for (@NotNull final ExperienceOrb orb : citizen.level.getEntitiesOfClass(ExperienceOrb.class, box))
+        for (@NotNull final ExperienceOrb orb : citizen.World.getEntitiesOfClass(ExperienceOrb.class, box))
         {
             if (orb.tickCount < 5)
             {
@@ -217,3 +217,6 @@ public class CitizenExperienceHandler implements ICitizenExperienceHandler
         }
     }
 }
+
+
+

@@ -13,10 +13,10 @@ import com.minecolonies.api.colony.requestsystem.resolver.player.IPlayerRequestR
 import com.minecolonies.api.colony.requestsystem.resolver.retrying.IRetryingRequestResolver;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.tileentities.ITickable;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.item.ItemStack;
+// [1.7.10] INBTSerializable -> manual read/write
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,7 +26,7 @@ import java.util.function.Predicate;
 /**
  * Interface used to describe classes that function as managers for requests inside a colony. Extends INBTSerializable to allow for easy reading and writing from NBT.
  */
-public interface IRequestManager extends INBTSerializable<CompoundTag>, ITickable
+public interface IRequestManager extends ITickable
 {
 
     /**
@@ -231,18 +231,22 @@ public interface IRequestManager extends INBTSerializable<CompoundTag>, ITickabl
     void log(final String message);
 
     /**
-     * serialize this request manager to the give {@link FriendlyByteBuf}
+     * serialize this request manager to the give {@link PacketBuffer}
      *
      * @param controller the controller.
-     * @param buffer     the {@link FriendlyByteBuf} to serialize to.
+     * @param buffer     the {@link PacketBuffer} to serialize to.
      */
-    void serialize(final IFactoryController controller, final FriendlyByteBuf buffer);
+    void serialize(final IFactoryController controller, final PacketBuffer buffer);
 
     /**
-     * deserialize this request manager from the give {@link FriendlyByteBuf}
+     * deserialize this request manager from the give {@link PacketBuffer}
      *
      * @param controller the controller.
-     * @param buffer     the {@link FriendlyByteBuf} to deserialize from.
+     * @param buffer     the {@link PacketBuffer} to deserialize from.
      */
-    void deserialize(final IFactoryController controller, final FriendlyByteBuf buffer);
+    void deserialize(final IFactoryController controller, final PacketBuffer buffer);
 }
+
+
+
+

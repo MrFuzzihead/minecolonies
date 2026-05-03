@@ -1,7 +1,7 @@
 package com.minecolonies.api.eventbus.events.colony.citizens;
 
 import com.minecolonies.api.colony.ICitizenData;
-import net.minecraft.world.damagesource.DamageSource;
+// [1.7.10] net.minecraft.util.DamageSource removed
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -12,7 +12,7 @@ public final class CitizenDiedModEvent extends AbstractCitizenModEvent
     /**
      * The damage source that caused a citizen to die.
      */
-    private final @NotNull DamageSource source;
+    private final @NotNull net.minecraft.util.DamageSource source;
 
     /**
      * Citizen died event.
@@ -20,7 +20,7 @@ public final class CitizenDiedModEvent extends AbstractCitizenModEvent
      * @param citizen the citizen related to the event.
      * @param source  the damage source the citizen died from.
      */
-    public CitizenDiedModEvent(final @NotNull ICitizenData citizen, final @NotNull DamageSource source)
+    public CitizenDiedModEvent(final @NotNull ICitizenData citizen, final @NotNull net.minecraft.util.DamageSource source)
     {
         super(citizen);
         this.source = source;
@@ -32,8 +32,10 @@ public final class CitizenDiedModEvent extends AbstractCitizenModEvent
      * @return the damage source.
      */
     @NotNull
-    public DamageSource getDamageSource()
+    public net.minecraft.util.DamageSource getDamageSource()
     {
         return source;
     }
 }
+
+

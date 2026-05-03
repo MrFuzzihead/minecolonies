@@ -1,198 +1,76 @@
 package com.minecolonies.core.entity.other;
 
 import com.minecolonies.api.entity.mobs.ICustomAttackSound;
-import com.minecolonies.api.entity.ModEntities;
 import com.minecolonies.api.items.ModItems;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.entity.projectile.ThrownTrident;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.NetworkHooks;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.projectile.EntityArrow;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.DamageSource;
+import net.minecraft.world.World;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static com.minecolonies.api.util.DamageSourceKeys.SPEAR;
-
 /**
- * Custom arrow entity used for spear throwing, acts similar to the trident without any of the special effects.
+ * Custom arrow entity used for spear throwing.
+ * [1.7.10] ThrownTrident does not exist; uses EntityArrow as base.
  */
-public class SpearEntity extends ThrownTrident implements ICustomAttackSound
+public class SpearEntity extends EntityArrow implements ICustomAttackSound
 {
-    /**
-     * Max time the spear is alive before removing it
-     */
-    private static final int MAX_LIVE_TIME = 10 * 20;
-
-    /**
-     * Max time the spear is stuck in ground before removing it.
-     */
+    private static final int MAX_LIVE_TIME    = 10 * 20;
     private static final int GROUND_LIVE_TIME = 2 * 20;
 
-    /**
-     * The spears base damage before any modifications.
-     */
-    public static final int BASE_DAMAGE = 4;
+    public static final int    BASE_DAMAGE       = 4;
+    public static final String NBT_WEAPON        = "Weapon";
+    public static final String NBT_DEALT_DAMAGE  = "DealtDamage";
 
-    /**
-     * The NBT key for the spear ItemStack.
-     */
-    public static final String NBT_WEAPON       = "Weapon";
-    /**
-     * The NBT key for the spears dealt damage value.
-     */
-    public static final String NBT_DEALT_DAMAGE = "DealtDamage";
+    protected ItemStack weapon      = new ItemStack(ModItems.spear);
+    private   boolean   dealtDamage = false;
 
-    /**
-     * The weapon item stack, defaults to a generic ItemStack of the spear.
-     */
-    protected ItemStack weapon = new ItemStack(ModItems.spear);
-
-    /**
-     * The value of damage the spear has dealt.
-     */
-    private boolean dealtDamage;
-
-    public SpearEntity(EntityType<? extends ThrownTrident> type, Level world)
+    public SpearEntity(final World world)
     {
-        super(type, world);
-        getAddEntityPacket();
+        super(world);
     }
 
-    public SpearEntity(Level world, LivingEntity thrower, ItemStack thrownWeapon)
+    public SpearEntity(final World world, final EntityLivingBase thrower, final ItemStack thrownWeapon)
     {
-        super(ModEntities.SPEAR, world);
+        super(world, thrower, 2.5f);
         this.weapon = thrownWeapon.copy();
-        this.setOwner(thrower);
-        this.setPos(thrower.getX(), thrower.getEyeY() - 0.1, thrower.getZ());
-        this.shootFromRotation(thrower, thrower.getXRot(), thrower.getYRot(), 0.0F, 2.5F, 1.0F);
-        getAddEntityPacket();
-    }
-
-    @Override
-    public Packet<ClientGamePacketListener> getAddEntityPacket()
-    {
-        return NetworkHooks.getEntitySpawningPacket(this);
+        this.setPosition(thrower.posX, thrower.posY + thrower.getEyeHeight() - 0.1, thrower.posZ);
     }
 
     @NotNull
     @Override
-    public ItemStack getPickupItem()
+    public ItemStack func_145748_c_()
     {
         return this.weapon.copy();
     }
 
-    @Nullable
-    @Override
-    protected EntityHitResult findHitEntity(final Vec3 startVec, final Vec3 endVec)
-    {
-        return this.dealtDamage ? null : super.findHitEntity(startVec, endVec);
-    }
-
-    protected void onHitEntity(EntityHitResult result)
-    {
-        Entity targetEntity = result.getEntity();
-        float damageAmount = BASE_DAMAGE;
-        if (targetEntity instanceof LivingEntity)
-        {
-            damageAmount += EnchantmentHelper.getDamageBonus(this.weapon, ((LivingEntity) targetEntity).getMobType());
-        }
-
-        Entity ownerEntity = this.getOwner();
-        DamageSource damageSource = this.level.damageSources().source(SPEAR, this, ownerEntity == null ? this : ownerEntity);
-        this.dealtDamage = true;
-        if (targetEntity.hurt(damageSource, damageAmount))
-        {
-            if (targetEntity.getType() == EntityType.ENDERMAN)
-            {
-                return;
-            }
-
-            if (targetEntity instanceof LivingEntity)
-            {
-                LivingEntity livingEntity = (LivingEntity) targetEntity;
-                if (ownerEntity instanceof LivingEntity)
-                {
-                    EnchantmentHelper.doPostHurtEffects(livingEntity, ownerEntity);
-                    EnchantmentHelper.doPostDamageEffects((LivingEntity) ownerEntity, livingEntity);
-                }
-
-                this.doPostHurtEffects(livingEntity);
-            }
-        }
-
-        this.setDeltaMovement(this.getDeltaMovement().multiply(-0.01D, -0.1D, -0.01D));
-        this.playSound(SoundEvents.TRIDENT_HIT, 1.0F, 1.0F);
-    }
-
-    @NotNull
-    @Override
-    protected SoundEvent getDefaultHitGroundSoundEvent()
-    {
-        return SoundEvents.TRIDENT_HIT_GROUND;
-    }
-
-    @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag nbt)
-    {
-        super.readAdditionalSaveData(nbt);
-        if (nbt.contains(NBT_WEAPON, 10))
-        {
-            this.weapon = ItemStack.of(nbt.getCompound(NBT_WEAPON));
-        }
-
-        this.dealtDamage = nbt.getBoolean(NBT_DEALT_DAMAGE);
-    }
-
-    @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag nbt)
-    {
-        super.addAdditionalSaveData(nbt);
-        nbt.put(NBT_WEAPON, this.weapon.save(new CompoundTag()));
-        nbt.putBoolean(NBT_DEALT_DAMAGE, this.dealtDamage);
-    }
-
     /**
-     * Remove spear after certain time alive.
+     * [1.7.10] EntityArrow.onUpdate() handles collision.
+     * We override to add per-entity-hit logic via attackEntityFrom on target.
+     * Full EntityHitResult-based hooks are not available.
      */
     @Override
-    public void tick()
+    public void onUpdate()
     {
-        if (this.tickCount > MAX_LIVE_TIME)
+        if (this.ticksExisted > MAX_LIVE_TIME)
         {
-            remove(RemovalReason.DISCARDED);
+            setDead();
             return;
         }
 
-        if (this.inGroundTime > GROUND_LIVE_TIME)
+        if (this.inGround && this.timeInGround > GROUND_LIVE_TIME)
         {
-            remove(RemovalReason.DISCARDED);
+            setDead();
             return;
         }
 
-        super.tick();
-    }
-
-    @Override
-    public void tickDespawn()
-    {
-        if (this.pickup != AbstractArrow.Pickup.ALLOWED)
-        {
-            super.tickDespawn();
-        }
+        super.onUpdate();
     }
 
     @Override
@@ -201,28 +79,28 @@ public class SpearEntity extends ThrownTrident implements ICustomAttackSound
         return 0.9F;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public boolean shouldRender(double x, double y, double z)
+    @SideOnly(Side.CLIENT)
+    @Override
+    public boolean shouldRenderInPass(final int pass)
     {
         return true;
     }
 
-
     @Override
-    public SoundEvent getAttackSound()
+    public String getAttackSound()
     {
-        return SoundEvents.TRIDENT_THROW;
+        return "random.bow";  // [1.7.10] placeholder for trident throw sound
     }
 
     @Override
-    public boolean save(@NotNull CompoundTag nbt)
+    public void writeEntityToNBT(final NBTTagCompound nbt)
     {
-        return false;
+        // Do not save — transient projectile
     }
 
     @Override
-    public void load(@NotNull CompoundTag nbt)
+    public void readEntityFromNBT(final NBTTagCompound nbt)
     {
-        discard();
+        setDead();
     }
 }

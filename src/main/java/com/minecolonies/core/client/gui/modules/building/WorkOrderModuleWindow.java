@@ -1,11 +1,28 @@
 package com.minecolonies.core.client.gui.modules.building;
 
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.PaneParams;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
 import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
 import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
 import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.colony.workorders.IWorkOrderView;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.constant.Constants;
@@ -16,9 +33,9 @@ import com.minecolonies.core.colony.buildings.moduleviews.WorkOrderListModuleVie
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingBuilder;
 import com.minecolonies.core.network.messages.server.colony.WorkOrderChangeMessage;
 import com.minecolonies.core.network.messages.server.colony.building.builder.BuilderSelectWorkOrderMessage;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -30,7 +47,7 @@ import static com.minecolonies.api.util.constant.TranslationConstants.*;
 import static com.minecolonies.api.util.constant.WindowConstants.*;
 
 /**
- * BOWindow for the builder hut work orders list.
+ * Object (BOWindow: todo ModularUI2 removed) for the builder hut work orders list.
  */
 public class WorkOrderModuleWindow extends AbstractModuleWindow<WorkOrderListModuleView>
 {
@@ -107,7 +124,7 @@ public class WorkOrderModuleWindow extends AbstractModuleWindow<WorkOrderListMod
     {
         final Predicate<IWorkOrderView> shouldShow = wo -> wo.shouldShowIn(buildingView);
         final Predicate<IWorkOrderView> isClaimedBySelf = wo -> wo.getClaimedBy().equals(buildingView.getPosition());
-        final Predicate<IWorkOrderView> isUnclaimed = wo -> wo.getClaimedBy().equals(BlockPos.ZERO);
+        final Predicate<IWorkOrderView> isUnclaimed = wo -> wo.getClaimedBy().equals(new int[]{0,0,0});
         final Predicate<IWorkOrderView> isInRange = wo -> wo.canBuildIgnoringDistance(buildingView.getPosition(), buildingView.getBuildingLevel());
 
         Predicate<IWorkOrderView> finalPredicate = shouldShow.and(isInRange);
@@ -154,14 +171,14 @@ public class WorkOrderModuleWindow extends AbstractModuleWindow<WorkOrderListMod
           .build();
         workOrderTextPanel.setText(order.getDisplayName());
         rowPane.findPaneOfTypeByID(WORK_ORDER_POS, Text.class)
-          .setText(Component.translatable("com.minecolonies.coremod.gui.blocks.distance", BlockPosUtil.getDistance2D(order.getLocation(), buildingView.getPosition())));
+          .setText(String.translatable("com.minecolonies.coremod.gui.blocks.distance", BlockPosUtil.getDistance2D(order.getLocation(), buildingView.getPosition())));
 
         if (buildingView.getAllAssignedCitizens().isEmpty())
         {
             disabledMessage = MESSAGE_WARNING_NO_WORKER_ASSIGNED;
             buttonEnabled = false;
         }
-        if (!order.getClaimedBy().equals(BlockPos.ZERO))
+        if (!order.getClaimedBy().equals(new int[]{0,0,0}))
         {
             disabledMessage = MESSAGE_WARNING_ALREADY_CLAIMED;
             buttonEnabled = false;
@@ -174,16 +191,16 @@ public class WorkOrderModuleWindow extends AbstractModuleWindow<WorkOrderListMod
 
         if (order.getClaimedBy().equals(buildingView.getPosition()))
         {
-            rowPane.findPaneOfTypeByID(WORK_ORDER_SELECT, ButtonImage.class).setText(Component.translatable("com.minecolonies.coremod.gui.builder.cancel"));
+            rowPane.findPaneOfTypeByID(WORK_ORDER_SELECT, ButtonImage.class).setText(String.translatable("com.minecolonies.coremod.gui.builder.cancel"));
         }
         else if (manualMode)
         {
             Button assign = rowPane.findPaneOfTypeByID(WORK_ORDER_SELECT, ButtonImage.class);
-            assign.setText(Component.translatable("com.minecolonies.coremod.gui.builder.select"));
+            assign.setText(String.translatable("com.minecolonies.coremod.gui.builder.select"));
 
             if (!buttonEnabled)
             {
-                PaneBuilders.tooltipBuilder().hoverPane(assign).build().setText(Component.translatable(disabledMessage));
+                PaneBuilders.tooltipBuilder().hoverPane(assign).build().setText(String.translatable(disabledMessage));
                 assign.setEnabled(false);
             }
         }
@@ -210,3 +227,8 @@ public class WorkOrderModuleWindow extends AbstractModuleWindow<WorkOrderListMod
         }
     }
 }
+
+
+
+
+

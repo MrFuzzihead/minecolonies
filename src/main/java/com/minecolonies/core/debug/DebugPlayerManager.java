@@ -1,8 +1,8 @@
 package com.minecolonies.core.debug;
 
 import com.minecolonies.core.entity.pathfinding.PathfindingUtils;
-import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraft.entity.player.EntityPlayer;
+// [1.7.10] fml.loading removed
 
 import java.util.HashSet;
 import java.util.Set;
@@ -68,3 +68,5 @@ public class DebugPlayerManager
         }
     }
 }
+
+

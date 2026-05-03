@@ -7,10 +7,10 @@ import com.minecolonies.api.colony.buildings.modules.IBuildingModule;
 import com.minecolonies.api.colony.buildings.modules.IPersistentModule;
 import com.minecolonies.api.colony.buildings.modules.ITickingModule;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,7 +26,7 @@ import static com.minecolonies.api.util.constant.NbtTagConstants.*;
 public abstract class BuildingExtensionsModule extends AbstractBuildingModule implements IPersistentModule, IBuildingModule, ITickingModule
 {
     /**
-     * NBT tag to store assign manually.
+     * NBT NBTBase to store assign manually.
      */
     private static final String TAG_ASSIGN_MANUALLY = "assign";
     private static final String TAG_CURRENT_EXTENSION = "currex";
@@ -54,14 +54,14 @@ public abstract class BuildingExtensionsModule extends AbstractBuildingModule im
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         shouldAssignManually = compound.getBoolean(TAG_ASSIGN_MANUALLY);
-        final ListTag listTag = compound.getList(TAG_BUILDING_EXTENSIONS, Tag.TAG_COMPOUND);
-        for (int i = 0; i < listTag.size(); ++i)
+        final NBTTagList NBTTagList = compound.getList(TAG_BUILDING_EXTENSIONS, NBTBase.TAG_COMPOUND);
+        for (int i = 0; i < NBTTagList.size(); ++i)
         {
-            final CompoundTag tag = listTag.getCompound(i);
-            checkedExtensions.put(IBuildingExtension.ExtensionId.deserializeNBT(tag.getCompound(TAG_ID)), compound.getInt(TAG_DAY));
+            final NBTTagCompound NBTBase = NBTTagList.getCompound(i);
+            checkedExtensions.put(IBuildingExtension.ExtensionId.deserializeNBT(NBTBase.getCompound(TAG_ID)), compound.getInt(TAG_DAY));
         }
         if (compound.contains(TAG_CURRENT_EXTENSION))
         {
@@ -70,19 +70,19 @@ public abstract class BuildingExtensionsModule extends AbstractBuildingModule im
     }
 
     @Override
-    public void serializeNBT(final CompoundTag compound)
+    public void serializeNBT(final NBTTagCompound compound)
     {
         compound.putBoolean(TAG_ASSIGN_MANUALLY, shouldAssignManually);
 
-        final ListTag listTag = new ListTag();
+        final NBTTagList NBTTagList = new NBTTagList();
         for (final Map.Entry<IBuildingExtension.ExtensionId, Integer> entry : checkedExtensions.entrySet())
         {
-            final CompoundTag listEntry = new CompoundTag();
+            final NBTTagCompound listEntry = new NBTTagCompound();
             compound.put(TAG_ID, entry.getKey().serializeNBT());
             listEntry.putLong(TAG_DAY, entry.getValue());
-            listTag.add(listEntry);
+            NBTTagList.add(listEntry);
         }
-        compound.put(TAG_LIST, listTag);
+        compound.put(TAG_LIST, NBTTagList);
         if (currentExtensionId != null)
         {
             compound.put(TAG_CURRENT_EXTENSION, currentExtensionId.serializeNBT());
@@ -90,7 +90,7 @@ public abstract class BuildingExtensionsModule extends AbstractBuildingModule im
     }
 
     @Override
-    public void serializeToView(@NotNull final FriendlyByteBuf buf)
+    public void serializeToView(@NotNull final PacketBuffer buf)
     {
         buf.writeBoolean(shouldAssignManually);
         buf.writeInt(getMaxExtensionCount());
@@ -309,3 +309,7 @@ public abstract class BuildingExtensionsModule extends AbstractBuildingModule im
         currentExtensionId = null;
     }
 }
+
+
+
+

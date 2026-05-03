@@ -4,13 +4,13 @@ import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.core.network.messages.server.AbstractBuildingServerMessage;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Picks up the building block with the level.
+ * Picks up the building block with the World.
  */
 public class BuildPickUpMessage extends AbstractBuildingServerMessage<IBuilding>
 {
@@ -33,21 +33,23 @@ public class BuildPickUpMessage extends AbstractBuildingServerMessage<IBuilding>
     }
 
     @Override
-    public void fromBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void fromBytesOverride(@NotNull final PacketBuffer buf)
     {
 
     }
 
     @Override
-    public void toBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void toBytesOverride(@NotNull final PacketBuffer buf)
     {
 
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony, final IBuilding building)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony, final IBuilding building)
     {
-        final Player player = ctxIn.getSender();
+        final Player player = ctx.getServerHandler().playerEntity;
         building.pickUp(player);
     }
 }
+
+

@@ -1,15 +1,34 @@
 package com.minecolonies.core.client.gui;
 
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
+import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
+import com.ldtteam.blockui.controls.DropDownList;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
+import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.controls.TextField;
 import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
+import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.colony.buildings.modules.IBuildingModuleView;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.modules.TabsWindowModule;
 import com.minecolonies.core.colony.buildings.views.AbstractBuildingView;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvents;
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] sounds removed
 
 import java.util.List;
 import java.util.Optional;
@@ -47,7 +66,7 @@ public abstract class AbstractBuildingWindow<B extends IBuildingView> extends Ab
      * @param buildingView class extending {@link AbstractBuildingView}.
      * @param resource     window resource location.
      */
-    public AbstractBuildingWindow(final BOWindow parent, final B buildingView, final ResourceLocation resource)
+    public AbstractBuildingWindow(final Object /* BOWindow: todo ModularUI2 */ parent, final B buildingView, final ResourceLocation resource)
     {
         super(parent, resource);
         this.buildingView = buildingView;
@@ -61,7 +80,7 @@ public abstract class AbstractBuildingWindow<B extends IBuildingView> extends Ab
             tabsWindowModule.renderTabButton(nextTabIndex++,
                 TabsWindowModule.TabImageSide.LEFT,
                 new ResourceLocation(Constants.MOD_ID, "textures/gui/modules/main.png"),
-                Component.translatable(LABEL_MAIN_TAB_NAME),
+                String.translatable(LABEL_MAIN_TAB_NAME),
                 button -> buildingView.getWindow().open());
 
             final List<IBuildingModuleView> allModuleViews = buildingView.getAllModuleViews();
@@ -75,7 +94,7 @@ public abstract class AbstractBuildingWindow<B extends IBuildingView> extends Ab
                 tabsWindowModule.renderTabButton(nextTabIndex++,
                     TabsWindowModule.TabImageSide.LEFT,
                     view.getIconResourceLocation(),
-                    Optional.ofNullable(view.getDesc()).map(Component::copy).orElse(null),
+                    Optional.ofNullable(view.getDesc()).map(String::copy).orElse(null),
                     button -> {
                         mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.BOOK_PAGE_TURN, 1.0F));
                         view.getWindow().open();
@@ -101,3 +120,6 @@ public abstract class AbstractBuildingWindow<B extends IBuildingView> extends Ab
         mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.BOOK_PAGE_TURN, 1.0F));
     }
 }
+
+
+

@@ -1,0 +1,3 @@
+package net.minecraft.client.renderer.block;
+/** [1.7.10 stub] BlockRenderDispatcher */
+public class BlockRenderDispatcher { public net.minecraft.client.resources.model.BakedModel getBlockModel(net.minecraft.world.level.block.state.BlockState state) { return null; } public void renderBatched(net.minecraft.world.level.block.state.BlockState state, Object pos, Object level, Object poseStack, Object consumer, boolean checkSides, java.util.Random random) {} }

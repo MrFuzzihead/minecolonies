@@ -1,10 +1,30 @@
 package com.minecolonies.core.client.gui;
 
 import com.google.common.collect.ImmutableList;
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
+import net.minecraft.world.level.block.state.BlockState;
 import com.ldtteam.blockui.Pane;
-import com.ldtteam.blockui.controls.ImageRepeatable;
+import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
+import com.ldtteam.blockui.controls.DropDownList;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.controls.TextField;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
 import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.blocks.interfaces.IInvisibleBlueprintAnchorBlock;
@@ -16,13 +36,13 @@ import com.ldtteam.structurize.util.IOPool;
 import com.minecolonies.api.blocks.AbstractBlockHut;
 import com.minecolonies.api.blocks.interfaces.IBuildingBrowsableBlock;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.util.EnumChatFormatting;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.block.Block;
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -177,11 +197,11 @@ public class WindowBuildingBrowser extends AbstractWindowSkeleton
                 final Text sizeLabel = rowPane.findPaneOfTypeByID("buildingSize", Text.class);
                 final Text levelLabel = rowPane.findPaneOfTypeByID("buildingLevel", Text.class);
 
-                packLabel.setText(Component.literal(building.pack().getName()));
-                nameLabel.setText(Component.literal(building.path()));
+                packLabel.setText(String.literal(building.pack().getName()));
+                nameLabel.setText(String.literal(building.path()));
                 nameLabel.setColors(building.isParent() ? building.isInvisible() ? COLOR_INVISIBLE_CHILD : COLOR_CHILD
                         : building.isInvisible() ? COLOR_INVISIBLE : COLOR_NORMAL);
-                sizeLabel.setText(Component.literal(String.format("%d x %d x %d",
+                sizeLabel.setText(String.literal(String.format("%d x %d x %d",
                         building.size().getX(), building.size().getY(), building.size().getZ())));
                 if (building.levels().isEmpty())
                 {
@@ -197,20 +217,20 @@ public class WindowBuildingBrowser extends AbstractWindowSkeleton
     }
 
     @NotNull
-    private Component formatLevels(@NotNull final Set<Integer> levels)
+    private String formatLevels(@NotNull final Set<Integer> levels)
     {
         final List<Integer> list = new ArrayList<>(levels);
         if (list.size() == 1)
         {
-            return Component.literal(Integer.toString(list.get(0)));
+            return String.literal(Integer.toString(list.get(0)));
         }
         final int minLevel = list.get(0);
         final int maxLevel = list.get(list.size() - 1);
         if (list.size() == maxLevel - minLevel + 1)
         {
-            return Component.translatable("%s-%s", Integer.toString(minLevel), Integer.toString(maxLevel));
+            return String.translatable("%s-%s", Integer.toString(minLevel), Integer.toString(maxLevel));
         }
-        return Component.literal(String.join(",", list.stream().map(i -> Integer.toString(i)).toList()));
+        return String.literal(String.join(",", list.stream().map(i -> Integer.toString(i)).toList()));
     }
 
     @NotNull
@@ -349,7 +369,7 @@ public class WindowBuildingBrowser extends AbstractWindowSkeleton
         }
     }
 
-    private record BuildingInfo(StructurePackMeta pack, String path, Set<Integer> levels, BlockPos size, boolean isParent, boolean isInvisible)
+    private record BuildingInfo(StructurePackMeta pack, String path, Set<Integer> levels, int[] size, boolean isParent, boolean isInvisible)
     {
         /**
          * Creates building info for the specified blueprint.
@@ -372,13 +392,13 @@ public class WindowBuildingBrowser extends AbstractWindowSkeleton
                 name = name.substring(0, name.length() - 1);
             }
             path = path + '/' + name;
-            final BlockPos size = new BlockPos(blueprint.getSizeX(), blueprint.getSizeY(), blueprint.getSizeZ());
+            final int[] size = new int[]{blueprint.getSizeX(), blueprint.getSizeY(), blueprint.getSizeZ()};
 
             return new BuildingInfo(pack, path, levels, size, isParent, isInvisible(blueprint));
         }
 
         /**
-         * For a single pack, merges single-level entries to multi-level entries.
+         * For a single pack, merges single-World entries to multi-World entries.
          * @param input the list of info for a single pack.
          * @return the merged list of info.
          */
@@ -397,7 +417,7 @@ public class WindowBuildingBrowser extends AbstractWindowSkeleton
             final Set<Integer> levels = input.stream()
                     .flatMap(info -> info.levels.stream())
                     .collect(Collectors.toCollection(TreeSet::new));
-            final BlockPos size = input.stream()
+            final int[] size = input.stream()
                     .map(BuildingInfo::size)
                     .max(Comparator.naturalOrder())
                     .get();     // sizes *should* be all the same, but technically don't have to be...
@@ -417,8 +437,8 @@ public class WindowBuildingBrowser extends AbstractWindowSkeleton
             assert !anchor.hasTileEntityData() || anchor.getTileEntityData() != null;   // quiet warnings
             if (anchor.hasTileEntityData() && anchor.getTileEntityData().contains(TAG_BLUEPRINTDATA))
             {
-                final Map<BlockPos, List<String>> tagMap = IBlueprintDataProviderBE.readTagPosMapFrom(anchor.getTileEntityData().getCompound(TAG_BLUEPRINTDATA));
-                final List<String> anchorTags = tagMap.computeIfAbsent(BlockPos.ZERO, k -> new ArrayList<>());
+                final Map<int[], List<String>> tagMap = IBlueprintDataProviderBE.readTagPosMapFrom(anchor.getTileEntityData().getCompound(TAG_BLUEPRINTDATA));
+                final List<String> anchorTags = tagMap.computeIfAbsent(new int[]{0,0,0}, k -> new ArrayList<>());
                 if (anchorTags.contains(INVISIBLE_TAG))
                 {
                     return true;
@@ -429,3 +449,7 @@ public class WindowBuildingBrowser extends AbstractWindowSkeleton
         }
     }
 }
+
+
+
+

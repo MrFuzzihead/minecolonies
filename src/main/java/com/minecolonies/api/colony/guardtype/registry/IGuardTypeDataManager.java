@@ -2,7 +2,7 @@ package com.minecolonies.api.colony.guardtype.registry;
 
 import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.colony.guardtype.GuardType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 public interface IGuardTypeDataManager
 {
@@ -14,3 +14,4 @@ public interface IGuardTypeDataManager
 
     GuardType getFrom(ResourceLocation jobName);
 }
+

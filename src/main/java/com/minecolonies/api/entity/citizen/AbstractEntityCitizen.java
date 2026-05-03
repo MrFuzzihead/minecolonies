@@ -1,9 +1,8 @@
 package com.minecolonies.api.entity.citizen;
 
-import com.google.common.collect.Lists;
-import com.minecolonies.api.client.render.modeltype.IModelType;
 import com.minecolonies.api.client.render.modeltype.ModModelTypes;
 import com.minecolonies.api.client.render.modeltype.registry.IModelTypeRegistry;
+import com.minecolonies.api.client.render.modeltype.IModelType;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.ICitizenDataView;
 import com.minecolonies.api.colony.jobs.IJob;
@@ -24,156 +23,123 @@ import com.minecolonies.api.util.SoundUtils;
 import com.minecolonies.api.util.constant.ColonyConstants;
 import com.minecolonies.core.entity.pathfinding.navigation.AbstractAdvancedPathNavigate;
 import com.minecolonies.core.entity.pathfinding.navigation.PathingStuckHandler;
-import com.mojang.datafixers.util.Pair;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.GoalSelector;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ShieldItem;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.items.IItemHandler;
-import org.jetbrains.annotations.NotNull;
+// [1.7.10] items shim in com.minecolonies.api.shim
 
-import java.util.List;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
+import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.CitizenConstants.*;
 
 /**
  * The abstract citizen entity.
+ * Ported from 1.21 to 1.7.10.
+ * DataWatcher replaces SynchedEntityData/int (EntityDataAccessor removed).
  */
 @SuppressWarnings({"PMD.ExcessiveImports", "PMD.CouplingBetweenObjects"})
-public abstract class AbstractEntityCitizen extends AbstractCivilianEntity implements MenuProvider
+public abstract class AbstractEntityCitizen extends AbstractCivilianEntity
 {
     public static final int ENTITY_AI_TICKRATE = 5;
 
-    /**
-     * Citizens swim speed factor
-     */
     private static final double CITIZEN_SWIM_BONUS = 2.0;
 
-    public static final EntityDataAccessor<Integer>  DATA_LEVEL           = SynchedEntityData.defineId(AbstractEntityCitizen.class, EntityDataSerializers.INT);
-    public static final EntityDataAccessor<Integer>  DATA_TEXTURE         = SynchedEntityData.defineId(AbstractEntityCitizen.class, EntityDataSerializers.INT);
-    public static final EntityDataAccessor<Integer>  DATA_IS_FEMALE       = SynchedEntityData.defineId(AbstractEntityCitizen.class, EntityDataSerializers.INT);
-    public static final EntityDataAccessor<Integer>  DATA_COLONY_ID       = SynchedEntityData.defineId(AbstractEntityCitizen.class, EntityDataSerializers.INT);
-    public static final EntityDataAccessor<Integer>  DATA_CITIZEN_ID      = SynchedEntityData.defineId(AbstractEntityCitizen.class, EntityDataSerializers.INT);
-    public static final EntityDataAccessor<String>   DATA_MODEL           = SynchedEntityData.defineId(AbstractEntityCitizen.class, EntityDataSerializers.STRING);
-    public static final EntityDataAccessor<String>   DATA_RENDER_METADATA = SynchedEntityData.defineId(AbstractEntityCitizen.class, EntityDataSerializers.STRING);
-    public static final EntityDataAccessor<Boolean>  DATA_IS_ASLEEP       = SynchedEntityData.defineId(AbstractEntityCitizen.class, EntityDataSerializers.BOOLEAN);
-    public static final EntityDataAccessor<Boolean>  DATA_IS_CHILD        = SynchedEntityData.defineId(AbstractEntityCitizen.class, EntityDataSerializers.BOOLEAN);
-    public static final EntityDataAccessor<BlockPos> DATA_BED_POS         = SynchedEntityData.defineId(AbstractEntityCitizen.class, EntityDataSerializers.BLOCK_POS);
-    public static final EntityDataAccessor<String>   DATA_STYLE           = SynchedEntityData.defineId(AbstractEntityCitizen.class, EntityDataSerializers.STRING);
-    public static final EntityDataAccessor<String>   DATA_TEXTURE_SUFFIX  = SynchedEntityData.defineId(AbstractEntityCitizen.class, EntityDataSerializers.STRING);
-    public static final EntityDataAccessor<String>   DATA_JOB             = SynchedEntityData.defineId(AbstractEntityCitizen.class, EntityDataSerializers.STRING);
+    // DataWatcher watch IDs (17–30)
+    public static final int DW_TEXTURE       = 17;
+    public static final int DW_LEVEL         = 18;
+    public static final int DW_IS_FEMALE     = 19;
+    public static final int DW_COLONY_ID     = 20;
+    public static final int DW_CITIZEN_ID    = 21;
+    public static final int DW_MODEL         = 22;
+    public static final int DW_RENDER_META   = 23;
+    public static final int DW_IS_ASLEEP     = 24;
+    public static final int DW_IS_CHILD      = 25;
+    public static final int DW_BED_X         = 26;
+    public static final int DW_BED_Y         = 27;
+    public static final int DW_BED_Z         = 28;
+    public static final int DW_STYLE         = 29;
+    public static final int DW_JOB           = 30;
 
-    /**
-     * The default model.
-     */
+    /** The default model. */
     private ResourceLocation modelId = ModModelTypes.SETTLER_ID;
 
-    /**
-     * The texture id.
-     */
+    /** The texture id. */
     private int textureId;
 
-    /**
-     * Additional render data.
-     */
+    /** Additional render data. */
     private String renderMetadata = "";
 
-    /**
-     * The gender, true if female.
-     */
-    private boolean female;
+    /** Whether the texture needs to be recomputed. */
+    private boolean textureDirty = true;
 
-    /**
-     * The texture.
-     */
+    /** Computed texture. */
     private ResourceLocation texture;
 
-    /**
-     * Was the texture initiated with the citizen view.
-     */
-    private boolean textureDirty = true;
+    /** The gender, true if female. */
+    private boolean female;
 
     private AbstractAdvancedPathNavigate pathNavigate;
 
-    /**
-     * Counts entity collisions
-     */
+    /** Counts entity collisions */
     private int collisionCounter = ColonyConstants.rand.nextInt(100);
 
-    /**
-     * The collision threshold
-     */
-    private final static int COLL_THRESHOLD = 100;
+    private static final int COLL_THRESHOLD = 100;
 
-    /**
-     * Flag to check if the equipment is dirty.
-     */
     private boolean isEquipmentDirty = true;
 
-    /**
-     * The AI for citizens, controlling different global states
-     */
+    /** The AI for citizens, controlling different global states */
     protected ITickRateStateMachine<IState> entityStateController = new TickRateStateMachine<>(EntityState.INIT,
-      e -> Log.getLogger()
-        .warn("Citizen " + getDisplayName().getString() + " id:" + (getCitizenData() != null ? getCitizenData().getId() : -1) + "from colony: "
-                + getCitizenColonyHandler().getColonyId() + " state controller exception", e), ENTITY_AI_TICKRATE);
+      e -> Log.getLogger().warn("Citizen state controller exception", e), ENTITY_AI_TICKRATE);
 
     /**
      * Constructor for a new citizen typed entity.
      *
-     * @param type  the Entity type.
      * @param world the world.
      */
-    public AbstractEntityCitizen(final EntityType<? extends PathfinderMob> type, final Level world)
+    public AbstractEntityCitizen(final World world)
     {
-        super(type, world);
+        super(world);
+    }
+
+    @Override
+    protected void entityInit()
+    {
+        super.entityInit();
+        dataWatcher.addObject(DW_TEXTURE, 0);
+        dataWatcher.addObject(DW_LEVEL, 0);
+        dataWatcher.addObject(DW_IS_FEMALE, 0);
+        dataWatcher.addObject(DW_COLONY_ID, 0);
+        dataWatcher.addObject(DW_CITIZEN_ID, 0);
+        dataWatcher.addObject(DW_MODEL, ModModelTypes.SETTLER_ID.toString());
+        dataWatcher.addObject(DW_RENDER_META, "");
+        dataWatcher.addObject(DW_IS_ASLEEP, (byte) 0);
+        dataWatcher.addObject(DW_IS_CHILD, (byte) 0);
+        dataWatcher.addObject(DW_BED_X, 0);
+        dataWatcher.addObject(DW_BED_Y, 0);
+        dataWatcher.addObject(DW_BED_Z, 0);
+        dataWatcher.addObject(DW_STYLE, "default");
+        dataWatcher.addObject(DW_JOB, "");
     }
 
     /**
      * Get the default attributes with their values.
-     *
-     * @return the attribute modifier map.
+     * In 1.7.10 these are set in entity constructor via registerAttribute/setBaseValue.
      */
-    public static AttributeSupplier.Builder getDefaultAttributes()
+    protected void setupBaseAttributes()
     {
-        return LivingEntity.createLivingAttributes()
-          .add(Attributes.MAX_HEALTH, BASE_MAX_HEALTH)
-          .add(Attributes.MOVEMENT_SPEED, BASE_MOVEMENT_SPEED)
-          .add(Attributes.FOLLOW_RANGE, BASE_PATHFINDING_RANGE);
-    }
-
-    public GoalSelector getTasks()
-    {
-        return goalSelector;
+        this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(BASE_MAX_HEALTH);
+        this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(BASE_MOVEMENT_SPEED);
+        this.getEntityAttribute(SharedMonsterAttributes.followRange).setBaseValue(BASE_PATHFINDING_RANGE);
     }
 
     public int getTicksExisted()
     {
-        return tickCount;
+        return ticksExisted;
     }
 
-    /**
-     * Disable vanilla's item picking stuff as we're doing it ourselves
-     */
     @Override
     public boolean canPickUpLoot()
     {
@@ -181,58 +147,36 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
     }
 
     /**
-     * Disable vanilla steering logic for villagers
+     * Calculate adjusted damage (1.7.10 approximation).
      */
-    @Override
-    public boolean isControlledByLocalInstance()
+    public float calculateDamageAfterAbsorbs(final net.minecraft.util.DamageSource source, final float damage)
     {
-        return this.isEffectiveAi();
+        float newDamage = ISpecialArmor.ArmorProperties.applyArmor(this, getCurrentArmor(), source, damage);
+        // no magic absorb equivalent in 1.7.10 base, return as is
+        return newDamage;
     }
 
     /**
-     * Calculate adjusted damage.
-     * This doesn't actually damage armor, for non-player entities.
+     * Right-click interaction on citizen.
      *
-     * @param source
-     * @param damage
-     * @return
+     * @param player the interacting player.
+     * @return true if handled.
      */
-    public float calculateDamageAfterAbsorbs(DamageSource source, float damage)
-    {
-        float newDamage = this.getDamageAfterArmorAbsorb(source, damage);
-        return this.getDamageAfterMagicAbsorb(source, newDamage);
-    }
-
-    @NotNull
     @Override
-    public InteractionResult interactAt(final Player player, final Vec3 vec, final InteractionHand hand)
+    public boolean interact(final EntityPlayer player)
     {
-        if (!player.level().isClientSide())
+        if (!worldObj.isRemote)
         {
-            if (this.getPose() == Pose.SLEEPING)
+            if (getCitizenData() != null && getCitizenData().isIdleAtJob())
             {
-                SoundUtils.playSoundAtCitizenWith(CompatibilityUtils.getWorldFromCitizen(this), this.blockPosition(), EventType.OFF_TO_BED, this.getCitizenData(), 100);
-            }
-            else if (getCitizenData() != null && getCitizenData().isIdleAtJob())
-            {
-                SoundUtils.playSoundAtCitizenWith(CompatibilityUtils.getWorldFromCitizen(this), this.blockPosition(), EventType.MISSING_EQUIPMENT, this.getCitizenData(), 100);
+                SoundUtils.playSoundAtCitizenWith(worldObj, (int) posX, (int) posY, (int) posZ, EventType.MISSING_EQUIPMENT, getCitizenData(), 100);
             }
             else
             {
-                SoundUtils.playSoundAtCitizenWith(CompatibilityUtils.getWorldFromCitizen(this), this.blockPosition(), EventType.INTERACTION, this.getCitizenData(), 100);
+                SoundUtils.playSoundAtCitizenWith(worldObj, (int) posX, (int) posY, (int) posZ, EventType.INTERACTION, getCitizenData(), 100);
             }
         }
-
-        return super.interactAt(player, vec, hand);
-    }
-
-    /**
-     * Returns false if the newer Entity AI code should be run.
-     */
-    @Override
-    public boolean isNoAi()
-    {
-        return false;
+        return super.interact(player);
     }
 
     /**
@@ -240,7 +184,7 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
      */
     public void setTexture()
     {
-        if (!CompatibilityUtils.getWorldFromCitizen(this).isClientSide)
+        if (!worldObj.isRemote)
         {
             return;
         }
@@ -272,10 +216,7 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
     @NotNull
     public ResourceLocation getTexture()
     {
-        if (texture == null
-              || textureDirty
-              || !texture.getPath().contains(getEntityData().get(DATA_STYLE))
-              || !texture.getPath().contains(getEntityData().get(DATA_TEXTURE_SUFFIX)))
+        if (texture == null || textureDirty)
         {
             setTexture();
         }
@@ -300,23 +241,6 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
         return modelId;
     }
 
-    @Override
-    protected void defineSynchedData()
-    {
-        super.defineSynchedData();
-        entityData.define(DATA_TEXTURE_SUFFIX, "_b");
-        entityData.define(DATA_TEXTURE, 0);
-        entityData.define(DATA_LEVEL, 0);
-        entityData.define(DATA_STYLE, "default");
-        entityData.define(DATA_IS_FEMALE, 0);
-        entityData.define(DATA_MODEL, ModModelTypes.SETTLER_ID.toString());
-        entityData.define(DATA_RENDER_METADATA, "");
-        entityData.define(DATA_IS_ASLEEP, false);
-        entityData.define(DATA_IS_CHILD, false);
-        entityData.define(DATA_BED_POS, new BlockPos(0, 0, 0));
-        entityData.define(DATA_JOB, "");
-    }
-
     /**
      * Getter which checks if the citizen is female.
      *
@@ -338,13 +262,11 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
     }
 
     @NotNull
-    @Override
-    public AbstractAdvancedPathNavigate getNavigation()
+    public AbstractAdvancedPathNavigate getAdvancedNavigator()
     {
         if (this.pathNavigate == null)
         {
             this.pathNavigate = IPathNavigateRegistry.getInstance().getNavigateFor(this);
-            this.navigation = pathNavigate;
             this.pathNavigate.setCanFloat(true);
             this.pathNavigate.setSwimSpeedFactor(CITIZEN_SWIM_BONUS);
             this.pathNavigate.getPathingOptions().setEnterDoors(true);
@@ -354,13 +276,8 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
         return pathNavigate;
     }
 
-    /**
-     * Ignores entity collisions are colliding for a while, solves stuck e.g. for many trying to take the same door
-     *
-     * @param entityIn entity to collide with
-     */
     @Override
-    public void push(@NotNull final Entity entityIn)
+    public void applyEntityCollision(final Entity entityIn)
     {
         if ((collisionCounter += 2) > COLL_THRESHOLD)
         {
@@ -368,19 +285,18 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
             {
                 collisionCounter = 0;
             }
-
             return;
         }
 
-        if (this.vehicle instanceof MinecoloniesMinecart)
+        if (ridingEntity instanceof MinecoloniesMinecart)
         {
             return;
         }
-        super.push(entityIn);
+        super.applyEntityCollision(entityIn);
     }
 
     @Override
-    public void onPlayerCollide(final Player player)
+    public void onPlayerCollide(final EntityPlayer player)
     {
         if (getCitizenData() == null)
         {
@@ -396,29 +312,28 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
         else
         {
             // guards push the player out of their way
-            player.push(this);
+            player.applyEntityCollision(this);
         }
     }
 
     @Override
-    public boolean isPushable()
+    public boolean canBePushed()
     {
-        if (this.vehicle instanceof MinecoloniesMinecart)
+        if (ridingEntity instanceof MinecoloniesMinecart)
         {
             return false;
         }
-        return super.isPushable();
+        return super.canBePushed();
     }
 
     @Override
-    public void aiStep()
+    public void onLivingUpdate()
     {
-        super.aiStep();
-        if (tickCount % ENTITY_AI_TICKRATE == 0)
+        super.onLivingUpdate();
+        if (ticksExisted % ENTITY_AI_TICKRATE == 0)
         {
             entityStateController.tick();
         }
-        updateSwingTime();
         if (collisionCounter > 0)
         {
             collisionCounter--;
@@ -433,7 +348,8 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
      */
     public void setOwnRotation(final float yaw, final float pitch)
     {
-        this.setRot(yaw, pitch);
+        this.rotationYaw = yaw;
+        this.rotationPitch = pitch;
     }
 
     /**
@@ -458,7 +374,7 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
             return;
         }
         this.renderMetadata = renderMetadata;
-        entityData.set(DATA_RENDER_METADATA, getRenderMetadata());
+        dataWatcher.updateObject(DW_RENDER_META, getRenderMetadata());
     }
 
     /**
@@ -479,7 +395,7 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
     public void setTextureId(final int textureId)
     {
         this.textureId = textureId;
-        entityData.set(DATA_TEXTURE, textureId);
+        dataWatcher.updateObject(DW_TEXTURE, textureId);
     }
 
     /**
@@ -492,25 +408,9 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
         return renderMetadata;
     }
 
-    /**
-     * Getter of the citizens random object.
-     *
-     * @return random object.
-     */
-    public RandomSource getRandom()
-    {
-        return random;
-    }
-
     public int getOffsetTicks()
     {
-        return this.tickCount + OFFSET_TICK_MULTIPLIER * this.getId();
-    }
-
-    @Override
-    public boolean isBlocking()
-    {
-        return getUseItem().getItem() instanceof ShieldItem;
+        return this.ticksExisted + OFFSET_TICK_MULTIPLIER * this.getEntityId();
     }
 
     /**
@@ -520,17 +420,7 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
      */
     public int getRecentlyHit()
     {
-        return lastHurtByPlayerTime;
-    }
-
-    /**
-     * Check if can drop loot.
-     *
-     * @return true if so.
-     */
-    public boolean checkCanDropLoot()
-    {
-        return shouldDropExperience();
+        return recentlyHit;
     }
 
     /**
@@ -541,7 +431,7 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
     public abstract ILocation getLocation();
 
     /**
-     * Getter for the citizendata. Tries to get it from the colony is the data is null.
+     * Getter for the citizendata.
      *
      * @return the data.
      */
@@ -556,10 +446,10 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
     public abstract InventoryCitizen getInventoryCitizen();
 
     @NotNull
-    public abstract IItemHandler getItemHandlerCitizen();
+    public abstract net.minecraftforge.items.IItemHandler getItemHandlerCitizen();
 
     /**
-     * Sets whether this entity is a child
+     * Sets whether this entity is a child.
      *
      * @param isChild boolean
      */
@@ -576,47 +466,22 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
     public abstract void decreaseSaturationForAction();
 
     /**
-     * Decrease the saturation of the citizen for 1 action.
+     * Decrease the saturation of the citizen for 1 continuous action.
      */
     public abstract void decreaseSaturationForContinuousAction();
 
-    /**
-     * The Handler for all experience related methods.
-     *
-     * @return the instance of the handler.
-     */
     public abstract ICitizenExperienceHandler getCitizenExperienceHandler();
 
-    /**
-     * The Handler for all inventory related methods.
-     *
-     * @return the instance of the handler.
-     */
     public abstract ICitizenInventoryHandler getCitizenInventoryHandler();
 
     public abstract void setCitizenInventoryHandler(ICitizenInventoryHandler citizenInventoryHandler);
 
-    /**
-     * The Handler for all colony related methods.
-     *
-     * @return the instance of the handler.
-     */
     public abstract ICitizenColonyHandler getCitizenColonyHandler();
 
     public abstract void setCitizenColonyHandler(ICitizenColonyHandler citizenColonyHandler);
 
-    /**
-     * The Handler for all job related methods.
-     *
-     * @return the instance of the handler.
-     */
     public abstract ICitizenJobHandler getCitizenJobHandler();
 
-    /**
-     * The Handler for all job related methods.
-     *
-     * @return the instance of the handler.
-     */
     public abstract ICitizenSleepHandler getCitizenSleepHandler();
 
     public abstract float getRotationYaw();
@@ -639,56 +504,6 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
      */
     public abstract void callForHelp(final Entity attacker, final int guardHelpRange);
 
-    @Override
-    public void detectEquipmentUpdates()
-    {
-        if (this.isEquipmentDirty && tickCount % 20 == randomVariance)
-        {
-            this.isEquipmentDirty = false;
-            List<Pair<EquipmentSlot, ItemStack>> list = Lists.newArrayListWithCapacity(6);
-
-            list.add(new Pair<>(EquipmentSlot.CHEST, getItemBySlot(EquipmentSlot.CHEST)));
-            list.add(new Pair<>(EquipmentSlot.FEET, getItemBySlot(EquipmentSlot.FEET)));
-            list.add(new Pair<>(EquipmentSlot.HEAD, getItemBySlot(EquipmentSlot.HEAD)));
-            list.add(new Pair<>(EquipmentSlot.LEGS, getItemBySlot(EquipmentSlot.LEGS)));
-            list.add(new Pair<>(EquipmentSlot.OFFHAND, getItemBySlot(EquipmentSlot.OFFHAND)));
-            list.add(new Pair<>(EquipmentSlot.MAINHAND, getItemBySlot(EquipmentSlot.MAINHAND)));
-            ((ServerLevel) this.level).getChunkSource().broadcast(this, new ClientboundSetEquipmentPacket(this.getId(), list));
-        }
-    }
-
-    @Override
-    public void setItemSlot(final EquipmentSlot slot, @NotNull final ItemStack newItem)
-    {
-        if (!level.isClientSide)
-        {
-            final ItemStack previous = getItemBySlot(slot);
-            if (!ItemStackUtils.compareItemStacksIgnoreStackSize(previous, newItem, false, true))
-            {
-                markEquipmentDirty();
-            }
-        }
-        super.setItemSlot(slot, newItem);
-    }
-
-    /**
-     * On armor removal.
-     * @param stack the removed armor.
-     */
-    public void onArmorRemove(final ItemStack stack, final EquipmentSlot equipmentSlot)
-    {
-        this.getAttributes().removeAttributeModifiers(stack.getAttributeModifiers(equipmentSlot));
-    }
-
-    /**
-     * On armor equip.
-     * @param stack the added armor.
-     */
-    public void onArmorAdd(final ItemStack stack, final EquipmentSlot equipmentSlot)
-    {
-        this.getAttributes().addTransientAttributeModifiers(stack.getAttributeModifiers(equipmentSlot));
-    }
-
     /**
      * Mark the equipment as dirty.
      */
@@ -697,20 +512,16 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
         this.isEquipmentDirty = true;
     }
 
-    /**
-     * Disallow pushing from fluids to prevent stuck
-     *
-     * @return
-     */
-    public boolean isPushedByFluid()
+    @Override
+    public boolean isPushedByWater()
     {
         return false;
     }
 
     /**
-     * Get the entities state controller
+     * Get the entities state controller.
      *
-     * @return
+     * @return the state machine.
      */
     public ITickRateStateMachine<IState> getEntityStateController()
     {
@@ -724,27 +535,35 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
     }
 
     @Override
-    public int getTeamColor()
+    public int getTeamId()
     {
         if (getCitizenColonyHandler().getColony() == null)
         {
-            return super.getTeamColor();
+            return -1;
         }
-        return getCitizenColonyHandler().getColony().getTeamColonyColor().getColor();
+        return getCitizenColonyHandler().getColonyId();
     }
 
     @Override
-    @NotNull
-    public Component getDisplayName()
+    public String getCommandSenderName()
     {
         if (getCitizenColonyHandler().getColony() == null)
         {
-            return super.getDisplayName();
+            return super.getCommandSenderName();
         }
-        if (getName() instanceof MutableComponent mutableComponent)
-        {
-            return mutableComponent.withStyle(getCitizenColonyHandler().getColony().getTeamColonyColor()).withStyle((style) -> style.withHoverEvent(this.createHoverEvent()).withInsertion(this.getStringUUID()));
-        }
-        return super.getDisplayName();
+        return super.getCommandSenderName();
+    }
+
+    /**
+     * Check if the citizen is active (has data, alive).
+     *
+     * @return true if active.
+     */
+    public boolean isActive()
+    {
+        return getCitizenData() != null && isEntityAlive();
     }
 }
+
+
+

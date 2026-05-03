@@ -1,7 +1,7 @@
 package com.minecolonies.api.util;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -30,7 +30,7 @@ public class ChunkCapData
     /**
      * Full claim data of buildings.
      */
-    private final Map<Integer, Set<BlockPos>> allClaimBuildings;
+    private final Map<Integer, Set<int[]>> allClaimBuildings;
 
     public ChunkCapData(final int x, final int z)
     {
@@ -42,7 +42,7 @@ public class ChunkCapData
     }
 
 
-    public ChunkCapData(final int x, final int z, final int owningColony, final List<Integer> staticColonyClaim, final @NotNull Map<Integer, Set<BlockPos>> allClaimingBuildings)
+    public ChunkCapData(final int x, final int z, final int owningColony, final List<Integer> staticColonyClaim, final @NotNull Map<Integer, Set<int[]>> allClaimingBuildings)
     {
         this.x = x;
         this.z = z;
@@ -56,7 +56,7 @@ public class ChunkCapData
      *
      * @param buf the buffer to write it to.
      */
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
         buf.writeInt(x);
         buf.writeInt(z);
@@ -75,7 +75,7 @@ public class ChunkCapData
      * @param buffer the bytebuffer.
      * @return the cap data.
      */
-    public static ChunkCapData fromBytes(@NotNull final FriendlyByteBuf buffer)
+    public static ChunkCapData fromBytes(@NotNull final PacketBuffer buffer)
     {
         int x = buffer.readInt();
         int z = buffer.readInt();
@@ -113,8 +113,10 @@ public class ChunkCapData
      * Getter for all claimed buildings.
      * @return the map.
      */
-    public Map<Integer, Set<BlockPos>> getAllClaimingBuildings()
+    public Map<Integer, Set<int[]>> getAllClaimingBuildings()
     {
         return allClaimBuildings;
     }
 }
+
+

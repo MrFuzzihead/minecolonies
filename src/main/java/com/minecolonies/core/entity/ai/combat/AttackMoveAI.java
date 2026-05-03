@@ -11,16 +11,16 @@ import com.minecolonies.api.util.DamageSourceKeys;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
 import com.minecolonies.core.entity.pathfinding.navigation.MinecoloniesAdvancedPathNavigate;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
+// [1.7.10] int /* InteractionHand */ removed
+import net.minecraft.entity.EntityLivingBase;
+// [1.7.10] world.entity removed
 
 import static com.minecolonies.api.util.constant.Constants.HALF_ROTATION;
 
 /**
  * Moves the entity and triggers the attack
  */
-public class AttackMoveAI<T extends Mob & IThreatTableEntity> extends TargetAI<T>
+public class AttackMoveAI<T extends EntityCreature & IThreatTableEntity> extends TargetAI<T>
 {
     /**
      * Time after which we ignore the target
@@ -68,9 +68,9 @@ public class AttackMoveAI<T extends Mob & IThreatTableEntity> extends TargetAI<T
         final boolean canSeeTarget = user.getSensing().hasLineOfSight(target);
         if (canSeeTarget)
         {
-            nextTarget.setLastSeen(user.level.getGameTime());
+            nextTarget.setLastSeen(user.World.getGameTime());
         }
-        else if ((user.level.getGameTime() - nextTarget.getLastSeen()) > STOP_PERSECUTION_AFTER)
+        else if ((user.World.getGameTime() - nextTarget.getLastSeen()) > STOP_PERSECUTION_AFTER)
         {
             resetTarget();
             return null;
@@ -120,7 +120,7 @@ public class AttackMoveAI<T extends Mob & IThreatTableEntity> extends TargetAI<T
      * @param target
      * @return
      */
-    protected boolean isInAttackDistance(final LivingEntity target)
+    protected boolean isInAttackDistance(final EntityLivingBase target)
     {
         return user.distanceTo(target) <= getAttackDistance();
     }
@@ -137,7 +137,7 @@ public class AttackMoveAI<T extends Mob & IThreatTableEntity> extends TargetAI<T
             return CombatAIStates.NO_TARGET;
         }
 
-        if (nextAttackTime >= user.level.getGameTime() || !isInDistanceForAttack(target))
+        if (nextAttackTime >= user.World.getGameTime() || !isInDistanceForAttack(target))
         {
             return null;
         }
@@ -147,7 +147,7 @@ public class AttackMoveAI<T extends Mob & IThreatTableEntity> extends TargetAI<T
             pathAttempts = 0;
             user.getLookControl().setLookAt(target);
             doAttack(target);
-            nextAttackTime = user.level.getGameTime() + getAttackDelay();
+            nextAttackTime = user.World.getGameTime() + getAttackDelay();
         }
 
         return null;
@@ -169,7 +169,7 @@ public class AttackMoveAI<T extends Mob & IThreatTableEntity> extends TargetAI<T
      * @param target target to check
      * @return true if we do attack
      */
-    protected boolean isInDistanceForAttack(final LivingEntity target)
+    protected boolean isInDistanceForAttack(final EntityLivingBase target)
     {
         return isInAttackDistance(target);
     }
@@ -179,10 +179,10 @@ public class AttackMoveAI<T extends Mob & IThreatTableEntity> extends TargetAI<T
      *
      * @param target
      */
-    protected void doAttack(final LivingEntity target)
+    protected void doAttack(final EntityLivingBase target)
     {
-        target.hurt(target.level.damageSources().source(DamageSourceKeys.DEFAULT, user), 5);
-        user.swing(InteractionHand.MAIN_HAND);
+        target.hurt(target.World.damageSources().source(DamageSourceKeys.DEFAULT, user), 5);
+        user.swing(0 /* InteractionHand.MAIN_HAND */);
     }
 
     /**
@@ -211,9 +211,13 @@ public class AttackMoveAI<T extends Mob & IThreatTableEntity> extends TargetAI<T
      * @param target target to move towards
      * @return path result
      */
-    protected PathResult moveInAttackPosition(final LivingEntity target)
+    protected PathResult moveInAttackPosition(final EntityLivingBase target)
     {
         EntityNavigationUtils.walkToPos((AbstractFastMinecoloniesEntity) user, target.blockPosition(), 1, false);
         return ((MinecoloniesAdvancedPathNavigate) user.getNavigation()).getPathResult();
     }
 }
+
+
+
+

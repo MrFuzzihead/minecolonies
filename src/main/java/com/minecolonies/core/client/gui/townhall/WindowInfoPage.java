@@ -1,11 +1,30 @@
 package com.minecolonies.core.client.gui.townhall;
 
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.PaneParams;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
 import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
+import com.ldtteam.blockui.controls.DropDownList;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
-import com.ldtteam.blockui.views.DropDownList;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
 import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.colony.colonyEvents.descriptions.IBuildingEventDescription;
 import com.minecolonies.api.colony.colonyEvents.descriptions.ICitizenEventDescription;
@@ -17,7 +36,7 @@ import com.minecolonies.core.colony.buildings.views.AbstractBuildingBuilderView;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingTownHall;
 import com.minecolonies.core.colony.eventhooks.citizenEvents.CitizenDiedEvent;
 import com.minecolonies.core.network.messages.server.colony.WorkOrderChangeMessage;
-import net.minecraft.network.chat.Component;
+import net.minecraft.util.IChatComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -29,7 +48,7 @@ import static com.minecolonies.api.util.constant.WindowConstants.*;
 import static com.minecolonies.core.client.gui.townhall.WindowStatsPage.INTERVAL;
 
 /**
- * BOWindow for the town hall.
+ * Object (BOWindow: todo ModularUI2 removed) for the town hall.
  */
 public class WindowInfoPage extends AbstractWindowTownHall
 {
@@ -76,7 +95,7 @@ public class WindowInfoPage extends AbstractWindowTownHall
             @Override
             public String getLabel(final int index)
             {
-                return Component.translatable((String) INTERVAL.keySet().toArray()[index]).getString();
+                return String.translatable((String) INTERVAL.keySet().toArray()[index]).getString();
             }
         });
         intervalDropdown.setSelectedIndex(new ArrayList<>(INTERVAL.keySet()).indexOf(selectedInterval));
@@ -140,25 +159,25 @@ public class WindowInfoPage extends AbstractWindowTownHall
                 final IColonyEventDescription event = events.get(index);
                 if (event instanceof CitizenDiedEvent)
                 {
-                    actionLabel.setText(Component.literal(((CitizenDiedEvent) event).getDeathCause()));
+                    actionLabel.setText(String.literal(((CitizenDiedEvent) event).getDeathCause()));
                 }
                 else
                 {
-                    actionLabel.setText(Component.literal(event.getName()));
+                    actionLabel.setText(String.literal(event.getName()));
                 }
 
                 if (event instanceof ICitizenEventDescription)
                 {
-                    nameLabel.setText(Component.literal(((ICitizenEventDescription) event).getCitizenName()));
+                    nameLabel.setText(String.literal(((ICitizenEventDescription) event).getCitizenName()));
                 }
                 else if (event instanceof IBuildingEventDescription)
                 {
                     IBuildingEventDescription buildEvent = (IBuildingEventDescription) event;
-                    nameLabel.setText(MessageUtils.format(buildEvent.getBuildingName()).append(Component.literal(" " + buildEvent.getLevel())).create());
+                    nameLabel.setText(MessageUtils.format(buildEvent.getBuildingName()).append(String.literal(" " + buildEvent.getLevel())).create());
                     PaneBuilders.tooltipBuilder().append(nameLabel.getText()).hoverPane(nameLabel).build();
                 }
                 rowPane.findPaneOfTypeByID(POS_LABEL, Text.class)
-                  .setText(Component.literal(event.getEventPos().getX() + " " + event.getEventPos().getY() + " " + event.getEventPos().getZ()));
+                  .setText(String.literal(event.getEventPos().getX() + " " + event.getEventPos().getY() + " " + event.getEventPos().getZ()));
                 rowPane.findPaneOfTypeByID(BUTTON_ADD_PLAYER_OR_FAKEPLAYER, Button.class).hide();
             }
         });
@@ -289,9 +308,9 @@ public class WindowInfoPage extends AbstractWindowTownHall
 
                 Text workOrderTextPanel = rowPane.findPaneOfTypeByID(WORK_LABEL, Text.class);
                 PaneBuilders.tooltipBuilder().append(workOrder.getDisplayName()).hoverPane(workOrderTextPanel).build();
-                workOrderTextPanel.setText(Component.literal(workOrder.getDisplayName().getString().replace("\n", ": ")));
-                rowPane.findPaneOfTypeByID(ASSIGNEE_LABEL, Text.class).setText(Component.literal(claimingCitizen));
-                rowPane.findPaneOfTypeByID(HIDDEN_WORKORDER_ID, Text.class).setText(Component.literal(Integer.toString(workOrder.getID())));
+                workOrderTextPanel.setText(String.literal(workOrder.getDisplayName().getString().replace("\n", ": ")));
+                rowPane.findPaneOfTypeByID(ASSIGNEE_LABEL, Text.class).setText(String.literal(claimingCitizen));
+                rowPane.findPaneOfTypeByID(HIDDEN_WORKORDER_ID, Text.class).setText(String.literal(Integer.toString(workOrder.getID())));
             }
         });
     }
@@ -309,3 +328,7 @@ public class WindowInfoPage extends AbstractWindowTownHall
         return BUTTON_INFOPAGE;
     }
 }
+
+
+
+

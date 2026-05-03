@@ -8,8 +8,8 @@ import com.minecolonies.api.colony.buildings.modules.IAssignsCitizen;
 import com.minecolonies.api.colony.buildings.modules.IBuildingEventsModule;
 import com.minecolonies.api.colony.buildings.modules.IPersistentModule;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -128,13 +128,13 @@ public abstract class AbstractAssignedCitizenModule extends AbstractBuildingModu
     }
 
     @Override
-    public void serializeNBT(final CompoundTag compound)
+    public void serializeNBT(final NBTTagCompound compound)
     {
         compound.putInt(TAG_HIRING_MODE, this.hiringMode.ordinal());
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         if (compound.contains(TAG_ASSIGNED))
         {
@@ -151,7 +151,7 @@ public abstract class AbstractAssignedCitizenModule extends AbstractBuildingModu
     }
 
     @Override
-    public void serializeToView(@NotNull final FriendlyByteBuf buf)
+    public void serializeToView(@NotNull final PacketBuffer buf)
     {
         super.serializeToView(buf);
         buf.writeInt(assignedCitizen.size());
@@ -190,3 +190,6 @@ public abstract class AbstractAssignedCitizenModule extends AbstractBuildingModu
 
     ;
 }
+
+
+

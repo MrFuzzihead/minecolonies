@@ -1,5 +1,9 @@
 package com.minecolonies.core.client.gui.townhall;
 
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
 import com.ldtteam.blockui.controls.Button;
 import com.ldtteam.blockui.controls.ButtonHandler;
 import com.ldtteam.blockui.controls.TextField;
@@ -7,8 +11,8 @@ import com.ldtteam.blockui.views.BOWindow;
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.colony.ColonyView;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
@@ -16,7 +20,7 @@ import java.util.Locale;
 import static com.minecolonies.api.util.constant.WindowConstants.*;
 
 /**
- * BOWindow for a town hall name entry.
+ * Object (BOWindow: todo ModularUI2 removed) for a town hall name entry.
  */
 public class WindowTownHallNameEntry extends BOWindow implements ButtonHandler
 {
@@ -36,7 +40,7 @@ public class WindowTownHallNameEntry extends BOWindow implements ButtonHandler
     @Override
     public void onOpened()
     {
-        findPaneOfTypeByID(INPUT_NAME, TextField.class).setText(Component.translatable(colony.getName().toLowerCase(Locale.US)).getString());
+        findPaneOfTypeByID(INPUT_NAME, TextField.class).setText(String.translatable(colony.getName().toLowerCase(Locale.US)).getString());
     }
 
     @Override
@@ -61,3 +65,7 @@ public class WindowTownHallNameEntry extends BOWindow implements ButtonHandler
         }
     }
 }
+
+
+
+

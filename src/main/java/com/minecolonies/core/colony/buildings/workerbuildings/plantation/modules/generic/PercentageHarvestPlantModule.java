@@ -1,14 +1,20 @@
 package com.minecolonies.core.colony.buildings.workerbuildings.plantation.modules.generic;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.colony.buildingextensions.IBuildingExtension;
 import com.minecolonies.core.colony.buildings.workerbuildings.plantation.AbstractPlantationModule;
 import com.minecolonies.core.util.CollectorUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.Mth;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.MathHelper;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+// [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,8 +40,8 @@ public abstract class PercentageHarvestPlantModule extends AbstractPlantationMod
      * Default constructor.
      *
      * @param field    the field instance this module is working on.
-     * @param fieldTag the tag of the field anchor block.
-     * @param workTag  the tag of the working positions.
+     * @param fieldTag the NBTBase of the field anchor block.
+     * @param workTag  the NBTBase of the working positions.
      * @param item     the item which is harvested.
      */
     protected PercentageHarvestPlantModule(
@@ -48,7 +54,7 @@ public abstract class PercentageHarvestPlantModule extends AbstractPlantationMod
     }
 
     @Override
-    public PlantationModuleResult.Builder decideFieldWork(final Level world, final @NotNull BlockPos workingPosition)
+    public PlantationModuleResult.Builder decideFieldWork(final World world, final @NotNull int[] workingPosition)
     {
         ActionToPerform action = decideWorkAction(world, workingPosition);
         return switch (action)
@@ -74,7 +80,7 @@ public abstract class PercentageHarvestPlantModule extends AbstractPlantationMod
      * @param plantingPosition the specific position to check for.
      * @return the {@link PlantationModuleResult} that the AI is going to perform.
      */
-    private ActionToPerform decideWorkAction(final Level world, final BlockPos plantingPosition)
+    private ActionToPerform decideWorkAction(final World world, final int[] plantingPosition)
     {
         BlockState blockState = world.getBlockState(plantingPosition);
         if (isValidPlantingBlock(blockState))
@@ -127,15 +133,15 @@ public abstract class PercentageHarvestPlantModule extends AbstractPlantationMod
     protected abstract boolean isValidHarvestBlock(BlockState blockState);
 
     @Override
-    public @Nullable BlockPos getNextWorkingPosition(Level world)
+    public @Nullable int[] getNextWorkingPosition(World world)
     {
-        final List<BlockPos> workingPositions = getWorkingPositions().stream().collect(CollectorUtils.toShuffledList());
-        final List<BlockPos> harvestablePositions = new ArrayList<>();
+        final List<int[]> workingPositions = getWorkingPositions().stream().collect(CollectorUtils.toShuffledList());
+        final List<int[]> harvestablePositions = new ArrayList<>();
 
         final double minimumPlantFraction = Mth.clamp(getMinimumPlantPercentage(), 0, 100) / 100d;
         final int minimumPlantCount = (int) Math.ceil(minimumPlantFraction * workingPositions.size());
 
-        for (BlockPos position : workingPositions)
+        for (int[] position : workingPositions)
         {
             final ActionToPerform action = decideWorkAction(world, position);
             if (action == ActionToPerform.CLEAR)
@@ -151,7 +157,7 @@ public abstract class PercentageHarvestPlantModule extends AbstractPlantationMod
         if (minimumPlantCount > harvestablePositions.size())
         {
             // We want to prevent putting "harvestable" blocks next to one another as much as possible.
-            Set<BlockPos> excludedPositions = harvestablePositions.stream()
+            Set<int[]> excludedPositions = harvestablePositions.stream()
                                                 .flatMap(f -> Stream.of(f, f.above(), f.below(), f.north(), f.south(), f.west(), f.east()))
                                                 .collect(Collectors.toSet());
             return workingPositions.stream()
@@ -161,8 +167,8 @@ public abstract class PercentageHarvestPlantModule extends AbstractPlantationMod
         }
         else if (minimumPlantCount < harvestablePositions.size())
         {
-            Set<BlockPos> duplicateLocator = new HashSet<>();
-            Set<BlockPos> harvestablePositionsSet = new HashSet<>(harvestablePositions);
+            Set<int[]> duplicateLocator = new HashSet<>();
+            Set<int[]> harvestablePositionsSet = new HashSet<>(harvestablePositions);
             return harvestablePositions.stream()
                      .flatMap(f -> Stream.of(f, f.above(), f.below(), f.north(), f.south(), f.west(), f.east()))
                      .filter(f -> harvestablePositionsSet.contains(f) && !duplicateLocator.add(f))
@@ -194,7 +200,7 @@ public abstract class PercentageHarvestPlantModule extends AbstractPlantationMod
     protected abstract int getMinimumPlantPercentage();
 
     @Override
-    public BlockPos getPositionToWalkTo(final Level world, final BlockPos workingPosition)
+    public int[] getPositionToWalkTo(final World world, final int[] workingPosition)
     {
         return Stream.of(workingPosition.north(), workingPosition.south(), workingPosition.west(), workingPosition.east())
                  .filter(pos -> world.getBlockState(pos).isAir())
@@ -202,3 +208,6 @@ public abstract class PercentageHarvestPlantModule extends AbstractPlantationMod
                  .orElse(workingPosition);
     }
 }
+
+
+

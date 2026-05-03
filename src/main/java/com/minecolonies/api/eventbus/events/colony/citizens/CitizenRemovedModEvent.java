@@ -2,7 +2,7 @@ package com.minecolonies.api.eventbus.events.colony.citizens;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.eventbus.events.colony.AbstractColonyModEvent;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -15,11 +15,9 @@ public final class CitizenRemovedModEvent extends AbstractColonyModEvent
      */
     private final int citizenId;
 
-    /**
-     * The damage source that caused a citizen to die.
-     */
+    // [1.7.10] Entity.RemovalReason does not exist; replaced with String reason
     @NotNull
-    private final Entity.RemovalReason reason;
+    private final String reason;
 
     /**
      * Citizen removed event.
@@ -28,31 +26,16 @@ public final class CitizenRemovedModEvent extends AbstractColonyModEvent
      * @param citizenId the id of the citizen.
      * @param reason    the reason the citizen was removed.
      */
-    public CitizenRemovedModEvent(final @NotNull IColony colony, final int citizenId, final @NotNull Entity.RemovalReason reason)
+    public CitizenRemovedModEvent(final @NotNull IColony colony, final int citizenId, final @NotNull String reason)
     {
         super(colony);
         this.citizenId = citizenId;
         this.reason = reason;
     }
 
-    /**
-     * The id of the citizen.
-     *
-     * @return the id.
-     */
-    public int getCitizenId()
-    {
-        return citizenId;
-    }
+    public int getCitizenId() { return citizenId; }
 
-    /**
-     * The damage source that caused the citizen to die.
-     *
-     * @return the damage source.
-     */
     @NotNull
-    public Entity.RemovalReason getRemovalReason()
-    {
-        return reason;
-    }
+    public String getRemovalReason() { return reason; }
 }
+

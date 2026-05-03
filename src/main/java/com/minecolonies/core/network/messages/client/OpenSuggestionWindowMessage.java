@@ -3,13 +3,12 @@ package com.minecolonies.core.network.messages.client;
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.core.MineColonies;
 import com.minecolonies.core.client.gui.WindowSuggestBuildTool;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.core.BlockPos;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.block.Block;
+// [1.7.10] BlockState -> int metadata
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,7 +25,7 @@ public class OpenSuggestionWindowMessage implements IMessage
     /**
      * The position to place it at.
      */
-    private BlockPos pos;
+    private int[] pos;
 
     /**
      * The stack which is going to be placed.
@@ -48,7 +47,7 @@ public class OpenSuggestionWindowMessage implements IMessage
      * @param pos   the pos to place it at.
      * @param stack the stack in the hand.
      */
-    public OpenSuggestionWindowMessage(final BlockState state, final BlockPos pos, final ItemStack stack)
+    public OpenSuggestionWindowMessage(final BlockState state, final int[] pos, final ItemStack stack)
     {
         super();
         this.state = state;
@@ -57,7 +56,7 @@ public class OpenSuggestionWindowMessage implements IMessage
     }
 
     @Override
-    public void fromBytes(@NotNull final FriendlyByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
         state = Block.stateById(buf.readInt());
         pos = buf.readBlockPos();
@@ -65,7 +64,7 @@ public class OpenSuggestionWindowMessage implements IMessage
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
         buf.writeInt(Block.getId(state));
         buf.writeBlockPos(pos);
@@ -74,14 +73,16 @@ public class OpenSuggestionWindowMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.CLIENT;
+        return Boolean.FALSE;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
         new WindowSuggestBuildTool(pos, state, stack).open();
     }
 }
+
+

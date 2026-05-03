@@ -13,18 +13,19 @@ import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.constant.TypeConstants;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.storage.loot.LootParams;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] int /* InteractionHand */ removed
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+import net.minecraft.world.World;
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] items shim in com.minecolonies.api.shim
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -100,7 +101,7 @@ public class RecipeStorage implements IRecipeStorage
     /**
      * The Resource location of the Loot Table to use for possible outputs
      */
-    private final ResourceLocation lootTable;
+    private final ResourceLocation Object /* LootTable */;
 
     /**
      * The tool required to craft this recipe (in addition to any in the recipe itself)
@@ -115,19 +116,13 @@ public class RecipeStorage implements IRecipeStorage
     /**
      * The cached loot table for possible outputs
      */
-    private LootTable loot;
+    private Object /* LootTable */ loot;
 
     /**
      * The loot parameter set definition
      */
-    public static final LootContextParamSet recipeLootParameters = (new LootContextParamSet.Builder())
-                .required(LootContextParams.ORIGIN)
-                .required(LootContextParams.THIS_ENTITY)
-                .required(LootContextParams.TOOL)
-                .optional(LootContextParams.DAMAGE_SOURCE)
-                .optional(LootContextParams.KILLER_ENTITY)
-                .optional(LootContextParams.DIRECT_KILLER_ENTITY)
-                .build();
+    // [1.7.10] recipeLootParameters - loot tables not supported in 1.7.10
+    public static final Object recipeLootParameters = null;
 
     public static class Builder
     {
@@ -140,7 +135,7 @@ public class RecipeStorage implements IRecipeStorage
         private Block intermediate = Blocks.AIR;
         private int gridSize = 1;
         private IToken<?> token = null;
-        private ResourceLocation lootTable = null;
+        private ResourceLocation Object /* LootTable */ = null;
         private EquipmentTypeEntry requiredTool = ModEquipmentTypes.none.get();
 
         /**
@@ -165,7 +160,7 @@ public class RecipeStorage implements IRecipeStorage
             this.intermediate = recipe.getIntermediate();
             this.gridSize = recipe.getGridSize();
             this.token = null;
-            this.lootTable = recipe.getLootTable();
+            this.Object /* LootTable */ = recipe.getLootTable();
             this.requiredTool = recipe.getRequiredTool();
         }
 
@@ -268,13 +263,12 @@ public class RecipeStorage implements IRecipeStorage
         }
 
         /**
-         * Set the loot table.
-         * @param lootTable Loot table to use for possible alternate outputs
+         * Set the loot table. [1.7.10] Not supported, stub only.
          * @return this
          */
-        public Builder withLootTable(@Nullable final ResourceLocation lootTable)
+        public Builder withLootTable(@Nullable final ResourceLocation lootTableId)
         {
-            this.lootTable = lootTable;
+            // [1.7.10] loot tables not supported
             return this;
         }
 
@@ -330,7 +324,7 @@ public class RecipeStorage implements IRecipeStorage
         this.intermediate = builder.intermediate;
         this.token = builder.token == null ? StandardFactoryController.getInstance().getNewInstance(TypeConstants.ITOKEN) : builder.token;
         this.recipeSource = builder.recipeSource;
-        this.lootTable = builder.lootTable;
+        this.Object /* LootTable */ = builder.Object /* LootTable */;
         this.requiredTool = builder.requiredTool;
 
         final ResourceLocation type = builder.recipeType != null ? builder.recipeType
@@ -445,7 +439,7 @@ public class RecipeStorage implements IRecipeStorage
     }
 
     @Override
-    public boolean canFullFillRecipe(final int qty, final Map<ItemStorage, Integer> existingRequirements, @NotNull final IItemHandler... inventories)
+    public boolean canFullFillRecipe(final int qty, final Map<ItemStorage, Integer> existingRequirements, @NotNull final net.minecraftforge.items.IItemHandler... inventories)
     {
         final List<ItemStorage> items = getCleanedInput();
 
@@ -466,7 +460,7 @@ public class RecipeStorage implements IRecipeStorage
     }
 
     @Override
-    public boolean canFullFillRecipe(final int qty, final Map<ItemStorage, Integer> existingRequirements, @NotNull final List<IItemHandler> citizen, @NotNull final IBuilding building)
+    public boolean canFullFillRecipe(final int qty, final Map<ItemStorage, Integer> existingRequirements, @NotNull final List<net.minecraftforge.items.IItemHandler> citizen, @NotNull final IBuilding building)
     {
         final List<ItemStorage> items = getCleanedInput();
 
@@ -546,7 +540,7 @@ public class RecipeStorage implements IRecipeStorage
               || requiredTool != that.requiredTool
               || tools.size() != that.tools.size()
               || !Objects.equals(this.recipeSource, that.recipeSource)
-              || !Objects.equals(this.lootTable, that.lootTable)
+              || !Objects.equals(this.Object /* LootTable */, that.Object /* LootTable */)
               || !this.recipeType.getId().equals(that.recipeType.getId())
               || !ItemStackUtils.compareItemStacksIgnoreStackSize(primaryOutput, that.primaryOutput, false, true))
         {
@@ -599,7 +593,7 @@ public class RecipeStorage implements IRecipeStorage
     {
         if(hash == 0)
         {
-            hash = Objects.hash(cleanedInput, 
+            hash = Objects.hash(cleanedInput,
             primaryOutput.getItem(),
             primaryOutput.getCount(),
             intermediate,
@@ -634,7 +628,7 @@ public class RecipeStorage implements IRecipeStorage
      * @param handlers the handlers to check.
      * @return true if enough space.
      */
-    private boolean checkForFreeSpace(final List<IItemHandler> handlers)
+    private boolean checkForFreeSpace(final List<net.minecraftforge.items.IItemHandler> handlers)
     {
         final List<ItemStack> resultStacks = new ArrayList<>();
         //Calculate space needed by the secondary outputs, but only if there is a primary output.
@@ -659,7 +653,7 @@ public class RecipeStorage implements IRecipeStorage
         if (resultStacks.size() > getInput().size())
         {
             int freeSpace = 0;
-            for (final IItemHandler handler : handlers)
+            for (final net.minecraftforge.items.IItemHandler handler : handlers)
             {
                 freeSpace += handler.getSlots() - InventoryUtils.getAmountOfStacksInItemHandler(handler);
             }
@@ -677,9 +671,9 @@ public class RecipeStorage implements IRecipeStorage
      * @return copy of the crafted items if successful, null on failure
      */
     @Override
-    public List<ItemStack> fullfillRecipeAndCopy(final LootParams context, final List<IItemHandler> handlers, boolean doInsert)
+    public List<ItemStack> fullfillRecipeAndCopy(final Object /* LootParams */ context, final List<net.minecraftforge.items.IItemHandler> handlers, boolean doInsert)
     {
-        if (!checkForFreeSpace(handlers) || !canFullFillRecipe(1, Collections.emptyMap(), handlers.toArray(new IItemHandler[0])))
+        if (!checkForFreeSpace(handlers) || !canFullFillRecipe(1, Collections.emptyMap(), handlers.toArray(new net.minecraftforge.items.IItemHandler[0])))
         {
             return null;
         }
@@ -696,7 +690,7 @@ public class RecipeStorage implements IRecipeStorage
                 break;
             }
 
-            for (final IItemHandler handler : handlers)
+            for (final net.minecraftforge.items.IItemHandler handler : handlers)
             {
                 boolean isTool = ItemStackUtils.compareItemStackListIgnoreStackSize(tools, stack, false, !storage.ignoreNBT());
                 int slotOfStack =
@@ -715,7 +709,7 @@ public class RecipeStorage implements IRecipeStorage
                             {
                                 // The 4 parameter inner call from forge is for adding a callback to alter the damage caused,
                                 // but unlike its description does not actually damage the item(despite the same function name). So used to just calculate the damage.
-                                toDamage.hurtAndBreak(toDamage.getItem().damageItem(stack, 1, citizen, item -> item.broadcastBreakEvent(InteractionHand.MAIN_HAND)), citizen, item -> item.broadcastBreakEvent(InteractionHand.MAIN_HAND));
+                                toDamage.hurtAndBreak(toDamage.getItem().damageItem(stack, 1, citizen, item -> item.broadcastBreakEvent(0 /* InteractionHand.MAIN_HAND */)), citizen, item -> item.broadcastBreakEvent(0 /* InteractionHand.MAIN_HAND */));
                             }
                             if (!ItemStackUtils.isEmpty(toDamage))
                             {
@@ -773,7 +767,7 @@ public class RecipeStorage implements IRecipeStorage
      *
      * @param handlers the handlers.
      */
-    private List<ItemStack> insertCraftedItems(final List<IItemHandler> handlers, ItemStack outputStack, LootParams context, boolean doInsert)
+    private List<ItemStack> insertCraftedItems(final List<net.minecraftforge.items.IItemHandler> handlers, ItemStack outputStack, Object /* LootParams */ context, boolean doInsert)
     {
         final List<ItemStack> resultStacks = new ArrayList<>();
         final List<ItemStack> secondaryStacks = new ArrayList<>();
@@ -783,7 +777,7 @@ public class RecipeStorage implements IRecipeStorage
             resultStacks.add(outputStack.copy());
             if (doInsert)
             {
-                for (final IItemHandler handler : handlers)
+                for (final net.minecraftforge.items.IItemHandler handler : handlers)
                 {
                     if (InventoryUtils.addItemStackToItemHandler(handler, outputStack.copy()))
                     {
@@ -794,9 +788,9 @@ public class RecipeStorage implements IRecipeStorage
             secondaryStacks.addAll(secondaryOutputs);
         }
 
-        if (loot == null && lootTable != null)
+        if (loot == null && Object /* LootTable */ != null)
         {
-            loot = context.getLevel().getServer().getLootData().getLootTable(lootTable);
+            loot = context.getLevel().getServer().getLootData().getLootTable(Object /* LootTable */);
         }
 
         if(loot != null && context != null)
@@ -809,7 +803,7 @@ public class RecipeStorage implements IRecipeStorage
         {
             for (final ItemStack stack : secondaryStacks)
             {
-                for (final IItemHandler handler : handlers)
+                for (final net.minecraftforge.items.IItemHandler handler : handlers)
                 {
                     if (InventoryUtils.addItemStackToItemHandler(handler, stack.copy()))
                     {
@@ -848,7 +842,7 @@ public class RecipeStorage implements IRecipeStorage
             }
         }
 
-        return null; 
+        return null;
     }
 
     @Override
@@ -860,7 +854,7 @@ public class RecipeStorage implements IRecipeStorage
     @Override
     public ResourceLocation getRecipeSource()
     {
-        return recipeSource; 
+        return recipeSource;
     }
 
     @NotNull
@@ -883,7 +877,7 @@ public class RecipeStorage implements IRecipeStorage
     @Override
     public ResourceLocation getLootTable()
     {
-        return lootTable;
+        return Object /* LootTable */;
     }
 
     @NotNull
@@ -907,3 +901,8 @@ public class RecipeStorage implements IRecipeStorage
         return ImmutableList.copyOf(secondaryOutputs);
     }
 }
+
+
+
+
+

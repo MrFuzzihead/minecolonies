@@ -2,11 +2,14 @@ package com.minecolonies.core.client.gui.containers;
 
 import com.minecolonies.api.inventory.container.ContainerBuildingInventory;
 import com.minecolonies.api.util.constant.Constants;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] world.entity removed
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.IChatComponent;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
 public class WindowBuildingInventory extends AbstractContainerScreen<ContainerBuildingInventory>
@@ -41,9 +44,9 @@ public class WindowBuildingInventory extends AbstractContainerScreen<ContainerBu
      */
     private final int inventoryRows;
 
-    public WindowBuildingInventory(final ContainerBuildingInventory container, final Inventory playerInventory, final Component component)
+    public WindowBuildingInventory(final ContainerBuildingInventory container, final Inventory playerInventory, final String String)
     {
-        super(container, playerInventory, component);
+        super(container, playerInventory, String);
         this.inventoryRows = container.getSize();
         this.imageHeight = 114 + this.inventoryRows * 18;
     }
@@ -79,3 +82,7 @@ public class WindowBuildingInventory extends AbstractContainerScreen<ContainerBu
           TEXTURE_OFFSET, this.imageWidth, TEXTURE_HEIGHT, TEXTURE_SIZE, TEXTURE_SIZE);
     }
 }
+
+
+
+

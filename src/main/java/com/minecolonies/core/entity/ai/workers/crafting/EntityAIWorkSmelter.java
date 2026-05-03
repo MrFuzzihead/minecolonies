@@ -26,12 +26,12 @@ import com.minecolonies.core.colony.requestable.SmeltableOre;
 import com.minecolonies.core.entity.ai.workers.AbstractEntityAIUsesFurnace;
 import com.minecolonies.core.network.messages.client.LocalizedParticleEffectMessage;
 import com.minecolonies.core.util.WorkerUtil;
-import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
-import net.minecraftforge.items.wrapper.InvWrapper;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] sounds removed
+// [1.7.10] int /* InteractionHand */ removed
+import net.minecraft.item.ItemStack;
+// [1.7.10] block.entity removed
+import net.minecraft.tileentity.TileEntityFurnace;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -93,7 +93,7 @@ public class EntityAIWorkSmelter extends AbstractEntityAIUsesFurnace<JobSmelter,
         {
             return IDLE;
         }
-        Component statsName = inputItem.getHoverName();
+        String statsName = inputItem.getHoverName();
         int quantity = inputItem.getCount();
 
         WorkerUtil.faceBlock(building.getPosition(), worker);
@@ -114,8 +114,8 @@ public class EntityAIWorkSmelter extends AbstractEntityAIUsesFurnace<JobSmelter,
         Network.getNetwork()
           .sendToTrackingEntity(new LocalizedParticleEffectMessage(inputItem, building.getID().below()), worker);
 
-        worker.setItemInHand(InteractionHand.MAIN_HAND, inputItem);
-        worker.swing(InteractionHand.MAIN_HAND);
+        worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, inputItem);
+        worker.swing(0 /* InteractionHand.MAIN_HAND */);
         SoundUtils.playSoundAtCitizen(world, building.getID(), SoundEvents.LEASH_KNOT_BREAK);
 
         return getState();
@@ -133,7 +133,7 @@ public class EntityAIWorkSmelter extends AbstractEntityAIUsesFurnace<JobSmelter,
      * @param furnace the furnace to retrieve from.
      */
     @Override
-    protected void extractFromFurnace(final FurnaceBlockEntity furnace)
+    protected void extractFromFurnace(final TileEntityFurnace furnace)
     {
         StatsUtil.trackStatFromFurnace(building, ITEMS_SMELTED_DETAIL, furnace, RESULT_SLOT);
 
@@ -156,7 +156,7 @@ public class EntityAIWorkSmelter extends AbstractEntityAIUsesFurnace<JobSmelter,
     {
         if (!ItemStackUtils.isEmpty(worker.getMainHandItem()))
         {
-            worker.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, ItemStack.EMPTY);
         }
 
         if (!worker.getInventoryCitizen().hasSpace())
@@ -202,7 +202,7 @@ public class EntityAIWorkSmelter extends AbstractEntityAIUsesFurnace<JobSmelter,
         if (InventoryUtils.hasBuildingEnoughElseCount(building, s -> new SmeltableOre(1).matches(s), 1) <= 0
             && !building.hasWorkerOpenRequestsOfType(worker.getCitizenData().getId(), TypeToken.of(getSmeltAbleClass().getClass()))
             && !building.hasWorkerOpenRequestsFiltered(worker.getCitizenData().getId(),
-                req -> req.getShortDisplayString().getSiblings().contains(Component.translatable(RequestSystemTranslationConstants.REQUESTS_TYPE_SMELTABLE_ORE))))
+                req -> req.getShortDisplayString().getSiblings().contains(String.translatable(RequestSystemTranslationConstants.REQUESTS_TYPE_SMELTABLE_ORE))))
         {
             final List<ItemStorage> allowedItems = building.getModuleMatching(ItemListModule.class, m -> m.getId().equals(ORE_LIST)).getList();
             if (allowedItems.isEmpty())
@@ -221,7 +221,7 @@ public class EntityAIWorkSmelter extends AbstractEntityAIUsesFurnace<JobSmelter,
                     if (worker.getCitizenData() != null)
                     {
                         worker.getCitizenData()
-                          .triggerInteraction(new StandardInteraction(Component.translatable(FURNACE_USER_NO_ORE), ChatPriority.BLOCKING));
+                          .triggerInteraction(new StandardInteraction(String.translatable(FURNACE_USER_NO_ORE), ChatPriority.BLOCKING));
                     }
                 }
                 else
@@ -237,3 +237,8 @@ public class EntityAIWorkSmelter extends AbstractEntityAIUsesFurnace<JobSmelter,
         }
     }
 }
+
+
+
+
+

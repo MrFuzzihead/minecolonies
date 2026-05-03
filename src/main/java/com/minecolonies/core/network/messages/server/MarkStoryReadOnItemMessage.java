@@ -2,12 +2,11 @@ package com.minecolonies.core.network.messages.server;
 
 import com.minecolonies.api.items.ISupplyItem;
 import com.minecolonies.api.network.IMessage;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.entity.player.EntityPlayerMP;
+// [1.7.10] int /* InteractionHand */ removed
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,7 +20,7 @@ public class MarkStoryReadOnItemMessage implements IMessage
     /**
      * The hand that was holding the item.
      */
-    private InteractionHand hand;
+    private int /* InteractionHand */ hand;
 
     /**
      * Empty constructor used when registering the message
@@ -36,35 +35,35 @@ public class MarkStoryReadOnItemMessage implements IMessage
      *
      * @param hand the hand with the item.
      */
-    public MarkStoryReadOnItemMessage(final InteractionHand hand)
+    public MarkStoryReadOnItemMessage(final int /* InteractionHand */ hand)
     {
         super();
         this.hand = hand;
     }
 
     @Override
-    public void fromBytes(@NotNull final FriendlyByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
-        hand = InteractionHand.values()[buf.readInt()];
+        hand = buf.readInt(); // [1.7.10] InteractionHand removed - 0=main, 1=off
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
         buf.writeInt(hand.ordinal());
     }
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.SERVER;
+        return Boolean.TRUE;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
-        final ServerPlayer player = ctxIn.getSender();
+        final EntityPlayerMP player = ctx.getServerHandler().playerEntity;
         final ItemStack stackInHand = player.getItemInHand(this.hand);
         if (stackInHand.getItem() instanceof ISupplyItem)
         {
@@ -72,3 +71,6 @@ public class MarkStoryReadOnItemMessage implements IMessage
         }
     }
 }
+
+
+

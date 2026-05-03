@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.managers;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.MinecoloniesAPIProxy;
@@ -34,15 +40,15 @@ import com.minecolonies.core.network.messages.client.colony.ColonyViewCitizenVie
 import com.minecolonies.core.network.messages.client.colony.ColonyViewRemoveCitizenMessage;
 import com.minecolonies.core.quests.QuestInstance;
 import com.minecolonies.core.quests.triggers.CitizenTriggerReturnData;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.Level;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.WorldServer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.Entity;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -165,12 +171,12 @@ public class CitizenManager implements ICitizenManager
     }
 
     @Override
-    public void read(@NotNull final CompoundTag compound)
+    public void read(@NotNull final NBTTagCompound compound)
     {
         citizens.forEach((id, citizen) -> citizen.getEntity().ifPresent(e -> e.remove(Entity.RemovalReason.DISCARDED)));
         citizens.clear();
         //  Citizens before Buildings, because Buildings track the Citizens
-        citizens.putAll(NBTUtils.streamCompound(compound.getList(TAG_CITIZENS, Tag.TAG_COMPOUND))
+        citizens.putAll(NBTUtils.streamCompound(compound.getList(TAG_CITIZENS, NBTBase.TAG_COMPOUND))
                           .map(this::deserializeCitizen)
                           .collect(Collectors.toMap(ICitizenData::getId, Function.identity())));
 
@@ -184,7 +190,7 @@ public class CitizenManager implements ICitizenManager
      * @param compound NBT
      * @return citizen data
      */
-    private ICitizenData deserializeCitizen(@NotNull final CompoundTag compound)
+    private ICitizenData deserializeCitizen(@NotNull final NBTTagCompound compound)
     {
         final ICitizenData data = ICitizenDataManager.getInstance().createFromNBT(compound, colony);
         topCitizenId = Math.max(topCitizenId, data.getId());
@@ -192,20 +198,20 @@ public class CitizenManager implements ICitizenManager
     }
 
     @Override
-    public void write(@NotNull final CompoundTag compoundNBT)
+    public void write(@NotNull final NBTTagCompound compoundNBT)
     {
-        @NotNull final ListTag citizenTagList = citizens.values().stream().map(citizen -> citizen.serializeNBT()).collect(NBTUtils.toListNBT());
+        @NotNull final NBTTagList citizenTagList = citizens.values().stream().map(citizen -> citizen.serializeNBT()).collect(NBTUtils.toListNBT());
         compoundNBT.put(TAG_CITIZENS, citizenTagList);
     }
 
     @Override
     public void sendPackets(
-      @NotNull final Set<ServerPlayer> closeSubscribers,
-      @NotNull final Set<ServerPlayer> newSubscribers)
+      @NotNull final Set<EntityPlayerMP> closeSubscribers,
+      @NotNull final Set<EntityPlayerMP> newSubscribers)
     {
         if (isCitizensDirty || !newSubscribers.isEmpty())
         {
-            final Set<ServerPlayer> players = new HashSet<>();
+            final Set<EntityPlayerMP> players = new HashSet<>();
             if (isCitizensDirty)
             {
                 players.addAll(closeSubscribers);
@@ -223,7 +229,7 @@ public class CitizenManager implements ICitizenManager
     }
 
     @Override
-    public <T extends ICivilianData> T spawnOrCreateCivilian(final T data, final Level world, List<BlockPos> spawnPositions, final boolean force)
+    public <T extends ICivilianData> T spawnOrCreateCivilian(final T data, final World world, List<int[]> spawnPositions, final boolean force)
     {
         if (!colony.getSettings().getSetting(BuildingTownHall.MOVE_IN).getValue() && !force)
         {
@@ -236,16 +242,16 @@ public class CitizenManager implements ICitizenManager
             spawnPositions.add(colony.getServerBuildingManager().getTownHall().getPosition());
         }
 
-        for (final BlockPos spawnLocation : spawnPositions)
+        for (final int[] spawnLocation : spawnPositions)
         {
-            if (spawnLocation == null || spawnLocation.equals(BlockPos.ZERO))
+            if (spawnLocation == null || spawnLocation.equals(new int[]{0,0,0}))
             {
                 continue;
             }
 
             if (WorldUtil.isEntityBlockLoaded(world, spawnLocation))
             {
-                BlockPos calculatedSpawn = EntityUtils.getSpawnPoint(world, spawnLocation);
+                int[] calculatedSpawn = EntityUtils.getSpawnPoint(world, spawnLocation);
                 if (calculatedSpawn != null)
                 {
                     return (T) spawnCitizenOnPosition((ICitizenData) data, world, force, calculatedSpawn);
@@ -255,7 +261,7 @@ public class CitizenManager implements ICitizenManager
 
         if (colony.getServerBuildingManager().hasTownHall() && WorldUtil.isEntityBlockLoaded(world, colony.getServerBuildingManager().getTownHall().getPosition()))
         {
-            final BlockPos townhallPos = colony.getServerBuildingManager().getTownHall().getPosition();
+            final int[] townhallPos = colony.getServerBuildingManager().getTownHall().getPosition();
             MessageUtils.format(WARNING_COLONY_NO_ARRIVAL_SPACE, townhallPos.getX(), townhallPos.getY(), townhallPos.getZ()).sendTo(colony).forAllPlayers();
         }
         return data;
@@ -264,9 +270,9 @@ public class CitizenManager implements ICitizenManager
     @NotNull
     private ICitizenData spawnCitizenOnPosition(
       @Nullable final ICitizenData data,
-      @NotNull final Level world,
+      @NotNull final World world,
       final boolean force,
-      final BlockPos spawnPoint)
+      final int[] spawnPoint)
     {
         ICitizenData citizenData = data;
         if (citizenData == null)
@@ -342,7 +348,7 @@ public class CitizenManager implements ICitizenManager
     }
 
     @Override
-    public ICitizenData resurrectCivilianData(@NotNull final CompoundTag compoundNBT, final boolean resetId, @NotNull final Level world, final BlockPos spawnPos)
+    public ICitizenData resurrectCivilianData(@NotNull final NBTTagCompound compoundNBT, final boolean resetId, @NotNull final World world, final int[] spawnPos)
     {
         //This ensures that citizen IDs are getting reused.
         //That's needed to prevent bugs when calling IDs that are not used.
@@ -391,7 +397,7 @@ public class CitizenManager implements ICitizenManager
         colony.getWorkManager().clearWorkForCitizen((ICitizenData) citizen);
 
         //  Inform Subscribers of removed citizen
-        for (final ServerPlayer player : colony.getPackageManager().getCloseSubscribers())
+        for (final EntityPlayerMP player : colony.getPackageManager().getCloseSubscribers())
         {
             Network.getNetwork().sendToPlayer(new ColonyViewRemoveCitizenMessage(colony, citizen.getId()), player);
         }
@@ -724,3 +730,9 @@ public class CitizenManager implements ICitizenManager
         }
     }
 }
+
+
+
+
+
+

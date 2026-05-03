@@ -6,7 +6,7 @@ import com.minecolonies.core.colony.buildings.workerbuildings.BuildingTownHall;
 import static com.minecolonies.api.util.constant.WindowConstants.BUTTON_SETTINGS;
 
 /**
- * BOWindow for the town hall.
+ * Object (BOWindow: todo ModularUI2 removed) for the town hall.
  */
 public class WindowSettings extends AbstractWindowTownHall
 {
@@ -68,3 +68,5 @@ public class WindowSettings extends AbstractWindowTownHall
         return BUTTON_SETTINGS;
     }
 }
+
+

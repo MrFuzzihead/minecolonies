@@ -5,7 +5,7 @@ import com.ldtteam.structurize.client.BlueprintHandler;
 import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
-import net.minecraft.core.BlockPos;
+// [1.7.10] int[] -> int x,y,z
 
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
@@ -53,7 +53,7 @@ public class ColonyWaypointRenderer
                     {
                         final BlueprintPreviewData tempPreviewData = new BlueprintPreviewData();
                         tempPreviewData.setBlueprint(pendingTemplate.get());
-                        tempPreviewData.setPos(BlockPos.ZERO);
+                        tempPreviewData.setPos(new int[]{0,0,0});
                         wayPointTemplate = tempPreviewData;
                         pendingTemplate = null;
                     }
@@ -78,3 +78,6 @@ public class ColonyWaypointRenderer
         }
     }
 }
+
+
+

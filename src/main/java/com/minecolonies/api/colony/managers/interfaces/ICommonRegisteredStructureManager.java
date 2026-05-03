@@ -6,8 +6,8 @@ import com.minecolonies.api.colony.buildings.ICommonBuilding;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.WorldUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,7 +44,7 @@ public interface ICommonRegisteredStructureManager<B extends ICommonBuilding,T>
      * @param pos the id of the building.
      * @return the building.
      */
-    default B getBuilding(BlockPos pos)
+    default B getBuilding(int[] pos)
     {
         return getBuildings().get(pos);
     }
@@ -55,7 +55,7 @@ public interface ICommonRegisteredStructureManager<B extends ICommonBuilding,T>
      * @return Map with ID (coordinates) as key, and buildings as value.
      */
     @NotNull
-    Map<BlockPos, B> getBuildings();
+    Map<int[], B> getBuildings();
 
     /**
      * Check if the colony has a placed townhall.
@@ -71,7 +71,7 @@ public interface ICommonRegisteredStructureManager<B extends ICommonBuilding,T>
      * @param type       Type of building.
      * @return the building with the specified id.
      */
-    default @Nullable <BB extends B> BB getBuilding(final BlockPos buildingId, @NotNull final Class<BB> type)
+    default @Nullable <BB extends B> BB getBuilding(final int[] buildingId, @NotNull final Class<BB> type)
     {
         try
         {
@@ -91,7 +91,7 @@ public interface ICommonRegisteredStructureManager<B extends ICommonBuilding,T>
      * @param building the type of building.
      * @return the Position of it.
      */
-    default BlockPos getBestBuilding(final AbstractEntityCitizen citizen, final Class<? extends B> building)
+    default int[] getBestBuilding(final AbstractEntityCitizen citizen, final Class<? extends B> building)
     {
         return getBestBuilding(citizen.blockPosition(), building);
     }
@@ -104,7 +104,7 @@ public interface ICommonRegisteredStructureManager<B extends ICommonBuilding,T>
      * @param filter   the filter to match a building against to further specialize the needs.
      * @return the Position of it.
      */
-    default <BB extends B> BlockPos getBestBuilding(final AbstractEntityCitizen citizen, final Class<BB> building, @NotNull final Predicate<BB> filter)
+    default <BB extends B> int[] getBestBuilding(final AbstractEntityCitizen citizen, final Class<BB> building, @NotNull final Predicate<BB> filter)
     {
         return getBestBuilding(citizen.blockPosition(), building, filter);
     }
@@ -116,7 +116,7 @@ public interface ICommonRegisteredStructureManager<B extends ICommonBuilding,T>
      * @param building the building class type.
      * @return the Position of it.
      */
-    default BlockPos getBestBuilding(final BlockPos pos, final Class<? extends B> building)
+    default int[] getBestBuilding(final int[] pos, final Class<? extends B> building)
     {
         return getBestBuilding(pos, building, b -> true);
     }
@@ -129,10 +129,10 @@ public interface ICommonRegisteredStructureManager<B extends ICommonBuilding,T>
      * @param filter   the filter to match a building against to further specialize the needs.
      * @return the Position of it.
      */
-    default <BB extends B> BlockPos getBestBuilding(final BlockPos pos, final Class<BB> building, @NotNull final Predicate<BB> filter)
+    default <BB extends B> int[] getBestBuilding(final int[] pos, final Class<BB> building, @NotNull final Predicate<BB> filter)
     {
         double distance = Double.MAX_VALUE;
-        BlockPos goodFit = null;
+        int[] goodFit = null;
         for (final B currentBuilding : getBuildings().values())
         {
             if (building.isInstance(currentBuilding)
@@ -157,7 +157,7 @@ public interface ICommonRegisteredStructureManager<B extends ICommonBuilding,T>
      * @param filterPredicate the filter to apply.
      * @return the random building. Returns null if no building matching the predicate was found.
      */
-    default BlockPos getRandomBuilding(Predicate<B> filterPredicate)
+    default int[] getRandomBuilding(Predicate<B> filterPredicate)
     {
         final List<B> allowedBuildings = new ArrayList<>();
         for (final B building : getBuildings().values())
@@ -198,11 +198,11 @@ public interface ICommonRegisteredStructureManager<B extends ICommonBuilding,T>
     /**
      * Check if a building matching a given resource location.
      * @param id the resource location to match.
-     * @param level the level to match.
+     * @param World the World to match.
      * @param singleBuilding if one or more buildings can match it.
      * @return true if so.
      */
-    default boolean hasBuilding(final ResourceLocation id, final int level, final boolean singleBuilding)
+    default boolean hasBuilding(final ResourceLocation id, final int World, final boolean singleBuilding)
     {
         int sum = 0;
         for (final B building : getBuildings().values())
@@ -211,7 +211,7 @@ public interface ICommonRegisteredStructureManager<B extends ICommonBuilding,T>
             {
                 if (singleBuilding)
                 {
-                    if (building.getBuildingLevel() >= level)
+                    if (building.getBuildingLevel() >= World)
                     {
                         return true;
                     }
@@ -220,7 +220,7 @@ public interface ICommonRegisteredStructureManager<B extends ICommonBuilding,T>
                 {
                     sum += building.getBuildingLevel();
 
-                    if (sum >= level)
+                    if (sum >= World)
                     {
                         return true;
                     }
@@ -244,3 +244,5 @@ public interface ICommonRegisteredStructureManager<B extends ICommonBuilding,T>
      */
     IColony getColony();
 }
+
+

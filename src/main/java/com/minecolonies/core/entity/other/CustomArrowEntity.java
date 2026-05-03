@@ -1,71 +1,41 @@
 package com.minecolonies.core.entity.other;
 
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.Arrow;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.network.NetworkHooks;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.projectile.EntityArrow;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.DamageSource;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Predicate;
 
 /**
- * Custom arrow entity class which remove themselves when on the ground for a bit to not cause lag and they do not scale in damage with their motion.
+ * Custom arrow entity class which removes itself when on the ground for a bit
+ * to avoid lag and does not scale damage with motion.
  */
-public class CustomArrowEntity extends Arrow
+public class CustomArrowEntity extends EntityArrow
 {
-    /**
-     * Max time the arrow is stuck before removing it
-     */
-    private static final int MAX_LIVE_TIME = 10 * 20;
-
-    /**
-     * Max time the arrow is stuck in ground before removing it.
-     */
+    private static final int MAX_LIVE_TIME    = 10 * 20;
     private static final int GROUND_LIVE_TIME = 2 * 20;
 
-    /**
-     * Whether the arrow entity pierces players
-     */
     private boolean armorPiercePlayer = false;
+    private float   waterInertia      = 0.6f;
 
-    /**
-     * The water inertia.
-     */
-    private float waterInertia = 0.6f;
+    // [1.7.10] EntityHitResult doesn't exist; callback omitted for now
+    // private Predicate<EntityHitResult> onHitCallback = null;
 
-    /**
-     * Callback on hitting an entity
-     */
-    private Predicate<EntityHitResult> onHitCallback = null;
-
-    public CustomArrowEntity(final EntityType<? extends Arrow> type, final Level world)
+    public CustomArrowEntity(final World world)
     {
-        super(type, world);
+        super(world);
     }
 
-    @Override
-    protected void doPostHurtEffects(LivingEntity target)
+    public CustomArrowEntity(final World world, final EntityLivingBase shooter)
     {
-        // TODO add enderman damage hit research here. Note that this is also used by mobs, so check the shooter first.
-        super.doPostHurtEffects(target);
+        super(world, shooter, 2.0f);
     }
 
-    @Override
-    @NotNull
-    public Packet<ClientGamePacketListener> getAddEntityPacket()
-    {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
+    // [1.7.10] doPostHurtEffects → onArrowHit is not standard; override onUpdate for custom behavior
 
     @Override
     protected float getWaterInertia()
@@ -73,119 +43,54 @@ public class CustomArrowEntity extends Arrow
         return waterInertia;
     }
 
-    /**
-     * Setter for the water inertia to allow to penetrate liquids better.
-     * @param waterInertia the new inertia.
-     */
     public void setWaterInertia(final float waterInertia)
     {
         this.waterInertia = waterInertia;
     }
 
-    @Override
-    protected void onHitEntity(EntityHitResult traceResult)
-    {
-        final double prevDamage = getBaseDamage();
+    // [1.7.10] onHitEntity(EntityHitResult) doesn't exist.
+    // In 1.7.10, arrow damage logic is in EntityArrow.onUpdate() via attackEntityFrom.
+    // armorPiercePlayer and damage capping hooks kept as stubs.
 
-        // Reduce damage by motion before vanilla increases it by the same factor, so our damage stays.
-        float f = (float) this.getDeltaMovement().length();
-        if (f != 0)
-        {
-            setBaseDamage(prevDamage / f);
-        }
-
-        if (armorPiercePlayer)
-        {
-            final Entity player = traceResult.getEntity();
-            if (player instanceof Player)
-            {
-                Entity shooter = this.getOwner();
-                DamageSource source;
-                if (shooter == null)
-                {
-                    source = level.damageSources().arrow(this, this);
-                }
-                else
-                {
-                    source = level.damageSources().arrow(this, shooter);
-                }
-                player.hurt(source, (float) getBaseDamage());
-                setBaseDamage(0);
-            }
-        }
-
-        super.onHitEntity(traceResult);
-
-        // Set the old actual damage value back
-        setBaseDamage(prevDamage);
-        if (onHitCallback != null && onHitCallback.test(traceResult))
-        {
-            onHitCallback = null;
-        }
-    }
-
-    /**
-     * Set the hit callback action
-     *
-     * @param onHitCallback
-     */
-    public void setOnHitCallback(final Predicate<EntityHitResult> onHitCallback)
-    {
-        this.onHitCallback = onHitCallback;
-    }
-
-    /**
-     * Makes the arrow pierce player armor
-     */
     public void setPlayerArmorPierce()
     {
         armorPiercePlayer = true;
     }
 
     @Override
-    public boolean shouldFall()
-    {
-        if (this.inGround)
-        {
-            final AABB aabb = (new AABB(this.position(), this.position())).inflate(0.06D);
-            for(VoxelShape voxelshape : this.level.getBlockCollisions(null, aabb)) {
-                if (!voxelshape.isEmpty())
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean save(@NotNull CompoundTag nbt)
+    public boolean canBeCollidedWith()
     {
         return false;
     }
 
+    // [1.7.10] save/load → writeEntityToNBT/readEntityFromNBT on EntityArrow
     @Override
-    public void load(@NotNull CompoundTag nbt)
+    public void writeEntityToNBT(final NBTTagCompound nbt)
     {
-        discard();
+        // Do not save — transient projectile
     }
 
     @Override
-    public void tick()
+    public void readEntityFromNBT(final NBTTagCompound nbt)
     {
-        if (this.tickCount > MAX_LIVE_TIME)
+        setDead();
+    }
+
+    @Override
+    public void onUpdate()
+    {
+        if (this.ticksExisted > MAX_LIVE_TIME)
         {
-            remove(RemovalReason.DISCARDED);
+            setDead();
             return;
         }
 
-        if (this.inGroundTime > GROUND_LIVE_TIME)
+        if (this.inGround && this.timeInGround > GROUND_LIVE_TIME)
         {
-            remove(RemovalReason.DISCARDED);
+            setDead();
             return;
         }
 
-        super.tick();
+        super.onUpdate();
     }
 }

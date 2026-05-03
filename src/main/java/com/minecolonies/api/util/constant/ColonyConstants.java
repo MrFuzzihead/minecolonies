@@ -1,9 +1,7 @@
 package com.minecolonies.api.util.constant;
 
 import com.minecolonies.api.colony.IColony;
-import net.minecraft.server.level.TicketType;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.scores.Scoreboard;
+// [1.7.10] TicketType/ChunkPos/Scoreboard removed - chunk loading handled differently
 
 import java.util.Comparator;
 import java.util.Random;
@@ -32,7 +30,8 @@ public final class ColonyConstants
     /**
      * Specific ticket type for minecolonies tickets.
      */
-    public static final TicketType<ChunkPos> KEEP_LOADED_TYPE = TicketType.create(TICKET_ID, Comparator.comparingLong(ChunkPos::toLong));
+    // [1.7.10] TicketType/ChunkPos removed - chunk loading handled via ForgeChunkManager
+    // public static final TicketType<ChunkPos> KEEP_LOADED_TYPE = ...
 
     //  Settings
     /**
@@ -98,7 +97,8 @@ public final class ColonyConstants
     /**
      * Empty scoreboard
      */
-    public static final Scoreboard EMPTY_SCOREBOARD = new Scoreboard();
+    // [1.7.10] Scoreboard removed - using 1.7.10 Scoreboard
+    public static final net.minecraft.scoreboard.Scoreboard EMPTY_SCOREBOARD = new net.minecraft.scoreboard.Scoreboard();
 
     /**
      * Private constructor to hide the implicit one.
@@ -110,3 +110,5 @@ public final class ColonyConstants
          */
     }
 }
+
+

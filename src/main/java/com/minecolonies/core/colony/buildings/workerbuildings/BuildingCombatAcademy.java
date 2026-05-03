@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
+import net.minecraft.world.level.chunk.LevelChunk;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -9,13 +15,13 @@ import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.NBTUtils;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.WorkAtHomeBuildingModule;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import java.util.Random;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
 import net.minecraft.world.level.block.CarvedPumpkinBlock;
 import net.minecraft.world.level.block.HayBlock;
 
@@ -46,7 +52,7 @@ public class BuildingCombatAcademy extends AbstractBuilding
     /**
      * List of shooting targets in the building.
      */
-    private final List<BlockPos> fightingPos = new ArrayList<>();
+    private final List<int[]> fightingPos = new ArrayList<>();
 
     /**
      * List of training partners.
@@ -59,14 +65,14 @@ public class BuildingCombatAcademy extends AbstractBuilding
      * @param c the colony
      * @param l the position
      */
-    public BuildingCombatAcademy(@NotNull final IColony c, final BlockPos l)
+    public BuildingCombatAcademy(@NotNull final IColony c, final int[] l)
     {
         super(c, l);
     }
     
 
     @Override
-    public void registerBlockPosition(@NotNull final Block block, @NotNull final BlockPos pos, @NotNull final Level world)
+    public void registerBlockPosition(@NotNull final Block block, @NotNull final int[] pos, @NotNull final World world)
     {
         if (block instanceof CarvedPumpkinBlock && world.getBlockState(pos.below()).getBlock() instanceof HayBlock)
         {
@@ -76,29 +82,29 @@ public class BuildingCombatAcademy extends AbstractBuilding
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
 
         fightingPos.clear();
 
-        final ListTag targetList = compound.getList(TAG_COMBAT_TARGET, Tag.TAG_COMPOUND);
+        final NBTTagList targetList = compound.getList(TAG_COMBAT_TARGET, NBTBase.TAG_COMPOUND);
         fightingPos.addAll(NBTUtils.streamCompound(targetList).map(targetCompound -> BlockPosUtil.read(targetCompound, TAG_TARGET)).collect(Collectors.toList()));
 
-        final ListTag partnersTagList = compound.getList(TAG_COMBAT_PARTNER, Tag.TAG_COMPOUND);
+        final NBTTagList partnersTagList = compound.getList(TAG_COMBAT_PARTNER, NBTBase.TAG_COMPOUND);
         trainingPartners.putAll(NBTUtils.streamCompound(partnersTagList)
                                   .collect(Collectors.toMap(targetCompound -> targetCompound.getInt(TAG_PARTNER1), targetCompound -> targetCompound.getInt(TAG_PARTNER2))));
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compound = super.serializeNBT();
+        final NBTTagCompound compound = super.serializeNBT();
 
-        final ListTag targetList = fightingPos.stream().map(target -> BlockPosUtil.write(new CompoundTag(), TAG_TARGET, target)).collect(NBTUtils.toListNBT());
+        final NBTTagList targetList = fightingPos.stream().map(target -> BlockPosUtil.write(new NBTTagCompound(), TAG_TARGET, target)).collect(NBTUtils.toListNBT());
         compound.put(TAG_COMBAT_TARGET, targetList);
 
-        final ListTag partnersTagList = trainingPartners.entrySet().stream().map(BuildingCombatAcademy::writePartnerTupleToNBT).collect(NBTUtils.toListNBT());
+        final NBTTagList partnersTagList = trainingPartners.entrySet().stream().map(BuildingCombatAcademy::writePartnerTupleToNBT).collect(NBTUtils.toListNBT());
         compound.put(TAG_COMBAT_PARTNER, partnersTagList);
 
         return compound;
@@ -110,9 +116,9 @@ public class BuildingCombatAcademy extends AbstractBuilding
      * @param tuple the tuple to write to NBT
      * @return a compound with the data.
      */
-    private static CompoundTag writePartnerTupleToNBT(final Map.Entry<Integer, Integer> tuple)
+    private static NBTTagCompound writePartnerTupleToNBT(final Map.Entry<Integer, Integer> tuple)
     {
-        final CompoundTag compound = new CompoundTag();
+        final NBTTagCompound compound = new NBTTagCompound();
         compound.putInt(TAG_PARTNER1, tuple.getKey());
         compound.putInt(TAG_PARTNER2, tuple.getValue());
         return compound;
@@ -138,7 +144,7 @@ public class BuildingCombatAcademy extends AbstractBuilding
      * @param random the random obj.
      * @return a random shooting target position.
      */
-    public BlockPos getRandomCombatTarget(final RandomSource random)
+    public int[] getRandomCombatTarget(final RandomSource random)
     {
         if (!fightingPos.isEmpty())
         {
@@ -241,3 +247,8 @@ public class BuildingCombatAcademy extends AbstractBuilding
         }
     }
 }
+
+
+
+
+

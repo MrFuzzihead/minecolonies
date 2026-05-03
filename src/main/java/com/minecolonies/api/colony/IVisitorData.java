@@ -1,7 +1,7 @@
 package com.minecolonies.api.colony;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.item.ItemStack;
 
 import java.util.UUID;
 
@@ -27,12 +27,14 @@ public interface IVisitorData extends ICitizenData
      *
      * @return sitting pos
      */
-    BlockPos getSittingPosition();
+    int[] getSittingPosition();
 
     /**
      * Sets the sitting position
      *
      * @param pos sitting pos
      */
-    void setSittingPosition(final BlockPos pos);
+    void setSittingPosition(final int[] pos);
 }
+
+

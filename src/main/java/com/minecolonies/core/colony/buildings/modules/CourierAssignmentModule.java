@@ -10,7 +10,7 @@ import com.minecolonies.api.colony.jobs.ModJobs;
 import com.minecolonies.api.colony.jobs.registry.JobEntry;
 import com.minecolonies.core.colony.jobs.JobDeliveryman;
 import com.minecolonies.core.util.BuildingUtils;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ public class CourierAssignmentModule extends AbstractAssignedCitizenModule imple
     }
 
     @Override
-    public void deserializeNBT(CompoundTag compound)
+    public void deserializeNBT(NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
 
@@ -68,7 +68,7 @@ public class CourierAssignmentModule extends AbstractAssignedCitizenModule imple
     }
 
     @Override
-    public void serializeNBT(final CompoundTag compound)
+    public void serializeNBT(final NBTTagCompound compound)
     {
         super.serializeNBT(compound);
         if (!assignedCitizen.isEmpty())
@@ -112,3 +112,5 @@ public class CourierAssignmentModule extends AbstractAssignedCitizenModule imple
         return "warehouse";
     }
 }
+
+

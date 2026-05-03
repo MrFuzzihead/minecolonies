@@ -2,7 +2,7 @@ package com.minecolonies.api.entity.citizen.citizenhandlers;
 
 import com.minecolonies.core.datalistener.model.Disease;
 import com.minecolonies.api.colony.ICitizenData;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -27,14 +27,14 @@ public interface ICitizenDiseaseHandler
      *
      * @param compound the nbt to write it to.
      */
-    void write(final CompoundTag compound);
+    void write(final NBTTagCompound compound);
 
     /**
      * Read the handler from NBT.
      *
      * @param compound the nbt to read it from.
      */
-    void read(final CompoundTag compound);
+    void read(final NBTTagCompound compound);
 
     /**
      * Get the current disease, if any.
@@ -79,3 +79,5 @@ public interface ICitizenDiseaseHandler
      */
     boolean setDisease(Disease disease);
 }
+
+

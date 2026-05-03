@@ -8,10 +8,10 @@ import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.core.network.messages.server.AbstractBuildingServerMessage;
 import com.minecolonies.core.util.TeleportHelper;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.core.BlockPos;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -49,21 +49,21 @@ public class RecallSingleCitizenMessage extends AbstractBuildingServerMessage<IB
     }
 
     @Override
-    public void fromBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void fromBytesOverride(@NotNull final PacketBuffer buf)
     {
 
         citizenId = buf.readInt();
     }
 
     @Override
-    public void toBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void toBytesOverride(@NotNull final PacketBuffer buf)
     {
 
         buf.writeInt(citizenId);
     }
 
     @Override
-    protected void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony, final IBuilding building)
+    protected void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony, final IBuilding building)
     {
         final ICitizenData citizenData = colony.getCitizenManager().getCivilian(citizenId);
         citizenData.setLastPosition(building.getPosition());
@@ -79,10 +79,10 @@ public class RecallSingleCitizenMessage extends AbstractBuildingServerMessage<IB
             citizenData.updateEntityIfNecessary();
         }
 
-        final BlockPos loc = building.getID();
+        final int[] loc = building.getID();
         if (optionalEntityCitizen.isPresent() && !TeleportHelper.teleportCitizen(optionalEntityCitizen.get(), colony.getWorld(), loc))
         {
-            final Player player = ctxIn.getSender();
+            final Player player = ctx.getServerHandler().playerEntity;
             if (player == null)
             {
                 return;
@@ -92,3 +92,5 @@ public class RecallSingleCitizenMessage extends AbstractBuildingServerMessage<IB
         }
     }
 }
+
+

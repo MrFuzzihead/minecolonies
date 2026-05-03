@@ -1,29 +1,19 @@
 package com.minecolonies.core.blocks.huts;
 
 import com.minecolonies.api.blocks.AbstractColonyBlock;
-import com.minecolonies.api.blocks.AbstractBlockHut;
 import com.minecolonies.api.blocks.interfaces.IRSComponentBlock;
 import com.minecolonies.api.colony.buildings.ModBuildings;
 import com.minecolonies.api.colony.buildings.registry.BuildingEntry;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.world.level.BlockGetter;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.IBlockAccess;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Hut for the PostBox. No different from {@link AbstractBlockHut}
+ * Hut for the PostBox.
+ * [1.7.10] Ported: setBlockBoundsBasedOnState replaces VoxelShape; getPlayerRelativeBlockHardness replaces getDestroyProgress.
  */
 public class BlockPostBox extends AbstractColonyBlock<BlockPostBox> implements IRSComponentBlock
 {
-    private static final VoxelShape SHAPE_NORTH = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 8.0D);
-    private static final VoxelShape SHAPE_EAST  = Block.box(8.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D);
-    private static final VoxelShape SHAPE_SOUTH = Block.box(0.0D, 0.0D, 8.0D, 16.0D, 16.0D, 16.0D);
-    private static final VoxelShape SHAPE_WEST  = Block.box(0.0D, 0.0D, 0.0D, 8.0D, 16.0D, 16.0D);
-
     @NotNull
     @Override
     public String getHutName()
@@ -37,26 +27,32 @@ public class BlockPostBox extends AbstractColonyBlock<BlockPostBox> implements I
         return ModBuildings.postBox.get();
     }
 
-    @Deprecated
-    public float getDestroyProgress(final BlockState state, @NotNull final Player player, @NotNull final BlockGetter world, @NotNull final BlockPos pos)
+    @Override
+    public float getPlayerRelativeBlockHardness(final EntityPlayer player, final net.minecraft.world.World world, final int x, final int y, final int z)
     {
-        return 1 / 30f;
+        return 1f / 30f;
     }
 
-    @NotNull
     @Override
-    public VoxelShape getShape(final BlockState state, final BlockGetter worldIn, final BlockPos pos, final CollisionContext context)
+    public void setBlockBoundsBasedOnState(final IBlockAccess access, final int x, final int y, final int z)
     {
-        switch (state.getValue(FACING))
+        final int meta = access.getBlockMetadata(x, y, z);
+        // metadata 0=SOUTH, 1=WEST, 2=NORTH, 3=EAST
+        switch (meta & 0x3)
         {
-            case NORTH:
-                return SHAPE_NORTH;
-            case SOUTH:
-                return SHAPE_SOUTH;
-            case EAST:
-                return SHAPE_EAST;
+            case 2: // NORTH
+                setBlockBounds(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.5f);
+                break;
+            case 0: // SOUTH
+                setBlockBounds(0.0f, 0.0f, 0.5f, 1.0f, 1.0f, 1.0f);
+                break;
+            case 3: // EAST
+                setBlockBounds(0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+                break;
+            case 1: // WEST
             default:
-                return SHAPE_WEST;
+                setBlockBounds(0.0f, 0.0f, 0.0f, 0.5f, 1.0f, 1.0f);
+                break;
         }
     }
 }

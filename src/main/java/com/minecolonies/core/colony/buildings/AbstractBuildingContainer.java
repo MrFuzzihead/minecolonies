@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.buildings;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.ldtteam.structurize.storage.StructurePacks;
 import com.minecolonies.api.blocks.AbstractBlockHut;
@@ -9,22 +15,22 @@ import com.minecolonies.api.tileentities.AbstractTileEntityColonyBuilding;
 import com.minecolonies.core.tileentities.TileEntityColonyBuilding;
 import com.minecolonies.core.tileentities.TileEntityRack;
 import com.minecolonies.core.blocks.BlockMinecoloniesRack;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.Tag;
-import net.minecraft.util.Mth;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] EnumFacing -> net.minecraft.util.EnumFacing
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+// [1.7.10] NbtUtils removed
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.util.MathHelper;
+import com.minecolonies.api.util.Tuple;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
+// [1.7.10] block.entity removed
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] capabilities removed
+// [1.7.10] capabilities removed
+// [1.7.10] Object /* LazyOptional */ removed
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -43,7 +49,7 @@ public abstract class AbstractBuildingContainer extends AbstractSchematicProvide
     /**
      * A list which contains the position of all containers which belong to the worker building.
      */
-    protected final Set<BlockPos> containerList = new HashSet<>();
+    protected final Set<int[]> containerList = new HashSet<>();
 
     /**
      * List of items the worker should keep. With the quantity and if he should keep it in the inventory as well.
@@ -66,20 +72,20 @@ public abstract class AbstractBuildingContainer extends AbstractSchematicProvide
      * @param pos    the position of it.
      * @param colony the colony.
      */
-    public AbstractBuildingContainer(final BlockPos pos, final IColony colony)
+    public AbstractBuildingContainer(final int[] pos, final IColony colony)
     {
         super(pos, colony);
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
 
-        final ListTag containerTagList = compound.getList(TAG_CONTAINERS, Tag.TAG_COMPOUND);
+        final NBTTagList containerTagList = compound.getList(TAG_CONTAINERS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < containerTagList.size(); ++i)
         {
-            final CompoundTag containerCompound = containerTagList.getCompound(i);
+            final NBTTagCompound containerCompound = containerTagList.getCompound(i);
             containerList.add(NbtUtils.readBlockPos(containerCompound));
         }
         if (compound.contains(TAG_PRIO))
@@ -97,12 +103,12 @@ public abstract class AbstractBuildingContainer extends AbstractSchematicProvide
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compound = super.serializeNBT();
+        final NBTTagCompound compound = super.serializeNBT();
 
-        @NotNull final ListTag containerTagList = new ListTag();
-        for (@NotNull final BlockPos pos : containerList)
+        @NotNull final NBTTagList containerTagList = new NBTTagList();
+        for (@NotNull final int[] pos : containerList)
         {
             containerTagList.add(NbtUtils.writeBlockPos(pos));
         }
@@ -125,34 +131,34 @@ public abstract class AbstractBuildingContainer extends AbstractSchematicProvide
     }
 
     @Override
-    public void addContainerPosition(@NotNull final BlockPos pos)
+    public void addContainerPosition(@NotNull final int[] pos)
     {
         containerList.add(pos);
     }
 
     @Override
-    public void removeContainerPosition(final BlockPos pos)
+    public void removeContainerPosition(final int[] pos)
     {
         containerList.remove(pos);
     }
 
     @Override
-    public List<BlockPos> getContainers()
+    public List<int[]> getContainers()
     {
-        final List<BlockPos> list = new ArrayList<>(containerList);;
+        final List<int[]> list = new ArrayList<>(containerList);;
         list.add(this.getPosition());
         return list;
     }
 
     @Override
-    public void registerBlockPosition(@NotNull final BlockState blockState, @NotNull final BlockPos pos, @NotNull final Level world)
+    public void registerBlockPosition(@NotNull final BlockState blockState, @NotNull final int[] pos, @NotNull final World world)
     {
         registerBlockPosition(blockState.getBlock(), pos, world);
     }
 
     @Override
     @SuppressWarnings("squid:S1172")
-    public void registerBlockPosition(@NotNull final Block block, @NotNull final BlockPos pos, @NotNull final Level world)
+    public void registerBlockPosition(@NotNull final Block block, @NotNull final int[] pos, @NotNull final World world)
     {
         if (block instanceof AbstractBlockHut)
         {
@@ -181,19 +187,19 @@ public abstract class AbstractBuildingContainer extends AbstractSchematicProvide
     }
 
     /**
-     * Gets the list of tags, and finds the first location registered there. 
-     * @param tagName the name of the tag to query
-     * @return the BlockPos, or null if not found
+     * Gets the list of tags, and finds the first location registered there.
+     * @param tagName the name of the NBTBase to query
+     * @return the int[], or null if not found
      */
     @Nullable
-    protected BlockPos getFirstLocationFromTag(@NotNull final String tagName)
+    protected int[] getFirstLocationFromTag(@NotNull final String tagName)
     {
-        final List<BlockPos> locations = getLocationsFromTag(tagName);
+        final List<int[]> locations = getLocationsFromTag(tagName);
         return locations.isEmpty() ? null : locations.get(0);
     }
 
     @Override
-    public List<BlockPos> getLocationsFromTag(@NotNull final String tagName)
+    public List<int[]> getLocationsFromTag(@NotNull final String tagName)
     {
         if (getTileEntity() != null)
         {
@@ -213,17 +219,12 @@ public abstract class AbstractBuildingContainer extends AbstractSchematicProvide
     }
 
     //------------------------- !Start! Capabilities handling for minecolonies buildings -------------------------//
-
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull final Capability<T> cap, @Nullable final Direction side)
-    {
-        if (cap == ForgeCapabilities.ITEM_HANDLER && getTileEntity() != null)
-        {
-            return tileEntity.getCapability(cap, side);
-        }
-        return LazyOptional.empty();
-    }
-
+    // [1.7.10] getCapability not supported - no Forge capability system in 1.7.10
     //------------------------- !End! Capabilities handling for minecolonies buildings -------------------------//
 }
+
+
+
+
+
+

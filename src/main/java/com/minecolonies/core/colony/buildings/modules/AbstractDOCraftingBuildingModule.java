@@ -6,8 +6,8 @@ import com.minecolonies.api.crafting.ModCraftingTypes;
 import com.minecolonies.api.crafting.registry.CraftingType;
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.OptionalPredicate;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.item.ItemStack;
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -58,3 +58,5 @@ public abstract class AbstractDOCraftingBuildingModule extends AbstractCraftingB
 
     // override getIngredientValidator() to limit compatible ingredients
 }
+
+

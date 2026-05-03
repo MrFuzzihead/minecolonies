@@ -7,26 +7,26 @@ import com.minecolonies.api.tileentities.AbstractTileEntityColonyBuilding;
 import com.minecolonies.core.tileentities.TileEntityColonyBuilding;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.MessageUtils;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] Registries removed
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.UseAnim;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.Level;
+import net.minecraft.nbt.NBTTagCompound;
+// [1.7.10] block.entity removed
+import net.minecraft.util.IChatComponent;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_COLONY_ID;
 import static com.minecolonies.api.util.constant.TranslationConstants.*;
 
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] int /* InteractionHand */ removed
+// [1.7.10] InteractionResult -> boolean
 import net.minecraft.world.InteractionResultHolder;
 
 /**
@@ -64,14 +64,14 @@ public abstract class AbstractItemScroll extends AbstractItemMinecolonies
     }
 
     @Override
-    public ItemStack finishUsingItem(ItemStack itemStack, Level world, LivingEntity entityLiving)
+    public ItemStack finishUsingItem(ItemStack itemStack, World world, EntityLivingBase entityLiving)
     {
-        if (!(entityLiving instanceof ServerPlayer) || world.isClientSide)
+        if (!(entityLiving instanceof EntityPlayerMP) || world.isClientSide)
         {
             return itemStack;
         }
 
-        final ServerPlayer player = (ServerPlayer) entityLiving;
+        final EntityPlayerMP player = (EntityPlayerMP) entityLiving;
 
         if (!needsColony())
         {
@@ -81,7 +81,7 @@ public abstract class AbstractItemScroll extends AbstractItemMinecolonies
         final IColony colony = getColony(itemStack);
         if (colony == null)
         {
-            player.displayClientMessage(Component.translatable(MESSAGE_SCROLL_NEED_COLONY), true);
+            player.displayClientMessage(String.translatable(MESSAGE_SCROLL_NEED_COLONY), true);
             return itemStack;
         }
 
@@ -102,10 +102,10 @@ public abstract class AbstractItemScroll extends AbstractItemMinecolonies
      * @param player    player its used by
      * @return stack
      */
-    protected abstract ItemStack onItemUseSuccess(final ItemStack itemStack, final Level world, final ServerPlayer player);
+    protected abstract ItemStack onItemUseSuccess(final ItemStack itemStack, final World world, final EntityPlayerMP player);
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand)
+    public InteractionResultHolder<ItemStack> use(World world, Player player, int /* InteractionHand */ hand)
     {
         ItemStack itemStack = player.getItemInHand(hand);
         player.startUsingItem(hand);
@@ -126,7 +126,7 @@ public abstract class AbstractItemScroll extends AbstractItemMinecolonies
 
         final BlockEntity te = ctx.getLevel().getBlockEntity(ctx.getClickedPos());
         final ItemStack scroll = ctx.getPlayer().getItemInHand(ctx.getHand());
-        final CompoundTag compound = checkForCompound(scroll);
+        final NBTTagCompound compound = checkForCompound(scroll);
         if (te instanceof TileEntityColonyBuilding buildingTe)
         {
             compound.putInt(TAG_COLONY_ID, buildingTe.getColonyId());
@@ -146,11 +146,11 @@ public abstract class AbstractItemScroll extends AbstractItemMinecolonies
      */
     protected abstract boolean needsColony();
 
-    private static CompoundTag checkForCompound(final ItemStack item)
+    private static NBTTagCompound checkForCompound(final ItemStack item)
     {
         if (!item.hasTag())
         {
-            item.setTag(new CompoundTag());
+            item.setTag(new NBTTagCompound());
         }
         return item.getTag();
     }
@@ -187,3 +187,8 @@ public abstract class AbstractItemScroll extends AbstractItemMinecolonies
         return IColonyManager.getInstance().getColonyView(stack.getTag().getInt(TAG_COLONY_ID), ResourceKey.create(Registries.DIMENSION, new ResourceLocation(stack.getTag().getString(TAG_COLONY_DIM))));
     }
 }
+
+
+
+
+

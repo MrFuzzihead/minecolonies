@@ -2,12 +2,12 @@ package com.minecolonies.core.generation.defaults;
 
 import com.minecolonies.api.blocks.ModBlocks;
 import com.minecolonies.api.items.ModTags;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
+// [1.7.10] HolderLookup removed
+// [1.7.10] data removed
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] tags removed
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.data.BlockTagsProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
@@ -32,7 +32,7 @@ public class DefaultBlockTagsProvider extends BlockTagsProvider
     @Override
     protected void addTags(final HolderLookup.Provider holder)
     {
-        tag(ModTags.decorationItems)
+        NBTBase(ModTags.decorationItems)
                 .add(Blocks.DEAD_BRAIN_CORAL_BLOCK)
                 .add(Blocks.DEAD_BUBBLE_CORAL_BLOCK)
                 .add(Blocks.DEAD_FIRE_CORAL_BLOCK)
@@ -51,7 +51,7 @@ public class DefaultBlockTagsProvider extends BlockTagsProvider
                 .addTag(BlockTags.SIGNS)
                 .addTag(BlockTags.CAMPFIRES);
 
-        tag(ModTags.concreteBlocks)
+        NBTBase(ModTags.concreteBlocks)
           .add(Blocks.WHITE_CONCRETE)
           .add(Blocks.ORANGE_CONCRETE)
           .add(Blocks.MAGENTA_CONCRETE)
@@ -69,7 +69,7 @@ public class DefaultBlockTagsProvider extends BlockTagsProvider
           .add(Blocks.RED_CONCRETE)
           .add(Blocks.BLACK_CONCRETE);
 
-        tag(ModTags.concretePowderBlocks)
+        NBTBase(ModTags.concretePowderBlocks)
           .add(Blocks.WHITE_CONCRETE_POWDER)
           .add(Blocks.ORANGE_CONCRETE_POWDER)
           .add(Blocks.MAGENTA_CONCRETE_POWDER)
@@ -87,7 +87,7 @@ public class DefaultBlockTagsProvider extends BlockTagsProvider
           .add(Blocks.RED_CONCRETE_POWDER)
           .add(Blocks.BLACK_CONCRETE_POWDER);
 
-        tag(ModTags.pathingBlocks)
+        NBTBase(ModTags.pathingBlocks)
                 .addTag(ModTags.concreteBlocks)
                 .addTag(BlockTags.STONE_BRICKS)
             .addTag(BlockTags.PLANKS)
@@ -158,52 +158,52 @@ public class DefaultBlockTagsProvider extends BlockTagsProvider
                 .add(Blocks.DEEPSLATE_TILE_STAIRS)
                 .add(com.ldtteam.domumornamentum.block.ModBlocks.getInstance().getAllBrickBlocks().toArray(new Block[0]))
                 .add(com.ldtteam.domumornamentum.block.ModBlocks.getInstance().getAllBrickStairBlocks().toArray(new Block[0]))
-                .addTag(com.ldtteam.domumornamentum.tag.ModTags.BRICKS);
+                .addTag(com.ldtteam.domumornamentum.NBTBase.ModTags.BRICKS);
 
-        tag(ModTags.dangerousBlocks);
+        NBTBase(ModTags.dangerousBlocks);
 
-        tag(ModTags.freeClimbBlocks)
+        NBTBase(ModTags.freeClimbBlocks)
                 .add(Blocks.LADDER)
                 .add(Blocks.SCAFFOLDING);
 
-        tag(ModTags.mangroveTree)
+        NBTBase(ModTags.mangroveTree)
                 .add(Blocks.MANGROVE_LOG)
                 .add(Blocks.MANGROVE_ROOTS);
 
-        tag(ModTags.extraTree)
+        NBTBase(ModTags.extraTree)
                 .addOptionalTag(new ResourceLocation("productivebees", "nests/wood_nests"));
 
-        // sadly forge doesn't provide the block form of this tag, despite providing an item tag
-        tag(ModTags.mushroomBlocks)
+        // sadly forge doesn't provide the block form of this NBTBase, despite providing an item NBTBase
+        NBTBase(ModTags.mushroomBlocks)
                 .add(Blocks.BROWN_MUSHROOM)
                 .add(Blocks.RED_MUSHROOM);
 
-        tag(ModTags.hugeMushroomBlocks)
+        NBTBase(ModTags.hugeMushroomBlocks)
                 .add(Blocks.BROWN_MUSHROOM_BLOCK)
                 .add(Blocks.RED_MUSHROOM_BLOCK);
 
-        tag(ModTags.fungiBlocks)
+        NBTBase(ModTags.fungiBlocks)
                 .add(Blocks.WARPED_FUNGUS)
                 .add(Blocks.CRIMSON_FUNGUS);
 
-        tag(ModTags.tree)
+        NBTBase(ModTags.tree)
                 .addTag(BlockTags.LOGS)
                 .addTag(ModTags.mangroveTree)
                 .add(Blocks.MUSHROOM_STEM)
                 .addTag(ModTags.extraTree);
 
-        tag(ModTags.colonyProtectionException)
+        NBTBase(ModTags.colonyProtectionException)
                 .addOptionalTag(new ResourceLocation("waystones", "waystones"));
 
-        tag(ModTags.indestructible).add(Blocks.BEDROCK);
-        tag(ModTags.oreChanceBlocks)
+        NBTBase(ModTags.indestructible).add(Blocks.BEDROCK);
+        NBTBase(ModTags.oreChanceBlocks)
                 .addTags(Tags.Blocks.STONE)
                 .addTags(BlockTags.BASE_STONE_OVERWORLD, BlockTags.BASE_STONE_NETHER);
 
-        tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        NBTBase(BlockTags.MINEABLE_WITH_PICKAXE)
                 .add(ModBlocks.blockIronGate);
 
-        tag(BlockTags.MINEABLE_WITH_AXE)
+        NBTBase(BlockTags.MINEABLE_WITH_AXE)
                 .add(ModBlocks.blockBarrel)
                 .add(ModBlocks.blockRack)
                 .add(ModBlocks.blockWoodenGate)
@@ -216,17 +216,20 @@ public class DefaultBlockTagsProvider extends BlockTagsProvider
                 .add(ModBlocks.blockPlantationField)
                 .add(ModBlocks.getHuts());
 
-        tag(BlockTags.MINEABLE_WITH_SHOVEL)
+        NBTBase(BlockTags.MINEABLE_WITH_SHOVEL)
                 .add(ModBlocks.blockCompostedDirt)
                 .add(ModBlocks.blockGrave)
                 .add(ModBlocks.blockNamedGrave);
 
-        tag(ModTags.validSpawn)
+        NBTBase(ModTags.validSpawn)
           .add(Blocks.AIR, Blocks.CAVE_AIR, Blocks.SNOW, Blocks.TALL_GRASS, Blocks.GRASS, Blocks.FERN, Blocks.TORCH)
           .addTags(BlockTags.BUTTONS)
           .addTags(BlockTags.RAILS)
           .addTags(BlockTags.WOOL_CARPETS);
 
-        tag(com.ldtteam.structurize.tag.ModTags.GOOD_SOLID_FOR_PLACEHOLDER).add(ModBlocks.farmland, ModBlocks.floodedFarmland);
+        NBTBase(com.ldtteam.structurize.NBTBase.ModTags.GOOD_SOLID_FOR_PLACEHOLDER).add(ModBlocks.farmland, ModBlocks.floodedFarmland);
     }
 }
+
+
+

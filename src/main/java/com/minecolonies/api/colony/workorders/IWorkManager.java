@@ -2,8 +2,8 @@ package com.minecolonies.api.colony.workorders;
 
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -85,14 +85,14 @@ public interface IWorkManager
      *
      * @param compound Compound to save to.
      */
-    void write(@NotNull CompoundTag compound);
+    void write(@NotNull NBTTagCompound compound);
 
     /**
      * Restore the Work Manager.
      *
      * @param compound Compound to read from.
      */
-    void read(@NotNull CompoundTag compound);
+    void read(@NotNull NBTTagCompound compound);
 
     /**
      * Adds work order to the work manager.
@@ -117,7 +117,7 @@ public interface IWorkManager
      * @param <W>     the type.
      * @return the list.
      */
-    <W extends IServerWorkOrder> List<W> getOrderedList(Class<W> type, BlockPos builder);
+    <W extends IServerWorkOrder> List<W> getOrderedList(Class<W> type, int[] builder);
 
     /**
      * Get an ordered list by priority of the work orders.
@@ -126,7 +126,7 @@ public interface IWorkManager
      * @param predicate a predicate to check each item against
      * @return the list.
      */
-    List<IServerWorkOrder> getOrderedList(@NotNull Predicate<IServerWorkOrder> predicate, final BlockPos builder);
+    List<IServerWorkOrder> getOrderedList(@NotNull Predicate<IServerWorkOrder> predicate, final int[] builder);
 
     /**
      * Checks if changes has been made.
@@ -149,3 +149,6 @@ public interface IWorkManager
      */
     IColony getColony();
 }
+
+
+

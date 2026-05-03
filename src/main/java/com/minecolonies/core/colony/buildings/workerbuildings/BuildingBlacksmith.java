@@ -9,8 +9,10 @@ import com.minecolonies.api.util.CraftingUtils;
 import com.minecolonies.api.util.OptionalPredicate;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.AbstractCraftingBuildingModule;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.*;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Item;
+import net.minecraft.init.Items;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -34,7 +36,7 @@ public class BuildingBlacksmith extends AbstractBuilding
      * @param c the colony.
      * @param l the location.
      */
-    public BuildingBlacksmith(final IColony c, final BlockPos l)
+    public BuildingBlacksmith(final IColony c, final int[] l)
     {
         super(c, l);
     }
@@ -77,7 +79,7 @@ public class BuildingBlacksmith extends AbstractBuilding
         {
             if (!super.isRecipeCompatible(recipe)) return false;
 
-            if (recipe.matchesInput(OptionalPredicate.failIf(input -> input.is(Items.LEATHER)))
+            if (recipe.matchesInput(OptionalPredicate.failIf(input -> input.getItem() == Items.leather))
                     .equals(Optional.of(false)))
             {
                 // explicitly disallow anything using leather; that's the fletcher's responsibility
@@ -108,3 +110,5 @@ public class BuildingBlacksmith extends AbstractBuilding
         }
     }
 }
+
+

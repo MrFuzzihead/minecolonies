@@ -14,11 +14,11 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.transfer.IRecipeTransferError;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import org.jetbrains.annotations.NotNull;
 
@@ -99,7 +99,7 @@ public class PrivateCraftingTeachingTransferHandler implements IRecipeTransferHa
             {
                 if (badIndexes.contains(inputIndex))
                 {
-                    final Component tooltipMessage = Component.translatable("jei.tooltip.error.recipe.transfer.too.large.player.getInventory()");
+                    final String tooltipMessage = String.translatable("jei.tooltip.error.recipe.transfer.too.large.player.getInventory()");
                     final List<IRecipeSlotView> badSlots = badIndexes.stream().map(index -> slots.get(index)).toList();
                     return handlerHelper.createUserErrorForMissingSlots(tooltipMessage, badSlots);
                 }
@@ -138,3 +138,5 @@ public class PrivateCraftingTeachingTransferHandler implements IRecipeTransferHa
         return null;
     }
 }
+
+

@@ -6,10 +6,10 @@ import com.minecolonies.api.colony.jobs.ModJobs;
 import com.minecolonies.api.entity.mobs.RaiderType;
 import com.minecolonies.api.sounds.EventType;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.data.CachedOutput;
-import net.minecraft.data.DataProvider;
-import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] data removed
+// [1.7.10] data removed
+// [1.7.10] data removed
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -46,7 +46,7 @@ public class DefaultSoundProvider implements DataProvider
                                    .resolve("assets")
                                    .resolve("minecolonies")
                                    .resolve("sounds")
-                                   .resolve("mob")
+                                   .resolve("EntityCreature")
                                    .resolve("citizen")
                                    .toFile();
         final List<ResourceLocation> mainTypes = new ArrayList<>(ModJobs.getJobs());
@@ -73,7 +73,7 @@ public class DefaultSoundProvider implements DataProvider
                     for (final File soundFile : subList)
                     {
                         final String soundName = soundFile.getName();
-                        soundList.add("minecolonies:mob/citizen/" + name + "/" + soundName.replace(".ogg", ""));
+                        soundList.add("minecolonies:EntityCreature/citizen/" + name + "/" + soundName.replace(".ogg", ""));
                     }
 
                     for (final ResourceLocation job : mainTypes)
@@ -89,8 +89,8 @@ public class DefaultSoundProvider implements DataProvider
         }
 
         final List<String> childSounds = new ArrayList<>();
-        childSounds.add("minecolonies:mob/citizen/child/laugh1");
-        childSounds.add("minecolonies:mob/citizen/child/laugh2");
+        childSounds.add("minecolonies:EntityCreature/citizen/child/laugh1");
+        childSounds.add("minecolonies:EntityCreature/citizen/child/laugh2");
 
         for (final EventType soundEvents : EventType.values())
         {
@@ -100,16 +100,16 @@ public class DefaultSoundProvider implements DataProvider
 
         for (final RaiderType type : RaiderType.values())
         {
-            sounds.add("mob." + type.name().toLowerCase(Locale.US) + ".death", createSoundJson("hostile", getDefaultProperties(), ImmutableList.of("minecolonies:mob/barbarian/death")));
-            sounds.add("mob." + type.name().toLowerCase(Locale.US) + ".say", createSoundJson("hostile", getDefaultProperties(), ImmutableList.of("minecolonies:mob/barbarian/say")));
+            sounds.add("EntityCreature." + type.name().toLowerCase(Locale.US) + ".death", createSoundJson("hostile", getDefaultProperties(), ImmutableList.of("minecolonies:EntityCreature/barbarian/death")));
+            sounds.add("EntityCreature." + type.name().toLowerCase(Locale.US) + ".say", createSoundJson("hostile", getDefaultProperties(), ImmutableList.of("minecolonies:EntityCreature/barbarian/say")));
             
-            sounds.add("mob." + type.name().toLowerCase(Locale.US) + ".hurt",
+            sounds.add("EntityCreature." + type.name().toLowerCase(Locale.US) + ".hurt",
               createSoundJson("hostile",
                 getDefaultProperties(),
-                ImmutableList.of("minecolonies:mob/barbarian/hurt1", "minecolonies:mob/barbarian/hurt2", "minecolonies:mob/barbarian/hurt3", "minecolonies:mob/barbarian/hurt4")));
+                ImmutableList.of("minecolonies:EntityCreature/barbarian/hurt1", "minecolonies:EntityCreature/barbarian/hurt2", "minecolonies:EntityCreature/barbarian/hurt3", "minecolonies:EntityCreature/barbarian/hurt4")));
         }
 
-        sounds.add("mob.citizen.snore", createSoundJson("neutral", getDefaultProperties(), ImmutableList.of("minecolonies:mob/citizen/snore")));
+        sounds.add("EntityCreature.citizen.snore", createSoundJson("neutral", getDefaultProperties(), ImmutableList.of("minecolonies:EntityCreature/citizen/snore")));
 
         JsonObject tavernProperties = getDefaultProperties();
         tavernProperties.addProperty("attenuation_distance", 23);
@@ -117,12 +117,12 @@ public class DefaultSoundProvider implements DataProvider
         tavernProperties.addProperty("comment", "Credits to Darren Curtis - Fireside Tales");
         sounds.add("tile.tavern.tavern_theme", createSoundJson("music", tavernProperties, ImmutableList.of("minecolonies:tile/tavern/tavern_theme")));
 
-        sounds.add("mob.mercenary.attack", createSoundJson("neutral", getDefaultProperties(), ImmutableList.of("minecolonies:mob/mercenary/attack/attack1", "minecolonies:mob/mercenary/attack/attack2", "minecolonies:mob/mercenary/attack/attack3", "minecolonies:mob/mercenary/attack/attack4")));
-        sounds.add("mob.mercenary.celebrate", createSoundJson("neutral", getDefaultProperties(), ImmutableList.of("minecolonies:mob/mercenary/celebrate/celebrate1")));
-        sounds.add("mob.mercenary.die", createSoundJson("neutral", getDefaultProperties(), ImmutableList.of("minecolonies:mob/mercenary/die/death1", "minecolonies:mob/mercenary/die/death2")));
-        sounds.add("mob.mercenary.hurt", createSoundJson("neutral", getDefaultProperties(), ImmutableList.of("minecolonies:mob/mercenary/hurt/hurt1", "minecolonies:mob/mercenary/hurt/hurt2", "minecolonies:mob/mercenary/hurt/hurt3")));
-        sounds.add("mob.mercenary.say", createSoundJson("neutral", getDefaultProperties(), ImmutableList.of("minecolonies:mob/mercenary/say/say1", "minecolonies:mob/mercenary/say/say2", "minecolonies:mob/mercenary/say/say3")));
-        sounds.add("mob.mercenary.step", createSoundJson("neutral", getDefaultProperties(), ImmutableList.of("minecolonies:mob/mercenary/step/step1", "minecolonies:mob/mercenary/step/step2", "minecolonies:mob/mercenary/step/step3", "minecolonies:mob/mercenary/step/step4")));
+        sounds.add("EntityCreature.mercenary.attack", createSoundJson("neutral", getDefaultProperties(), ImmutableList.of("minecolonies:EntityCreature/mercenary/attack/attack1", "minecolonies:EntityCreature/mercenary/attack/attack2", "minecolonies:EntityCreature/mercenary/attack/attack3", "minecolonies:EntityCreature/mercenary/attack/attack4")));
+        sounds.add("EntityCreature.mercenary.celebrate", createSoundJson("neutral", getDefaultProperties(), ImmutableList.of("minecolonies:EntityCreature/mercenary/celebrate/celebrate1")));
+        sounds.add("EntityCreature.mercenary.die", createSoundJson("neutral", getDefaultProperties(), ImmutableList.of("minecolonies:EntityCreature/mercenary/die/death1", "minecolonies:EntityCreature/mercenary/die/death2")));
+        sounds.add("EntityCreature.mercenary.hurt", createSoundJson("neutral", getDefaultProperties(), ImmutableList.of("minecolonies:EntityCreature/mercenary/hurt/hurt1", "minecolonies:EntityCreature/mercenary/hurt/hurt2", "minecolonies:EntityCreature/mercenary/hurt/hurt3")));
+        sounds.add("EntityCreature.mercenary.say", createSoundJson("neutral", getDefaultProperties(), ImmutableList.of("minecolonies:EntityCreature/mercenary/say/say1", "minecolonies:EntityCreature/mercenary/say/say2", "minecolonies:EntityCreature/mercenary/say/say3")));
+        sounds.add("EntityCreature.mercenary.step", createSoundJson("neutral", getDefaultProperties(), ImmutableList.of("minecolonies:EntityCreature/mercenary/step/step1", "minecolonies:EntityCreature/mercenary/step/step2", "minecolonies:EntityCreature/mercenary/step/step3", "minecolonies:EntityCreature/mercenary/step/step4")));
         sounds.add("tile.sawmill.saw", createSoundJson("neutral", getDefaultProperties(), ImmutableList.of("minecolonies:tile/sawmill/saw")));
 
         addMusic("record", false,
@@ -173,3 +173,6 @@ public class DefaultSoundProvider implements DataProvider
         }
     }
 }
+
+
+

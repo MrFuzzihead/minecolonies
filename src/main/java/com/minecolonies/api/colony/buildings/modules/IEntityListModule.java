@@ -1,6 +1,6 @@
 package com.minecolonies.api.colony.buildings.modules;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 import java.util.List;
 
@@ -50,3 +50,4 @@ public interface IEntityListModule
      */
     String getId();
 }
+

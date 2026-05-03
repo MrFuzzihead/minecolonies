@@ -7,18 +7,16 @@ import com.minecolonies.api.entity.ai.workers.util.GuardGearBuilder;
 import com.minecolonies.api.inventory.InventoryCitizen;
 import com.minecolonies.api.inventory.ModContainers;
 import com.minecolonies.api.util.ItemStackUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.Slot;
 import net.minecraftforge.items.SlotItemHandler;
+import net.minecraft.item.ItemStack;
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -32,12 +30,12 @@ import static com.minecolonies.api.util.constant.InventoryConstants.*;
 /**
  * Container for Mie
  */
-public class ContainerCitizenInventory extends AbstractContainerMenu
+public class ContainerCitizenInventory extends Container
 {
     /**
-     * Player inventory.
+     * EntityPlayer inventory.
      */
-    private final Inventory playerInventory;
+    private final InventoryPlayer playerInventory;
 
     /**
      * Amount of rows.
@@ -59,11 +57,11 @@ public class ContainerCitizenInventory extends AbstractContainerMenu
      * Deserialize packet buffer to container instance.
      *
      * @param windowId     the id of the window.
-     * @param inv          the player inventory.
+     * @param inv          the EntityPlayer inventory.
      * @param packetBuffer network buffer
      * @return new instance
      */
-    public static ContainerCitizenInventory fromFriendlyByteBuf(final int windowId, final Inventory inv, final FriendlyByteBuf packetBuffer)
+    public static ContainerCitizenInventory fromPacketBuffer(final int windowId, final InventoryPlayer inv, final PacketBuffer packetBuffer)
     {
         final int colonyId = packetBuffer.readVarInt();
         final int citizenId = packetBuffer.readVarInt();
@@ -71,26 +69,26 @@ public class ContainerCitizenInventory extends AbstractContainerMenu
     }
 
     /**
-     * Creating the citizen inventory container.
+     * Creating the citizen InventoryPlayer container.
      *
      * @param windowId  the window id.
      * @param inv       the inventory.
      * @param colonyId  colony id
      * @param citizenId citizen id
      */
-    public ContainerCitizenInventory(final int windowId, final Inventory inv, final int colonyId, final int citizenId)
+    public ContainerCitizenInventory(final int windowId, final InventoryPlayer inv, final int colonyId, final int citizenId)
     {
-        super(ModContainers.citizenInv.get(), windowId);
+        super();
         this.playerInventory = inv;
 
         final IColony colony;
-        if (inv.player.level().isClientSide)
+        if (inv.player.worldObj.isRemote)
         {
-            colony = IColonyManager.getInstance().getColonyView(colonyId, inv.player.level().dimension());
+            colony = IColonyManager.getInstance().getColonyView(colonyId, inv.player.worldObj.provider.dimensionId);
         }
         else
         {
-            colony = IColonyManager.getInstance().getColonyByWorld(colonyId, inv.player.level());
+            colony = IColonyManager.getInstance().getColonyByWorld(colonyId, inv.player.worldObj);
         }
 
         if (colony == null)
@@ -100,13 +98,13 @@ public class ContainerCitizenInventory extends AbstractContainerMenu
         }
 
         final InventoryCitizen inventory;
-        final BlockPos workBuilding;
+        final int[] workBuilding;
 
         int workBuildingLevel = 0;
-        if (inv.player.level().isClientSide)
+        if (inv.player.worldObj.isRemote)
         {
             final ICitizenDataView data = ((IColonyView) colony).getCitizen(citizenId);
-            this.entity = Optional.of(inv.player.level.getEntity(data.getEntityId()));
+            this.entity = Optional.of(inv.player.worldObj.getEntity(data.getEntityId()));
             this.citizenData = data;
             inventory = data.getInventory();
             this.displayName = data.getName();
@@ -170,16 +168,16 @@ public class ContainerCitizenInventory extends AbstractContainerMenu
                         newOffset + PLAYER_INVENTORY_OFFSET_EACH + j * PLAYER_INVENTORY_OFFSET_EACH)
                       {
                           @Override
-                          public void set(@NotNull final ItemStack stack)
+                          public void putStack(@NotNull final ItemStack stack)
                           {
-                              if (workBuilding != null && !playerInventory.player.level().isClientSide && !ItemStackUtils.isEmpty(stack))
+                              if (workBuilding != null && !playerInventory.player.World().isClientSide && !ItemStackUtils.isEmpty(stack))
                               {
                                   final IBuilding building = colony.getServerBuildingManager().getBuilding(workBuilding);
                                   final ICitizenData citizenData = colony.getCitizenManager().getCivilian(citizenId);
 
                                   building.overruleNextOpenRequestOfCitizenWithStack(citizenData, stack);
                               }
-                              super.set(stack);
+                              super.putStack(stack);
                           }
                       });
                     index++;
@@ -191,54 +189,52 @@ public class ContainerCitizenInventory extends AbstractContainerMenu
         index = 3;
         for (int j = 0; j < 4; ++j)
         {
-                final EquipmentSlot equipmentSlot = EquipmentSlot.byTypeAndIndex(EquipmentSlot.Type.ARMOR, index);
-                    this.addSlot(
-                      new Slot(new SimpleContainer(inventory.getArmorInSlot(equipmentSlot)), 0,INVENTORY_BAR_SIZE + 215,
-                        23 + j * PLAYER_INVENTORY_OFFSET_EACH)
+            // [1.7.10] armor slot index: index counts 3..0 (boots=0, leggings=1, chestplate=2, helmet=3)
+            final int armorSlot = index;
+            this.addSlot(
+              new Slot(new net.minecraft.inventory.InventoryBasic("armor", false, 1), 0, INVENTORY_BAR_SIZE + 215,
+                23 + j * PLAYER_INVENTORY_OFFSET_EACH)
+              {
+                  @Override
+                  public void putStack(@NotNull final ItemStack stack)
+                  {
+                      if (workBuilding != null && !playerInventory.player.worldObj.isRemote && !ItemStackUtils.isEmpty(stack))
                       {
-                          @Override
-                          public void set(@NotNull final ItemStack stack)
-                          {
-                              if (workBuilding != null && !playerInventory.player.level.isClientSide && !ItemStackUtils.isEmpty(stack))
-                              {
-                                  final IBuilding building = colony.getServerBuildingManager().getBuilding(workBuilding);
-                                  final ICitizenData citizenData = colony.getCitizenManager().getCivilian(citizenId);
+                          final IBuilding building = colony.getServerBuildingManager().getBuilding(workBuilding);
+                          final ICitizenData citizenData = colony.getCitizenManager().getCivilian(citizenId);
 
-                                  building.overruleNextOpenRequestOfCitizenWithStack(citizenData, stack);
-                              }
-                              super.set(stack);
-                              inventory.forceArmorStackToSlot(equipmentSlot, stack);
-                          }
+                          building.overruleNextOpenRequestOfCitizenWithStack(citizenData, stack);
+                      }
+                      super.putStack(stack);
+                      inventory.forceArmorStackToSlot(armorSlot, stack);
+                  }
 
-                          @Override
-                          public ItemStack remove(final int slot)
-                          {
-                              inventory.forceClearArmorInSlot(equipmentSlot, inventory.getArmorInSlot(equipmentSlot));
-                              return super.remove(slot);
-                          }
+                  @Override
+                  public ItemStack decrStackSize(final int slot)
+                  {
+                      inventory.forceClearArmorInSlot(armorSlot, inventory.getArmorInSlot(armorSlot));
+                      return super.decrStackSize(slot);
+                  }
 
-                          @Override
-                          public boolean mayPlace(final ItemStack stack)
+                  @Override
+                  public boolean isItemValid(final ItemStack stack)
+                  {
+                      // [1.7.10] ArmorItem.getEquipmentSlot() not available; allow all armor in slot
+                      for (final GuardGear gear : guardGear)
+                      {
+                          if (gear.test(stack))
                           {
-                              if (stack.getItem() instanceof ArmorItem armorItem && armorItem.getEquipmentSlot() == equipmentSlot)
-                              {
-                                  for (final GuardGear gear : guardGear)
-                                  {
-                                      if (gear.test(stack))
-                                      {
-                                        return true;
-                                      }
-                                  }
-                                  return false;
-                              }
-                              return false;
+                              return true;
                           }
-                      });
-                    index--;
+                      }
+                      return false;
+                  }
+              });
+            index--;
         }
 
-        // Player inventory slots
-        // Note: The slot numbers are within the player inventory and may be the same as the field inventory.
+        // EntityPlayer InventoryPlayer slots
+        // Note: The slot numbers are within the EntityPlayer InventoryPlayer and may be the same as the field inventory.
         int i;
         for (i = 0; i < INVENTORY_ROWS; i++)
         {
@@ -266,14 +262,14 @@ public class ContainerCitizenInventory extends AbstractContainerMenu
     }
 
     /**
-     * Handle when the stack in slot {@code index} is shift-clicked. Normally this moves the stack between the player inventory and the other inventory(s).
+     * Handle when the stack in slot {@code index} is shift-clicked. Normally this moves the stack between the EntityPlayer InventoryPlayer and the other inventory(s).
      *
-     * @param playerIn Player that interacted with this {@code Container}.
+     * @param playerIn EntityPlayer that interacted with this {@code Container}.
      * @param index    Index of the {@link Slot}. This index is relative to the list of slots in this {@code Container}, {@link #slots}.
      */
     @NotNull
     @Override
-    public ItemStack quickMoveStack(final Player playerIn, final int index)
+    public ItemStack transferStackInSlot(final EntityPlayer playerIn, final int index)
     {
         final Slot slot = this.slots.get(index);
 
@@ -311,10 +307,10 @@ public class ContainerCitizenInventory extends AbstractContainerMenu
     }
 
     /**
-     * Determines whether supplied player can use this container
+     * Determines whether supplied EntityPlayer can use this container
      */
     @Override
-    public boolean stillValid(@NotNull final Player playerIn)
+    public boolean canInteractWith(@NotNull final EntityPlayer playerIn)
     {
         return true;
     }
@@ -346,3 +342,9 @@ public class ContainerCitizenInventory extends AbstractContainerMenu
         return citizenData;
     }
 }
+
+
+
+
+
+

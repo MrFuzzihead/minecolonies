@@ -4,7 +4,7 @@ import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.crafting.IRecipeStorage;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 
 import java.util.List;
 
@@ -45,3 +45,4 @@ public interface ICraftingSetting extends ISetting<IToken<?>>
      */
     void set(final IRecipeStorage value);
 }
+

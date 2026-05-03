@@ -2,7 +2,7 @@ package com.minecolonies.api.entity.ai.statemachine.basestatemachine;
 
 import com.minecolonies.api.entity.ai.statemachine.states.IState;
 import com.minecolonies.api.entity.ai.statemachine.transitions.IStateMachineTransition;
-import net.minecraft.network.chat.Component;
+import net.minecraft.util.IChatComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -82,5 +82,7 @@ public interface IStateMachine<T extends IStateMachineTransition<S>, S extends I
      *
      * @return
      */
-    Component getHistory();
+    String getHistory();
 }
+
+

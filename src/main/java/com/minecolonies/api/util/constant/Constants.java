@@ -1,9 +1,9 @@
 package com.minecolonies.api.util.constant;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.phys.AABB;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] effect removed
+// [1.7.10] effect removed
+// [1.7.10] world.phys removed
 
 /**
  * Some constants needed for the whole mod.
@@ -128,12 +128,12 @@ public final class Constants
     public static final int FUEL_SLOT = 1;
 
     /**
-     * Tag String of forge.
+     * NBTBase String of forge.
      */
     public static final int TAG_STRING = 8;
 
     /**
-     * Tag compound of forge.
+     * NBTBase compound of forge.
      */
     public static final int TAG_COMPOUND = 10;
 
@@ -162,8 +162,10 @@ public final class Constants
      */
     public static final int SLOT_PER_LINE = 9;
 
-    public static final MobEffect LEVITATION_EFFECT = MobEffects.LEVITATION;
-    public static final MobEffect GLOW_EFFECT       = MobEffects.GLOWING;
+    // [1.7.10] MobEffects.LEVITATION does not exist (added in 1.9); stubbed as null
+    public static final Object LEVITATION_EFFECT = null; // MobEffects.LEVITATION
+    // [1.7.10] MobEffects.GLOWING does not exist (added in 1.9); stubbed as null
+    public static final Object GLOW_EFFECT       = null; // MobEffects.GLOWING
 
     public static final int GLOW_EFFECT_DURATION   = 20 * 30;
     public static final int GLOW_EFFECT_DISTANCE   = 60;
@@ -191,7 +193,8 @@ public final class Constants
     /**
      * Empty AABB
      */
-    public static AABB EMPTY_AABB = new AABB(BlockPos.ZERO);
+    // [1.7.10] AABB -> AxisAlignedBB; empty AABB stub
+    public static net.minecraft.util.AxisAlignedBB EMPTY_AABB = net.minecraft.util.AxisAlignedBB.getBoundingBox(0, 0, 0, 0, 0, 0);
 
     /**
      * Private constructor to hide implicit public one.
@@ -203,3 +206,8 @@ public final class Constants
          */
     }
 }
+
+
+
+
+

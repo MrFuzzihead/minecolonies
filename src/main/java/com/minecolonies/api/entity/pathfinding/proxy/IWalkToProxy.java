@@ -1,7 +1,8 @@
 package com.minecolonies.api.entity.pathfinding.proxy;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Mob;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] world.entity removed
+import net.minecraft.entity.EntityCreature;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,7 +21,7 @@ public interface IWalkToProxy
      * @param range  the range.
      * @return true if arrived.
      */
-    boolean walkToBlock(@NotNull final BlockPos target, final int range);
+    boolean walkToBlock(@NotNull final int[] target, final int range);
 
     /**
      * Leads the entity to a certain position due to proxies.
@@ -30,17 +31,17 @@ public interface IWalkToProxy
      * @param onMove entity on move or not?
      * @return true if arrived.
      */
-    boolean walkToBlock(@NotNull final BlockPos target, final int range, final boolean onMove);
+    boolean walkToBlock(@NotNull final int[] target, final int range, final boolean onMove);
 
     /**
      * Get a list of waypoints depending on the entity.
      *
      * @return the set of waypoints.
      */
-    Set<BlockPos> getWayPoints();
+    Set<int[]> getWayPoints();
 
     /**
-     * Check if for distance calculation the y level should be taken into account.
+     * Check if for distance calculation the y World should be taken into account.
      *
      * @return true if so.
      */
@@ -54,21 +55,21 @@ public interface IWalkToProxy
      * @return a special proxy point of existent, else null.
      */
     @Nullable
-    BlockPos getSpecializedProxy(final BlockPos target, final double distanceToPath);
+    int[] getSpecializedProxy(final int[] target, final double distanceToPath);
 
     /**
      * Getter for the proxyList.
      *
      * @return a copy of the list
      */
-    List<BlockPos> getProxyList();
+    List<int[]> getProxyList();
 
     /**
      * Add an entry to the proxy list.
      *
      * @param pos the position to add.
      */
-    void addToProxyList(final BlockPos pos);
+    void addToProxyList(final int[] pos);
 
     /**
      * Method to call to detect if an entity living is at site with move.
@@ -80,24 +81,27 @@ public interface IWalkToProxy
      * @param range  the range.
      * @return true if so.
      */
-    boolean isLivingAtSiteWithMove(final Mob entity, final int x, final int y, final int z, final int range);
+    boolean isLivingAtSiteWithMove(final EntityCreature entity, final int x, final int y, final int z, final int range);
 
     /**
      * Getter for the entity accociated with the proxy.
      *
      * @return the entity.
      */
-    Mob getEntity();
+    EntityCreature getEntity();
 
     /**
      * Getter for the current proxy.
      *
      * @return the current proxy.
      */
-    BlockPos getCurrentProxy();
+    int[] getCurrentProxy();
 
     /**
      * Reset the target of the proxy.
      */
     void reset();
 }
+
+
+

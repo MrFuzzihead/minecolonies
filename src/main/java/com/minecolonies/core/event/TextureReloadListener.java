@@ -4,11 +4,13 @@ import com.minecolonies.api.util.constant.Constants;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
+// [1.7.10] eventbus removed
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import cpw.mods.fml.relauncher.Side;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -73,4 +75,6 @@ public class TextureReloadListener extends SimplePreparableReloadListener<Textur
         event.registerReloadListener(new TextureReloadListener());
     }
 }
+
+
 

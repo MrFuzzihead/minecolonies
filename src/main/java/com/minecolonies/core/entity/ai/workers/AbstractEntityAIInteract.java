@@ -1,6 +1,7 @@
 package com.minecolonies.core.entity.ai.workers;
 
-import com.ldtteam.domumornamentum.item.interfaces.IDoItem;
+// [1.7.10] DomumOrnamentum removed - not available
+// import com.ldtteam.domumornamentum.item.interfaces.IDoItem;
 import com.minecolonies.api.entity.ai.workers.util.IBuilderUndestroyable;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.InventoryUtils;
@@ -11,15 +12,17 @@ import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.jobs.AbstractJob;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.block.AirBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
+// [1.7.10] Enchantments -> net.minecraft.enchantment.Enchantment registry
+import net.minecraft.enchantment.Enchantment;
+// [1.7.10] AirBlock -> Blocks.air
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] world.phys removed
+import net.minecraft.util.AxisAlignedBB;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,7 +52,7 @@ public abstract class AbstractEntityAIInteract<J extends AbstractJob<?, J>, B ex
     public static final double XP_PER_BLOCK = 0.05D;
 
     /**
-     * The percentage of time needed if we are one level higher.
+     * The percentage of time needed if we are one World higher.
      */
     private static final double LEVEL_MODIFIER = 0.85D;
 
@@ -92,7 +95,7 @@ public abstract class AbstractEntityAIInteract<J extends AbstractJob<?, J>, B ex
      * Positions of all items that have to be collected.
      */
     @Nullable
-    private List<BlockPos> items;
+    private List<int[]> items;
 
     /**
      * Block mining delay base
@@ -119,7 +122,7 @@ public abstract class AbstractEntityAIInteract<J extends AbstractJob<?, J>, B ex
      * @param blockToMine the block that should be mined
      * @return true once we're done
      */
-    protected final boolean mineBlock(@NotNull final BlockPos blockToMine)
+    protected final boolean mineBlock(@NotNull final int[] blockToMine)
     {
         return mineBlock(blockToMine, worker.blockPosition());
     }
@@ -132,7 +135,7 @@ public abstract class AbstractEntityAIInteract<J extends AbstractJob<?, J>, B ex
      * @param safeStand   the block we want to stand on to do that
      * @return true once we're done
      */
-    protected boolean mineBlock(@NotNull final BlockPos blockToMine, @Nullable final BlockPos safeStand)
+    protected boolean mineBlock(@NotNull final int[] blockToMine, @Nullable final int[] safeStand)
     {
         return mineBlock(blockToMine, safeStand, true, true, null);
     }
@@ -149,8 +152,8 @@ public abstract class AbstractEntityAIInteract<J extends AbstractJob<?, J>, B ex
      * @return true once we're done
      */
     protected final boolean mineBlock(
-      @NotNull final BlockPos blockToMine,
-      @Nullable final BlockPos safeStand,
+      @NotNull final int[] blockToMine,
+      @Nullable final int[] safeStand,
       final boolean damageTool,
       final boolean getDrops,
       final Runnable blockBreakAction)
@@ -274,7 +277,7 @@ public abstract class AbstractEntityAIInteract<J extends AbstractJob<?, J>, B ex
      * @param position    the position of the block.
      * @param blockToMine the mined block.
      */
-    protected void triggerMinedBlock(@NotNull final BlockPos position, @NotNull final BlockState blockToMine)
+    protected void triggerMinedBlock(@NotNull final int[] position, @NotNull final BlockState blockToMine)
     {
 
     }
@@ -286,7 +289,7 @@ public abstract class AbstractEntityAIInteract<J extends AbstractJob<?, J>, B ex
      * @param safeStand   a safe stand to mine from (empty Block!)
      * @return true if you should wait
      */
-    private boolean checkMiningLocation(@NotNull final BlockPos blockToMine, @Nullable final BlockPos safeStand)
+    private boolean checkMiningLocation(@NotNull final int[] blockToMine, @Nullable final int[] safeStand)
     {
         final BlockState curBlock = world.getBlockState(blockToMine);
 
@@ -312,7 +315,7 @@ public abstract class AbstractEntityAIInteract<J extends AbstractJob<?, J>, B ex
      * @param pos   coordinate
      * @return the delay in ticks
      */
-    public int getBlockMiningTime(@NotNull final BlockState state, @NotNull final BlockPos pos)
+    public int getBlockMiningTime(@NotNull final BlockState state, @NotNull final int[] pos)
     {
         if (worker.getMainHandItem() == null)
         {
@@ -331,7 +334,7 @@ public abstract class AbstractEntityAIInteract<J extends AbstractJob<?, J>, B ex
      * @param pos   the pos.
      * @return the mining delay of the worker.
      */
-    private int calculateWorkerMiningDelay(@NotNull final BlockState state, @NotNull final BlockPos pos)
+    private int calculateWorkerMiningDelay(@NotNull final BlockState state, @NotNull final int[] pos)
     {
         final double reduction = 1 - worker.getCitizenColonyHandler().getColonyOrRegister().getResearchManager().getResearchEffects().getEffectStrength(BLOCK_BREAK_SPEED);
 
@@ -343,9 +346,9 @@ public abstract class AbstractEntityAIInteract<J extends AbstractJob<?, J>, B ex
     }
 
     /**
-     * Get the level that affects the break speed.
+     * Get the World that affects the break speed.
      *
-     * @return the level.
+     * @return the World.
      */
     public int getBreakSpeedLevel()
     {
@@ -367,13 +370,13 @@ public abstract class AbstractEntityAIInteract<J extends AbstractJob<?, J>, B ex
      *
      * @param boundingBox the area to search.
      */
-    public void searchForItems(final AABB boundingBox)
+    public void searchForItems(final AxisAlignedBB boundingBox)
     {
-        items = world.getEntitiesOfClass(ItemEntity.class, boundingBox)
+        items = world.getEntitiesWithinAABB(net.minecraft.entity.item.EntityItem.class, boundingBox)
                   .stream()
-                  .filter(item -> item != null && item.isAlive() &&
-                                    (!item.getPersistentData().contains("PreventRemoteMovement") || !item.getPersistentData().getBoolean("PreventRemoteMovement")) &&
-                                    isItemWorthPickingUp(item.getItem()))
+                  .filter(item -> item != null && item.isEntityAlive() &&
+                                    (!item.getEntityData().hasKey("PreventRemoteMovement") || !item.getEntityData().getBoolean("PreventRemoteMovement")) &&
+                                    isItemWorthPickingUp(item.getEntityItem()))
                   .map(BlockPosUtil::fromEntity)
                   .collect(Collectors.toList());
     }
@@ -398,7 +401,7 @@ public abstract class AbstractEntityAIInteract<J extends AbstractJob<?, J>, B ex
         worker.setCanPickUpLoot(true);
         if (worker.getNavigation().isDone() || worker.getNavigation().getPath() == null)
         {
-            final BlockPos pos = getAndRemoveClosestItemPosition();
+            final int[] pos = getAndRemoveClosestItemPosition();
             EntityNavigationUtils.walkToPos(worker, pos, 2, false);
             return;
         }
@@ -430,7 +433,7 @@ public abstract class AbstractEntityAIInteract<J extends AbstractJob<?, J>, B ex
      *
      * @return the closest item
      */
-    private BlockPos getAndRemoveClosestItemPosition()
+    private int[] getAndRemoveClosestItemPosition()
     {
         int index = 0;
         double distance = Double.MAX_VALUE;
@@ -462,8 +465,11 @@ public abstract class AbstractEntityAIInteract<J extends AbstractJob<?, J>, B ex
      * @return a copy of it.
      */
     @Nullable
-    public List<BlockPos> getItemsForPickUp()
+    public List<int[]> getItemsForPickUp()
     {
         return items == null ? null : new ArrayList<>(items);
     }
 }
+
+
+

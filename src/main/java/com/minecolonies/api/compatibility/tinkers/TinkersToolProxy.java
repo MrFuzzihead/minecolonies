@@ -1,7 +1,7 @@
 package com.minecolonies.api.compatibility.tinkers;
 
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,10 +44,10 @@ public class TinkersToolProxy
     }
 
     /**
-     * Calculate the tool level of the stack.
+     * Calculate the tool World of the stack.
      *
      * @param stack the stack.
-     * @return the tool level
+     * @return the tool World
      */
     public int getToolLevel(@NotNull final ItemStack stack)
     {
@@ -62,3 +62,5 @@ public class TinkersToolProxy
      */
     public boolean checkTinkersBroken(@Nullable final ItemStack stack) { return false; }
 }
+
+

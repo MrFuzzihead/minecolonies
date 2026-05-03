@@ -16,24 +16,24 @@ import com.minecolonies.core.colony.jobs.AbstractJobGuard;
 import com.minecolonies.core.entity.ai.workers.guard.AbstractEntityAIGuard;
 import com.minecolonies.core.network.messages.client.VanillaParticleMessage;
 import com.minecolonies.core.tileentities.TileEntityColonyBuilding;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
+import net.minecraft.util.EnumChatFormatting;
+// [1.7.10] int[] -> int x,y,z
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.horse.Llama;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.entity.player.EntityPlayerMP;
+// [1.7.10] sounds removed
+// [1.7.10] InteractionResult -> boolean
+import net.minecraft.entity.Entity;
+// [1.7.10] world.entity removed
+import net.minecraft.entity.EntityLivingBase;
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.World;
+// [1.7.10] block.entity removed
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -60,10 +60,10 @@ public class ItemScrollGuardHelp extends AbstractItemScroll
 
     @Override
     protected ItemStack onItemUseSuccess(
-      final ItemStack itemStack, final Level world, final ServerPlayer player)
+      final ItemStack itemStack, final World world, final EntityPlayerMP player)
     {
         final IColony colony = getColony(itemStack);
-        final BlockPos buildingPos = BlockPosUtil.read(itemStack.getTag(), TAG_BUILDING_POS);
+        final int[] buildingPos = BlockPosUtil.read(itemStack.getTag(), TAG_BUILDING_POS);
         final IBuilding building = colony.getServerBuildingManager().getBuilding(buildingPos);
         if (!(building instanceof AbstractBuildingGuards))
         {
@@ -81,7 +81,7 @@ public class ItemScrollGuardHelp extends AbstractItemScroll
             entity.setPos(player.getX(), player.getY(), player.getZ());
             world.addFreshEntity(entity);
 
-            player.displayClientMessage(Component.translatable("minecolonies.scroll.failed" + (world.random.nextInt(FAIL_RESPONSES_TOTAL) + 1)).setStyle(Style.EMPTY.withColor(
+            player.displayClientMessage(String.translatable("minecolonies.scroll.failed" + (world.random.nextInt(FAIL_RESPONSES_TOTAL) + 1)).setStyle(Style.EMPTY.withColor(
               ChatFormatting.GOLD)), true);
 
             SoundUtils.playSoundForPlayer(player, SoundEvents.EVOKER_CAST_SPELL, 0.5f, 1.0f);
@@ -180,7 +180,7 @@ public class ItemScrollGuardHelp extends AbstractItemScroll
     }
 
     @Override
-    public void onUseTick(Level worldIn, LivingEntity entity, ItemStack stack, int count)
+    public void onUseTick(World worldIn, EntityLivingBase entity, ItemStack stack, int count)
     {
         if (!worldIn.isClientSide && worldIn.getGameTime() % 5 == 0)
         {
@@ -189,19 +189,19 @@ public class ItemScrollGuardHelp extends AbstractItemScroll
                 entity);
             Network.getNetwork()
               .sendToPlayer(new VanillaParticleMessage(entity.getX(), entity.getY(), entity.getZ(), ParticleTypes.ENCHANT),
-                (ServerPlayer) entity);
+                (EntityPlayerMP) entity);
         }
     }
 
     @Override
     public void appendHoverText(
-      @NotNull final ItemStack stack, @Nullable final Level worldIn, @NotNull final List<Component> tooltip, @NotNull final TooltipFlag flagIn)
+      @NotNull final ItemStack stack, @Nullable final World worldIn, @NotNull final List<String> tooltip, @NotNull final TooltipFlag flagIn)
     {
-        final MutableComponent guiHint = Component.translatable("item.minecolonies.scroll_guard_help.tip");
+        final String guiHint = String.translatable("item.minecolonies.scroll_guard_help.tip");
         guiHint.setStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GREEN));
         tooltip.add(guiHint);
 
-        String colonyDesc = Component.translatable("item.minecolonies.scroll.colony.none").getString();
+        String colonyDesc = String.translatable("item.minecolonies.scroll.colony.none").getString();
 
         final IColony colony = getColonyView(stack);
         if (colony != null)
@@ -209,8 +209,12 @@ public class ItemScrollGuardHelp extends AbstractItemScroll
             colonyDesc = colony.getName();
         }
 
-        final MutableComponent guiHint2 = Component.translatable("item.minecolonies.scroll.colony.tip", colonyDesc);
+        final String guiHint2 = String.translatable("item.minecolonies.scroll.colony.tip", colonyDesc);
         guiHint2.setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD));
         tooltip.add(guiHint2);
     }
 }
+
+
+
+

@@ -3,7 +3,7 @@ package com.minecolonies.api.colony;
 import com.minecolonies.api.inventory.InventoryCitizen;
 
 /**
- * Higher level Citizen data (Englobes server and client side variants).
+ * Higher World Citizen data (Englobes server and client side variants).
  */
 public interface ICitizen
 {
@@ -70,3 +70,4 @@ public interface ICitizen
      */
     public IColony getColony();
 }
+

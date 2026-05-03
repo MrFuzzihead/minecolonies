@@ -3,8 +3,8 @@ package com.minecolonies.api.quests;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.minecolonies.api.IMinecoloniesAPI;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -34,19 +34,19 @@ public interface IDialogueObjectiveTemplate extends IQuestObjectiveTemplate
         /**
          * The text the participant says.
          */
-        private final Component text;
+        private final String text;
 
         /**
-         * The player options.
+         * The EntityPlayer options.
          */
         private final List<AnswerElement> answers;
 
         /**
          * Create a new dialogue element.
          * @param text the participant.
-         * @param answers the player answers.
+         * @param answers the EntityPlayer answers.
          */
-        public DialogueElement(final Component text, final List<AnswerElement> answers)
+        public DialogueElement(final String text, final List<AnswerElement> answers)
         {
             this.text = text;
             this.answers = answers;
@@ -59,7 +59,7 @@ public interface IDialogueObjectiveTemplate extends IQuestObjectiveTemplate
          */
         public static DialogueElement parse(final JsonObject jsonObject)
         {
-            final Component text = Component.translatable(jsonObject.get(TEXT_ID).getAsString());
+            final String text = String.translatable(jsonObject.get(TEXT_ID).getAsString());
             final List<AnswerElement> answerElementList = new ArrayList<>();
             for (final JsonElement answerOption : jsonObject.getAsJsonArray(OPTIONS_ID))
             {
@@ -72,7 +72,7 @@ public interface IDialogueObjectiveTemplate extends IQuestObjectiveTemplate
          * Getter for the element text.
          * @return the text.
          */
-        public Component getText()
+        public String getText()
         {
             return this.text;
         }
@@ -81,7 +81,7 @@ public interface IDialogueObjectiveTemplate extends IQuestObjectiveTemplate
          * Get all the response options.
          * @return the response option.
          */
-        public List<Component> getOptions()
+        public List<String> getOptions()
         {
             return answers.stream().map(answerElement -> answerElement.text).collect(Collectors.toList());
         }
@@ -104,12 +104,12 @@ public interface IDialogueObjectiveTemplate extends IQuestObjectiveTemplate
     class AnswerElement
     {
         /**
-         * The text the player displays.
+         * The text the EntityPlayer displays.
          */
-        private final Component text;
+        private final String text;
 
         /**
-         * The result from the player answer.
+         * The result from the EntityPlayer answer.
          */
         private final IQuestDialogueAnswer answerResult;
 
@@ -118,7 +118,7 @@ public interface IDialogueObjectiveTemplate extends IQuestObjectiveTemplate
          * @param text the text for the player.
          * @param answerResult the result from the choice.
          */
-        public AnswerElement(final Component text, final IQuestDialogueAnswer answerResult)
+        public AnswerElement(final String text, final IQuestDialogueAnswer answerResult)
         {
             this.text = text;
             this.answerResult = answerResult;
@@ -132,7 +132,9 @@ public interface IDialogueObjectiveTemplate extends IQuestObjectiveTemplate
         public static AnswerElement parse(final JsonObject jsonObject)
         {
             final JsonObject resultObj = jsonObject.getAsJsonObject(RESULT_ID);
-            return new AnswerElement(Component.translatable(jsonObject.get(ANSWER_ID).getAsString()), IMinecoloniesAPI.getInstance().getQuestDialogueAnswerRegistry().getValue(new ResourceLocation(resultObj.get(TYPE_ID).getAsString())).produce(resultObj));
+            return new AnswerElement(String.translatable(jsonObject.get(ANSWER_ID).getAsString()), IMinecoloniesAPI.getInstance().getQuestDialogueAnswerRegistry().getValue(new ResourceLocation(resultObj.get(TYPE_ID).getAsString())).produce(resultObj));
         }
     }
 }
+
+

@@ -1,8 +1,8 @@
 package com.minecolonies.api.colony.requestsystem.location;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.Level;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -17,7 +17,7 @@ public interface ILocation
      * @return The location.
      */
     @NotNull
-    BlockPos getInDimensionLocation();
+    int[] getInDimensionLocation();
 
     /**
      * Method to get the dimension of the location.
@@ -25,7 +25,7 @@ public interface ILocation
      * @return The dimension of the location.
      */
     @NotNull
-    ResourceKey<Level> getDimension();
+    int /* ResourceKey */ getDimension();
 
     /**
      * Method to check if this location is reachable from the other.
@@ -35,3 +35,5 @@ public interface ILocation
      */
     boolean isReachableFromLocation(@NotNull ILocation location);
 }
+
+

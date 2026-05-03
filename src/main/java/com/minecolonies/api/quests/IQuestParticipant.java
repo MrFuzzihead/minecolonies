@@ -1,6 +1,6 @@
 package com.minecolonies.api.quests;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 /**
  * Type of entity that participates somehow in quests.
@@ -39,6 +39,7 @@ public interface IQuestParticipant
      */
     String getName();
 }
+
 
 
 

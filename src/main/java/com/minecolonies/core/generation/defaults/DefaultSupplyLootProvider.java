@@ -2,19 +2,19 @@ package com.minecolonies.core.generation.defaults;
 
 import com.minecolonies.api.items.ModItems;
 import com.minecolonies.core.generation.SimpleLootTableProvider;
-import net.minecraft.data.PackOutput;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
-import net.minecraft.world.level.storage.loot.functions.SetNameFunction;
-import net.minecraft.world.level.storage.loot.functions.SetNbtFunction;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
-import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+// [1.7.10] data removed
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.Constants.*;
@@ -39,7 +39,7 @@ public class DefaultSupplyLootProvider extends SimpleLootTableProvider
     @Override
     protected void registerTables(@NotNull final LootTableRegistrar registrar)
     {
-        final CompoundTag instantTag = new CompoundTag();
+        final NBTTagCompound instantTag = new NBTTagCompound();
         instantTag.putString(PLACEMENT_NBT, INSTANT_PLACEMENT);
 
         registrar.register(new ResourceLocation(MOD_ID, "chests/supplycamp"), LootContextParamSets.CHEST,
@@ -48,7 +48,7 @@ public class DefaultSupplyLootProvider extends SimpleLootTableProvider
                                 .add(LootItem.lootTableItem(ModItems.supplyCamp)
                                     .when(LootItemRandomChanceCondition.randomChance(0.01f))
                                         .apply(SetNbtFunction.setTag(instantTag))
-                                        .apply(SetNameFunction.setName(Component.translatable("item.minecolonies.supply.free", ModItems.supplyCamp.getDescription()))))
+                                        .apply(SetNameFunction.setName(String.translatable("item.minecolonies.supply.free", ModItems.supplyCamp.getDescription()))))
                                 .add(LootItem.lootTableItem(ModItems.scrollBuff)
                                     .when(LootItemRandomChanceCondition.randomChance(0.1f))
                                     .apply(SetItemCountFunction.setCount(ConstantValue.exactly(4))))
@@ -60,10 +60,15 @@ public class DefaultSupplyLootProvider extends SimpleLootTableProvider
                                 .add(LootItem.lootTableItem(ModItems.supplyChest)
                                     .when(LootItemRandomChanceCondition.randomChance(0.01f))
                                         .apply(SetNbtFunction.setTag(instantTag))
-                                        .apply(SetNameFunction.setName(Component.translatable("item.minecolonies.supply.free", ModItems.supplyChest.getDescription()))))
+                                        .apply(SetNameFunction.setName(String.translatable("item.minecolonies.supply.free", ModItems.supplyChest.getDescription()))))
                                 .add(LootItem.lootTableItem(ModItems.scrollBuff)
                                     .when(LootItemRandomChanceCondition.randomChance(0.1f))
                                     .apply(SetItemCountFunction.setCount(ConstantValue.exactly(4))))
                         ));
     }
 }
+
+
+
+
+

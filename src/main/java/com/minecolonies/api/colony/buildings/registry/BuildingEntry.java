@@ -9,10 +9,9 @@ import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.buildings.modules.IBuildingModule;
 import com.minecolonies.api.colony.buildings.modules.IBuildingModuleView;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
-import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import org.apache.commons.lang3.Validate;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +29,7 @@ public class BuildingEntry
 {
     private final AbstractColonyBlock<?> buildingBlock;
 
-    private final BiFunction<IColony, BlockPos, IBuilding> buildingProducer;
+    private final BiFunction<IColony, int[], IBuilding> buildingProducer;
     private final ResourceLocation registryName;
 
     private List<ModuleProducer> buildingModuleProducers;
@@ -41,8 +40,8 @@ public class BuildingEntry
     public static final class Builder
     {
         private AbstractColonyBlock<?>                   buildingBlock;
-        private BiFunction<IColony, BlockPos, IBuilding> buildingProducer;
-        private Supplier<BiFunction<IColonyView, BlockPos, IBuildingView>> buildingViewProducer;
+        private BiFunction<IColony, int[], IBuilding> buildingProducer;
+        private Supplier<BiFunction<IColonyView, int[], IBuildingView>> buildingViewProducer;
         private List<ModuleProducer>                                       buildingModuleProducers = new ArrayList<>();
         private ResourceLocation                                           registryName;
 
@@ -64,7 +63,7 @@ public class BuildingEntry
          * @param buildingProducer The callback used to create the {@link IBuilding}.
          * @return The builder.
          */
-        public Builder setBuildingProducer(final BiFunction<IColony, BlockPos, IBuilding> buildingProducer)
+        public Builder setBuildingProducer(final BiFunction<IColony, int[], IBuilding> buildingProducer)
         {
             this.buildingProducer = buildingProducer;
             return this;
@@ -76,7 +75,7 @@ public class BuildingEntry
          * @param buildingViewProducer The callback used to create the {@link IBuildingView}.
          * @return The builder.
          */
-        public Builder setBuildingViewProducer(final Supplier<BiFunction<IColonyView, BlockPos, IBuildingView>> buildingViewProducer)
+        public Builder setBuildingViewProducer(final Supplier<BiFunction<IColonyView, int[], IBuildingView>> buildingViewProducer)
         {
             this.buildingViewProducer = buildingViewProducer;
             return this;
@@ -126,14 +125,14 @@ public class BuildingEntry
         return "com." + registryName.getNamespace() + ".building." + registryName.getPath();
     }
 
-    private final Supplier<BiFunction<IColonyView, BlockPos, IBuildingView>> buildingViewProducer;
+    private final Supplier<BiFunction<IColonyView, int[], IBuildingView>> buildingViewProducer;
 
     public AbstractColonyBlock<?> getBuildingBlock()
     {
         return buildingBlock;
     }
 
-    public IBuilding produceBuilding(final BlockPos position, final IColony colony)
+    public IBuilding produceBuilding(final int[] position, final IColony colony)
     {
         final IBuilding building = buildingProducer.apply(colony, position);
         for (final ModuleProducer<IBuildingModule, IBuildingModuleView> moduleTuple : buildingModuleProducers)
@@ -147,7 +146,7 @@ public class BuildingEntry
         return building;
     }
 
-    public IBuildingView produceBuildingView(final BlockPos position, final IColonyView colony)
+    public IBuildingView produceBuildingView(final int[] position, final IColonyView colony)
     {
         final IBuildingView buildingView = buildingViewProducer.get().apply(colony, position);
         buildingView.setBuildingType(this);
@@ -167,8 +166,8 @@ public class BuildingEntry
     private BuildingEntry(
       final ResourceLocation registryName,
       final AbstractColonyBlock<?> buildingBlock,
-      final BiFunction<IColony, BlockPos, IBuilding> buildingProducer,
-      final Supplier<BiFunction<IColonyView, BlockPos, IBuildingView>> buildingViewProducer,
+      final BiFunction<IColony, int[], IBuilding> buildingProducer,
+      final Supplier<BiFunction<IColonyView, int[], IBuildingView>> buildingViewProducer,
       List<ModuleProducer> buildingModuleProducers)
     {
         super();
@@ -365,3 +364,4 @@ public class BuildingEntry
         return null;
     }
 }
+

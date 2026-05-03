@@ -1,8 +1,8 @@
 package com.minecolonies.api.research;
 
 import com.minecolonies.api.colony.IColony;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.nbt.NBTTagCompound;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 
 /**
  * Interface of research requirements.
@@ -19,9 +19,9 @@ public interface IResearchRequirement
     /**
      * Get a human-readable description of the requirement, or a translation key.
      *
-     * @return translation text component.
+     * @return translation text String.
      */
-    MutableComponent getDesc();
+    String getDesc();
 
     /**
      * Check if this requirement is fulfilled for a certain colony.
@@ -36,5 +36,9 @@ public interface IResearchRequirement
      *
      * @return an NBT file which must, at minimum, contain the necessary traits to reassemble the effect.
      */
-    CompoundTag writeToNBT();
+    NBTTagCompound writeToNBT();
 }
+
+
+
+

@@ -14,24 +14,24 @@ import com.minecolonies.core.tileentities.TileEntityRack;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.BucketItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
+import net.minecraft.entity.player.EntityPlayerMP;
+// [1.7.10] world.entity removed
+// [1.7.10] Inventory removed
+import net.minecraft.entity.player.EntityPlayer;
+// [1.7.10] food removed
+// [1.7.10] BucketItem -> net.minecraft.item.ItemBucket (not used directly here)
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.init.Items;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
+// [1.7.10] block.entity removed
+// [1.7.10] capabilities removed - ICapabilityProvider shim provided
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.InvWrapper;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraft.util.Direction;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -70,7 +70,7 @@ public class InventoryUtils
     }
 
     /**
-     * Filters a list of items, matches the stack using {@link #compareItems(ItemStack, Item)}, in an {@link IItemHandler}. Uses the MetaData and {@link #getItemFromBlock(Block)}
+     * Filters a list of items, matches the stack using {@link #compareItems(ItemStack, Item)}, in an {@link net.minecraftforge.items.IItemHandler}. Uses the MetaData and {@link #getItemFromBlock(Block)}
      * as parameters for the Predicate.
      *
      * @param itemHandler Inventory to filter in
@@ -78,20 +78,20 @@ public class InventoryUtils
      * @return List of item stacks
      */
     @NotNull
-    public static List<ItemStack> filterItemHandler(@NotNull final IItemHandler itemHandler, @NotNull final Block block)
+    public static List<ItemStack> filterItemHandler(@NotNull final net.minecraftforge.items.IItemHandler itemHandler, @NotNull final Block block)
     {
         return filterItemHandler(itemHandler, (ItemStack stack) -> compareItems(stack, getItemFromBlock(block)));
     }
 
     /**
-     * Filters a list of items, that match the given predicate, in an {@link IItemHandler}.
+     * Filters a list of items, that match the given predicate, in an {@link net.minecraftforge.items.IItemHandler}.
      *
-     * @param itemHandler                 The IItemHandler to get items from.
+     * @param itemHandler                 The net.minecraftforge.items.IItemHandler to get items from.
      * @param itemStackSelectionPredicate The predicate to match the stack to.
      * @return List of item stacks that match the given predicate.
      */
     @NotNull
-    public static List<ItemStack> filterItemHandler(@NotNull final IItemHandler itemHandler, @NotNull final Predicate<ItemStack> itemStackSelectionPredicate)
+    public static List<ItemStack> filterItemHandler(@NotNull final net.minecraftforge.items.IItemHandler itemHandler, @NotNull final Predicate<ItemStack> itemStackSelectionPredicate)
     {
         @NotNull final ArrayList<ItemStack> filtered = new ArrayList<>();
         //Check every itemHandler slot
@@ -130,50 +130,50 @@ public class InventoryUtils
     }
 
     /**
-     * Filters a list of items, matches the stack using {@link #compareItems(ItemStack, Item)}, with targetItem and itemDamage as parameters, in an {@link IItemHandler}.
+     * Filters a list of items, matches the stack using {@link #compareItems(ItemStack, Item)}, with targetItem and itemDamage as parameters, in an {@link net.minecraftforge.items.IItemHandler}.
      *
      * @param itemHandler Inventory to get items from
      * @param targetItem  Item to look for
      * @return List of item stacks with the given item in inventory
      */
     @NotNull
-    public static List<ItemStack> filterItemHandler(@NotNull final IItemHandler itemHandler, @NotNull final Item targetItem)
+    public static List<ItemStack> filterItemHandler(@NotNull final net.minecraftforge.items.IItemHandler itemHandler, @NotNull final Item targetItem)
     {
         return filterItemHandler(itemHandler, (ItemStack stack) -> compareItems(stack, targetItem));
     }
 
     /**
-     * Returns the index of the first occurrence of the block in the {@link IItemHandler}.
+     * Returns the index of the first occurrence of the block in the {@link net.minecraftforge.items.IItemHandler}.
      *
-     * @param itemHandler {@link IItemHandler} to check.
+     * @param itemHandler {@link net.minecraftforge.items.IItemHandler} to check.
      * @param block       Block to find.
      * @return Index of the first occurrence.
      */
-    public static int findFirstSlotInItemHandlerWith(@NotNull final IItemHandler itemHandler, @NotNull final Block block)
+    public static int findFirstSlotInItemHandlerWith(@NotNull final net.minecraftforge.items.IItemHandler itemHandler, @NotNull final Block block)
     {
         return findFirstSlotInItemHandlerWith(itemHandler, getItemFromBlock(block));
     }
 
     /**
-     * Returns the index of the first occurrence of the Item with the given ItemDamage in the {@link IItemHandler}.
+     * Returns the index of the first occurrence of the Item with the given ItemDamage in the {@link net.minecraftforge.items.IItemHandler}.
      *
-     * @param itemHandler {@link IItemHandler} to check
+     * @param itemHandler {@link net.minecraftforge.items.IItemHandler} to check
      * @param targetItem  Item to find.
      * @return Index of the first occurrence
      */
-    public static int findFirstSlotInItemHandlerWith(@NotNull final IItemHandler itemHandler, @NotNull final Item targetItem)
+    public static int findFirstSlotInItemHandlerWith(@NotNull final net.minecraftforge.items.IItemHandler itemHandler, @NotNull final Item targetItem)
     {
         return findFirstSlotInItemHandlerWith(itemHandler, (ItemStack stack) -> compareItems(stack, targetItem));
     }
 
     /**
-     * Returns the index of the first occurrence of an ItemStack that matches the given predicate in the {@link IItemHandler}.
+     * Returns the index of the first occurrence of an ItemStack that matches the given predicate in the {@link net.minecraftforge.items.IItemHandler}.
      *
      * @param itemHandler                 ItemHandler to check
      * @param itemStackSelectionPredicate The predicate to match.
      * @return Index of the first occurrence
      */
-    public static int findFirstSlotInItemHandlerWith(@NotNull final IItemHandler itemHandler, @NotNull final Predicate<ItemStack> itemStackSelectionPredicate)
+    public static int findFirstSlotInItemHandlerWith(@NotNull final net.minecraftforge.items.IItemHandler itemHandler, @NotNull final Predicate<ItemStack> itemStackSelectionPredicate)
     {
         for (int slot = 0; slot < itemHandler.getSlots(); slot++)
         {
@@ -195,7 +195,7 @@ public class InventoryUtils
      * @param itemStackSelectionPredicate the predicate..
      * @return true if successful.
      */
-    public static boolean shrinkItemCountInItemHandler(final IItemHandler itemHandler, @NotNull final Predicate<ItemStack> itemStackSelectionPredicate)
+    public static boolean shrinkItemCountInItemHandler(final net.minecraftforge.items.IItemHandler itemHandler, @NotNull final Predicate<ItemStack> itemStackSelectionPredicate)
     {
         final Predicate<ItemStack> predicate = ItemStackUtils.NOT_EMPTY_PREDICATE.and(itemStackSelectionPredicate);
         for (int slot = 0; slot < itemHandler.getSlots(); slot++)
@@ -210,13 +210,13 @@ public class InventoryUtils
     }
 
     /**
-     * Returns the indexes of all occurrences of an ItemStack that matches the given predicate in the {@link IItemHandler}.
+     * Returns the indexes of all occurrences of an ItemStack that matches the given predicate in the {@link net.minecraftforge.items.IItemHandler}.
      *
      * @param itemHandler                 ItemHandler to check
      * @param itemStackSelectionPredicate The predicate to match.
      * @return list of Indexes of the occurrences
      */
-    public static List<Integer> findAllSlotsInItemHandlerWith(@NotNull final IItemHandler itemHandler, @NotNull final Predicate<ItemStack> itemStackSelectionPredicate)
+    public static List<Integer> findAllSlotsInItemHandlerWith(@NotNull final net.minecraftforge.items.IItemHandler itemHandler, @NotNull final Predicate<ItemStack> itemStackSelectionPredicate)
     {
         final List<Integer> returnList = new ArrayList<>();
         for (int slot = 0; slot < itemHandler.getSlots(); slot++)
@@ -231,13 +231,13 @@ public class InventoryUtils
     }
 
     /**
-     * Returns the amount of occurrences in the {@link IItemHandler}.
+     * Returns the amount of occurrences in the {@link net.minecraftforge.items.IItemHandler}.
      *
-     * @param itemHandler {@link IItemHandler} to scan.
+     * @param itemHandler {@link net.minecraftforge.items.IItemHandler} to scan.
      * @param block       The block to count
      * @return Amount of occurrences of stacks that match the given block and ItemDamage
      */
-    public static int getItemCountInItemHandler(@Nullable final IItemHandler itemHandler, @NotNull final Block block)
+    public static int getItemCountInItemHandler(@Nullable final net.minecraftforge.items.IItemHandler itemHandler, @NotNull final Block block)
     {
         if (itemHandler == null)
         {
@@ -247,13 +247,13 @@ public class InventoryUtils
     }
 
     /**
-     * Returns the amount of occurrences in the {@link IItemHandler}.
+     * Returns the amount of occurrences in the {@link net.minecraftforge.items.IItemHandler}.
      *
-     * @param itemHandler {@link IItemHandler} to scan.
+     * @param itemHandler {@link net.minecraftforge.items.IItemHandler} to scan.
      * @param targetItem  Item to count
      * @return Amount of occurrences of stacks that match the given item and ItemDamage
      */
-    public static int getItemCountInItemHandler(@Nullable final IItemHandler itemHandler, @NotNull final Item targetItem)
+    public static int getItemCountInItemHandler(@Nullable final net.minecraftforge.items.IItemHandler itemHandler, @NotNull final Item targetItem)
     {
         if (itemHandler == null)
         {
@@ -263,13 +263,13 @@ public class InventoryUtils
     }
 
     /**
-     * Returns the amount of occurrences in the {@link IItemHandler}.
+     * Returns the amount of occurrences in the {@link net.minecraftforge.items.IItemHandler}.
      *
-     * @param itemHandler                 {@link IItemHandler} to scan.
+     * @param itemHandler                 {@link net.minecraftforge.items.IItemHandler} to scan.
      * @param itemStackSelectionPredicate The predicate used to select the stacks to count.
      * @return Amount of occurrences of stacks that match the given predicate.
      */
-    public static int getItemCountInItemHandler(@Nullable final IItemHandler itemHandler, @NotNull final Predicate<ItemStack> itemStackSelectionPredicate)
+    public static int getItemCountInItemHandler(@Nullable final net.minecraftforge.items.IItemHandler itemHandler, @NotNull final Predicate<ItemStack> itemStackSelectionPredicate)
     {
         if (itemHandler == null)
         {
@@ -285,13 +285,13 @@ public class InventoryUtils
         return count;
     }
 
-    public static int getItemCountInItemHandlers(@Nullable final Collection<IItemHandler> itemHandlers, @NotNull final Predicate<ItemStack> itemStackPredicate)
+    public static int getItemCountInItemHandlers(@Nullable final Collection<net.minecraftforge.items.IItemHandler> itemHandlers, @NotNull final Predicate<ItemStack> itemStackPredicate)
     {
         int count = 0;
         if (itemHandlers != null)
         {
             Set<ItemStack> itemSet = new HashSet<>();
-            for (final IItemHandler handler : itemHandlers)
+            for (final net.minecraftforge.items.IItemHandler handler : itemHandlers)
             {
                 itemSet.addAll(filterItemHandler(handler, itemStackPredicate));
             }
@@ -305,13 +305,13 @@ public class InventoryUtils
     }
 
     /**
-     * Checks if a player has a block in the {@link IItemHandler}. Checked by {@link #getItemCountInItemHandler(IItemHandler, Block)} &gt; 0;
+     * Checks if a player has a block in the {@link net.minecraftforge.items.IItemHandler}. Checked by {@link #getItemCountInItemHandler(net.minecraftforge.items.IItemHandler, Block)} &gt; 0;
      *
-     * @param itemHandler {@link IItemHandler} to scan
+     * @param itemHandler {@link net.minecraftforge.items.IItemHandler} to scan
      * @param block       Block to count
-     * @return True when in {@link IItemHandler}, otherwise false
+     * @return True when in {@link net.minecraftforge.items.IItemHandler}, otherwise false
      */
-    public static boolean hasItemInItemHandler(@Nullable final IItemHandler itemHandler, @NotNull final Block block)
+    public static boolean hasItemInItemHandler(@Nullable final net.minecraftforge.items.IItemHandler itemHandler, @NotNull final Block block)
     {
         if (itemHandler == null)
         {
@@ -321,13 +321,13 @@ public class InventoryUtils
     }
 
     /**
-     * Checks if a player has an item in the {@link IItemHandler}. Checked by {@link #getItemCountInItemHandler(IItemHandler, Item)} &gt; 0;
+     * Checks if a player has an item in the {@link net.minecraftforge.items.IItemHandler}. Checked by {@link #getItemCountInItemHandler(net.minecraftforge.items.IItemHandler, Item)} &gt; 0;
      *
-     * @param itemHandler {@link IItemHandler} to scan
+     * @param itemHandler {@link net.minecraftforge.items.IItemHandler} to scan
      * @param item        Item to count
-     * @return True when in {@link IItemHandler}, otherwise false
+     * @return True when in {@link net.minecraftforge.items.IItemHandler}, otherwise false
      */
-    public static boolean hasItemInItemHandler(@Nullable final IItemHandler itemHandler, @NotNull final Item item)
+    public static boolean hasItemInItemHandler(@Nullable final net.minecraftforge.items.IItemHandler itemHandler, @NotNull final Item item)
     {
         if (itemHandler == null)
         {
@@ -337,13 +337,13 @@ public class InventoryUtils
     }
 
     /**
-     * Checks if a player has an item in the {@link IItemHandler}. Checked by {@link InventoryUtils#getItemCountInItemHandler(IItemHandler, Predicate)} &gt; 0;
+     * Checks if a player has an item in the {@link net.minecraftforge.items.IItemHandler}. Checked by {@link InventoryUtils#getItemCountInItemHandler(net.minecraftforge.items.IItemHandler, Predicate)} &gt; 0;
      *
-     * @param itemHandler                 {@link IItemHandler} to scan
+     * @param itemHandler                 {@link net.minecraftforge.items.IItemHandler} to scan
      * @param itemStackSelectionPredicate The predicate to match the ItemStack to.
-     * @return True when in {@link IItemHandler}, otherwise false
+     * @return True when in {@link net.minecraftforge.items.IItemHandler}, otherwise false
      */
-    public static boolean hasItemInItemHandler(@Nullable final IItemHandler itemHandler, @NotNull final Predicate<ItemStack> itemStackSelectionPredicate)
+    public static boolean hasItemInItemHandler(@Nullable final net.minecraftforge.items.IItemHandler itemHandler, @NotNull final Predicate<ItemStack> itemStackSelectionPredicate)
     {
         if (itemHandler == null)
         {
@@ -353,12 +353,12 @@ public class InventoryUtils
     }
 
     /**
-     * Returns if the {@link IItemHandler} is full.
+     * Returns if the {@link net.minecraftforge.items.IItemHandler} is full.
      *
-     * @param itemHandler The {@link IItemHandler}.
-     * @return True if the {@link IItemHandler} is full, false when not.
+     * @param itemHandler The {@link net.minecraftforge.items.IItemHandler}.
+     * @return True if the {@link net.minecraftforge.items.IItemHandler} is full, false when not.
      */
-    public static boolean isItemHandlerFull(@Nullable final IItemHandler itemHandler)
+    public static boolean isItemHandlerFull(@Nullable final net.minecraftforge.items.IItemHandler itemHandler)
     {
         if (itemHandler == null)
         {
@@ -368,12 +368,12 @@ public class InventoryUtils
     }
 
     /**
-     * Returns the first open slot in the {@link IItemHandler}.
+     * Returns the first open slot in the {@link net.minecraftforge.items.IItemHandler}.
      *
-     * @param itemHandler The {@link IItemHandler} to check.
+     * @param itemHandler The {@link net.minecraftforge.items.IItemHandler} to check.
      * @return slot index or -1 if none found.
      */
-    public static int getFirstOpenSlotFromItemHandler(@Nullable final IItemHandler itemHandler)
+    public static int getFirstOpenSlotFromItemHandler(@Nullable final net.minecraftforge.items.IItemHandler itemHandler)
     {
         if (itemHandler == null)
         {
@@ -398,7 +398,7 @@ public class InventoryUtils
      * @param itemHandler the inventory.
      * @return the amount of open slots.
      */
-    public static long openSlotCount(@Nullable final IItemHandler itemHandler)
+    public static long openSlotCount(@Nullable final net.minecraftforge.items.IItemHandler itemHandler)
     {
         if (itemHandler == null)
         {
@@ -413,14 +413,14 @@ public class InventoryUtils
     /**
      * Force stack to handler.
      *
-     * @param itemHandler              {@link IItemHandler} to add itemstack to.
+     * @param itemHandler              {@link net.minecraftforge.items.IItemHandler} to add itemstack to.
      * @param itemStack                ItemStack to add.
      * @param itemStackToKeepPredicate The {@link Predicate} that determines which ItemStacks to keep in the inventory. Return false to replace.
      * @return itemStack which has been replaced, null if none has been replaced.
      */
     @Nullable
     public static ItemStack forceItemStackToItemHandler(
-      @NotNull final IItemHandler itemHandler,
+      @NotNull final net.minecraftforge.items.IItemHandler itemHandler,
       @NotNull final ItemStack itemStack,
       @NotNull final Predicate<ItemStack> itemStackToKeepPredicate)
     {
@@ -453,24 +453,24 @@ public class InventoryUtils
     }
 
     /**
-     * Returns the amount of item stacks in an inventory. This equals {@link #getItemHandlerAsList(IItemHandler)}<code>.length();</code>.
+     * Returns the amount of item stacks in an inventory. This equals {@link #getItemHandlerAsList(net.minecraftforge.items.IItemHandler)}<code>.length();</code>.
      *
-     * @param itemHandler {@link IItemHandler} to count item stacks of.
-     * @return Amount of item stacks in the {@link IItemHandler}.
+     * @param itemHandler {@link net.minecraftforge.items.IItemHandler} to count item stacks of.
+     * @return Amount of item stacks in the {@link net.minecraftforge.items.IItemHandler}.
      */
-    public static int getAmountOfStacksInItemHandler(@NotNull final IItemHandler itemHandler)
+    public static int getAmountOfStacksInItemHandler(@NotNull final net.minecraftforge.items.IItemHandler itemHandler)
     {
         return getItemHandlerAsList(itemHandler).size();
     }
 
     /**
-     * Returns an {@link IItemHandler} as list of item stacks.
+     * Returns an {@link net.minecraftforge.items.IItemHandler} as list of item stacks.
      *
      * @param itemHandler Inventory to convert.
      * @return List of item stacks.
      */
     @NotNull
-    public static List<ItemStack> getItemHandlerAsList(@NotNull final IItemHandler itemHandler)
+    public static List<ItemStack> getItemHandlerAsList(@NotNull final net.minecraftforge.items.IItemHandler itemHandler)
     {
         return filterItemHandler(itemHandler, (ItemStack stack) -> true);
     }
@@ -506,15 +506,15 @@ public class InventoryUtils
      * Method to process the given predicate for all {@link Direction} of a {@link ICapabilityProvider}, including the internal one (passing null as argument).
      *
      * @param provider  The provider to process all the
-     * @param predicate The predicate to match the ItemStacks in the {@link IItemHandler} for each side with.
-     * @return A combined {@link List}<{@link ItemStack}> as if the given predicate was called on all ItemStacks in all {@link IItemHandler}s of the given provider.
+     * @param predicate The predicate to match the ItemStacks in the {@link net.minecraftforge.items.IItemHandler} for each side with.
+     * @return A combined {@link List}<{@link ItemStack}> as if the given predicate was called on all ItemStacks in all {@link net.minecraftforge.items.IItemHandler}s of the given provider.
      */
     @NotNull
     private static List<ItemStack> getFromProviderForAllSides(@NotNull final ICapabilityProvider provider, @NotNull final Predicate<ItemStack> predicate)
     {
         final Set<ItemStack> combinedList = new HashSet<>();
 
-        for (final IItemHandler handler : getItemHandlersFromProvider(provider))
+        for (final net.minecraftforge.items.IItemHandler handler : getItemHandlersFromProvider(provider))
         {
             if (handler != null)
             {
@@ -531,14 +531,11 @@ public class InventoryUtils
      * @return A list with all the unique IItemHandlers a provider has.
      */
     @NotNull
-    public static Set<IItemHandler> getItemHandlersFromProvider(@NotNull final ICapabilityProvider provider)
+    public static Set<net.minecraftforge.items.IItemHandler> getItemHandlersFromProvider(@NotNull final ICapabilityProvider provider)
     {
-        final Set<IItemHandler> handlerList = new HashSet<>();
-        for (final Direction side : Direction.values())
-        {
-            provider.getCapability(ForgeCapabilities.ITEM_HANDLER, side).ifPresent(handlerList::add);
-        }
-        provider.getCapability(ForgeCapabilities.ITEM_HANDLER, null).ifPresent(handlerList::add);
+        // [1.7.10] No capability system - ICapabilityProvider IS an IItemHandler
+        final Set<net.minecraftforge.items.IItemHandler> handlerList = new HashSet<>();
+        handlerList.add(provider);
         return handlerList;
     }
 
@@ -586,10 +583,10 @@ public class InventoryUtils
      * @param itemStackSelectionPredicate The predicate to match.
      * @return Index of the first occurrence
      */
-    public static Map<IItemHandler, List<Integer>> findAllSlotsInProviderWith(@NotNull final ICapabilityProvider provider, final Predicate<ItemStack> itemStackSelectionPredicate)
+    public static Map<net.minecraftforge.items.IItemHandler, List<Integer>> findAllSlotsInProviderWith(@NotNull final ICapabilityProvider provider, final Predicate<ItemStack> itemStackSelectionPredicate)
     {
-        final Map<IItemHandler, List<Integer>> map = new HashMap<>();
-        for (final IItemHandler handler : getItemHandlersFromProvider(provider))
+        final Map<net.minecraftforge.items.IItemHandler, List<Integer>> map = new HashMap<>();
+        for (final net.minecraftforge.items.IItemHandler handler : getItemHandlersFromProvider(provider))
         {
             final List<Integer> tempList = findAllSlotsInItemHandlerWith(handler, itemStackSelectionPredicate);
             if (!tempList.isEmpty())
@@ -610,7 +607,7 @@ public class InventoryUtils
      */
     public static int findFirstSlotInProviderNotEmptyWith(@NotNull final ICapabilityProvider provider, final Predicate<ItemStack> itemStackSelectionPredicate)
     {
-        for (final IItemHandler handler : getItemHandlersFromProvider(provider))
+        for (final net.minecraftforge.items.IItemHandler handler : getItemHandlersFromProvider(provider))
         {
             final int foundSlot = findFirstSlotInItemHandlerNotEmptyWith(handler, itemStackSelectionPredicate);
             if (foundSlot > -1)
@@ -631,7 +628,7 @@ public class InventoryUtils
      */
     public static int findFirstSlotInProviderNotEmptyWith(@NotNull final ICapabilityProvider provider, final List<Predicate<ItemStack>> itemStackSelectionPredicate)
     {
-        for (final IItemHandler handler : getItemHandlersFromProvider(provider))
+        for (final net.minecraftforge.items.IItemHandler handler : getItemHandlersFromProvider(provider))
         {
             final int foundSlot = findFirstSlotInItemHandlerNotEmptyWith(handler, itemStackSelectionPredicate);
             if (foundSlot > -1)
@@ -644,13 +641,13 @@ public class InventoryUtils
     }
 
     /**
-     * Returns the index of the first occurrence of an ItemStack that matches the given predicate in the {@link IItemHandler}. Also applies the not empty check.
+     * Returns the index of the first occurrence of an ItemStack that matches the given predicate in the {@link net.minecraftforge.items.IItemHandler}. Also applies the not empty check.
      *
      * @param itemHandler                 ItemHandler to check
      * @param itemStackSelectionPredicate The list of predicates to match.
      * @return Index of the first occurrence
      */
-    private static int findFirstSlotInItemHandlerNotEmptyWith(final IItemHandler itemHandler, final List<Predicate<ItemStack>> itemStackSelectionPredicate)
+    private static int findFirstSlotInItemHandlerNotEmptyWith(final net.minecraftforge.items.IItemHandler itemHandler, final List<Predicate<ItemStack>> itemStackSelectionPredicate)
     {
         for (final Predicate<ItemStack> predicate : itemStackSelectionPredicate)
         {
@@ -667,13 +664,13 @@ public class InventoryUtils
     }
 
     /**
-     * Returns the index of the first occurrence of an ItemStack that matches the given predicate in the {@link IItemHandler}. Also applies the not empty check.
+     * Returns the index of the first occurrence of an ItemStack that matches the given predicate in the {@link net.minecraftforge.items.IItemHandler}. Also applies the not empty check.
      *
      * @param itemHandler                 ItemHandler to check
      * @param itemStackSelectionPredicate The predicate to match.
      * @return Index of the first occurrence
      */
-    public static int findFirstSlotInItemHandlerNotEmptyWith(@NotNull final IItemHandler itemHandler, @NotNull final Predicate<ItemStack> itemStackSelectionPredicate)
+    public static int findFirstSlotInItemHandlerNotEmptyWith(@NotNull final net.minecraftforge.items.IItemHandler itemHandler, @NotNull final Predicate<ItemStack> itemStackSelectionPredicate)
     {
         @NotNull final Predicate<ItemStack> firstWorthySlotPredicate = ItemStackUtils.NOT_EMPTY_PREDICATE.and(itemStackSelectionPredicate);
 
@@ -752,13 +749,13 @@ public class InventoryUtils
     public static int hasBuildingEnoughElseCount(@NotNull final ICommonBuilding provider, @NotNull final ItemStorage stack, final int count)
     {
         int totalCount = 0;
-        final Level world = provider.getColony().getWorld();
+        final World world = provider.getColony().getWorld();
 
-        for (final BlockPos pos : provider.getContainers())
+        for (final int[] pos : provider.getContainers())
         {
             if (WorldUtil.isBlockLoaded(world, pos))
             {
-                final BlockEntity entity = world.getBlockEntity(pos);
+                final net.minecraft.tileentity.TileEntity entity = world.getTileEntity(pos[0], pos[1], pos[2]);
                 if (entity instanceof TileEntityRack)
                 {
                     totalCount += ((TileEntityRack) entity).getCount(stack);
@@ -784,13 +781,13 @@ public class InventoryUtils
     public static int hasBuildingEnoughElseCount(@NotNull final ICommonBuilding provider, @NotNull final Predicate<ItemStack> stack, final int count)
     {
         int totalCount = 0;
-        final Level world = provider.getColony().getWorld();
+        final World world = provider.getColony().getWorld();
 
-        for (final BlockPos pos : provider.getContainers())
+        for (final int[] pos : provider.getContainers())
         {
             if (WorldUtil.isBlockLoaded(world, pos))
             {
-                final BlockEntity entity = world.getBlockEntity(pos);
+                final net.minecraft.tileentity.TileEntity entity = world.getTileEntity(pos[0], pos[1], pos[2]);
                 if (entity instanceof TileEntityRack)
                 {
                     totalCount += ((TileEntityRack) entity).getItemCount(stack);
@@ -835,13 +832,13 @@ public class InventoryUtils
     public static int getCountFromBuilding(@NotNull final IBuilding provider, @NotNull final ItemStorage stack)
     {
         int totalCount = 0;
-        final Level world = provider.getColony().getWorld();
+        final World world = provider.getColony().getWorld();
 
-        for (final BlockPos pos : provider.getContainers())
+        for (final int[] pos : provider.getContainers())
         {
             if (WorldUtil.isBlockLoaded(world, pos))
             {
-                final BlockEntity entity = world.getBlockEntity(pos);
+                final net.minecraft.tileentity.TileEntity entity = world.getTileEntity(pos[0], pos[1], pos[2]);
                 if (entity instanceof TileEntityRack)
                 {
                     totalCount += ((TileEntityRack) entity).getCount(stack);
@@ -860,13 +857,13 @@ public class InventoryUtils
     public static int countEmptySlotsInBuilding(final IBuilding ownBuilding)
     {
         int totalCount = 0;
-        final Level world = ownBuilding.getColony().getWorld();
+        final World world = ownBuilding.getColony().getWorld();
 
-        for (final BlockPos pos : ownBuilding.getContainers())
+        for (final int[] pos : ownBuilding.getContainers())
         {
             if (WorldUtil.isBlockLoaded(world, pos))
             {
-                final BlockEntity entity = world.getBlockEntity(pos);
+                final net.minecraft.tileentity.TileEntity entity = world.getTileEntity(pos[0], pos[1], pos[2]);
                 if (entity instanceof TileEntityRack)
                 {
                     totalCount += ((TileEntityRack) entity).getFreeSlots();
@@ -885,13 +882,13 @@ public class InventoryUtils
      */
     public static boolean isBuildingFull(final IBuilding ownBuilding)
     {
-        final Level world = ownBuilding.getColony().getWorld();
+        final World world = ownBuilding.getColony().getWorld();
 
-        for (final BlockPos pos : ownBuilding.getContainers())
+        for (final int[] pos : ownBuilding.getContainers())
         {
             if (WorldUtil.isBlockLoaded(world, pos))
             {
-                final BlockEntity entity = world.getBlockEntity(pos);
+                final net.minecraft.tileentity.TileEntity entity = world.getTileEntity(pos[0], pos[1], pos[2]);
                 if (entity instanceof TileEntityRack rack && rack.getFreeSlots() > 0)
                 {
                     return false;
@@ -912,13 +909,13 @@ public class InventoryUtils
     public static int getCountFromBuilding(@NotNull final IBuilding provider, @NotNull final Predicate<ItemStack> predicate)
     {
         int totalCount = 0;
-        final Level world = provider.getColony().getWorld();
+        final World world = provider.getColony().getWorld();
 
-        for (final BlockPos pos : provider.getContainers())
+        for (final int[] pos : provider.getContainers())
         {
             if (WorldUtil.isBlockLoaded(world, pos))
             {
-                final BlockEntity entity = world.getBlockEntity(pos);
+                final net.minecraft.tileentity.TileEntity entity = world.getTileEntity(pos[0], pos[1], pos[2]);
                 if (entity instanceof TileEntityRack)
                 {
                     totalCount += ((TileEntityRack) entity).getItemCount(predicate);
@@ -939,15 +936,15 @@ public class InventoryUtils
      */
     public static int getCountFromBuildingWithLimit(@NotNull final IBuilding provider, @NotNull final Predicate<ItemStack> predicate, final Function<ItemStack, Integer> limit)
     {
-        final Level world = provider.getColony().getWorld();
+        final World world = provider.getColony().getWorld();
 
         final Map<ItemStorage, Integer> allMatching = new HashMap<>();
 
-        for (final BlockPos pos : provider.getContainers())
+        for (final int[] pos : provider.getContainers())
         {
             if (WorldUtil.isBlockLoaded(world, pos))
             {
-                final BlockEntity entity = world.getBlockEntity(pos);
+                final net.minecraft.tileentity.TileEntity entity = world.getTileEntity(pos[0], pos[1], pos[2]);
                 if (entity instanceof TileEntityRack)
                 {
                     for (final Map.Entry<ItemStorage, Integer> entry : ((TileEntityRack) entity).getAllContent().entrySet())
@@ -1003,7 +1000,7 @@ public class InventoryUtils
      */
     public static boolean hasItemInProvider(@NotNull final ICapabilityProvider Provider, @NotNull final Predicate<ItemStack> itemStackSelectionPredicate)
     {
-        for (IItemHandler handler : getItemHandlersFromProvider(Provider))
+        for (net.minecraftforge.items.IItemHandler handler : getItemHandlersFromProvider(Provider))
         {
             if (findFirstSlotInItemHandlerWith(handler, itemStackSelectionPredicate) != -1)
             {
@@ -1040,12 +1037,12 @@ public class InventoryUtils
     }
 
     /**
-     * Checks if the {@link ICapabilityProvider} contains the following equipmentType with the given minimal Level.
+     * Checks if the {@link ICapabilityProvider} contains the following equipmentType with the given minimal World.
      *
      * @param provider     The {@link ICapabilityProvider} to scan.
      * @param equipmentType     The EquipmentType of the equipment to find.
-     * @param minimalLevel The minimal level to find.
-     * @param maximumLevel The maximum level to find.
+     * @param minimalLevel The minimal World to find.
+     * @param maximumLevel The maximum World to find.
      * @return True if equipment with the given equipmentType was found in the given {@link ICapabilityProvider}, false when not.
      */
     public static boolean isEquipmentInProvider(
@@ -1072,11 +1069,11 @@ public class InventoryUtils
     /**
      * Add stack to item handler.
      *
-     * @param itemHandler {@link IItemHandler} to add itemstack to.
+     * @param itemHandler {@link net.minecraftforge.items.IItemHandler} to add itemstack to.
      * @param itemStack   ItemStack to add.
      * @return True if successful, otherwise false.
      */
-    public static boolean addItemStackToItemHandler(@NotNull final IItemHandler itemHandler, @Nullable final ItemStack itemStack)
+    public static boolean addItemStackToItemHandler(@NotNull final net.minecraftforge.items.IItemHandler itemHandler, @Nullable final ItemStack itemStack)
     {
         if (itemHandler.getSlots() == 0)
         {
@@ -1159,7 +1156,7 @@ public class InventoryUtils
             return ItemStackUtils.EMPTY;
         }
 
-        for (final IItemHandler handler : getItemHandlersFromProvider(provider))
+        for (final net.minecraftforge.items.IItemHandler handler : getItemHandlersFromProvider(provider))
         {
             activeStack = addItemStackToItemHandlerWithResult(handler, activeStack);
         }
@@ -1170,11 +1167,11 @@ public class InventoryUtils
     /**
      * Add stack to handler with result.
      *
-     * @param itemHandler {@link IItemHandler} to add itemstack to.
+     * @param itemHandler {@link net.minecraftforge.items.IItemHandler} to add itemstack to.
      * @param itemStack   ItemStack to add.
      * @return Empty when fully transfered, otherwise return the remain of a partial transfer of the itemStack.
      */
-    public static ItemStack addItemStackToItemHandlerWithResult(@NotNull final IItemHandler itemHandler, @Nullable final ItemStack itemStack)
+    public static ItemStack addItemStackToItemHandlerWithResult(@NotNull final net.minecraftforge.items.IItemHandler itemHandler, @Nullable final ItemStack itemStack)
     {
         if (!ItemStackUtils.isEmpty(itemStack))
         {
@@ -1235,7 +1232,7 @@ public class InventoryUtils
         if (!ItemStackUtils.isEmpty(standardInsertionResult))
         {
             ItemStack resultStack = standardInsertionResult.copy();
-            final Iterator<IItemHandler> iterator = getItemHandlersFromProvider(provider).iterator();
+            final Iterator<net.minecraftforge.items.IItemHandler> iterator = getItemHandlersFromProvider(provider).iterator();
             while (iterator.hasNext() && !ItemStackUtils.isEmpty(resultStack))
             {
                 resultStack = forceItemStackToItemHandler(iterator.next(), resultStack, itemStackToKeepPredicate);
@@ -1271,10 +1268,10 @@ public class InventoryUtils
     }
 
     /**
-     * Method used to check if a {@link ICapabilityProvider} has any {@link IItemHandler}
+     * Method used to check if a {@link ICapabilityProvider} has any {@link net.minecraftforge.items.IItemHandler}
      *
      * @param provider The provider to check.
-     * @return True when the provider has any {@link IItemHandler}, false when not.
+     * @return True when the provider has any {@link net.minecraftforge.items.IItemHandler}, false when not.
      */
     public static boolean hasProviderIItemHandler(@NotNull final ICapabilityProvider provider)
     {
@@ -1285,7 +1282,7 @@ public class InventoryUtils
      * Method used to check if this provider is sided.
      *
      * @param provider The provider to check for.
-     * @return True when the provider has multiple distinct IItemHandler of different sides, false when not
+     * @return True when the provider has multiple distinct net.minecraftforge.items.IItemHandler of different sides, false when not
      */
     public static boolean isProviderSided(@NotNull final ICapabilityProvider provider)
     {
@@ -1293,10 +1290,10 @@ public class InventoryUtils
     }
 
     /**
-     * Returns an {@link IItemHandler} as list of item stacks.
+     * Returns an {@link net.minecraftforge.items.IItemHandler} as list of item stacks.
      *
-     * @param provider The {@link ICapabilityProvider} that holds the {@link IItemHandler} for the given {@link Direction}
-     * @param facing   The facing to get the {@link IItemHandler} from. Can be null for the internal one
+     * @param provider The {@link ICapabilityProvider} that holds the {@link net.minecraftforge.items.IItemHandler} for the given {@link Direction}
+     * @param facing   The facing to get the {@link net.minecraftforge.items.IItemHandler} from. Can be null for the internal one
      * @return List of item stacks.
      */
     @NotNull
@@ -1306,11 +1303,11 @@ public class InventoryUtils
     }
 
     /**
-     * Filters a list of items, matches the stack using {@link #compareItems(ItemStack, Item)}, in an {@link IItemHandler}. Uses the MetaData and {@link #getItemFromBlock(Block)}
+     * Filters a list of items, matches the stack using {@link #compareItems(ItemStack, Item)}, in an {@link net.minecraftforge.items.IItemHandler}. Uses the MetaData and {@link #getItemFromBlock(Block)}
      * as parameters for the Predicate.
      *
-     * @param provider The {@link ICapabilityProvider} that holds the {@link IItemHandler} for the given {@link Direction}
-     * @param facing   The facing to get the {@link IItemHandler} from. Can be null for the internal one
+     * @param provider The {@link ICapabilityProvider} that holds the {@link net.minecraftforge.items.IItemHandler} for the given {@link Direction}
+     * @param facing   The facing to get the {@link net.minecraftforge.items.IItemHandler} from. Can be null for the internal one
      * @param block    Block to filter
      * @return List of item stacks
      */
@@ -1324,10 +1321,10 @@ public class InventoryUtils
     }
 
     /**
-     * Filters a list of items, matches the stack using {@link #compareItems(ItemStack, Item)}, with targetItem and itemDamage as parameters, in an {@link IItemHandler}.
+     * Filters a list of items, matches the stack using {@link #compareItems(ItemStack, Item)}, with targetItem and itemDamage as parameters, in an {@link net.minecraftforge.items.IItemHandler}.
      *
-     * @param provider   The {@link ICapabilityProvider} that holds the {@link IItemHandler} for the given {@link Direction}
-     * @param facing     The facing to get the {@link IItemHandler} from. Can be null for the internal one
+     * @param provider   The {@link ICapabilityProvider} that holds the {@link net.minecraftforge.items.IItemHandler} for the given {@link Direction}
+     * @param facing     The facing to get the {@link net.minecraftforge.items.IItemHandler} from. Can be null for the internal one
      * @param targetItem Item to look for
      * @param itemDamage the damage value.
      * @return List of item stacks with the given item in inventory
@@ -1343,10 +1340,10 @@ public class InventoryUtils
     }
 
     /**
-     * Filters a list of items, that match the given predicate, in an {@link IItemHandler}.
+     * Filters a list of items, that match the given predicate, in an {@link net.minecraftforge.items.IItemHandler}.
      *
-     * @param provider                    The {@link ICapabilityProvider} that holds the {@link IItemHandler} for the given {@link Direction}
-     * @param facing                      The facing to get the {@link IItemHandler} from. Can be null for the internal one
+     * @param provider                    The {@link ICapabilityProvider} that holds the {@link net.minecraftforge.items.IItemHandler} for the given {@link Direction}
+     * @param facing                      The facing to get the {@link net.minecraftforge.items.IItemHandler} from. Can be null for the internal one
      * @param itemStackSelectionPredicate The predicate to match the stack to.
      * @return List of item stacks that match the given predicate.
      */
@@ -1556,13 +1553,13 @@ public class InventoryUtils
     }
 
     /**
-     * Checks if the {@link ICapabilityProvider} contains the following EquipmentType with the given minimal Level, for a given {@link Direction}.
+     * Checks if the {@link ICapabilityProvider} contains the following EquipmentType with the given minimal World, for a given {@link Direction}.
      *
      * @param provider     The {@link ICapabilityProvider} to scan.
      * @param facing       The side to check for.
      * @param equipmentType     The equipment type to find.
-     * @param minimalLevel The minimal level to find.
-     * @param maximumLevel The maximum level to find.
+     * @param minimalLevel The minimal World to find.
+     * @param maximumLevel The maximum World to find.
      * @return True if equipment with the given equipmentType was found in the given {@link ICapabilityProvider}, false when not.
      */
     public static boolean isEquipmentInProviderForSide(
@@ -1578,16 +1575,16 @@ public class InventoryUtils
     }
 
     /**
-     * Checks if the {@link IItemHandler} contains the following equipmentType with the given minimal Level.
+     * Checks if the {@link net.minecraftforge.items.IItemHandler} contains the following equipmentType with the given minimal World.
      *
-     * @param itemHandler  The {@link IItemHandler} to scan.
+     * @param itemHandler  The {@link net.minecraftforge.items.IItemHandler} to scan.
      * @param equipmentType     The equipmentType of the equipment to find.
-     * @param minimalLevel The minimal level to find.
-     * @param maximumLevel The maximum level to find.
-     * @return True if equipment with the given EquipmentType was found in the given {@link IItemHandler}, false when not.
+     * @param minimalLevel The minimal World to find.
+     * @param maximumLevel The maximum World to find.
+     * @return True if equipment with the given EquipmentType was found in the given {@link net.minecraftforge.items.IItemHandler}, false when not.
      */
     public static boolean isEquipmentInItemHandler(
-      @NotNull final IItemHandler itemHandler,
+      @NotNull final net.minecraftforge.items.IItemHandler itemHandler,
       @NotNull final EquipmentTypeEntry equipmentType,
       final int minimalLevel,
       final int maximumLevel)
@@ -1596,11 +1593,11 @@ public class InventoryUtils
     }
 
     /**
-     * Clears an entire {@link IItemHandler}.
+     * Clears an entire {@link net.minecraftforge.items.IItemHandler}.
      *
-     * @param itemHandler {@link IItemHandler} to clear.
+     * @param itemHandler {@link net.minecraftforge.items.IItemHandler} to clear.
      */
-    public static void clearItemHandler(@NotNull final IItemHandler itemHandler)
+    public static void clearItemHandler(@NotNull final net.minecraftforge.items.IItemHandler itemHandler)
     {
         for (int slotIndex = 0; slotIndex < itemHandler.getSlots(); slotIndex++)
         {
@@ -1609,32 +1606,32 @@ public class InventoryUtils
     }
 
     /**
-     * Returns a slot number if an {@link IItemHandler} contains given equipment type.
+     * Returns a slot number if an {@link net.minecraftforge.items.IItemHandler} contains given equipment type.
      *
-     * @param itemHandler  the {@link IItemHandler} to get the slot from.
+     * @param itemHandler  the {@link net.minecraftforge.items.IItemHandler} to get the slot from.
      * @param equipmentType     the equipment type to look for.
-     * @param minimalLevel The minimal level to find.
-     * @param maximumLevel The maximum level to find.
+     * @param minimalLevel The minimal World to find.
+     * @param maximumLevel The maximum World to find.
      * @return slot number if found, -1 if not found.
      */
     public static int getFirstSlotOfItemHandlerContainingEquipment(
-      @NotNull final IItemHandler itemHandler, @NotNull final EquipmentTypeEntry equipmentType, final int minimalLevel,
+      @NotNull final net.minecraftforge.items.IItemHandler itemHandler, @NotNull final EquipmentTypeEntry equipmentType, final int minimalLevel,
       final int maximumLevel)
     {
         return findFirstSlotInItemHandlerWith(itemHandler, (ItemStack stack) -> ItemStackUtils.hasEquipmentLevel(stack, equipmentType, minimalLevel, maximumLevel));
     }
 
     /**
-     * Verifies if there is one equipment with an acceptable level in a worker's inventory.
+     * Verifies if there is one equipment with an acceptable World in a worker's inventory.
      *
      * @param itemHandler   the worker's inventory
      * @param equipmentType      the type of equipment needed
-     * @param requiredLevel the minimum equipment level
-     * @param maximumLevel  the worker's hut level
+     * @param requiredLevel the minimum equipment World
+     * @param maximumLevel  the worker's hut World
      * @return true if equipment is acceptable
      */
     public static boolean hasItemHandlerEquipmentWithLevel(
-      @NotNull final IItemHandler itemHandler,
+      @NotNull final net.minecraftforge.items.IItemHandler itemHandler,
       final EquipmentTypeEntry equipmentType,
       final int requiredLevel,
       final int maximumLevel)
@@ -1646,19 +1643,19 @@ public class InventoryUtils
     }
 
     /**
-     * Method to swap the ItemStacks from the given source {@link IItemHandler} to the given target {@link ICapabilityProvider}.
+     * Method to swap the ItemStacks from the given source {@link net.minecraftforge.items.IItemHandler} to the given target {@link ICapabilityProvider}.
      *
-     * @param sourceHandler  The {@link IItemHandler} that works as Source.
+     * @param sourceHandler  The {@link net.minecraftforge.items.IItemHandler} that works as Source.
      * @param sourceIndex    The index of the slot that is being extracted from.
      * @param targetProvider The {@link ICapabilityProvider} that works as Target.
      * @return True when the swap was successful, false when not.
      */
     public static boolean transferItemStackIntoNextFreeSlotInProvider(
-      @NotNull final IItemHandler sourceHandler,
+      @NotNull final net.minecraftforge.items.IItemHandler sourceHandler,
       final int sourceIndex,
       @NotNull final ICapabilityProvider targetProvider)
     {
-        for (final IItemHandler handler : getItemHandlersFromProvider(targetProvider))
+        for (final net.minecraftforge.items.IItemHandler handler : getItemHandlersFromProvider(targetProvider))
         {
             if (transferItemStackIntoNextFreeSlotInItemHandler(sourceHandler, sourceIndex, handler))
             {
@@ -1670,17 +1667,17 @@ public class InventoryUtils
     }
 
     /**
-     * Method to swap the ItemStacks from the given source {@link IItemHandler} to the given target {@link IItemHandler}.
+     * Method to swap the ItemStacks from the given source {@link net.minecraftforge.items.IItemHandler} to the given target {@link net.minecraftforge.items.IItemHandler}.
      *
-     * @param sourceHandler The {@link IItemHandler} that works as Source.
+     * @param sourceHandler The {@link net.minecraftforge.items.IItemHandler} that works as Source.
      * @param sourceIndex   The index of the slot that is being extracted from.
-     * @param targetHandler The {@link IItemHandler} that works as Target.
+     * @param targetHandler The {@link net.minecraftforge.items.IItemHandler} that works as Target.
      * @return True when the swap was successful, false when not.
      */
     public static boolean transferItemStackIntoNextFreeSlotInItemHandler(
-      @NotNull final IItemHandler sourceHandler,
+      @NotNull final net.minecraftforge.items.IItemHandler sourceHandler,
       final int sourceIndex,
-      @NotNull final IItemHandler targetHandler)
+      @NotNull final net.minecraftforge.items.IItemHandler targetHandler)
     {
         ItemStack sourceStack = sourceHandler.extractItem(sourceIndex, Integer.MAX_VALUE, true);
 
@@ -1721,19 +1718,19 @@ public class InventoryUtils
     }
 
     /**
-     * Method to swap the ItemStacks from the given source {@link IItemHandler} to the given target {@link IItemHandler}.
+     * Method to swap the ItemStacks from the given source {@link net.minecraftforge.items.IItemHandler} to the given target {@link net.minecraftforge.items.IItemHandler}.
      *
-     * @param sourceHandler The {@link IItemHandler} that works as Source.
+     * @param sourceHandler The {@link net.minecraftforge.items.IItemHandler} that works as Source.
      * @param sourceIndex   The index of the slot that is being extracted from.
      * @param count         the quantity.
-     * @param targetHandler The {@link IItemHandler} that works as Target.
+     * @param targetHandler The {@link net.minecraftforge.items.IItemHandler} that works as Target.
      * @return True when the swap was successful, false when not.
      */
     public static boolean transferXOfItemStackIntoNextFreeSlotInItemHandler(
-      @NotNull final IItemHandler sourceHandler,
+      @NotNull final net.minecraftforge.items.IItemHandler sourceHandler,
       final int sourceIndex,
       final int count,
-      @NotNull final IItemHandler targetHandler)
+      @NotNull final net.minecraftforge.items.IItemHandler targetHandler)
     {
         ItemStack sourceStack = sourceHandler.extractItem(sourceIndex, count, true);
 
@@ -1774,17 +1771,17 @@ public class InventoryUtils
     }
 
     /**
-     * Method to swap the ItemStacks from the given source {@link IItemHandler} to the given target {@link IItemHandler}. Trying to merge existing itemStacks if possible.
+     * Method to swap the ItemStacks from the given source {@link net.minecraftforge.items.IItemHandler} to the given target {@link net.minecraftforge.items.IItemHandler}. Trying to merge existing itemStacks if possible.
      *
-     * @param sourceHandler The {@link IItemHandler} that works as Source.
+     * @param sourceHandler The {@link net.minecraftforge.items.IItemHandler} that works as Source.
      * @param sourceIndex   The index of the slot that is being extracted from.
-     * @param targetHandler The {@link IItemHandler} that works as Target.
+     * @param targetHandler The {@link net.minecraftforge.items.IItemHandler} that works as Target.
      * @return True when the swap was successful, false when not.
      */
     public static boolean transferItemStackIntoNextBestSlotInItemHandler(
-      @NotNull final IItemHandler sourceHandler,
+      @NotNull final net.minecraftforge.items.IItemHandler sourceHandler,
       final int sourceIndex,
-      @NotNull final IItemHandler targetHandler)
+      @NotNull final net.minecraftforge.items.IItemHandler targetHandler)
     {
         ItemStack sourceStack = sourceHandler.extractItem(sourceIndex, Integer.MAX_VALUE, true);
 
@@ -1802,17 +1799,17 @@ public class InventoryUtils
     }
 
     /**
-     * Method to transfer an ItemStacks from the given source {@link IItemHandler} to the given target {@link IItemHandler}.
+     * Method to transfer an ItemStacks from the given source {@link net.minecraftforge.items.IItemHandler} to the given target {@link net.minecraftforge.items.IItemHandler}.
      *
-     * @param sourceHandler The {@link IItemHandler} that works as Source.
+     * @param sourceHandler The {@link net.minecraftforge.items.IItemHandler} that works as Source.
      * @param predicate     the predicate for the stack.
-     * @param targetHandler The {@link IItemHandler} that works as Target.
+     * @param targetHandler The {@link net.minecraftforge.items.IItemHandler} that works as Target.
      * @return true when the swap was successful, false when not.
      */
     public static boolean transferItemStackIntoNextBestSlotInItemHandler(
-      @NotNull final IItemHandler sourceHandler,
+      @NotNull final net.minecraftforge.items.IItemHandler sourceHandler,
       final Predicate<ItemStack> predicate,
-      @NotNull final IItemHandler targetHandler)
+      @NotNull final net.minecraftforge.items.IItemHandler targetHandler)
     {
         for (int i = 0; i < sourceHandler.getSlots(); i++)
         {
@@ -1831,31 +1828,31 @@ public class InventoryUtils
     }
 
     /**
-     * Method to transfer an ItemStacks from the given source {@link IBuilding} to the given target {@link IItemHandler}.
+     * Method to transfer an ItemStacks from the given source {@link IBuilding} to the given target {@link net.minecraftforge.items.IItemHandler}.
      *
      * @param building      The {@link IBuilding} that works as Source.
      * @param storage       the ItemStorage.
      * @param qty           the qty.
-     * @param targetHandler The {@link IItemHandler} that works as Target.
+     * @param targetHandler The {@link net.minecraftforge.items.IItemHandler} that works as Target.
      * @return true when the swap was successful, false when not.
      */
     public static boolean transferItemStackIntoNextBestSlotInItemHandler(
       @NotNull final IBuilding building,
       final ItemStorage storage,
       final int qty,
-      @NotNull final IItemHandler targetHandler)
+      @NotNull final net.minecraftforge.items.IItemHandler targetHandler)
     {
-        final Level level = building.getColony().getWorld();
-        for (final BlockPos pos : building.getContainers())
+        final World World = building.getColony().getWorld();
+        for (final int[] pos : building.getContainers())
         {
-            if (WorldUtil.isBlockLoaded(level, pos))
+            if (WorldUtil.isBlockLoaded(World, pos))
             {
-                final BlockEntity entity = level.getBlockEntity(pos);
+                final net.minecraft.tileentity.TileEntity entity = world.getTileEntity(pos[0], pos[1], pos[2]);
                 if (entity instanceof TileEntityRack tileEntityRack)
                 {
                     if (tileEntityRack.hasItemStorage(storage, 1))
                     {
-                        final IItemHandler sourceHandler = tileEntityRack.getInventory();
+                        final net.minecraftforge.items.IItemHandler sourceHandler = tileEntityRack.getInventory();
                         for (int i = 0; i < sourceHandler.getSlots(); i++)
                         {
                             if (storage.equals(new ItemStorage(sourceHandler.getStackInSlot(i))))
@@ -1877,41 +1874,41 @@ public class InventoryUtils
     }
 
     /**
-     * Method to transfer an ItemStacks from the given source {@link IBuilding} to the given target {@link IItemHandler}.
+     * Method to transfer an ItemStacks from the given source {@link IBuilding} to the given target {@link net.minecraftforge.items.IItemHandler}.
      *
      * @param building      The {@link IBuilding} that works as Source.
      * @param storage       the ItemStorage.
-     * @param targetHandler The {@link IItemHandler} that works as Target.
+     * @param targetHandler The {@link net.minecraftforge.items.IItemHandler} that works as Target.
      * @return true when the swap was successful, false when not.
      */
     public static boolean transferItemStackIntoNextBestSlotInItemHandler(
       @NotNull final IBuilding building,
       final ItemStorage storage,
-      @NotNull final IItemHandler targetHandler)
+      @NotNull final net.minecraftforge.items.IItemHandler targetHandler)
     {
         return transferItemStackIntoNextBestSlotInItemHandler(building, storage, Integer.MAX_VALUE, targetHandler);
     }
 
     /**
-     * Method to put a given Itemstack in a given target {@link IItemHandler}. Trying to merge existing itemStacks if possible.
+     * Method to put a given Itemstack in a given target {@link net.minecraftforge.items.IItemHandler}. Trying to merge existing itemStacks if possible.
      *
      * @param stack         the itemStack to transfer.
-     * @param targetHandler The {@link IItemHandler} that works as Target.
+     * @param targetHandler The {@link net.minecraftforge.items.IItemHandler} that works as Target.
      * @return True when the swap was successful, false when not.
      */
-    public static boolean transferItemStackIntoNextBestSlotInItemHandler(final ItemStack stack, @NotNull final IItemHandler targetHandler)
+    public static boolean transferItemStackIntoNextBestSlotInItemHandler(final ItemStack stack, @NotNull final net.minecraftforge.items.IItemHandler targetHandler)
     {
         return transferItemStackIntoNextBestSlotInItemHandlerWithResult(stack, targetHandler).isEmpty();
     }
 
     /**
-     * Method to put a given Itemstack in a given target {@link IItemHandler}. Trying to merge existing itemStacks if possible.
+     * Method to put a given Itemstack in a given target {@link net.minecraftforge.items.IItemHandler}. Trying to merge existing itemStacks if possible.
      *
      * @param stack         the itemStack to transfer.
-     * @param targetHandler The {@link IItemHandler} that works as Target.
+     * @param targetHandler The {@link net.minecraftforge.items.IItemHandler} that works as Target.
      * @return the rest of the stack.
      */
-    public static ItemStack transferItemStackIntoNextBestSlotInItemHandlerWithResult(final ItemStack stack, @NotNull final IItemHandler targetHandler)
+    public static ItemStack transferItemStackIntoNextBestSlotInItemHandlerWithResult(final ItemStack stack, @NotNull final net.minecraftforge.items.IItemHandler targetHandler)
     {
         ItemStack sourceStack = stack.copy();
 
@@ -1940,17 +1937,17 @@ public class InventoryUtils
     }
 
     /**
-     * Method to merge the ItemStacks from the given source {@link IItemHandler} to the given target {@link IItemHandler}. Trying to merge itemStacks or returning stack if not
+     * Method to merge the ItemStacks from the given source {@link net.minecraftforge.items.IItemHandler} to the given target {@link net.minecraftforge.items.IItemHandler}. Trying to merge itemStacks or returning stack if not
      * possible.
      *
-     * @param sourceHandler The {@link IItemHandler} that works as Source.
+     * @param sourceHandler The {@link net.minecraftforge.items.IItemHandler} that works as Source.
      * @param sourceIndex   The index of the slot that is being extracted from.
-     * @param targetHandler The {@link IItemHandler} that works as Target.
+     * @param targetHandler The {@link net.minecraftforge.items.IItemHandler} that works as Target.
      */
     public static void mergeItemStackIntoNextBestSlotInItemHandlers(
-      @NotNull final IItemHandler sourceHandler,
+      @NotNull final net.minecraftforge.items.IItemHandler sourceHandler,
       final int sourceIndex,
-      @NotNull final IItemHandler targetHandler)
+      @NotNull final net.minecraftforge.items.IItemHandler targetHandler)
     {
         ItemStack sourceStack = sourceHandler.extractItem(sourceIndex, Integer.MAX_VALUE, true);
         int amount = sourceStack.getCount();
@@ -1977,16 +1974,16 @@ public class InventoryUtils
     }
 
     /**
-     * Method to merge the ItemStacks from the given source {@link IItemHandler} to the given target {@link IItemHandler}. Trying to merge itemStacks or returning stack if not
+     * Method to merge the ItemStacks from the given source {@link net.minecraftforge.items.IItemHandler} to the given target {@link net.minecraftforge.items.IItemHandler}. Trying to merge itemStacks or returning stack if not
      * possible.
      *
      * @param stack         the stack to add.
-     * @param targetHandler The {@link IItemHandler} that works as Target.
+     * @param targetHandler The {@link net.minecraftforge.items.IItemHandler} that works as Target.
      * @return True when the swap was successful, false when not.
      */
     public static ItemStack mergeItemStackIntoNextBestSlotInItemHandlers(
       final ItemStack stack,
-      @NotNull final IItemHandler targetHandler)
+      @NotNull final net.minecraftforge.items.IItemHandler targetHandler)
     {
         if (ItemStackUtils.isEmpty(stack))
         {
@@ -2023,7 +2020,7 @@ public class InventoryUtils
     {
         int currentAmount = amount;
 
-        for (final IItemHandler handler : getItemHandlersFromProvider(targetProvider))
+        for (final net.minecraftforge.items.IItemHandler handler : getItemHandlersFromProvider(targetProvider))
         {
             currentAmount = transferXOfFirstSlotInProviderWithIntoNextFreeSlotInItemHandlerWithResult(sourceProvider, itemStackSelectionPredicate, amount, handler);
 
@@ -2039,7 +2036,7 @@ public class InventoryUtils
     public static boolean transferXOfFirstSlotInProviderWithIntoNextFreeSlotInItemHandler(
       @NotNull final ICapabilityProvider sourceProvider,
       @NotNull final Predicate<ItemStack> itemStackSelectionPredicate,
-      final int amount, @NotNull final IItemHandler targetHandler)
+      final int amount, @NotNull final net.minecraftforge.items.IItemHandler targetHandler)
     {
         return transferXOfFirstSlotInProviderWithIntoNextFreeSlotInItemHandlerWithResult(sourceProvider, itemStackSelectionPredicate, amount, targetHandler) == 0;
     }
@@ -2055,10 +2052,10 @@ public class InventoryUtils
     public static int transferXOfFirstSlotInProviderWithIntoNextFreeSlotInItemHandlerWithResult(
       @NotNull final ICapabilityProvider sourceProvider,
       @NotNull final Predicate<ItemStack> itemStackSelectionPredicate,
-      final int amount, @NotNull final IItemHandler targetHandler)
+      final int amount, @NotNull final net.minecraftforge.items.IItemHandler targetHandler)
     {
         int currentAmount = amount;
-        for (final IItemHandler handler : getItemHandlersFromProvider(sourceProvider))
+        for (final net.minecraftforge.items.IItemHandler handler : getItemHandlersFromProvider(sourceProvider))
         {
             currentAmount = transferXOfFirstSlotInItemHandlerWithIntoNextFreeSlotInItemHandlerWithResult(handler, itemStackSelectionPredicate, currentAmount, targetHandler);
 
@@ -2072,17 +2069,17 @@ public class InventoryUtils
     }
 
     public static boolean transferXOfFirstSlotInItemHandlerWithIntoNextFreeSlotInItemHandler(
-      @NotNull final IItemHandler sourceHandler,
+      @NotNull final net.minecraftforge.items.IItemHandler sourceHandler,
       @NotNull final Predicate<ItemStack> itemStackSelectionPredicate,
-      final int amount, @NotNull final IItemHandler targetHandler)
+      final int amount, @NotNull final net.minecraftforge.items.IItemHandler targetHandler)
     {
         return transferXOfFirstSlotInItemHandlerWithIntoNextFreeSlotInItemHandlerWithResult(sourceHandler, itemStackSelectionPredicate, amount, targetHandler) == 0;
     }
 
     public static int transferXOfFirstSlotInItemHandlerWithIntoNextFreeSlotInItemHandlerWithResult(
-      @NotNull final IItemHandler sourceHandler,
+      @NotNull final net.minecraftforge.items.IItemHandler sourceHandler,
       @NotNull final Predicate<ItemStack> itemStackSelectionPredicate,
-      final int amount, @NotNull final IItemHandler targetHandler)
+      final int amount, @NotNull final net.minecraftforge.items.IItemHandler targetHandler)
     {
         int currentAmount = amount;
         int slot = 0;
@@ -2126,10 +2123,10 @@ public class InventoryUtils
      * @return the count of items actually transferred
      */
     public static int transferXInItemHandlerIntoSlotInItemHandler(
-      final IItemHandler sourceHandler,
+      final net.minecraftforge.items.IItemHandler sourceHandler,
       final Predicate<ItemStack> itemStackSelectionPredicate,
       final int amount,
-      final IItemHandler targetHandler, final int slot)
+      final net.minecraftforge.items.IItemHandler targetHandler, final int slot)
     {
         int actualTransferred = 0;
         while (actualTransferred < amount)
@@ -2160,10 +2157,10 @@ public class InventoryUtils
      * @return the count of items actually transferred
      */
     public static int transferXOfFirstSlotInItemHandlerWithIntoInItemHandler(
-      final IItemHandler sourceHandler,
+      final net.minecraftforge.items.IItemHandler sourceHandler,
       final Predicate<ItemStack> itemStackSelectionPredicate,
       final int amount,
-      final IItemHandler targetHandler, final int slot)
+      final net.minecraftforge.items.IItemHandler targetHandler, final int slot)
     {
         final int desiredItemSlot = InventoryUtils.findFirstSlotInItemHandlerNotEmptyWith(sourceHandler,
           itemStackSelectionPredicate);
@@ -2188,19 +2185,19 @@ public class InventoryUtils
     }
 
     /**
-     * Method to swap the ItemStacks from the given source {@link ICapabilityProvider} to the given target {@link IItemHandler}.
+     * Method to swap the ItemStacks from the given source {@link ICapabilityProvider} to the given target {@link net.minecraftforge.items.IItemHandler}.
      *
      * @param sourceProvider The {@link ICapabilityProvider} that works as Source.
      * @param sourceIndex    The index of the slot that is being extracted from.
-     * @param targetHandler  The {@link IItemHandler} that works as Target.
+     * @param targetHandler  The {@link net.minecraftforge.items.IItemHandler} that works as Target.
      * @return True when the swap was successful, false when not.
      */
     public static boolean transferItemStackIntoNextFreeSlotFromProvider(
       @NotNull final ICapabilityProvider sourceProvider,
       final int sourceIndex,
-      @NotNull final IItemHandler targetHandler)
+      @NotNull final net.minecraftforge.items.IItemHandler targetHandler)
     {
-        for (final IItemHandler handler : getItemHandlersFromProvider(sourceProvider))
+        for (final net.minecraftforge.items.IItemHandler handler : getItemHandlersFromProvider(sourceProvider))
         {
             if (transferItemStackIntoNextFreeSlotInItemHandler(handler, sourceIndex, targetHandler))
             {
@@ -2212,19 +2209,19 @@ public class InventoryUtils
     }
 
     /**
-     * Method to swap the ItemStacks from the given source {@link IItemHandler} to the given target {@link IItemHandler}.
+     * Method to swap the ItemStacks from the given source {@link net.minecraftforge.items.IItemHandler} to the given target {@link net.minecraftforge.items.IItemHandler}.
      *
-     * @param handler The {@link IItemHandler} that works as Source.
+     * @param handler The {@link net.minecraftforge.items.IItemHandler} that works as Source.
      * @param stackPredicate The type of stack to pickup.
      * @param count how much to pick up.
-     * @param targetHandler  The {@link IItemHandler} that works as Target.
+     * @param targetHandler  The {@link net.minecraftforge.items.IItemHandler} that works as Target.
      * @return True when the swap was successful, false when not.
      */
     public static boolean transferItemStackIntoNextFreeSlotFromItemHandler(
-      @NotNull final IItemHandler handler,
+      @NotNull final net.minecraftforge.items.IItemHandler handler,
       @NotNull final Predicate<ItemStack> stackPredicate,
       final int count,
-      @NotNull final IItemHandler targetHandler)
+      @NotNull final net.minecraftforge.items.IItemHandler targetHandler)
     {
         int totalCount = count;
 
@@ -2248,21 +2245,21 @@ public class InventoryUtils
     }
 
     /**
-     * Method to swap the ItemStacks from the given source {@link ICapabilityProvider} to the given target {@link IItemHandler}.
+     * Method to swap the ItemStacks from the given source {@link ICapabilityProvider} to the given target {@link net.minecraftforge.items.IItemHandler}.
      *
      * @param sourceProvider The {@link ICapabilityProvider} that works as Source.
      * @param sourceIndex    The index of the slot that is being extracted from.
      * @param count          the quantity.
-     * @param targetHandler  The {@link IItemHandler} that works as Target.
+     * @param targetHandler  The {@link net.minecraftforge.items.IItemHandler} that works as Target.
      * @return True when the swap was successful, false when not.
      */
     public static boolean transferXOfItemStackIntoNextFreeSlotFromProvider(
       @NotNull final ICapabilityProvider sourceProvider,
       final int sourceIndex,
       final int count,
-      @NotNull final IItemHandler targetHandler)
+      @NotNull final net.minecraftforge.items.IItemHandler targetHandler)
     {
-        for (final IItemHandler handler : getItemHandlersFromProvider(sourceProvider))
+        for (final net.minecraftforge.items.IItemHandler handler : getItemHandlersFromProvider(sourceProvider))
         {
             if (transferXOfItemStackIntoNextFreeSlotInItemHandler(handler, sourceIndex, count, targetHandler))
             {
@@ -2274,19 +2271,19 @@ public class InventoryUtils
     }
 
     /**
-     * Method to swap the ItemStacks from the given source {@link ICapabilityProvider} to the given target {@link IItemHandler}.
+     * Method to swap the ItemStacks from the given source {@link ICapabilityProvider} to the given target {@link net.minecraftforge.items.IItemHandler}.
      *
      * @param sourceProvider The {@link ICapabilityProvider} that works as Source.
      * @param sourceIndex    The index of the slot that is being extracted from.
-     * @param targetHandler  The {@link IItemHandler} that works as Target.
+     * @param targetHandler  The {@link net.minecraftforge.items.IItemHandler} that works as Target.
      * @return True when the swap was successful, false when not.
      */
     public static boolean transferItemStackIntoNextBestSlotFromProvider(
       @NotNull final ICapabilityProvider sourceProvider,
       final int sourceIndex,
-      @NotNull final IItemHandler targetHandler)
+      @NotNull final net.minecraftforge.items.IItemHandler targetHandler)
     {
-        for (final IItemHandler handler : getItemHandlersFromProvider(sourceProvider))
+        for (final net.minecraftforge.items.IItemHandler handler : getItemHandlersFromProvider(sourceProvider))
         {
             if (transferItemStackIntoNextBestSlotInItemHandler(handler, sourceIndex, targetHandler))
             {
@@ -2298,18 +2295,18 @@ public class InventoryUtils
     }
 
     /**
-     * Method to swap the ItemStacks from the given source {@link IItemHandler} to the given target {@link IItemHandler}.
+     * Method to swap the ItemStacks from the given source {@link net.minecraftforge.items.IItemHandler} to the given target {@link net.minecraftforge.items.IItemHandler}.
      *
-     * @param sourceHandler The {@link IItemHandler} that works as Source.
+     * @param sourceHandler The {@link net.minecraftforge.items.IItemHandler} that works as Source.
      * @param sourceIndex   The index of the slot that is being extracted from.
-     * @param targetHandler The {@link IItemHandler} that works as Target.
+     * @param targetHandler The {@link net.minecraftforge.items.IItemHandler} that works as Target.
      * @param targetIndex   The index of the slot that is being inserted into.
      * @return True when the swap was successful, false when not.
      */
     public static boolean swapItemStacksInItemHandlers(
-      @NotNull final IItemHandler sourceHandler,
+      @NotNull final net.minecraftforge.items.IItemHandler sourceHandler,
       final int sourceIndex,
-      @NotNull final IItemHandler targetHandler,
+      @NotNull final net.minecraftforge.items.IItemHandler targetHandler,
       final int targetIndex)
     {
         final ItemStack targetStack = targetHandler.extractItem(targetIndex, Integer.MAX_VALUE, false);
@@ -2341,7 +2338,7 @@ public class InventoryUtils
      */
     public static boolean removeStacksFromProvider(final ICapabilityProvider provider, final List<ItemStack> input)
     {
-        for (final IItemHandler handler : getItemHandlersFromProvider(provider))
+        for (final net.minecraftforge.items.IItemHandler handler : getItemHandlersFromProvider(provider))
         {
             if (!removeStacksFromItemHandler(handler, input))
             {
@@ -2359,7 +2356,7 @@ public class InventoryUtils
      * @param input   the list of stacks.
      * @return true if succesful.
      */
-    public static boolean removeStacksFromItemHandler(final IItemHandler handler, final List<ItemStack> input)
+    public static boolean removeStacksFromItemHandler(final net.minecraftforge.items.IItemHandler handler, final List<ItemStack> input)
     {
         final List<ItemStack> list = new ArrayList<>();
         int maxTries = 0;
@@ -2407,7 +2404,7 @@ public class InventoryUtils
      * @param input   the stack to remove.
      * @return true if removed the stack
      */
-    public static boolean tryRemoveStackFromItemHandler(final IItemHandler handler, final ItemStack input)
+    public static boolean tryRemoveStackFromItemHandler(final net.minecraftforge.items.IItemHandler handler, final ItemStack input)
     {
         int amount = input.getCount();
 
@@ -2437,7 +2434,7 @@ public class InventoryUtils
      * @param input   the stack to remove.
      * @param count   the amount to remove.
      */
-    public static void removeStackFromItemHandler(final IItemHandler handler, final ItemStack input, final int count)
+    public static void removeStackFromItemHandler(final net.minecraftforge.items.IItemHandler handler, final ItemStack input, final int count)
     {
         final ItemStack workingStack = input.copy();
         int localCount = count;
@@ -2474,7 +2471,7 @@ public class InventoryUtils
      */
     public static int findSlotInProviderNotFullWithItem(final ICapabilityProvider provider, final Item item, final int amount)
     {
-        for (final IItemHandler handler : getItemHandlersFromProvider(provider))
+        for (final net.minecraftforge.items.IItemHandler handler : getItemHandlersFromProvider(provider))
         {
             final int foundSlot = findSlotInItemHandlerNotFullWithItem(handler, (ItemStack stack) -> compareItems(stack, item), amount);
             //TODO: When contract is hardened later: Replace this -1 check with a try-catch block.
@@ -2497,7 +2494,7 @@ public class InventoryUtils
      * @return the slot or -1.
      */
     public static int findSlotInItemHandlerNotFullWithItem(
-      final IItemHandler handler,
+      final net.minecraftforge.items.IItemHandler handler,
       @NotNull final Predicate<ItemStack> itemStackSelectionPredicate,
       final int amount)
     {
@@ -2539,7 +2536,7 @@ public class InventoryUtils
      * @return true if fitting.
      */
     public static boolean findSlotInItemHandlerNotFullWithItem(
-      final IItemHandler handler,
+      final net.minecraftforge.items.IItemHandler handler,
       final ItemStack inStack)
     {
         if (handler == null)
@@ -2583,7 +2580,7 @@ public class InventoryUtils
      * @param y       the y pos.
      * @param z       the z pos.
      */
-    public static void dropItemHandler(final IItemHandler handler, final Level world, final int x, final int y, final int z)
+    public static void dropItemHandler(final net.minecraftforge.items.IItemHandler handler, final World world, final int x, final int y, final int z)
     {
         for (int i = 0; i < handler.getSlots(); ++i)
         {
@@ -2603,7 +2600,7 @@ public class InventoryUtils
      * @param target   the world.
      * @return true if all item transfered, false if some item remain in origin
      */
-    public static boolean transferAllItemHandler(final IItemHandler origin, final IItemHandler target)
+    public static boolean transferAllItemHandler(final net.minecraftforge.items.IItemHandler origin, final net.minecraftforge.items.IItemHandler target)
     {
         for (int i = 0; i < origin.getSlots(); ++i)
         {
@@ -2630,7 +2627,7 @@ public class InventoryUtils
      * @param z       the z pos.
      * @param stack   the stack to drop.
      */
-    public static void spawnItemStack(final Level worldIn, final double x, final double y, final double z, final ItemStack stack)
+    public static void spawnItemStack(final World worldIn, final double x, final double y, final double z, final ItemStack stack)
     {
         final Random random = new Random();
         final double spawnX = random.nextDouble() * SPAWN_MODIFIER + SPAWN_ADDITION;
@@ -2666,7 +2663,7 @@ public class InventoryUtils
      * @param handler The itemhandler to check in
      * @return True when all stacks are in the handler, false when not
      */
-    public static boolean areAllItemsInItemHandler(@NotNull final List<ItemStack> stacks, @NotNull final IItemHandler handler)
+    public static boolean areAllItemsInItemHandler(@NotNull final List<ItemStack> stacks, @NotNull final net.minecraftforge.items.IItemHandler handler)
     {
         return areAllItemsInItemHandlerList(stacks, ImmutableList.of(handler));
     }
@@ -2690,7 +2687,7 @@ public class InventoryUtils
      * @param handlers The itemhandlers to check in
      * @return True when all stacks are in at least one of the handlers, false when not
      */
-    public static boolean areAllItemsInItemHandlerList(@NotNull final List<ItemStack> stacks, @NotNull final Collection<IItemHandler> handlers)
+    public static boolean areAllItemsInItemHandlerList(@NotNull final List<ItemStack> stacks, @NotNull final Collection<net.minecraftforge.items.IItemHandler> handlers)
     {
         if (stacks.isEmpty())
         {
@@ -2779,7 +2776,7 @@ public class InventoryUtils
      * @param handler The handler to search in
      * @return The sublist of the stacks list contained in the itemhandler.
      */
-    public static List<ItemStack> getContainedFromItemHandler(@NotNull final List<ItemStack> stacks, @NotNull final IItemHandler handler)
+    public static List<ItemStack> getContainedFromItemHandler(@NotNull final List<ItemStack> stacks, @NotNull final net.minecraftforge.items.IItemHandler handler)
     {
         final List<ItemStack> result = Lists.newArrayList();
 
@@ -2854,8 +2851,8 @@ public class InventoryUtils
      * @return True when moving was successfull, false when not
      */
     public static boolean moveItemStacksWithPossibleSwap(
-      @NotNull final IItemHandler targetInventory,
-      @NotNull final Collection<IItemHandler> sourceInventories,
+      @NotNull final net.minecraftforge.items.IItemHandler targetInventory,
+      @NotNull final Collection<net.minecraftforge.items.IItemHandler> sourceInventories,
       @NotNull final List<ItemStack> toSwap,
       @NotNull final Predicate<ItemStack> toKeepInTarget)
     {
@@ -2868,7 +2865,7 @@ public class InventoryUtils
 
         for (final ItemStack itemStack : toSwap)
         {
-            for (final IItemHandler sourceInventory : sourceInventories)
+            for (final net.minecraftforge.items.IItemHandler sourceInventory : sourceInventories)
             {
                 if (tryRemoveStackFromItemHandler(sourceInventory, itemStack))
                 {
@@ -2892,7 +2889,7 @@ public class InventoryUtils
      * @param invWrapper the inventory item handler.
      * @param itemStack  the itemStack to decrease.
      */
-    public static void reduceStackInItemHandler(final IItemHandler invWrapper, final ItemStack itemStack)
+    public static void reduceStackInItemHandler(final net.minecraftforge.items.IItemHandler invWrapper, final ItemStack itemStack)
     {
         reduceStackInItemHandler(invWrapper, itemStack, 1);
     }
@@ -2904,7 +2901,7 @@ public class InventoryUtils
      * @param itemStack  the itemStack to decrease.
      * @param quantity   the quantity.
      */
-    public static void reduceStackInItemHandler(final IItemHandler invWrapper, final ItemStack itemStack, final int quantity)
+    public static void reduceStackInItemHandler(final net.minecraftforge.items.IItemHandler invWrapper, final ItemStack itemStack, final int quantity)
     {
         for (int i = 0; i < invWrapper.getSlots(); i++)
         {
@@ -2924,7 +2921,7 @@ public class InventoryUtils
      * @param invWrapper the inventory item handler.
      * @param itemStack  the itemStack to decrease.
      */
-    public static void reduceBucketAwareStackInItemHandler(final IItemHandler invWrapper, final ItemStack itemStack)
+    public static void reduceBucketAwareStackInItemHandler(final net.minecraftforge.items.IItemHandler invWrapper, final ItemStack itemStack)
     {
         reduceBucketAwareStackInItemHandler(invWrapper, itemStack, 1);
     }
@@ -2938,11 +2935,11 @@ public class InventoryUtils
      * @param itemStack  the itemStack to decrease.
      * @param quantity   the quantity.
      */
-    public static void reduceBucketAwareStackInItemHandler(final IItemHandler invWrapper, final ItemStack itemStack, final int quantity)
+    public static void reduceBucketAwareStackInItemHandler(final net.minecraftforge.items.IItemHandler invWrapper, final ItemStack itemStack, final int quantity)
     {
-        if  (attemptReduceStackInItemHandler(invWrapper, itemStack, quantity)) 
+        if  (attemptReduceStackInItemHandler(invWrapper, itemStack, quantity))
         {
-            if (itemStack.getItem() instanceof BucketItem && itemStack.getItem() != Items.BUCKET) 
+            if (itemStack.getItem() instanceof BucketItem && itemStack.getItem() != Items.BUCKET)
             {
                 addItemStackToItemHandler(invWrapper, new ItemStack(Items.BUCKET, quantity));
             }
@@ -2957,7 +2954,7 @@ public class InventoryUtils
      * @param quantity   the quantity.
      * @return true if successfully.
      */
-    public static boolean attemptReduceStackInItemHandler(final IItemHandler invWrapper, final ItemStack itemStack, final int quantity)
+    public static boolean attemptReduceStackInItemHandler(final net.minecraftforge.items.IItemHandler invWrapper, final ItemStack itemStack, final int quantity)
     {
         return attemptReduceStackInItemHandler(invWrapper, itemStack, quantity, false, false);
     }
@@ -2972,7 +2969,7 @@ public class InventoryUtils
      * @param ignoreNBT ignore NBT values.
      * @return true if successfully.
      */
-    public static boolean attemptReduceStackInItemHandler(final IItemHandler invWrapper, final ItemStack itemStack, final int quantity, final boolean ignoreDamage, final boolean ignoreNBT)
+    public static boolean attemptReduceStackInItemHandler(final net.minecraftforge.items.IItemHandler invWrapper, final ItemStack itemStack, final int quantity, final boolean ignoreDamage, final boolean ignoreNBT)
     {
         if (getItemCountInItemHandler(invWrapper, stack -> !stack.isEmpty() && ItemStackUtils.compareItemStacksIgnoreStackSize(stack, itemStack, !ignoreDamage, !ignoreNBT)) < quantity)
         {
@@ -3007,9 +3004,9 @@ public class InventoryUtils
      * @param handlers inventory handlers
      * @return Map of IdentityItemstorage
      */
-    public static Map<ItemStorage, ItemStorage> getAllItemsForProviders(final ICapabilityProvider provider, final IItemHandler... handlers)
+    public static Map<ItemStorage, ItemStorage> getAllItemsForProviders(final ICapabilityProvider provider, final net.minecraftforge.items.IItemHandler... handlers)
     {
-        final Set<IItemHandler> providerHandlers = getItemHandlersFromProvider(provider);
+        final Set<net.minecraftforge.items.IItemHandler> providerHandlers = getItemHandlersFromProvider(provider);
         if (handlers != null)
         {
             providerHandlers.addAll(Arrays.asList(handlers));
@@ -3024,7 +3021,7 @@ public class InventoryUtils
      * @param handlers inventory handlers
      * @return Map of IdentityItemstorage
      */
-    public static Map<ItemStorage, ItemStorage> getAllItemsForProviders(final IItemHandler... handlers)
+    public static Map<ItemStorage, ItemStorage> getAllItemsForProviders(final net.minecraftforge.items.IItemHandler... handlers)
     {
         return getAllItemsForProviders(new HashSet<>(Arrays.asList(handlers)));
     }
@@ -3035,10 +3032,10 @@ public class InventoryUtils
      * @param handlerList inventory handlers
      * @return Map of IdentityItemstorage
      */
-    public static Map<ItemStorage, ItemStorage> getAllItemsForProviders(Set<IItemHandler> handlerList)
+    public static Map<ItemStorage, ItemStorage> getAllItemsForProviders(Set<net.minecraftforge.items.IItemHandler> handlerList)
     {
         final Map<ItemStorage, ItemStorage> storageMap = new HashMap<>();
-        for (final IItemHandler handler : handlerList)
+        for (final net.minecraftforge.items.IItemHandler handler : handlerList)
         {
             for (int i = 0; i < handler.getSlots(); i++)
             {
@@ -3115,18 +3112,18 @@ public class InventoryUtils
      */
     public static Object2IntMap<ItemStack> transferFoodUpToSaturation(
       final ICapabilityProvider source,
-      final IItemHandler target,
+      final net.minecraftforge.items.IItemHandler target,
       final int requiredSaturation,
       final Predicate<ItemStack> foodPredicate)
     {
-        Set<IItemHandler> handlers = getItemHandlersFromProvider(source);
+        Set<net.minecraftforge.items.IItemHandler> handlers = getItemHandlersFromProvider(source);
 
         int foundSaturation = 0;
 
         Object2IntOpenHashMap<ItemStack> transferredItemMap = new Object2IntOpenHashMap<>();
         transferredItemMap.defaultReturnValue(0); // avoid nulls on get()
 
-        for (final IItemHandler handler : handlers)
+        for (final net.minecraftforge.items.IItemHandler handler : handlers)
         {
             for (int i = 0; i < handler.getSlots(); i++)
             {
@@ -3157,11 +3154,11 @@ public class InventoryUtils
                         foundSaturation = requiredSaturation;
                     }
 
-                    if (!ItemStackUtils.isEmpty(extractedFood)) 
+                    if (!ItemStackUtils.isEmpty(extractedFood))
                     {
                         transferredItemMap.addTo(extractedFood, extractedFood.getCount());
                     }
-                    
+
                     if (!ItemStackUtils.isEmpty(extractedFood))
                     {
                         if (!addItemStackToItemHandler(target, extractedFood))
@@ -3195,30 +3192,38 @@ public class InventoryUtils
      * @param player player entity
      * @return true if item was put into player's inv, false if dropped
      */
-    public static boolean putItemToHotbarAndSelectOrDrop(final ItemStack itemStack, final Player player)
+    public static boolean putItemToHotbarAndSelectOrDrop(final ItemStack itemStack, final net.minecraft.entity.player.EntityPlayer player)
     {
-        final Inventory playerInv = player.getInventory();
+        final net.minecraft.entity.player.InventoryPlayer playerInv = player.inventory;
 
-        final int emptySlot = playerInv.getFreeSlot();
+        final int emptySlot = playerInv.getFirstEmptyStack();
         if (emptySlot == -1) // try full inv first
         {
-            player.drop(itemStack, false);
+            player.dropPlayerItemWithRandomChoice(itemStack, false);
             return false;
         }
         else
         {
-            final int hotbarSlot = playerInv.getSuitableHotbarSlot();
-            final ItemStack curHotbarItem = playerInv.getItem(hotbarSlot);
+            // find a suitable hotbar slot (first slot 0-8)
+            int hotbarSlot = 0;
+            for (int i = 0; i < 9; i++)
+            {
+                if (playerInv.getStackInSlot(i) == null)
+                {
+                    hotbarSlot = i;
+                    break;
+                }
+            }
+            final ItemStack curHotbarItem = playerInv.getStackInSlot(hotbarSlot);
 
             // check if we need to make space first
-            if (!curHotbarItem.isEmpty())
+            if (curHotbarItem != null)
             {
-                playerInv.setItem(emptySlot, curHotbarItem);
+                playerInv.setInventorySlotContents(emptySlot, curHotbarItem);
             }
 
-            playerInv.setItem(hotbarSlot, itemStack);
-            playerInv.selected = hotbarSlot;
-            playerInv.setChanged();
+            playerInv.setInventorySlotContents(hotbarSlot, itemStack);
+            playerInv.currentItem = hotbarSlot;
             updateHeldItemFromServer(player);
             return true;
         }
@@ -3232,7 +3237,7 @@ public class InventoryUtils
      * @param player player entity
      * @return true if item was put into player's inv, false if dropped
      */
-    public static boolean putItemToHotbarAndSelectOrDropMessage(final ItemStack itemStack, final Player player)
+    public static boolean putItemToHotbarAndSelectOrDropMessage(final ItemStack itemStack, final net.minecraft.entity.player.EntityPlayer player)
     {
         final boolean result = putItemToHotbarAndSelectOrDrop(itemStack, player);
 
@@ -3256,26 +3261,36 @@ public class InventoryUtils
      * @return itemstack in hotbar or dropped in front of player
      */
     public static ItemStack getOrCreateItemAndPutToHotbarAndSelectOrDrop(final Item item,
-        final Player player,
+        final net.minecraft.entity.player.EntityPlayer player,
         final Supplier<ItemStack> itemStackFactory,
         final boolean messageOnDrop)
     {
-        final Inventory playerInv = player.getInventory();
+        final net.minecraft.entity.player.InventoryPlayer playerInv = player.inventory;
 
-        for (int slot = 0; slot < playerInv.items.size(); slot++)
+        for (int slot = 0; slot < playerInv.getSizeInventory(); slot++)
         {
-            final ItemStack itemSlot = playerInv.getItem(slot);
-            if (itemSlot.getItem() == item)
+            final ItemStack itemSlot = playerInv.getStackInSlot(slot);
+            if (itemSlot != null && itemSlot.getItem() == item)
             {
-                if (!Inventory.isHotbarSlot(slot))
+                if (slot >= 9)
                 {
-                    playerInv.pickSlot(slot);
+                    // not hotbar - find empty hotbar and swap
+                    for (int h = 0; h < 9; h++)
+                    {
+                        if (playerInv.getStackInSlot(h) == null)
+                        {
+                            playerInv.setInventorySlotContents(h, itemSlot);
+                            playerInv.setInventorySlotContents(slot, null);
+                            playerInv.currentItem = h;
+                            updateHeldItemFromServer(player);
+                            return playerInv.getStackInSlot(h);
+                        }
+                    }
                 }
                 else
                 {
-                    playerInv.selected = slot;
+                    playerInv.currentItem = slot;
                 }
-                playerInv.setChanged();
                 updateHeldItemFromServer(player);
                 return itemSlot;
             }
@@ -3298,11 +3313,11 @@ public class InventoryUtils
      *
      * @param player player to sync
      */
-    private static void updateHeldItemFromServer(final Player player)
+    private static void updateHeldItemFromServer(final net.minecraft.entity.player.EntityPlayer player)
     {
-        if (player instanceof ServerPlayer)
+        if (player instanceof net.minecraft.entity.player.EntityPlayerMP)
         {
-            ((ServerPlayer) player).server.getPlayerList().sendAllPlayerInfo((ServerPlayer) player);
+            ((net.minecraft.entity.player.EntityPlayerMP) player).mcServer.getConfigurationManager().sendAllPlayerInfo(((net.minecraft.entity.player.EntityPlayerMP) player));
         }
     }
 
@@ -3313,7 +3328,7 @@ public class InventoryUtils
      * @param count the count.
      * @return true if enough.
      */
-    public static boolean hasEnoughInProvider(final BlockEntity entity, final ItemStack stack, final int count)
+    public static boolean hasEnoughInProvider(final net.minecraft.tileentity.TileEntity entity, final ItemStack stack, final int count)
     {
         if (entity instanceof TileEntityColonyBuilding)
         {
@@ -3329,13 +3344,13 @@ public class InventoryUtils
 
     public static List<ItemStack> getBuildingInventory(final IBuilding building)
     {
-        final Level world = building.getColony().getWorld();
+        final World world = building.getColony().getWorld();
         final List<ItemStack> allInInv = new ArrayList<>();
-        for (final BlockPos pos : building.getContainers())
+        for (final int[] pos : building.getContainers())
         {
             if (WorldUtil.isBlockLoaded(world, pos))
             {
-                final BlockEntity entity = world.getBlockEntity(pos);
+                final net.minecraft.tileentity.TileEntity entity = world.getTileEntity(pos[0], pos[1], pos[2]);
                 if (entity instanceof TileEntityRack)
                 {
                     for (final ItemStorage storage : ((TileEntityRack) entity).getAllContent().keySet())
@@ -3377,21 +3392,21 @@ public class InventoryUtils
      * @param itemsToTake the items to take from the building and player inventory.
      * @return a ItemStorage (item and amount) which could not be satisfied from the building and player inventory. For successful complete removal, the amount will be 0.
      */
-    public static ItemStorage reduceBuildingThenPlayerInventory(final IBuilding building, final Player player, final ItemStorage itemsToTake, final Predicate<ItemStack> buildingPredicate, final Predicate<ItemStack> playerPredicate)
+    public static ItemStorage reduceBuildingThenPlayerInventory(final IBuilding building, final net.minecraft.entity.player.EntityPlayer player, final ItemStorage itemsToTake, final Predicate<ItemStack> buildingPredicate, final Predicate<ItemStack> playerPredicate)
     {
-        final InvWrapper playerInv = new InvWrapper(player.getInventory());
+        final InvWrapper playerInv = new InvWrapper(player.inventory);
 
         int toRemoveLeft = itemsToTake.getAmount();
         Item item = itemsToTake.getItemStack().getItem();
 
         if (building != null)
         {
-            final Map<IItemHandler,List<Integer>> buildingSlotsWithMaterial = InventoryUtils.findAllSlotsInProviderWith(building, buildingPredicate);
+            final Map<net.minecraftforge.items.IItemHandler,List<Integer>> buildingSlotsWithMaterial = InventoryUtils.findAllSlotsInProviderWith(building, buildingPredicate);
             if (!buildingSlotsWithMaterial.isEmpty())
             {
-                for (Map.Entry<IItemHandler, List<Integer>> entry : buildingSlotsWithMaterial.entrySet())
+                for (Map.Entry<net.minecraftforge.items.IItemHandler, List<Integer>> entry : buildingSlotsWithMaterial.entrySet())
                 {
-                    final IItemHandler univInventory = entry.getKey();
+                    final net.minecraftforge.items.IItemHandler univInventory = entry.getKey();
                     for (Integer slotNum : entry.getValue())
                     {
                         toRemoveLeft = toRemoveLeft - univInventory.extractItem(slotNum, toRemoveLeft, false).getCount();
@@ -3426,3 +3441,7 @@ public class InventoryUtils
         return unsatisfiedItems;
     }
 }
+
+
+
+

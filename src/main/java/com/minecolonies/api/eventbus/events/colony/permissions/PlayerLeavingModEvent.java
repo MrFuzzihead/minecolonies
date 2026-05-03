@@ -2,7 +2,7 @@ package com.minecolonies.api.eventbus.events.colony.permissions;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.eventbus.events.colony.AbstractColonyModEvent;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.player.EntityPlayer;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -13,7 +13,7 @@ public final class PlayerLeavingModEvent extends AbstractColonyModEvent
     /**
      * The player that is leaving the colony.
      */
-    private final Player player;
+    private final EntityPlayer player;
 
     /**
      * Whether we should show the notification for the player leaving.
@@ -31,7 +31,7 @@ public final class PlayerLeavingModEvent extends AbstractColonyModEvent
      * @param colony the colony related to the event.
      * @param player the player that is leaving the colony.
      */
-    public PlayerLeavingModEvent(final @NotNull IColony colony, final Player player)
+    public PlayerLeavingModEvent(final @NotNull IColony colony, final EntityPlayer player)
     {
         super(colony);
         this.player = player;
@@ -40,7 +40,7 @@ public final class PlayerLeavingModEvent extends AbstractColonyModEvent
     /**
      * Get the player that is leaving the colony.
      */
-    public Player getPlayer()
+    public EntityPlayer getPlayer()
     {
         return player;
     }
@@ -52,7 +52,8 @@ public final class PlayerLeavingModEvent extends AbstractColonyModEvent
      */
     public boolean shouldShowNotification()
     {
-        return shouldShowNotification && (!player.isSpectator() || shouldShowForSpectators);
+        // [1.7.10] isSpectator() not available; use isFlying as spectator approximation
+        return shouldShowNotification && (!player.capabilities.isFlying || shouldShowForSpectators);
     }
 
     /**
@@ -71,3 +72,4 @@ public final class PlayerLeavingModEvent extends AbstractColonyModEvent
         this.shouldShowForSpectators = true;
     }
 }
+

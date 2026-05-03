@@ -1,12 +1,32 @@
 package com.minecolonies.core.client.gui.map;
 
-import com.ldtteam.blockui.BOGuiGraphics;
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
+import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.PaneBuilders;
 import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
+import com.ldtteam.blockui.controls.DropDownList;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
+import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.controls.TextField;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
+import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneParams;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
 import com.ldtteam.blockui.views.View;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.util.Mth;
+// [1.7.10] PoseStack removed (no Blaze3D)
+import net.minecraft.util.MathHelper;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -228,3 +248,4 @@ public class ZoomDragMap extends View
         return scale;
     }
 }
+

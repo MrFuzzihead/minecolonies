@@ -1,6 +1,6 @@
 package com.minecolonies.api.entity.ai.combat.threat;
 
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraftforge.common.util.FakePlayer;
 
 import java.util.ArrayList;
@@ -11,7 +11,7 @@ import static com.minecolonies.api.util.constant.Constants.TICKS_SECOND;
 /**
  * Threat table class, basically a list of entities with an associated threat value
  */
-public class ThreatTable<T extends LivingEntity & IThreatTableEntity>
+public class ThreatTable<T extends EntityLivingBase & IThreatTableEntity>
 {
     /**
      * Melee range sq
@@ -59,7 +59,7 @@ public class ThreatTable<T extends LivingEntity & IThreatTableEntity>
      * @param attacker         entity to add the value to
      * @param additionalThreat threat value to add
      */
-    public void addThreat(final LivingEntity attacker, final int additionalThreat)
+    public void addThreat(final EntityLivingBase attacker, final int additionalThreat)
     {
         if (attacker instanceof FakePlayer)
         {
@@ -97,7 +97,7 @@ public class ThreatTable<T extends LivingEntity & IThreatTableEntity>
      * @param attacker entity
      * @return threat value
      */
-    public int getThreatFor(final LivingEntity attacker)
+    public int getThreatFor(final EntityLivingBase attacker)
     {
         ThreatTableEntry threatTableEntry = null;
         int index = threatList.size();
@@ -180,7 +180,7 @@ public class ThreatTable<T extends LivingEntity & IThreatTableEntity>
             }
         }
 
-        if (Math.abs(owner.level().getGameTime() - current.getLastSeen()) > MAX_TRACKING_TICKS || !current.getEntity().canBeSeenAsEnemy())
+        if (Math.abs(owner.World().getGameTime() - current.getLastSeen()) > MAX_TRACKING_TICKS || !current.getEntity().canBeSeenAsEnemy())
         {
             removeCurrentTarget();
             return getTarget();
@@ -200,11 +200,11 @@ public class ThreatTable<T extends LivingEntity & IThreatTableEntity>
     }
 
     /**
-     * Only gets the currently targeted mob
+     * Only gets the currently targeted EntityCreature
      *
      * @return
      */
-    public LivingEntity getTargetMob()
+    public EntityLivingBase getTargetMob()
     {
         final ThreatTableEntry entry = getTarget();
         if (entry == null)
@@ -278,3 +278,5 @@ public class ThreatTable<T extends LivingEntity & IThreatTableEntity>
         currentTargetIndex = 0;
     }
 }
+
+

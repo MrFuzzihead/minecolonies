@@ -17,112 +17,115 @@ import com.minecolonies.api.entity.mobs.vikings.AbstractEntityNorsemenRaider;
 import com.minecolonies.api.entity.other.MinecoloniesMinecart;
 import com.minecolonies.core.entity.other.cavalry.CavalryHorseEntity;
 
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.projectile.*;
+import net.minecraft.entity.Entity;
 
 import java.util.List;
 
+/**
+ * Registry of all MineColonies entity classes.
+ * In 1.7.10 we store Class<T> references instead of EntityType<T>.
+ */
 public class ModEntities
 {
-    public static EntityType<? extends AbstractEntityCitizen> CITIZEN;
+    public static Class<? extends AbstractEntityCitizen> CITIZEN;
 
-    public static EntityType<? extends AbstractEntityCitizen> VISITOR;
+    public static Class<? extends AbstractEntityCitizen> VISITOR;
 
-    public static EntityType<? extends Projectile> FISHHOOK;
+    // FishHook equivalent - projectile entity
+    public static Class<? extends Entity> FISHHOOK;
 
-    public static EntityType<? extends PathfinderMob> MERCENARY;
+    public static Class<? extends Entity> MERCENARY;
 
-    public static EntityType<? extends AbstractEntityBarbarianRaider> BARBARIAN;
+    public static Class<? extends AbstractEntityBarbarianRaider> BARBARIAN;
 
-    public static EntityType<? extends AbstractEntityBarbarianRaider> ARCHERBARBARIAN;
+    public static Class<? extends AbstractEntityBarbarianRaider> ARCHERBARBARIAN;
 
-    public static EntityType<? extends AbstractEntityBarbarianRaider> CHIEFBARBARIAN;
+    public static Class<? extends AbstractEntityBarbarianRaider> CHIEFBARBARIAN;
 
-    public static EntityType<? extends AbstractEntityPirateRaider> PIRATE;
+    public static Class<? extends AbstractEntityPirateRaider> PIRATE;
 
-    public static EntityType<? extends AbstractEntityPirateRaider> CHIEFPIRATE;
+    public static Class<? extends AbstractEntityPirateRaider> CHIEFPIRATE;
 
-    public static EntityType<? extends AbstractEntityPirateRaider> ARCHERPIRATE;
+    public static Class<? extends AbstractEntityPirateRaider> ARCHERPIRATE;
 
-    public static EntityType<? extends Entity> SITTINGENTITY;
+    public static Class<? extends Entity> SITTINGENTITY;
 
-    public static EntityType<? extends AbstractEntityEgyptianRaider> MUMMY;
+    public static Class<? extends AbstractEntityEgyptianRaider> MUMMY;
 
-    public static EntityType<? extends AbstractEntityEgyptianRaider> PHARAO;
+    public static Class<? extends AbstractEntityEgyptianRaider> PHARAO;
 
-    public static EntityType<? extends AbstractEntityEgyptianRaider> ARCHERMUMMY;
+    public static Class<? extends AbstractEntityEgyptianRaider> ARCHERMUMMY;
 
-    public static EntityType<? extends AbstractEntityNorsemenRaider> NORSEMEN_ARCHER;
+    public static Class<? extends AbstractEntityNorsemenRaider> NORSEMEN_ARCHER;
 
-    public static EntityType<? extends AbstractEntityNorsemenRaider> SHIELDMAIDEN;
+    public static Class<? extends AbstractEntityNorsemenRaider> SHIELDMAIDEN;
 
-    public static EntityType<? extends AbstractEntityNorsemenRaider> NORSEMEN_CHIEF;
+    public static Class<? extends AbstractEntityNorsemenRaider> NORSEMEN_CHIEF;
 
-    public static EntityType<? extends AbstractEntityAmazonRaider> AMAZON;
+    public static Class<? extends AbstractEntityAmazonRaider> AMAZON;
 
-    public static EntityType<? extends AbstractEntityAmazonRaider> AMAZONSPEARMAN;
+    public static Class<? extends AbstractEntityAmazonRaider> AMAZONSPEARMAN;
 
-    public static EntityType<? extends AbstractEntityAmazonRaider> AMAZONCHIEF;
+    public static Class<? extends AbstractEntityAmazonRaider> AMAZONCHIEF;
 
-    public static EntityType<MinecoloniesMinecart> MINECART;
+    public static Class<MinecoloniesMinecart> MINECART;
 
-    public static EntityType<CavalryHorseEntity> CAVALRY_HORSE;
+    public static Class<CavalryHorseEntity> CAVALRY_HORSE;
 
-    public static EntityType<? extends AbstractArrow> FIREARROW;
+    // Projectile entities
+    public static Class<? extends Entity> FIREARROW;
 
-    public static EntityType<? extends Arrow> MC_NORMAL_ARROW;
+    public static Class<? extends Entity> MC_NORMAL_ARROW;
 
-    public static EntityType<? extends ThrownPotion> DRUID_POTION;
+    public static Class<? extends Entity> DRUID_POTION;
 
-    public static EntityType<? extends ThrownTrident> SPEAR;
+    public static Class<? extends Entity> SPEAR;
 
-    public static EntityType<? extends AbstractDrownedEntityPirateRaider> DROWNED_PIRATE;
+    public static Class<? extends AbstractDrownedEntityPirateRaider> DROWNED_PIRATE;
 
-    public static EntityType<? extends AbstractDrownedEntityPirateRaider> DROWNED_CHIEFPIRATE;
+    public static Class<? extends AbstractDrownedEntityPirateRaider> DROWNED_CHIEFPIRATE;
 
-    public static EntityType<? extends AbstractDrownedEntityPirateRaider> DROWNED_ARCHERPIRATE;
+    public static Class<? extends AbstractDrownedEntityPirateRaider> DROWNED_ARCHERPIRATE;
 
     // Camp Raiders
 
-    public static EntityType<? extends AbstractEntityBarbarian> CAMP_BARBARIAN;
+    public static Class<? extends AbstractEntityBarbarian> CAMP_BARBARIAN;
 
-    public static EntityType<? extends AbstractEntityBarbarian> CAMP_ARCHERBARBARIAN;
+    public static Class<? extends AbstractEntityBarbarian> CAMP_ARCHERBARBARIAN;
 
-    public static EntityType<? extends AbstractEntityBarbarian> CAMP_CHIEFBARBARIAN;
+    public static Class<? extends AbstractEntityBarbarian> CAMP_CHIEFBARBARIAN;
 
-    public static EntityType<? extends AbstractEntityPirate> CAMP_PIRATE;
+    public static Class<? extends AbstractEntityPirate> CAMP_PIRATE;
 
-    public static EntityType<? extends AbstractEntityPirate> CAMP_CHIEFPIRATE;
+    public static Class<? extends AbstractEntityPirate> CAMP_CHIEFPIRATE;
 
-    public static EntityType<? extends AbstractEntityPirate> CAMP_ARCHERPIRATE;
+    public static Class<? extends AbstractEntityPirate> CAMP_ARCHERPIRATE;
 
-    public static EntityType<? extends AbstractEntityAmazon> CAMP_AMAZON;
+    public static Class<? extends AbstractEntityAmazon> CAMP_AMAZON;
 
-    public static EntityType<? extends AbstractEntityAmazon> CAMP_AMAZONSPEARMAN;
+    public static Class<? extends AbstractEntityAmazon> CAMP_AMAZONSPEARMAN;
 
-    public static EntityType<? extends AbstractEntityAmazon> CAMP_AMAZONCHIEF;
+    public static Class<? extends AbstractEntityAmazon> CAMP_AMAZONCHIEF;
 
-    public static EntityType<? extends AbstractEntityEgyptian> CAMP_MUMMY;
+    public static Class<? extends AbstractEntityEgyptian> CAMP_MUMMY;
 
-    public static EntityType<? extends AbstractEntityEgyptian> CAMP_PHARAO;
+    public static Class<? extends AbstractEntityEgyptian> CAMP_PHARAO;
 
-    public static EntityType<? extends AbstractEntityEgyptian> CAMP_ARCHERMUMMY;
+    public static Class<? extends AbstractEntityEgyptian> CAMP_ARCHERMUMMY;
 
-    public static EntityType<? extends AbstractEntityNorsemen> CAMP_NORSEMEN_ARCHER;
+    public static Class<? extends AbstractEntityNorsemen> CAMP_NORSEMEN_ARCHER;
 
-    public static EntityType<? extends AbstractEntityNorsemen> CAMP_SHIELDMAIDEN;
+    public static Class<? extends AbstractEntityNorsemen> CAMP_SHIELDMAIDEN;
 
-    public static EntityType<? extends AbstractEntityNorsemen> CAMP_NORSEMEN_CHIEF;
+    public static Class<? extends AbstractEntityNorsemen> CAMP_NORSEMEN_CHIEF;
 
-    public static EntityType<? extends AbstractDrownedEntityPirate> CAMP_DROWNED_PIRATE;
+    public static Class<? extends AbstractDrownedEntityPirate> CAMP_DROWNED_PIRATE;
 
-    public static EntityType<? extends AbstractDrownedEntityPirate> CAMP_DROWNED_CHIEFPIRATE;
+    public static Class<? extends AbstractDrownedEntityPirate> CAMP_DROWNED_CHIEFPIRATE;
 
-    public static EntityType<? extends AbstractDrownedEntityPirate> CAMP_DROWNED_ARCHERPIRATE;
+    public static Class<? extends AbstractDrownedEntityPirate> CAMP_DROWNED_ARCHERPIRATE;
 
-    public static List<EntityType<? extends AbstractEntityMinecoloniesRaider>> getRaiders()
+    public static List<Class<? extends AbstractEntityMinecoloniesRaider>> getRaiders()
     {
         return List.of(
           BARBARIAN,

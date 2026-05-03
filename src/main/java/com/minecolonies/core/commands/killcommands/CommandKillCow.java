@@ -3,9 +3,9 @@ package com.minecolonies.core.commands.killcommands;
 import com.minecolonies.core.commands.commandTypes.IMCOPCommand;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.entity.Entity;
+// [1.7.10] world.entity removed
 
 public class CommandKillCow implements IMCOPCommand
 {
@@ -26,7 +26,7 @@ public class CommandKillCow implements IMCOPCommand
             entity.remove(Entity.RemovalReason.DISCARDED);
             entitiesKilled++;
         });
-        context.getSource().sendSuccess(() -> Component.literal(entitiesKilled + " entities killed"), true);
+        context.getSource().sendSuccess(() -> String.literal(entitiesKilled + " entities killed"), true);
         return 1;
     }
 
@@ -39,3 +39,6 @@ public class CommandKillCow implements IMCOPCommand
         return "cow";
     }
 }
+
+
+

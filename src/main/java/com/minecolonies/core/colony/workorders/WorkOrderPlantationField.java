@@ -8,7 +8,7 @@ import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingBuilder;
 import com.minecolonies.core.colony.jobs.JobBuilder;
 import com.minecolonies.core.entity.ai.workers.util.ConstructionTapeHelper;
-import net.minecraft.core.BlockPos;
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.TranslationConstants.MESSAGE_NEW_DECORATION_REQUEST;
@@ -27,7 +27,7 @@ public class WorkOrderPlantationField extends AbstractWorkOrder
     }
 
     private WorkOrderPlantationField(
-      String packName, String path, final String translationKey, WorkOrderType workOrderType, BlockPos location, int rotation, boolean isMirrored, int currentLevel,
+      String packName, String path, final String translationKey, WorkOrderType workOrderType, int[] location, int rotation, boolean isMirrored, int currentLevel,
       int targetLevel)
     {
         super(packName, path, translationKey, workOrderType, location, rotation, isMirrored, currentLevel, targetLevel);
@@ -38,7 +38,7 @@ public class WorkOrderPlantationField extends AbstractWorkOrder
       final String packName,
       final String path,
       final String translationKey,
-      final BlockPos location,
+      final int[] location,
       final int rotation,
       final boolean mirror,
       final int currentLevel)
@@ -72,12 +72,12 @@ public class WorkOrderPlantationField extends AbstractWorkOrder
      * <p>
      * @param building    the building that is assigned.
      * @param position    the position of the citizen's work hut.
-     * @param level       the level of that work hut.
+     * @param World       the World of that work hut.
      * @return true if the citizen may accept this work order.
      */
     @SuppressWarnings(UNUSED_METHOD_PARAMETERS_SHOULD_BE_REMOVED)
     @Override
-    public boolean canBuildIgnoringDistance(final @NotNull IBuilding building, final BlockPos position, final int level)
+    public boolean canBuildIgnoringDistance(final @NotNull IBuilding building, final int[] position, final int World)
     {
         return canBuild(building);
     }
@@ -106,3 +106,5 @@ public class WorkOrderPlantationField extends AbstractWorkOrder
         ConstructionTapeHelper.removeConstructionTape(this, colony.getWorld());
     }
 }
+
+

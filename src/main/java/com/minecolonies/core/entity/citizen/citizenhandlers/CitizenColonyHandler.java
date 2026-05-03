@@ -6,9 +6,9 @@ import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.entity.citizen.citizenhandlers.ICitizenColonyHandler;
 import com.minecolonies.api.util.Log;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
+// [1.7.10] broken import removed
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
 import static com.minecolonies.api.entity.citizen.AbstractEntityCitizen.*;
@@ -85,7 +85,7 @@ public class CitizenColonyHandler implements ICitizenColonyHandler
             return;
         }
 
-        if (citizen.level.getEntity(citizen.getId()) != citizen)
+        if (citizen.World.getEntity(citizen.getId()) != citizen)
         {
             Log.getLogger().warn("Registering too early, entity not added to world!", new Exception());
             citizen.discard();
@@ -101,7 +101,7 @@ public class CitizenColonyHandler implements ICitizenColonyHandler
             return;
         }
 
-        final IColony colony = IColonyManager.getInstance().getColonyByWorld(colonyId, citizen.level);
+        final IColony colony = IColonyManager.getInstance().getColonyByWorld(colonyId, citizen.World);
 
         if (colony == null)
         {
@@ -139,7 +139,7 @@ public class CitizenColonyHandler implements ICitizenColonyHandler
                 citizen.discard();
                 return;
             }
-            colony = IColonyManager.getInstance().getColonyView(colonyId, citizen.level.dimension());
+            colony = IColonyManager.getInstance().getColonyView(colonyId, citizen.World.dimension());
 
             if (citizen.getCivilianID() == 0)
             {
@@ -158,7 +158,7 @@ public class CitizenColonyHandler implements ICitizenColonyHandler
     }
 
     @Override
-    public void onSyncDataUpdate(final EntityDataAccessor<?> data)
+    public void onSyncDataUpdate(final Object /* EntityDataAccessor<?> */ data)
     {
         if (data.equals(DATA_COLONY_ID) || data.equals(DATA_CITIZEN_ID) || data.equals(DATA_IS_FEMALE) || data.equals(DATA_IS_CHILD) || data.equals(DATA_MODEL)
               || data.equals(DATA_TEXTURE)
@@ -183,7 +183,7 @@ public class CitizenColonyHandler implements ICitizenColonyHandler
     @Nullable
     public IColony getColonyOrRegister()
     {
-        if (colony == null && !citizen.level.isClientSide)
+        if (colony == null && !citizen.World.isClientSide)
         {
             registerWithColony(getColonyId(), citizen.getCivilianID());
         }
@@ -229,3 +229,7 @@ public class CitizenColonyHandler implements ICitizenColonyHandler
         }
     }
 }
+
+
+
+

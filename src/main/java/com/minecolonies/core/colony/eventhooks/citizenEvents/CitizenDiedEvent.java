@@ -1,10 +1,10 @@
 package com.minecolonies.core.colony.eventhooks.citizenEvents;
 
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_DEATH_CAUSE;
@@ -37,7 +37,7 @@ public class CitizenDiedEvent extends AbstractCitizenEvent
      * @param citizenName the name of the building.
      * @param deathCause  the cause of the citizen death.
      */
-    public CitizenDiedEvent(final BlockPos eventPos, final String citizenName, final String deathCause)
+    public CitizenDiedEvent(final int[] eventPos, final String citizenName, final String deathCause)
     {
         super(true, eventPos, citizenName);
         this.deathCause = deathCause;
@@ -56,29 +56,29 @@ public class CitizenDiedEvent extends AbstractCitizenEvent
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        CompoundTag compound = super.serializeNBT();
+        NBTTagCompound compound = super.serializeNBT();
         compound.putString(TAG_DEATH_CAUSE, deathCause);
         return compound;
     }
 
     @Override
-    public void deserializeNBT(CompoundTag compound)
+    public void deserializeNBT(NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
         deathCause = compound.getString(TAG_DEATH_CAUSE);
     }
 
     @Override
-    public void serialize(FriendlyByteBuf buf)
+    public void serialize(PacketBuffer buf)
     {
         super.serialize(buf);
         buf.writeUtf(deathCause);
     }
 
     @Override
-    public void deserialize(FriendlyByteBuf buf)
+    public void deserialize(PacketBuffer buf)
     {
         super.deserialize(buf);
         deathCause = buf.readUtf();
@@ -110,7 +110,7 @@ public class CitizenDiedEvent extends AbstractCitizenEvent
      * @param compound the NBT compound
      * @return the colony to load.
      */
-    public static CitizenDiedEvent loadFromNBT(@NotNull final CompoundTag compound)
+    public static CitizenDiedEvent loadFromNBT(@NotNull final NBTTagCompound compound)
     {
         final CitizenDiedEvent deathEvent = new CitizenDiedEvent();
         deathEvent.deserializeNBT(compound);
@@ -123,7 +123,7 @@ public class CitizenDiedEvent extends AbstractCitizenEvent
      * @param buf the packet buffer.
      * @return the colony to load.
      */
-    public static CitizenDiedEvent loadFromFriendlyByteBuf(@NotNull final FriendlyByteBuf buf)
+    public static CitizenDiedEvent loadFromFriendlyByteBuf(@NotNull final PacketBuffer buf)
     {
         final CitizenDiedEvent deathEvent = new CitizenDiedEvent();
         deathEvent.deserialize(buf);
@@ -136,3 +136,6 @@ public class CitizenDiedEvent extends AbstractCitizenEvent
         return "com.minecolonies.core.event.summary.citizen.died";
     }
 }
+
+
+

@@ -1,14 +1,16 @@
 package com.minecolonies.api.inventory.api;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.IntTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.items.IItemHandler;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraft.nbt.NBTTagInt;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.item.ItemStack;
+// [1.7.10] INBTSerializable -> manual read/write
+// [1.7.10] items shim in com.minecolonies.api.shim
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,9 +20,9 @@ import java.util.Arrays;
 import static com.minecolonies.api.util.constant.Suppression.UNCHECKED;
 
 /**
- * Abstract class wrapping around multiple IItemHandler.
+ * Abstract class wrapping around multiple net.minecraftforge.items.IItemHandler.
  */
-public class CombinedItemHandler implements IItemHandlerModifiable, INBTSerializable<CompoundTag>, IWorldNameableModifiable
+public class CombinedItemHandler implements IItemHandlerModifiable, INBTSerializable<NBTTagCompound>, IWorldNameableModifiable
 {
 
     ///NBT Constants
@@ -51,7 +53,7 @@ public class CombinedItemHandler implements IItemHandlerModifiable, INBTSerializ
     {
         this.handlers = handlers;
         this.defaultName = defaultName;
-        for (final IItemHandler handler : handlers)
+        for (final net.minecraftforge.items.IItemHandler handler : handlers)
         {
             if (handler != null)
             {
@@ -74,20 +76,20 @@ public class CombinedItemHandler implements IItemHandlerModifiable, INBTSerializ
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compound = new CompoundTag();
+        final NBTTagCompound compound = new NBTTagCompound();
 
         int index = 0;
-        final ListTag handlerList = new ListTag();
-        final ListTag indexList = new ListTag();
+        final NBTTagList handlerList = new NBTTagList();
+        final NBTTagList indexList = new NBTTagList();
         for (final IItemHandlerModifiable handlerModifiable : handlers)
         {
             if (handlerModifiable instanceof INBTSerializable)
             {
                 final INBTSerializable<?> serializable = (INBTSerializable<?>) handlerModifiable;
                 handlerList.add(serializable.serializeNBT());
-                indexList.add(IntTag.valueOf(index));
+                indexList.add(NBTTagInt.valueOf(index));
             }
 
             index++;
@@ -106,20 +108,20 @@ public class CombinedItemHandler implements IItemHandlerModifiable, INBTSerializ
 
     @SuppressWarnings(UNCHECKED)
     @Override
-    public void deserializeNBT(final CompoundTag nbt)
+    public void deserializeNBT(final NBTTagCompound nbt)
     {
-        final ListTag handlerList = nbt.getList(NBT_KEY_HANDLERS, Tag.TAG_COMPOUND);
-        final ListTag indexList = nbt.getList(NBT_KEY_HANDLERS_INDEXLIST, Tag.TAG_INT);
+        final NBTTagList handlerList = nbt.getList(NBT_KEY_HANDLERS, NBTBase.TAG_COMPOUND);
+        final NBTTagList indexList = nbt.getList(NBT_KEY_HANDLERS_INDEXLIST, NBTBase.TAG_INT);
 
         if (handlerList.size() == handlers.length)
         {
             for (int i = 0; i < handlerList.size(); i++)
             {
-                final CompoundTag handlerCompound = handlerList.getCompound(i);
+                final NBTTagCompound handlerCompound = handlerList.getCompound(i);
                 final IItemHandlerModifiable modifiable = handlers[indexList.getInt(i)];
                 if (modifiable instanceof INBTSerializable)
                 {
-                    final INBTSerializable<CompoundTag> serializable = (INBTSerializable<CompoundTag>) modifiable;
+                    final INBTSerializable<NBTTagCompound> serializable = (INBTSerializable<NBTTagCompound>) modifiable;
                     serializable.deserializeNBT(handlerCompound);
                 }
             }
@@ -333,9 +335,9 @@ public class CombinedItemHandler implements IItemHandlerModifiable, INBTSerializ
 
     @NotNull
     @Override
-    public Component getName()
+    public String getName()
     {
-        return Component.literal(customName.isEmpty() ? defaultName : customName);
+        return String.literal(customName.isEmpty() ? defaultName : customName);
     }
 
     @Override
@@ -374,3 +376,9 @@ public class CombinedItemHandler implements IItemHandlerModifiable, INBTSerializ
         return Arrays.hashCode(handlers);
     }
 }
+
+
+
+
+
+

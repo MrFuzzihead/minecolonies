@@ -3,13 +3,13 @@ package com.minecolonies.api.util;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.jobs.IJob;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.ClickEvent;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.util.ChatFormatting;
+import net.minecraft.util.ClickEvent;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.entity.player.EntityPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,189 +19,87 @@ import java.util.List;
 
 /**
  * Simple class for containing reusable player messaging logic.
+ * [1.7.10] Ported from 1.21 Component API to 1.7.10 IChatComponent API.
  */
 public class MessageUtils
 {
-    /**
-     * No operation builders for failed/empty returns
-     */
-    private static MessageBuilder NOOP = new MessageBuilder(Component.literal(""))
+    private static MessageBuilder NOOP = new MessageBuilder(new ChatComponentText(""))
     {
-        @Override
-        public void sendTo(final Player... players)
-        {
-            // Noop
-        }
-
-        @Override
-        public void sendTo(final Collection<Player> players)
-        {
-            // Noop
-        }
-
-        @Override
-        public MessageBuilderColonyPlayerSelector sendTo(final IColony colony)
-        {
-            return NOOPColony;
-        }
-
-        @Override
-        public MessageBuilderColonyPlayerSelector sendTo(final IColony colony, final boolean alwaysShowColony)
-        {
-            return NOOPColony;
-        }
+        @Override public void sendTo(final EntityPlayer... players) {}
+        @Override public void sendTo(final Collection<EntityPlayer> players) {}
+        @Override public MessageBuilderColonyPlayerSelector sendTo(final IColony colony) { return NOOPColony; }
+        @Override public MessageBuilderColonyPlayerSelector sendTo(final IColony colony, final boolean always) { return NOOPColony; }
     };
 
     private static MessageBuilderColonyPlayerSelector NOOPColony = new MessageBuilderColonyPlayerSelector(null, null, false)
     {
-        public void forAllPlayers()
-        {
-            // Noop
-        }
-
-        public void forManagers()
-        {
-            // Noop
-        }
+        public void forAllPlayers() {}
+        public void forManagers()   {}
     };
 
-    /**
-     * Appends the citizen name to a message and returns the messagebuilder
-     *
-     * @param citizen
-     * @param keyIn
-     * @param msg
-     * @return
-     */
     public static MessageBuilder forCitizen(final AbstractEntityCitizen citizen, final String keyIn, final Object... msg)
     {
-        return forCitizen(citizen, Component.translatable(keyIn, msg));
+        return forCitizen(citizen, new ChatComponentTranslation(keyIn, msg));
     }
 
-    /**
-     * Appends the citizen name to a message and returns the messagebuilder
-     *
-     * @param citizen
-     * @return
-     */
-    public static MessageBuilder forCitizen(final AbstractEntityCitizen citizen, Component component)
+    public static MessageBuilder forCitizen(final AbstractEntityCitizen citizen, final IChatComponent component)
     {
         if (citizen.getCitizenColonyHandler().getColonyOrRegister() != null)
         {
             final IJob<?> job = citizen.getCitizenJobHandler().getColonyJob();
-
-            MessageUtils.MessageBuilder builder;
+            IChatComponent prefix;
             if (job != null)
             {
-                builder = MessageUtils.format(job.getJobRegistryEntry().getTranslationKey())
-                  .append(Component.literal(" "))
-                  .append(citizen.getCustomName())
-                  .append(Component.literal(": "))
-                  .append(component);
+                prefix = new ChatComponentTranslation(job.getJobRegistryEntry().getTranslationKey())
+                    .appendSibling(new ChatComponentText(" "))
+                    .appendSibling(citizen.getCustomNameTag() != null ? new ChatComponentText(citizen.getCustomNameTag()) : new ChatComponentText(""))
+                    .appendSibling(new ChatComponentText(": "));
             }
             else
             {
-                builder = MessageUtils.format(citizen.getCustomName())
-                  .append(Component.literal(": "))
-                  .append(component);
+                prefix = (citizen.getCustomNameTag() != null ? new ChatComponentText(citizen.getCustomNameTag()) : new ChatComponentText(""))
+                    .appendSibling(new ChatComponentText(": "));
             }
-
-            return builder;
+            return new MessageBuilder(prefix.appendSibling(component));
         }
-
         return NOOP;
     }
 
-    /**
-     * Starts a new message builder.
-     *
-     * @param key  the translation key.
-     * @param args the arguments for the translation component.
-     * @return the message builder instance.
-     */
     public static MessageBuilder format(final String key, final Object... args)
     {
-        return format(Component.translatable(key, args));
+        return format(new ChatComponentTranslation(key, args));
     }
 
-    /**
-     * Starts a new message builder.
-     *
-     * @param component the component to send.
-     * @return the message builder instance.
-     */
-    public static MessageBuilder format(final Component component)
+    public static MessageBuilder format(final IChatComponent component)
     {
         return new MessageBuilder(component);
     }
 
-    /**
-     * Message priority types handle different types of message displays.
-     */
     public enum MessagePriority
     {
-        /**
-         * Normal priority messages, these are not important messages sent to the colony, shown in a dimmed color (gray).
-         */
         NORMAL(ChatFormatting.GRAY),
-        /**
-         * Important priority messages, these are important events that require player attention, shown in an outstanding color (gold).
-         */
         IMPORTANT(ChatFormatting.GOLD),
-        /**
-         * Danger priority messages, these are shown for anything involving in serious dangerous events in the colony (ex. raids), shown in the danger color (red).
-         */
         DANGER(ChatFormatting.RED);
 
-        /**
-         * The color for the message priority.
-         */
         private final ChatFormatting color;
-
-        MessagePriority(final ChatFormatting color)
-        {
-            this.color = color;
-        }
+        MessagePriority(final ChatFormatting color) { this.color = color; }
     }
 
-    /**
-     * Starting class for the message building. Contains primary logic for sending the messages.
-     */
     public static class MessageBuilder
     {
-        /**
-         * The current working component.
-         */
-        private final MutableComponent fullComponent;
+        private IChatComponent component;
 
-        /**
-         * The priority for the message.
-         */
         @NotNull
         private MessagePriority priority = MessagePriority.NORMAL;
 
-        /**
-         * The click event for this message.
-         */
         @Nullable
         private ClickEvent clickEvent;
 
-        /**
-         * Default constructor.
-         *
-         * @param component the component to begin with.
-         */
-        MessageBuilder(final Component component)
+        MessageBuilder(final IChatComponent component)
         {
-            this.fullComponent = getFormattableComponent(component);
+            this.component = component;
         }
 
-        /**
-         * Set the priority of this message, defaults to {@link MessagePriority#NORMAL}.
-         *
-         * @param priority the new priority.
-         * @return the new message builder object.
-         */
         @NotNull
         public MessageBuilder withPriority(final MessagePriority priority)
         {
@@ -209,199 +107,104 @@ public class MessageUtils
             return this;
         }
 
-        /**
-         * Set a click event on this message, defaults to null.
-         *
-         * @param clickEvent the click event instance.
-         * @return the new message builder object.
-         */
-        public MessageBuilder withClickEvent(final @NotNull ClickEvent clickEvent)
+        public MessageBuilder withClickEvent(@NotNull final ClickEvent clickEvent)
         {
             this.clickEvent = clickEvent;
             return this;
         }
 
-        /**
-         * Starts a new builder object to append an additional component to the original one.
-         *
-         * @param key  the translation key.
-         * @param args the arguments for the translation component.
-         * @return the new message builder object.
-         */
         public MessageBuilder append(final String key, final Object... args)
         {
-            return append(Component.translatable(key, args));
+            return append(new ChatComponentTranslation(key, args));
         }
 
-        /**
-         * Appends a new component to the
-         *
-         * @param component the component to send.
-         * @return the new message builder object.
-         */
-        public MessageBuilder append(final Component component)
+        public MessageBuilder append(final IChatComponent other)
         {
-            fullComponent.append(getFormattableComponent(component));
+            component.appendSibling(other);
             return this;
         }
 
-        /**
-         * Creates a text component that can be used as an argument to other components.
-         *
-         * @return the text component.
-         */
-        public MutableComponent create()
+        public IChatComponent create()
         {
-            final Style newStyle = Style.EMPTY
-              .withColor(priority.color)
-              .withClickEvent(clickEvent);
-
-            fullComponent.withStyle(newStyle);
-            fullComponent.getSiblings().stream()
-              .map(this::getFormattableComponent)
-              .forEach(comp -> comp.withStyle(newStyle));
-            return fullComponent;
+            // [1.7.10] Apply color via getChatStyle
+            component.getChatStyle().setColor(priority.color.getDelegate());
+            return component;
         }
 
-        /**
-         * Send the message to one (or more) players.
-         *
-         * @param players the players to send the message to.
-         */
-        public void sendTo(final Player... players)
+        public void sendTo(final EntityPlayer... players)
         {
             sendTo(Arrays.asList(players));
         }
 
-        /**
-         * Send the message to a collection of players.
-         *
-         * @param players the players to send the message to.
-         */
-        public void sendTo(final Collection<Player> players)
+        public void sendTo(final Collection<EntityPlayer> players)
         {
-            for (Player player : players)
+            final IChatComponent msg = create();
+            for (EntityPlayer player : players)
             {
-                player.displayClientMessage(create(), false);
+                player.addChatMessage(msg);
             }
         }
 
-        /**
-         * Send the message to a collection of players close to a location.
-         *
-         * @param players the players to send the message to.
-         */
-        public void sendToClose(final BlockPos pos, final int range, final List<Player> players)
+        public void sendToClose(final int[] pos, final int range, final List<EntityPlayer> players)
         {
-            for (Player player : players)
+            final IChatComponent msg = create();
+            final double rangeSq = (double) range * range;
+            for (EntityPlayer player : players)
             {
-                if (player.distanceToSqr(pos.getX(), pos.getY(), pos.getZ()) < range * range)
+                final double dx = player.posX - pos[0];
+                final double dy = player.posY - pos[1];
+                final double dz = player.posZ - pos[2];
+                if (dx*dx + dy*dy + dz*dz < rangeSq)
                 {
-                    player.displayClientMessage(create(), false);
+                    player.addChatMessage(msg);
                 }
             }
         }
 
-        /**
-         * Send a message to a given colony, this method returns a class from which you will need
-         * to select which kind of members of the colony to send the message to.
-         *
-         * @param colony the reference to the colony.
-         * @return the message builder colony player selector.
-         */
         public MessageBuilderColonyPlayerSelector sendTo(final IColony colony)
         {
             return sendTo(colony, false);
         }
 
-        /**
-         * Send a message to a given colony, this method returns a class from which you will need
-         * to select which kind of members of the colony to send the message to.
-         *
-         * @param colony           the reference to the colony.
-         * @param alwaysShowColony whether we always want to include the colony name in front of the message.
-         * @return the message builder colony player selector.
-         */
         public MessageBuilderColonyPlayerSelector sendTo(final IColony colony, final boolean alwaysShowColony)
         {
             return new MessageBuilderColonyPlayerSelector(create(), colony, alwaysShowColony);
-        }
-
-        /**
-         * Turns any possible text component into a formattable component.
-         *
-         * @param component the input component.
-         * @return the formattable component.
-         */
-        private MutableComponent getFormattableComponent(final Component component)
-        {
-            return component.copy();
         }
     }
 
     public static class MessageBuilderColonyPlayerSelector
     {
-        /**
-         * The stored text component to use when sending the message.
-         */
-        private final MutableComponent rootComponent;
+        private final IChatComponent rootComponent;
+        private final IColony        colony;
+        private final boolean        alwaysShowColony;
 
-        /**
-         * The colony this message originated from.
-         */
-        private final IColony colony;
-
-        /**
-         * Determines whether we always want to include the colony name in front of the message.
-         */
-        private final boolean alwaysShowColony;
-
-        /**
-         * Default constructor.
-         *
-         * @param rootComponent    the completed component to send.
-         * @param colony           the reference to the colony.
-         * @param alwaysShowColony whether we always want to include the colony name in front of the message.
-         */
-        public MessageBuilderColonyPlayerSelector(final MutableComponent rootComponent, final IColony colony, final boolean alwaysShowColony)
+        public MessageBuilderColonyPlayerSelector(final IChatComponent rootComponent, final IColony colony, final boolean alwaysShowColony)
         {
-            this.rootComponent = rootComponent;
-            this.colony = colony;
+            this.rootComponent    = rootComponent;
+            this.colony           = colony;
             this.alwaysShowColony = alwaysShowColony;
         }
 
-        /**
-         * Sends the message to all players inside the colony.
-         */
         public void forAllPlayers()
         {
             sendInternal(colony.getMessagePlayerEntities());
         }
 
-        /**
-         * Sends the message to all colony manager.
-         */
         public void forManagers()
         {
             sendInternal(colony.getImportantMessageEntityPlayers());
         }
 
-        /**
-         * Internal helper method to send the message correctly.
-         *
-         * @param players the collection of players to send the message to.
-         */
-        private void sendInternal(final Collection<Player> players)
+        private void sendInternal(final Collection<EntityPlayer> players)
         {
-            for (Player player : players)
+            for (EntityPlayer player : players)
             {
-                MutableComponent fullComponent = rootComponent.copy();
-                if (alwaysShowColony || !colony.isCoordInColony(player.level(), player.blockPosition()))
+                IChatComponent msg = rootComponent;
+                if (alwaysShowColony || !colony.isCoordInColony(player.worldObj, (int) player.posX, (int) player.posY, (int) player.posZ))
                 {
-                    fullComponent = Component.literal("[" + colony.getName() + "] ").append(rootComponent);
+                    msg = new ChatComponentText("[" + colony.getName() + "] ").appendSibling(rootComponent);
                 }
-
-                player.displayClientMessage(fullComponent, false);
+                player.addChatMessage(msg);
             }
         }
     }

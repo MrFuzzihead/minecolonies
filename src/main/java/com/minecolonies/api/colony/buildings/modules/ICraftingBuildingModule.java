@@ -9,9 +9,9 @@ import com.minecolonies.api.crafting.IRecipeStorage;
 import com.minecolonies.api.crafting.registry.CraftingType;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.util.OptionalPredicate;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -103,7 +103,7 @@ public interface ICraftingBuildingModule extends IBuildingModule
      * Checks if this particular recipe is *possible* to be learned by
      * this building (or otherwise possible to be crafted there).
      *
-     * This is checked without regard to specific colony or level of
+     * This is checked without regard to specific colony or World of
      * building, or whether there are spare recipe slots or not.
      *
      * @param recipe The recipe to check.
@@ -238,13 +238,13 @@ public interface ICraftingBuildingModule extends IBuildingModule
      * @return The list of additional recipes.
      */
     @NotNull
-    List<IGenericRecipe> getAdditionalRecipesForDisplayPurposesOnly(@NotNull Level world);
+    List<IGenericRecipe> getAdditionalRecipesForDisplayPurposesOnly(@NotNull World world);
 
     /**
      * Gets a list of loot tables that should be available for drop
      * analysis (beyond any already used in recipes).  This is not
      * intended for actually generating loot, just for display purposes
-     * such as in JEI (e.g. via {@link #getAdditionalRecipesForDisplayPurposesOnly(Level)}).
+     * such as in JEI (e.g. via {@link #getAdditionalRecipesForDisplayPurposesOnly(World)}).
      *
      * @return The list of loot table ids
      */
@@ -335,3 +335,5 @@ public interface ICraftingBuildingModule extends IBuildingModule
      */
     boolean isDisabled(final IToken<?> token);
 }
+
+

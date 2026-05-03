@@ -4,10 +4,10 @@ import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.colony.buildingextensions.IBuildingExtension;
 import com.minecolonies.api.colony.buildingextensions.modules.IBuildingExtensionModule;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegistryObject;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] registries removed
+// [1.7.10] registries removed
 import org.apache.commons.lang3.Validate;
 
 import java.util.ArrayList;
@@ -36,20 +36,21 @@ public class BuildingExtensionRegistries
     public static final ResourceLocation PLANTATION_CRIMSON_PLANTS_FIELD_ID = new ResourceLocation(Constants.MOD_ID, "plantation_crimson_plants");
     public static final ResourceLocation PLANTATION_WARPED_PLANTS_FIELD_ID  = new ResourceLocation(Constants.MOD_ID, "plantation_warped_plants");
 
-    public static RegistryObject<BuildingExtensionEntry> farmField;
-    public static RegistryObject<BuildingExtensionEntry> plantationSugarCaneField;
-    public static RegistryObject<BuildingExtensionEntry> plantationCactusField;
-    public static RegistryObject<BuildingExtensionEntry> plantationBambooField;
-    public static RegistryObject<BuildingExtensionEntry> plantationCocoaBeansField;
-    public static RegistryObject<BuildingExtensionEntry> plantationVinesField;
-    public static RegistryObject<BuildingExtensionEntry> plantationKelpField;
-    public static RegistryObject<BuildingExtensionEntry> plantationSeagrassField;
-    public static RegistryObject<BuildingExtensionEntry> plantationSeaPicklesField;
-    public static RegistryObject<BuildingExtensionEntry> plantationGlowberriesField;
-    public static RegistryObject<BuildingExtensionEntry> plantationWeepingVinesField;
-    public static RegistryObject<BuildingExtensionEntry> plantationTwistingVinesField;
-    public static RegistryObject<BuildingExtensionEntry> plantationCrimsonPlantsField;
-    public static RegistryObject<BuildingExtensionEntry> plantationWarpedPlantsField;
+    // [1.7.10] RegistryObject<> removed; use direct type
+    public static BuildingExtensionEntry farmField;
+    public static BuildingExtensionEntry plantationSugarCaneField;
+    public static BuildingExtensionEntry plantationCactusField;
+    public static BuildingExtensionEntry plantationBambooField;
+    public static BuildingExtensionEntry plantationCocoaBeansField;
+    public static BuildingExtensionEntry plantationVinesField;
+    public static BuildingExtensionEntry plantationKelpField;
+    public static BuildingExtensionEntry plantationSeagrassField;
+    public static BuildingExtensionEntry plantationSeaPicklesField;
+    public static BuildingExtensionEntry plantationGlowberriesField;
+    public static BuildingExtensionEntry plantationWeepingVinesField;
+    public static BuildingExtensionEntry plantationTwistingVinesField;
+    public static BuildingExtensionEntry plantationCrimsonPlantsField;
+    public static BuildingExtensionEntry plantationWarpedPlantsField;
 
     private BuildingExtensionRegistries()
     {
@@ -60,7 +61,8 @@ public class BuildingExtensionRegistries
      *
      * @return the building extension registry.
      */
-    public static IForgeRegistry<BuildingExtensionEntry> getBuildingExtensionRegistry()
+    // [1.7.10] IForgeRegistry -> SimpleRegistry
+    public static com.minecolonies.api.registry.SimpleRegistry<BuildingExtensionEntry> getBuildingExtensionRegistry()
     {
         return IMinecoloniesAPI.getInstance().getBuildingExtensionRegistry();
     }
@@ -70,16 +72,16 @@ public class BuildingExtensionRegistries
      */
     public static class BuildingExtensionEntry
     {
-        private final ResourceLocation                                                 registryName;
-        private final BiFunction<BuildingExtensionEntry, BlockPos, IBuildingExtension> extensionProducer;
-        private final List<Function<IBuildingExtension, IBuildingExtensionModule>>     extensionModuleProducers;
+        private final ResourceLocation                                                    registryName;
+        private final BiFunction<BuildingExtensionEntry, int[], IBuildingExtension>       extensionProducer;
+        private final List<Function<IBuildingExtension, IBuildingExtensionModule>>        extensionModuleProducers;
 
         /**
          * Default internal constructor.
          */
         private BuildingExtensionEntry(
           final ResourceLocation registryName,
-          final BiFunction<BuildingExtensionEntry, BlockPos, IBuildingExtension> extensionProducer,
+          final BiFunction<BuildingExtensionEntry, int[], IBuildingExtension> extensionProducer,
           final List<Function<IBuildingExtension, IBuildingExtensionModule>> extensionModuleProducers)
         {
             this.registryName = registryName;
@@ -93,7 +95,7 @@ public class BuildingExtensionRegistries
          * @param position the position the building extension is at.
          * @return the building extension instance.
          */
-        public IBuildingExtension produceExtension(final BlockPos position)
+        public IBuildingExtension produceExtension(final int[] position)
         {
             final IBuildingExtension extension = extensionProducer.apply(this, position);
             for (final Function<IBuildingExtension, IBuildingExtensionModule> moduleProducer : extensionModuleProducers)
@@ -153,7 +155,7 @@ public class BuildingExtensionRegistries
         {
             private final List<Function<IBuildingExtension, IBuildingExtensionModule>>     extensionModuleProducers = new ArrayList<>();
             private       ResourceLocation                                                 registryName;
-            private       BiFunction<BuildingExtensionEntry, BlockPos, IBuildingExtension> extensionProducer;
+            private       BiFunction<BuildingExtensionEntry, int[], IBuildingExtension>   extensionProducer;
 
             /**
              * Sets the registry name for the new building extension entry.
@@ -173,7 +175,7 @@ public class BuildingExtensionRegistries
              * @param extensionProducer The callback used to create the {@link IBuildingExtension}.
              * @return The builder.
              */
-            public BuildingExtensionEntry.Builder setExtensionProducer(final BiFunction<BuildingExtensionEntry, BlockPos, IBuildingExtension> extensionProducer)
+            public BuildingExtensionEntry.Builder setExtensionProducer(final BiFunction<BuildingExtensionEntry, int[], IBuildingExtension> extensionProducer)
             {
                 this.extensionProducer = extensionProducer;
                 return this;
@@ -206,3 +208,7 @@ public class BuildingExtensionRegistries
         }
     }
 }
+
+
+
+

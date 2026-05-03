@@ -3,8 +3,8 @@ package com.minecolonies.api.crafting;
 import com.google.gson.JsonObject;
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.core.util.GsonHelper;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -336,3 +336,4 @@ public class ItemStorage
         return new ImmutableItemStorage(this);
     }
 }
+

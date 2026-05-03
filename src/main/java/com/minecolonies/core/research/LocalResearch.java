@@ -6,7 +6,7 @@ import com.minecolonies.api.research.ILocalResearchTree;
 import com.minecolonies.api.research.IResearchEffect;
 import com.minecolonies.api.research.IResearchEffectManager;
 import com.minecolonies.api.research.util.ResearchState;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 /**
  * The implementation of the ILocalResearch interface which represents one type of research, stored in each colony.
@@ -114,3 +114,4 @@ public class LocalResearch implements ILocalResearch
         this.progress = progress;
     }
 }
+

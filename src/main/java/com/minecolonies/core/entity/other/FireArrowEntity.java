@@ -1,11 +1,10 @@
 package com.minecolonies.core.entity.other;
 
 import com.minecolonies.api.items.ModItems;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.projectile.Arrow;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -15,21 +14,21 @@ import javax.annotation.Nullable;
  */
 public class FireArrowEntity extends CustomArrowEntity
 {
-    public FireArrowEntity(EntityType<? extends Arrow> entity, Level world)
+    public FireArrowEntity(final World world)
     {
-        super(entity, world);
+        super(world);
     }
 
-    @Override
-    public void setOwner(@Nullable final Entity shooter)
+    public FireArrowEntity(final World world, final EntityLivingBase shooter)
     {
-        super.setOwner(shooter);
-        this.setPos(shooter.getX(), shooter.getEyeY() - (double) 0.1F, shooter.getZ());
+        super(world, shooter);
+        this.setPosition(shooter.posX, shooter.posY + shooter.getEyeHeight() - 0.1, shooter.posZ);
+        this.setFire(100);
     }
 
     @NotNull
     @Override
-    protected ItemStack getPickupItem()
+    public ItemStack func_145748_c_()
     {
         return new ItemStack(ModItems.firearrow, 1);
     }

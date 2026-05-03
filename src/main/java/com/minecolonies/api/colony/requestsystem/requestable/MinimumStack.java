@@ -6,9 +6,9 @@ import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.ReflectionUtils;
 import com.minecolonies.api.util.constant.TypeConstants;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
@@ -125,7 +125,7 @@ public class MinimumStack extends Stack
      * @param compound   the compound.
      * @return the deliverable.
      */
-    public static MinimumStack deserialize(final IFactoryController controller, final CompoundTag compound)
+    public static MinimumStack deserialize(final IFactoryController controller, final NBTTagCompound compound)
     {
         final Stack stack = Stack.deserialize(controller, compound);
         return new MinimumStack(stack.getStack(), stack.matchDamage(), stack.matchNBT(), stack.getResult(), stack.getCount(), stack.getMinimumCount(), stack.canBeResolvedByBuilding());
@@ -138,7 +138,7 @@ public class MinimumStack extends Stack
      * @param buffer     the buffer to read.
      * @return the deliverable.
      */
-    public static MinimumStack deserialize(final IFactoryController controller, final FriendlyByteBuf buffer)
+    public static MinimumStack deserialize(final IFactoryController controller, final PacketBuffer buffer)
     {
         final Stack stack = Stack.deserialize(controller, buffer);
         return new MinimumStack(stack.getStack(), stack.matchDamage(), stack.matchNBT(), stack.getResult(), stack.getCount(), stack.getMinimumCount(), stack.canBeResolvedByBuilding());
@@ -164,3 +164,6 @@ public class MinimumStack extends Stack
         return TYPE_TOKENS;
     }
 }
+
+
+

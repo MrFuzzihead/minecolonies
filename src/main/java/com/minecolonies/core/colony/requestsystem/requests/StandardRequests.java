@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.requestsystem.requests;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.google.common.collect.ImmutableList;
 import com.minecolonies.api.colony.ICitizenDataView;
@@ -25,13 +31,13 @@ import com.minecolonies.core.colony.buildings.moduleviews.WorkerBuildingModuleVi
 import com.minecolonies.core.colony.jobs.views.CrafterJobView;
 import com.minecolonies.core.colony.jobs.views.DmanJobView;
 import com.minecolonies.core.colony.requestable.SmeltableOre;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
-import net.minecraftforge.registries.ForgeRegistries;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
+// [1.7.10] block.entity removed
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -71,18 +77,18 @@ public final class StandardRequests
 
         @NotNull
         @Override
-        public Component getShortDisplayString()
+        public String getShortDisplayString()
         {
-            final MutableComponent combined = Component.literal("");
+            final String combined = String.literal("");
 
             if (getRequest().getMinimumCount() == getRequest().getCount())
             {
-                combined.append(Component.literal(getRequest().getCount() + " "));
+                combined.append(String.literal(getRequest().getCount() + " "));
                 combined.append(getRequest().getStack().getHoverName());
             }
             else
             {
-                combined.append(Component.literal(getRequest().getMinimumCount() + "-" + getRequest().getCount() + " "));
+                combined.append(String.literal(getRequest().getMinimumCount() + "-" + getRequest().getCount() + " "));
                 combined.append(getRequest().getStack().getHoverName());
             }
 
@@ -143,10 +149,10 @@ public final class StandardRequests
 
         @NotNull
         @Override
-        public Component getShortDisplayString()
+        public String getShortDisplayString()
         {
-            final MutableComponent result = Component.literal("");
-            result.append(Component.translatable(stackList.getDescription()));
+            final String result = String.literal("");
+            result.append(String.translatable(stackList.getDescription()));
             return result;
         }
 
@@ -184,28 +190,28 @@ public final class StandardRequests
 
         @NotNull
         @Override
-        public Component getShortDisplayString()
+        public String getShortDisplayString()
         {
-            final MutableComponent combined = Component.literal("");
-            combined.append(Component.literal(getRequest().getCount() + " "));
+            final String combined = String.literal("");
+            combined.append(String.literal(getRequest().getCount() + " "));
             // getRequest().getTag() is a long string that can't be easily be read by players or turned into a translation key.
             // Instead, try to get a translated text first.
-            final String tagKey = "com.minecolonies.coremod.tag." + getRequest().getTag().toString().toLowerCase().replace
+            final String tagKey = "com.minecolonies.coremod.NBTBase." + getRequest().getTag().toString().toLowerCase().replace
                                                                                                                      ("namedtag[", "").replace(':', '.').replace("]", "");
-            final MutableComponent tagText = Component.translatable(tagKey);
+            final String tagText = String.translatable(tagKey);
             // test the translated text; if there's a difference, the client has a matching translation key.
             if (!tagText.getString().equals(tagKey))
             {
-                combined.append(Component.literal("#").append(tagText));
+                combined.append(String.literal("#").append(tagText));
             }
-            // Otherwise, use the first item from request set if present, or the full tag identifier to assist debugging otherwise.
+            // Otherwise, use the first item from request set if present, or the full NBTBase identifier to assist debugging otherwise.
             else if (!stacks.isEmpty())
             {
-                combined.append(Component.literal("#").append(stacks.get(0).getHoverName()));
+                combined.append(String.literal("#").append(stacks.get(0).getHoverName()));
             }
             else
             {
-                combined.append(Component.literal("#").append(Component.literal(getRequest().getTag().toString())));
+                combined.append(String.literal("#").append(String.literal(getRequest().getTag().toString())));
             }
             return combined;
         }
@@ -238,11 +244,11 @@ public final class StandardRequests
 
         @NotNull
         @Override
-        public Component getShortDisplayString()
+        public String getShortDisplayString()
         {
-            return Component.literal("")
-                     .append(Component.translatable(RequestSystemTranslationConstants.REQUESTS_TYPE_DELIVERY)
-                               .append(Component.literal(getRequest().getStack().getCount() + " "))
+            return String.literal("")
+                     .append(String.translatable(RequestSystemTranslationConstants.REQUESTS_TYPE_DELIVERY)
+                               .append(String.literal(getRequest().getStack().getCount() + " "))
                                .append(getRequest().getStack().getDisplayName()));
         }
 
@@ -254,9 +260,9 @@ public final class StandardRequests
         }
 
         @Override
-        public MutableComponent getDisplayPrefix()
+        public String getDisplayPrefix()
         {
-            return Component.translatable(RequestSystemTranslationConstants.REQUESTS_TYPE_DELIVERY);
+            return String.translatable(RequestSystemTranslationConstants.REQUESTS_TYPE_DELIVERY);
         }
 
         @Override
@@ -272,7 +278,7 @@ public final class StandardRequests
         }
 
         @Override
-        public List<MutableComponent> getResolverToolTip(final IColonyView colony)
+        public List<String> getResolverToolTip(final IColonyView colony)
         {
             final String requester = getRequester().getRequesterDisplayName(colony.getRequestManager(), this).getString();
 
@@ -299,11 +305,11 @@ public final class StandardRequests
 
             if (posInList >= 0)
             {
-            	return posInList == 0 ? ImmutableList.of(Component.translatable(FROM, requester), Component.translatable(IN_PROGRESS)) : ImmutableList.of(Component.translatable(FROM, requester), Component.translatable(IN_QUEUE, posInList));
+            	return posInList == 0 ? ImmutableList.of(String.translatable(FROM, requester), String.translatable(IN_PROGRESS)) : ImmutableList.of(String.translatable(FROM, requester), String.translatable(IN_QUEUE, posInList));
             }
             else
             {
-                return ImmutableList.of(Component.translatable(FROM, requester));
+                return ImmutableList.of(String.translatable(FROM, requester));
             }
         }
 
@@ -336,10 +342,10 @@ public final class StandardRequests
 
         @NotNull
         @Override
-        public Component getShortDisplayString()
+        public String getShortDisplayString()
         {
-            final MutableComponent result = Component.literal("");
-            result.append(Component.translatable(RequestSystemTranslationConstants.REQUESTS_TYPE_PICKUP));
+            final String result = String.literal("");
+            result.append(String.translatable(RequestSystemTranslationConstants.REQUESTS_TYPE_PICKUP));
             return result;
         }
 
@@ -359,7 +365,7 @@ public final class StandardRequests
         }
 
         @Override
-        public List<MutableComponent> getResolverToolTip(final IColonyView colony)
+        public List<String> getResolverToolTip(final IColonyView colony)
         {
             final String requester = getRequester().getRequesterDisplayName(colony.getRequestManager(), this).getString();
 
@@ -386,11 +392,11 @@ public final class StandardRequests
 
             if (posInList >= 0)
             {
-                return posInList == 0 ? ImmutableList.of(Component.translatable(FROM, requester), Component.translatable(IN_PROGRESS)) : ImmutableList.of(Component.translatable(FROM, requester), Component.translatable(IN_QUEUE, posInList));
+                return posInList == 0 ? ImmutableList.of(String.translatable(FROM, requester), String.translatable(IN_PROGRESS)) : ImmutableList.of(String.translatable(FROM, requester), String.translatable(IN_QUEUE, posInList));
             }
             else
             {
-                return ImmutableList.of(Component.translatable(FROM, requester));
+                return ImmutableList.of(String.translatable(FROM, requester));
             }
         }
 
@@ -418,15 +424,15 @@ public final class StandardRequests
 
         @NotNull
         @Override
-        public final Component getShortDisplayString()
+        public final String getShortDisplayString()
         {
-            return Component.translatable(RequestSystemTranslationConstants.REQUEST_SYSTEM_CRAFTING_DISPLAY, Component.literal(String.valueOf(getRequest().getMinCount())), getRequest().getStack().getDisplayName());
+            return String.translatable(RequestSystemTranslationConstants.REQUEST_SYSTEM_CRAFTING_DISPLAY, String.literal(String.valueOf(getRequest().getMinCount())), getRequest().getStack().getDisplayName());
         }
 
         @Override
-        public MutableComponent getDisplayPrefix()
+        public String getDisplayPrefix()
         {
-            return Component.translatable(RequestSystemTranslationConstants.REQUEST_SYSTEM_CRAFTING_DISPLAY_SHORT, Component.literal(String.valueOf(getRequest().getMinCount())));
+            return String.translatable(RequestSystemTranslationConstants.REQUEST_SYSTEM_CRAFTING_DISPLAY_SHORT, String.literal(String.valueOf(getRequest().getMinCount())));
         }
 
         @Override
@@ -451,32 +457,32 @@ public final class StandardRequests
         }
 
         @Override
-        public List<MutableComponent> getResolverToolTip(final IColonyView colony)
+        public List<String> getResolverToolTip(final IColonyView colony)
         {
             final String requester = getRequester().getRequesterDisplayName(colony.getRequestManager(), this).getString();
 
             try
             {
-                final BlockPos resolver = colony.getRequestManager().getResolverForRequest(getId()).getLocation().getInDimensionLocation();
+                final int[] resolver = colony.getRequestManager().getResolverForRequest(getId()).getLocation().getInDimensionLocation();
                 final IBuildingView view = colony.getClientBuildingManager().getBuilding(resolver);
 
                 int posInList = getPosInList(colony, view, getId());
                 if (posInList >= 0)
                 {
-                	return posInList == 0 ? ImmutableList.of(Component.translatable(AT, requester), Component.translatable(IN_PROGRESS)) : ImmutableList.of(Component.translatable(FROM, requester), Component.translatable(IN_QUEUE, posInList));
+                	return posInList == 0 ? ImmutableList.of(String.translatable(AT, requester), String.translatable(IN_PROGRESS)) : ImmutableList.of(String.translatable(FROM, requester), String.translatable(IN_QUEUE, posInList));
                 }
                 else if (getState() == RequestState.FOLLOWUP_IN_PROGRESS)
                 {
-                    return ImmutableList.of(Component.translatable(AT, requester), Component.translatable(FINISHED));
+                    return ImmutableList.of(String.translatable(AT, requester), String.translatable(FINISHED));
                 }
                 else
                 {
-                    return ImmutableList.of(Component.translatable(AT, requester), Component.translatable(MISSING_DELIVERIES));
+                    return ImmutableList.of(String.translatable(AT, requester), String.translatable(MISSING_DELIVERIES));
                 }
             }
             catch (IllegalArgumentException ex)
             {
-                return ImmutableList.of(Component.translatable(AT, requester), Component.translatable(NOT_RESOLVED));
+                return ImmutableList.of(String.translatable(AT, requester), String.translatable(NOT_RESOLVED));
             }
         }
 
@@ -577,16 +583,16 @@ public final class StandardRequests
 
         @NotNull
         @Override
-        public Component getLongDisplayString()
+        public String getLongDisplayString()
         {
-            final MutableComponent result = Component.literal("");
+            final String result = String.literal("");
             result.append(getRequest().getEquipmentType().getDisplayName());
 
             if (getRequest().getMinLevel() > EquipmentLevelConstants.TOOL_LEVEL_HAND)
             {
-                result.append(Component.literal(" "));
-                result.append(Component.translatable(RequestSystemTranslationConstants.REQUESTS_TYPE_TOOL_MINIMUM_LEVEL_PREFIX));
-                result.append(Component.literal(" "));
+                result.append(String.literal(" "));
+                result.append(String.translatable(RequestSystemTranslationConstants.REQUESTS_TYPE_TOOL_MINIMUM_LEVEL_PREFIX));
+                result.append(String.literal(" "));
                 result.append(getRequest().isArmor() ? ItemStackUtils.swapArmorGrade(getRequest().getMinLevel()) : ItemStackUtils.swapToolGrade(getRequest().getMinLevel()));
             }
 
@@ -594,13 +600,13 @@ public final class StandardRequests
             {
                 if (getRequest().getMinLevel() > EquipmentLevelConstants.TOOL_LEVEL_HAND)
                 {
-                    result.append(Component.literal(" "));
-                    result.append(Component.translatable(TranslationConstants.COM_MINECOLONIES_GENERAL_AND));
+                    result.append(String.literal(" "));
+                    result.append(String.translatable(TranslationConstants.COM_MINECOLONIES_GENERAL_AND));
                 }
 
-                result.append(Component.literal(" "));
-                result.append(Component.translatable(RequestSystemTranslationConstants.REQUESTS_TYPE_TOOL_MAXIMUM_LEVEL_PREFIX));
-                result.append(Component.literal(" "));
+                result.append(String.literal(" "));
+                result.append(String.translatable(RequestSystemTranslationConstants.REQUESTS_TYPE_TOOL_MAXIMUM_LEVEL_PREFIX));
+                result.append(String.literal(" "));
                 result.append(getRequest().isArmor() ? ItemStackUtils.swapArmorGrade(getRequest().getMaxLevel()) : ItemStackUtils.swapToolGrade(getRequest().getMaxLevel()));
             }
 
@@ -609,9 +615,9 @@ public final class StandardRequests
 
         @NotNull
         @Override
-        public Component getShortDisplayString()
+        public String getShortDisplayString()
         {
-            final MutableComponent result = Component.literal("");
+            final String result = String.literal("");
             result.append(getRequest().getEquipmentType().getDisplayName());
             return result;
         }
@@ -643,10 +649,10 @@ public final class StandardRequests
 
         @NotNull
         @Override
-        public Component getShortDisplayString()
+        public String getShortDisplayString()
         {
-            final MutableComponent result = Component.literal("");
-            result.append(Component.translatable(RequestSystemTranslationConstants.REQUESTS_TYPE_FOOD));
+            final String result = String.literal("");
+            result.append(String.translatable(RequestSystemTranslationConstants.REQUESTS_TYPE_FOOD));
             return result;
         }
 
@@ -701,9 +707,9 @@ public final class StandardRequests
 
         @NotNull
         @Override
-        public Component getShortDisplayString()
+        public String getShortDisplayString()
         {
-            return Component.translatable(RequestSystemTranslationConstants.REQUESTS_TYPE_SMELTABLE_ORE);
+            return String.translatable(RequestSystemTranslationConstants.REQUESTS_TYPE_SMELTABLE_ORE);
         }
 
         @NotNull
@@ -749,10 +755,10 @@ public final class StandardRequests
 
         @NotNull
         @Override
-        public Component getShortDisplayString()
+        public String getShortDisplayString()
         {
-            final MutableComponent result = Component.literal("");
-            result.append(Component.translatable(RequestSystemTranslationConstants.REQUESTS_TYPE_BURNABLE));
+            final String result = String.literal("");
+            result.append(String.translatable(RequestSystemTranslationConstants.REQUESTS_TYPE_BURNABLE));
             return result;
         }
 
@@ -791,18 +797,18 @@ public final class StandardRequests
 
         @NotNull
         @Override
-        public Component getShortDisplayString()
+        public String getShortDisplayString()
         {
-            final MutableComponent combined = Component.literal("");
+            final String combined = String.literal("");
 
             if (getRequest().getMinimumCount() == getRequest().getCount())
             {
-                combined.append(Component.literal(getRequest().getCount() + " "));
+                combined.append(String.literal(getRequest().getCount() + " "));
                 combined.append(getRequest().getStack().getHoverName());
             }
             else
             {
-                combined.append(Component.literal(getRequest().getMinimumCount() + "-" + getRequest().getCount() + " "));
+                combined.append(String.literal(getRequest().getMinimumCount() + "-" + getRequest().getCount() + " "));
                 combined.append(getRequest().getStack().getHoverName());
             }
 
@@ -859,3 +865,7 @@ public final class StandardRequests
         return -1;
     }
 }
+
+
+
+

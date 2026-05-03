@@ -8,10 +8,10 @@ import com.minecolonies.api.research.IResearchRequirement;
 import com.minecolonies.api.research.ModResearchRequirements;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.util.GsonHelper;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
 
 import java.util.Objects;
 
@@ -25,12 +25,12 @@ import static com.minecolonies.core.datalistener.ResearchListener.RESEARCH_REQUI
 public class BuildingResearchRequirement implements IResearchRequirement
 {
     /**
-     * The NBT tag for an individual building's name.
+     * The NBT NBTBase for an individual building's name.
      */
     private static final String TAG_BUILDING_NAME = "building-name";
 
     /**
-     * The NBT tag for an individual building's required level.
+     * The NBT NBTBase for an individual building's required World.
      */
     private static final String TAG_BUILDING_LVL = "building-lvl";
 
@@ -40,9 +40,9 @@ public class BuildingResearchRequirement implements IResearchRequirement
     private static final String RESEARCH_REQUIREMENT_BUILDING_PROP = "building";
 
     /**
-     * The property name for a numeric level.
+     * The property name for a numeric World.
      */
-    private static final String RESEARCH_REQUIREMENT_BUILDING_LEVEL_PROP = "level";
+    private static final String RESEARCH_REQUIREMENT_BUILDING_LEVEL_PROP = "World";
 
     /**
      * The building desc.
@@ -50,7 +50,7 @@ public class BuildingResearchRequirement implements IResearchRequirement
     private final ResourceLocation building;
 
     /**
-     * The building level.
+     * The building World.
      */
     private final int buildingLevel;
 
@@ -64,7 +64,7 @@ public class BuildingResearchRequirement implements IResearchRequirement
      *
      * @param nbt the nbt containing the relevant data.
      */
-    public BuildingResearchRequirement(final CompoundTag nbt)
+    public BuildingResearchRequirement(final NBTTagCompound nbt)
     {
         building = parseFallbackBuildingKey(nbt.getString(TAG_BUILDING_NAME));
         buildingLevel = nbt.getInt(TAG_BUILDING_LVL);
@@ -107,7 +107,7 @@ public class BuildingResearchRequirement implements IResearchRequirement
     }
 
     /**
-     * @return the building level
+     * @return the building World
      */
     public int getBuildingLevel()
     {
@@ -121,18 +121,18 @@ public class BuildingResearchRequirement implements IResearchRequirement
     }
 
     @Override
-    public MutableComponent getDesc()
+    public String getDesc()
     {
         final BuildingEntry buildingEntry = IBuildingRegistry.getInstance().getValue(building);
-        final MutableComponent buildingName = buildingEntry != null ? Component.translatable(buildingEntry.getTranslationKey()) : Component.empty();
+        final String buildingName = buildingEntry != null ? String.translatable(buildingEntry.getTranslationKey()) : String.empty();
 
         if (singleBuilding)
         {
-            return Component.translatable("com.minecolonies.coremod.research.requirement.building.single.level", buildingName, buildingLevel);
+            return String.translatable("com.minecolonies.coremod.research.requirement.building.single.World", buildingName, buildingLevel);
         }
         else
         {
-            return Component.translatable("com.minecolonies.coremod.research.requirement.building.level", buildingName, buildingLevel);
+            return String.translatable("com.minecolonies.coremod.research.requirement.building.World", buildingName, buildingLevel);
         }
     }
 
@@ -143,11 +143,15 @@ public class BuildingResearchRequirement implements IResearchRequirement
     }
 
     @Override
-    public CompoundTag writeToNBT()
+    public NBTTagCompound writeToNBT()
     {
-        final CompoundTag nbt = new CompoundTag();
+        final NBTTagCompound nbt = new NBTTagCompound();
         nbt.putString(TAG_BUILDING_NAME, building.toString());
         nbt.putInt(TAG_BUILDING_LVL, buildingLevel);
         return nbt;
     }
 }
+
+
+
+

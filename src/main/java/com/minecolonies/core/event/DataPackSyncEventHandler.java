@@ -11,14 +11,14 @@ import com.minecolonies.core.datalistener.QuestJsonListener;
 import com.minecolonies.core.network.messages.client.UpdateClientWithCompatibilityMessage;
 import com.minecolonies.core.util.FurnaceRecipes;
 import com.mojang.authlib.GameProfile;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.server.IntegratedServer;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.client.event.RecipesUpdatedEvent;
-import net.minecraftforge.event.OnDatapackSyncEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+// [1.7.10] forge event removed
+// [1.7.10] forge event removed
+// [1.7.10] eventbus removed
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -63,7 +63,7 @@ public class DataPackSyncEventHandler
          * @param player    the player to send the sync packets to.
          * @param compatMsg a cached copy of this message, to avoid rebuilding it for each player.
          */
-        private static void sendPackets(@NotNull final ServerPlayer player,
+        private static void sendPackets(@NotNull final EntityPlayerMP player,
                                         @NotNull final UpdateClientWithCompatibilityMessage compatMsg)
         {
             Network.getNetwork().sendToPlayer(compatMsg, player);
@@ -94,7 +94,7 @@ public class DataPackSyncEventHandler
 
                 // and then finally update every player with the results
                 final UpdateClientWithCompatibilityMessage compatMsg = new UpdateClientWithCompatibilityMessage(true);
-                for (final ServerPlayer player : event.getPlayerList().getPlayers())
+                for (final EntityPlayerMP player : event.getPlayerList().getPlayers())
                 {
                     if (player.getGameProfile() != owner)   // don't need to send them in SP, or LAN owner
                     {
@@ -150,7 +150,11 @@ public class DataPackSyncEventHandler
                 return;
             }
 
-            FurnaceRecipes.getInstance().loadRecipes(event.getRecipeManager(), Minecraft.getInstance().level);
+            FurnaceRecipes.getInstance().loadRecipes(event.getRecipeManager(), Minecraft.getInstance().World);
         }
     }
 }
+
+
+
+

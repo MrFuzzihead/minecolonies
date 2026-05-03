@@ -1,20 +1,26 @@
 package com.minecolonies.core.colony.buildings.workerbuildings.plantation.modules.specific;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.colony.buildingextensions.IBuildingExtension;
 import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.core.colony.buildings.workerbuildings.plantation.modules.generic.TreeSidePlantModule;
-import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import net.minecraft.world.level.block.CocoaBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] BlockState -> int metadata
 
 import java.util.stream.Stream;
 
@@ -34,8 +40,8 @@ public class CocoaPlantModule extends TreeSidePlantModule
      * Default constructor.
      *
      * @param field    the field instance this module is working on.
-     * @param fieldTag the tag of the field anchor block.
-     * @param workTag  the tag of the working positions.
+     * @param fieldTag the NBTBase of the field anchor block.
+     * @param workTag  the NBTBase of the working positions.
      * @param item     the item which is harvested.
      */
     public CocoaPlantModule(final IBuildingExtension field, final String fieldTag, final String workTag, final Item item)
@@ -50,7 +56,7 @@ public class CocoaPlantModule extends TreeSidePlantModule
     }
 
     @Override
-    public BlockState getPlantingBlockState(final Level world, final BlockPos workPosition, final BlockState blockState)
+    public BlockState getPlantingBlockState(final World world, final int[] workPosition, final BlockState blockState)
     {
         return Stream.of(workPosition.north(), workPosition.south(), workPosition.west(), workPosition.east())
                  .filter(position -> world.getBlockState(position).getBlock() == Blocks.JUNGLE_LOG)
@@ -85,3 +91,5 @@ public class CocoaPlantModule extends TreeSidePlantModule
         return false;
     }
 }
+
+

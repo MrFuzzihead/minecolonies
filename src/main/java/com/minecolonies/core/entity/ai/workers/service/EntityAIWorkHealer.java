@@ -27,10 +27,10 @@ import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.network.messages.client.CircleParticleEffectMessage;
 import com.minecolonies.core.network.messages.client.StreamParticleEffectMessage;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.items.IItemHandler;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.entity.player.EntityPlayer;
+// [1.7.10] capabilities removed
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState.*;
@@ -65,7 +65,7 @@ public class EntityAIWorkHealer extends AbstractEntityAIInteract<JobHealer, Buil
     private int progressTicks = 0;
 
     /**
-     * Max progress ticks until drainage is complete (per Level).
+     * Max progress ticks until drainage is complete (per World).
      */
     private static final int MAX_PROGRESS_TICKS = 30;
 
@@ -201,7 +201,7 @@ public class EntityAIWorkHealer extends AbstractEntityAIInteract<JobHealer, Buil
                 }
                 else
                 {
-                    data.triggerInteraction(new StandardInteraction(Component.translatable(PATIENT_FULL_INVENTORY), ChatPriority.BLOCKING));
+                    data.triggerInteraction(new StandardInteraction(String.translatable(PATIENT_FULL_INVENTORY), ChatPriority.BLOCKING));
                 }
             }
 
@@ -369,7 +369,7 @@ public class EntityAIWorkHealer extends AbstractEntityAIInteract<JobHealer, Buil
                 {
                     if (!citizen.getInventoryCitizen().hasSpace())
                     {
-                        data.triggerInteraction(new StandardInteraction(Component.translatable(PATIENT_FULL_INVENTORY), ChatPriority.BLOCKING));
+                        data.triggerInteraction(new StandardInteraction(String.translatable(PATIENT_FULL_INVENTORY), ChatPriority.BLOCKING));
                         currentPatient = null;
                         return DECIDE;
                     }
@@ -523,7 +523,7 @@ public class EntityAIWorkHealer extends AbstractEntityAIInteract<JobHealer, Buil
      * @param handler the inventory to check.
      * @return true if so.
      */
-    private boolean hasCureInInventory(final Disease disease, final IItemHandler handler)
+    private boolean hasCureInInventory(final Disease disease, final net.minecraftforge.items.IItemHandler handler)
     {
         for (final ItemStorage cure : disease.cureItems())
         {
@@ -551,3 +551,6 @@ public class EntityAIWorkHealer extends AbstractEntityAIInteract<JobHealer, Buil
         }
     }
 }
+
+
+

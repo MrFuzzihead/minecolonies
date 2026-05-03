@@ -1,16 +1,15 @@
 package com.minecolonies.api.colony.colonyEvents.descriptions;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.INBTSerializable;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] INBTSerializable -> manual read/write
 
 /**
  * Description for an event that happened in the colony.
  */
-public interface IColonyEventDescription extends INBTSerializable<CompoundTag>
-{
+public interface IColonyEventDescription {
     /**
      * Gets this event types registry id.
      * 
@@ -40,28 +39,28 @@ public interface IColonyEventDescription extends INBTSerializable<CompoundTag>
      * 
      * @return the position at which this event occurred.
      */
-    BlockPos getEventPos();
+    int[] getEventPos();
 
     /**
      * Sets the position this event happened at.
      * 
      * @param pos the position this event happened at.
      */
-    void setEventPos(BlockPos pos);
+    void setEventPos(int[] pos);
 
     /**
-     * Serializes this event to the given {@link FriendlyByteBuf}.
+     * Serializes this event to the given {@link PacketBuffer}.
      * 
-     * @param buf the {@link FriendlyByteBuf} to serialize to.
+     * @param buf the {@link PacketBuffer} to serialize to.
      */
-    void serialize(final FriendlyByteBuf buf);
+    void serialize(final PacketBuffer buf);
 
     /**
-     * Deserializes this event from the given {@link FriendlyByteBuf}.
+     * Deserializes this event from the given {@link PacketBuffer}.
      * 
-     * @param buf the {@link FriendlyByteBuf} to deserialize from.
+     * @param buf the {@link PacketBuffer} to deserialize from.
      */
-    void deserialize(final FriendlyByteBuf buf);
+    void deserialize(final PacketBuffer buf);
 
     /**
      * Get the day the event occured.
@@ -91,3 +90,9 @@ public interface IColonyEventDescription extends INBTSerializable<CompoundTag>
         return  "";
     }
 }
+
+
+
+
+
+

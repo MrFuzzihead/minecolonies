@@ -6,9 +6,9 @@ import com.minecolonies.api.util.LoadOnlyStructureHandler;
 import com.minecolonies.core.colony.buildings.AbstractBuildingStructureBuilder;
 import com.minecolonies.core.colony.jobs.AbstractJobStructure;
 import com.minecolonies.core.entity.ai.workers.AbstractEntityAIStructure;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
@@ -33,7 +33,7 @@ public final class WorkerLoadOnlyStructureHandler<J extends AbstractJobStructure
      * @param fancyPlacement if fancy or complete.
      */
     public WorkerLoadOnlyStructureHandler(
-      final Level world, final BlockPos pos, final Blueprint blueprint, final PlacementSettings settings,
+      final World world, final int[] pos, final Blueprint blueprint, final PlacementSettings settings,
       final AbstractEntityAIStructure<J, B> entityAIStructure)
     {
         super(world, pos, blueprint, settings);
@@ -41,14 +41,18 @@ public final class WorkerLoadOnlyStructureHandler<J extends AbstractJobStructure
     }
 
     @Override
-    public BlockState getSolidBlockForPos(final BlockPos blockPos)
+    public BlockState getSolidBlockForPos(final int[] blockPos)
     {
         return structureAI.getSolidSubstitution(blockPos);
     }
 
     @Override
-    public BlockState getSolidBlockForPos(final BlockPos worldPos, @Nullable final Function<BlockPos, BlockState> virtualBlocks)
+    public BlockState getSolidBlockForPos(final int[] worldPos, @Nullable final Function<int[], BlockState> virtualBlocks)
     {
         return structureAI.getSolidSubstitution(worldPos);
     }
 }
+
+
+
+

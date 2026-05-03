@@ -1,23 +1,26 @@
 package com.minecolonies.core.client.gui.modules.building;
 
+// [1.7.10] blockui replaced by ModularUI2
 import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.controls.Button;
 import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.views.ScrollingList;
+import net.minecraft.client.multiplayer.ClientLevel;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.AbstractModuleWindow;
 import com.minecolonies.core.colony.buildings.moduleviews.GraveyardManagementModuleView;
 import com.minecolonies.core.tileentities.TileEntityGrave;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.entity.BlockEntity;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] block.entity removed
 import org.jetbrains.annotations.NotNull;
 
 /**
- * BOWindow for the Graveyard building.
+ * Object (BOWindow: todo ModularUI2 removed) for the Graveyard building.
  */
 public class GraveyardManagementWindow extends AbstractModuleWindow<GraveyardManagementModuleView>
 {
@@ -54,7 +57,7 @@ public class GraveyardManagementWindow extends AbstractModuleWindow<GraveyardMan
     /**
      * The world.
      */
-    private final ClientLevel world = Minecraft.getInstance().level;
+    private final ClientLevel world = Minecraft.getInstance().World;
 
     /**
      * Constructor for the window of the graveyard.
@@ -86,17 +89,17 @@ public class GraveyardManagementWindow extends AbstractModuleWindow<GraveyardMan
             @Override
             public void updateElement(final int index, @NotNull final Pane rowPane)
             {
-                final BlockPos grave = moduleView.getGraves().get(index);
+                final int[] grave = moduleView.getGraves().get(index);
                 @NotNull final String distance = Integer.toString((int) Math.sqrt(BlockPosUtil.getDistanceSquared(grave, buildingView.getPosition())));
-                final Component direction = BlockPosUtil.calcDirection(buildingView.getPosition(), grave).getLongText();
+                final String direction = BlockPosUtil.calcDirection(buildingView.getPosition(), grave).getLongText();
                 final BlockEntity entity = world.getBlockEntity(grave);
                 if (entity instanceof TileEntityGrave)
                 {
-                    rowPane.findPaneOfTypeByID(TAG_NAME, Text.class).setText(Component.literal("Grave of " +
+                    rowPane.findPaneOfTypeByID(TAG_NAME, Text.class).setText(String.literal("Grave of " +
                             ((((TileEntityGrave) entity).getGraveData() != null) ?
                              ((TileEntityGrave) entity).getGraveData().getCitizenName() :
                              "Unknown Citizen")));
-                    rowPane.findPaneOfTypeByID(TAG_DISTANCE, Text.class).setText(Component.literal(distance + "m"));
+                    rowPane.findPaneOfTypeByID(TAG_DISTANCE, Text.class).setText(String.literal(distance + "m"));
                     rowPane.findPaneOfTypeByID(TAG_DIRECTION, Text.class).setText(direction);
                 }
             }
@@ -118,7 +121,7 @@ public class GraveyardManagementWindow extends AbstractModuleWindow<GraveyardMan
             public void updateElement(final int index, @NotNull final Pane rowPane)
             {
                 final String citizenName = moduleView.getRestingCitizen().get(index);
-                rowPane.findPaneOfTypeByID(TAG_CITIZEN_NAME, Text.class).setText(Component.literal(citizenName));
+                rowPane.findPaneOfTypeByID(TAG_CITIZEN_NAME, Text.class).setText(String.literal(citizenName));
             }
         });
     }
@@ -130,3 +133,8 @@ public class GraveyardManagementWindow extends AbstractModuleWindow<GraveyardMan
         moduleView.cleanGraves();
     }
 }
+
+
+
+
+

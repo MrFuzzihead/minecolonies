@@ -4,12 +4,15 @@ import com.minecolonies.api.blocks.AbstractBlockHut;
 import com.minecolonies.api.colony.buildings.ModBuildings;
 import com.minecolonies.api.colony.buildings.registry.BuildingEntry;
 import com.minecolonies.core.tileentities.TileEntityEnchanter;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Hut for the enchanter.
+ * [1.7.10] Ported: createTileEntity returns TileEntityEnchanter; removed BlockEntity/BlockState params.
+ */
 public class BlockHutEnchanter extends AbstractBlockHut<BlockHutEnchanter>
 {
     @NotNull
@@ -27,9 +30,9 @@ public class BlockHutEnchanter extends AbstractBlockHut<BlockHutEnchanter>
 
     @Nullable
     @Override
-    public BlockEntity newBlockEntity(@NotNull final BlockPos blockPos, @NotNull final BlockState blockState)
+    public TileEntity createTileEntity(final World world, final int metadata)
     {
-        final TileEntityEnchanter building = new TileEntityEnchanter(blockPos, blockState);
+        final TileEntityEnchanter building = new TileEntityEnchanter();
         building.registryName = this.getBuildingEntry().getRegistryName();
         return building;
     }

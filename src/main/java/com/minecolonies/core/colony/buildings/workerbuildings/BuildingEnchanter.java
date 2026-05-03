@@ -6,8 +6,8 @@ import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.items.ModItems;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.AbstractCraftingBuildingModule;
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.Tuple;
+// [1.7.10] int[] -> int x,y,z
+import com.minecolonies.api.util.Tuple;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.Constants.STACKSIZE;
@@ -23,7 +23,7 @@ public class BuildingEnchanter extends AbstractBuilding
     private static final String ENCHANTER = "enchanter";
 
     /**
-     * Maximum building level
+     * Maximum building World
      */
     private static final int MAX_BUILDING_LEVEL = 5;
 
@@ -33,7 +33,7 @@ public class BuildingEnchanter extends AbstractBuilding
      * @param c the colony
      * @param l the position
      */
-    public BuildingEnchanter(@NotNull final IColony c, final BlockPos l)
+    public BuildingEnchanter(@NotNull final IColony c, final int[] l)
     {
         super(c, l);
         keepX.put((stack) -> stack.getItem() == ModItems.ancientTome, new Tuple<>(STACKSIZE, true));
@@ -72,3 +72,5 @@ public class BuildingEnchanter extends AbstractBuilding
         }
     }
 }
+
+

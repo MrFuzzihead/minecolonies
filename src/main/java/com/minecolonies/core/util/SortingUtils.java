@@ -5,12 +5,12 @@ import com.minecolonies.api.crafting.ExactMatchItemStorage;
 import com.minecolonies.api.inventory.api.CombinedItemHandler;
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.Log;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.ForgeRegistry;
+import net.minecraft.nbt.NBTTagCompound;
+import com.minecolonies.api.util.Tuple;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+// [1.7.10] registries removed
+// [1.7.10] registries removed
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +38,7 @@ public final class SortingUtils
      */
     public static void sort(final CombinedItemHandler inv)
     {
-        final CompoundTag backup = inv.serializeNBT();
+        final NBTTagCompound backup = inv.serializeNBT();
         final AtomicInteger runCount = new AtomicInteger(0);
 
         try
@@ -191,3 +191,6 @@ public final class SortingUtils
         return new Tuple<>(new AtomicInteger(sum), creativeTabs);
     }
 }
+
+
+

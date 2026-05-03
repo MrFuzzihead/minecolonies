@@ -2,9 +2,9 @@ package com.minecolonies.api.colony.managers.interfaces;
 
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.Level;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -19,14 +19,14 @@ public interface IGraveManager
      *
      * @param compound the compound.
      */
-    void read(@NotNull final CompoundTag compound);
+    void read(@NotNull final NBTTagCompound compound);
 
     /**
      * Write the graves to NBT.
      *
      * @param compound the compound.
      */
-    void write(@NotNull final CompoundTag compound);
+    void write(@NotNull final NBTTagCompound compound);
 
     /**
      * Tick the graves on colony tick.
@@ -41,21 +41,21 @@ public interface IGraveManager
      * @param pos the id of the grave.
      * @return is the grave successfully reserved.
      */
-    boolean reserveGrave(BlockPos pos);
+    boolean reserveGrave(int[] pos);
 
     /**
      * Un-Reserve a grave
      *
      * @param pos the id of the grave.
      */
-    void unReserveGrave(BlockPos pos);
+    void unReserveGrave(int[] pos);
 
     /**
      * Reserve the next free grave
      *
      * @return the grave successfully reserved or null if none available
      */
-    BlockPos reserveNextFreeGrave();
+    int[] reserveNextFreeGrave();
 
     /**
      * Attempt to create a TileEntityGrave at @pos containing the specific @citizenData
@@ -67,7 +67,7 @@ public interface IGraveManager
      * @param citizenData  The citizenData
      * @return position if a grave was created.
      */
-    BlockPos createCitizenGrave(final Level world, final BlockPos pos, final ICitizenData citizenData);
+    int[] createCitizenGrave(final World world, final int[] pos, final ICitizenData citizenData);
 
     /**
      * Returns a map with all graves within the colony. Key is ID (Coordinates), value is isReserved boolean.
@@ -75,7 +75,7 @@ public interface IGraveManager
      * @return Map with ID (coordinates) as key, value is isReserved boolean.
      */
     @NotNull
-    Map<BlockPos, Boolean> getGraves();
+    Map<int[], Boolean> getGraves();
 
     /**
      * Add a grave from the Colony.
@@ -83,12 +83,15 @@ public interface IGraveManager
      * @param pos    position of the TileEntityGrave to add.
      * @return the grave that was created and added.
      */
-    boolean addNewGrave(@NotNull final BlockPos pos);
+    boolean addNewGrave(@NotNull final int[] pos);
 
     /**
      * Remove a TileEntityGrave from the Colony (when it is destroyed).
      *
      * @param pos    position of the TileEntityGrave to remove.
      */
-    void removeGrave(@NotNull final BlockPos pos);
+    void removeGrave(@NotNull final int[] pos);
 }
+
+
+

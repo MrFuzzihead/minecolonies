@@ -9,8 +9,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import journeymap.client.api.IClientAPI;
 import journeymap.client.api.display.Displayable;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.Level;
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Files;
@@ -95,7 +95,7 @@ public class Journeymap
      * @param dimension The dimension being mapped.
      * @return The path to the data folder (this may not exist yet).
      */
-    public Path getDataPath(final ResourceKey<Level> dimension)
+    public Path getDataPath(final int /* ResourceKey */ dimension)
     {
         final String name = dimension.location().getPath();
         return this.jmap.getDataPath(MOD_ID).toPath().resolve(name);
@@ -174,3 +174,5 @@ public class Journeymap
         return false;
     }
 }
+
+

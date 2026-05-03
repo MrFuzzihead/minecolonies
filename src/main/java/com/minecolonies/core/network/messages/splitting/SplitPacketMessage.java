@@ -6,51 +6,27 @@ import com.minecolonies.api.network.IMessage;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.core.Network;
 import com.minecolonies.core.network.NetworkChannel;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.PacketBuffer;
 
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
  * Represents a class that wrappers other messages in byte form and is used to split the wrapped messages data into several chunks.
+ * [1.7.10] Ported from SimpleChannel NetworkEvent.Context to SimpleNetworkWrapper MessageContext.
  */
 public class SplitPacketMessage implements IMessage
 {
-    /**
-     * Internal communication id. Used to indicate to what wrapped message this belongs to.
-     */
     private int communicationId = -1;
-
-    /**
-     * The index of the split message in the wrapped message.
-     */
     private int packetIndex = -1;
-
-    /**
-     * Indicates if this is the last message in the chain.
-     */
     private boolean terminator = false;
-
-    /**
-     * The id of the message inside the splitting logic. Identical to the index codec system in SimpleChannel-
-     */
     private int innerMessageId = -1;
-
-    /**
-     * The payload.
-     */
     private byte[] payload;
 
-    /**
-     * The network receiving constructor.
-     */
-    public SplitPacketMessage()
-    {
-    }
+    public SplitPacketMessage() {}
 
     public SplitPacketMessage(final int communicationId, final int packetIndex, final boolean terminator, final int innerMessageId, final byte[] payload)
     {
@@ -62,7 +38,7 @@ public class SplitPacketMessage implements IMessage
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    public void toBytes(final PacketBuffer buf)
     {
         buf.writeVarInt(this.communicationId);
         buf.writeVarInt(this.packetIndex);
@@ -72,7 +48,7 @@ public class SplitPacketMessage implements IMessage
     }
 
     @Override
-    public void fromBytes(final FriendlyByteBuf buf)
+    public void fromBytes(final PacketBuffer buf)
     {
         this.communicationId = buf.readVarInt();
         this.packetIndex = buf.readVarInt();
@@ -82,11 +58,11 @@ public class SplitPacketMessage implements IMessage
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
         try
         {
-            //Sync on the message cache since this is still on the Netty thread.
+            // Sync on the message cache since this is still on the Netty thread.
             synchronized (Network.getNetwork().getMessageCache())
             {
                 Network.getNetwork().getMessageCache().get(this.communicationId, Maps::newConcurrentMap).put(this.packetIndex, this.payload);
@@ -94,29 +70,23 @@ public class SplitPacketMessage implements IMessage
 
             if (!this.terminator)
             {
-                //We are not the last message stop executing.
                 return;
             }
 
-            //No need to sync again, since we are now the last packet to arrive.
-            //All data gets sorted and appended.
+            // All data gets sorted and appended.
             final byte[] packetData = Network.getNetwork().getMessageCache().get(this.communicationId, Maps::newConcurrentMap).entrySet()
                                         .stream()
                                         .sorted(Map.Entry.comparingByKey())
                                         .map(Map.Entry::getValue)
-              .reduce(new byte[0], Bytes::concat);
+                                        .reduce(new byte[0], Bytes::concat);
 
-            //Grab the entry from the inner message id.
             final NetworkChannel.NetworkingMessageEntry<?> messageEntry = Network.getNetwork().getMessagesTypes().get(this.innerMessageId);
-
-            //Create a message.
             final IMessage message = messageEntry.getCreator().get();
 
-            //Create a new buffer that reads from the packet data and then deserialize the inner message.
             final ByteBuf buffer = Unpooled.wrappedBuffer(packetData);
             try
             {
-                message.fromBytes(new FriendlyByteBuf(buffer));
+                message.fromBytes(new PacketBuffer(buffer));
             }
             catch (Exception e)
             {
@@ -124,28 +94,32 @@ public class SplitPacketMessage implements IMessage
                 buffer.release();
                 return;
             }
-
             buffer.release();
 
-            //Execute the message.
-            final LogicalSide packetOrigin = ctxIn.getDirection().getOriginationSide();
-            if (message.getExecutionSide() != null && packetOrigin.equals(message.getExecutionSide()))
+            // [1.7.10] Execute the inner message directly; MessageContext has no enqueueWork.
+            // Side check: getExecutionSide() returns Boolean (TRUE=serverOnly, FALSE=clientOnly, null=both).
+            final Boolean execSide = message.getExecutionSide();
+            if (execSide != null && execSide == isLogicalServer)
             {
-                Log.getLogger().warn("Receving {} at wrong side!", message.getClass().getName());
+                // execSide==true means server-only; if we are on server side (isLogicalServer==true) and execSide==true, that's correct.
+                // execSide==false means client-only; if we are on client (isLogicalServer==false) and execSide==false, that's correct.
+                // We only warn/skip when they MISMATCH.
+                // Mismatch: execSide==true and !isLogicalServer => log and skip  (handled below)
+                // Mismatch: execSide==false and isLogicalServer => log and skip
+            }
+            if (execSide != null && execSide != isLogicalServer)
+            {
+                Log.getLogger().warn("Receiving {} at wrong side!", message.getClass().getName());
                 return;
             }
-            // boolean param MUST equals true if packet arrived at logical server
-            ctxIn.enqueueWork(() ->
+            try
             {
-                try
-                {
-                    message.onExecute(ctxIn, packetOrigin.equals(LogicalSide.CLIENT));
-                }
-                catch (Exception e)
-                {
-                    Log.getLogger().error("Packet error:" ,e);
-                }
-            });
+                message.onExecute(ctx, isLogicalServer);
+            }
+            catch (Exception e)
+            {
+                Log.getLogger().error("Packet error:", e);
+            }
         }
         catch (ExecutionException e)
         {

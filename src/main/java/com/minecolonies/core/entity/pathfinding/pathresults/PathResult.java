@@ -6,11 +6,11 @@ import com.minecolonies.core.debug.messages.DebugOutputMessage;
 import com.minecolonies.core.entity.pathfinding.PathFindingStatus;
 import com.minecolonies.core.entity.pathfinding.PathfindingUtils;
 import com.minecolonies.core.entity.pathfinding.pathjobs.AbstractPathJob;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.pathfinder.Path;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.pathfinding.Path;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -288,15 +288,15 @@ public class PathResult<T extends AbstractPathJob>
 
             if (!watchers.isEmpty())
             {
-                final Component debugInfo = Component.literal(" Finished pathjob:")
+                final String debugInfo = String.literal(" Finished pathjob:")
                     .withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(job.toString()))
-                    .append(Component.literal(" reaches: " + path.canReach())
+                    .append(String.literal(job.toString()))
+                    .append(String.literal(" reaches: " + path.canReach())
                         .withStyle(path.canReach() ? ChatFormatting.GREEN : ChatFormatting.RED)
-                        .append(Component.literal(" path target:" + path.getTarget().toShortString()).withStyle(ChatFormatting.BLUE)));
+                        .append(String.literal(" path target:" + path.getTarget().toShortString()).withStyle(ChatFormatting.BLUE)));
                 Log.getLogger().info(debugInfo.getString());
 
-                for (final ServerPlayer player : watchers)
+                for (final EntityPlayerMP player : watchers)
                 {
                     Network.getNetwork().sendToPlayer(new DebugOutputMessage(debugInfo, false), player);
                 }
@@ -356,18 +356,18 @@ public class PathResult<T extends AbstractPathJob>
      *
      * @return
      */
-    public List<ServerPlayer> getDebugWatchers()
+    public List<EntityPlayerMP> getDebugWatchers()
     {
-        final List<ServerPlayer> newList = new ArrayList<>();
+        final List<EntityPlayerMP> newList = new ArrayList<>();
 
         if (job != null && debugWatchers != null)
         {
             for (final UUID playerID : debugWatchers)
             {
                 final Player player = job.getActualWorld().getPlayerByUUID(playerID);
-                if (player instanceof ServerPlayer serverPlayer)
+                if (player instanceof EntityPlayerMP EntityPlayerMP)
                 {
-                    newList.add(serverPlayer);
+                    newList.add(EntityPlayerMP);
                 }
             }
         }
@@ -375,3 +375,6 @@ public class PathResult<T extends AbstractPathJob>
         return newList;
     }
 }
+
+
+

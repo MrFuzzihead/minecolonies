@@ -9,8 +9,8 @@ import com.minecolonies.api.util.OptionalPredicate;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.AbstractCraftingBuildingModule;
 import com.minecolonies.core.colony.buildings.modules.AbstractDOCraftingBuildingModule;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.BuildingConstants.CONST_DEFAULT_MAX_BUILDING_LEVEL;
@@ -32,7 +32,7 @@ public class BuildingStonemason extends AbstractBuilding
      * @param c the colony.
      * @param l the location
      */
-    public BuildingStonemason(final IColony c, final BlockPos l)
+    public BuildingStonemason(final IColony c, final int[] l)
     {
         super(c, l);
     }
@@ -106,3 +106,5 @@ public class BuildingStonemason extends AbstractBuilding
         }
     }
 }
+
+

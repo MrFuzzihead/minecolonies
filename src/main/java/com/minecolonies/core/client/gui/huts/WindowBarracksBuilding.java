@@ -1,20 +1,21 @@
 package com.minecolonies.core.client.gui.huts;
 
+// [1.7.10] blockui replaced by ModularUI2
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.controls.Button;
-import com.ldtteam.blockui.controls.ButtonImage;
-import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.controls.ItemIcon;
+import net.minecraft.world.item.Items;
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.AbstractBuildingMainWindow;
 import com.minecolonies.core.client.gui.WindowsBarracksSpies;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingBarracks;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,7 +24,7 @@ import java.util.List;
 import static com.minecolonies.api.util.constant.TranslationConstants.*;
 
 /**
- * BOWindow for the barracks building.
+ * Object (BOWindow: todo ModularUI2 removed) for the barracks building.
  */
 public class WindowBarracksBuilding extends AbstractBuildingMainWindow<BuildingBarracks.View>
 {
@@ -52,7 +53,7 @@ public class WindowBarracksBuilding extends AbstractBuildingMainWindow<BuildingB
     private static final String SPIES_BUTTON_ICON = "hireSpiesIcon";
 
     /**
-     * Required building level to see the barbarian spawnpoints in the GUI.
+     * Required building World to see the barbarian spawnpoints in the GUI.
      */
     private static final int BUILDING_LEVEL_FOR_LIST = 3;
 
@@ -77,7 +78,7 @@ public class WindowBarracksBuilding extends AbstractBuildingMainWindow<BuildingB
     private final IColonyView view;
 
     /**
-     * Creates the BOWindow object.
+     * Creates the Object (BOWindow: todo ModularUI2 removed) object.
      *
      * @param building View of the home building.
      */
@@ -112,7 +113,7 @@ public class WindowBarracksBuilding extends AbstractBuildingMainWindow<BuildingB
         super.onOpened();
         if (buildingView.getBuildingLevel() >= BUILDING_LEVEL_FOR_LIST)
         {
-            final List<BlockPos> spawnPoints = view.getLastSpawnPoints();
+            final List<int[]> spawnPoints = view.getLastSpawnPoints();
             if (spawnPoints.size() == 0)
             {
                 return;
@@ -133,10 +134,10 @@ public class WindowBarracksBuilding extends AbstractBuildingMainWindow<BuildingB
                 @Override
                 public void updateElement(final int index, @NotNull final Pane rowPane)
                 {
-                    final BlockPos pos = spawnPoints.get(index);
+                    final int[] pos = spawnPoints.get(index);
                     if (!(view.isRaiding() && index == spawnPoints.size() - 1))
                     {
-                        rowPane.findPaneOfTypeByID(LABEL_POS, Text.class).setText(Component.literal((index + 1) + ": " + mountDistanceString(pos)));
+                        rowPane.findPaneOfTypeByID(LABEL_POS, Text.class).setText(String.literal((index + 1) + ": " + mountDistanceString(pos)));
                     }
                 }
             });
@@ -147,9 +148,9 @@ public class WindowBarracksBuilding extends AbstractBuildingMainWindow<BuildingB
      * Mount the distance string for the barracks and the position.
      *
      * @param pos the position.
-     * @return the component containing the nice human-readable string.
+     * @return the String containing the nice human-readable string.
      */
-    private Component mountDistanceString(final BlockPos pos)
+    private String mountDistanceString(final int[] pos)
     {
         final long distance = BlockPosUtil.getDistance2D(pos, buildingView.getPosition());
         final String distanceDesc;
@@ -165,9 +166,13 @@ public class WindowBarracksBuilding extends AbstractBuildingMainWindow<BuildingB
         {
             distanceDesc = REALLY_FAR_DESC;
         }
-        final Component directionDest = BlockPosUtil.calcDirection(buildingView.getPosition(), pos).getLongText();
-        return Component.translatable(distanceDesc)
+        final String directionDest = BlockPosUtil.calcDirection(buildingView.getPosition(), pos).getLongText();
+        return String.translatable(distanceDesc)
                  .append(" ")
                  .append(directionDest);
     }
 }
+
+
+
+

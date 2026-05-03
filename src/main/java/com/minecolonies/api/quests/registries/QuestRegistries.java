@@ -7,9 +7,9 @@ import com.minecolonies.api.quests.IQuestObjectiveTemplate;
 import com.minecolonies.api.quests.IQuestRewardTemplate;
 import com.minecolonies.api.quests.IQuestTriggerTemplate;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] registries removed
+// [1.7.10] registries removed
 
 import java.util.function.Function;
 
@@ -22,7 +22,7 @@ public class QuestRegistries
      * Get the reward registry.
      * @return the reward registry.
      */
-    static IForgeRegistry<RewardEntry> getQuestRewardsRegistry()
+    static com.minecolonies.api.registry.SimpleRegistry<RewardEntry> getQuestRewardsRegistry()
     {
         return IMinecoloniesAPI.getInstance().getQuestRewardRegistry();
     }
@@ -31,7 +31,7 @@ public class QuestRegistries
      * Get the objective registry.
      * @return the reward registry.
      */
-    static IForgeRegistry<ObjectiveEntry> getQuestObjectiveRegistry()
+    static com.minecolonies.api.registry.SimpleRegistry<ObjectiveEntry> getQuestObjectiveRegistry()
     {
         return IMinecoloniesAPI.getInstance().getQuestObjectiveRegistry();
     }
@@ -40,7 +40,7 @@ public class QuestRegistries
      * Get the trigger registry.
      * @return the reward registry.
      */
-    static IForgeRegistry<TriggerEntry> getQuestTriggerRegistry()
+    static com.minecolonies.api.registry.SimpleRegistry<TriggerEntry> getQuestTriggerRegistry()
     {
         return IMinecoloniesAPI.getInstance().getQuestTriggerRegistry();
     }
@@ -49,7 +49,7 @@ public class QuestRegistries
      * Get the dialogue answer result registry.
      * @return the reward registry.
      */
-    static IForgeRegistry<DialogueAnswerEntry> getDialogueAnswerResultRegistry()
+    static com.minecolonies.api.registry.SimpleRegistry<DialogueAnswerEntry> getDialogueAnswerResultRegistry()
     {
         return IMinecoloniesAPI.getInstance().getQuestDialogueAnswerRegistry();
     }
@@ -178,33 +178,35 @@ public class QuestRegistries
     public static ResourceLocation GOTO_ANSWER_ID     = new ResourceLocation(Constants.MOD_ID, "advanceobjective");
 
 
-    public static RegistryObject<RewardEntry>  itemReward;
-    public static RegistryObject <RewardEntry> skillReward;
-    public static RegistryObject <RewardEntry> researchReward;
-    public static RegistryObject <RewardEntry> raidReward;
-    public static RegistryObject <RewardEntry> relationshipReward;
-    public static RegistryObject <RewardEntry> happinessReward;
-    public static RegistryObject <RewardEntry> unlockQuestReward;
-    public static RegistryObject <RewardEntry> questReputationReward;
+    public static com.minecolonies.api.registry.RegistryObject<RewardEntry>  itemReward;
+    public static com.minecolonies.api.registry.RegistryObject <RewardEntry> skillReward;
+    public static com.minecolonies.api.registry.RegistryObject <RewardEntry> researchReward;
+    public static com.minecolonies.api.registry.RegistryObject <RewardEntry> raidReward;
+    public static com.minecolonies.api.registry.RegistryObject <RewardEntry> relationshipReward;
+    public static com.minecolonies.api.registry.RegistryObject <RewardEntry> happinessReward;
+    public static com.minecolonies.api.registry.RegistryObject <RewardEntry> unlockQuestReward;
+    public static com.minecolonies.api.registry.RegistryObject <RewardEntry> questReputationReward;
 
-    public static RegistryObject <ObjectiveEntry> dialogueObjective;
-    public static RegistryObject <ObjectiveEntry> breakBlockObjective;
-    public static RegistryObject <ObjectiveEntry> deliveryObjective;
-    public static RegistryObject <ObjectiveEntry> killEntityObjective;
-    public static RegistryObject <ObjectiveEntry> placeBlockObjective;
-    public static RegistryObject <ObjectiveEntry> buildBuildingObjective;
-    public static RegistryObject <ObjectiveEntry> researchObjective;
+    public static com.minecolonies.api.registry.RegistryObject <ObjectiveEntry> dialogueObjective;
+    public static com.minecolonies.api.registry.RegistryObject <ObjectiveEntry> breakBlockObjective;
+    public static com.minecolonies.api.registry.RegistryObject <ObjectiveEntry> deliveryObjective;
+    public static com.minecolonies.api.registry.RegistryObject <ObjectiveEntry> killEntityObjective;
+    public static com.minecolonies.api.registry.RegistryObject <ObjectiveEntry> placeBlockObjective;
+    public static com.minecolonies.api.registry.RegistryObject <ObjectiveEntry> buildBuildingObjective;
+    public static com.minecolonies.api.registry.RegistryObject <ObjectiveEntry> researchObjective;
 
-    public static RegistryObject <TriggerEntry> stateTrigger;
-    public static RegistryObject <TriggerEntry> randomTrigger;
-    public static RegistryObject <TriggerEntry> citizenTrigger;
-    public static RegistryObject <TriggerEntry> unlockTrigger;
-    public static RegistryObject <TriggerEntry> questReputationTrigger;
-    public static RegistryObject <TriggerEntry> worldDifficultyTrigger;
+    public static com.minecolonies.api.registry.RegistryObject <TriggerEntry> stateTrigger;
+    public static com.minecolonies.api.registry.RegistryObject <TriggerEntry> randomTrigger;
+    public static com.minecolonies.api.registry.RegistryObject <TriggerEntry> citizenTrigger;
+    public static com.minecolonies.api.registry.RegistryObject <TriggerEntry> unlockTrigger;
+    public static com.minecolonies.api.registry.RegistryObject <TriggerEntry> questReputationTrigger;
+    public static com.minecolonies.api.registry.RegistryObject <TriggerEntry> worldDifficultyTrigger;
 
-    public static RegistryObject <DialogueAnswerEntry> dialogueAnswerResult;
-    public static RegistryObject <DialogueAnswerEntry> returnAnswerResult;
-    public static RegistryObject <DialogueAnswerEntry> cancelAnswerResult;
-    public static RegistryObject <DialogueAnswerEntry> gotoAnswerResult;
+    public static com.minecolonies.api.registry.RegistryObject <DialogueAnswerEntry> dialogueAnswerResult;
+    public static com.minecolonies.api.registry.RegistryObject <DialogueAnswerEntry> returnAnswerResult;
+    public static com.minecolonies.api.registry.RegistryObject <DialogueAnswerEntry> cancelAnswerResult;
+    public static com.minecolonies.api.registry.RegistryObject <DialogueAnswerEntry> gotoAnswerResult;
 
 }
+
+

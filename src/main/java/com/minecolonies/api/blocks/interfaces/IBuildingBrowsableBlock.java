@@ -1,6 +1,6 @@
 package com.minecolonies.api.blocks.interfaces;
 
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+// [1.7.10] forge event removed
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -11,8 +11,9 @@ public interface IBuildingBrowsableBlock
     /**
      * Return false if you want to prevent the building search behaviour for some reason.  Client-side only.
      */
-    default boolean shouldBrowseBuildings(@NotNull final PlayerInteractEvent.RightClickItem event)
+    default boolean shouldBrowseBuildings(@NotNull final Object event)
     {
         return true;
     }
 }
+

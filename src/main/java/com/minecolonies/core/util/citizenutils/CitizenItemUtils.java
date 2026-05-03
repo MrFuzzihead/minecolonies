@@ -4,20 +4,20 @@ import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.util.*;
 import com.minecolonies.core.Network;
 import com.minecolonies.core.network.messages.client.BlockParticleEffectMessage;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
+// [1.7.10] sounds removed
+// [1.7.10] sounds removed
+// [1.7.10] int /* InteractionHand */ removed
+import net.minecraft.entity.Entity;
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
+import net.minecraft.block.Block;
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] world.phys removed
 import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -92,7 +92,7 @@ public class CitizenItemUtils
      */
     public static void removeHeldItem(AbstractEntityCitizen citizen)
     {
-        citizen.setItemSlot(EquipmentSlot.MAINHAND, ItemStackUtils.EMPTY);
+        citizen.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
     }
 
     /**
@@ -101,16 +101,16 @@ public class CitizenItemUtils
      * @param hand what hand we're setting
      * @param slot from the inventory slot.
      */
-    public static void setHeldItem(@NotNull final AbstractEntityCitizen citizen, final InteractionHand hand, final int slot)
+    public static void setHeldItem(@NotNull final AbstractEntityCitizen citizen, final int /* InteractionHand */ hand, final int slot)
     {
         citizen.getCitizenData().getInventory().setHeldItem(hand, slot);
-        if (hand.equals(InteractionHand.MAIN_HAND))
+        if (hand.equals(0 /* InteractionHand.MAIN_HAND */))
         {
-            citizen.setItemSlot(EquipmentSlot.MAINHAND, citizen.getCitizenData().getInventory().getStackInSlot(slot));
+            citizen.setItemSlot(null /* EquipmentSlot. */, citizen.getCitizenData().getInventory().getStackInSlot(slot));
         }
-        else if (hand.equals(InteractionHand.OFF_HAND))
+        else if (hand.equals(1 /* InteractionHand.OFF_HAND */))
         {
-            citizen.setItemSlot(EquipmentSlot.OFFHAND, citizen.getCitizenData().getInventory().getStackInSlot(slot));
+            citizen.setItemSlot(null /* EquipmentSlot. */, citizen.getCitizenData().getInventory().getStackInSlot(slot));
         }
     }
 
@@ -121,8 +121,8 @@ public class CitizenItemUtils
      */
     public static void setMainHeldItem(@NotNull final AbstractEntityCitizen citizen, final int slot)
     {
-        citizen.getCitizenData().getInventory().setHeldItem(InteractionHand.MAIN_HAND, slot);
-        citizen.setItemSlot(EquipmentSlot.MAINHAND, citizen.getCitizenData().getInventory().getStackInSlot(slot));
+        citizen.getCitizenData().getInventory().setHeldItem(0 /* InteractionHand.MAIN_HAND */, slot);
+        citizen.setItemSlot(null /* EquipmentSlot. */, citizen.getCitizenData().getInventory().getStackInSlot(slot));
     }
 
     /**
@@ -130,9 +130,9 @@ public class CitizenItemUtils
      * <p>
      * Will not break the block.
      *
-     * @param blockPos Block position.
+     * @param int[] Block position.
      */
-    public static void hitBlockWithToolInHand(@NotNull final AbstractEntityCitizen citizen, @Nullable final BlockPos blockPos)
+    public static void hitBlockWithToolInHand(@NotNull final AbstractEntityCitizen citizen, @Nullable final int[] blockPos)
     {
         if (blockPos == null)
         {
@@ -146,18 +146,18 @@ public class CitizenItemUtils
      * <p>
      * If breakBlock is true then it will break the block (different sound and particles), and damage the tool in the citizens hand.
      *
-     * @param blockPos   Block position.
+     * @param int[]   Block position.
      * @param breakBlock if we want to break this block.
      */
 
-    public static void hitBlockWithToolInHand(@NotNull final AbstractEntityCitizen citizen, @Nullable final BlockPos blockPos, final boolean breakBlock)
+    public static void hitBlockWithToolInHand(@NotNull final AbstractEntityCitizen citizen, @Nullable final int[] blockPos, final boolean breakBlock)
     {
         if (blockPos == null)
         {
             return;
         }
 
-        citizen.getLookControl().setLookAt(blockPos.getX(), blockPos.getY(), blockPos.getZ(), FACING_DELTA_YAW, citizen.getMaxHeadXRot());
+        citizen.getLookControl().setLookAt(blockPos[0], blockPos[1], blockPos[2], FACING_DELTA_YAW, citizen.getMaxHeadXRot());
 
         citizen.swing(citizen.getUsedItemHand());
 
@@ -170,7 +170,7 @@ public class CitizenItemUtils
                 Network.getNetwork().sendToPosition(
                   new BlockParticleEffectMessage(blockPos, CompatibilityUtils.getWorldFromCitizen(citizen).getBlockState(blockPos), BlockParticleEffectMessage.BREAK_BLOCK),
                   new PacketDistributor.TargetPoint(
-                    blockPos.getX(), blockPos.getY(), blockPos.getZ(), BLOCK_BREAK_SOUND_RANGE, citizen.level.dimension()));
+                    blockPos[0], blockPos[1], blockPos[2], BLOCK_BREAK_SOUND_RANGE, citizen.World.dimension()));
             }
             CompatibilityUtils.getWorldFromCitizen(citizen).playSound(null,
               blockPos,
@@ -186,13 +186,13 @@ public class CitizenItemUtils
         {
             if (!CompatibilityUtils.getWorldFromCitizen(citizen).isClientSide)
             {
-                final BlockPos vector = blockPos.subtract(citizen.blockPosition());
-                final Direction facing = BlockPosUtil.directionFromDelta(vector.getX(), vector.getY(), vector.getZ()).getOpposite();
+                final int[] vector = new int[]{blockPos[0] - (int)citizen.posX, blockPos[1] - (int)citizen.posY, blockPos[2] - (int)citizen.posZ};
+                final Direction facing = BlockPosUtil.directionFromDelta(vector[0], vector[1], vector[2]).getOpposite();
 
                 Network.getNetwork().sendToPosition(
                   new BlockParticleEffectMessage(blockPos, CompatibilityUtils.getWorldFromCitizen(citizen).getBlockState(blockPos), facing.ordinal()),
-                  new PacketDistributor.TargetPoint(blockPos.getX(),
-                    blockPos.getY(), blockPos.getZ(), BLOCK_BREAK_PARTICLE_RANGE, citizen.level.dimension()));
+                  new PacketDistributor.TargetPoint(blockPos[0],
+                    blockPos[1], blockPos[2], BLOCK_BREAK_PARTICLE_RANGE, citizen.World.dimension()));
             }
             CompatibilityUtils.getWorldFromCitizen(citizen).playSound(null,
               blockPos,
@@ -208,7 +208,7 @@ public class CitizenItemUtils
      *
      * @param damage amount of damage.
      */
-    public static void damageItemInHand(@NotNull final AbstractEntityCitizen citizen, final InteractionHand hand, final int damage)
+    public static void damageItemInHand(@NotNull final AbstractEntityCitizen citizen, final int /* InteractionHand */ hand, final int damage)
     {
         final ItemStack heldItem = citizen.getCitizenData().getInventory().getHeldItem(hand);
         //If we hit with bare hands, ignore
@@ -235,13 +235,13 @@ public class CitizenItemUtils
               .getInventory()
               .damageInventoryItem(citizen.getCitizenData().getInventory().getHeldItemSlot(hand), damage, citizen, item -> item.broadcastBreakEvent(hand)))
         {
-            if (hand == InteractionHand.MAIN_HAND)
+            if (hand == 0 /* InteractionHand.MAIN_HAND */)
             {
-                citizen.setItemSlot(EquipmentSlot.MAINHAND, ItemStackUtils.EMPTY);
+                citizen.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
             }
             else
             {
-                citizen.setItemSlot(EquipmentSlot.OFFHAND, ItemStackUtils.EMPTY);
+                citizen.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
             }
         }
     }
@@ -268,9 +268,9 @@ public class CitizenItemUtils
      * <p>
      * This will break the block (different sound and particles), and damage the tool in the citizens hand.
      *
-     * @param blockPos Block position.
+     * @param int[] Block position.
      */
-    public static void breakBlockWithToolInHand(@NotNull final AbstractEntityCitizen citizen, @Nullable final BlockPos blockPos)
+    public static void breakBlockWithToolInHand(@NotNull final AbstractEntityCitizen citizen, @Nullable final int[] blockPos)
     {
         if (blockPos == null)
         {
@@ -312,11 +312,11 @@ public class CitizenItemUtils
         final int armorDmg = Math.max(1, (int) (damage / 4));
         for (int i = 0; i < 4; i++)
         {
-            final EquipmentSlot equipmentSlot = EquipmentSlot.byTypeAndIndex(EquipmentSlot.Type.ARMOR, i);
-            final ItemStack equipment = citizen.getInventoryCitizen().getArmorInSlot(equipmentSlot);
+            final int slot = 0 /* EquipmentSlot - TODO port */;
+            final ItemStack equipment = citizen.getInventoryCitizen().getArmorInSlot(i);
             equipment.hurtAndBreak(armorDmg, citizen, (s) -> {
-                s.broadcastBreakEvent(equipmentSlot);
-                citizen.onArmorRemove(equipment, equipmentSlot);
+                s.broadcastBreakEvent(i);
+                citizen.onArmorRemove(equipment, i);
                 citizen.getInventoryCitizen().markDirty();
             });
         }
@@ -326,7 +326,7 @@ public class CitizenItemUtils
     {
         double localXp = xp;
 
-        for (final EquipmentSlot equipmentSlot : EquipmentSlot.values())
+        for (int slot = 0; slot < 6; slot++) // [1.7.10] 0-3 armor, 4 mainhand, 5 offhand
         {
             if (localXp <= 0)
             {
@@ -334,13 +334,13 @@ public class CitizenItemUtils
             }
 
             final ItemStack tool;
-            if (equipmentSlot.isArmor())
+            if (slot < 4) // [1.7.10] slots 0-3 are armor slots
             {
-                tool = citizen.getInventoryCitizen().getArmorInSlot(equipmentSlot);
+                tool = citizen.getInventoryCitizen().getArmorInSlot(slot);
             }
             else
             {
-                tool = citizen.getInventoryCitizen().getHeldItem(equipmentSlot == EquipmentSlot.MAINHAND ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND);
+                tool = citizen.getInventoryCitizen().getHeldItem(slot == 4 ? 0 : 1); // [1.7.10] main/off hand
             }
 
             if (!ItemStackUtils.isEmpty(tool) && tool.isDamaged() && tool.isEnchanted() && EnchantmentHelper.getEnchantments(tool).containsKey(Enchantments.MENDING))
@@ -355,3 +355,10 @@ public class CitizenItemUtils
         return localXp;
     }
 }
+
+
+
+
+
+
+

@@ -12,14 +12,14 @@ import com.minecolonies.core.entity.ai.combat.AttackMoveAI;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
+// [1.7.10] Registries removed
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] sounds removed
+// [1.7.10] int /* InteractionHand */ removed
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 
 import static com.minecolonies.api.entity.mobs.RaiderMobUtils.MOB_ATTACK_DAMAGE;
 import static com.minecolonies.core.colony.events.raid.RaiderConstants.*;
@@ -37,18 +37,18 @@ public class RaiderMeleeAI<T extends AbstractEntityMinecoloniesMonster & IThreat
     }
 
     @Override
-    protected void doAttack(final LivingEntity target)
+    protected void doAttack(final EntityLivingBase target)
     {
         double damageToBeDealt = user.getAttribute(MOB_ATTACK_DAMAGE.get()).getValue();
         if (user.getName().getContents() instanceof TranslatableContents translatableContents)
         {
-            target.hurt(target.level.damageSources().source(ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(Constants.MOD_ID, translatableContents.getKey().replace("entity.minecolonies.", ""))), user), (float) damageToBeDealt);
+            target.hurt(target.World.damageSources().source(ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(Constants.MOD_ID, translatableContents.getKey().replace("entity.minecolonies.", ""))), user), (float) damageToBeDealt);
         }
         else
         {
-            target.hurt(target.level.damageSources().mobAttack(user), (float) damageToBeDealt);
+            target.hurt(target.World.damageSources().mobAttack(user), (float) damageToBeDealt);
         }
-        user.swing(InteractionHand.MAIN_HAND);
+        user.swing(0 /* InteractionHand.MAIN_HAND */);
         user.playSound(SoundEvents.PLAYER_ATTACK_SWEEP, (float) 1.0D, (float) SoundUtils.getRandomPitch(user.getRandom()));
         target.setLastHurtByMob(user);
     }
@@ -66,7 +66,7 @@ public class RaiderMeleeAI<T extends AbstractEntityMinecoloniesMonster & IThreat
     }
 
     @Override
-    protected PathResult moveInAttackPosition(final LivingEntity target)
+    protected PathResult moveInAttackPosition(final EntityLivingBase target)
     {
         EntityNavigationUtils.walkToPos(user,
             target.blockPosition(),
@@ -77,13 +77,13 @@ public class RaiderMeleeAI<T extends AbstractEntityMinecoloniesMonster & IThreat
     }
 
     @Override
-    protected boolean isAttackableTarget(final LivingEntity target)
+    protected boolean isAttackableTarget(final EntityLivingBase target)
     {
         return (target instanceof EntityCitizen && !target.isInvisible()) || (target instanceof Player && !((Player) target).isCreative() && !target.isSpectator());
     }
 
     @Override
-    protected boolean isWithinPersecutionDistance(final LivingEntity target)
+    protected boolean isWithinPersecutionDistance(final EntityLivingBase target)
     {
         return BlockPosUtil.getDistanceSquared(user.blockPosition(), target.blockPosition()) <= RaiderConstants.MAX_MELEE_RAIDER_PERSECUTION_DISTANCE * RaiderConstants.MAX_MELEE_RAIDER_PERSECUTION_DISTANCE;
     }
@@ -94,3 +94,8 @@ public class RaiderMeleeAI<T extends AbstractEntityMinecoloniesMonster & IThreat
         return 0;
     }
 }
+
+
+
+
+

@@ -1,10 +1,10 @@
 package com.minecolonies.api.quests;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayer;
+// [1.7.10] INBTSerializable -> manual read/write
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -14,20 +14,19 @@ import java.util.Map;
 /**
  * Interface of the Quest manager of each colony.
  */
-public interface IQuestManager extends INBTSerializable<CompoundTag>
-{
+public interface IQuestManager {
     /**
      * All quests that exist.
      */
    Map<ResourceLocation, IQuestTemplate> GLOBAL_SERVER_QUESTS = new HashMap<>();
 
     /**
-     * Have player attempt to accept a colony quest.
+     * Have EntityPlayer attempt to accept a colony quest.
      * @param questID the unique id of the quest.
-     * @param player the player trying to accept it.
+     * @param EntityPlayer the EntityPlayer trying to accept it.
      * @return true if successful.
      */
-    boolean attemptAcceptQuest(ResourceLocation questID, Player player);
+    boolean attemptAcceptQuest(ResourceLocation questID, EntityPlayer EntityPlayer);
 
     /**
      * Conclude a given quest. This is called FROM the quest, to the colony.
@@ -119,12 +118,19 @@ public interface IQuestManager extends INBTSerializable<CompoundTag>
      * @param buf
      * @param hasNewSubscribers
      */
-    void serialize(FriendlyByteBuf buf, boolean hasNewSubscribers);
+    void serialize(PacketBuffer buf, boolean hasNewSubscribers);
 
     /**
      * Deserialize network data
      *
      * @param buf
      */
-    void deserialize(FriendlyByteBuf buf);
+    void deserialize(PacketBuffer buf);
 }
+
+
+
+
+
+
+

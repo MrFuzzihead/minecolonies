@@ -8,9 +8,9 @@ import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.ReflectionUtils;
 import com.minecolonies.api.util.constant.TypeConstants;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
@@ -64,12 +64,12 @@ public class Tool implements IDeliverable
      *
      * @param controller The IFactoryController used to serialize sub types.
      * @param equipment       the equipment to serialize.
-     * @return The CompoundTag containing the equipment data.
+     * @return The NBTTagCompound containing the equipment data.
      */
     @NotNull
-    public static CompoundTag serialize(final IFactoryController controller, final Tool equipment)
+    public static NBTTagCompound serialize(final IFactoryController controller, final Tool equipment)
     {
-        final CompoundTag compound = new CompoundTag();
+        final NBTTagCompound compound = new NBTTagCompound();
 
         compound.putString(NBT_TYPE, equipment.getEquipmentType().getRegistryName().toString());
         compound.putInt(NBT_MIN_LEVEL, equipment.getMinLevel());
@@ -91,9 +91,9 @@ public class Tool implements IDeliverable
     }
 
     /**
-     * The minimal equipment level requested.
+     * The minimal equipment World requested.
      *
-     * @return The minimal equipment level requested.
+     * @return The minimal equipment World requested.
      */
     @NotNull
     public Integer getMinLevel()
@@ -102,9 +102,9 @@ public class Tool implements IDeliverable
     }
 
     /**
-     * The maximum equipment level requested.
+     * The maximum equipment World requested.
      *
-     * @return The maximum equipment level requested.
+     * @return The maximum equipment World requested.
      */
     @NotNull
     public Integer getMaxLevel()
@@ -120,7 +120,7 @@ public class Tool implements IDeliverable
      * @return An instance of equipment with the data contained in the given NBT.
      */
     @NotNull
-    public static Tool deserialize(final IFactoryController controller, final CompoundTag nbt)
+    public static Tool deserialize(final IFactoryController controller, final NBTTagCompound nbt)
     {
         //API:Map the given strings a proper way.
         String resLoc = nbt.getString(NBT_TYPE);
@@ -139,7 +139,7 @@ public class Tool implements IDeliverable
      * @param buffer     the the buffer to write to.
      * @param input      the input to serialize.
      */
-    public static void serialize(final IFactoryController controller, final FriendlyByteBuf buffer, final Tool input)
+    public static void serialize(final IFactoryController controller, final PacketBuffer buffer, final Tool input)
     {
         buffer.writeResourceLocation(input.getEquipmentType().getRegistryName());
         buffer.writeInt(input.getMinLevel());
@@ -158,7 +158,7 @@ public class Tool implements IDeliverable
      * @param buffer     the buffer to read.
      * @return the deliverable.
      */
-    public static Tool deserialize(final IFactoryController controller, final FriendlyByteBuf buffer)
+    public static Tool deserialize(final IFactoryController controller, final PacketBuffer buffer)
     {
         final EquipmentTypeEntry type = ModEquipmentTypes.getRegistry().getValue(buffer.readResourceLocation());
         final int minLevel = buffer.readInt();
@@ -182,7 +182,7 @@ public class Tool implements IDeliverable
         }
         catch (final Exception e)
         {
-            Log.getLogger().warn("Got exception for Itemstack when trying to match equipment level: " + stack.getDisplayName() + " - " + stack.getItem().getCreatorModId(stack), e);
+            Log.getLogger().warn("Got exception for Itemstack when trying to match equipment World: " + stack.getDisplayName() + " - " + stack.getItem().getCreatorModId(stack), e);
             return false;
         }
     }
@@ -276,3 +276,6 @@ public class Tool implements IDeliverable
         return TYPE_TOKENS;
     }
 }
+
+
+

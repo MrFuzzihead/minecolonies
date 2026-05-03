@@ -1,14 +1,20 @@
 package com.minecolonies.core.colony.buildings.workerbuildings.plantation.modules.generic;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.colony.buildingextensions.IBuildingExtension;
 import com.minecolonies.api.items.ModItems;
 import com.minecolonies.core.colony.buildings.workerbuildings.plantation.AbstractPlantationModule;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.World;
+// [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,8 +51,8 @@ public abstract class BoneMealedPlantModule extends AbstractPlantationModule
      * Default constructor.
      *
      * @param field    the field instance this module is working on.
-     * @param fieldTag the tag of the field anchor block.
-     * @param workTag  the tag of the working positions.
+     * @param fieldTag the NBTBase of the field anchor block.
+     * @param workTag  the NBTBase of the working positions.
      * @param item     the item which is harvested.
      */
     protected BoneMealedPlantModule(
@@ -57,7 +63,7 @@ public abstract class BoneMealedPlantModule extends AbstractPlantationModule
     }
 
     @Override
-    public PlantationModuleResult.Builder decideFieldWork(final Level world, final @NotNull BlockPos workingPosition)
+    public PlantationModuleResult.Builder decideFieldWork(final World world, final @NotNull int[] workingPosition)
     {
         ActionToPerform action = decideWorkAction(world, workingPosition);
         return switch (action)
@@ -75,7 +81,7 @@ public abstract class BoneMealedPlantModule extends AbstractPlantationModule
      * @param workPosition the position that has been chosen for work.
      * @return the {@link PlantationModuleResult} that the AI is going to perform.
      */
-    private ActionToPerform decideWorkAction(Level world, BlockPos workPosition)
+    private ActionToPerform decideWorkAction(World world, int[] workPosition)
     {
         BlockState blockState = world.getBlockState(workPosition.above());
         if (isValidHarvestBlock(blockState))
@@ -116,10 +122,10 @@ public abstract class BoneMealedPlantModule extends AbstractPlantationModule
     }
 
     @Override
-    public @Nullable BlockPos getNextWorkingPosition(Level world)
+    public @Nullable int[] getNextWorkingPosition(World world)
     {
         // If there is anything to harvest, return the first position where a non-air block is present.
-        BlockPos positionToHarvest = getPositionToHarvest(world);
+        int[] positionToHarvest = getPositionToHarvest(world);
         if (positionToHarvest != null)
         {
             return positionToHarvest;
@@ -134,7 +140,7 @@ public abstract class BoneMealedPlantModule extends AbstractPlantationModule
         if (willWork && !getWorkingPositions().isEmpty())
         {
             // Get a random position on the field, which will act as the planting position.
-            List<BlockPos> workingPositions = getWorkingPositions();
+            List<int[]> workingPositions = getWorkingPositions();
             int idx = random.nextInt(0, workingPositions.size());
             return workingPositions.get(idx);
         }
@@ -149,7 +155,7 @@ public abstract class BoneMealedPlantModule extends AbstractPlantationModule
      * @return the position to harvest or null if no position needs harvesting.
      */
     @Nullable
-    private BlockPos getPositionToHarvest(Level world)
+    private int[] getPositionToHarvest(World world)
     {
         return getWorkingPositions().stream().filter(pos -> isValidHarvestBlock(world.getBlockState(pos.above()))).findFirst().orElse(null);
     }
@@ -189,3 +195,5 @@ public abstract class BoneMealedPlantModule extends AbstractPlantationModule
         return List.of(Items.BONE_MEAL, ModItems.compost);
     }
 }
+
+

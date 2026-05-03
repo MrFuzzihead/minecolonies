@@ -5,10 +5,10 @@ import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.eventbus.events.colony.ColonyFlagChangedModEvent;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.network.messages.server.AbstractColonyServerMessage;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_BANNER_PATTERNS;
 
@@ -20,7 +20,7 @@ public class ColonyFlagChangeMessage extends AbstractColonyServerMessage
     /**
      * The chosen list of patterns from the window
      */
-    private ListTag patterns;
+    private NBTTagList patterns;
 
     /**
      * Default constructor
@@ -33,7 +33,7 @@ public class ColonyFlagChangeMessage extends AbstractColonyServerMessage
      * @param colony      the colony the player changed the banner in
      * @param patternList the list of patterns they set in the banner picker
      */
-    public ColonyFlagChangeMessage(IColony colony, ListTag patternList)
+    public ColonyFlagChangeMessage(IColony colony, NBTTagList patternList)
     {
         super(colony);
 
@@ -41,27 +41,30 @@ public class ColonyFlagChangeMessage extends AbstractColonyServerMessage
     }
 
     @Override
-    protected void onExecute(NetworkEvent.Context ctxIn, boolean isLogicalServer, IColony colony)
+    protected void onExecute(MessageContext ctx, boolean isLogicalServer, IColony colony)
     {
         colony.setColonyFlag(patterns);
         IMinecoloniesAPI.getInstance().getEventBus().post(new ColonyFlagChangedModEvent(colony));
     }
 
     @Override
-    protected void toBytesOverride(FriendlyByteBuf buf)
+    protected void toBytesOverride(PacketBuffer buf)
     {
-        CompoundTag nbt = new CompoundTag();
+        NBTTagCompound nbt = new NBTTagCompound();
         nbt.put(TAG_BANNER_PATTERNS, this.patterns);
         buf.writeNbt(nbt);
     }
 
     @Override
-    protected void fromBytesOverride(FriendlyByteBuf buf)
+    protected void fromBytesOverride(PacketBuffer buf)
     {
-        CompoundTag nbt = buf.readNbt();
+        NBTTagCompound nbt = buf.readNbt();
         if (nbt != null)
         {
             this.patterns = nbt.getList(TAG_BANNER_PATTERNS, Constants.TAG_COMPOUND);
         }
     }
 }
+
+
+

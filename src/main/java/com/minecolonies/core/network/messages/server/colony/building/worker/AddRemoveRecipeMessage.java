@@ -15,13 +15,13 @@ import com.minecolonies.api.util.SoundUtils;
 import com.minecolonies.core.colony.buildings.modules.AbstractCraftingBuildingModule;
 import com.minecolonies.core.network.messages.server.AbstractBuildingServerMessage;
 import com.minecolonies.core.util.AdvancementUtils;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -131,7 +131,7 @@ public class AddRemoveRecipeMessage extends AbstractBuildingServerMessage<IBuild
      * @param buf the used byteBuffer.
      */
     @Override
-    public void fromBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void fromBytesOverride(@NotNull final PacketBuffer buf)
     {
         storage = StandardFactoryController.getInstance().deserialize(buf);
         remove = buf.readBoolean();
@@ -144,7 +144,7 @@ public class AddRemoveRecipeMessage extends AbstractBuildingServerMessage<IBuild
      * @param buf the used byteBuffer.
      */
     @Override
-    public void toBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void toBytesOverride(@NotNull final PacketBuffer buf)
     {
         StandardFactoryController.getInstance().serialize(buf, storage);
         buf.writeBoolean(remove);
@@ -152,9 +152,9 @@ public class AddRemoveRecipeMessage extends AbstractBuildingServerMessage<IBuild
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony, final IBuilding building)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony, final IBuilding building)
     {
-        final Player player = ctxIn.getSender();
+        final Player player = ctx.getServerHandler().playerEntity;
         if (player == null)
         {
             return;
@@ -177,7 +177,7 @@ public class AddRemoveRecipeMessage extends AbstractBuildingServerMessage<IBuild
             if (!module.addRecipe(token))
             {
                 SoundUtils.playErrorSound(player, player.blockPosition());
-                MessageUtils.format(UNABLE_TO_ADD_RECIPE_MESSAGE, Component.translatable(building.getBuildingDisplayName())).sendTo(player);
+                MessageUtils.format(UNABLE_TO_ADD_RECIPE_MESSAGE, String.translatable(building.getBuildingDisplayName())).sendTo(player);
             }
             else
             {
@@ -190,3 +190,5 @@ public class AddRemoveRecipeMessage extends AbstractBuildingServerMessage<IBuild
         building.markDirty();
     }
 }
+
+

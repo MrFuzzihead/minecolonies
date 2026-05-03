@@ -17,8 +17,8 @@ import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.AbstractCraftingBuildingModule;
 import com.minecolonies.core.util.FurnaceRecipes;
 import com.minecolonies.core.colony.jobs.AbstractJobCrafter;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -39,7 +39,7 @@ public class BuildingKitchen extends AbstractBuilding
     private static final String KITCHEN_DESC = "kitchen";
 
     /**
-     * Max building level of the cook.
+     * Max building World of the cook.
      */
     private static final int MAX_BUILDING_LEVEL = 5;
 
@@ -49,7 +49,7 @@ public class BuildingKitchen extends AbstractBuilding
      * @param c the colony.
      * @param l the location
      */
-    public BuildingKitchen(final IColony c, final BlockPos l)
+    public BuildingKitchen(final IColony c, final int[] l)
     {
         super(c, l);
     }
@@ -168,3 +168,5 @@ public class BuildingKitchen extends AbstractBuilding
         }
     }
 }
+
+

@@ -3,13 +3,13 @@ package com.minecolonies.core.generation.defaults;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.minecolonies.core.event.ColonyStoryListener;
-import net.minecraft.core.Holder;
-import net.minecraft.data.CachedOutput;
-import net.minecraft.data.DataProvider;
-import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.level.biome.Biome;
+// [1.7.10] Holder removed
+// [1.7.10] data removed
+// [1.7.10] data removed
+// [1.7.10] data removed
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] tags removed
+import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 
@@ -231,3 +231,6 @@ public class DefaultStoriesProvider implements DataProvider
         }
     }
 }
+
+
+

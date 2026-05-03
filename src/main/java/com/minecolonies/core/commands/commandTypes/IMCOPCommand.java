@@ -3,8 +3,8 @@ package com.minecolonies.core.commands.commandTypes;
 import com.minecolonies.api.util.MessageUtils;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 
 import static com.minecolonies.api.util.constant.translation.CommandTranslationConstants.COMMAND_REQUIRES_OP;
 
@@ -38,3 +38,4 @@ public interface IMCOPCommand extends IMCCommand
         return true;
     }
 }
+

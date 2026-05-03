@@ -2,12 +2,11 @@ package com.minecolonies.api.entity.ai.workers.util;
 
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.api.util.ItemStackUtils;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ShieldItem;
-import net.minecraft.world.item.SwordItem;
+import com.minecolonies.api.util.Tuple;
+// [1.7.10] ArmorItem/ShieldItem/SwordItem replaced by 1.7.10 item types
+import net.minecraft.item.ItemArmor;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemSword;
 
 import java.util.function.Predicate;
 
@@ -17,39 +16,39 @@ import java.util.function.Predicate;
 public class GuardGear implements Predicate<ItemStack>
 {
     /**
-     * Min level the citizen has to be to required the item.
+     * Min World the citizen has to be to required the item.
      */
     private final int minLevelRequired;
 
     /**
-     * Max level the citizen can be to required the item.
+     * Max World the citizen can be to required the item.
      */
     private final int maxLevelRequired;
 
     /**
-     * The min armor level.
+     * The min armor World.
      */
     private final int minArmorLevel;
 
     /**
-     * The max armor level.
+     * The max armor World.
      */
     private final int maxArmorLevel;
 
     /**
-     * Minimal building level.
+     * Minimal building World.
      */
     private final int minBuildingLevelRequired;
 
     /**
-     * Maximum building level.
+     * Maximum building World.
      */
     private final int maxBuildingLevelRequired;
 
     /**
      * Item type that is required.
      */
-    private final EquipmentSlot type;
+    private final int /* EquipmentSlot */ type;
 
     /**
      * Tool type that is needed.
@@ -57,17 +56,17 @@ public class GuardGear implements Predicate<ItemStack>
     private final EquipmentTypeEntry itemNeeded;
 
     /**
-     * Create a classification for a tool level.
+     * Create a classification for a tool World.
      *
      * @param item               item that is being required.
      * @param type               item type for the required item.
-     * @param minArmorLevel      the min armor level.
-     * @param maxArmorLevel      the max armor level.
-     * @param citizenLevelRange  level range required to demand item.
-     * @param buildingLevelRange level range that the item will be required.
+     * @param minArmorLevel      the min armor World.
+     * @param maxArmorLevel      the max armor World.
+     * @param citizenLevelRange  World range required to demand item.
+     * @param buildingLevelRange World range that the item will be required.
      */
     public GuardGear(
-      final EquipmentTypeEntry item, final EquipmentSlot type,
+      final EquipmentTypeEntry item, final int /* EquipmentSlot */ type,
       final int minArmorLevel,
       final int maxArmorLevel, final Tuple<Integer, Integer> citizenLevelRange,
       final Tuple<Integer, Integer> buildingLevelRange)
@@ -83,7 +82,7 @@ public class GuardGear implements Predicate<ItemStack>
     }
 
     /**
-     * @return min level for this item to be required
+     * @return min World for this item to be required
      */
     public int getMinLevelRequired()
     {
@@ -91,7 +90,7 @@ public class GuardGear implements Predicate<ItemStack>
     }
 
     /**
-     * @return max level for this item to be require
+     * @return max World for this item to be require
      */
     public int getMaxLevelRequired()
     {
@@ -101,13 +100,13 @@ public class GuardGear implements Predicate<ItemStack>
     /**
      * @return type of the item
      */
-    public EquipmentSlot getType()
+    public int /* EquipmentSlot */ getType()
     {
         return type;
     }
 
     /**
-     * @return minimal level required for this tool.
+     * @return minimal World required for this tool.
      */
     public int getMinArmorLevel()
     {
@@ -115,7 +114,7 @@ public class GuardGear implements Predicate<ItemStack>
     }
 
     /**
-     * @return maximal level required for this tool.
+     * @return maximal World required for this tool.
      */
     public int getMaxArmorLevel()
     {
@@ -131,7 +130,7 @@ public class GuardGear implements Predicate<ItemStack>
     }
 
     /**
-     * @return the min building level for this armor.
+     * @return the min building World for this armor.
      */
     public int getMinBuildingLevelRequired()
     {
@@ -139,7 +138,7 @@ public class GuardGear implements Predicate<ItemStack>
     }
 
     /**
-     * @return the max building level for this armor.
+     * @return the max building World for this armor.
      */
     public int getMaxBuildingLevelRequired()
     {
@@ -149,10 +148,14 @@ public class GuardGear implements Predicate<ItemStack>
     @Override
     public boolean test(final ItemStack stack)
     {
+        // [1.7.10] ArmorItem→ItemArmor, SwordItem→ItemSword, ShieldItem N/A in 1.7.10
         return
-          (ItemStackUtils.hasEquipmentLevel(stack, itemNeeded, minArmorLevel, maxArmorLevel) && stack.getItem() instanceof ArmorItem
-             && ((ArmorItem) stack.getItem()).getEquipmentSlot() == getType())
-            || (stack.getItem() instanceof SwordItem && getType() == EquipmentSlot.MAINHAND)
-            || (stack.getItem() instanceof ShieldItem && getType() == EquipmentSlot.OFFHAND);
+          (ItemStackUtils.hasEquipmentLevel(stack, itemNeeded, minArmorLevel, maxArmorLevel) && stack.getItem() instanceof ItemArmor
+             && ((ItemArmor) stack.getItem()).armorType == getType())
+            || (stack.getItem() instanceof ItemSword && getType() == 0);
     }
 }
+
+
+
+

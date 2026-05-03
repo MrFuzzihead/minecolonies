@@ -9,7 +9,7 @@ import com.minecolonies.api.colony.jobs.registry.JobEntry;
 import com.minecolonies.api.entity.citizen.Skill;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingTownHall;
-import net.minecraft.network.chat.MutableComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 import com.minecolonies.api.util.MessageUtils;
 
 import java.util.function.Function;
@@ -45,8 +45,8 @@ public class WorkAtHomeBuildingModule extends WorkerBuildingModule implements IA
                     if (livingBuildingModule.getHiringMode() == HiringMode.MANUAL || (livingBuildingModule.getHiringMode() == HiringMode.DEFAULT
                         && !building.getColony().getSettings().getSetting(BuildingTownHall.AUTO_HIRING_MODE).getValue()))
                     {
-                        final MutableComponent jobComponent = MessageUtils.format(citizen.getJob().getJobRegistryEntry().getTranslationKey()).create();
-                        final MutableComponent buildingComponent = MessageUtils.format(oldHome.getBuildingDisplayName()).create();
+                        final String jobComponent = MessageUtils.format(citizen.getJob().getJobRegistryEntry().getTranslationKey()).create();
+                        final String buildingComponent = MessageUtils.format(oldHome.getBuildingDisplayName()).create();
                         MessageUtils.format("com.minecolonies.coremod.gui.workerhuts.assignedbed",
                             citizen.getName(),
                             jobComponent,
@@ -70,3 +70,5 @@ public class WorkAtHomeBuildingModule extends WorkerBuildingModule implements IA
         citizen.setHomeBuilding(null);
     }
 }
+
+

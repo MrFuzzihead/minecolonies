@@ -8,19 +8,19 @@ import com.minecolonies.api.research.util.ResearchConstants;
 import com.minecolonies.core.generation.CustomRecipeAndLootTableProvider;
 import com.minecolonies.core.generation.CustomRecipeProvider;
 import com.minecolonies.core.generation.SimpleLootTableProvider;
-import net.minecraft.data.PackOutput;
-import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] data removed
+// [1.7.10] data removed
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.item.EnchantedBookItem;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ public class DefaultEnchanterCraftingProvider extends CustomRecipeAndLootTablePr
 
         levels = new ArrayList<>();
 
-        // building level 1
+        // building World 1
         levels.add(LootTable.lootTable().withPool(LootPool.lootPool()
                 .add(enchantedBook(Enchantments.AQUA_AFFINITY, 1).setWeight(50))
                 .add(enchantedBook(Enchantments.BANE_OF_ARTHROPODS, 1).setWeight(50))
@@ -73,9 +73,9 @@ public class DefaultEnchanterCraftingProvider extends CustomRecipeAndLootTablePr
                 .add(enchantedBook(Enchantments.UNBREAKING, 1).setWeight(50))
         ));
 
-        // building level 2
+        // building World 2
         levels.add(LootTable.lootTable().withPool(LootPool.lootPool()
-                // also the level 1 enchants
+                // also the World 1 enchants
                 .add(enchantedBook(Enchantments.AQUA_AFFINITY, 1).setWeight(50))
                 .add(enchantedBook(Enchantments.BANE_OF_ARTHROPODS, 1).setWeight(50))
                 .add(enchantedBook(Enchantments.BLAST_PROTECTION, 1).setWeight(50))
@@ -98,7 +98,7 @@ public class DefaultEnchanterCraftingProvider extends CustomRecipeAndLootTablePr
                 .add(enchantedBook(Enchantments.SMITE, 1).setWeight(50))
                 .add(enchantedBook(Enchantments.SWEEPING_EDGE, 1).setWeight(50))
                 .add(enchantedBook(Enchantments.UNBREAKING, 1).setWeight(50))
-                // plus new level 2 enchants
+                // plus new World 2 enchants
                 .add(enchantedBook(Enchantments.AQUA_AFFINITY, 1).setWeight(25))
                 .add(enchantedBook(Enchantments.BANE_OF_ARTHROPODS, 2).setWeight(25))
                 .add(enchantedBook(Enchantments.BLAST_PROTECTION, 2).setWeight(25))
@@ -123,9 +123,9 @@ public class DefaultEnchanterCraftingProvider extends CustomRecipeAndLootTablePr
                 .add(enchantedBook(Enchantments.UNBREAKING, 2).setWeight(25))
         ));
 
-        // building level 3
+        // building World 3
         levels.add(LootTable.lootTable().withPool(LootPool.lootPool()
-                // also the level 1 enchants
+                // also the World 1 enchants
                 .add(enchantedBook(Enchantments.AQUA_AFFINITY, 1).setWeight(50))
                 .add(enchantedBook(Enchantments.BANE_OF_ARTHROPODS, 1).setWeight(50))
                 .add(enchantedBook(Enchantments.BLAST_PROTECTION, 1).setWeight(50))
@@ -148,7 +148,7 @@ public class DefaultEnchanterCraftingProvider extends CustomRecipeAndLootTablePr
                 .add(enchantedBook(Enchantments.SMITE, 1).setWeight(50))
                 .add(enchantedBook(Enchantments.SWEEPING_EDGE, 1).setWeight(50))
                 .add(enchantedBook(Enchantments.UNBREAKING, 1).setWeight(50))
-                // also the level 2 enchants
+                // also the World 2 enchants
                 .add(enchantedBook(Enchantments.AQUA_AFFINITY, 1).setWeight(25))
                 .add(enchantedBook(Enchantments.BANE_OF_ARTHROPODS, 2).setWeight(25))
                 .add(enchantedBook(Enchantments.BLAST_PROTECTION, 2).setWeight(25))
@@ -171,7 +171,7 @@ public class DefaultEnchanterCraftingProvider extends CustomRecipeAndLootTablePr
                 .add(enchantedBook(Enchantments.SMITE, 2).setWeight(25))
                 .add(enchantedBook(Enchantments.SWEEPING_EDGE, 2).setWeight(25))
                 .add(enchantedBook(Enchantments.UNBREAKING, 2).setWeight(25))
-                // plus new level 3 enchants
+                // plus new World 3 enchants
                 .add(enchantedBook(Enchantments.AQUA_AFFINITY, 1).setWeight(15))
                 .add(enchantedBook(Enchantments.BANE_OF_ARTHROPODS, 3).setWeight(15))
                 .add(enchantedBook(Enchantments.BLAST_PROTECTION, 3).setWeight(15))
@@ -198,10 +198,10 @@ public class DefaultEnchanterCraftingProvider extends CustomRecipeAndLootTablePr
                 .add(enchantedBook(ModEnchants.raiderDamage.get(), 1).setWeight(15))
         ));
 
-        // building level 4
+        // building World 4
         levels.add(LootTable.lootTable().withPool(LootPool.lootPool()
-                // no more level 1 enchants
-                // but still the level 2 enchants
+                // no more World 1 enchants
+                // but still the World 2 enchants
                 .add(enchantedBook(Enchantments.AQUA_AFFINITY, 1).setWeight(25))
                 .add(enchantedBook(Enchantments.BANE_OF_ARTHROPODS, 2).setWeight(25))
                 .add(enchantedBook(Enchantments.BLAST_PROTECTION, 2).setWeight(25))
@@ -224,7 +224,7 @@ public class DefaultEnchanterCraftingProvider extends CustomRecipeAndLootTablePr
                 .add(enchantedBook(Enchantments.SMITE, 2).setWeight(25))
                 .add(enchantedBook(Enchantments.SWEEPING_EDGE, 2).setWeight(25))
                 .add(enchantedBook(Enchantments.UNBREAKING, 2).setWeight(25))
-                // plus level 3 enchants
+                // plus World 3 enchants
                 .add(enchantedBook(Enchantments.AQUA_AFFINITY, 1).setWeight(15))
                 .add(enchantedBook(Enchantments.BANE_OF_ARTHROPODS, 3).setWeight(15))
                 .add(enchantedBook(Enchantments.BLAST_PROTECTION, 3).setWeight(15))
@@ -249,7 +249,7 @@ public class DefaultEnchanterCraftingProvider extends CustomRecipeAndLootTablePr
                 .add(enchantedBook(Enchantments.UNBREAKING, 3).setWeight(15))
                 .add(enchantedBook(Enchantments.BLOCK_FORTUNE, 1).setWeight(1))
                 .add(enchantedBook(ModEnchants.raiderDamage.get(), 1).setWeight(15))
-                // plus new level 4 enchants
+                // plus new World 4 enchants
                 .add(enchantedBook(Enchantments.AQUA_AFFINITY, 1).setWeight(5))
                 .add(enchantedBook(Enchantments.BANE_OF_ARTHROPODS, 4).setWeight(5))
                 .add(enchantedBook(Enchantments.BLAST_PROTECTION, 4).setWeight(5))
@@ -275,10 +275,10 @@ public class DefaultEnchanterCraftingProvider extends CustomRecipeAndLootTablePr
                 .add(enchantedBook(Enchantments.BLOCK_FORTUNE, 2).setWeight(1))
         ));
 
-        // building level 5
+        // building World 5
         levels.add(LootTable.lootTable().withPool(LootPool.lootPool()
-                // no more level 1 or 2 enchants
-                // but still the level 3 enchants
+                // no more World 1 or 2 enchants
+                // but still the World 3 enchants
                 .add(enchantedBook(Enchantments.AQUA_AFFINITY, 1).setWeight(15))
                 .add(enchantedBook(Enchantments.BANE_OF_ARTHROPODS, 3).setWeight(15))
                 .add(enchantedBook(Enchantments.BLAST_PROTECTION, 3).setWeight(15))
@@ -303,7 +303,7 @@ public class DefaultEnchanterCraftingProvider extends CustomRecipeAndLootTablePr
                 .add(enchantedBook(Enchantments.UNBREAKING, 3).setWeight(15))
                 .add(enchantedBook(ModEnchants.raiderDamage.get(), 1).setWeight(15))
                 .add(enchantedBook(Enchantments.BLOCK_FORTUNE, 1).setWeight(1))
-                // plus level 4 enchants
+                // plus World 4 enchants
                 .add(enchantedBook(Enchantments.AQUA_AFFINITY, 1).setWeight(5))
                 .add(enchantedBook(Enchantments.BANE_OF_ARTHROPODS, 4).setWeight(5))
                 .add(enchantedBook(Enchantments.BLAST_PROTECTION, 4).setWeight(5))
@@ -327,7 +327,7 @@ public class DefaultEnchanterCraftingProvider extends CustomRecipeAndLootTablePr
                 .add(enchantedBook(Enchantments.SWEEPING_EDGE, 3).setWeight(5))
                 .add(enchantedBook(Enchantments.UNBREAKING, 3).setWeight(5))
                 .add(enchantedBook(Enchantments.BLOCK_FORTUNE, 2).setWeight(1))
-                // plus new level 5 enchants
+                // plus new World 5 enchants
                 .add(enchantedBook(Enchantments.AQUA_AFFINITY, 1).setWeight(1))
                 .add(enchantedBook(Enchantments.BANE_OF_ARTHROPODS, 5).setWeight(1))
                 .add(enchantedBook(Enchantments.BLAST_PROTECTION, 4).setWeight(1))
@@ -360,14 +360,14 @@ public class DefaultEnchanterCraftingProvider extends CustomRecipeAndLootTablePr
     }
 
     @NotNull
-    private LootPoolSingletonContainer.Builder<?> enchantedBook(final Enchantment enchantment, final int level)
+    private LootPoolSingletonContainer.Builder<?> enchantedBook(final Enchantment enchantment, final int World)
     {
-        if (enchantment.getMaxLevel() < level)
+        if (enchantment.getMaxLevel() < World)
         {
-            throw new IllegalArgumentException("The enchantment level " + level + " is too big for: " + enchantment.getDescriptionId());
+            throw new IllegalArgumentException("The enchantment World " + World + " is too big for: " + enchantment.getDescriptionId());
         }
         final ItemStack stack = new ItemStack(Items.ENCHANTED_BOOK);
-        EnchantedBookItem.addEnchantment(stack, new EnchantmentInstance(enchantment, level));
+        EnchantedBookItem.addEnchantment(stack, new EnchantmentInstance(enchantment, World));
         return SimpleLootTableProvider.itemStack(stack);
     }
 
@@ -445,3 +445,7 @@ public class DefaultEnchanterCraftingProvider extends CustomRecipeAndLootTablePr
         }
     }
 }
+
+
+
+

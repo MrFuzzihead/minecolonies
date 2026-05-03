@@ -10,16 +10,16 @@ import com.minecolonies.core.colony.buildings.modules.ItemListModule;
 import com.minecolonies.core.colony.buildings.modules.settings.BoolSetting;
 import com.minecolonies.core.colony.buildings.modules.settings.IntSetting;
 import com.minecolonies.core.colony.buildings.modules.settings.SettingKey;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+// [1.7.10] NbtUtils removed
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+import com.minecolonies.api.util.Tuple;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -46,24 +46,24 @@ public class BuildingComposter extends AbstractBuilding
     private static final String COMPOSTER = "composter";
 
     /**
-     * Maximum building level
+     * Maximum building World
      */
     private static final int MAX_BUILDING_LEVEL = 5;
 
     /**
-     * Tag to store the barrel position.
+     * NBTBase to store the barrel position.
      */
     private static final String TAG_POS = "pos";
 
     /**
-     * Tag to store the barrel list.
+     * NBTBase to store the barrel list.
      */
     private static final String TAG_BARRELS = "barrels";
 
     /**
      * List of registered barrels.
      */
-    private final List<BlockPos> barrels = new ArrayList<>();
+    private final List<int[]> barrels = new ArrayList<>();
 
     /**
      * The constructor of the building.
@@ -71,7 +71,7 @@ public class BuildingComposter extends AbstractBuilding
      * @param c the colony
      * @param l the position
      */
-    public BuildingComposter(@NotNull final IColony c, final BlockPos l)
+    public BuildingComposter(@NotNull final IColony c, final int[] l)
     {
         super(c, l);
         keepX.put((stack) -> this.getModuleMatching(ItemListModule.class, m -> m.getId().equals(COMPOSTABLE_LIST)).isItemInList(new ItemStorage(stack)), new Tuple<>(Integer.MAX_VALUE, true));
@@ -82,7 +82,7 @@ public class BuildingComposter extends AbstractBuilding
      *
      * @return copy of the list
      */
-    public List<BlockPos> getBarrels()
+    public List<int[]> getBarrels()
     {
         return ImmutableList.copyOf(barrels);
     }
@@ -101,7 +101,7 @@ public class BuildingComposter extends AbstractBuilding
     }
 
     @Override
-    public void registerBlockPosition(@NotNull final Block block, @NotNull final BlockPos pos, @NotNull final Level world)
+    public void registerBlockPosition(@NotNull final Block block, @NotNull final int[] pos, @NotNull final World world)
     {
         super.registerBlockPosition(block, pos, world);
         if (block == ModBlocks.blockBarrel && !barrels.contains(pos))
@@ -111,10 +111,10 @@ public class BuildingComposter extends AbstractBuilding
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
-        final ListTag compostBinTagList = compound.getList(TAG_BARRELS, Tag.TAG_COMPOUND);
+        final NBTTagList compostBinTagList = compound.getList(TAG_BARRELS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < compostBinTagList.size(); ++i)
         {
             barrels.add(NbtUtils.readBlockPos(compostBinTagList.getCompound(i).getCompound(TAG_POS)));
@@ -122,13 +122,13 @@ public class BuildingComposter extends AbstractBuilding
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compound = super.serializeNBT();
-        @NotNull final ListTag compostBinTagList = new ListTag();
-        for (@NotNull final BlockPos entry : barrels)
+        final NBTTagCompound compound = super.serializeNBT();
+        @NotNull final NBTTagList compostBinTagList = new NBTTagList();
+        for (@NotNull final int[] entry : barrels)
         {
-            @NotNull final CompoundTag compostBinCompound = new CompoundTag();
+            @NotNull final NBTTagCompound compostBinCompound = new NBTTagCompound();
             compostBinCompound.put(TAG_POS, NbtUtils.writeBlockPos(entry));
             compostBinTagList.add(compostBinCompound);
         }
@@ -136,3 +136,7 @@ public class BuildingComposter extends AbstractBuilding
         return compound;
     }
 }
+
+
+
+

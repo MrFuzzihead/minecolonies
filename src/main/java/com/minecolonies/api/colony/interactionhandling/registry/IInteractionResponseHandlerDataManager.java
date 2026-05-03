@@ -3,7 +3,7 @@ package com.minecolonies.api.colony.interactionhandling.registry;
 import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.colony.ICitizen;
 import com.minecolonies.api.colony.interactionhandling.IInteractionResponseHandler;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,12 +19,14 @@ public interface IInteractionResponseHandlerDataManager
     }
 
     /**
-     * Create an interactionResponseHandler from saved CompoundTag data.
+     * Create an interactionResponseHandler from saved NBTTagCompound data.
      *
      * @param citizen  The citizen that owns the interaction response handler..
-     * @param compound The CompoundTag containing the saved interaction data.
+     * @param compound The NBTTagCompound containing the saved interaction data.
      * @return New InteractionResponseHandler created from the data, or null.
      */
     @Nullable
-    IInteractionResponseHandler createFrom(@NotNull ICitizen citizen, @NotNull CompoundTag compound);
+    IInteractionResponseHandler createFrom(@NotNull ICitizen citizen, @NotNull NBTTagCompound compound);
 }
+
+

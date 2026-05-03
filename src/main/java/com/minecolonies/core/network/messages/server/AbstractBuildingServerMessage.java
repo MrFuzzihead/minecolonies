@@ -4,44 +4,26 @@ import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.util.Log;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.network.NetworkEvent;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.network.PacketBuffer;
 
+/**
+ * Abstract base for all server-side building messages.
+ * [1.7.10] Ported: NetworkEvent.Context → MessageContext; buildingId as int[] (3 ints).
+ */
 public abstract class AbstractBuildingServerMessage<T extends IBuilding> extends AbstractColonyServerMessage
 {
-    /**
-     * The buildingID this message originates from
-     */
-    private BlockPos buildingId;
+    /** The buildingID this message originates from. [1.7.10] int[] {x, y, z} */
+    private int[] buildingId;
 
-    /**
-     * Empty standard constructor.
-     */
-    public AbstractBuildingServerMessage()
-    {
-    }
+    public AbstractBuildingServerMessage() {}
 
-    /**
-     * Network message for executing things on buildings on the server
-     *
-     * @param building the building we're executing on.
-     */
     public AbstractBuildingServerMessage(IBuildingView building)
     {
         this(building.getColony().getDimension(), building.getColony().getID(), building.getID());
     }
 
-    /**
-     * Network message for executing things on buildings on the server
-     *
-     * @param buildingId  the ID of the building we're executing on.
-     * @param colonyId    the ID of the colony we're executing on.
-     * @param dimensionId the ID of the dimension we're executing on.
-     */
-    public AbstractBuildingServerMessage(final ResourceKey<Level> dimensionId, final int colonyId, final BlockPos buildingId)
+    public AbstractBuildingServerMessage(final int dimensionId, final int colonyId, final int[] buildingId)
     {
         super(dimensionId, colonyId);
         this.buildingId = buildingId;
@@ -52,23 +34,27 @@ public abstract class AbstractBuildingServerMessage<T extends IBuilding> extends
         return true;
     }
 
-    protected abstract void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony, final T building);
+    protected abstract void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony, final T building);
 
     @Override
-    protected final void toBytesAbstractOverride(final FriendlyByteBuf buf)
+    protected final void toBytesAbstractOverride(final PacketBuffer buf)
     {
-        buf.writeBlockPos(buildingId);
+        // [1.7.10] write 3 ints instead of BlockPos
+        buf.writeInt(buildingId[0]);
+        buf.writeInt(buildingId[1]);
+        buf.writeInt(buildingId[2]);
     }
 
     @Override
-    protected final void fromBytesAbstractOverride(final FriendlyByteBuf buf)
+    protected final void fromBytesAbstractOverride(final PacketBuffer buf)
     {
-        this.buildingId = buf.readBlockPos();
+        // [1.7.10] read 3 ints instead of BlockPos
+        this.buildingId = new int[]{buf.readInt(), buf.readInt(), buf.readInt()};
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public final void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony)
+    public final void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony)
     {
         final IBuilding building = colony.getServerBuildingManager().getBuilding(buildingId);
         if (building == null)
@@ -78,7 +64,7 @@ public abstract class AbstractBuildingServerMessage<T extends IBuilding> extends
 
         try
         {
-            onExecute(ctxIn, isLogicalServer, colony, (T) building);
+            onExecute(ctx, isLogicalServer, colony, (T) building);
         }
         catch (ClassCastException e)
         {

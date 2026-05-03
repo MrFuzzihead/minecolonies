@@ -1,7 +1,7 @@
 package com.minecolonies.api.quests;
 
 import com.google.gson.JsonObject;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.player.EntityPlayer;
 
 import static com.minecolonies.api.quests.QuestParseConstant.GO_TO_ID;
 
@@ -16,7 +16,7 @@ public interface IQuestDialogueAnswer
     class CloseUIDialogueAnswer implements IFinalQuestDialogueAnswer
     {
         @Override
-        public void applyToQuest(final Player player, final IQuestInstance quest)
+        public void applyToQuest(final EntityPlayer player, final IQuestInstance quest)
         {
             // Do nothing, just close UI.
         }
@@ -51,7 +51,7 @@ public interface IQuestDialogueAnswer
         }
 
         @Override
-        public void applyToQuest(final Player player, final IQuestInstance quest)
+        public void applyToQuest(final EntityPlayer player, final IQuestInstance quest)
         {
             quest.advanceObjective(player, nextObjective);
         }
@@ -63,9 +63,10 @@ public interface IQuestDialogueAnswer
     class QuestCancellationDialogueAnswer implements IFinalQuestDialogueAnswer
     {
         @Override
-        public void applyToQuest(final Player player, final IQuestInstance quest)
+        public void applyToQuest(final EntityPlayer player, final IQuestInstance quest)
         {
             quest.onDeletion();
         }
     }
 }
+

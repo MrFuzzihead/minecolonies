@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.buildings.modules;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.blocks.AbstractBlockMinecoloniesNamedGrave;
 import com.minecolonies.api.blocks.ModBlocks;
@@ -13,13 +19,14 @@ import com.minecolonies.core.tileentities.TileEntityGrave;
 import com.minecolonies.core.tileentities.TileEntityNamedGrave;
 import com.minecolonies.api.util.Tuple;
 import com.minecolonies.api.util.WorldUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.level.block.entity.BlockEntity;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Direction -> net.minecraft.util.Direction shim (wraps EnumFacing)
+import net.minecraft.util.Direction;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
+import net.minecraft.network.PacketBuffer;
+// [1.7.10] block.entity removed
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +43,7 @@ import static com.minecolonies.api.util.constant.Constants.TAG_STRING;
 public class GraveyardManagementModule extends AbstractBuildingModule implements IBuildingModule, IPersistentModule, IBuildingEventsModule
 {
     /**
-     * The tag to store the list of resting citizen in this graveyard
+     * The NBTBase to store the list of resting citizen in this graveyard
      */
     private static final String TAG_RIP_CITIZEN_LIST = "ripCitizenList";
 
@@ -57,12 +64,12 @@ public class GraveyardManagementModule extends AbstractBuildingModule implements
     private GraveData lastGraveData;
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         restingCitizen.clear();
         if (compound.contains(TAG_RIP_CITIZEN_LIST))
         {
-            final ListTag ripCitizen = compound.getList(TAG_RIP_CITIZEN_LIST, TAG_STRING);
+            final NBTTagList ripCitizen = compound.getList(TAG_RIP_CITIZEN_LIST, TAG_STRING);
             for (int i = 0; i < ripCitizen.size(); i++)
             {
                 final String citizenName = ripCitizen.getString(i);
@@ -79,12 +86,12 @@ public class GraveyardManagementModule extends AbstractBuildingModule implements
     }
 
     @Override
-    public void serializeNBT(final CompoundTag compound)
+    public void serializeNBT(final NBTTagCompound compound)
     {
-        @NotNull final ListTag ripCitizen = new ListTag();
+        @NotNull final NBTTagList ripCitizen = new NBTTagList();
         for (@NotNull final String citizenName : restingCitizen)
         {
-            ripCitizen.add(StringTag.valueOf(citizenName));
+            ripCitizen.add(NBTTagString.valueOf(citizenName));
         }
         compound.put(TAG_RIP_CITIZEN_LIST, ripCitizen);
 
@@ -95,13 +102,13 @@ public class GraveyardManagementModule extends AbstractBuildingModule implements
     }
 
     @Override
-    public void serializeToView(@NotNull final FriendlyByteBuf buf)
+    public void serializeToView(@NotNull final PacketBuffer buf)
     {
         final IColony colony = building.getColony();
-        final List<BlockPos> graves = new ArrayList<>(colony.getGraveManager().getGraves().keySet());
-        final List<BlockPos> cleanList = new ArrayList<>();
+        final List<int[]> graves = new ArrayList<>(colony.getGraveManager().getGraves().keySet());
+        final List<int[]> cleanList = new ArrayList<>();
 
-        for (@NotNull final BlockPos grave : graves)
+        for (@NotNull final int[] grave : graves)
         {
             if (WorldUtil.isBlockLoaded(colony.getWorld(), grave))
             {
@@ -115,7 +122,7 @@ public class GraveyardManagementModule extends AbstractBuildingModule implements
 
         // grave list
         buf.writeInt(cleanList.size());
-        for (@NotNull final BlockPos grave : cleanList)
+        for (@NotNull final int[] grave : cleanList)
         {
             buf.writeBlockPos(grave);
         }
@@ -167,7 +174,7 @@ public class GraveyardManagementModule extends AbstractBuildingModule implements
     /**
      * Add a citizen to the list of resting citizen in this graveyard
      */
-    public void buryCitizenHere(final Tuple<BlockPos, Direction> positionAndDirection, final AbstractEntityCitizen worker)
+    public void buryCitizenHere(final Tuple<int[], Direction> positionAndDirection, final AbstractEntityCitizen worker)
     {
         if(lastGraveData != null && !restingCitizen.contains(lastGraveData.getCitizenName()))
         {
@@ -203,3 +210,8 @@ public class GraveyardManagementModule extends AbstractBuildingModule implements
         }
     }
 }
+
+
+
+
+

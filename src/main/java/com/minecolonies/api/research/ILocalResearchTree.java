@@ -3,9 +3,9 @@ package com.minecolonies.api.research;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingUniversity;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayer;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -33,7 +33,7 @@ public interface ILocalResearchTree
     void addResearch(final ResourceLocation branch, final ILocalResearch research);
 
     /**
-     * Check if a branch already researched a level 6 research. This is important since only 1 of these can be researched for each branch.
+     * Check if a branch already researched a World 6 research. This is important since only 1 of these can be researched for each branch.
      *
      * @param branch the branch to check.
      * @return true if so.
@@ -63,27 +63,27 @@ public interface ILocalResearchTree
 
     /**
      * Attempt to begin a research.
-     * @param player     the player(s) making the request (and to apply costs toward)
+     * @param EntityPlayer     the EntityPlayer(s) making the request (and to apply costs toward)
      * @param colony     the colony doing the research
      * @param research   the research.
      */
-    void attemptBeginResearch(final Player player, final IColony colony, final BuildingUniversity building,final IGlobalResearch research);
+    void attemptBeginResearch(final EntityPlayer EntityPlayer, final IColony colony, final BuildingUniversity building,final IGlobalResearch research);
 
     /**
      * Reset a research, and optionally undo its effects.  If the research is begun but incomplete, cancel it.
      *
-     * @param player     the player to notify of research cancellation results.
+     * @param EntityPlayer     the EntityPlayer to notify of research cancellation results.
      * @param colony     the colony to remove effects from, or null if no effect reset is desired.
      * @param research   the local research descriptor.
      */
-    void attemptResetResearch(Player player, @Nullable final IColony colony, ILocalResearch research);
+    void attemptResetResearch(EntityPlayer EntityPlayer, @Nullable final IColony colony, ILocalResearch research);
 
     /**
      * Write the research tree to NBT.
      *
      * @param compound the compound.
      */
-    void writeToNBT(final CompoundTag compound);
+    void writeToNBT(final NBTTagCompound compound);
 
     /**
      * Read the research tree from NBT.
@@ -91,7 +91,7 @@ public interface ILocalResearchTree
      * @param compound the compound to read it from.
      * @param effects  the effects.
      */
-    void readFromNBT(final CompoundTag compound, final IResearchEffectManager effects);
+    void readFromNBT(final NBTTagCompound compound, final IResearchEffectManager effects);
 
     /**
      * Get the list of all finished researches
@@ -107,3 +107,8 @@ public interface ILocalResearchTree
      */
     boolean isComplete(ResourceLocation location);
 }
+
+
+
+
+

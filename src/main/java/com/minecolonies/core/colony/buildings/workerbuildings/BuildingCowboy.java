@@ -19,16 +19,16 @@ import com.minecolonies.core.colony.buildings.modules.AnimalHerdingModule;
 import com.minecolonies.core.colony.buildings.modules.settings.IntSetting;
 import com.minecolonies.core.colony.buildings.modules.settings.SettingKey;
 import com.minecolonies.core.colony.buildings.modules.settings.StringSetting;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.Cow;
-import net.minecraft.world.entity.animal.MushroomCow;
-import net.minecraft.world.entity.animal.goat.Goat;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+import com.minecolonies.api.util.Tuple;
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
+import net.minecraft.init.Items;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,7 +54,7 @@ public class BuildingCowboy extends AbstractBuilding
     private static final String HUT_NAME = "cowboyhut";
 
     /**
-     * Max building level of the hut.
+     * Max building World of the hut.
      */
     private static final int MAX_BUILDING_LEVEL = 5;
 
@@ -85,7 +85,7 @@ public class BuildingCowboy extends AbstractBuilding
      * @param c the colony.
      * @param l the location.
      */
-    public BuildingCowboy(final IColony c, final BlockPos l)
+    public BuildingCowboy(final IColony c, final int[] l)
     {
         super(c, l);
     }
@@ -106,7 +106,7 @@ public class BuildingCowboy extends AbstractBuilding
     @Override
     public boolean canEat(final ItemStack stack)
     {
-        if (stack.getItem() == Items.WHEAT)
+        if (stack.getItem() == Items.wheat)
         {
             return false;
         }
@@ -123,7 +123,7 @@ public class BuildingCowboy extends AbstractBuilding
         {
             return ModItems.large_empty_bottle.getDefaultInstance();
         }
-        return Items.BUCKET.getDefaultInstance();
+        return Items.bucket.getDefaultInstance();
     }
 
     /**
@@ -136,7 +136,7 @@ public class BuildingCowboy extends AbstractBuilding
         {
             return ModItems.large_milk_bottle.getDefaultInstance();
         }
-        return Items.MILK_BUCKET.getDefaultInstance();
+        return Items.milk_bucket.getDefaultInstance();
     }
 
     /**
@@ -150,7 +150,7 @@ public class BuildingCowboy extends AbstractBuilding
 
         public HerdingModule()
         {
-            super(ModJobs.cowboy.get(), a -> a instanceof Cow || a instanceof Goat, new ItemStorage(Items.WHEAT, 2));
+            super(ModJobs.cowboy.get(), a -> a instanceof net.minecraft.entity.passive.EntityCow, new ItemStorage(Items.wheat, 2));
         }
 
         @Override
@@ -163,13 +163,13 @@ public class BuildingCowboy extends AbstractBuilding
 
             if (bucketsToKeep > 0)
             {
-                requiredItems.put(s -> s.is(Items.BUCKET), new Tuple<>(bucketsToKeep, false));
+                requiredItems.put(s -> s.is(Items.bucket), new Tuple<>(bucketsToKeep, false));
                 requiredItems.put(s -> s.is(ModItems.large_empty_bottle), new Tuple<>(bucketsToKeep, true));
             }
 
             if (bowlsToKeep > 0)
             {
-                requiredItems.put(s -> s.is(Items.BOWL), new Tuple<>(bowlsToKeep, false));
+                requiredItems.put(s -> s.is(Items.bowl), new Tuple<>(bowlsToKeep, false));
             }
 
             return requiredItems;
@@ -177,51 +177,14 @@ public class BuildingCowboy extends AbstractBuilding
 
         @NotNull
         @Override
-        public List<IGenericRecipe> getRecipesForDisplayPurposesOnly(@NotNull Animal animal)
+        public List<IGenericRecipe> getRecipesForDisplayPurposesOnly(@NotNull net.minecraft.entity.passive.EntityAnimal animal)
         {
-            final List<IGenericRecipe> recipes = new ArrayList<>(super.getRecipesForDisplayPurposesOnly(animal));
-
-            if (animal instanceof MushroomCow)
-            {
-                recipes.add(GenericRecipe.builder()
-                        .withOutputs(List.of(Items.MUSHROOM_STEW.getDefaultInstance(),
-                                Items.SUSPICIOUS_STEW.getDefaultInstance()))
-                        .withInputs(List.of(List.of(Items.BOWL.getDefaultInstance())))
-                        .withRequiredEntity(animal.getType())
-                        .build());
-            }
-            else if (animal instanceof Cow)
-            {
-                recipes.add(GenericRecipe.builder()
-                        .withOutput(Items.MILK_BUCKET)
-                        .withInputs(List.of(List.of(Items.BUCKET.getDefaultInstance())))
-                        .withRequiredEntity(animal.getType())
-                        .build());
-                recipes.add(GenericRecipe.builder()
-                        .withOutput(ModItems.large_milk_bottle)
-                        .withInputs(List.of(List.of(ModItems.large_empty_bottle.getDefaultInstance())))
-                        .withRequiredEntity(animal.getType())
-                        .build());
-            }
-            else if (animal instanceof Goat)
-            {
-                recipes.add(GenericRecipe.builder()
-                    .withOutput(Items.MILK_BUCKET)
-                    .withInputs(List.of(List.of(Items.BUCKET.getDefaultInstance())))
-                    .withRequiredEntity(animal.getType())
-                    .build());
-                recipes.add(GenericRecipe.builder()
-                    .withOutput(ModItems.large_milk_bottle)
-                    .withInputs(List.of(List.of(ModItems.large_empty_bottle.getDefaultInstance())))
-                    .withRequiredEntity(animal.getType())
-                    .build());
-            }
-
-            return recipes;
+            // [1.7.10] EntityType/MushroomCow/Goat not available; return parent result only
+            return new ArrayList<>(super.getRecipesForDisplayPurposesOnly(animal));
         }
 
         @Override
-        public void serializeNBT(@NotNull CompoundTag compound)
+        public void serializeNBT(@NotNull NBTTagCompound compound)
         {
             compound.putInt("milkValue", currentMilk);
             compound.putInt("stewValue", currentStew);
@@ -229,7 +192,7 @@ public class BuildingCowboy extends AbstractBuilding
         }
 
         @Override
-        public void deserializeNBT(CompoundTag compound)
+        public void deserializeNBT(NBTTagCompound compound)
         {
             this.currentMilk = compound.getInt("milkValue");
             this.currentStew = compound.getInt("stewValue");
@@ -282,3 +245,7 @@ public class BuildingCowboy extends AbstractBuilding
         }
     }
 }
+
+
+
+

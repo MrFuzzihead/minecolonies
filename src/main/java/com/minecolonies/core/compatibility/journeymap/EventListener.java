@@ -14,22 +14,22 @@ import com.minecolonies.core.entity.visitor.VisitorCitizen;
 import journeymap.client.api.display.Context;
 import journeymap.client.api.event.forge.EntityRadarUpdateEvent;
 import journeymap.client.api.model.WrappedEntity;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.Level;
+import net.minecraft.util.EnumChatFormatting;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.world.World;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.level.ChunkEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
+// [1.7.10] forge event removed
+// [1.7.10] eventbus removed
+// [1.7.10] eventbus removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -66,9 +66,9 @@ public class EventListener
     {
         if (!event.getLevel().isClientSide()) return;
 
-        if (event.getLevel() instanceof Level)
+        if (event.getLevel() instanceof World)
         {
-            final ResourceKey<Level> dimension = ((Level) event.getLevel()).dimension();
+            final int /* ResourceKey */ dimension = ((World) event.getLevel()).dimension();
 
             ColonyDeathpoints.updateChunk(this.jmap, dimension, event.getChunk());
         }
@@ -77,7 +77,7 @@ public class EventListener
     @SubscribeEvent
     public void onColonyChunkDataUpdated(@NotNull final ClientChunkUpdatedEvent event)
     {
-        final ResourceKey<Level> dimension = event.getChunk().getLevel().dimension();
+        final int /* ResourceKey */ dimension = event.getChunk().getLevel().dimension();
 
         ColonyBorderMapping.updateChunk(this.jmap, dimension, event.getChunk());
     }
@@ -85,7 +85,7 @@ public class EventListener
     public void onColonyViewUpdated(@NotNull final ColonyViewUpdatedModEvent event)
     {
         final IColonyView colony = event.getColony();
-        final Set<BlockPos> graves = colony.getGraveManager().getGraves().keySet();
+        final Set<int[]> graves = colony.getGraveManager().getGraves().keySet();
 
         ColonyDeathpoints.updateGraves(this.jmap, colony, graves);
     }
@@ -94,12 +94,12 @@ public class EventListener
     public void onUpdateEntityRadar(@NotNull final EntityRadarUpdateEvent event)
     {
         final WrappedEntity wrapper = event.getWrappedEntity();
-        final LivingEntity entity = wrapper.getEntityLivingRef().get();
+        final EntityLivingBase entity = wrapper.getEntityLivingRef().get();
 
         if (entity instanceof AbstractEntityCitizen)
         {
             final boolean isVisitor = entity instanceof VisitorCitizen;
-            MutableComponent jobName;
+            String jobName;
 
             if (isVisitor)
             {
@@ -109,7 +109,7 @@ public class EventListener
                     return;
                 }
 
-                jobName = Component.translatable(PARTIAL_JOURNEY_MAP_INFO + "visitor");
+                jobName = String.translatable(PARTIAL_JOURNEY_MAP_INFO + "visitor");
             }
             else
             {
@@ -125,14 +125,14 @@ public class EventListener
                     return;
                 }
 
-                jobName = Component.translatable(jobEntry == null
+                jobName = String.translatable(jobEntry == null
                         ? PARTIAL_JOURNEY_MAP_INFO + "unemployed"
                         : jobEntry.getTranslationKey());
             }
 
             if (JourneymapOptions.getShowColonistTooltip(this.jmap.getOptions()))
             {
-                Component name = entity.getCustomName();
+                String name = entity.getCustomName();
                 if (name != null)
                 {
                     wrapper.setEntityToolTips(Arrays.asList(name, jobName.setStyle(JOB_TOOLTIP)));
@@ -173,10 +173,15 @@ public class EventListener
     {
         if (event.phase != TickEvent.Phase.END) return;
 
-        final Level world = Minecraft.getInstance().level;
+        final World world = Minecraft.getInstance().World;
         if (world != null)
         {
             ColonyBorderMapping.updatePending(this.jmap, world.dimension());
         }
     }
 }
+
+
+
+
+

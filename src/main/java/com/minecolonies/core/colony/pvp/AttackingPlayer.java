@@ -1,10 +1,16 @@
 package com.minecolonies.core.colony.pvp;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.google.common.collect.ImmutableList;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.core.colony.Colony;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.player.EntityPlayer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +24,7 @@ public class AttackingPlayer
     /**
      * The player which is attacking.
      */
-    private final Player player;
+    private final EntityPlayer player;
 
     /**
      * The guards coming with him.
@@ -30,7 +36,7 @@ public class AttackingPlayer
      *
      * @param player the attacking player.
      */
-    public AttackingPlayer(final Player player)
+    public AttackingPlayer(final EntityPlayer player)
     {
         this.player = player;
     }
@@ -40,7 +46,7 @@ public class AttackingPlayer
      *
      * @return the PlayerEntity.
      */
-    public Player getPlayer()
+    public EntityPlayer getPlayer()
     {
         return player;
     }
@@ -128,7 +134,7 @@ public class AttackingPlayer
      */
     public void refreshList(final Colony colony)
     {
-        guards.removeIf(citizen -> citizen.isDead() || !colony.isCoordInColony(colony.getWorld(), citizen.blockPosition()));
+        guards.removeIf(citizen -> citizen.isDead || !colony.isCoordInColony(colony.getWorld(), new int[]{(int)citizen.posX, (int)citizen.posY, (int)citizen.posZ}));
     }
 
     @Override
@@ -152,3 +158,4 @@ public class AttackingPlayer
         return Objects.hash(player);
     }
 }
+

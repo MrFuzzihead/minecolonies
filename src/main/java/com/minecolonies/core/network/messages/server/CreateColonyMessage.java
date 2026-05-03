@@ -14,14 +14,13 @@ import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.api.util.MessageUtils.MessagePriority;
 import com.minecolonies.core.MineColonies;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.world.WorldServer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.world.World;
+// [1.7.10] block.entity removed
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -37,7 +36,7 @@ public class CreateColonyMessage implements IMessage
     /**
      * Town hall position to create building on.
      */
-    BlockPos townHall;
+    int[] townHall;
 
     /**
      * If claim action.
@@ -64,7 +63,7 @@ public class CreateColonyMessage implements IMessage
         super();
     }
 
-    public CreateColonyMessage(final BlockPos townHall, boolean claim, final String colonyName, final String packName, final String pathName)
+    public CreateColonyMessage(final int[] townHall, boolean claim, final String colonyName, final String packName, final String pathName)
     {
         this.townHall = townHall;
         this.claim = claim;
@@ -74,7 +73,7 @@ public class CreateColonyMessage implements IMessage
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    public void toBytes(final PacketBuffer buf)
     {
         buf.writeBlockPos(townHall);
         buf.writeBoolean(claim);
@@ -84,7 +83,7 @@ public class CreateColonyMessage implements IMessage
     }
 
     @Override
-    public void fromBytes(final FriendlyByteBuf buf)
+    public void fromBytes(final PacketBuffer buf)
     {
         townHall = buf.readBlockPos();
         claim = buf.readBoolean();
@@ -95,16 +94,16 @@ public class CreateColonyMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.SERVER;
+        return Boolean.TRUE;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
-        final ServerPlayer sender = ctxIn.getSender();
-        final Level world = ctxIn.getSender().level;
+        final EntityPlayerMP sender = ctx.getServerHandler().playerEntity;
+        final World world = ctx.getServerHandler().playerEntity.World;
 
         if (sender == null)
         {
@@ -130,7 +129,7 @@ public class CreateColonyMessage implements IMessage
             pack = hut.getStructurePack().getName();
         }
 
-        final boolean reactivate = hut.getPositionedTags().getOrDefault(BlockPos.ZERO, new ArrayList<>()).contains(DEACTIVATED);
+        final boolean reactivate = hut.getPositionedTags().getOrDefault(new int[]{0,0,0}, new ArrayList<>()).contains(DEACTIVATED);
         if (reactivate)
         {
             hut.reactivate();
@@ -199,3 +198,8 @@ public class CreateColonyMessage implements IMessage
           .sendTo(sender);
     }
 }
+
+
+
+
+

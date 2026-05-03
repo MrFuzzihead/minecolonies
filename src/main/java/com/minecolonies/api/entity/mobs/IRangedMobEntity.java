@@ -1,11 +1,7 @@
 package com.minecolonies.api.entity.mobs;
 
-import net.minecraft.world.entity.monster.Enemy;
-
-/**
- * Indicates the mob utilizes ranged weaponry
- */
-public interface IRangedMobEntity extends Enemy
+// [1.7.10] Enemy interface does not exist in 1.7.10.
+public interface IRangedMobEntity
 {
     /**
      * Modifier to ranged attack delays

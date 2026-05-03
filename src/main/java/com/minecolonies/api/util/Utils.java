@@ -1,8 +1,8 @@
 package com.minecolonies.api.util;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -49,7 +49,7 @@ public final class Utils
      * @param range the range to check around the point.
      * @return true if he found the block.
      */
-    public static boolean isBlockInRange(@NotNull final Level world, final Block block, final int posX, final int posY, final int posZ, final int range)
+    public static boolean isBlockInRange(@NotNull final World world, final Block block, final int posX, final int posY, final int posZ, final int range)
     {
         for (int x = posX - range; x < posX + range; x++)
         {
@@ -57,7 +57,7 @@ public final class Utils
             {
                 for (int y = posY - range; y < posY + range; y++)
                 {
-                    if (Objects.equals(world.getBlockState(new BlockPos(x, y, z)).getBlock(), block))
+                    if (Objects.equals(world.getBlockState(new int[]{x, y, z}).getBlock(), block))
                     {
                         return true;
                     }
@@ -192,9 +192,9 @@ public final class Utils
     }
 
     /**
-     * Get the level of this blueprint from the name
+     * Get the World of this blueprint from the name
      * @param schematicName the name of the blueprint.
-     * @return the level or -1 if it doesn't have one.
+     * @return the World or -1 if it doesn't have one.
      */
     public static int getBlueprintLevel(final String schematicName)
     {
@@ -218,3 +218,6 @@ public final class Utils
         return -1;
     }
 }
+
+
+

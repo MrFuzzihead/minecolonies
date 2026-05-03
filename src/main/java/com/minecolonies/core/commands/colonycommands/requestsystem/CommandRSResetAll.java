@@ -5,7 +5,7 @@ import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.core.commands.commandTypes.IMCOPCommand;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
+import net.minecraft.util.IChatComponent;
 
 import static com.minecolonies.api.util.constant.translation.CommandTranslationConstants.COMMAND_REQUEST_SYSTEM_RESET_ALL_SUCCESS;
 
@@ -23,7 +23,7 @@ public class CommandRSResetAll implements IMCOPCommand
         {
             colony.getRequestManager().reset();
         }
-        context.getSource().sendSuccess(() -> Component.translatable(COMMAND_REQUEST_SYSTEM_RESET_ALL_SUCCESS), true);
+        context.getSource().sendSuccess(() -> String.translatable(COMMAND_REQUEST_SYSTEM_RESET_ALL_SUCCESS), true);
 
         return 1;
     }
@@ -37,3 +37,5 @@ public class CommandRSResetAll implements IMCOPCommand
         return "requestsystem-reset-all";
     }
 }
+
+

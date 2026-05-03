@@ -5,16 +5,16 @@ import com.minecolonies.api.compatibility.resourcefulbees.IBeehiveCompat;
 import com.minecolonies.api.compatibility.tinkers.SlimeTreeProxy;
 import com.minecolonies.api.compatibility.tinkers.TinkersToolProxy;
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.NonNullList;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.damagesource.DamageType;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] int[] -> int x,y,z
+import java.util.List;
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+// [1.7.10] net.minecraft.util.DamageSource removed
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.block.Block;
+// [1.7.10] int /*BlockState*/ -> int metadata
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -99,7 +99,7 @@ public final class Compatibility
      * @param leaf the leaf.
      * @return the variant.
      */
-    public static int getLeafVariant(@NotNull final BlockState leaf)
+    public static int getLeafVariant(@NotNull final int /*BlockState*/ leaf)
     {
         return tinkersSlimeCompat.getTinkersLeafVariant(leaf);
     }
@@ -135,10 +135,10 @@ public final class Compatibility
     }
 
     /**
-     * Calculate the tool level of the stack.
+     * Calculate the tool World of the stack.
      *
      * @param stack the stack.
-     * @return the tool level
+     * @return the tool World
      */
     public static int getToolLevel(@NotNull final ItemStack stack)
     {
@@ -160,7 +160,7 @@ public final class Compatibility
      *
      * @return damageType
      */
-    public static ResourceKey<DamageType> getDynamicTreeDamage()
+    public static int /* ResourceKey */ getDynamicTreeDamage()
     {
         return dynamicTreesCompat.getDynamicTreeDamage();
     }
@@ -203,14 +203,14 @@ public final class Compatibility
      *
      * @param world      world the Leaf is in
      * @param pos        position of the Leaf
-     * @param blockState Blockstate of the Leaf
+     * @param int blockMeta of the Leaf
      * @param fortune    amount of fortune to use
      * @param leaf       The leaf to check
      * @return the list of drops
      */
-    public static NonNullList<ItemStack> getDropsForDynamicLeaf(final LevelAccessor world, final BlockPos pos, final BlockState blockState, final int fortune, final Block leaf)
+    public static java.util.List<ItemStack> getDropsForDynamicLeaf(final IBlockAccess world, final int[] pos, final int blockMeta, final int fortune, final Block leaf)
     {
-        return dynamicTreesCompat.getDropsForLeaf(world, pos, blockState, fortune, leaf);
+        return dynamicTreesCompat.getDropsForLeaf(world, pos, blockMeta, fortune, leaf);
     }
 
     /**
@@ -221,7 +221,7 @@ public final class Compatibility
      * @param sapling  Itemstack of the sapling
      * @return true if successful
      */
-    public static boolean plantDynamicSapling(final Level world, final BlockPos location, final ItemStack sapling)
+    public static boolean plantDynamicSapling(final World world, final int[] location, final ItemStack sapling)
     {
         return dynamicTreesCompat.plantDynamicSaplingCompat(world, location, sapling);
     }
@@ -235,7 +235,7 @@ public final class Compatibility
      * @param workerPos    The position the fakeplayer breaks the tree from, optional
      * @return Runnable to break the Tree
      */
-    public static Runnable getDynamicTreeBreakAction(final Level world, final BlockPos blockToBreak, final ItemStack toolToUse, final BlockPos workerPos)
+    public static Runnable getDynamicTreeBreakAction(final World world, final int[] blockToBreak, final ItemStack toolToUse, final int[] workerPos)
     {
         return dynamicTreesCompat.getTreeBreakActionCompat(world, blockToBreak, toolToUse, workerPos);
     }
@@ -265,12 +265,12 @@ public final class Compatibility
     /**
      * Method to check if two given blocks have the same Tree family
      *
-     * @param block1 First blockpos to compare
-     * @param block2 Second blockpos to compare
+     * @param block1 First int[] to compare
+     * @param block2 Second int[] to compare
      * @param world  the world to check.
      * @return true when same family
      */
-    public static boolean isDynamicFamilyFitting(final BlockPos block1, final BlockPos block2, final LevelAccessor world)
+    public static boolean isDynamicFamilyFitting(final int[] block1, final int[] block2, final IBlockAccess world)
     {
         return dynamicTreesCompat.hasFittingTreeFamilyCompat(block1, block2, world);
     }
@@ -283,8 +283,12 @@ public final class Compatibility
      * @param amount comb amount
      * @return list of drops
      */
-    public static List<ItemStack> getCombsFromHive(BlockPos pos, Level world, int amount)
+    public static List<ItemStack> getCombsFromHive(int[] pos, World world, int amount)
     {
         return beeHiveCompat.getCombsFromHive(pos, world, amount);
     }
 }
+
+
+
+

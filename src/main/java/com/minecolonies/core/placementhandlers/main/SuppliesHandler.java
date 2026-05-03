@@ -13,18 +13,18 @@ import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.api.util.SoundUtils;
 import com.minecolonies.core.MineColonies;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.stats.Stats;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.items.wrapper.InvWrapper;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraft.world.Mirror;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+// [1.7.10] items shim in com.minecolonies.api.shim
 
 import java.util.function.Predicate;
 
@@ -43,15 +43,15 @@ public class SuppliesHandler implements ISurvivalBlueprintHandler
     }
 
     @Override
-    public Component getDisplayName()
+    public String getDisplayName()
     {
         // this should never actually be visible
-        return Component.translatable("com.minecolonies.coremod.supplies.placement");
+        return String.translatable("com.minecolonies.coremod.supplies.placement");
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public boolean canHandle(final Blueprint blueprint, final ClientLevel clientLevel, final Player player, final BlockPos blockPos, final PlacementSettings placementSettings)
+    public boolean canHandle(final Blueprint blueprint, final ClientLevel clientLevel, final Player player, final int[] blockPos, final PlacementSettings placementSettings)
     {
         return false;
     }
@@ -62,9 +62,9 @@ public class SuppliesHandler implements ISurvivalBlueprintHandler
             final String packName,
             final String blueprintPath,
             final boolean clientPack,
-            final Level world,
+            final World world,
             final Player playerArg,
-            final BlockPos blockPos,
+            final int[] blockPos,
             final PlacementSettings placementSettings)
     {
         if (clientPack || !StructurePacks.hasPack(packName))
@@ -74,7 +74,7 @@ public class SuppliesHandler implements ISurvivalBlueprintHandler
             return;
         }
 
-        final ServerPlayer player = (ServerPlayer) playerArg;
+        final EntityPlayerMP player = (EntityPlayerMP) playerArg;
 
         blueprint.setRotationMirror(RotationMirror.of(placementSettings.rotation, placementSettings.mirror == Mirror.NONE ? Mirror.NONE : Mirror.FRONT_BACK), world);
 
@@ -116,7 +116,7 @@ public class SuppliesHandler implements ISurvivalBlueprintHandler
 
             SoundUtils.playSuccessSound(player, player.blockPosition());
 
-            StructurePlacementUtils.loadAndPlaceStructureWithRotation(player.level, blueprint,
+            StructurePlacementUtils.loadAndPlaceStructureWithRotation(player.World, blueprint,
                     blockPos, placementSettings.getRotation(), placementSettings.getMirror() != Mirror.NONE ? Mirror.FRONT_BACK : Mirror.NONE, true, player);
         }
         else
@@ -131,9 +131,15 @@ public class SuppliesHandler implements ISurvivalBlueprintHandler
      * @param playerEntity the player to check
      * @return whether the itemstack used allows a free placement.
      */
-    private boolean isFreeInstantPlacementMH(ServerPlayer playerEntity)
+    private boolean isFreeInstantPlacementMH(EntityPlayerMP playerEntity)
     {
         final ItemStack mhItem = playerEntity.getMainHandItem();
         return !ItemStackUtils.isEmpty(mhItem) && mhItem.getTag() != null && mhItem.getTag().getString(PLACEMENT_NBT).equals(INSTANT_PLACEMENT);
     }
 }
+
+
+
+
+
+

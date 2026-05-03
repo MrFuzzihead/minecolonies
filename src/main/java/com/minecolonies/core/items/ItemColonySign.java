@@ -10,20 +10,22 @@ import com.minecolonies.api.util.SoundUtils;
 import com.minecolonies.api.util.constant.TranslationConstants;
 import com.minecolonies.core.tileentities.TileEntityColonyBuilding;
 import com.minecolonies.core.tileentities.TileEntityColonySign;
-import net.minecraft.ChatFormatting;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] InteractionResult -> boolean
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.InteractionResult;
+import net.minecraft.world.item.Properties;
+import net.minecraft.world.World;
+// [1.7.10] block.entity removed
+// [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,7 +42,7 @@ import static com.minecolonies.api.util.constant.TranslationConstants.*;
 public class ItemColonySign extends BlockItem
 {
     /**
-     * Tag of the colony.
+     * NBTBase of the colony.
      */
     public static final String TAG_COLONY = "colony";
 
@@ -58,7 +60,7 @@ public class ItemColonySign extends BlockItem
     public InteractionResult useOn(final UseOnContext ctx)
     {
         final ItemStack sign = ctx.getPlayer().getItemInHand(ctx.getHand());
-        final CompoundTag compound = sign.getOrCreateTag();
+        final NBTTagCompound compound = sign.getOrCreateTag();
         final BlockEntity entity = ctx.getLevel().getBlockEntity(ctx.getClickedPos());
         final BlockState state = ctx.getLevel().getBlockState(ctx.getClickedPos());
         if (ctx.getPlayer().isShiftKeyDown())
@@ -202,19 +204,24 @@ public class ItemColonySign extends BlockItem
     }
 
     @Override
-    public void appendHoverText(@NotNull final ItemStack stack, @Nullable final Level worldIn, @NotNull final List<Component> tooltip, @NotNull final TooltipFlag flagIn)
+    public void appendHoverText(@NotNull final ItemStack stack, @Nullable final World worldIn, @NotNull final List<String> tooltip, @NotNull final TooltipFlag flagIn)
     {
         if (stack.getOrCreateTag().contains(TAG_COLONY))
         {
-            final MutableComponent colonyHint = Component.translatable(TranslationConstants.COM_MINECOLONIES_CORE_COLONY_SIGN_TOOLTIP_COLONY, stack.getOrCreateTag().getInt(TAG_COLONY));
+            final String colonyHint = String.translatable(TranslationConstants.COM_MINECOLONIES_CORE_COLONY_SIGN_TOOLTIP_COLONY, stack.getOrCreateTag().getInt(TAG_COLONY));
             colonyHint.setStyle(Style.EMPTY.withColor(ChatFormatting.DARK_BLUE));
             tooltip.add(colonyHint);
         }
 
-        final MutableComponent guiHint = Component.translatable(TranslationConstants.COM_MINECOLONIES_CORE_COLONY_SIGN_TOOLTIP);
+        final String guiHint = String.translatable(TranslationConstants.COM_MINECOLONIES_CORE_COLONY_SIGN_TOOLTIP);
         guiHint.setStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GREEN));
         tooltip.add(guiHint);
 
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
     }
 }
+
+
+
+
+

@@ -8,8 +8,8 @@ import com.minecolonies.core.colony.buildings.modules.BuildingExtensionsModule;
 import com.minecolonies.core.colony.buildingextensions.registry.BuildingExtensionDataManager;
 import com.minecolonies.core.network.messages.server.AbstractBuildingServerMessage;
 import io.netty.buffer.Unpooled;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -25,7 +25,7 @@ public class AssignFieldMessage extends AbstractBuildingServerMessage<IBuilding>
     /**
      * The field to (un)assign.
      */
-    private FriendlyByteBuf fieldData;
+    private PacketBuffer fieldData;
 
     /**
      * Whether to assign or un-assign this field.
@@ -56,7 +56,7 @@ public class AssignFieldMessage extends AbstractBuildingServerMessage<IBuilding>
     }
 
     @Override
-    public void toBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void toBytesOverride(@NotNull final PacketBuffer buf)
     {
         fieldData.resetReaderIndex();
         buf.writeBoolean(assign);
@@ -65,17 +65,17 @@ public class AssignFieldMessage extends AbstractBuildingServerMessage<IBuilding>
     }
 
     @Override
-    public void fromBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void fromBytesOverride(@NotNull final PacketBuffer buf)
     {
         assign = buf.readBoolean();
         moduleID = buf.readInt();
-        fieldData = new FriendlyByteBuf(Unpooled.buffer(buf.readableBytes()));
+        fieldData = new PacketBuffer(Unpooled.buffer(buf.readableBytes()));
         buf.readBytes(fieldData, buf.readableBytes());
     }
 
     @Override
     public void onExecute(
-      final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony, final IBuilding building)
+      final MessageContext ctx, final boolean isLogicalServer, final IColony colony, final IBuilding building)
     {
         final IBuildingExtension parsedField = BuildingExtensionDataManager.bufferToExtension(fieldData);
         colony.getServerBuildingManager().getMatchingBuildingExtension(otherField -> otherField.equals(parsedField)).ifPresent(field -> {
@@ -94,4 +94,6 @@ public class AssignFieldMessage extends AbstractBuildingServerMessage<IBuilding>
         });
     }
 }
+
+
 

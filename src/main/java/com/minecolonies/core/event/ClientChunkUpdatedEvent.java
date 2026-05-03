@@ -1,7 +1,7 @@
 package com.minecolonies.core.event;
 
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraftforge.eventbus.api.Event;
+import net.minecraft.world.chunk.Chunk;
+// [1.7.10] eventbus removed
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -33,3 +33,5 @@ public final class ClientChunkUpdatedEvent extends Event
         return this.chunk;
     }
 }
+
+

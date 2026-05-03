@@ -11,14 +11,14 @@ import com.minecolonies.api.util.*;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingUniversity;
 import com.minecolonies.core.event.QuestObjectiveEventHandler;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraftforge.items.wrapper.InvWrapper;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+// [1.7.10] items shim in com.minecolonies.api.shim
 
 import java.util.*;
 import static com.minecolonies.api.research.util.ResearchConstants.MAX_DEPTH;
@@ -46,7 +46,7 @@ public class LocalResearchTree implements ILocalResearchTree
     private final Set<ResourceLocation> isComplete = new HashSet<>();
 
     /**
-     * Map containing all branches for which the max level research has been occupied already.
+     * Map containing all branches for which the max World research has been occupied already.
      */
     private final Set<ResourceLocation> maxLevelResearchCompleted = new HashSet<>();
 
@@ -166,7 +166,7 @@ public class LocalResearchTree implements ILocalResearchTree
 
             if (!research.hasEnoughResources(player, building.getPosition()))
             {
-                MessageUtils.format("com.minecolonies.coremod.research.costnotavailable", MutableComponent.create(research.getName())).sendTo(player);
+                MessageUtils.format("com.minecolonies.coremod.research.costnotavailable", String.create(research.getName())).sendTo(player);
                 SoundUtils.playErrorSound(player, player.blockPosition());
                 return;
             }
@@ -194,7 +194,7 @@ public class LocalResearchTree implements ILocalResearchTree
 
             }
 
-            MessageUtils.format(MESSAGE_RESEARCH_STARTED, MutableComponent.create(research.getName())).sendTo(player);
+            MessageUtils.format(MESSAGE_RESEARCH_STARTED, String.create(research.getName())).sendTo(player);
             research.startResearch(colony.getResearchManager().getResearchTree());
             colony.getResearchManager().markDirty();
             SoundUtils.playSuccessSound(player, player.blockPosition());
@@ -228,7 +228,7 @@ public class LocalResearchTree implements ILocalResearchTree
         if (research.getState() == ResearchState.IN_PROGRESS)
         {
             MessageUtils.format("com.minecolonies.coremod.research.stopped",
-                MutableComponent.create(IGlobalResearchTree.getInstance().getResearch(research.getBranch(), research.getId()).getName()))
+                String.create(IGlobalResearchTree.getInstance().getResearch(research.getBranch(), research.getId()).getName()))
               .sendTo(player);
             SoundUtils.playSuccessSound(player, player.blockPosition());
             removeResearch(research.getBranch(), research.getId());
@@ -258,7 +258,7 @@ public class LocalResearchTree implements ILocalResearchTree
                     if (count < cost.getAmount())
                     {
                         MessageUtils.format("com.minecolonies.coremod.research.costnotavailable",
-                          MutableComponent.create(IGlobalResearchTree.getInstance().getResearch(research.getBranch(), research.getId()).getName())).sendTo(player);
+                          String.create(IGlobalResearchTree.getInstance().getResearch(research.getBranch(), research.getId()).getName())).sendTo(player);
                         SoundUtils.playErrorSound(player, player.blockPosition());
                         return;
                     }
@@ -279,7 +279,7 @@ public class LocalResearchTree implements ILocalResearchTree
                 }
             }
             MessageUtils.format("com.minecolonies.coremod.research.undo",
-                MutableComponent.create(IGlobalResearchTree.getInstance().getResearch(research.getBranch(), research.getId()).getName()))
+                String.create(IGlobalResearchTree.getInstance().getResearch(research.getBranch(), research.getId()).getName()))
               .sendTo(player);
             SoundUtils.playSuccessSound(player, player.blockPosition());
             removeResearch(research.getBranch(), research.getId());
@@ -341,9 +341,9 @@ public class LocalResearchTree implements ILocalResearchTree
     }
 
     @Override
-    public void writeToNBT(final CompoundTag compound)
+    public void writeToNBT(final NBTTagCompound compound)
     {
-        final ListTag researchList = new ListTag();
+        final NBTTagList researchList = new NBTTagList();
         for (final Map<ResourceLocation, ILocalResearch> researchMap : researchTree.values())
         {
             for (final ILocalResearch research : researchMap.values())
@@ -356,13 +356,13 @@ public class LocalResearchTree implements ILocalResearchTree
     }
 
     @Override
-    public void readFromNBT(final CompoundTag compound, final IResearchEffectManager effects)
+    public void readFromNBT(final NBTTagCompound compound, final IResearchEffectManager effects)
     {
         researchTree.clear();
         inProgress.clear();
         isComplete.clear();
         maxLevelResearchCompleted.clear();
-        NBTUtils.streamCompound(compound.getList(TAG_RESEARCH_TREE, Tag.TAG_COMPOUND))
+        NBTUtils.streamCompound(compound.getList(TAG_RESEARCH_TREE, NBTBase.TAG_COMPOUND))
           .map(researchCompound -> (ILocalResearch) StandardFactoryController.getInstance().deserialize(researchCompound))
           .forEach(research -> {
               /// region Updated ID helper.
@@ -426,3 +426,8 @@ public class LocalResearchTree implements ILocalResearchTree
         return isComplete.contains(location);
     }
 }
+
+
+
+
+

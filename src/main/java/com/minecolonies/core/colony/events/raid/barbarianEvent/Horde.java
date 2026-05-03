@@ -1,6 +1,6 @@
 package com.minecolonies.core.colony.events.raid.barbarianEvent;
 
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NBTTagCompound;
 
 import static com.minecolonies.api.util.constant.ColonyConstants.*;
 
@@ -85,7 +85,7 @@ public class Horde
      *
      * @param compound the compound to write it to.
      */
-    public void writeToNbt(final CompoundTag compound)
+    public void writeToNbt(final NBTTagCompound compound)
     {
         compound.putInt(TAG_NUMBEROFRAIDERS, numberOfRaiders);
         compound.putInt(TAG_NUMBEROFARCHERS, numberOfArchers);
@@ -99,7 +99,7 @@ public class Horde
      * @param compound the compound to load it from.
      * @return the loaded horde.
      */
-    public static Horde loadFromNbt(final CompoundTag compound)
+    public static Horde loadFromNbt(final NBTTagCompound compound)
     {
         if (!compound.contains(TAG_HORDEINITSIZE))
         {
@@ -114,3 +114,5 @@ public class Horde
         return horde;
     }
 }
+
+

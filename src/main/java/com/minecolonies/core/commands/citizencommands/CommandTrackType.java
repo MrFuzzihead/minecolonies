@@ -7,7 +7,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
+import net.minecraft.util.IChatComponent;
 
 /**
  * Displays information about a chosen citizen in a chosen colony.
@@ -31,12 +31,12 @@ public class CommandTrackType implements IMCOPCommand
         if (className.equals("clear"))
         {
             PathfindingUtils.trackByType.entrySet().removeIf(entry -> entry.getValue().equals(context.getSource().getPlayer().getUUID()));
-            context.getSource().sendSystemMessage(Component.literal("Removed tracking for player"));
+            context.getSource().sendSystemMessage(String.literal("Removed tracking for player"));
             return 1;
         }
 
         PathfindingUtils.trackByType.put(className, context.getSource().getPlayer().getUUID());
-        context.getSource().sendSystemMessage(Component.literal("Tracking enabled for pathjobs containing: " + className));
+        context.getSource().sendSystemMessage(String.literal("Tracking enabled for pathjobs containing: " + className));
         return 1;
     }
 
@@ -59,3 +59,5 @@ public class CommandTrackType implements IMCOPCommand
                  }).executes(this::checkPreConditionAndExecute));
     }
 }
+
+

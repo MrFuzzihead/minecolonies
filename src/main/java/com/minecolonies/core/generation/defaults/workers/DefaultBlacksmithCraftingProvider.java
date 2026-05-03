@@ -5,12 +5,12 @@ import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.items.ModItems;
 import com.minecolonies.api.research.util.ResearchConstants;
 import com.minecolonies.core.generation.CustomRecipeProvider;
-import net.minecraft.data.PackOutput;
-import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] data removed
+// [1.7.10] data removed
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.World.ItemLike;
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -108,3 +108,7 @@ public class DefaultBlacksmithCraftingProvider extends CustomRecipeProvider
                 .build(consumer);
     }
 }
+
+
+
+

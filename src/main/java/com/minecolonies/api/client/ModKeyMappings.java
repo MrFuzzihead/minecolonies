@@ -1,11 +1,8 @@
 package com.minecolonies.api.client;
 
-import com.mojang.blaze3d.platform.InputConstants;
-import net.minecraft.client.KeyMapping;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.client.settings.KeyConflictContext;
-import net.minecraftforge.common.util.Lazy;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.client.settings.KeyBinding;
+import cpw.mods.fml.client.registry.ClientRegistry;
+import org.lwjgl.input.Keyboard;
 
 /**
  * Key mappings
@@ -17,15 +14,14 @@ public class ModKeyMappings
     /**
      * Toggle
      */
-    public static final Lazy<KeyMapping> TOGGLE_GOGGLES = Lazy.of(() -> new KeyMapping("key.minecolonies.toggle_goggles",
-            KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), CATEGORY));
+    public static final KeyBinding TOGGLE_GOGGLES = new KeyBinding("key.minecolonies.toggle_goggles", Keyboard.KEY_NONE, CATEGORY);
 
     /**
      * Register key mappings
      */
-    public static void register(@NotNull final RegisterKeyMappingsEvent event)
+    public static void register()
     {
-        event.register(TOGGLE_GOGGLES.get());
+        ClientRegistry.registerKeyBinding(TOGGLE_GOGGLES);
     }
 
     /**
@@ -38,3 +34,4 @@ public class ModKeyMappings
          */
     }
 }
+

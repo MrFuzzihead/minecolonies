@@ -19,10 +19,10 @@ import com.minecolonies.core.colony.buildings.utils.BuilderBucket;
 import com.minecolonies.core.colony.buildings.utils.BuildingBuilderResource;
 import com.minecolonies.core.colony.jobs.AbstractJobStructure;
 import com.minecolonies.core.entity.ai.workers.util.BuildingProgressStage;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.item.ItemStack;
+// [1.7.10] capabilities removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,14 +53,14 @@ public class BuildingResourcesModule extends AbstractBuildingModule implements I
     private int currentStage = 0;
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         currentStage = compound.getInt(TAG_CURR_STAGE);
         totalStages = compound.getInt(TAG_TOTAL_STAGES);
     }
 
     @Override
-    public void serializeNBT(final CompoundTag compound)
+    public void serializeNBT(final NBTTagCompound compound)
     {
         compound.putInt(TAG_TOTAL_STAGES, totalStages);
         compound.putInt(TAG_CURR_STAGE, currentStage);
@@ -72,7 +72,7 @@ public class BuildingResourcesModule extends AbstractBuildingModule implements I
      * @param buf the used ByteBuffer.
      */
     @Override
-    public void serializeToView(@NotNull final FriendlyByteBuf buf)
+    public void serializeToView(@NotNull final PacketBuffer buf)
     {
         updateAvailableResources();
         buf.writeInt(neededResources.size());
@@ -417,3 +417,6 @@ public class BuildingResourcesModule extends AbstractBuildingModule implements I
         return null;
     }
 }
+
+
+

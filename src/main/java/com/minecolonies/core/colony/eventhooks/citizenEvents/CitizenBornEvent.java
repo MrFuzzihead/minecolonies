@@ -1,10 +1,10 @@
 package com.minecolonies.core.colony.eventhooks.citizenEvents;
 
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -32,7 +32,7 @@ public class CitizenBornEvent extends AbstractCitizenEvent
      * @param eventPos    the position of the hut block of the building.
      * @param citizenName the name of the building.
      */
-    public CitizenBornEvent(final BlockPos eventPos, final String citizenName)
+    public CitizenBornEvent(final int[] eventPos, final String citizenName)
     {
         super(true, eventPos, citizenName);
     }
@@ -55,7 +55,7 @@ public class CitizenBornEvent extends AbstractCitizenEvent
      * @param compound the NBT compound
      * @return the colony to load.
      */
-    public static CitizenBornEvent loadFromNBT(@NotNull final CompoundTag compound)
+    public static CitizenBornEvent loadFromNBT(@NotNull final NBTTagCompound compound)
     {
         final CitizenBornEvent birthEvent = new CitizenBornEvent();
         birthEvent.deserializeNBT(compound);
@@ -68,7 +68,7 @@ public class CitizenBornEvent extends AbstractCitizenEvent
      * @param buf the packet buffer.
      * @return the colony to load.
      */
-    public static CitizenBornEvent loadFromFriendlyByteBuf(@NotNull final FriendlyByteBuf buf)
+    public static CitizenBornEvent loadFromFriendlyByteBuf(@NotNull final PacketBuffer buf)
     {
         final CitizenBornEvent birthEvent = new CitizenBornEvent();
         birthEvent.deserialize(buf);
@@ -81,3 +81,6 @@ public class CitizenBornEvent extends AbstractCitizenEvent
         return "com.minecolonies.core.event.summary.citizen.born";
     }
 }
+
+
+

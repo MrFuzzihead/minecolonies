@@ -1,9 +1,9 @@
 package com.minecolonies.core.util;
 
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.entity.EntityLivingBase;
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
 
 /**
  * Utility class for handling add/removal of attribute modifiers.
@@ -15,7 +15,7 @@ public abstract class AttributeModifierUtils
      *
      * @param entity the entity to remove the modifiers from
      */
-    public static void removeAllHealthModifiers(final LivingEntity entity)
+    public static void removeAllHealthModifiers(final EntityLivingBase entity)
     {
         if (entity == null)
         {
@@ -39,7 +39,7 @@ public abstract class AttributeModifierUtils
      * @param entity       the entity to remove the modifier from
      * @param modifierName Name of the modifier to remove, see e.g. GUARD_HEALTH_MOD_LEVEL_NAME
      */
-    public static void removeHealthModifier(final LivingEntity entity, final String modifierName)
+    public static void removeHealthModifier(final EntityLivingBase entity, final String modifierName)
     {
         if (entity == null)
         {
@@ -65,7 +65,7 @@ public abstract class AttributeModifierUtils
      * @param entity   entity to add a healthmodifier to
      * @param modifier the modifier to add.
      */
-    public static void addHealthModifier(final LivingEntity entity, final AttributeModifier modifier)
+    public static void addHealthModifier(final EntityLivingBase entity, final AttributeModifier modifier)
     {
         if (entity == null)
         {
@@ -86,7 +86,7 @@ public abstract class AttributeModifierUtils
      * @param modifierName the name of the modifier.
      * @param attribute the type of attribute.
      */
-    public static void removeModifier(final LivingEntity entity, final String modifierName, final Attribute attribute)
+    public static void removeModifier(final EntityLivingBase entity, final String modifierName, final Attribute attribute)
     {
         if (entity == null)
         {
@@ -108,7 +108,7 @@ public abstract class AttributeModifierUtils
      * @param modifier the modifier to add.
      * @param attribute the type of the attribute.
      */
-    public static void addModifier(final LivingEntity entity, final AttributeModifier modifier, final Attribute attribute)
+    public static void addModifier(final EntityLivingBase entity, final AttributeModifier modifier, final Attribute attribute)
     {
         if (entity == null)
         {
@@ -119,3 +119,6 @@ public abstract class AttributeModifierUtils
         entity.getAttribute(attribute).addTransientModifier(modifier);
     }
 }
+
+
+

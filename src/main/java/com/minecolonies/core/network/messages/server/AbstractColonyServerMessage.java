@@ -5,53 +5,34 @@ import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.permissions.Action;
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.api.util.MessageUtils;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.Nullable;
 
 import static com.minecolonies.api.util.constant.TranslationConstants.HUT_BLOCK_MISSING_COLONY;
 import static com.minecolonies.api.util.constant.translation.ToolTranslationConstants.TOOL_PERMISSION_SCEPTER_PERMISSION_DENY;
 
+/**
+ * Abstract base for all server-side colony messages.
+ * [1.7.10] Ported: NetworkEvent.Context → MessageContext; dimensionId is int; Boolean.TRUE → Boolean.TRUE.
+ */
 public abstract class AbstractColonyServerMessage implements IMessage
 {
-    /**
-     * The dimensionId this message originates from
-     */
-    private ResourceKey<Level> dimensionId;
+    /** The dimensionId this message originates from. [1.7.10] plain int */
+    private int dimensionId;
 
-    /**
-     * The colonyId this message originates from
-     */
+    /** The colonyId this message originates from */
     private int colonyId;
 
-    /**
-     * Empty standard constructor.
-     */
     public AbstractColonyServerMessage() {}
 
-    /**
-     * Network message for executing things on colonies on the server
-     *
-     * @param colony The colony we're executing on
-     */
     public AbstractColonyServerMessage(final IColony colony)
     {
         this(colony.getDimension(), colony.getID());
     }
 
-    /**
-     * Network message for executing things on colonies on the server
-     *
-     * @param dimensionId The dimension of the colony
-     * @param colonyId    The colony ID
-     */
-    public AbstractColonyServerMessage(final ResourceKey<Level> dimensionId, final int colonyId)
+    public AbstractColonyServerMessage(final int dimensionId, final int colonyId)
     {
         this.dimensionId = dimensionId;
         this.colonyId = colonyId;
@@ -68,54 +49,47 @@ public abstract class AbstractColonyServerMessage implements IMessage
         return false;
     }
 
-    protected abstract void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony);
+    protected abstract void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony);
 
-    /**
-     * Transformation to a byteStream.
-     *
-     * @param buf the used byteBuffer.
-     */
-    protected abstract void toBytesOverride(final FriendlyByteBuf buf);
+    protected abstract void toBytesOverride(final PacketBuffer buf);
 
-    protected void toBytesAbstractOverride(final FriendlyByteBuf buf) {}
+    protected void toBytesAbstractOverride(final PacketBuffer buf) {}
 
     @Override
-    public final void toBytes(final FriendlyByteBuf buf)
+    public final void toBytes(final PacketBuffer buf)
     {
-        buf.writeUtf(dimensionId.location().toString());
+        // [1.7.10] dimensionId is plain int
+        buf.writeInt(dimensionId);
         buf.writeInt(colonyId);
         toBytesAbstractOverride(buf);
         toBytesOverride(buf);
     }
 
-    /**
-     * Transformation from a byteStream to the variables.
-     *
-     * @param buf the used byteBuffer.
-     */
-    protected abstract void fromBytesOverride(final FriendlyByteBuf buf);
+    protected abstract void fromBytesOverride(final PacketBuffer buf);
 
-    protected void fromBytesAbstractOverride(final FriendlyByteBuf buf) {}
+    protected void fromBytesAbstractOverride(final PacketBuffer buf) {}
 
     @Override
-    public final void fromBytes(final FriendlyByteBuf buf)
+    public final void fromBytes(final PacketBuffer buf)
     {
-        this.dimensionId = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(buf.readUtf(32767)));
+        // [1.7.10] dimensionId is plain int
+        this.dimensionId = buf.readInt();
         this.colonyId = buf.readInt();
         fromBytesAbstractOverride(buf);
         fromBytesOverride(buf);
     }
 
     @Override
-    public final LogicalSide getExecutionSide()
+    public final Boolean getExecutionSide()
     {
-        return LogicalSide.SERVER;
+        return Boolean.TRUE; // server only
     }
 
     @Override
-    public final void onExecute(final net.minecraftforge.network.NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public final void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
-        final ServerPlayer player = ctxIn.getSender();
+        // [1.7.10] getSender() → ctx.getServerHandler().playerEntity
+        final EntityPlayerMP player = ctx.getServerHandler().playerEntity;
         final IColony colony = IColonyManager.getInstance().getColonyByDimension(colonyId, dimensionId);
         if (colony != null)
         {
@@ -125,22 +99,20 @@ public abstract class AbstractColonyServerMessage implements IMessage
                 {
                     return;
                 }
-
                 MessageUtils.format(TOOL_PERMISSION_SCEPTER_PERMISSION_DENY).sendTo(player);
                 return;
             }
-            else if (ownerOnly() && (player == null || colony.getPermissions().getOwner().equals(player.getUUID())))
+            else if (ownerOnly() && (player == null || colony.getPermissions().getOwner().equals(player.getGameProfile().getId())))
             {
                 if (player == null)
                 {
                     return;
                 }
-
                 MessageUtils.format(TOOL_PERMISSION_SCEPTER_PERMISSION_DENY).sendTo(player);
                 return;
             }
 
-            onExecute(ctxIn, isLogicalServer, colony);
+            onExecute(ctx, isLogicalServer, colony);
         }
         else
         {

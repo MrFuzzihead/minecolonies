@@ -1,14 +1,13 @@
 package com.minecolonies.core.network.messages.client;
 
 import com.minecolonies.api.network.IMessage;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.core.Direction;
-import net.minecraft.core.BlockPos;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.block.Block;
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,7 +20,7 @@ public class BlockParticleEffectMessage implements IMessage
 {
     public static final int BREAK_BLOCK = -1;
 
-    private BlockPos   pos;
+    private int[]   pos;
     private BlockState block;
     private int        side;
 
@@ -40,7 +39,7 @@ public class BlockParticleEffectMessage implements IMessage
      * @param state Block State
      * @param side  Side of the block causing effect
      */
-    public BlockParticleEffectMessage(final BlockPos pos, @NotNull final BlockState state, final int side)
+    public BlockParticleEffectMessage(final int[] pos, @NotNull final BlockState state, final int side)
     {
         this.pos = pos;
         this.block = state;
@@ -48,7 +47,7 @@ public class BlockParticleEffectMessage implements IMessage
     }
 
     @Override
-    public void fromBytes(@NotNull final FriendlyByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
         pos = buf.readBlockPos();
         block = Block.stateById(buf.readInt());
@@ -56,7 +55,7 @@ public class BlockParticleEffectMessage implements IMessage
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
         buf.writeBlockPos(pos);
         buf.writeInt(Block.getId(block));
@@ -65,13 +64,13 @@ public class BlockParticleEffectMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.CLIENT;
+        return Boolean.FALSE;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
         if (side == BREAK_BLOCK)
         {
@@ -83,3 +82,6 @@ public class BlockParticleEffectMessage implements IMessage
         }
     }
 }
+
+
+

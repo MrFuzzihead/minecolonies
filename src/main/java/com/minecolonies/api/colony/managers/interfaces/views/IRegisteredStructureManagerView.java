@@ -5,8 +5,8 @@ import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.colony.buildings.workerbuildings.ITownHallView;
 import com.minecolonies.api.colony.managers.interfaces.ICommonRegisteredStructureManager;
 import com.minecolonies.api.network.IMessage;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,7 +20,7 @@ public interface IRegisteredStructureManagerView extends ICommonRegisteredStruct
      * @param buildingId location of the building.
      * @return null == no response.
      */
-    @Nullable IMessage handleColonyViewRemoveBuildingMessage(BlockPos buildingId);
+    @Nullable IMessage handleColonyViewRemoveBuildingMessage(int[] buildingId);
 
     /**
      * Update a ColonyView's buildings given a network data ColonyView update packet. This uses a full-replacement - buildings do not get updated and are instead overwritten.
@@ -29,9 +29,11 @@ public interface IRegisteredStructureManagerView extends ICommonRegisteredStruct
      * @param buf        buffer containing ColonyBuilding information.
      * @return null == no response.
      */
-    @Nullable IMessage handleColonyBuildingViewMessage(BlockPos buildingId, @NotNull FriendlyByteBuf buf);
+    @Nullable IMessage handleColonyBuildingViewMessage(int[] buildingId, @NotNull PacketBuffer buf);
 
     void handleColonyBuildingExtensionViewUpdateMessage(Set<IBuildingExtension> extensions);
 
-    void deserializeFromView(boolean isNewSubscription, @NotNull FriendlyByteBuf buf);
+    void deserializeFromView(boolean isNewSubscription, @NotNull PacketBuffer buf);
 }
+
+

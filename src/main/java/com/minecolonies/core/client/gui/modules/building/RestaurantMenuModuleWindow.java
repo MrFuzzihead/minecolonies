@@ -1,9 +1,26 @@
 package com.minecolonies.core.client.gui.modules.building;
 
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
-import com.ldtteam.blockui.controls.*;
+import com.ldtteam.blockui.PaneParams;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
+import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
 import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.items.IMinecoloniesFoodItem;
@@ -13,9 +30,9 @@ import com.minecolonies.core.Network;
 import com.minecolonies.core.client.gui.AbstractModuleWindow;
 import com.minecolonies.core.colony.buildings.moduleviews.RestaurantMenuModuleView;
 import com.minecolonies.core.network.messages.server.colony.building.AlterRestaurantMenuItemMessage;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -239,7 +256,7 @@ public class RestaurantMenuModuleWindow extends AbstractModuleWindow<RestaurantM
                     }
 
                     PaneBuilders.tooltipBuilder()
-                            .append(Component.translatable(FOOD_QUALITY_TOOLTIP, FoodUtils.getBuildingLevelForFood(resource)))
+                            .append(String.translatable(FOOD_QUALITY_TOOLTIP, FoodUtils.getBuildingLevelForFood(resource)))
                             .hoverPane(gradient)
                             .build();
                 }
@@ -249,8 +266,8 @@ public class RestaurantMenuModuleWindow extends AbstractModuleWindow<RestaurantM
                     gradient.setGradientEnd(0, 0, 0, 0);
 
                     PaneBuilders.tooltipBuilder()
-                            .append(Component.translatable(FOOD_QUALITY_TOOLTIP, FoodUtils.getBuildingLevelForFood(resource)))
-                            .appendNL(Component.translatable(VANILLA_FOOD_QUALITY_TOOLTIP))
+                            .append(String.translatable(FOOD_QUALITY_TOOLTIP, FoodUtils.getBuildingLevelForFood(resource)))
+                            .appendNL(String.translatable(VANILLA_FOOD_QUALITY_TOOLTIP))
                             .hoverPane(gradient)
                             .build();
                 }
@@ -357,7 +374,7 @@ public class RestaurantMenuModuleWindow extends AbstractModuleWindow<RestaurantM
                     }
 
                     PaneBuilders.tooltipBuilder()
-                            .append(Component.translatable(FOOD_QUALITY_TOOLTIP, FoodUtils.getBuildingLevelForFood(resource)))
+                            .append(String.translatable(FOOD_QUALITY_TOOLTIP, FoodUtils.getBuildingLevelForFood(resource)))
                             .hoverPane(gradient)
                             .build();
                 }
@@ -367,8 +384,8 @@ public class RestaurantMenuModuleWindow extends AbstractModuleWindow<RestaurantM
                     gradient.setGradientEnd(0, 0, 0, 0);
 
                     PaneBuilders.tooltipBuilder()
-                            .append(Component.translatable(FOOD_QUALITY_TOOLTIP, FoodUtils.getBuildingLevelForFood(resource)))
-                            .appendNL(Component.translatable(VANILLA_FOOD_QUALITY_TOOLTIP))
+                            .append(String.translatable(FOOD_QUALITY_TOOLTIP, FoodUtils.getBuildingLevelForFood(resource)))
+                            .appendNL(String.translatable(VANILLA_FOOD_QUALITY_TOOLTIP))
                             .hoverPane(gradient)
                             .build();
                 }
@@ -377,7 +394,7 @@ public class RestaurantMenuModuleWindow extends AbstractModuleWindow<RestaurantM
                 {
                     switchButton.disable();
                     PaneBuilders.tooltipBuilder()
-                      .append(Component.translatable(LABEL_LIMIT_REACHED))
+                      .append(String.translatable(LABEL_LIMIT_REACHED))
                       .hoverPane(switchButton)
                       .build();
 
@@ -394,3 +411,6 @@ public class RestaurantMenuModuleWindow extends AbstractModuleWindow<RestaurantM
         });
     }
 }
+
+
+

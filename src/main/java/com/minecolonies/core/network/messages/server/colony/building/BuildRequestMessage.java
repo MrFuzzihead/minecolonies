@@ -4,10 +4,10 @@ import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.core.network.messages.server.AbstractBuildingServerMessage;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.core.BlockPos;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -35,7 +35,7 @@ public class BuildRequestMessage extends AbstractBuildingServerMessage<IBuilding
     /**
      * The id of the building.
      */
-    private BlockPos builder;
+    private int[] builder;
 
     /**
      * Empty constructor used when registering the
@@ -52,7 +52,7 @@ public class BuildRequestMessage extends AbstractBuildingServerMessage<IBuilding
      * @param mode     Mode of the request, 1 is repair, 0 is build.
      * @param builder  the builder we're assinging the request to
      */
-    public BuildRequestMessage(@NotNull final IBuildingView building, final Mode mode, final BlockPos builder)
+    public BuildRequestMessage(@NotNull final IBuildingView building, final Mode mode, final int[] builder)
     {
         super(building);
         this.mode = mode;
@@ -60,23 +60,23 @@ public class BuildRequestMessage extends AbstractBuildingServerMessage<IBuilding
     }
 
     @Override
-    public void fromBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void fromBytesOverride(@NotNull final PacketBuffer buf)
     {
         mode = Mode.values()[buf.readInt()];
         builder = buf.readBlockPos();
     }
 
     @Override
-    public void toBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void toBytesOverride(@NotNull final PacketBuffer buf)
     {
         buf.writeInt(mode.ordinal());
         buf.writeBlockPos(builder);
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony, final IBuilding building)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony, final IBuilding building)
     {
-        final Player player = ctxIn.getSender();
+        final Player player = ctx.getServerHandler().playerEntity;
         if (building.isPendingConstruction())
         {
             building.removeWorkOrder();
@@ -93,7 +93,7 @@ public class BuildRequestMessage extends AbstractBuildingServerMessage<IBuilding
                     break;
                 case REMOVE:
                     building.requestRemoval(player, builder);
-                    for (final BlockPos childPos : building.getChildren())
+                    for (final int[] childPos : building.getChildren())
                     {
                         final IBuilding childBuilding = colony.getServerBuildingManager().getBuilding(childPos);
                         if (childBuilding != null)
@@ -107,3 +107,5 @@ public class BuildRequestMessage extends AbstractBuildingServerMessage<IBuilding
         }
     }
 }
+
+

@@ -1,24 +1,56 @@
 package com.minecolonies.core.client.render;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.RenderType;
+import com.mojang.math.Pose;
+import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.renderer.entity.MobRenderer;
+import net.minecraft.client.renderer.entity.Material;
+import net.minecraft.client.model.BookModel;
+import net.minecraft.client.renderer.blockentity.BlockEntityWithoutLevelRenderer;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.level.GameType;
+import net.minecraft.network.chat.FormattedCharSequence;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.world.level.block.state.BlockState;
+import org.joml.Matrix4f;
+import net.minecraft.client.renderer.entity.ArrowRenderer;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.ThrownTrident;
+import net.minecraft.client.EntityModelSet;
+import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
+import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
+import net.minecraft.client.renderer.entity.layers.RenderLayerParent;
+import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
 
 import com.minecolonies.core.entity.other.NewBobberEntity;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
+import com.mojang.math.Pose;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.entity.Entity;
+import net.minecraft.item.ItemStack;
+// [1.7.10] world.entity removed
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.MathHelper;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -168,3 +200,6 @@ public class RenderFishHook extends EntityRenderer<Entity>
         return TEXTURE;
     }
 }
+
+
+

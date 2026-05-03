@@ -7,10 +7,11 @@ import com.minecolonies.core.entity.pathfinding.MNode;
 import com.minecolonies.core.entity.pathfinding.PathfindingUtils;
 import com.minecolonies.core.entity.pathfinding.SurfaceType;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.pathfinder.Path;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] world.entity removed
+import net.minecraft.world.World;
+import net.minecraft.entity.EntityCreature;
+import net.minecraft.pathfinding.Path;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,7 +24,7 @@ public class PathJobMoveToLocation extends AbstractPathJob implements IDestinati
     // 1^2 + 1^2 + 1^2 + (epsilon of 0.1F)
     private static final float    DESTINATION_SLACK_ADJACENT = (float) Math.sqrt(2f);
     @NotNull
-    protected final BlockPos destination;
+    protected final int[] destination;
     // 0 = exact match
     private              float    destinationSlack           = DESTINATION_SLACK_NONE;
 
@@ -36,12 +37,12 @@ public class PathJobMoveToLocation extends AbstractPathJob implements IDestinati
      * @param range  max search range.
      * @param entity the entity.
      */
-    public PathJobMoveToLocation(final Level world, @NotNull final BlockPos start, @NotNull final BlockPos end, final int range, final Mob entity)
+    public PathJobMoveToLocation(final World world, @NotNull final int[] start, @NotNull final int[] end, final int range, final EntityCreature entity)
     {
         super(world, start, end, new PathResult<PathJobMoveToLocation>(), entity);
 
         maxNodes += range;
-        this.destination = new BlockPos(end);
+        this.destination = new int[]{end[0], end[1], end[2]};
 
         extraNodes = 4;
     }
@@ -53,10 +54,10 @@ public class PathJobMoveToLocation extends AbstractPathJob implements IDestinati
      */
     @Nullable
     @Override
-    protected Path search()
+    protected net.minecraft.pathfinding.PathEntity search()
     {
         //  Compute destination slack - if the destination point cannot be stood in
-        if (getGroundHeight(null, destination.getX(), destination.getY(), destination.getZ()) != destination.getY())
+        if (getGroundHeight(null, destination[0], destination[1], destination[2]) != destination[1])
         {
             destinationSlack = DESTINATION_SLACK_ADJACENT;
         }
@@ -157,7 +158,7 @@ public class PathJobMoveToLocation extends AbstractPathJob implements IDestinati
     }
 
     @Override
-    public BlockPos getDestination()
+    public int[] getDestination()
     {
         return destination;
     }
@@ -167,7 +168,7 @@ public class PathJobMoveToLocation extends AbstractPathJob implements IDestinati
      *
      * @return true if the given job is the same
      */
-    public static boolean isJobFor(final AbstractPathJob job, final BlockPos desiredPosition)
+    public static boolean isJobFor(final AbstractPathJob job, final int[] desiredPosition)
     {
         if (job instanceof PathJobMoveToLocation pathJob)
         {
@@ -177,3 +178,8 @@ public class PathJobMoveToLocation extends AbstractPathJob implements IDestinati
         return false;
     }
 }
+
+
+
+
+

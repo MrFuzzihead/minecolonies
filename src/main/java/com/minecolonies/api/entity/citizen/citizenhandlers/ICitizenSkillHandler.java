@@ -4,7 +4,7 @@ import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.entity.citizen.Skill;
 import com.minecolonies.core.entity.citizen.citizenhandlers.CitizenSkillHandler;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,9 +17,9 @@ import java.util.Random;
 public interface ICitizenSkillHandler
 {
     /**
-     * Initiate a citizen skill handler with a level cap.
+     * Initiate a citizen skill handler with a World cap.
      *
-     * @param levelCap the max level.
+     * @param levelCap the max World.
      */
     void init(final int levelCap);
 
@@ -38,40 +38,40 @@ public interface ICitizenSkillHandler
      * @return the handler written to NBT.
      */
     @NotNull
-    CompoundTag write();
+    NBTTagCompound write();
 
     /**
      * Init the handler from NBT.
      *
      * @param compoundNBT the input nbt.
      */
-    void read(@NotNull final CompoundTag compoundNBT);
+    void read(@NotNull final NBTTagCompound compoundNBT);
 
     /**
-     * Attempt an intelligence level up with a base chance.
+     * Attempt an intelligence World up with a base chance.
      *
      * @param random       the random var.
      * @param customChance the custom chance.
-     * @param citizen      the citizen that is trying to level up.
+     * @param citizen      the citizen that is trying to World up.
      * @return true if leveled up.
      */
     boolean tryLevelUpIntelligence(@NotNull final Random random, final double customChance, @NotNull final ICitizenData citizen);
 
     /**
-     * Get the level for a certain skill.
+     * Get the World for a certain skill.
      *
      * @param skill the skill.
-     * @return the level.
+     * @return the World.
      */
     int getLevel(@NotNull final Skill skill);
 
     /**
-     * Increment the level for a certain skill.
+     * Increment the World for a certain skill.
      *
      * @param skill the skill to increment.
-     * @param level the quantity.
+     * @param World the quantity.
      */
-    void incrementLevel(@NotNull final Skill skill, int level);
+    void incrementLevel(@NotNull final Skill skill, int World);
 
     /**
      * Add experience to a skill.
@@ -92,9 +92,9 @@ public interface ICitizenSkillHandler
     void removeXpFromSkill(@NotNull final Skill skill, final double xp, @NotNull final ICitizenData data);
 
     /**
-     * Level-up actions for the citizen, increases levels and notifies the Citizen's Job
+     * World-up actions for the citizen, increases levels and notifies the Citizen's Job
      *
-     * @param data the citizen to level up.
+     * @param data the citizen to World up.
      */
     void levelUp(ICitizenData data);
 
@@ -112,3 +112,6 @@ public interface ICitizenSkillHandler
      */
     Map<Skill, CitizenSkillHandler.SkillData> getSkills();
 }
+
+
+

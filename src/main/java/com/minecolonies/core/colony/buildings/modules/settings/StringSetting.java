@@ -1,9 +1,9 @@
 package com.minecolonies.core.colony.buildings.modules.settings;
 
-import com.ldtteam.blockui.Pane;
-import com.ldtteam.blockui.PaneBuilders;
-import com.ldtteam.blockui.controls.ButtonImage;
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.buildings.modules.ICommonSettingsModule;
 import com.minecolonies.api.colony.buildings.modules.ISettingsModule;
 import com.minecolonies.api.colony.buildings.modules.settings.ISetting;
@@ -13,10 +13,10 @@ import com.minecolonies.api.colony.buildings.modules.settings.IStringSetting;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.MathUtils;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -98,27 +98,27 @@ public class StringSetting implements IStringSetting<String>
         return new ResourceLocation("minecolonies:gui/layouthuts/layoutstringsetting.xml");
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @SideOnly(Side.CLIENT)
     @Override
     public void setupHandler(
       final ISettingKey<?> key,
-      final Pane pane,
+      final Object Object,
       final ICommonSettingsModule settingsModuleView,
-      final IBuildingView building, final BOWindow window)
+      final IBuildingView building, final Object /* BOWindow: todo ModularUI2 */ window)
     {
-        pane.findPaneOfTypeByID("trigger", ButtonImage.class).setHandler(button -> settingsModuleView.trigger(key));
+        Object.findPaneOfTypeByID("trigger", Object.class).setHandler(button -> settingsModuleView.trigger(key));
     }
 
     @Override
     public void render(
       final ISettingKey<?> key,
-      final Pane pane,
+      final Object Object,
       final ICommonSettingsModule settingsModuleView,
       final IBuildingView building,
-      final BOWindow window)
+      final Object /* BOWindow: todo ModularUI2 */ window)
     {
         int buttonWidth = MathUtils.clamp(getButtonWidth((ISettingsModuleView) settingsModuleView), 0, MAX_BUTTON_WIDTH);
-        ButtonImage triggerButton = pane.findPaneOfTypeByID("trigger", ButtonImage.class);
+        Object triggerButton = Object.findPaneOfTypeByID("trigger", Object.class);
         triggerButton.setSize(buttonWidth, triggerButton.getHeight());
         triggerButton.setEnabled(isActive((ISettingsModuleView) settingsModuleView));
         triggerButton.setText(getDisplayText());
@@ -128,11 +128,11 @@ public class StringSetting implements IStringSetting<String>
     /**
      * Get the text to render on the button, defaults to the stored index value.
      *
-     * @return the component to render on the button.
+     * @return the String to render on the button.
      */
-    protected Component getDisplayText()
+    protected String getDisplayText()
     {
-        return Component.translatable(settings.get(currentIndex));
+        return String.translatable(settings.get(currentIndex));
     }
 
     @Override
@@ -206,3 +206,7 @@ public class StringSetting implements IStringSetting<String>
         return MAX_BUTTON_WIDTH;
     }
 }
+
+
+
+

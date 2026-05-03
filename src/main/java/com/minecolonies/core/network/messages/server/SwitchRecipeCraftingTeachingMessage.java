@@ -2,10 +2,9 @@ package com.minecolonies.core.network.messages.server;
 
 import com.minecolonies.api.inventory.container.ContainerCrafting;
 import com.minecolonies.api.network.IMessage;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.entity.player.EntityPlayer;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -22,26 +21,26 @@ public class SwitchRecipeCraftingTeachingMessage implements IMessage
     }
 
     @Override
-    public void fromBytes(final FriendlyByteBuf buf)
+    public void fromBytes(final PacketBuffer buf)
     {
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    public void toBytes(final PacketBuffer buf)
     {
     }
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.SERVER;
+        return Boolean.TRUE;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
-        final Player player = ctxIn.getSender();
+        final Player player = ctx.getServerHandler().playerEntity;
         if (player.containerMenu instanceof ContainerCrafting)
         {
             final ContainerCrafting container = (ContainerCrafting) player.containerMenu;
@@ -49,3 +48,5 @@ public class SwitchRecipeCraftingTeachingMessage implements IMessage
         }
     }
 }
+
+

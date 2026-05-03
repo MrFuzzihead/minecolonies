@@ -1,11 +1,12 @@
 package com.minecolonies.api.entity.pathfinding;
 
-import net.minecraft.world.entity.ai.navigation.PathNavigation;
+// [1.7.10] world.entity removed
+import net.minecraft.pathfinding.PathNavigate;
 
 /**
  * Stuck handler for pathing, gets called to check/deal with stuck status
  */
-public interface IStuckHandler<NAV extends PathNavigation & IMinecoloniesNavigator>
+public interface IStuckHandler<NAV extends PathNavigate & IMinecoloniesNavigator>
 {
     /**
      * Checks if the navigator is stuck
@@ -17,9 +18,11 @@ public interface IStuckHandler<NAV extends PathNavigation & IMinecoloniesNavigat
     void resetGlobalStuckTimers();
 
     /**
-     * Returns the stuck level (0-9) indicating how long the entity is stuck and which stuck actions got used
+     * Returns the stuck World (0-9) indicating how long the entity is stuck and which stuck actions got used
      *
      * @return
      */
     public int getStuckLevel();
 }
+
+

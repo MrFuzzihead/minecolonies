@@ -1,4 +1,5 @@
 package com.minecolonies.core.colony;
+import net.minecraft.world.entity.animal.Animal;
 
 import java.lang.ref.WeakReference;
 import java.util.Optional;
@@ -15,11 +16,11 @@ import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.constant.NbtTagConstants;
 import com.minecolonies.api.colony.managers.interfaces.IManagedAnimal;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.animal.Animal;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.entity.Entity;
+// [1.7.10] world.entity removed
 
 public class AnimalData implements IAnimalData
 {
@@ -62,7 +63,7 @@ public class AnimalData implements IAnimalData
     /**
      * The last position of the animal.
      */
-    private BlockPos lastPosition = new BlockPos(0, 0, 0);
+    private int[] lastPosition = new int[]{0, 0, 0};
 
     /**
      * Its entitity.
@@ -125,7 +126,7 @@ public class AnimalData implements IAnimalData
      * @param nbt    nbt compound to read from
      * @return new AnimalData
      */
-    public static IAnimalData loadAnimalFromNBT(final IColony colony, final CompoundTag nbt)
+    public static IAnimalData loadAnimalFromNBT(final IColony colony, final NBTTagCompound nbt)
     {
         final IAnimalData data = new AnimalData(nbt.getInt(NbtTagConstants.TAG_ID), colony);
         data.deserializeNBT(nbt);
@@ -138,13 +139,13 @@ public class AnimalData implements IAnimalData
      * @return A compound nbt containing the animal data.
      */
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        CompoundTag compoundNBT = new CompoundTag();
+        NBTTagCompound compoundNBT = new NBTTagCompound();
         compoundNBT.putInt(NbtTagConstants.TAG_ID, getId());
 
         BlockPosUtil.write(compoundNBT, NbtTagConstants.TAG_POS, getManagedAnimal().isPresent() ? getManagedAnimal().get().getEntity().blockPosition() : lastPosition);
-        BlockPosUtil.write(compoundNBT, NbtTagConstants.TAG_ANIMALHOME, homeBuilding != null ? homeBuilding.getID() : BlockPos.ZERO);
+        BlockPosUtil.write(compoundNBT, NbtTagConstants.TAG_ANIMALHOME, homeBuilding != null ? homeBuilding.getID() : new int[]{0,0,0});
         compoundNBT.putFloat(NbtTagConstants.TAG_MAX_HEALTH, maxHealth);
         compoundNBT.putFloat(NbtTagConstants.TAG_COMBAT_COOLDOWN, getCombatCooldown());
         compoundNBT.putUUID(NbtTagConstants.TAG_UUID, uuid != null ? uuid : UUID.randomUUID());
@@ -159,12 +160,12 @@ public class AnimalData implements IAnimalData
      * @param nbtTagCompound the nbt compound to read from.
      */
     @Override
-    public void deserializeNBT(final CompoundTag nbtTagCompound)
+    public void deserializeNBT(final NBTTagCompound nbtTagCompound)
     {
         lastPosition = BlockPosUtil.read(nbtTagCompound, NbtTagConstants.TAG_POS);
-        BlockPos homePos = nbtTagCompound.contains(NbtTagConstants.TAG_ANIMALHOME) ? BlockPosUtil.read(nbtTagCompound, NbtTagConstants.TAG_ANIMALHOME) : BlockPos.ZERO;
+        int[] homePos = nbtTagCompound.contains(NbtTagConstants.TAG_ANIMALHOME) ? BlockPosUtil.read(nbtTagCompound, NbtTagConstants.TAG_ANIMALHOME) : new int[]{0,0,0};
 
-        if (!homePos.equals(BlockPos.ZERO))
+        if (!homePos.equals(new int[]{0,0,0}))
         {
             homeBuilding = colony.getServerBuildingManager().getBuilding(homePos);
         }
@@ -183,7 +184,7 @@ public class AnimalData implements IAnimalData
      * @param buf Buffer to write to.
      */
     @Override
-    public void serializeViewNetworkData(@NotNull final FriendlyByteBuf buf)
+    public void serializeViewNetworkData(@NotNull final PacketBuffer buf)
     {
         // Serialize any additional view-bound data here
         // MUST match deserialization on the view side.
@@ -336,7 +337,7 @@ public class AnimalData implements IAnimalData
      * @param lastPosition the last position of the animal.
      */
     @Override
-    public void setLastPosition(final BlockPos lastPosition)
+    public void setLastPosition(final int[] lastPosition)
     {
         this.lastPosition = lastPosition;
     }
@@ -347,7 +348,7 @@ public class AnimalData implements IAnimalData
      * @return the last position of the animal.
      */
     @Override
-    public BlockPos getLastPosition()
+    public int[] getLastPosition()
     {
         return lastPosition;
     }
@@ -375,3 +376,9 @@ public class AnimalData implements IAnimalData
     }
 
 }
+
+
+
+
+
+

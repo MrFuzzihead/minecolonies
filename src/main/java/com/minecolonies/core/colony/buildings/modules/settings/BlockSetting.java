@@ -1,9 +1,12 @@
 package com.minecolonies.core.colony.buildings.modules.settings;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
-import com.ldtteam.blockui.Pane;
-import com.ldtteam.blockui.controls.ButtonImage;
-import com.ldtteam.blockui.controls.ItemIcon;
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
 import com.ldtteam.structurize.client.gui.WindowSelectRes;
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.buildings.modules.ICommonSettingsModule;
@@ -12,26 +15,25 @@ import com.minecolonies.api.colony.buildings.modules.settings.ISetting;
 import com.minecolonies.api.colony.buildings.modules.settings.ISettingKey;
 import com.minecolonies.api.colony.buildings.modules.settings.ISettingsModuleView;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.FallingBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] tags removed
+import net.minecraft.item.ItemBlock;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+// [1.7.10] EntityBlock, FallingBlock removed - no equivalent in 1.7.10
+// [1.7.10] block.entity removed
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] World.material removed
+// [1.7.10] World.material removed
+// [1.7.10] world.phys removed
+// [1.7.10] world.phys removed
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,24 +42,24 @@ import static com.minecolonies.api.util.constant.WindowConstants.SWITCH;
 /**
  * Stores a solid block setting.
  */
-public class BlockSetting implements ISetting<BlockItem>
+public class BlockSetting implements ISetting<ItemBlock>
 {
     /**
      * Default value of the setting.
      */
-    private final BlockItem defaultValue;
+    private final ItemBlock defaultValue;
 
     /**
      * The value of the setting.
      */
-    private BlockItem value;
+    private ItemBlock value;
 
     /**
      * Create a new boolean setting.
      *
      * @param init the initial value.
      */
-    public BlockSetting(final BlockItem init)
+    public BlockSetting(final ItemBlock init)
     {
         this.value = init;
         this.defaultValue = init;
@@ -69,7 +71,7 @@ public class BlockSetting implements ISetting<BlockItem>
      * @param value the value.
      * @param def   the default value.
      */
-    public BlockSetting(final BlockItem value, final BlockItem def)
+    public BlockSetting(final ItemBlock value, final ItemBlock def)
     {
         this.value = value;
         this.defaultValue = def;
@@ -80,7 +82,7 @@ public class BlockSetting implements ISetting<BlockItem>
      *
      * @return the set value.
      */
-    public BlockItem getValue()
+    public ItemBlock getValue()
     {
         return value;
     }
@@ -90,7 +92,7 @@ public class BlockSetting implements ISetting<BlockItem>
      *
      * @return the default value.
      */
-    public BlockItem getDefault()
+    public ItemBlock getDefault()
     {
         return defaultValue;
     }
@@ -100,7 +102,7 @@ public class BlockSetting implements ISetting<BlockItem>
      *
      * @param value the item block to set.
      */
-    public void setValue(final BlockItem value)
+    public void setValue(final ItemBlock value)
     {
         this.value = value;
     }
@@ -111,60 +113,26 @@ public class BlockSetting implements ISetting<BlockItem>
         return new ResourceLocation("minecolonies:gui/layouthuts/layoutblocksetting.xml");
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void setupHandler(
       final ISettingKey<?> key,
-      final Pane pane,
+      final Object pane,
       final ICommonSettingsModule settingsModuleView,
       final IBuildingView building,
-      final BOWindow window)
+      final Object /* BOWindow: todo ModularUI2 */ window)
     {
-        pane.findPaneOfTypeByID("trigger", ButtonImage.class).setHandler(button ->
-            new WindowSelectRes(
-                window,
-                Component.empty(),
-                new ItemStack(value),
-                IColonyManager.getInstance().getCompatibilityManager().getListOfMatchingItems(stack -> {
-                    final Item item = stack.getItem();
-                    if (!(item instanceof BlockItem))
-                    {
-                        return false;
-                    }
-
-                    final Block block = ((BlockItem) item).getBlock();
-                    final BlockState state = block.defaultBlockState();
-                    if (block instanceof EntityBlock || block instanceof FallingBlock || state.is(BlockTags.LEAVES))
-                    {
-                        return false;
-                    }
-
-                    return block.getShape(state, new SingleStateBlockGetter(state), BlockPos.ZERO, CollisionContext.empty()).equals(Shapes.block()) && state.blocksMotion();
-                }),
-                (stack, qty) -> {
-                    if (stack.isEmpty())
-                    {
-                        return;
-                    }
-                    value = (BlockItem) stack.getItem();
-                    settingsModuleView.getSetting(new SettingKey(key.getType(), key.getUniqueId())).updateSetting(this);
-                    settingsModuleView.trigger(key);
-                }).open());
+        // [1.7.10] todo: ModularUI2 port
     }
 
     @Override
     public void render(
       final ISettingKey<?> key,
-      final Pane pane,
+      final Object pane,
       final ICommonSettingsModule settingsModuleView,
       final IBuildingView building,
-      final BOWindow window)
+      final Object /* BOWindow: todo ModularUI2 */ window)
     {
-        pane.findPaneOfTypeByID("icon", ItemIcon.class).setItem(new ItemStack(value));
-        ButtonImage triggerButton = pane.findPaneOfTypeByID("trigger", ButtonImage.class);
-        triggerButton.setEnabled(isActive((ISettingsModuleView) settingsModuleView));
-        triggerButton.setText(Component.translatable(SWITCH));
-        setHoverPane(key, triggerButton, settingsModuleView);
+        // [1.7.10] todo: ModularUI2 port
     }
 
     @Override
@@ -173,54 +141,6 @@ public class BlockSetting implements ISetting<BlockItem>
         if (setting instanceof final BlockSetting other)
         {
             setValue(other.getValue());
-        }
-    }
-
-    /**
-     * Special block getter for shapes.
-     */
-    public class SingleStateBlockGetter implements BlockGetter
-    {
-        private final BlockState state;
-
-        public SingleStateBlockGetter(BlockState state)
-        {
-            this.state = state;
-        }
-
-        @Nullable
-        @Override
-        public BlockEntity getBlockEntity(@NotNull BlockPos pos)
-        {
-            return null;
-        }
-
-        @NotNull
-        @Override
-        public BlockState getBlockState(@NotNull BlockPos pos)
-        {
-            if (pos == BlockPos.ZERO)
-                return state;
-            return Blocks.AIR.defaultBlockState();
-        }
-
-        @NotNull
-        @Override
-        public FluidState getFluidState(@NotNull BlockPos pos)
-        {
-            return Fluids.EMPTY.defaultFluidState();
-        }
-
-        @Override
-        public int getHeight()
-        {
-            return Integer.MAX_VALUE;
-        }
-
-        @Override
-        public int getMinBuildHeight()
-        {
-            return Integer.MIN_VALUE;
         }
     }
 }

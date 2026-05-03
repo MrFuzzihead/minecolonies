@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.buildings.modules;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.colony.buildings.modules.AbstractBuildingModule;
 import com.minecolonies.api.colony.buildings.modules.IAltersRequiredItems;
@@ -6,15 +12,16 @@ import com.minecolonies.api.colony.buildings.modules.IModuleWithExternalBlocks;
 import com.minecolonies.api.colony.buildings.modules.IPersistentModule;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.util.ItemStackUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.FurnaceBlock;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+// [1.7.10] NbtUtils removed
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+// [1.7.10] FurnaceBlock -> Blocks.furnace; check block directly
+import net.minecraft.init.Blocks;
+// [1.7.10] BlockState -> int metadata
 
 import org.apache.logging.log4j.util.TriConsumer;
 import org.jetbrains.annotations.NotNull;
@@ -32,24 +39,24 @@ import static com.minecolonies.api.util.constant.Constants.STACKSIZE;
 public class FurnaceUserModule extends AbstractBuildingModule implements IPersistentModule, IModuleWithExternalBlocks, IAltersRequiredItems
 {
     /**
-     * Tag to store the furnace position.
+     * NBTBase to store the furnace position.
      */
     private static final String TAG_POS = "pos";
 
     /**
-     * Tag to store the furnace position in compatibility (Baker)
+     * NBTBase to store the furnace position in compatibility (Baker)
      */
     private static final String TAG_POS_COMPAT = "furnacePos";
 
     /**
-     * Tag to store the furnace list.
+     * NBTBase to store the furnace list.
      */
     private static final String TAG_FURNACES = "furnaces";
 
     /**
      * List of registered furnaces.
      */
-    private final List<BlockPos> furnaces = new ArrayList<>();
+    private final List<int[]> furnaces = new ArrayList<>();
 
     /**
      * Construct a new furnace user module.
@@ -60,9 +67,9 @@ public class FurnaceUserModule extends AbstractBuildingModule implements IPersis
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
-        final ListTag furnaceTagList = compound.getList(TAG_FURNACES, Tag.TAG_COMPOUND);
+        final NBTTagList furnaceTagList = compound.getList(TAG_FURNACES, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < furnaceTagList.size(); ++i)
         {
             if(furnaceTagList.getCompound(i).contains(TAG_POS))
@@ -77,12 +84,12 @@ public class FurnaceUserModule extends AbstractBuildingModule implements IPersis
     }
 
     @Override
-    public void serializeNBT(final CompoundTag compound)
+    public void serializeNBT(final NBTTagCompound compound)
     {
-        @NotNull final ListTag furnacesTagList = new ListTag();
-        for (@NotNull final BlockPos entry : furnaces)
+        @NotNull final NBTTagList furnacesTagList = new NBTTagList();
+        for (@NotNull final int[] entry : furnaces)
         {
-            @NotNull final CompoundTag furnaceCompound = new CompoundTag();
+            @NotNull final NBTTagCompound furnaceCompound = new NBTTagCompound();
             furnaceCompound.put(TAG_POS, NbtUtils.writeBlockPos(entry));
             furnacesTagList.add(furnaceCompound);
         }
@@ -100,7 +107,7 @@ public class FurnaceUserModule extends AbstractBuildingModule implements IPersis
      *
      * @param pos the position of it.
      */
-    public void removeFromFurnaces(final BlockPos pos)
+    public void removeFromFurnaces(final int[] pos)
     {
         furnaces.remove(pos);
     }
@@ -125,13 +132,13 @@ public class FurnaceUserModule extends AbstractBuildingModule implements IPersis
      *
      * @return copy of the list
      */
-    public List<BlockPos> getFurnaces()
+    public List<int[]> getFurnaces()
     {
         return new ArrayList<>(furnaces);
     }
 
     @Override
-    public void onBlockPlacedInBuilding(@NotNull final BlockState blockState, @NotNull final BlockPos pos, @NotNull final Level world)
+    public void onBlockPlacedInBuilding(@NotNull final BlockState blockState, @NotNull final int[] pos, @NotNull final World world)
     {
         if (blockState.getBlock() instanceof FurnaceBlock && !furnaces.contains(pos))
         {
@@ -140,8 +147,12 @@ public class FurnaceUserModule extends AbstractBuildingModule implements IPersis
     }
 
     @Override
-    public List<BlockPos> getRegisteredBlocks()
+    public List<int[]> getRegisteredBlocks()
     {
         return new ArrayList<>(furnaces);
     }
 }
+
+
+
+

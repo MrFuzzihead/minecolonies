@@ -10,14 +10,14 @@ import com.minecolonies.core.entity.mobs.raider.egyptians.EntityArcherMummyRaide
 import com.minecolonies.core.entity.mobs.raider.egyptians.EntityMummyRaider;
 import com.minecolonies.core.entity.mobs.raider.egyptians.EntityPharaoRaider;
 import com.minecolonies.core.network.messages.client.PlayAudioMessage;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] sounds removed
+import net.minecraft.entity.Entity;
+// [1.7.10] world.entity removed
+import net.minecraft.entity.EntityLivingBase;
 
 import static com.minecolonies.api.entity.ModEntities.*;
 import static com.minecolonies.api.util.constant.TranslationConstants.RAID_EGYPTIAN;
@@ -105,7 +105,7 @@ public class EgyptianRaidEvent extends HordeRaidEvent
     }
 
     @Override
-    public void onEntityDeath(final LivingEntity entity)
+    public void onEntityDeath(final EntityLivingBase entity)
     {
         super.onEntityDeath(entity);
         if (!(entity instanceof AbstractEntityMinecoloniesRaider))
@@ -148,7 +148,7 @@ public class EgyptianRaidEvent extends HordeRaidEvent
      * @param compound NBTcompound with saved values
      * @return the raid event.
      */
-    public static EgyptianRaidEvent loadFromNBT(final IColony colony, final CompoundTag compound)
+    public static EgyptianRaidEvent loadFromNBT(final IColony colony, final NBTTagCompound compound)
     {
         EgyptianRaidEvent event = new EgyptianRaidEvent(colony);
         event.deserializeNBT(compound);
@@ -174,8 +174,13 @@ public class EgyptianRaidEvent extends HordeRaidEvent
     }
 
     @Override
-    protected MutableComponent getDisplayName()
+    protected String getDisplayName()
     {
-        return Component.translatable(RAID_EGYPTIAN);
+        return String.translatable(RAID_EGYPTIAN);
     }
 }
+
+
+
+
+

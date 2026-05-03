@@ -1,8 +1,8 @@
 package com.minecolonies.api.util;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
 
 import java.util.Iterator;
 import java.util.Spliterator;
@@ -15,35 +15,35 @@ import java.util.stream.StreamSupport;
 public class NBTUtils
 {
 
-    public static Stream<CompoundTag> streamCompound(final ListTag list)
+    public static Stream<NBTTagCompound> streamCompound(final NBTTagList list)
     {
-        return streamBase(list).filter(b -> b instanceof CompoundTag).map(b -> (CompoundTag) b);
+        return streamBase(list).filter(b -> b instanceof NBTTagCompound).map(b -> (NBTTagCompound) b);
     }
 
-    public static Stream<Tag> streamBase(final ListTag list)
+    public static Stream<NBTBase> streamBase(final NBTTagList list)
     {
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new TagListIterator(list), Spliterator.ORDERED), false);
     }
 
-    public static Collector<CompoundTag, ?, ListTag> toListNBT()
+    public static Collector<NBTTagCompound, ?, NBTTagList> toListNBT()
     {
         return Collectors.collectingAndThen(
           Collectors.toList(),
           list -> {
-              final ListTag tagList = new ListTag();
+              final NBTTagList tagList = new NBTTagList();
               tagList.addAll(list);
 
               return tagList;
           });
     }
 
-    private static class TagListIterator implements Iterator<Tag>
+    private static class TagListIterator implements Iterator<NBTBase>
     {
 
-        private final ListTag list;
+        private final NBTTagList list;
         private       int     currentIndex = 0;
 
-        private TagListIterator(final ListTag list) {this.list = list;}
+        private TagListIterator(final NBTTagList list) {this.list = list;}
 
         @Override
         public boolean hasNext()
@@ -52,9 +52,13 @@ public class NBTUtils
         }
 
         @Override
-        public Tag next()
+        public NBTBase next()
         {
             return list.getCompound(currentIndex++);
         }
     }
 }
+
+
+
+

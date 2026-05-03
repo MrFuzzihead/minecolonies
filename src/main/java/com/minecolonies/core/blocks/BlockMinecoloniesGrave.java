@@ -1,72 +1,45 @@
 package com.minecolonies.core.blocks;
 
 import com.minecolonies.api.blocks.AbstractBlockMinecoloniesGrave;
-import com.minecolonies.api.blocks.types.GraveType;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.permissions.Action;
-import com.minecolonies.core.tileentities.TileEntityGrave;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.material.MapColor;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.network.NetworkHooks;
+import com.minecolonies.core.tileentities.TileEntityGrave;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.MathHelper;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
-
 /**
- * Block for the graves
+ * Block for the graves.
+ * [1.7.10] Ported: Material; metadata bits 0-1 = facing, bit 2 = GraveType;
+ * createTileEntity; onBlockActivated; onBlockPlacedBy; breakBlock.
  */
 public class BlockMinecoloniesGrave extends AbstractBlockMinecoloniesGrave<BlockMinecoloniesGrave>
 {
-    /**
-     * The hardness this block has.
-     */
-    private static final float BLOCK_HARDNESS = 1.5F;
-
-    /**
-     * This blocks name.
-     */
-    private static final String BLOCK_NAME = "blockminecoloniesgrave";
-
-    /**
-     * The resistance this block has.
-     */
-    private static final float RESISTANCE = 5F;
-
-    /**
-     * Smaller shape.
-     */
-    private static final VoxelShape SHAPE = Shapes.box(0.1, 0.1, 0.1, 0.9, 0.9, 0.9);
+    private static final float  BLOCK_HARDNESS = 1.5F;
+    private static final String BLOCK_NAME     = "blockminecoloniesgrave";
+    private static final float  RESISTANCE     = 5F;
 
     public BlockMinecoloniesGrave()
     {
-        super(Properties.of().mapColor(MapColor.STONE).sound(SoundType.STONE).strength(BLOCK_HARDNESS, RESISTANCE));
-        this.registerDefaultState(this.defaultBlockState().setValue(FACING, Direction.NORTH).setValue(VARIANT, GraveType.DEFAULT));
+        super(Material.rock);
+        setHardness(BLOCK_HARDNESS);
+        setResistance(RESISTANCE);
+        setStepSound(Block.soundTypeStone);
+        setLightOpacity(0);
+        setBlockBounds(0.1f, 0.1f, 0.1f, 0.9f, 0.9f, 0.9f);
     }
 
     @Override
@@ -76,147 +49,97 @@ public class BlockMinecoloniesGrave extends AbstractBlockMinecoloniesGrave<Block
     }
 
     @Override
-    public boolean propagatesSkylightDown(final BlockState state, @NotNull final BlockGetter reader, @NotNull final BlockPos pos)
+    public boolean hasTileEntity(final int metadata)
     {
-        return false;
-    }
-
-    @NotNull
-    @Override
-    public VoxelShape getShape(final BlockState state, final BlockGetter worldIn, final BlockPos pos, final CollisionContext context)
-    {
-        return SHAPE;
-    }
-
-    @Nullable
-    @Override
-    public BlockState getStateForPlacement(final BlockPlaceContext context)
-    {
-        final Level worldIn = context.getLevel();
-        final BlockPos pos = context.getClickedPos();
-        final BlockState state = defaultBlockState();
-        final BlockEntity entity = worldIn.getBlockEntity(pos);
-
-        if (!(entity instanceof TileEntityGrave))
-        {
-            return super.getStateForPlacement(context);
-        }
-
-        return getPlacementState(state, pos);
-    }
-
-    /**
-     * Get the statement ready.
-     *
-     * @param state  the state to place.
-     * @param pos    the position.
-     * @return the next state.
-     */
-    public static BlockState getPlacementState(final BlockState state, final BlockPos pos)
-    {
-        return state.setValue(VARIANT, GraveType.DEFAULT);
-    }
-
-    /**
-     * Convert the BlockState into the correct metadata value.
-     *
-     * @deprecated (Remove this as soon as minecraft offers anything better).
-     */
-    @NotNull
-    @Override
-    @Deprecated
-    public BlockState rotate(@NotNull final BlockState state, final Rotation rot)
-    {
-        return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
-    }
-
-    /**
-     * @deprecated (Remove this as soon as minecraft offers anything better).
-     */
-    @NotNull
-    @Override
-    @Deprecated
-    public BlockState mirror(@NotNull final BlockState state, final Mirror mirrorIn)
-    {
-        return state.rotate(mirrorIn.getRotation(state.getValue(FACING)));
+        return true;
     }
 
     @Override
-    public InteractionResult use(
-      final BlockState state,
-      final Level worldIn,
-      final BlockPos pos,
-      final Player player,
-      final InteractionHand hand,
-      final BlockHitResult ray)
+    public TileEntity createTileEntity(final World world, final int metadata)
     {
-        final IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(worldIn, pos);
-        final BlockEntity tileEntity = worldIn.getBlockEntity(pos);
+        return new TileEntityGrave();
+    }
+
+    @Override
+    public void setBlockBoundsBasedOnState(final IBlockAccess access, final int x, final int y, final int z)
+    {
+        setBlockBounds(0.1f, 0.1f, 0.1f, 0.9f, 0.9f, 0.9f);
+    }
+
+    @Override
+    public boolean onBlockActivated(
+      final World worldIn,
+      final int x,
+      final int y,
+      final int z,
+      final EntityPlayer player,
+      final int side,
+      final float hitX,
+      final float hitY,
+      final float hitZ)
+    {
+        final IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(worldIn, x, y, z);
+        final TileEntity tileEntity = worldIn.getTileEntity(x, y, z);
 
         if ((colony == null || colony.getPermissions().hasPermission(player, Action.ACCESS_HUTS))
               && tileEntity instanceof TileEntityGrave)
         {
-            final TileEntityGrave grave = (TileEntityGrave) tileEntity;
-            if (!worldIn.isClientSide)
+            if (!worldIn.isRemote)
             {
-                NetworkHooks.openScreen((ServerPlayer) player,
-                  grave,
-                  buf -> buf.writeBlockPos(grave.getBlockPos()));
+                // TODO: Phase 9 — open grave container GUI
+                // player.openGui(MineColonies.instance, MineColoniesGuiId.GRAVE, worldIn, x, y, z);
             }
-            return InteractionResult.SUCCESS;
+            return true;
         }
-        return InteractionResult.FAIL;
+        return false;
     }
 
     @Override
-    public void setPlacedBy(final Level worldIn, final BlockPos pos, final BlockState state, @Nullable final LivingEntity placer, final ItemStack stack)
+    public void onBlockPlacedBy(
+      final World worldIn,
+      final int x,
+      final int y,
+      final int z,
+      @Nullable final EntityLivingBase placer,
+      final ItemStack stack)
     {
-        BlockState tempState = state;
-        tempState = tempState.setValue(VARIANT, GraveType.DEFAULT);
+        int meta = 0; // default GraveType.DEFAULT
         if (placer != null)
         {
-            tempState = tempState.setValue(FACING, placer.getDirection().getOpposite());
+            // Encode facing in bits 0-1
+            meta = MathHelper.floor_double(placer.rotationYaw * 4.0F / 360.0F + 0.5D) & 3;
+            // Facing is opposite of placer direction: (meta + 2) & 3
+            meta = (meta + 2) & 3;
         }
-
-        worldIn.setBlock(pos, tempState, 2);
+        worldIn.setBlockMetadataWithNotify(x, y, z, meta, 2);
     }
 
     @Override
-    public VoxelShape getCollisionShape(final BlockState p_60572_, final BlockGetter p_60573_, final BlockPos p_60574_, final CollisionContext p_60575_)
+    public void breakBlock(
+      final World worldIn,
+      final int x,
+      final int y,
+      final int z,
+      final Block block,
+      final int meta)
     {
-        return Shapes.empty();
-    }
-
-    @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder)
-    {
-        builder.add(FACING, VARIANT);
-    }
-
-    @Nullable
-    @Override
-    public BlockEntity newBlockEntity(@NotNull final BlockPos blockPos, @NotNull final BlockState blockState)
-    {
-        return new TileEntityGrave(blockPos, blockState);
-    }
-
-    @Override
-    public void onRemove(BlockState state, @NotNull Level worldIn, @NotNull BlockPos pos, BlockState newState, boolean isMoving)
-    {
-        if (state.getBlock() != newState.getBlock())
+        final TileEntity tileEntity = worldIn.getTileEntity(x, y, z);
+        if (tileEntity instanceof TileEntityGrave)
         {
-            BlockEntity tileEntity = worldIn.getBlockEntity(pos);
-            if (tileEntity instanceof TileEntityGrave tileEntityGrave)
-            {
-                InventoryUtils.dropItemHandler(tileEntityGrave.getInventory(),
-                    worldIn,
-                    tileEntityGrave.getBlockPos().getX(),
-                    tileEntityGrave.getBlockPos().getY(),
-                    tileEntityGrave.getBlockPos().getZ());
-                worldIn.updateNeighbourForOutputSignal(pos, this);
-            }
-
-            super.onRemove(state, worldIn, pos, newState, isMoving);
+            InventoryUtils.dropItemHandler(((TileEntityGrave) tileEntity).getInventory(), worldIn, x, y, z);
         }
+        super.breakBlock(worldIn, x, y, z, block, meta);
+    }
+
+    @Override
+    public boolean isOpaqueCube()
+    {
+        return false;
+    }
+
+    @Override
+    public boolean renderAsNormalBlock()
+    {
+        return false;
     }
 }

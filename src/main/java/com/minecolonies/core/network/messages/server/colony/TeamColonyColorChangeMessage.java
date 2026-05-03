@@ -5,9 +5,9 @@ import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.eventbus.events.colony.ColonyTeamColorChangedModEvent;
 import com.minecolonies.core.network.messages.server.AbstractColonyServerMessage;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.ChatFormatting;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.util.EnumChatFormatting;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -46,7 +46,7 @@ public class TeamColonyColorChangeMessage extends AbstractColonyServerMessage
      * @param buf the used byteBuffer.
      */
     @Override
-    public void fromBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void fromBytesOverride(@NotNull final PacketBuffer buf)
     {
 
         colorOrdinal = buf.readInt();
@@ -58,15 +58,17 @@ public class TeamColonyColorChangeMessage extends AbstractColonyServerMessage
      * @param buf the used byteBuffer.
      */
     @Override
-    public void toBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void toBytesOverride(@NotNull final PacketBuffer buf)
     {
         buf.writeInt(colorOrdinal);
     }
 
     @Override
-    protected void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony)
+    protected void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony)
     {
         colony.setColonyColor(ChatFormatting.values()[colorOrdinal]);
         IMinecoloniesAPI.getInstance().getEventBus().post(new ColonyTeamColorChangedModEvent(colony));
     }
 }
+
+

@@ -1,10 +1,29 @@
 package com.minecolonies.core.client.gui.townhall;
 
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
-import com.ldtteam.blockui.controls.*;
-import com.ldtteam.blockui.views.DropDownList;
+import com.ldtteam.blockui.PaneParams;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
+import com.ldtteam.blockui.controls.DropDownList;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
+import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
 import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.MinecoloniesAPIProxy;
 import com.minecolonies.api.colony.ICitizenDataView;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
@@ -15,8 +34,8 @@ import com.minecolonies.core.colony.buildings.moduleviews.CombinedHiringLimitMod
 import com.minecolonies.core.colony.buildings.moduleviews.WorkerBuildingModuleView;
 import com.minecolonies.core.colony.buildings.views.AbstractBuildingView;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingTownHall;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -27,7 +46,7 @@ import static com.minecolonies.api.util.constant.TranslationConstants.COM_MINECO
 import static com.minecolonies.api.util.constant.WindowConstants.*;
 
 /**
- * BOWindow for the town hall.
+ * Object (BOWindow: todo ModularUI2 removed) for the town hall.
  */
 public class WindowStatsPage extends AbstractWindowTownHall
 {
@@ -95,30 +114,30 @@ public class WindowStatsPage extends AbstractWindowTownHall
         }
 
         final Text totalCitizenLabel = findPaneOfTypeByID(TOTAL_CITIZENS_LABEL, Text.class);
-        totalCitizenLabel.setText(Component.translatable(COM_MINECOLONIES_COREMOD_GUI_TOWNHALL_POPULATION_TOTALCITIZENS_COUNT,
+        totalCitizenLabel.setText(String.translatable(COM_MINECOLONIES_COREMOD_GUI_TOWNHALL_POPULATION_TOTALCITIZENS_COUNT,
           citizensSize,
           Math.max(citizensSize, buildingView.getColony().getCitizenCountLimit())));
-        List<MutableComponent> hoverText = new ArrayList<>();
+        List<String> hoverText = new ArrayList<>();
         if(citizensSize < (citizensCap * 0.9) && citizensSize < (buildingView.getColony().getCitizenCountLimit() * 0.9))
         {
             totalCitizenLabel.setColors(DARKGREEN);
         }
         else if(citizensSize < citizensCap)
         {
-            hoverText.add(Component.translatable(WARNING_POPULATION_NEEDS_HOUSING, this.buildingView.getColony().getName()));
+            hoverText.add(String.translatable(WARNING_POPULATION_NEEDS_HOUSING, this.buildingView.getColony().getName()));
             totalCitizenLabel.setColors(ORANGE);
         }
         else
         {
             if(citizensCap < MineColonies.getConfig().getServer().maxCitizenPerColony.get())
             {
-                hoverText.add(Component.translatable(WARNING_POPULATION_RESEARCH_LIMITED, this.buildingView.getColony().getName()));
+                hoverText.add(String.translatable(WARNING_POPULATION_RESEARCH_LIMITED, this.buildingView.getColony().getName()));
             }
             else
             {
-                hoverText.add(Component.translatable( WARNING_POPULATION_CONFIG_LIMITED, this.buildingView.getColony().getName()));
+                hoverText.add(String.translatable( WARNING_POPULATION_CONFIG_LIMITED, this.buildingView.getColony().getName()));
             }
-            totalCitizenLabel.setText(Component.translatable(COM_MINECOLONIES_COREMOD_GUI_TOWNHALL_POPULATION_TOTALCITIZENS_COUNT, citizensSize, citizensCap));
+            totalCitizenLabel.setText(String.translatable(COM_MINECOLONIES_COREMOD_GUI_TOWNHALL_POPULATION_TOTALCITIZENS_COUNT, citizensSize, citizensCap));
             totalCitizenLabel.setColors(RED);
         }
         PaneBuilders.tooltipBuilder().hoverPane(totalCitizenLabel).build().setText(hoverText);
@@ -200,21 +219,21 @@ public class WindowStatsPage extends AbstractWindowTownHall
                 if (index < theList.size())
                 {
                     final Map.Entry<String, Tuple<Integer, Integer>> entry = theList.get(index);
-                    final String jobString = Component.translatable(entry.getKey()).getString();
+                    final String jobString = String.translatable(entry.getKey()).getString();
                     final String formattedJobString = jobString.substring(0, 1).toUpperCase(Locale.US) + jobString.substring(1);
 
-                    final Component numberOfWorkers = Component.translatable(COM_MINECOLONIES_COREMOD_GUI_TOWNHALL_POPULATION_EACH, formattedJobString, entry.getValue().getA(), entry.getValue().getB());
+                    final String numberOfWorkers = String.translatable(COM_MINECOLONIES_COREMOD_GUI_TOWNHALL_POPULATION_EACH, formattedJobString, entry.getValue().getA(), entry.getValue().getB());
                     label.setText(numberOfWorkers);
                 }
                 else
                 {
                     if (index == maxJobs + 1)
                     {
-                        label.setText(Component.translatable(COM_MINECOLONIES_COREMOD_GUI_TOWNHALL_POPULATION_UNEMPLOYED, unemployedCount));
+                        label.setText(String.translatable(COM_MINECOLONIES_COREMOD_GUI_TOWNHALL_POPULATION_UNEMPLOYED, unemployedCount));
                     }
                     else
                     {
-                        label.setText(Component.translatable(COM_MINECOLONIES_COREMOD_GUI_TOWNHALL_POPULATION_CHILDS, childCount));
+                        label.setText(String.translatable(COM_MINECOLONIES_COREMOD_GUI_TOWNHALL_POPULATION_CHILDS, childCount));
                     }
                 }
             }
@@ -256,7 +275,7 @@ public class WindowStatsPage extends AbstractWindowTownHall
                 }
 
                 final Text resourceLabel = rowPane.findPaneOfTypeByID("desc", Text.class);
-                resourceLabel.setText(Component.translatable(PARTIAL_STATS_MODIFIER_NAME + stats.get(index), stat));
+                resourceLabel.setText(String.translatable(PARTIAL_STATS_MODIFIER_NAME + stats.get(index), stat));
             }
         });
 
@@ -274,7 +293,7 @@ public class WindowStatsPage extends AbstractWindowTownHall
             @Override
             public String getLabel(final int index)
             {
-                return Component.translatable((String) INTERVAL.keySet().toArray()[index]).getString();
+                return String.translatable((String) INTERVAL.keySet().toArray()[index]).getString();
             }
         });
         intervalDropdown.setSelectedIndex(new ArrayList<>(INTERVAL.keySet()).indexOf(selectedInterval));
@@ -296,3 +315,7 @@ public class WindowStatsPage extends AbstractWindowTownHall
         return BUTTON_STATS;
     }
 }
+
+
+
+

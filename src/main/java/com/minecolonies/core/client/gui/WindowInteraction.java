@@ -1,11 +1,30 @@
 package com.minecolonies.core.client.gui;
 
-import com.ldtteam.blockui.Alignment;
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
+import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
 import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
 import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
+import com.ldtteam.blockui.controls.DropDownList;
+import com.ldtteam.blockui.controls.Image;
 import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.controls.TextField;
+import com.ldtteam.blockui.views.BOWindow;
 import com.ldtteam.blockui.views.Box;
+import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.colony.ICitizenDataView;
 import com.minecolonies.api.colony.interactionhandling.ChatPriority;
 import com.minecolonies.api.colony.interactionhandling.IInteractionResponseHandler;
@@ -15,9 +34,9 @@ import com.minecolonies.core.Network;
 import com.minecolonies.core.client.gui.citizen.MainWindowCitizen;
 import com.minecolonies.core.colony.interactionhandling.QuestDialogueInteraction;
 import com.minecolonies.core.network.messages.server.colony.InteractionClose;
-import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.Component;
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.IChatComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -26,7 +45,7 @@ import java.util.List;
 import static com.minecolonies.api.util.constant.WindowConstants.*;
 
 /**
- * BOWindow for the citizen.
+ * Object (BOWindow: todo ModularUI2 removed) for the citizen.
  */
 public class WindowInteraction extends AbstractWindowSkeleton
 {
@@ -75,7 +94,7 @@ public class WindowInteraction extends AbstractWindowSkeleton
     public void onOpened()
     {
         super.onOpened();
-        interactions.removeIf(interaction -> !interaction.isVisible(Minecraft.getInstance().level));
+        interactions.removeIf(interaction -> !interaction.isVisible(Minecraft.getInstance().World));
         setupInteraction();
     }
 
@@ -108,14 +127,14 @@ public class WindowInteraction extends AbstractWindowSkeleton
         final Text chatText = findPaneOfTypeByID(CHAT_LABEL_ID, Text.class);
         chatText.setTextAlignment(Alignment.TOP_LEFT);
         chatText.setAlignment(Alignment.TOP_LEFT);
-        chatText.setText(Component.literal(citizen.getName() + ": " + handler.getInquiry(Minecraft.getInstance().player).getString()));
+        chatText.setText(String.literal(citizen.getName() + ": " + handler.getInquiry(Minecraft.getInstance().player).getString()));
         int responseIndex = 1;
-        for (final Component component : handler.getPossibleResponses())
+        for (final String String : handler.getPossibleResponses())
         {
             final ButtonImage button = new ButtonImage();
             button.setImage(new ResourceLocation(Constants.MOD_ID, MEDIUM_SIZED_BUTTON_RES), false);
 
-            final int textLen = mc.font.width(component.getString());
+            final int textLen = mc.font.width(String.getString());
             int buttonHeight = BUTTON_HEIGHT;
             if (textLen > BUTTON_LENGTH - 4)
             {
@@ -128,7 +147,7 @@ public class WindowInteraction extends AbstractWindowSkeleton
             button.setID(BUTTON_RESPONSE_ID + responseIndex);
             button.setTextRenderBox(BUTTON_LENGTH, buttonHeight);
             button.setTextAlignment(Alignment.MIDDLE);
-            button.setText(component);
+            button.setText(String);
             group.addChild(button);
             button.setTextWrap(true);
             button.setTextScale(Math.min(1, (BUTTON_LENGTH * 2.0) / textLen));
@@ -153,7 +172,7 @@ public class WindowInteraction extends AbstractWindowSkeleton
         if (currentInteraction < interactions.size())
         {
             interactions.get(currentInteraction).onClosed();
-            Network.getNetwork().sendToServer(new InteractionClose(citizen.getColonyId(), citizen.getId(), mc.level.dimension(), interactions.get(currentInteraction).getInquiry()));
+            Network.getNetwork().sendToServer(new InteractionClose(citizen.getColonyId(), citizen.getId(), mc.World.dimension(), interactions.get(currentInteraction).getInquiry()));
         }
     }
 
@@ -189,3 +208,7 @@ public class WindowInteraction extends AbstractWindowSkeleton
         }
     }
 }
+
+
+
+

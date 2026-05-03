@@ -2,9 +2,7 @@ package com.minecolonies.api.entity.mobs.barbarians;
 
 import com.minecolonies.api.entity.mobs.AbstractEntityMinecoloniesRaider;
 import com.minecolonies.api.entity.mobs.RaiderType;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.World;
 
 import static com.minecolonies.core.colony.events.raid.RaiderConstants.ONE;
 import static com.minecolonies.core.colony.events.raid.RaiderConstants.OUT_OF_ONE_HUNDRED;
@@ -22,22 +20,20 @@ public abstract class AbstractEntityBarbarianRaider extends AbstractEntityMineco
     /**
      * Constructor method for Abstract Barbarians.
      *
-     * @param type  the type.
      * @param world the world.
      */
-    public AbstractEntityBarbarianRaider(final EntityType<? extends AbstractEntityBarbarianRaider> type, final Level world)
+    public AbstractEntityBarbarianRaider(final World world)
     {
-        super(type, world);
+        super(world);
     }
 
     @Override
-    public void playAmbientSound()
+    public void playLivingSound()
     {
-        final SoundEvent soundevent = this.getAmbientSound();
-
-        if (soundevent != null && level().random.nextInt(OUT_OF_ONE_HUNDRED) <= ONE)
+        final String sound = getAmbientSoundName();
+        if (sound != null && worldObj.rand.nextInt(OUT_OF_ONE_HUNDRED) <= ONE)
         {
-            this.playSound(soundevent, this.getSoundVolume(), this.getVoicePitch());
+            this.playSound(sound, this.getSoundVolume(), this.getSoundPitch());
         }
     }
 

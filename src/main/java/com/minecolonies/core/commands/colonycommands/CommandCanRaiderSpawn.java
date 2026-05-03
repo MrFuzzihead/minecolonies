@@ -8,7 +8,7 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
+import net.minecraft.util.IChatComponent;
 
 import static com.minecolonies.api.util.constant.translation.CommandTranslationConstants.COMMAND_CAN_RAIDER_SPAWN_SUCCESS;
 import static com.minecolonies.core.commands.CommandArgumentNames.COLONYID_ARG;
@@ -30,7 +30,7 @@ public class CommandCanRaiderSpawn implements IMCOPCommand
 
         colony.getRaiderManager().setCanHaveRaiderEvents(canHaveBarbEvents);
         colony.markDirty();
-        context.getSource().sendSuccess(() -> Component.translatable(COMMAND_CAN_RAIDER_SPAWN_SUCCESS, colony.getName(), canHaveBarbEvents), true);
+        context.getSource().sendSuccess(() -> String.translatable(COMMAND_CAN_RAIDER_SPAWN_SUCCESS, colony.getName(), canHaveBarbEvents), true);
         return 1;
     }
 
@@ -51,3 +51,5 @@ public class CommandCanRaiderSpawn implements IMCOPCommand
                          .then(IMCCommand.newArgument(CANSPAWN_ARG, BoolArgumentType.bool()).executes(this::checkPreConditionAndExecute)));
     }
 }
+
+

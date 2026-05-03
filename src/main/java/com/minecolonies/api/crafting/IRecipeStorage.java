@@ -3,14 +3,14 @@ package com.minecolonies.api.crafting;
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.storage.loot.LootParams;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
-import net.minecraftforge.items.IItemHandler;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.WorldServer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -69,7 +69,7 @@ public interface IRecipeStorage
      * @param inventories the inventories to check.
      * @return true if possible, else false.
      */
-    boolean canFullFillRecipe(final int qty, final Map<ItemStorage, Integer> existingRequirements, @NotNull final IItemHandler... inventories);
+    boolean canFullFillRecipe(final int qty, final Map<ItemStorage, Integer> existingRequirements, @NotNull final net.minecraftforge.items.IItemHandler... inventories);
 
     /**
      * Method to check if with the help of inventories this recipe can be fulfilled.
@@ -81,14 +81,14 @@ public interface IRecipeStorage
      * @param building the building inv to check.
      * @return true if possible, else false.
      */
-    boolean canFullFillRecipe(final int qty, final Map<ItemStorage, Integer> existingRequirements, @NotNull final List<IItemHandler> citizen, @NotNull final IBuilding building);
+    boolean canFullFillRecipe(final int qty, final Map<ItemStorage, Integer> existingRequirements, @NotNull final List<net.minecraftforge.items.IItemHandler> citizen, @NotNull final IBuilding building);
 
-    default boolean fullFillRecipe(@NotNull final Level world, @NotNull final IItemHandler... inventories)
+    default boolean fullFillRecipe(@NotNull final World world, @NotNull final net.minecraftforge.items.IItemHandler... inventories)
     {
         return fullfillRecipe(world, Arrays.asList(inventories));
     }
 
-    default boolean fullFillRecipe(@NotNull final LootParams context, @NotNull final IItemHandler... inventories)
+    default boolean fullFillRecipe(@NotNull final Object /* LootParams */ context, @NotNull final net.minecraftforge.items.IItemHandler... inventories)
     {
         return fullfillRecipe(context, Arrays.asList(inventories));
     }
@@ -99,7 +99,7 @@ public interface IRecipeStorage
      * @param handlers the handlers to use.
      * @return true if successful.
      */
-    default boolean fullfillRecipe(final LootParams context, final List<IItemHandler> handlers)
+    default boolean fullfillRecipe(final Object /* LootParams */ context, final List<net.minecraftforge.items.IItemHandler> handlers)
     {
         return fullfillRecipeAndCopy(context, handlers, true) != null;
     }
@@ -110,7 +110,7 @@ public interface IRecipeStorage
      * @param handlers the handlers to use.
      * @return true if successful.
      */
-    default boolean fullfillRecipe(final Level world, final List<IItemHandler> handlers)
+    default boolean fullfillRecipe(final World world, final List<net.minecraftforge.items.IItemHandler> handlers)
     {
         return fullfillRecipeAndCopy(world, handlers, true) != null;
     }
@@ -123,7 +123,7 @@ public interface IRecipeStorage
      * @return copy of the crafted items if successful, null on failure
      */
     @Nullable
-    List<ItemStack> fullfillRecipeAndCopy(final LootParams context, final List<IItemHandler> handlers, boolean doInsert);
+    List<ItemStack> fullfillRecipeAndCopy(final Object /* LootParams */ context, final List<net.minecraftforge.items.IItemHandler> handlers, boolean doInsert);
 
     /**
      * Check for space, remove items, and insert crafted items.
@@ -132,9 +132,9 @@ public interface IRecipeStorage
      * @return true if successful.
      */
     @Nullable
-    default List<ItemStack> fullfillRecipeAndCopy(final Level world, final List<IItemHandler> handlers, boolean doInsert)
+    default List<ItemStack> fullfillRecipeAndCopy(final World world, final List<net.minecraftforge.items.IItemHandler> handlers, boolean doInsert)
     {
-        return fullfillRecipeAndCopy((new LootParams.Builder((ServerLevel) world)).create(LootContextParamSets.EMPTY), handlers, doInsert);
+        return fullfillRecipeAndCopy((new Object /* LootParams */.Builder((ServerLevel) world)).create(LootContextParamSets.EMPTY), handlers, doInsert);
     }
 
     /**
@@ -207,3 +207,7 @@ public interface IRecipeStorage
      */
     IToken<?> getToken();
 }
+
+
+
+

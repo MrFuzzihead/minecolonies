@@ -18,11 +18,12 @@ import com.minecolonies.core.colony.buildings.AbstractBuildingGuards;
 import com.minecolonies.core.colony.buildings.modules.settings.*;
 import com.minecolonies.core.colony.buildings.moduleviews.*;
 import com.minecolonies.core.colony.buildings.workerbuildings.*;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.animal.Pig;
-import net.minecraft.world.entity.animal.Rabbit;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Items;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+// [1.7.10] BlockItem -> ItemBlock
+// [1.7.10] Items -> net.minecraft.init.Items
+import net.minecraft.init.Items;
 
 import static com.minecolonies.api.util.constant.BuildingConstants.BUILDING_FLOWER_LIST;
 import static com.minecolonies.api.util.constant.BuildingConstants.FUEL_LIST;
@@ -41,7 +42,7 @@ public class BuildingModules
         new BuildingEntry.ModuleProducer<>("min_stock", MinimumStockModule::new, () -> MinimumStockModuleView::new);
 
     public static final BuildingEntry.ModuleProducer<MinimumStockModule,MinimumStockModuleView> MIN_STOCK_POSTBOX =
-        new BuildingEntry.ModuleProducer<>("min_stock_postbox", MinimumStockModule::new, 
+        new BuildingEntry.ModuleProducer<>("min_stock_postbox", MinimumStockModule::new,
             () -> PostBox.PostBoxMinimumStockModuleView::new);
 
     public static final BuildingEntry.ModuleProducer<BedHandlingModule, IBuildingModuleView> BED             = new BuildingEntry.ModuleProducer<>("bed", BedHandlingModule::new, null);
@@ -54,7 +55,7 @@ public class BuildingModules
       () -> SettingsModuleView::new);
     public static final BuildingEntry.ModuleProducer<EntityListModule,EntityListModuleView> GUARD_ENTITY_LIST       = new BuildingEntry.ModuleProducer<>("guard_entity_list",
       () -> new EntityListModule(HOSTILE_LIST),
-      () -> () -> new EntityListModuleView(HOSTILE_LIST, Component.translatable(COM_MINECOLONIES_HOSTILES), true));
+      () -> () -> new EntityListModuleView(HOSTILE_LIST, String.translatable(COM_MINECOLONIES_HOSTILES), true));
 
     public static final BuildingEntry.ModuleProducer<BuildingStatisticsModule, BuildingStatisticsModuleView> STATS_MODULE = new BuildingEntry.ModuleProducer<>(
       "stats_module", BuildingStatisticsModule::new,
@@ -70,13 +71,13 @@ public class BuildingModules
     public static final BuildingEntry.ModuleProducer<ItemListModule,ItemListModuleView> ITEMLIST_FUEL = new BuildingEntry.ModuleProducer<>(
       "itemlist_fuel", () -> new ItemListModule(FUEL_LIST, new ItemStorage(Items.COAL), new ItemStorage(Items.CHARCOAL)),
       () -> () -> new ItemListModuleView(FUEL_LIST,
-          Component.translatable(RequestSystemTranslationConstants.REQUESTS_TYPE_BURNABLE),
+          String.translatable(RequestSystemTranslationConstants.REQUESTS_TYPE_BURNABLE),
         false,
         (buildingView) -> IColonyManager.getInstance().getCompatibilityManager().getFuel()));
 
     public static final BuildingEntry.ModuleProducer<ItemListModule,ItemListModuleView> ITEMLIST_COMPOSTABLE =
       new BuildingEntry.ModuleProducer<>("itemlist_compostable", () -> new ItemListModule(COMPOSTABLE_LIST),
-        () -> () -> new ItemListModuleView(COMPOSTABLE_LIST, Component.translatable(RequestSystemTranslationConstants.REQUESTS_TYPE_COMPOSTABLE_UI), false,
+        () -> () -> new ItemListModuleView(COMPOSTABLE_LIST, String.translatable(RequestSystemTranslationConstants.REQUESTS_TYPE_COMPOSTABLE_UI), false,
           (buildingView) -> IColonyManager.getInstance().getCompatibilityManager().getCompostInputs()));
 
     public static final BuildingEntry.ModuleProducer<RestaurantMenuModule, RestaurantMenuModuleView> RESTAURANT_MENU =
@@ -87,17 +88,17 @@ public class BuildingModules
 
     public static final BuildingEntry.ModuleProducer<ItemListModule,ItemListModuleView> ITEMLIST_SAPLING =
       new BuildingEntry.ModuleProducer<>("itemlist_sapling", () -> new ItemListModule(SAPLINGS_LIST),
-        () -> () -> new ItemListModuleView(SAPLINGS_LIST, Component.translatable(RequestSystemTranslationConstants.REQUESTS_TYPE_SAPLINGS), true,
+        () -> () -> new ItemListModuleView(SAPLINGS_LIST, String.translatable(RequestSystemTranslationConstants.REQUESTS_TYPE_SAPLINGS), true,
           (buildingView) -> IColonyManager.getInstance().getCompatibilityManager().getCopyOfSaplings()));
 
     public static final BuildingEntry.ModuleProducer<ItemListModule,ItemListModuleView> ITEMLIST_ORE =
       new BuildingEntry.ModuleProducer<>("itemlist_ore", () -> new ItemListModule(ORE_LIST),
-        () -> () -> new ItemListModuleView(ORE_LIST, Component.translatable(RequestSystemTranslationConstants.REQUESTS_TYPE_SMELTABLE_ORE), true,
+        () -> () -> new ItemListModuleView(ORE_LIST, String.translatable(RequestSystemTranslationConstants.REQUESTS_TYPE_SMELTABLE_ORE), true,
           (buildingView) -> IColonyManager.getInstance().getCompatibilityManager().getSmeltableOres()));
 
     public static final BuildingEntry.ModuleProducer<ItemListModule,ItemListModuleView> ITEMLIST_FLOWER =
       new BuildingEntry.ModuleProducer<>("itemlist_flower", () -> new ItemListModule(BUILDING_FLOWER_LIST),
-        () -> () -> new ItemListModuleView(BUILDING_FLOWER_LIST, Component.translatable(RequestSystemTranslationConstants.REQUEST_TYPE_FLOWERS), false,
+        () -> () -> new ItemListModuleView(BUILDING_FLOWER_LIST, String.translatable(RequestSystemTranslationConstants.REQUEST_TYPE_FLOWERS), false,
           (buildingView) -> IColonyManager.getInstance().getCompatibilityManager().getImmutableFlowers()));
 
     /**
@@ -594,3 +595,6 @@ public class BuildingModules
     public static final BuildingEntry.ModuleProducer<GuardBuildingModule,CombinedHiringLimitModuleView> CONNECTION_MODULE = new BuildingEntry.ModuleProducer<>(
         "colony_connections", ColonyConnectionModule::new, () -> ColonyConnectionModuleView::new);
 }
+
+
+

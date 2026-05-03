@@ -1,5 +1,8 @@
 // Add any additional repositories for your dependencies here.
 
 repositories {
-
+    maven {
+        url = uri("https://mvn.falsepattern.com/releases/")
+        name = "mavenpattern"
+    }
 }

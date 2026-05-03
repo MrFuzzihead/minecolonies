@@ -5,11 +5,11 @@ import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.managers.interfaces.IGraveManager;
 import com.minecolonies.api.util.BlockPosUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.level.Level;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -21,7 +21,7 @@ import static com.minecolonies.api.util.constant.NbtTagConstants.*;
  */
 public class GraveManagerView implements IGraveManager
 {
-    private Map<BlockPos, Boolean> graves = ImmutableMap.of();
+    private Map<int[], Boolean> graves = ImmutableMap.of();
 
     /**
      * This needs to read what {@link com.minecolonies.core.colony.managers.GraveManager#write} wrote.
@@ -29,14 +29,14 @@ public class GraveManagerView implements IGraveManager
      * @param compound the compound.
      */
     @Override
-    public void read(@NotNull CompoundTag compound)
+    public void read(@NotNull NBTTagCompound compound)
     {
-        final ImmutableMap.Builder<BlockPos, Boolean> graves = ImmutableMap.builder();
+        final ImmutableMap.Builder<int[], Boolean> graves = ImmutableMap.builder();
 
-        final ListTag gravesTagList = compound.getList(TAG_GRAVE, Tag.TAG_COMPOUND);
+        final NBTTagList gravesTagList = compound.getList(TAG_GRAVE, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < gravesTagList.size(); ++i)
         {
-            final CompoundTag graveCompound = gravesTagList.getCompound(i);
+            final NBTTagCompound graveCompound = gravesTagList.getCompound(i);
             if (graveCompound.contains(TAG_POS) && graveCompound.contains(TAG_RESERVED))
             {
                 graves.put(BlockPosUtil.read(graveCompound, TAG_POS), graveCompound.getBoolean(TAG_RESERVED));
@@ -47,7 +47,7 @@ public class GraveManagerView implements IGraveManager
     }
 
     @Override
-    public void write(@NotNull CompoundTag compound)
+    public void write(@NotNull NBTTagCompound compound)
     {
     }
 
@@ -57,43 +57,47 @@ public class GraveManagerView implements IGraveManager
     }
 
     @Override
-    public boolean reserveGrave(BlockPos pos)
+    public boolean reserveGrave(int[] pos)
     {
         return false;
     }
 
     @Override
-    public void unReserveGrave(BlockPos pos)
+    public void unReserveGrave(int[] pos)
     {
     }
 
     @Override
-    public BlockPos reserveNextFreeGrave()
+    public int[] reserveNextFreeGrave()
     {
         return null;
     }
 
     @Override
-    public BlockPos createCitizenGrave(Level world, BlockPos pos, ICitizenData citizenData)
+    public int[] createCitizenGrave(World world, int[] pos, ICitizenData citizenData)
     {
         return null;
     }
 
     @NotNull
     @Override
-    public Map<BlockPos, Boolean> getGraves()
+    public Map<int[], Boolean> getGraves()
     {
         return this.graves;
     }
 
     @Override
-    public boolean addNewGrave(@NotNull BlockPos pos)
+    public boolean addNewGrave(@NotNull int[] pos)
     {
         return false;
     }
 
     @Override
-    public void removeGrave(@NotNull BlockPos pos)
+    public void removeGrave(@NotNull int[] pos)
     {
     }
 }
+
+
+
+

@@ -9,21 +9,25 @@ import com.ldtteam.structurize.client.rendertask.tasks.BoxPreviewRenderTask;
 import com.ldtteam.structurize.items.AbstractItemWithPosSelector;
 import com.minecolonies.api.items.ModItems;
 import com.minecolonies.core.client.gui.WindowSchematicAnalyzer;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+// [1.7.10] NbtUtils removed
+import net.minecraft.util.IChatComponent;
+// [1.7.10] int /* InteractionHand */ removed
+// [1.7.10] InteractionResult -> boolean
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.InteractionResult;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.Properties;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.World;
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] world.phys removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -51,13 +55,13 @@ public class ItemScanAnalyzer extends AbstractItemWithPosSelector
     /**
      * Client side selection caching
      */
-    private static BlockPos  lastPos   = BlockPos.ZERO;
-    private static BlockPos  lastPos2  = BlockPos.ZERO;
+    private static int[]  lastPos   = new int[]{0,0,0};
+    private static int[]  lastPos2  = new int[]{0,0,0};
     public static  Blueprint blueprint = null;
 
     public ItemScanAnalyzer(
       @NotNull final String name,
-      final Item.Properties properties)
+      final Properties properties)
     {
         super(properties.durability(0).setNoRepair().rarity(Rarity.UNCOMMON));
     }
@@ -77,7 +81,7 @@ public class ItemScanAnalyzer extends AbstractItemWithPosSelector
      * {@inheritDoc}
      */
     @Override
-    public boolean canAttackBlock(final BlockState state, final Level worldIn, final BlockPos pos, final Player player)
+    public boolean canAttackBlock(final BlockState state, final World worldIn, final int[] pos, final EntityPlayer player)
     {
         checkTimeout(player.getMainHandItem(), worldIn);
         boolean result = super.canAttackBlock(state, worldIn, pos, player);
@@ -95,20 +99,20 @@ public class ItemScanAnalyzer extends AbstractItemWithPosSelector
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(final Level worldIn, final Player playerIn, final InteractionHand handIn)
+    public InteractionResultHolder<ItemStack> use(final World worldIn, final EntityPlayer playerIn, final int /* InteractionHand */ handIn)
     {
         checkTimeout(playerIn.getItemInHand(handIn), worldIn);
 
         final ItemStack itemstack = playerIn.getItemInHand(handIn);
-        final CompoundTag compound = itemstack.getOrCreateTag();
+        final NBTTagCompound compound = itemstack.getOrCreateTag();
 
-        BlockPos firstPos = null;
+        int[] firstPos = null;
         if (compound.contains(FIRST_POS_STRING))
         {
             firstPos = NbtUtils.readBlockPos(compound.getCompound(FIRST_POS_STRING));
         }
 
-        BlockPos secondPos = null;
+        int[] secondPos = null;
         if (compound.contains(SECOND_POS_STRING))
         {
             secondPos = NbtUtils.readBlockPos(compound.getCompound(SECOND_POS_STRING));
@@ -125,7 +129,7 @@ public class ItemScanAnalyzer extends AbstractItemWithPosSelector
     }
 
     @Override
-    public InteractionResult onAirRightClick(final BlockPos start, final BlockPos end, final Level worldIn, final Player playerIn, final ItemStack itemStack)
+    public InteractionResult onAirRightClick(final int[] start, final int[] end, final World worldIn, final EntityPlayer playerIn, final ItemStack itemStack)
     {
         if (worldIn.isClientSide)
         {
@@ -155,11 +159,11 @@ public class ItemScanAnalyzer extends AbstractItemWithPosSelector
      */
     private void openAreaBox(final ItemStack tool)
     {
-        final CompoundTag tag = tool.getOrCreateTag();
-        if (tag.contains(FIRST_POS_STRING) && tag.contains(SECOND_POS_STRING))
+        final NBTTagCompound NBTBase = tool.getOrCreateTag();
+        if (NBTBase.contains(FIRST_POS_STRING) && NBTBase.contains(SECOND_POS_STRING))
         {
-            final BlockPos start = NbtUtils.readBlockPos(tag.getCompound(FIRST_POS_STRING));
-            final BlockPos end = NbtUtils.readBlockPos(tag.getCompound(SECOND_POS_STRING));
+            final int[] start = NbtUtils.readBlockPos(NBTBase.getCompound(FIRST_POS_STRING));
+            final int[] end = NbtUtils.readBlockPos(NBTBase.getCompound(SECOND_POS_STRING));
             RenderTaskManager.addRenderTask("analyzer", new BoxPreviewRenderTask("analyzer",
                 new BoxPreviewData(start, end, Optional.empty()), 10 * 60));
         }
@@ -168,9 +172,9 @@ public class ItemScanAnalyzer extends AbstractItemWithPosSelector
     /**
      * Checks the selection timeout
      */
-    protected void checkTimeout(final ItemStack stack, final Level level)
+    protected void checkTimeout(final ItemStack stack, final World World)
     {
-        if (stack == null || level == null)
+        if (stack == null || World == null)
         {
             return;
         }
@@ -178,14 +182,14 @@ public class ItemScanAnalyzer extends AbstractItemWithPosSelector
         if (stack.getOrCreateTag().contains(LAST_TIME))
         {
             final long prevTime = stack.getOrCreateTag().getLong(LAST_TIME);
-            if ((level.getGameTime() - prevTime) > TIMEOUT_DELAY)
+            if ((World.getGameTime() - prevTime) > TIMEOUT_DELAY)
             {
                 stack.getOrCreateTag().remove(FIRST_POS_STRING);
                 stack.getOrCreateTag().remove(SECOND_POS_STRING);
             }
         }
 
-        stack.getOrCreateTag().putLong(LAST_TIME, level.getGameTime());
+        stack.getOrCreateTag().putLong(LAST_TIME, World.getGameTime());
     }
 
     /**
@@ -194,19 +198,26 @@ public class ItemScanAnalyzer extends AbstractItemWithPosSelector
      * @param world  Current world.
      * @param player causing this action.
      */
-    public static Blueprint saveStructure(final Level world, final Player player, AABB box)
+    public static Blueprint saveStructure(final World world, final EntityPlayer player, AABB box)
     {
         if (box.getXsize() * box.getYsize() * box.getZsize() > Structurize.getConfig().getServer().schematicBlockLimit.get())
         {
-            player.displayClientMessage(Component.translatable(MAX_SCHEMATIC_SIZE_REACHED, Structurize.getConfig().getServer().schematicBlockLimit.get()), false);
+            player.displayClientMessage(String.translatable(MAX_SCHEMATIC_SIZE_REACHED, Structurize.getConfig().getServer().schematicBlockLimit.get()), false);
             return null;
         }
 
         final String fileName = TEMP_SCAN;
-        final BlockPos zero = new BlockPos((int) box.minX, (int) box.minY, (int) box.minZ);
+        final int[] zero = new int[]{(int) box.minX, (int) box.minY, (int) box.minZ};
         final Blueprint bp =
           BlueprintUtil.createBlueprint(world, zero, false, (short) (box.getXsize() + 1), (short) (box.getYsize() + 1), (short) (box.getZsize() + 1), fileName, Optional.empty());
 
         return bp;
     }
 }
+
+
+
+
+
+
+

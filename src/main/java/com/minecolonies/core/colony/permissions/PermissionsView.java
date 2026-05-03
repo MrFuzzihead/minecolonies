@@ -1,4 +1,5 @@
 package com.minecolonies.core.colony.permissions;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.colony.permissions.Action;
@@ -8,9 +9,9 @@ import com.minecolonies.api.colony.permissions.Rank;
 import com.minecolonies.api.network.PacketUtils;
 import com.minecolonies.api.util.Utils;
 import com.mojang.authlib.GameProfile;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -67,7 +68,7 @@ public class PermissionsView implements IPermissions
     }
 
     @Override
-    public boolean setPlayerRank(final UUID id, final Rank rank, final Level world)
+    public boolean setPlayerRank(final UUID id, final Rank rank, final World world)
     {
         return false;
     }
@@ -227,7 +228,7 @@ public class PermissionsView implements IPermissions
      *
      * @param buf the buffer.
      */
-    public void deserialize(@NotNull final FriendlyByteBuf buf)
+    public void deserialize(@NotNull final PacketBuffer buf)
     {
         final int ranksSize = buf.readVarInt();
         for (int i = 0; i < ranksSize; ++i)
@@ -293,7 +294,7 @@ public class PermissionsView implements IPermissions
     }
 
     @Override
-    public boolean addPlayer(@NotNull final String player, final Rank rank, final Level world)
+    public boolean addPlayer(@NotNull final String player, final Rank rank, final World world)
     {
         return false;
     }
@@ -372,3 +373,5 @@ public class PermissionsView implements IPermissions
         }
     }
 }
+
+

@@ -12,10 +12,10 @@ import com.minecolonies.api.util.Utils;
 import com.minecolonies.api.util.constant.NbtTagConstants;
 import com.minecolonies.core.colony.buildings.AbstractBuildingStructureBuilder;
 import com.minecolonies.core.entity.ai.workers.AbstractAISkeleton;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.block.entity.BlockEntity;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.WorldServer;
+// [1.7.10] block.entity removed
 import org.jetbrains.annotations.Nullable;
 
 import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.TAG_BLUEPRINTDATA;
@@ -27,7 +27,7 @@ import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataPro
 public abstract class AbstractJobStructure<AI extends AbstractAISkeleton<J>, J extends AbstractJobStructure<AI, J>> extends AbstractJob<AI, J>
 {
     /**
-     * Tag to store the workOrder id.
+     * NBTBase to store the workOrder id.
      */
     public static final String TAG_WORK_ORDER = "workorder";
 
@@ -43,7 +43,7 @@ public abstract class AbstractJobStructure<AI extends AbstractAISkeleton<J>, J e
 
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
         if (compound.contains(TAG_WORK_ORDER) && workBuilding instanceof AbstractBuildingStructureBuilder abstractBuildingStructureBuilder)
@@ -52,3 +52,7 @@ public abstract class AbstractJobStructure<AI extends AbstractAISkeleton<J>, J e
         }
     }
 }
+
+
+
+

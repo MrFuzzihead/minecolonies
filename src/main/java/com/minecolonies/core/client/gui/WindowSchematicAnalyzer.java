@@ -1,10 +1,29 @@
 package com.minecolonies.core.client.gui;
 
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
-import com.ldtteam.blockui.controls.*;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
+import com.ldtteam.blockui.controls.DropDownList;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
+import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.controls.TextField;
+import com.ldtteam.blockui.views.BOWindow;
 import com.ldtteam.blockui.views.Box;
 import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.client.gui.WindowExtendedBuildTool;
 import com.ldtteam.structurize.client.rendertask.RenderTaskManager;
@@ -13,12 +32,12 @@ import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.items.ItemScanAnalyzer;
 import com.minecolonies.core.util.SchemAnalyzerUtil;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.EnumChatFormatting;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
 
 import java.util.*;
 
@@ -71,7 +90,7 @@ public class WindowSchematicAnalyzer extends AbstractWindowSkeleton
         super(new ResourceLocation(Constants.MOD_ID, "gui/analyzer/windowanalyze.xml"));
         registerButton(BUTTON_CANCEL, b -> close());
         registerButton(BUTTON_SELECT_SCHEMATIC, b -> new WindowExtendedBuildTool(
-            BlockPos.containing(Minecraft.getInstance().player.position().add(Minecraft.getInstance().player.getLookAngle().multiply(10, 10, 10))),
+            new int[]{(int) Minecraft.getMinecraft().thePlayer.posX, (int) Minecraft.getMinecraft().thePlayer.posY, (int) Minecraft.getMinecraft().thePlayer.posZ},
             1,
             (window, blueprint) -> {
                 Minecraft.getInstance().setScreen(this.getScreen());
@@ -144,9 +163,9 @@ public class WindowSchematicAnalyzer extends AbstractWindowSkeleton
                 final ItemStorage storage = resources.get(index);
                 final Text resourceLabel = rowPane.findPaneOfTypeByID(LIST_ENTRY_LABEL, Text.class);
                 final Text countLabel = rowPane.findPaneOfTypeByID(LIST_ENTRY_COUNT, Text.class);
-                countLabel.setText(Component.literal(Integer.toString(storage.getAmount())).withStyle(ChatFormatting.YELLOW));
+                countLabel.setText(String.literal(Integer.toString(storage.getAmount())).withStyle(ChatFormatting.YELLOW));
                 PaneBuilders.tooltipBuilder().hoverPane(countLabel)
-                  .append(Component.translatable("com.minecolonies.coremod.gui.analyzer.score",
+                  .append(String.translatable("com.minecolonies.coremod.gui.analyzer.score",
                     storage.getItemStack().getCount(),
                     storage.getItemStack().getCount() * storage.getAmount()))
                   .build();
@@ -340,7 +359,7 @@ public class WindowSchematicAnalyzer extends AbstractWindowSkeleton
 
         if (next == null)
         {
-            parent.findPaneOfTypeByID(BUTTON_VIEW_CURRENT, ButtonVanilla.class).setText(Component.literal("none"));
+            parent.findPaneOfTypeByID(BUTTON_VIEW_CURRENT, ButtonVanilla.class).setText(String.literal("none"));
             box.hide();
             box.findPaneOfTypeByID(BUTTON_SHOW_RES, ButtonImage.class).setVisible(false);
             return;
@@ -355,33 +374,33 @@ public class WindowSchematicAnalyzer extends AbstractWindowSkeleton
             name = next.blueprint.getFilePath().toString().replace("blueprints/minecolonies/", "") + "/" + split[split.length - 1];
         }
         name = name.replace(".blueprint", "");
-        parent.findPaneOfTypeByID(BUTTON_VIEW_CURRENT, ButtonVanilla.class).setText(Component.literal(name));
+        parent.findPaneOfTypeByID(BUTTON_VIEW_CURRENT, ButtonVanilla.class).setText(String.literal(name));
 
         box.findPaneOfTypeByID(LABEL_SCORE, Text.class)
-          .setText(Component.translatable("com.minecolonies.coremod.gui.analyzer.complexity", Component.literal("" + next.costScore).withStyle(
+          .setText(String.translatable("com.minecolonies.coremod.gui.analyzer.complexity", String.literal("" + next.costScore).withStyle(
             ChatFormatting.RED).withStyle(ChatFormatting.BOLD)));
 
         box.findPaneOfTypeByID(LABEL_BLOCK_COUNTS, Text.class)
-          .setText(Component.translatable("com.minecolonies.coremod.gui.analyzer.blockcounts", Component.literal("" + next.differentBlocks.size()).withStyle(
+          .setText(String.translatable("com.minecolonies.coremod.gui.analyzer.blockcounts", String.literal("" + next.differentBlocks.size()).withStyle(
             ChatFormatting.BLUE).withStyle(ChatFormatting.BOLD)));
 
         PaneBuilders.tooltipBuilder()
-          .append(Component.translatable("com.minecolonies.coremod.gui.analyzer.score", next.differentBlocks.size() * 40, next.costScore))
+          .append(String.translatable("com.minecolonies.coremod.gui.analyzer.score", next.differentBlocks.size() * 40, next.costScore))
           .hoverPane(box.findPaneOfTypeByID(LABEL_BLOCK_COUNTS, Text.class))
           .build();
 
         box.findPaneOfTypeByID(LABEL_SIZE, Text.class)
-          .setText(Component.translatable("com.minecolonies.coremod.gui.analyzer.size", Component.literal("[" + next.blueprint.getSizeX() + " " + next.blueprint.getSizeY() + " "
+          .setText(String.translatable("com.minecolonies.coremod.gui.analyzer.size", String.literal("[" + next.blueprint.getSizeX() + " " + next.blueprint.getSizeY() + " "
                                                                                                             + next.blueprint.getSizeZ() + "]")
             .withStyle(ChatFormatting.YELLOW)
             .withStyle(ChatFormatting.BOLD)));
         box.findPaneOfTypeByID(LABEL_BUILDINGS, Text.class)
-          .setText(Component.translatable("com.minecolonies.coremod.gui.analyzer.buildings",
-            Component.literal("" + next.containedBuildings).withStyle(ChatFormatting.GOLD).withStyle(ChatFormatting.BOLD)));
+          .setText(String.translatable("com.minecolonies.coremod.gui.analyzer.buildings",
+            String.literal("" + next.containedBuildings).withStyle(ChatFormatting.GOLD).withStyle(ChatFormatting.BOLD)));
 
         final ScrollingList resourceList = box.findPaneOfTypeByID(LIST_RES, ScrollingList.class);
         resourceList.setVisible(false);
-        box.findPaneOfTypeByID(BUTTON_SHOW_RES, ButtonImage.class).setText(Component.translatable("com.ldtteam.structurize.gui.scantool.showres"));
+        box.findPaneOfTypeByID(BUTTON_SHOW_RES, ButtonImage.class).setText(String.translatable("com.ldtteam.structurize.gui.scantool.showres"));
         box.findPaneOfTypeByID(BUTTON_SHOW_RES, ButtonImage.class).setVisible(true);
     }
 
@@ -392,3 +411,6 @@ public class WindowSchematicAnalyzer extends AbstractWindowSkeleton
         super.onClosed();
     }
 }
+
+
+

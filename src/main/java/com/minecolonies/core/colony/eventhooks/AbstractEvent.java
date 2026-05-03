@@ -1,8 +1,8 @@
 package com.minecolonies.core.colony.eventhooks;
 
 import com.minecolonies.api.colony.colonyEvents.descriptions.IColonyEventDescription;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 
 import static com.minecolonies.api.util.constant.NbtTagConstants.*;
 
@@ -31,30 +31,30 @@ public abstract class AbstractEvent implements IColonyEventDescription
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        CompoundTag compound = new CompoundTag();
+        NBTTagCompound compound = new NBTTagCompound();
         compound.putInt(TAG_DAY, day);
         compound.putBoolean(TAG_SUMMARIZE, includeInSummary);
         return compound;
     }
 
     @Override
-    public void deserializeNBT(CompoundTag compound)
+    public void deserializeNBT(NBTTagCompound compound)
     {
         day = compound.getInt(TAG_DAY);
         includeInSummary = compound.getBoolean(TAG_SUMMARIZE);
     }
 
     @Override
-    public void serialize(FriendlyByteBuf buf)
+    public void serialize(PacketBuffer buf)
     {
         buf.writeInt(day);
         buf.writeBoolean(includeInSummary);
     }
 
     @Override
-    public void deserialize(FriendlyByteBuf buf)
+    public void deserialize(PacketBuffer buf)
     {
         day = buf.readInt();
         includeInSummary = buf.readBoolean();
@@ -84,3 +84,6 @@ public abstract class AbstractEvent implements IColonyEventDescription
         return toDisplayString();
     }
 }
+
+
+

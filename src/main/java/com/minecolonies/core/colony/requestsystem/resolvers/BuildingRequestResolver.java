@@ -17,8 +17,8 @@ import com.minecolonies.api.util.constant.TypeConstants;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingWareHouse;
 import com.minecolonies.core.colony.requestsystem.resolvers.core.AbstractBuildingDependentRequestResolver;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraft.item.ItemStack;
+// [1.7.10] capabilities removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -200,3 +200,4 @@ public class BuildingRequestResolver extends AbstractBuildingDependentRequestRes
         return tileEntities;
     }
 }
+

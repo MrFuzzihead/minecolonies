@@ -14,15 +14,15 @@ import com.minecolonies.core.colony.buildings.workerbuildings.BuildingArchery;
 import com.minecolonies.core.colony.jobs.JobArcherTraining;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
 import com.minecolonies.core.util.WorkerUtil;
-import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.entity.projectile.Arrow;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.Mth;
-import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.phys.Vec3;
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+// [1.7.10] int /* InteractionHand */ removed
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] sounds removed
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.MathHelper;
+import net.minecraft.world.World.ClipContext;
+// [1.7.10] world.phys removed
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState.*;
@@ -43,7 +43,7 @@ public class EntityAIArcherTraining extends AbstractEntityAITraining<JobArcherTr
     private static final int XP_PER_SUCCESSFUL_SHOT = 1;
 
     /**
-     * Number of target tries per building level.
+     * Number of target tries per building World.
      */
     private static final int BUILDING_LEVEL_TARGET_MULTIPLIER = 5;
 
@@ -76,7 +76,7 @@ public class EntityAIArcherTraining extends AbstractEntityAITraining<JobArcherTr
     /**
      * Current target to shoot at.
      */
-    private BlockPos currentShootingTarget;
+    private int[] currentShootingTarget;
 
     /**
      * Counter of how often we tried to hit the target.
@@ -119,9 +119,9 @@ public class EntityAIArcherTraining extends AbstractEntityAITraining<JobArcherTr
             targetCounter = 0;
             return DECIDE;
         }
-        final BlockPos targetPos = archeryBuilding.getRandomShootingTarget(worker.getRandom());
+        final int[] targetPos = archeryBuilding.getRandomShootingTarget(worker.getRandom());
         if (targetPos == null || !WorldUtil.isBlockLoaded(world, targetPos) ||
-              !world.clip(new ClipContext(new Vec3(worker.getX(), worker.getEyeY(), worker.getZ()), new Vec3(targetPos.getX() + HALF_BLOCK, targetPos.getY() + HALF_BLOCK, targetPos.getZ() + HALF_BLOCK), ClipContext.Block.COLLIDER, net.minecraft.world.level.ClipContext.Fluid.NONE, worker)).getBlockPos().equals(targetPos))
+              !world.clip(new ClipContext(new Vec3(worker.getX(), worker.getEyeY(), worker.getZ()), new Vec3(targetPos.getX() + HALF_BLOCK, targetPos.getY() + HALF_BLOCK, targetPos.getZ() + HALF_BLOCK), ClipContext.Block.COLLIDER, net.minecraft.world.World.ClipContext.Fluid.NONE, worker)).getBlockPos().equals(targetPos))
         {
             return DECIDE;
         }
@@ -140,7 +140,7 @@ public class EntityAIArcherTraining extends AbstractEntityAITraining<JobArcherTr
     private IAIState findShootingStandPosition()
     {
         final BuildingArchery archeryBuilding = building;
-        final BlockPos shootingPos = archeryBuilding.getRandomShootingStandPosition(worker.getRandom());
+        final int[] shootingPos = archeryBuilding.getRandomShootingStandPosition(worker.getRandom());
 
         if (shootingPos == null)
         {
@@ -168,7 +168,7 @@ public class EntityAIArcherTraining extends AbstractEntityAITraining<JobArcherTr
         if (worker.isUsingItem())
         {
             WorkerUtil.faceBlock(currentShootingTarget, worker);
-            worker.swing(InteractionHand.MAIN_HAND);
+            worker.swing(0 /* InteractionHand.MAIN_HAND */);
 
             final Arrow arrow = ModEntities.MC_NORMAL_ARROW.create(world);
             arrow.setBaseDamage(0);
@@ -183,7 +183,7 @@ public class EntityAIArcherTraining extends AbstractEntityAITraining<JobArcherTr
             arrow.shoot(xVector, yVector + distance * RANGED_AIM_SLIGHTLY_HIGHER_MULTIPLIER, zVector, RANGED_VELOCITY, (float) chance);
 
             worker.playSound(SoundEvents.SKELETON_SHOOT, (float) BASIC_VOLUME, (float) SoundUtils.getRandomPitch(worker.getRandom()));
-            worker.level.addFreshEntity(arrow);
+            worker.World.addFreshEntity(arrow);
 
             final double xDiff = currentShootingTarget.getX() - worker.getX();
             final double zDiff = currentShootingTarget.getZ() - worker.getZ();
@@ -193,7 +193,7 @@ public class EntityAIArcherTraining extends AbstractEntityAITraining<JobArcherTr
 
             if (worker.getRandom().nextBoolean())
             {
-                CitizenItemUtils.damageItemInHand(worker, InteractionHand.MAIN_HAND, 1);
+                CitizenItemUtils.damageItemInHand(worker, 0 /* InteractionHand.MAIN_HAND */, 1);
             }
             worker.stopUsingItem();
             this.incrementActionsDoneAndDecSaturation();
@@ -205,7 +205,7 @@ public class EntityAIArcherTraining extends AbstractEntityAITraining<JobArcherTr
             reduceAttackDelay();
             if (currentAttackDelay <= 0)
             {
-                worker.startUsingItem(InteractionHand.MAIN_HAND);
+                worker.startUsingItem(0 /* InteractionHand.MAIN_HAND */);
             }
             return ARCHER_SHOOT;
         }
@@ -252,7 +252,7 @@ public class EntityAIArcherTraining extends AbstractEntityAITraining<JobArcherTr
         }
 
         final int bowSlot = InventoryUtils.getFirstSlotOfItemHandlerContainingEquipment(getInventory(), ModEquipmentTypes.bow.get(), 0, building.getMaxEquipmentLevel());
-        CitizenItemUtils.setHeldItem(worker, InteractionHand.MAIN_HAND, bowSlot);
+        CitizenItemUtils.setHeldItem(worker, 0 /* InteractionHand.MAIN_HAND */, bowSlot);
         return true;
     }
 
@@ -262,3 +262,8 @@ public class EntityAIArcherTraining extends AbstractEntityAITraining<JobArcherTr
         return BuildingArchery.class;
     }
 }
+
+
+
+
+

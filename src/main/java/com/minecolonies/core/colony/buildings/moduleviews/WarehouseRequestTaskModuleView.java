@@ -2,7 +2,7 @@ package com.minecolonies.core.colony.buildings.moduleviews;
 
 import com.minecolonies.api.colony.requestsystem.StandardFactoryController;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ public class WarehouseRequestTaskModuleView extends RequestTaskModuleView
     }
 
     @Override
-    public void deserialize(final @NotNull FriendlyByteBuf buf)
+    public void deserialize(final @NotNull PacketBuffer buf)
     {
         tasks.clear();
         super.deserialize(buf);
@@ -36,3 +36,5 @@ public class WarehouseRequestTaskModuleView extends RequestTaskModuleView
         }
     }
 }
+
+

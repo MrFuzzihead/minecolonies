@@ -2,9 +2,9 @@ package com.minecolonies.core.blocks.schematic;
 
 import com.minecolonies.api.blocks.AbstractBlockMinecolonies;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.material.MapColor;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.util.ResourceLocation;
 
 /**
  * This block is a waypoint, which makes citizens path to it.
@@ -31,7 +31,11 @@ public class BlockWaypoint extends AbstractBlockMinecolonies<BlockWaypoint>
      */
     public BlockWaypoint()
     {
-        super(Properties.of().mapColor(MapColor.WOOD).sound(SoundType.WOOD).strength(BLOCK_HARDNESS, RESISTANCE).noCollission());
+        super(Material.wood);
+        setHardness(BLOCK_HARDNESS);
+        setResistance(RESISTANCE);
+        setStepSound(Block.soundTypeWood);
+        setLightOpacity(0);
     }
 
     @Override

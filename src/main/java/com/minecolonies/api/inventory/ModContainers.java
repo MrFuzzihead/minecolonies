@@ -1,22 +1,18 @@
 package com.minecolonies.api.inventory;
 
 import com.minecolonies.api.inventory.container.*;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraftforge.registries.RegistryObject;
 
+/**
+ * [1.7.10] In 1.7.10, containers don't use a registry; they are identified by integer IDs.
+ * This class holds container ID constants used to open GUIs.
+ */
 public class ModContainers
 {
-    public static RegistryObject<MenuType<ContainerCraftingFurnace>> craftingFurnace;
-
-    public static RegistryObject<MenuType<ContainerBuildingInventory>> buildingInv;
-
-    public static RegistryObject<MenuType<ContainerCitizenInventory>> citizenInv;
-
-    public static RegistryObject<MenuType<ContainerRack>> rackInv;
-
-    public static RegistryObject<MenuType<ContainerGrave>> graveInv;
-
-    public static RegistryObject<MenuType<ContainerCrafting>> craftingGrid;
-
-    public static RegistryObject<MenuType<ContainerCraftingBrewingstand>> craftingBrewingstand;
+    public static final int craftingFurnace = 1;
+    public static final int buildingInv = 2;
+    public static final int citizenInv = 3;
+    public static final int rackInv = 4;
+    public static final int graveInv = 5;
+    public static final int craftingGrid = 6;
+    public static final int craftingBrewingstand = 7;
 }

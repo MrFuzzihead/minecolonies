@@ -1,9 +1,7 @@
 package com.minecolonies.core.client.gui;
 
-import com.ldtteam.blockui.Pane;
-import com.ldtteam.blockui.PaneBuilders;
+// [1.7.10] blockui replaced by ModularUI2
 import com.ldtteam.blockui.controls.Button;
-import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.views.ScrollingList;
 import com.minecolonies.api.colony.ICitizenDataView;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
@@ -15,9 +13,9 @@ import com.minecolonies.core.colony.buildings.views.AbstractBuildingView;
 import com.minecolonies.core.network.messages.server.colony.building.ChangeDeliveryPriorityMessage;
 import com.minecolonies.core.network.messages.server.colony.building.ForcePickupMessage;
 import com.minecolonies.core.network.messages.server.colony.building.worker.RecallCitizenMessage;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -96,18 +94,18 @@ public abstract class AbstractWindowWorkerModuleBuilding<B extends IBuildingView
 
     private void updatePriorityLabel()
     {
-        Component component;
+        String String;
         if (prio == 0)
         {
-            component = Component.translatable(TEXT_PICKUP_PRIORITY)
-              .append(Component.translatable(TEXT_PICKUP_PRIORITY_NEVER));
+            String = String.translatable(TEXT_PICKUP_PRIORITY)
+              .append(String.translatable(TEXT_PICKUP_PRIORITY_NEVER));
         }
         else
         {
-            component = Component.translatable(TEXT_PICKUP_PRIORITY)
-              .append(Component.literal(prio + "/10"));
+            String = String.translatable(TEXT_PICKUP_PRIORITY)
+              .append(String.literal(prio + "/10"));
         }
-        findPaneOfTypeByID(LABEL_PRIO_VALUE, Text.class).setText(component);
+        findPaneOfTypeByID(LABEL_PRIO_VALUE, Text.class).setText(String);
     }
 
     private void deliveryPriorityUp()
@@ -169,7 +167,7 @@ public abstract class AbstractWindowWorkerModuleBuilding<B extends IBuildingView
         {
             for (final int worker : module.getAssignedCitizens())
             {
-                workers.add(new Tuple<>(Component.translatable(module.getJobEntry().getTranslationKey()).getString(), worker));
+                workers.add(new Tuple<>(String.translatable(module.getJobEntry().getTranslationKey()).getString(), worker));
             }
         }
 
@@ -192,8 +190,8 @@ public abstract class AbstractWindowWorkerModuleBuilding<B extends IBuildingView
                     if (worker != null)
                     {
                         Text workerNameField = rowPane.findPaneOfTypeByID(LABEL_WORKERNAME, Text.class);
-                        workerNameField.setText(Component.literal(Component.translatable(workers.get(index).getA()).getString() + ": " + worker.getName()));
-                        PaneBuilders.tooltipBuilder().hoverPane(workerNameField).build().setText(Component.literal(worker.getName() + " (" + worker.getId() + ")"));
+                        workerNameField.setText(String.literal(String.translatable(workers.get(index).getA()).getString() + ": " + worker.getName()));
+                        PaneBuilders.tooltipBuilder().hoverPane(workerNameField).build().setText(String.literal(worker.getName() + " (" + worker.getId() + ")"));
                     }
                 }
             });
@@ -202,3 +200,7 @@ public abstract class AbstractWindowWorkerModuleBuilding<B extends IBuildingView
         updatePriorityLabel();
     }
 }
+
+
+
+

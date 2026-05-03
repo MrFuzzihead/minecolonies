@@ -13,7 +13,7 @@ import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.AbstractAssignedCitizenModule;
 import com.minecolonies.core.colony.buildings.modules.WorkerBuildingModule;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingWareHouse;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -109,3 +109,4 @@ public class StationRequestResolver extends BuildingRequestResolver
         return InventoryUtils.hasBuildingEnoughElseCount(building, pred, 1) > 0;
     }
 }
+

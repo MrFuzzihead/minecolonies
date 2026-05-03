@@ -1,10 +1,10 @@
 package com.minecolonies.api.research;
 
 import com.minecolonies.api.research.ModResearchCosts.ResearchCostEntry;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentUtils;
-import net.minecraft.world.item.Item;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.item.Item;
 
 import java.util.List;
 
@@ -32,9 +32,9 @@ public interface IResearchCost
      *
      * @return the translated text.
      */
-    default Component getTranslatedName()
+    default String getTranslatedName()
     {
-        return ComponentUtils.formatList(getItems().stream().map(Item::getDescription).toList(), Component.literal(" / "));
+        return ComponentUtils.formatList(getItems().stream().map(Item::getDescription).toList(), String.literal(" / "));
     }
 
     /**
@@ -49,5 +49,9 @@ public interface IResearchCost
      *
      * @return the nbt data.
      */
-    CompoundTag writeToNBT();
+    NBTTagCompound writeToNBT();
 }
+
+
+
+

@@ -6,11 +6,11 @@ import com.minecolonies.core.commands.commandTypes.IMCColonyOfficerCommand;
 import com.minecolonies.core.commands.commandTypes.IMCCommand;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import net.minecraft.ChatFormatting;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.Ticket;
-import net.minecraft.server.level.TicketType;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.server.World.Ticket;
+import net.minecraft.server.World.TicketType;
 import net.minecraft.util.SortedArraySet;
 
 import java.util.HashSet;
@@ -53,12 +53,12 @@ public class CommandColonyChunks implements IMCColonyOfficerCommand
         }
 
         context.getSource()
-          .sendSuccess(() -> Component.literal(ID_TEXT)
-            .append(Component.literal("" + colony.getID()).withStyle(ChatFormatting.YELLOW))
-            .append(Component.literal(" " + NAME_TEXT))
-            .append(Component.literal("" + colony.getName()).withStyle(ChatFormatting.YELLOW)), true);
-        context.getSource().sendSuccess(() -> Component.literal("Loaded chunks:").append(Component.literal(" " + colony.getLoadedChunkCount()).withStyle(ChatFormatting.YELLOW)), true);
-        context.getSource().sendSuccess(() -> Component.translatable("Ticket types: ").append(Component.literal(ticketString.toString()).withStyle(ChatFormatting.YELLOW)), true);
+          .sendSuccess(() -> String.literal(ID_TEXT)
+            .append(String.literal("" + colony.getID()).withStyle(ChatFormatting.YELLOW))
+            .append(String.literal(" " + NAME_TEXT))
+            .append(String.literal("" + colony.getName()).withStyle(ChatFormatting.YELLOW)), true);
+        context.getSource().sendSuccess(() -> String.literal("Loaded chunks:").append(String.literal(" " + colony.getLoadedChunkCount()).withStyle(ChatFormatting.YELLOW)), true);
+        context.getSource().sendSuccess(() -> String.translatable("Ticket types: ").append(String.literal(ticketString.toString()).withStyle(ChatFormatting.YELLOW)), true);
 
         return 1;
     }
@@ -79,3 +79,5 @@ public class CommandColonyChunks implements IMCColonyOfficerCommand
           .then(IMCCommand.newArgument(COLONYID_ARG, ColonyIdArgument.id()).executes(this::checkPreConditionAndExecute));
     }
 }
+
+

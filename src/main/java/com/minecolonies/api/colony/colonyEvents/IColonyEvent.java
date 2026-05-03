@@ -1,16 +1,17 @@
 package com.minecolonies.api.colony.colonyEvents;
 
 import com.minecolonies.api.colony.IColony;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] block.entity removed
+// [1.7.10] Object /* INBTSerializable */ -> manual read/write
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Interface for all colony event types.
  */
-public interface IColonyEvent extends INBTSerializable<CompoundTag>
+public interface IColonyEvent 
 {
     /**
      * Returns the events current status
@@ -73,10 +74,15 @@ public interface IColonyEvent extends INBTSerializable<CompoundTag>
      *
      * @param te the broken Tile entity.
      */
-    default void onTileEntityBreak(final BlockEntity te) { }
+    default void onTileEntityBreak(final TileEntity te) { }
 
     /**
      * Called on night fall, to execute special day-based logic.
      */
     default void onNightFall() { }
 }
+
+
+
+
+

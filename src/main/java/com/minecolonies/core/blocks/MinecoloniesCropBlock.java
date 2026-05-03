@@ -7,37 +7,15 @@ import com.minecolonies.api.util.WorldUtil;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.colony.Colony;
 import com.minecolonies.core.items.ItemCrop;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.level.material.MapColor;
-import net.minecraft.world.level.material.PushReaction;
-import net.minecraft.world.level.pathfinder.PathComputationType;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,7 +25,7 @@ import static com.minecolonies.api.research.util.ResearchConstants.GREEN_REVOLUT
 import static com.minecolonies.api.util.constant.Constants.UPDATE_FLAG;
 
 /**
- * Abstract Minecolonies crop type. We have our own to avoid cheesing the crop.s
+ * Abstract Minecolonies crop type. We have our own to avoid cheesing the crops.
  */
 public class MinecoloniesCropBlock extends AbstractBlockMinecolonies<MinecoloniesCropBlock>
 {
@@ -68,153 +46,26 @@ public class MinecoloniesCropBlock extends AbstractBlockMinecolonies<Minecolonie
     public static String NETHER_PEPPER = "nether_pepper";
     public static String PEAS = "peas";
 
-    public static final  IntegerProperty AGE = IntegerProperty.create("age", 0, 6);
-    private static final VoxelShape[] SHAPE_BY_AGE = new VoxelShape[] {
-      Block.box(0.0, 0.0, 0.0, 16.0, 2.0, 16.0),
-      Block.box(0.0, 0.0, 0.0, 16.0, 4.0, 16.0),
-      Block.box(0.0, 0.0, 0.0, 16.0, 6.0, 16.0),
-      Block.box(0.0, 0.0, 0.0, 16.0, 8.0, 16.0),
-      Block.box(0.0, 0.0, 0.0, 16.0, 10.0, 16.0),
-      Block.box(0.0, 0.0, 0.0, 16.0, 12.0, 16.0),
-      Block.box(0.0, 0.0, 0.0, 16.0, 14.0, 16.0)};
+    /** AGE stored as metadata 0-6 */
+    public static final int MAX_AGE = 6;
 
     private final Block preferredFarmland;
     private final List<Block> droppedFrom;
 
     private final ResourceLocation blockId;
-    private final TagKey<Biome>    preferredBiome;
 
     /**
      * Constructor to create a block of this type.
      * @param blockName the block id.
      */
-    public MinecoloniesCropBlock(final String blockName, final Block preferredFarmland, final List<Block> droppedFrom, @Nullable final TagKey<Biome> preferredBiome)
+    public MinecoloniesCropBlock(final String blockName, final Block preferredFarmland, final List<Block> droppedFrom)
     {
-        super(BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).noCollission().instabreak().sound(SoundType.CROP).pushReaction(PushReaction.DESTROY));
-        this.registerDefaultState(this.stateDefinition.any().setValue(AGE, 0));
+        super(Material.plants);
+        this.setBlockBounds(0.0f, 0.0f, 0.0f, 1.0f, 0.25f, 1.0f);
         this.blockId = new ResourceLocation(Constants.MOD_ID, blockName);
         this.preferredFarmland = preferredFarmland;
         this.droppedFrom = droppedFrom;
-        this.preferredBiome = preferredBiome;
-    }
-
-    @NotNull
-    @Override
-    public VoxelShape getShape(BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext ctx)
-    {
-        return SHAPE_BY_AGE[state.getValue(AGE)];
-    }
-
-    /**
-     * Check if the block is of max age.
-     * @param state the state its at.
-     * @return true if max age.
-     */
-    public final boolean isMaxAge(BlockState state)
-    {
-        return state.getValue(AGE) >= this.getMaxAge();
-    }
-
-    /**
-     * Get the default max crop age.
-     * @return the max age.
-     */
-    protected int getMaxAge()
-    {
-        return 6;
-    }
-
-    /**
-     * Method to be called to attempt grow this crop.
-     * @param state current state.
-     * @param level level its in.
-     * @param pos pos its at.
-     */
-    public void attemptGrow(BlockState state, ServerLevel level, BlockPos pos)
-    {
-        if (level.isAreaLoaded(pos, 1))
-        {
-            if (level.getRawBrightness(pos, 0) >= 9)
-            {
-                final BlockPos offset = pos.relative(Direction.Plane.HORIZONTAL.getRandomDirection(level.random));
-                if (WorldUtil.isBlockLoaded(level, offset)
-                    && level.getBlockState(offset.below()).getBlock() == level.getBlockState(pos.below()).getBlock()
-                    && level.getBlockState(offset).isAir()
-                    && IColonyManager.getInstance().getColonyByPosFromWorld(level, pos) instanceof Colony colony && colony.getResearchManager().getResearchEffects().getEffectStrength(
-                    GREEN_REVOLUTION) > 0)
-                {
-                    level.setBlock(offset, defaultBlockState(), UPDATE_FLAG);
-                }
-                else
-                {
-                    int i = state.getValue(AGE);
-                    if (i < this.getMaxAge())
-                    {
-                        level.setBlock(pos, state.setValue(AGE, (i + 1)), 2);
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
-    public InteractionResult use(
-        final BlockState state,
-        final Level level,
-        final BlockPos pos,
-        final Player player,
-        final InteractionHand hand,
-        final BlockHitResult hitResult)
-    {
-        final ItemStack stack = player.getItemInHand(hand);
-        if (stack.is(ItemTags.HOES) && hand == InteractionHand.MAIN_HAND)
-        {
-            final int i = state.getValue(AGE);
-            if (i >= this.getMaxAge())
-            {
-                if (level instanceof ServerLevel serverLevel)
-                {
-                    for (final ItemStack dropStack : getDrops(state, serverLevel, pos, null))
-                    {
-                        InventoryUtils.spawnItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, dropStack);
-                    }
-                    stack.hurtAndBreak(1, player, s -> {});
-                }
-                level.setBlock(pos, state.setValue(AGE, 0), 2);
-            }
-        }
-        return super.use(state, level, pos, player, hand, hitResult);
-    }
-
-    @Override
-    public boolean canSurvive(@NotNull BlockState state, LevelReader level, @NotNull BlockPos pos)
-    {
-        return (level.getRawBrightness(pos, 0) >= 8 || level.canSeeSky(pos)) && super.canSurvive(state, level, pos) && level.getBlockState(pos.below()).getBlock() == preferredFarmland && (preferredBiome == null || level.getBiome(pos).is(preferredBiome));
-    }
-
-    @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> creator)
-    {
-        creator.add(AGE);
-    }
-
-    @NotNull
-    @Override
-    public BlockState updateShape(BlockState state, @NotNull Direction dir, @NotNull BlockState newState, @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos)
-    {
-        return !state.canSurvive(level, pos) ? Blocks.AIR.defaultBlockState() : super.updateShape(state, dir, newState, level, pos, neighborPos);
-    }
-
-    @Override
-    public boolean propagatesSkylightDown(BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos)
-    {
-        return state.getFluidState().isEmpty();
-    }
-
-    @Override
-    public boolean isPathfindable(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull PathComputationType pathComputationType)
-    {
-        return pathComputationType == PathComputationType.AIR && !this.hasCollision || super.isPathfindable(state, level, pos, pathComputationType);
+        setStepSound(soundTypeGrass);
     }
 
     @Override
@@ -224,9 +75,99 @@ public class MinecoloniesCropBlock extends AbstractBlockMinecolonies<Minecolonie
     }
 
     @Override
-    public void registerBlockItem(final IForgeRegistry<Item> registry, final Item.Properties properties)
+    public void registerBlockItem()
     {
-        registry.register(getRegistryName(), new ItemCrop(this, properties, preferredBiome));
+        net.minecraftforge.fml.common.registry.GameRegistry.registerItem(new ItemCrop(this), blockId.getResourcePath());
+    }
+
+    /**
+     * Check if the block is of max age.
+     * @param meta the metadata its at.
+     * @return true if max age.
+     */
+    public final boolean isMaxAge(int meta)
+    {
+        return meta >= this.getMaxAge();
+    }
+
+    /**
+     * Get the default max crop age.
+     * @return the max age.
+     */
+    protected int getMaxAge()
+    {
+        return MAX_AGE;
+    }
+
+    /**
+     * Method to be called to attempt grow this crop.
+     * @param world World its in.
+     * @param x x coord.
+     * @param y y coord.
+     * @param z z coord.
+     */
+    public void attemptGrow(World world, int x, int y, int z)
+    {
+        if (world.isRemote) return;
+        if (world.getBlockLightValue(x, y, z) >= 9)
+        {
+            final int meta = world.getBlockMetadata(x, y, z);
+            if (meta < this.getMaxAge())
+            {
+                world.setBlockMetadataWithNotify(x, y, z, meta + 1, UPDATE_FLAG);
+            }
+        }
+    }
+
+    @Override
+    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ)
+    {
+        final int meta = world.getBlockMetadata(x, y, z);
+        final ItemStack held = player.getHeldItem();
+        if (held != null && held.getItem() != null && meta >= this.getMaxAge())
+        {
+            // Harvest logic: drop items and reset to age 0
+            if (!world.isRemote)
+            {
+                dropBlockAsItem(world, x, y, z, meta, 0);
+                world.setBlockMetadataWithNotify(x, y, z, 0, UPDATE_FLAG);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean canBlockStay(World world, int x, int y, int z)
+    {
+        return world.getBlockLightValue(x, y, z) >= 8
+            && world.getBlock(x, y - 1, z) == preferredFarmland;
+    }
+
+    @Override
+    public void setBlockBoundsBasedOnState(IBlockAccess world, int x, int y, int z)
+    {
+        final int meta = world.getBlockMetadata(x, y, z);
+        final float height = 0.125f + meta * 0.125f;
+        setBlockBounds(0.0f, 0.0f, 0.0f, 1.0f, height, 1.0f);
+    }
+
+    @Override
+    public boolean isOpaqueCube()
+    {
+        return false;
+    }
+
+    @Override
+    public boolean renderAsNormalBlock()
+    {
+        return false;
+    }
+
+    @Override
+    public int getRenderType()
+    {
+        return 6; // cross/crop render type
     }
 
     /**
@@ -244,15 +185,5 @@ public class MinecoloniesCropBlock extends AbstractBlockMinecolonies<Minecolonie
     public List<Block> getDroppedFrom()
     {
         return droppedFrom;
-    }
-
-    /**
-     * Get the preferred biome for this crop.
-     * @return the preferred biome, or null if not picky.
-     */
-    @Nullable
-    public TagKey<Biome> getPreferredBiome()
-    {
-        return preferredBiome;
     }
 }

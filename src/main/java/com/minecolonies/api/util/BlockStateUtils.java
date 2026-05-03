@@ -1,187 +1,54 @@
 package com.minecolonies.api.util;
 
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraftforge.registries.ForgeRegistries;
+// [1.7.10] BlockState -> Block + int metadata; Property<?> not available in 1.7.10
+import net.minecraft.block.Block;
+import net.minecraft.world.IBlockAccess;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
- * Utility class for handling block states and their properties
+ * Utility class for handling blocks and their metadata in 1.7.10.
+ * [1.7.10] Replaces the 1.21 BlockState / Property<?> API with Block + int metadata comparisons.
  */
 public class BlockStateUtils
 {
+    private BlockStateUtils() {}
 
     /**
-     * Hashmap which links a block class + property name to its Property object Used to shorten name searches
+     * Checks if two block positions contain the same block and have the same metadata.
+     *
+     * @param world the world
+     * @param x1    x of first position
+     * @param y1    y of first position
+     * @param z1    z of first position
+     * @param x2    x of second position
+     * @param y2    y of second position
+     * @param z2    z of second position
+     * @return true if block and metadata match
      */
-    private static final Map<String, Property<?>> propertyBlockMap = new HashMap<>();
-
-    /**
-     * Private constructor to hide the public one.
-     */
-    private BlockStateUtils()
+    public static boolean blockAndMetaMatch(
+      @NotNull final IBlockAccess world,
+      final int x1, final int y1, final int z1,
+      final int x2, final int y2, final int z2)
     {
-        //Hides implicit constructor.
+        return world.getBlock(x1, y1, z1) == world.getBlock(x2, y2, z2)
+                 && world.getBlockMetadata(x1, y1, z1) == world.getBlockMetadata(x2, y2, z2);
     }
 
     /**
-     * Checks if two states contain the same block and are equal in the given property, or all properties
-     *
-     * @param state1       First state to compare
-     * @param state2       Second state to compare
-     * @param propertyName property name to search for
-     * @return true or false
+     * Checks if two block+meta pairs are equal.
      */
-    public static boolean stateEqualsStateByBlockAndProp(@NotNull final BlockState state1, @NotNull final BlockState state2, @NotNull final String propertyName)
+    public static boolean blockStateEquals(
+      @NotNull final Block block1, final int meta1,
+      @NotNull final Block block2, final int meta2)
     {
-        if (state1.getBlock() != state2.getBlock())
-        {
-            return false;
-        }
-
-        if (stateEqualsStateInPropertyByName(state1, state2, propertyName))
-        {
-            return true;
-        }
-
-        // Compare states in case the property wasn't found
-        return state1 == state2;
+        return block1 == block2 && meta1 == meta2;
     }
 
     /**
-     * Compares two states by a property matching the given propertyName. Compared by the name of the Property-value, use when property is an enum without an actual value.
-     *
-     * @param state1       First state to compare
-     * @param state2       Second state to compare
-     * @param propertyName the property name we're searching for
-     * @return true if states match in the property
+     * Checks if two block+meta pairs share the same block.
      */
-    public static boolean stateEqualsStateInPropertyByName(@NotNull final BlockState state1, @NotNull final BlockState state2, @NotNull final String propertyName)
+    public static boolean sameBlock(@NotNull final Block b1, @NotNull final Block b2)
     {
-        final Property<?> propertyOne = getPropertyByNameFromState(state1, propertyName);
-
-        if (propertyOne != null && state2.hasProperty(propertyOne))
-        {
-            return state1.getValue(propertyOne) == state2.getValue(propertyOne);
-        }
-
-        final Property<?> propertyTwo = getPropertyByNameFromState(state2, propertyName);
-
-        if (propertyOne != null && propertyTwo != null && state1.hasProperty(propertyOne) && state2.hasProperty(propertyTwo))
-        {
-            return state1.getValue(propertyOne).toString().equals((state2.getValue(propertyTwo)).toString());
-        }
-        return false;
-    }
-
-    /**
-     * Get the property object of a state matching the given name Caches lookups in the propertyBlockMap hashmap
-     *
-     * @param state Blockstate we're checking for a property
-     * @param name  name of the property to find
-     * @return the property.
-     */
-    public static Property<?> getPropertyByNameFromState(@NotNull final BlockState state, @NotNull final String name)
-    {
-        Property<?> property = propertyBlockMap.get(ForgeRegistries.BLOCKS.getKey(state.getBlock()).toString() + ":" + name);
-
-        if (property != null && state.hasProperty(property))
-        {
-            return property;
-        }
-        else
-        {
-            // Cached map entry nonexistant or wrong, calculate new
-            property = getPropertyByName(state.getProperties(), name);
-
-            if (property != null)
-            {
-                propertyBlockMap.put(ForgeRegistries.BLOCKS.getKey(state.getBlock()).toString() + ":" + name, property);
-            }
-            return property;
-        }
-    }
-
-    /**
-     * Checks a list of properties for a matching name.
-     *
-     * @param properties the properties to check
-     * @param name       the property name we're looking for
-     * @return Property object found
-     */
-    public static Property<?> getPropertyByName(@NotNull final Collection<Property<?>> properties, @NotNull final String name)
-    {
-        for (final Property<?> tProperty : properties)
-        {
-            if (tProperty.getName().equals(name))
-            {
-                return tProperty;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Compare two Blockstates ignoring one Property
-     *
-     * @param state1 First state to compare
-     * @param state2 Second state to compare
-     * @param prop   Property to not compare
-     * @return true if states are equal without the property
-     */
-    public static <T extends Comparable<T>> boolean stateEqualsStateWithoutProp(
-      @NotNull final BlockState state1,
-      @NotNull final BlockState state2,
-      @NotNull final Property<T> prop)
-    {
-        if (!state1.hasProperty(prop) || !state2.hasProperty(prop))
-        {
-            return state1 == state2;
-        }
-
-        return state1.setValue(prop, state2.getValue(prop)) == state2;
-    }
-
-    /**
-     * Check if two states are equal in Block and Properties
-     *
-     * @param state1 First state to compare
-     * @param state2 Second state to compare
-     * @return True if states are equal
-     */
-    public static boolean stateEqualsStateInBlockAndProp(final BlockState state1, final BlockState state2)
-    {
-        if (state1 == null || state2 == null)
-        {
-            return false;
-        }
-
-        if (state1.getBlock() != state2.getBlock())
-        {
-            return false;
-        }
-
-        if (state1.getProperties().size() != state2.getProperties().size())
-        {
-            return false;
-        }
-
-        for (final Property<?> prop : state1.getProperties())
-        {
-            if (!state2.hasProperty(prop))
-            {
-                return false;
-            }
-
-            if (state1.getValue(prop) != state2.getValue(prop))
-            {
-                return false;
-            }
-        }
-        return true;
+        return b1 == b2;
     }
 }

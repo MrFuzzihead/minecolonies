@@ -4,13 +4,13 @@ import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;
 import com.ldtteam.structurize.util.PlacementSettings;
 import com.minecolonies.api.blocks.ModBlocks;
-import net.minecraft.core.BlockPos;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] tags removed
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+// [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -30,7 +30,7 @@ public class LoadOnlyStructureHandler extends CreativeStructureHandler
      * @param settings       the placement settings.
      * @param fancyPlacement if fancy or complete.
      */
-    public LoadOnlyStructureHandler(final Level world, final BlockPos pos, final Future<Blueprint> blueprintFuture, final PlacementSettings settings)
+    public LoadOnlyStructureHandler(final World world, final int[] pos, final Future<Blueprint> blueprintFuture, final PlacementSettings settings)
     {
         super(world, pos, blueprintFuture, settings, true);
     }
@@ -44,13 +44,13 @@ public class LoadOnlyStructureHandler extends CreativeStructureHandler
      * @param settings       the placement settings.
      * @param fancyPlacement if fancy or complete.
      */
-    public LoadOnlyStructureHandler(final Level world, final BlockPos pos, final Blueprint blueprint, final PlacementSettings settings)
+    public LoadOnlyStructureHandler(final World world, final int[] pos, final Blueprint blueprint, final PlacementSettings settings)
     {
         super(world, pos, blueprint, settings, true);
     }
 
     @Override
-    public void triggerSuccess(final BlockPos pos, final List<ItemStack> list, final boolean placement)
+    public void triggerSuccess(final int[] pos, final List<ItemStack> list, final boolean placement)
     {
         // DO nothing
     }
@@ -70,3 +70,6 @@ public class LoadOnlyStructureHandler extends CreativeStructureHandler
                  || itemStack.getItem() == new ItemStack(ModBlocks.blockDecorationPlaceholder, 1).getItem();
     }
 }
+
+
+

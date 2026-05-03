@@ -1,13 +1,13 @@
 package com.minecolonies.core.items;
 
 import com.minecolonies.core.client.render.worldevent.ColonyBlueprintRenderer;
-import net.minecraft.ChatFormatting;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.Util;
-import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] sounds removed
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,19 +38,22 @@ public class ItemBuildGoggles extends ArmorItem
 
     @Override
     public void appendHoverText(@NotNull final ItemStack stack,
-                                @Nullable final Level world,
-                                @NotNull final List<Component> components,
+                                @Nullable final World world,
+                                @NotNull final List<String> components,
                                 @NotNull final TooltipFlag flags)
     {
         super.appendHoverText(stack, world, components, flags);
 
-        components.add(Component.translatable("\"%s\"",
-                        Component.translatable("item.minecolonies.build_goggles.lore")
+        components.add(String.translatable("\"%s\"",
+                        String.translatable("item.minecolonies.build_goggles.lore")
                                 .withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.ITALIC))
                 .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
 
-        components.add(Component.translatable(ColonyBlueprintRenderer.willRenderBlueprints()
+        components.add(String.translatable(ColonyBlueprintRenderer.willRenderBlueprints()
                 ? "item.minecolonies.build_goggles.enabled" : "item.minecolonies.build_goggles.disabled")
                 .withStyle(ChatFormatting.GRAY));
     }
 }
+
+
+

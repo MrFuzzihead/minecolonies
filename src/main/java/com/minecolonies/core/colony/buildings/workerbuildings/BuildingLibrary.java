@@ -4,14 +4,14 @@ import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.util.MathUtils;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.datalistener.StudyItemListener;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.Tag;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+// [1.7.10] NbtUtils removed
+import net.minecraft.nbt.NBTBase;
+import com.minecolonies.api.util.Tuple;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
 import net.minecraftforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,14 +32,14 @@ public class BuildingLibrary extends AbstractBuilding
     private static final String LIBRARY_HUT_NAME = "library";
 
     /**
-     * Max building level of the hut.
+     * Max building World of the hut.
      */
     private static final int MAX_BUILDING_LEVEL = 5;
 
     /**
      * List of registered barrels.
      */
-    private final List<BlockPos> bookCases = new ArrayList<>();
+    private final List<int[]> bookCases = new ArrayList<>();
 
     /**
      * Instantiates the building.
@@ -47,7 +47,7 @@ public class BuildingLibrary extends AbstractBuilding
      * @param c the colony.
      * @param l the location.
      */
-    public BuildingLibrary(final IColony c, final BlockPos l)
+    public BuildingLibrary(final IColony c, final int[] l)
     {
         super(c, l);
         keepX.put(StudyItemListener::isStudyItem, new Tuple<>(64, true));
@@ -61,10 +61,10 @@ public class BuildingLibrary extends AbstractBuilding
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
-        final ListTag furnaceTagList = compound.getList(TAG_BOOKCASES, Tag.TAG_COMPOUND);
+        final NBTTagList furnaceTagList = compound.getList(TAG_BOOKCASES, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < furnaceTagList.size(); ++i)
         {
             bookCases.add(NbtUtils.readBlockPos(furnaceTagList.getCompound(i).getCompound(TAG_POS)));
@@ -72,13 +72,13 @@ public class BuildingLibrary extends AbstractBuilding
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compound = super.serializeNBT();
-        @NotNull final ListTag bookcaseTagList = new ListTag();
-        for (@NotNull final BlockPos entry : bookCases)
+        final NBTTagCompound compound = super.serializeNBT();
+        @NotNull final NBTTagList bookcaseTagList = new NBTTagList();
+        for (@NotNull final int[] entry : bookCases)
         {
-            @NotNull final CompoundTag bookCompound = new CompoundTag();
+            @NotNull final NBTTagCompound bookCompound = new NBTTagCompound();
             bookCompound.put(TAG_POS, NbtUtils.writeBlockPos(entry));
             bookcaseTagList.add(bookCompound);
         }
@@ -94,7 +94,7 @@ public class BuildingLibrary extends AbstractBuilding
     }
 
     @Override
-    public void registerBlockPosition(@NotNull final Block block, @NotNull final BlockPos pos, @NotNull final Level world)
+    public void registerBlockPosition(@NotNull final Block block, @NotNull final int[] pos, @NotNull final World world)
     {
         super.registerBlockPosition(block, pos, world);
         if (block.defaultBlockState().is(Tags.Blocks.BOOKSHELVES))
@@ -108,13 +108,13 @@ public class BuildingLibrary extends AbstractBuilding
      *
      * @return the position of it.
      */
-    public BlockPos getRandomBookShelf()
+    public int[] getRandomBookShelf()
     {
         if (bookCases.isEmpty())
         {
             return getPosition();
         }
-        final BlockPos returnPos = bookCases.get(MathUtils.RANDOM.nextInt(bookCases.size()));
+        final int[] returnPos = bookCases.get(MathUtils.RANDOM.nextInt(bookCases.size()));
         if (colony.getWorld().getBlockState(returnPos).is(Tags.Blocks.BOOKSHELVES))
         {
             return returnPos;
@@ -123,3 +123,7 @@ public class BuildingLibrary extends AbstractBuilding
         return getPosition();
     }
 }
+
+
+
+

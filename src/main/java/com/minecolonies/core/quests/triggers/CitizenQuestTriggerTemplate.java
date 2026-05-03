@@ -19,29 +19,29 @@ import static com.minecolonies.api.quests.QuestParseConstant.*;
 public class CitizenQuestTriggerTemplate implements IQuestTriggerTemplate
 {
     /**
-     * The tag we are trying to match.
+     * The NBTBase we are trying to match.
      */
     public JsonElement matchTag = null;
 
     /**
-     * The tag we are trying to NOT match.
+     * The NBTBase we are trying to NOT match.
      */
     public JsonElement notMatchTag = null;
 
     /**
      * Create a new state quest trigger.
-     * @param tag the state to match.
+     * @param NBTBase the state to match.
      */
-    public CitizenQuestTriggerTemplate(final JsonObject tag)
+    public CitizenQuestTriggerTemplate(final JsonObject NBTBase)
     {
-        if (tag.has(MATCH_ID))
+        if (NBTBase.has(MATCH_ID))
         {
-            this.matchTag = tag.get(MATCH_ID);
+            this.matchTag = NBTBase.get(MATCH_ID);
         }
 
-        if (tag.has(NOT_MATCH_ID))
+        if (NBTBase.has(NOT_MATCH_ID))
         {
-            this.notMatchTag = tag.get(NOT_MATCH_ID);
+            this.notMatchTag = NBTBase.get(NOT_MATCH_ID);
         }
     }
 
@@ -90,3 +90,4 @@ public class CitizenQuestTriggerTemplate implements IQuestTriggerTemplate
         return new CitizenTriggerReturnData(null);
     }
 }
+

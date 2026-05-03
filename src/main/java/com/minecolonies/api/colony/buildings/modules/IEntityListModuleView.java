@@ -1,6 +1,6 @@
 package com.minecolonies.api.colony.buildings.modules;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 /**
  * Client side version of the abstract class for all buildings which require a filterable list of allowed items.
@@ -52,3 +52,4 @@ public interface IEntityListModuleView extends IBuildingModuleView
      */
     void clearEntities();
 }
+

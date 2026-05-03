@@ -75,7 +75,7 @@ public final class RaiderConstants
     public static final double MAX_ARCHER_RAIDER_PERSECUTION_DISTANCE = MAX_MELEE_RAIDER_PERSECUTION_DISTANCE + 16;
 
     /**
-     * Values used for mob attributes.
+     * Values used for EntityCreature attributes.
      */
     public static final double FOLLOW_RANGE                = 35.0D;
     public static final double MOVEMENT_SPEED              = 0.25D;
@@ -114,3 +114,4 @@ public final class RaiderConstants
          */
     }
 }
+

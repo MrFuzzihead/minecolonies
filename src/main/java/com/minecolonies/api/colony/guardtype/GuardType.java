@@ -3,7 +3,7 @@ package com.minecolonies.api.colony.guardtype;
 import com.minecolonies.api.colony.jobs.IJob;
 import com.minecolonies.api.colony.jobs.registry.JobEntry;
 import com.minecolonies.api.entity.citizen.Skill;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 import java.util.function.Supplier;
 
@@ -222,3 +222,4 @@ public class GuardType
         }
     }
 }
+

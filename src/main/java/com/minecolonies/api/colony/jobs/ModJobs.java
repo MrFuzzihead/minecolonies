@@ -2,8 +2,8 @@ package com.minecolonies.api.colony.jobs;
 
 import com.minecolonies.api.colony.jobs.registry.JobEntry;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] registries removed
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,55 +61,55 @@ public final class ModJobs
     public static final ResourceLocation COOKASSISTANT_ID  = new ResourceLocation(Constants.MOD_ID, "cookassistant");
 
 
-    public static RegistryObject<JobEntry> placeHolder;
-    public static RegistryObject<JobEntry> builder;
-    public static RegistryObject<JobEntry> delivery;
-    public static RegistryObject<JobEntry> miner;
-    public static RegistryObject<JobEntry> lumberjack;
-    public static RegistryObject<JobEntry> farmer;
-    public static RegistryObject<JobEntry> fisherman;
-    public static RegistryObject<JobEntry> undertaker;
-    public static RegistryObject<JobEntry> baker;
-    public static RegistryObject<JobEntry> cook;
-    public static RegistryObject<JobEntry> shepherd;
-    public static RegistryObject<JobEntry> cowboy;
-    public static RegistryObject<JobEntry> swineHerder;
-    public static RegistryObject<JobEntry> chickenHerder;
-    public static RegistryObject<JobEntry> smelter;
-    public static RegistryObject<JobEntry> archer;
-    public static RegistryObject<JobEntry> knight;
-    public static RegistryObject<JobEntry> composter;
-    public static RegistryObject<JobEntry> student;
-    public static RegistryObject<JobEntry> archerInTraining;
-    public static RegistryObject<JobEntry> knightInTraining;
-    public static RegistryObject<JobEntry> sawmill;
-    public static RegistryObject<JobEntry> blacksmith;
-    public static RegistryObject<JobEntry> stoneMason;
-    public static RegistryObject<JobEntry> stoneSmeltery;
-    public static RegistryObject<JobEntry> crusher;
-    public static RegistryObject<JobEntry> sifter;
-    public static RegistryObject<JobEntry> florist;
-    public static RegistryObject<JobEntry> enchanter;
-    public static RegistryObject<JobEntry> researcher;
-    public static RegistryObject<JobEntry> healer;
-    public static RegistryObject<JobEntry> pupil;
-    public static RegistryObject<JobEntry> teacher;
-    public static RegistryObject<JobEntry> glassblower;
-    public static RegistryObject<JobEntry> dyer;
-    public static RegistryObject<JobEntry> fletcher;
-    public static RegistryObject<JobEntry> mechanic;
-    public static RegistryObject<JobEntry> planter;
-    public static RegistryObject<JobEntry> rabbitHerder;
-    public static RegistryObject<JobEntry> concreteMixer;
-    public static RegistryObject<JobEntry> beekeeper;
-    public static RegistryObject<JobEntry> netherworker;
-    public static RegistryObject<JobEntry> quarrier;
-    public static RegistryObject<JobEntry> druid;
-    public static RegistryObject<JobEntry> alchemist;
-    public static RegistryObject<JobEntry> chef;
+    public static JobEntry placeHolder;
+    public static JobEntry builder;
+    public static JobEntry delivery;
+    public static JobEntry miner;
+    public static JobEntry lumberjack;
+    public static JobEntry farmer;
+    public static JobEntry fisherman;
+    public static JobEntry undertaker;
+    public static JobEntry baker;
+    public static JobEntry cook;
+    public static JobEntry shepherd;
+    public static JobEntry cowboy;
+    public static JobEntry swineHerder;
+    public static JobEntry chickenHerder;
+    public static JobEntry smelter;
+    public static JobEntry archer;
+    public static JobEntry knight;
+    public static JobEntry composter;
+    public static JobEntry student;
+    public static JobEntry archerInTraining;
+    public static JobEntry knightInTraining;
+    public static JobEntry sawmill;
+    public static JobEntry blacksmith;
+    public static JobEntry stoneMason;
+    public static JobEntry stoneSmeltery;
+    public static JobEntry crusher;
+    public static JobEntry sifter;
+    public static JobEntry florist;
+    public static JobEntry enchanter;
+    public static JobEntry researcher;
+    public static JobEntry healer;
+    public static JobEntry pupil;
+    public static JobEntry teacher;
+    public static JobEntry glassblower;
+    public static JobEntry dyer;
+    public static JobEntry fletcher;
+    public static JobEntry mechanic;
+    public static JobEntry planter;
+    public static JobEntry rabbitHerder;
+    public static JobEntry concreteMixer;
+    public static JobEntry beekeeper;
+    public static JobEntry netherworker;
+    public static JobEntry quarrier;
+    public static JobEntry druid;
+    public static JobEntry alchemist;
+    public static JobEntry chef;
 
     @Deprecated
-    public static RegistryObject<JobEntry> cookassistant;
+    public static JobEntry cookassistant;
 
 
     /**
@@ -127,3 +127,5 @@ public final class ModJobs
         return jobs;
     }
 }
+
+

@@ -8,7 +8,7 @@ import com.minecolonies.core.colony.jobs.JobDruid;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.pathfinding.navigation.MinecoloniesAdvancedPathNavigate;
 import com.minecolonies.core.entity.pathfinding.pathjobs.PathJobWalkRandomEdge;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 
@@ -82,3 +82,4 @@ public class EntityAIDruid extends AbstractEntityAIGuard<JobDruid, AbstractBuild
         }
     }
 }
+

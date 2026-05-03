@@ -4,8 +4,8 @@ import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.util.Tuple;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.api.util.constant.NbtTagConstants;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -122,17 +122,17 @@ public final class TimeBasedHappinessModifier extends AbstractHappinessModifier 
     }
 
     @Override
-    public void read(final CompoundTag compoundNBT, final boolean persist)
+    public void read(final NBTTagCompound compoundNBT, final boolean persist)
     {
         super.read(compoundNBT, persist);
         this.days = compoundNBT.getInt(TAG_DAY);
         if (!persist)
         {
-            final ListTag listTag = compoundNBT.getList(TAG_LIST, Constants.TAG_COMPOUND);
+            final NBTTagList NBTTagList = compoundNBT.getList(TAG_LIST, Constants.TAG_COMPOUND);
             final List<Tuple<Integer, Double>> list = new ArrayList<>();
-            for (int i = 0; i < listTag.size(); i++)
+            for (int i = 0; i < NBTTagList.size(); i++)
             {
-                final CompoundTag entryTag = listTag.getCompound(i);
+                final NBTTagCompound entryTag = NBTTagList.getCompound(i);
                 list.add(new Tuple<>(entryTag.getInt(TAG_DAY), entryTag.getDouble(TAG_VALUE)));
             }
             this.timeBasedFactor = list;
@@ -140,22 +140,24 @@ public final class TimeBasedHappinessModifier extends AbstractHappinessModifier 
     }
 
     @Override
-    public void write(final CompoundTag compoundNBT, final boolean persist)
+    public void write(final NBTTagCompound compoundNBT, final boolean persist)
     {
         super.write(compoundNBT, persist);
         compoundNBT.putString(NbtTagConstants.TAG_MODIFIER_TYPE, HappinessRegistry.TIME_PERIOD_MODIFIER.toString());
         compoundNBT.putInt(TAG_DAY, days);
         if (!persist)
         {
-            final ListTag listTag = new ListTag();
+            final NBTTagList NBTTagList = new NBTTagList();
             for (final Tuple<Integer, Double> entry : timeBasedFactor)
             {
-                final CompoundTag listEntry = new CompoundTag();
+                final NBTTagCompound listEntry = new NBTTagCompound();
                 listEntry.putInt(TAG_DAY, entry.getA());
                 listEntry.putDouble(TAG_VALUE, entry.getB());
-                listTag.add(listEntry);
+                NBTTagList.add(listEntry);
             }
-            compoundNBT.put(TAG_LIST, listTag);
+            compoundNBT.put(TAG_LIST, NBTTagList);
         }
     }
 }
+
+

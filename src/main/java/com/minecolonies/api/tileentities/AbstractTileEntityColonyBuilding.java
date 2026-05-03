@@ -8,20 +8,17 @@ import com.minecolonies.api.colony.buildings.IBuildingContainer;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.util.InventoryFunctions;
 import com.minecolonies.core.tileentities.TileEntityRack;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+import com.minecolonies.api.util.Tuple;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Predicate;
+import net.minecraft.item.ItemStack;
 
 public abstract class AbstractTileEntityColonyBuilding extends TileEntityRack implements IBlueprintDataProviderBE
 {
@@ -32,50 +29,49 @@ public abstract class AbstractTileEntityColonyBuilding extends TileEntityRack im
     private static final int    VERSION     = 2;
 
     /**
-     * Corner positions of schematic, relative to te pos.
+     * Corner positions of schematic, relative to te pos (as [x, y, z] int arrays).
      */
-    private BlockPos corner1             = BlockPos.ZERO;
-    private BlockPos corner2 = BlockPos.ZERO;
+    private int[] corner1 = new int[]{0, 0, 0};
+    private int[] corner2 = new int[]{0, 0, 0};
 
     /**
-     * The TE's schematic name
+     * The TE's schematic name.
      */
     private String schematicName = "";
 
     /**
-     * Map of block positions relative to TE pos and string tags
+     * Map of block positions (encoded as long chunkPosAsLong) relative to TE pos and string tags.
      */
-    private Map<BlockPos, List<String>> tagPosMap = new HashMap<>();
+    private Map<long[], List<String>> tagPosMap = new HashMap<>();
 
     /**
      * Check if the building might have old data.
      */
-    private int                        version = 0;
+    private int version = 0;
 
     /**
-     * Tag map cache.
+     * NBTBase map cache.
      */
-    private Map<String, Set<BlockPos>> worldTagMapCache = null;
+    private Map<String, Set<long[]>> worldTagMapCache = null;
 
     /**
-     * List based tag map cache.
+     * List based NBTBase map cache.
      */
-    private Map<String, List<BlockPos>> worldTagMapCacheWithList;
+    private Map<String, List<long[]>> worldTagMapCacheWithList;
 
-    public AbstractTileEntityColonyBuilding(final BlockEntityType<? extends AbstractTileEntityColonyBuilding> type, final BlockPos pos, final BlockState state)
+    public AbstractTileEntityColonyBuilding()
     {
-        super(type, pos, state);
+        super();
     }
 
     /**
-     * Finds the first @see ItemStack the type of {@code is}. It will be taken from the chest and placed in the worker inventory. Make sure that the worker stands next the chest to
-     * not break immersion. Also make sure to have inventory space for the stack.
+     * Finds the first matching ItemStack in the entity. It will be taken from the chest and placed in the worker inventory.
      *
      * @param entity                      the tileEntity chest or building.
      * @param itemStackSelectionPredicate the itemStack predicate.
      * @return true if found the stack.
      */
-    public static boolean isInTileEntity(final ICapabilityProvider entity, @NotNull final Predicate<ItemStack> itemStackSelectionPredicate)
+    public static boolean isInTileEntity(final IInventory entity, @NotNull final Predicate<ItemStack> itemStackSelectionPredicate)
     {
         return InventoryFunctions.matchFirstInProvider(entity, itemStackSelectionPredicate);
     }
@@ -102,20 +98,20 @@ public abstract class AbstractTileEntityColonyBuilding extends TileEntityRack im
     public abstract void setColony(IColony c);
 
     /**
-     * Returns the position of the tile entity.
+     * Returns the position of the tile entity as [x, y, z].
      *
-     * @return Block Coordinates of the tile entity.
+     * @return position of the tile entity.
      */
-    public abstract BlockPos getPosition();
+    public abstract int[] getPosition();
 
     /**
-     * Check for a certain item and return the position of the chest containing it.
+     * Check for a certain item and return the position of the chest containing it as [x, y, z].
      *
      * @param itemStackSelectionPredicate the stack to search for.
      * @return the position or null.
      */
     @Nullable
-    public abstract BlockPos getPositionOfChestWithItemStack(@NotNull Predicate<ItemStack> itemStackSelectionPredicate);
+    public abstract int[] getPositionOfChestWithItemStack(@NotNull Predicate<ItemStack> itemStackSelectionPredicate);
 
     /**
      * Returns the building associated with the tile entity.
@@ -144,7 +140,7 @@ public abstract class AbstractTileEntityColonyBuilding extends TileEntityRack im
      * @param player Player to check permission of.
      * @return True when player has access, or building doesn't exist, otherwise false.
      */
-    public abstract boolean hasAccessPermission(Player player);
+    public abstract boolean hasAccessPermission(EntityPlayer player);
 
     /**
      * Set if the entity is mirrored.
@@ -184,7 +180,7 @@ public abstract class AbstractTileEntityColonyBuilding extends TileEntityRack im
     /**
      * Get the blueprint path of the tileEntity.
      *
-     * @return  path the path to get.
+     * @return path the path to get.
      */
     public abstract String getBlueprintPath();
 
@@ -208,13 +204,13 @@ public abstract class AbstractTileEntityColonyBuilding extends TileEntityRack im
     }
 
     @Override
-    public Map<BlockPos, List<String>> getPositionedTags()
+    public Map<long[], List<String>> getPositionedTags()
     {
         return tagPosMap;
     }
 
     @Override
-    public Map<String, Set<BlockPos>> getWorldTagNamePosMap()
+    public Map<String, Set<long[]>> getWorldTagNamePosMap()
     {
         if (worldTagMapCache == null)
         {
@@ -224,16 +220,17 @@ public abstract class AbstractTileEntityColonyBuilding extends TileEntityRack im
     }
 
     /**
-     * Get a list version of the positioned tags, mapped from tag name to position.
+     * Get a list version of the positioned tags, mapped from NBTBase name to position.
+     *
      * @return the list version.
      */
-    public Map<String, List<BlockPos>> getCachedWorldTagNamePosMap()
+    public Map<String, List<long[]>> getCachedWorldTagNamePosMap()
     {
         if (worldTagMapCacheWithList == null)
         {
-            final Map<String, Set<BlockPos>> worldTagNamePosMap = getWorldTagNamePosMap();
+            final Map<String, Set<long[]>> worldTagNamePosMap = getWorldTagNamePosMap();
             worldTagMapCacheWithList = new HashMap<>();
-            for (final Map.Entry<String, Set<BlockPos>> entry : worldTagNamePosMap.entrySet())
+            for (final Map.Entry<String, Set<long[]>> entry : worldTagNamePosMap.entrySet())
             {
                 worldTagMapCacheWithList.put(entry.getKey(), new ArrayList<>(entry.getValue()));
             }
@@ -242,48 +239,48 @@ public abstract class AbstractTileEntityColonyBuilding extends TileEntityRack im
     }
 
     @Override
-    public void setPositionedTags(final Map<BlockPos, List<String>> positionedTags)
+    public void setPositionedTags(final Map<long[], List<String>> positionedTags)
     {
         tagPosMap = positionedTags;
         worldTagMapCache = null;
         worldTagMapCacheWithList = null;
-        setChanged();
+        markDirty();
     }
 
     @Override
-    public Tuple<BlockPos, BlockPos> getSchematicCorners()
+    public Tuple<int[], int[]> getSchematicCorners()
     {
         return new Tuple<>(corner1, corner2);
     }
 
     @Override
-    public void setSchematicCorners(final BlockPos pos1, final BlockPos pos2)
+    public void setSchematicCorners(final int[] pos1, final int[] pos2)
     {
         corner1 = pos1;
         corner2 = pos2;
-        setChanged();
+        markDirty();
     }
 
     @Override
-    public void load(@NotNull final CompoundTag compound)
+    public void readFromNBT(@NotNull final NBTTagCompound compound)
     {
-        super.load(compound);
+        super.readFromNBT(compound);
         readSchematicDataFromNBT(compound);
-        this.version = compound.getInt(TAG_VERSION);
+        this.version = compound.getInteger(TAG_VERSION);
     }
 
     @Override
-    public void readSchematicDataFromNBT(final CompoundTag originalCompound)
+    public void readSchematicDataFromNBT(final NBTTagCompound originalCompound)
     {
         final String old = getSchematicName();
         IBlueprintDataProviderBE.super.readSchematicDataFromNBT(originalCompound);
 
-        if (level == null || level.isClientSide || getColony() == null || getColony().getServerBuildingManager() == null)
+        if (worldObj == null || worldObj.isRemote || getColony() == null || getColony().getServerBuildingManager() == null)
         {
             return;
         }
 
-        final IBuilding building = getColony().getServerBuildingManager().getBuilding(worldPosition);
+        final IBuilding building = getColony().getServerBuildingManager().getBuilding(xCoord, yCoord, zCoord);
         if (building != null)
         {
             building.onUpgradeSchematicTo(old, getSchematicName(), this);
@@ -292,21 +289,26 @@ public abstract class AbstractTileEntityColonyBuilding extends TileEntityRack im
     }
 
     @Override
-    public void saveAdditional(@NotNull final CompoundTag compound)
+    public void writeToNBT(@NotNull final NBTTagCompound compound)
     {
-        super.saveAdditional(compound);
+        super.writeToNBT(compound);
         writeSchematicDataToNBT(compound);
-        compound.putInt(TAG_VERSION, this.version);
+        compound.setInteger(TAG_VERSION, this.version);
     }
 
-    @Override
-    public BlockPos getTilePos()
+    /**
+     * Get the tile entity position as [x, y, z].
+     *
+     * @return position.
+     */
+    public int[] getTilePos()
     {
-        return worldPosition;
+        return new int[]{xCoord, yCoord, zCoord};
     }
 
     /**
      * Check if the TE is on an old data version.
+     *
      * @return true if so.
      */
     public boolean isOutdated()
@@ -314,3 +316,4 @@ public abstract class AbstractTileEntityColonyBuilding extends TileEntityRack im
         return version < VERSION;
     }
 }
+

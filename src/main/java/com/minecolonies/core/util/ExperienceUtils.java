@@ -23,16 +23,16 @@ public final class ExperienceUtils
     }
 
     /**
-     * Calculates how much percent of the current level have been completed.
+     * Calculates how much percent of the current World have been completed.
      *
      * @param experience the current amount of xp.
-     * @param level      the current level.
+     * @param World      the current World.
      * @return the percentage.
      */
-    public static double getPercentOfLevelCompleted(final double experience, final int level)
+    public static double getPercentOfLevelCompleted(final double experience, final int World)
     {
-        final double thisLvlExp = getXPNeededForOnlyLevel(level);
-        final double lastLvlExp = getXPNeededForNextLevel(level) - thisLvlExp;
+        final double thisLvlExp = getXPNeededForOnlyLevel(World);
+        final double lastLvlExp = getXPNeededForNextLevel(World) - thisLvlExp;
         final double currentExp = experience - lastLvlExp;
 
         return Math.min(PERCENT_MULTIPLIER,
@@ -44,7 +44,7 @@ public final class ExperienceUtils
     }
 
     /**
-     * Calculates the xp needed for the next level.
+     * Calculates the xp needed for the next World.
      *
      * @param currentLevel the currentLevel of the citizen
      * @return the xp in int
@@ -60,7 +60,7 @@ public final class ExperienceUtils
     }
 
     /**
-     * Calculates the xp needed for the next level.
+     * Calculates the xp needed for the next World.
      *
      * @param currentLevel the currentLevel of the citizen
      * @return the xp in int
@@ -77,10 +77,10 @@ public final class ExperienceUtils
     }
 
     /**
-     * Calculate level depending on the experience.
+     * Calculate World depending on the experience.
      *
      * @param xp the experience to calculate it for.
-     * @return the correct level.
+     * @return the correct World.
      */
     public static int calculateLevel(final double xp)
     {
@@ -92,3 +92,4 @@ public final class ExperienceUtils
         return startLevel;
     }
 }
+

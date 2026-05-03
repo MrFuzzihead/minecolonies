@@ -8,9 +8,9 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingChickenHerder;
 import com.minecolonies.core.colony.jobs.JobChickenHerder;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] int /* InteractionHand */ removed
+// [1.7.10] world.entity removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -62,13 +62,17 @@ public class EntityAIWorkChickenHerder extends AbstractEntityAIHerder<JobChicken
     {
         if (animal != null && !walkingToAnimal(animal) && !ItemStackUtils.isEmpty(worker.getMainHandItem()))
         {
-            worker.swing(InteractionHand.MAIN_HAND);
+            worker.swing(0 /* InteractionHand.MAIN_HAND */);
 
             if (worker.getRandom().nextInt(1 + (ONE_HUNDRED_PERCENT - getSecondarySkillLevel()) / 5) <= 1)
             {
                 animal.hurt(world.damageSources().source(DamageSourceKeys.DEFAULT, worker), (float) getButcheringAttackDamage());
-                CitizenItemUtils.damageItemInHand(worker, InteractionHand.MAIN_HAND, 1);
+                CitizenItemUtils.damageItemInHand(worker, 0 /* InteractionHand.MAIN_HAND */, 1);
             }
         }
     }
 }
+
+
+
+

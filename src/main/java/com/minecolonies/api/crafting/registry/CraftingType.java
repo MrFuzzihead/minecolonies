@@ -1,9 +1,9 @@
 package com.minecolonies.api.crafting.registry;
 
 import com.minecolonies.api.crafting.IGenericRecipe;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.level.Level;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] RecipeManager not available in 1.7.10
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,13 +24,13 @@ public abstract class CraftingType
 
     /**
      * Find all teachable recipes supported by this particular crafting type
-     * @param recipeManager the vanilla recipe manager
+     * @param recipeManager the vanilla recipe manager [1.7.10] stubbed as Object
      * @param world the world (if available)
      * @return the list of teachable recipes
      */
     @NotNull
-    public abstract List<IGenericRecipe> findRecipes(@NotNull final RecipeManager recipeManager,
-                                                     @Nullable final Level world);
+    public abstract List<IGenericRecipe> findRecipes(@NotNull final Object recipeManager,
+                                                     @Nullable final World world);
 
     @Override
     public boolean equals(Object obj)
@@ -48,3 +48,6 @@ public abstract class CraftingType
         return registryName.hashCode();
     }
 }
+
+
+

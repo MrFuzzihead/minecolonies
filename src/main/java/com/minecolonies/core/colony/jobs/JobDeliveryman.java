@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.core.colony.buildings.modules.BuildingModules;
 import com.minecolonies.core.colony.buildings.modules.WarehouseRequestQueueModule;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import com.minecolonies.api.client.render.modeltype.ModModelTypes;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.buildings.workerbuildings.IWareHouse;
@@ -28,11 +28,11 @@ import com.minecolonies.core.colony.buildings.modules.CourierAssignmentModule;
 import com.minecolonies.core.colony.requestsystem.requests.StandardRequests;
 import com.minecolonies.core.entity.ai.workers.service.EntityAIWorkDeliveryman;
 import com.minecolonies.core.util.AttributeModifierUtils;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.core.BlockPos;
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -51,7 +51,7 @@ public class JobDeliveryman extends AbstractJob<EntityAIWorkDeliveryman, JobDeli
     private IToken<?> rsDataStoreToken;
 
     /**
-     * Walking speed bonus per level
+     * Walking speed bonus per World
      */
     public static final double BONUS_SPEED_PER_LEVEL = 0.003;
 
@@ -107,15 +107,15 @@ public class JobDeliveryman extends AbstractJob<EntityAIWorkDeliveryman, JobDeli
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compound = super.serializeNBT();
+        final NBTTagCompound compound = super.serializeNBT();
         compound.put(NbtTagConstants.TAG_RS_DMANJOB_DATASTORE, StandardFactoryController.getInstance().serialize(rsDataStoreToken));
         return compound;
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
 
@@ -148,7 +148,7 @@ public class JobDeliveryman extends AbstractJob<EntityAIWorkDeliveryman, JobDeli
     }
 
     @Override
-    public void serializeToView(final FriendlyByteBuf buffer)
+    public void serializeToView(final PacketBuffer buffer)
     {
         super.serializeToView(buffer);
         StandardFactoryController.getInstance().serialize(buffer, rsDataStoreToken);
@@ -622,7 +622,7 @@ public class JobDeliveryman extends AbstractJob<EntityAIWorkDeliveryman, JobDeli
      * @param target2 target of second request
      * @return closeness factor, representing how close these positions are to eachother. The lower the closer they are.
      */
-    public static double getClosenessFactorTo(final BlockPos source1, final BlockPos target1, final BlockPos source2, final BlockPos target2)
+    public static double getClosenessFactorTo(final int[] source1, final int[] target1, final int[] source2, final int[] target2)
     {
         final double newLength = BlockPosUtil.getDistance(target1, source1);
         if (newLength <= 0)
@@ -643,7 +643,7 @@ public class JobDeliveryman extends AbstractJob<EntityAIWorkDeliveryman, JobDeli
      * @param request
      * @return
      */
-    private BlockPos getSource(final IRequest<?> request)
+    private int[] getSource(final IRequest<?> request)
     {
         if (request.getRequest() instanceof Delivery)
         {
@@ -668,7 +668,7 @@ public class JobDeliveryman extends AbstractJob<EntityAIWorkDeliveryman, JobDeli
      * @param request
      * @return
      */
-    private BlockPos getTarget(final IRequest<?> request)
+    private int[] getTarget(final IRequest<?> request)
     {
         if (request.getRequest() instanceof Delivery)
         {
@@ -725,3 +725,7 @@ public class JobDeliveryman extends AbstractJob<EntityAIWorkDeliveryman, JobDeli
         return 1.2;
     }
 }
+
+
+
+

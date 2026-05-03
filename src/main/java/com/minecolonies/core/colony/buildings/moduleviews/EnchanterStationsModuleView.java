@@ -1,17 +1,17 @@
 package com.minecolonies.core.colony.buildings.moduleviews;
 
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.buildings.modules.AbstractBuildingModuleView;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.Network;
 import com.minecolonies.core.client.gui.modules.building.EnchanterStationModuleWindow;
 import com.minecolonies.core.network.messages.server.colony.building.enchanter.EnchanterWorkerSetMessage;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -22,10 +22,10 @@ public class EnchanterStationsModuleView extends AbstractBuildingModuleView
     /**
      * List of buildings the enchanter gathers experience from.
      */
-    private List<BlockPos> buildingToGatherFrom = new ArrayList<>();
+    private List<int[]> buildingToGatherFrom = new ArrayList<>();
 
     @Override
-    public void deserialize(@NotNull final FriendlyByteBuf buf)
+    public void deserialize(@NotNull final PacketBuffer buf)
     {
         final int size = buf.readInt();
         buildingToGatherFrom.clear();
@@ -40,7 +40,7 @@ public class EnchanterStationsModuleView extends AbstractBuildingModuleView
      *
      * @return the list.
      */
-    public List<BlockPos> getBuildingsToGatherFrom()
+    public List<int[]> getBuildingsToGatherFrom()
     {
         return buildingToGatherFrom;
     }
@@ -48,9 +48,9 @@ public class EnchanterStationsModuleView extends AbstractBuildingModuleView
     /**
      * Add a new worker to gather xp from.
      *
-     * @param blockPos the pos of the building.
+     * @param int[] the pos of the building.
      */
-    public void addWorker(final BlockPos blockPos)
+    public void addWorker(final int[] blockPos)
     {
         buildingToGatherFrom.add(blockPos);
         Network.getNetwork().sendToServer(new EnchanterWorkerSetMessage(buildingView, blockPos, true));
@@ -59,9 +59,9 @@ public class EnchanterStationsModuleView extends AbstractBuildingModuleView
     /**
      * Remove a worker to stop gathering from.
      *
-     * @param blockPos the pos of that worker.
+     * @param int[] the pos of that worker.
      */
-    public void removeWorker(final BlockPos blockPos)
+    public void removeWorker(final int[] blockPos)
     {
         buildingToGatherFrom.remove(blockPos);
         Network.getNetwork().sendToServer(new EnchanterWorkerSetMessage(buildingView, blockPos, false));
@@ -69,7 +69,7 @@ public class EnchanterStationsModuleView extends AbstractBuildingModuleView
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public BOWindow getWindow()
+    public Object /* BOWindow: todo ModularUI2 */ getWindow()
     {
         return new EnchanterStationModuleWindow(this);
     }
@@ -81,8 +81,13 @@ public class EnchanterStationsModuleView extends AbstractBuildingModuleView
     }
     
     @Override
-    public Component getDesc()
+    public String getDesc()
     {
-        return Component.translatable("com.minecolonies.gui.workerhuts.enchanter.workers");
+        return String.translatable("com.minecolonies.gui.workerhuts.enchanter.workers");
     }
 }
+
+
+
+
+

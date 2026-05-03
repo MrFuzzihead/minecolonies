@@ -1,4 +1,5 @@
 package com.minecolonies.core.client.render.worldevent;
+import net.minecraft.world.chunk.ChunkPos;
 
 import com.ldtteam.structurize.client.rendertask.util.WorldRenderMacros;
 import com.ldtteam.structurize.items.ModItems;
@@ -11,18 +12,18 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexBuffer;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.util.EnumChatFormatting;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] ChunkPos not in net.minecraft.world.World - using int pair
+import net.minecraft.world.chunk.Chunk;
 
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.minecolonies.api.colony.IColony.CLOSE_COLONY_CAP;
+// [1.7.10] CLOSE_COLONY_CAP replaced by ColonyChunkDataHandler
 
 public class ColonyBorderRenderer
 {
@@ -151,7 +152,7 @@ public class ColonyBorderRenderer
             {
                 final Color colour = colonyColours.computeIfAbsent(colonyId, id ->
                 {
-                    final IColonyView colony = IMinecoloniesAPI.getInstance().getColonyManager().getColonyView(id, Minecraft.getInstance().level.dimension());
+                    final IColonyView colony = IMinecoloniesAPI.getInstance().getColonyManager().getColonyView(id, Minecraft.getInstance().World.dimension());
                     final ChatFormatting team = colony != null ? colony.getTeamColonyColor() : id == playerColonyId ? ChatFormatting.WHITE : ChatFormatting.RED;
                     return new Color(team.getColor());
                 });
@@ -332,3 +333,6 @@ public class ColonyBorderRenderer
         lastPlayerChunkPos = null;
     }
 }
+
+
+

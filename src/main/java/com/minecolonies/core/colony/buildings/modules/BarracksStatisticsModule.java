@@ -5,8 +5,8 @@ import java.util.List;
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.managers.interfaces.IStatisticsManager;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingBarracks;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
 import static com.minecolonies.core.colony.buildings.modules.BuildingModules.STATS_MODULE;
 
 /**
@@ -21,12 +21,12 @@ public class BarracksStatisticsModule extends BuildingStatisticsModule
      * @param fullSync whether to serialize the full stats or only the dirty ones
      */
     @Override
-    public void serializeToView(final FriendlyByteBuf buf, final boolean fullSync)
+    public void serializeToView(final PacketBuffer buf, final boolean fullSync)
     {
         this.getBuildingStatisticsManager().clear();
-        List<BlockPos> towers = ((BuildingBarracks) building).getTowers();
+        List<int[]> towers = ((BuildingBarracks) building).getTowers();
 
-        for (final BlockPos towerPos : towers)
+        for (final int[] towerPos : towers)
         {
             IBuilding tower = building.getColony().getServerBuildingManager().getBuilding(towerPos);
             if (tower != null)
@@ -39,3 +39,5 @@ public class BarracksStatisticsModule extends BuildingStatisticsModule
         this.getBuildingStatisticsManager().serialize(buf, fullSync);
     }
 }
+
+

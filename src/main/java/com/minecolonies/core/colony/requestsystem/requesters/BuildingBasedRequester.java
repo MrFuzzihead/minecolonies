@@ -7,10 +7,10 @@ import com.minecolonies.api.colony.requestsystem.manager.IRequestManager;
 import com.minecolonies.api.colony.requestsystem.request.IRequest;
 import com.minecolonies.api.colony.requestsystem.requester.IRequester;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -38,7 +38,7 @@ public class BuildingBasedRequester implements IBuildingBasedRequester
         this.requesterId = requesterId;
     }
 
-    public static BuildingBasedRequester deserialize(final IFactoryController controller, final CompoundTag compound)
+    public static BuildingBasedRequester deserialize(final IFactoryController controller, final NBTTagCompound compound)
     {
         final ILocation location = controller.deserialize(compound.getCompound(NBT_LOCATION));
         final IToken<?> token = controller.deserialize(compound.getCompound(NBT_ID));
@@ -46,9 +46,9 @@ public class BuildingBasedRequester implements IBuildingBasedRequester
         return new BuildingBasedRequester(location, token);
     }
 
-    public CompoundTag serialize(final IFactoryController controller)
+    public NBTTagCompound serialize(final IFactoryController controller)
     {
-        final CompoundTag compound = new CompoundTag();
+        final NBTTagCompound compound = new NBTTagCompound();
 
         compound.put(NBT_LOCATION, controller.serialize(getLocation()));
         compound.put(NBT_ID, controller.serialize(getId()));
@@ -56,13 +56,13 @@ public class BuildingBasedRequester implements IBuildingBasedRequester
         return compound;
     }
 
-    public void serialize(final IFactoryController controller, final FriendlyByteBuf buffer)
+    public void serialize(final IFactoryController controller, final PacketBuffer buffer)
     {
         controller.serialize(buffer, getLocation());
         controller.serialize(buffer, getId());
     }
 
-    public static BuildingBasedRequester deserialize(final IFactoryController controller, final FriendlyByteBuf buffer)
+    public static BuildingBasedRequester deserialize(final IFactoryController controller, final PacketBuffer buffer)
     {
         final ILocation location = controller.deserialize(buffer);
         final IToken<?> id = controller.deserialize(buffer);
@@ -96,9 +96,9 @@ public class BuildingBasedRequester implements IBuildingBasedRequester
 
     @NotNull
     @Override
-    public MutableComponent getRequesterDisplayName(@NotNull final IRequestManager manager, @NotNull final IRequest<?> request)
+    public String getRequesterDisplayName(@NotNull final IRequestManager manager, @NotNull final IRequest<?> request)
     {
-        return getBuilding(manager, request.getId()).map(requester -> requester.getRequesterDisplayName(manager, request)).orElseGet(() -> Component.literal("<UNKNOWN>"));
+        return getBuilding(manager, request.getId()).map(requester -> requester.getRequesterDisplayName(manager, request)).orElseGet(() -> String.literal("<UNKNOWN>"));
     }
 
     @Override
@@ -123,3 +123,7 @@ public class BuildingBasedRequester implements IBuildingBasedRequester
         building = colony.getRequesterBuildingForPosition(location.getInDimensionLocation());
     }
 }
+
+
+
+

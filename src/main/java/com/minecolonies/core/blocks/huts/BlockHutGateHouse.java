@@ -8,27 +8,19 @@ import com.minecolonies.api.colony.buildings.registry.BuildingEntry;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.colony.permissions.Action;
 import com.minecolonies.core.client.gui.modules.building.ConnectionModuleWindow;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Block of the gate house hut.
+ * [1.7.10] Ported: onBlockActivated replaces use(); removed BlockState/InteractionResult/InteractionHand.
  */
 public class BlockHutGateHouse extends AbstractBlockHut<BlockHutGateHouse>
 {
-    /**
-     * Default constructor.
-     */
     public BlockHutGateHouse()
     {
-        //No different from Abstract parent
         super();
     }
 
@@ -53,45 +45,36 @@ public class BlockHutGateHouse extends AbstractBlockHut<BlockHutGateHouse>
 
     @NotNull
     @Override
-    public InteractionResult use(
-        final BlockState state,
-        final Level worldIn,
-        final BlockPos pos,
-        final Player player,
-        final InteractionHand hand,
-        final BlockHitResult ray)
+    public boolean onBlockActivated(
+      final World worldIn,
+      final int x,
+      final int y,
+      final int z,
+      final EntityPlayer player,
+      final int side,
+      final float hitX,
+      final float hitY,
+      final float hitZ)
     {
-       /*
-        If the world is client, open the gui of the building
-         */
-        if (worldIn.isClientSide)
+        if (worldIn.isRemote)
         {
-            if (hand == InteractionHand.OFF_HAND)
-            {
-                return InteractionResult.FAIL;
-            }
-
-            @Nullable final IBuildingView building = IColonyManager.getInstance().getBuildingView(worldIn.dimension(), pos);
+            @Nullable final IBuildingView building = IColonyManager.getInstance().getBuildingView(worldIn, x, y, z);
             if (building != null && !building.getColony().getPermissions().hasPermission(player, Action.ACCESS_HUTS))
             {
                 new ConnectionModuleWindow(building, true).open();
-                return InteractionResult.FAIL;
+                return false;
             }
 
-            return super.use(state, worldIn, pos, player, hand, ray);
+            return super.onBlockActivated(worldIn, x, y, z, player, side, hitX, hitY, hitZ);
         }
         else
         {
-            final IColony colony = IColonyManager.getInstance().getIColony(worldIn, pos);
-            if (colony != null)
+            final IColony colony = IColonyManager.getInstance().getIColony(worldIn, x, y, z);
+            if (colony != null && !colony.getPermissions().hasPermission(player, Action.ACCESS_HUTS))
             {
-                if (!colony.getPermissions().hasPermission(player, Action.ACCESS_HUTS))
-                {
-                    return InteractionResult.FAIL;
-                }
+                return false;
             }
         }
-        return InteractionResult.SUCCESS;
+        return true;
     }
-
 }

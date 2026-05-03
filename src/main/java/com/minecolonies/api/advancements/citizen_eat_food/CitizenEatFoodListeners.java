@@ -1,22 +1,11 @@
 package com.minecolonies.api.advancements.citizen_eat_food;
-
 import com.minecolonies.api.advancements.CriterionListeners;
-import net.minecraft.server.PlayerAdvancements;
-import net.minecraft.world.item.ItemStack;
-
-/**
- * The listener instantiated for every advancement that listens to the associated criterion.
- * A basic class to trigger with the correct arguments
- */
+// [1.7.10 BACKPORT] Stubbed out — advancements do not exist in Minecraft 1.7.10.
+/** Stub listeners — no-op in 1.7.10. */
 public class CitizenEatFoodListeners extends CriterionListeners<CitizenEatFoodCriterionInstance>
 {
-    public CitizenEatFoodListeners(final PlayerAdvancements playerAdvancements)
+    public CitizenEatFoodListeners(final Object playerAdvancements)
     {
         super(playerAdvancements);
-    }
-
-    public void trigger(final ItemStack foodItemStack)
-    {
-        trigger(instance -> instance.test(foodItemStack));
     }
 }

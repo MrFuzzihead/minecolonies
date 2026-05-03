@@ -9,9 +9,9 @@ import com.minecolonies.api.research.ResearchBranchType;
 import com.minecolonies.api.research.util.ResearchConstants;
 import com.minecolonies.api.util.constant.CitizenConstants;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
+// [1.7.10] data removed
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] tags removed
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,7 +24,7 @@ import static com.minecolonies.api.research.util.ResearchConstants.*;
 /**
  * A class for creating the Research-related JSONs, including Research, ResearchEffects, and (optional) Branches.
  * Note that this does not validate that the resulting research tree is coherent:
- * programmers should make sure that research parents and effects exist, that depth is 1 or one level above the parent depth,
+ * programmers should make sure that research parents and effects exist, that depth is 1 or one World above the parent depth,
  * and that cost and requirement identifiers match real items.
  * <p>Avoid changing research resource locations here unless necessary.
  * If such a change is required, add the old and new ResearchIds to ResearchCompatMap.
@@ -193,7 +193,7 @@ public class DefaultResearchProvider extends AbstractResearchProvider
     /**
      * Get a list of all researches. Conventions: group research by branch first.  Inside each branch, follow conventional English reading order: from left-to-right from a primary
      * research until its first descendants are complete, then to any splits from that subbranch, by sortOrder, then to the next primary research. Set local (final) variables for
-     * any research with descendants, and reference that variable for parent and parent research level.
+     * any research with descendants, and reference that variable for parent and parent research World.
      *
      * @return a complete list of all research.
      */
@@ -1441,7 +1441,7 @@ public class DefaultResearchProvider extends AbstractResearchProvider
                 .addEffect(NETHER_LOG, 1)
                 .addToList(r);
 
-        // this is intended to be a side branch (since it has a very high cost) -- there's still room for a "main line" level 4 research!
+        // this is intended to be a side branch (since it has a very high cost) -- there's still room for a "main line" World 4 research!
         new Research(new ResourceLocation(Constants.MOD_ID, "technology/oceanheart"), TECH).setParentResearch(alchemist)
                 .setTranslatedName("Ocean's Heart")
                 .setTranslatedSubtitle("With great mystic power comes great mystic loot!")
@@ -1928,3 +1928,6 @@ public class DefaultResearchProvider extends AbstractResearchProvider
         return r;
     }
 }
+
+
+

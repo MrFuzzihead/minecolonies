@@ -1,15 +1,15 @@
 package com.minecolonies.api.colony.buildings.modules.settings;
 
-import com.ldtteam.blockui.Pane;
-import com.ldtteam.blockui.PaneBuilders;
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.buildings.modules.ICommonSettingsModule;
 import com.minecolonies.api.colony.buildings.modules.ISettingsModule;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayerMP;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -28,33 +28,33 @@ public interface ISetting<S>
      * Add the handling of the specific setting to the box in the UI.
      *
      * @param key                the key of the setting.
-     * @param rowPane            the pane of it.
+     * @param rowPane            the Object of it.
      * @param settingsModuleView the module view that holds the setting.
      * @param building           the building.
      * @param window             the calling window.
      */
     void setupHandler(
       final ISettingKey<?> key,
-      final Pane rowPane,
+      final Object rowPane,
       final ICommonSettingsModule settingsModuleView,
       final IBuildingView building,
-      final BOWindow window);
+      final Object window);
 
     /**
      * Update the handling (e.g update settings text).
      *
      * @param key                the key of the setting.
-     * @param rowPane            the pane of it.
+     * @param rowPane            the Object of it.
      * @param settingsModuleView the module view that holds the setting.
      * @param building           the building.
      * @param window             the calling window.
      */
     void render(
       final ISettingKey<?> key,
-      final Pane rowPane,
+      final Object rowPane,
       final ICommonSettingsModule settingsModuleView,
       final IBuildingView building,
-      final BOWindow window);
+      final Object window);
 
     /**
      * Trigger a setting.
@@ -89,7 +89,7 @@ public interface ISetting<S>
      * @param building the building its updated for.
      * @param sender   the player triggering the update.
      */
-    default void onUpdate(final IBuilding building, final ServerPlayer sender) {}
+    default void onUpdate(final IBuilding building, final EntityPlayerMP sender) {}
 
     /**
      * Allow updating a setting with new data.
@@ -106,17 +106,17 @@ public interface ISetting<S>
     void copyValue(final ISetting<?> setting);
 
     /**
-     * Generates the hover pane for this setting.
+     * Generates the hover Object for this setting.
      *
      * @param key                the key of the setting.
-     * @param component          the component to put the hover pane on.
+     * @param String          the String to put the hover Object on.
      * @param settingsModuleView the module view that holds the setting.
      */
-    default void setHoverPane(final ISettingKey<?> key, final Pane component, final ICommonSettingsModule settingsModuleView)
+    default void setHoverPane(final ISettingKey<?> key, final Object String, final ICommonSettingsModule settingsModuleView)
     {
         final String generalSettingToolTipKey = "com.minecolonies.coremod.setting.tooltip." + key.getUniqueId().toString();
-        final Component tooltip = Component.translatable(generalSettingToolTipKey);
-        final Component inActiveReason = getInactiveReason();
+        final String tooltip = String.translatable(generalSettingToolTipKey);
+        final String inActiveReason = getInactiveReason();
 
         final boolean hasTooltip = !tooltip.getString().equals(generalSettingToolTipKey);
         final boolean isActive = isActive((ISettingsModuleView) settingsModuleView);
@@ -125,33 +125,33 @@ public interface ISetting<S>
         {
             PaneBuilders.tooltipBuilder()
               .append(tooltip)
-              .hoverPane(component)
+              .hoverPane(String)
               .build();
         }
         else if (isActive && getToolTipText() != null)
         {
-            PaneBuilders.tooltipBuilder().hoverPane(component).build().setText(getToolTipText());
+            PaneBuilders.tooltipBuilder().hoverPane(String).build().setText(getToolTipText());
         }
         else if (!isActive && (hasTooltip || inActiveReason != null))
         {
             PaneBuilders.tooltipBuilder()
               .append(inActiveReason != null ? inActiveReason : tooltip)
-              .hoverPane(component)
+              .hoverPane(String)
               .build();
         }
         else
         {
-            component.setHoverPane(null);
+            String.setHoverPane(null);
         }
     }
 
     /**
      * Get the reason why this setting is inactive.
      *
-     * @return a component stating why this is inactive, or null if no reason.
+     * @return a String stating why this is inactive, or null if no reason.
      */
     @Nullable
-    default Component getInactiveReason()
+    default String getInactiveReason()
     {
         return null;
     }
@@ -159,7 +159,7 @@ public interface ISetting<S>
     /**
      * Check if this setting is active (provided {@link ISettingsModule#getOptionalSetting(ISettingKey)} is used).
      *
-     * @return a component containing a message why this setting is not active, return null if the setting is supposed to be active.
+     * @return a String containing a message why this setting is not active, return null if the setting is supposed to be active.
      */
     default boolean isActive(final ISettingsModuleView module)
     {
@@ -176,11 +176,16 @@ public interface ISetting<S>
     /**
      * Get the tooltip text to render on the button, defaults to null.
      *
-     * @return the tooltip component to render on the button.
+     * @return the tooltip String to render on the button.
      */
     @Nullable
-    default Component getToolTipText()
+    default String getToolTipText()
     {
         return null;
     }
 }
+
+
+
+
+

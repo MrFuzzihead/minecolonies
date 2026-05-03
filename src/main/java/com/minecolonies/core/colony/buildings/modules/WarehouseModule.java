@@ -2,8 +2,8 @@ package com.minecolonies.core.colony.buildings.modules;
 
 import com.minecolonies.api.colony.buildings.modules.AbstractBuildingModule;
 import com.minecolonies.api.colony.buildings.modules.IPersistentModule;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -12,12 +12,12 @@ import org.jetbrains.annotations.NotNull;
 public class WarehouseModule extends AbstractBuildingModule implements IPersistentModule
 {
     /**
-     * The storage tag for the storage capacity.
+     * The storage NBTBase for the storage capacity.
      */
     private static final String TAG_STORAGE = "tagStorage";
 
     /**
-     * Storage upgrade level.
+     * Storage upgrade World.
      */
     private int storageUpgrade = 0;
 
@@ -30,26 +30,26 @@ public class WarehouseModule extends AbstractBuildingModule implements IPersiste
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         storageUpgrade = compound.getInt(TAG_STORAGE);
     }
 
     @Override
-    public void serializeNBT(final CompoundTag compound)
+    public void serializeNBT(final NBTTagCompound compound)
     {
         compound.putInt(TAG_STORAGE, storageUpgrade);
     }
 
     @Override
-    public void serializeToView(@NotNull final FriendlyByteBuf buf)
+    public void serializeToView(@NotNull final PacketBuffer buf)
     {
         buf.writeInt(storageUpgrade);
     }
 
     /**
-     * Get the upgrade level.
-     * @return the level.
+     * Get the upgrade World.
+     * @return the World.
      */
     public int getStorageUpgrade()
     {
@@ -57,10 +57,13 @@ public class WarehouseModule extends AbstractBuildingModule implements IPersiste
     }
 
     /**
-     * Increment the storage upgrade level.
+     * Increment the storage upgrade World.
      */
     public void incrementStorageUpgrade()
     {
         this.storageUpgrade++;
     }
 }
+
+
+

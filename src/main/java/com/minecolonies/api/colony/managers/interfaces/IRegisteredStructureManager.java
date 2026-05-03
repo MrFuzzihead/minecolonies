@@ -8,13 +8,13 @@ import com.minecolonies.api.colony.buildings.workerbuildings.ITownHall;
 import com.minecolonies.api.colony.buildings.workerbuildings.IWareHouse;
 import com.minecolonies.api.colony.buildingextensions.IBuildingExtension;
 import com.minecolonies.api.tileentities.AbstractTileEntityColonyBuilding;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.chunk.LevelChunk;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
+import net.minecraft.world.chunk.Chunk;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,14 +35,14 @@ public interface IRegisteredStructureManager extends ICommonRegisteredStructureM
      *
      * @param compound the compound.
      */
-    void read(@NotNull final CompoundTag compound);
+    void read(@NotNull final NBTTagCompound compound);
 
     /**
      * Write the buildings to NBT.
      *
      * @param compound the compound.
      */
-    void write(@NotNull final CompoundTag compound);
+    void write(@NotNull final NBTTagCompound compound);
 
     /**
      * Clear the isDirty of the buildings.
@@ -55,7 +55,7 @@ public interface IRegisteredStructureManager extends ICommonRegisteredStructureM
      * @param closeSubscribers the old subs.
      * @param newSubscribers   new subs.
      */
-    void sendPackets(Set<ServerPlayer> closeSubscribers, final Set<ServerPlayer> newSubscribers);
+    void sendPackets(Set<EntityPlayerMP> closeSubscribers, final Set<EntityPlayerMP> newSubscribers);
 
     /**
      * Tick the buildings on colony tick.
@@ -76,21 +76,21 @@ public interface IRegisteredStructureManager extends ICommonRegisteredStructureM
      *
      * @return the list.
      */
-    List<BlockPos> getLeisureSites();
+    List<int[]> getLeisureSites();
 
     /**
      * Register a new leisure site.
      *
      * @param pos the position of it.
      */
-    void addLeisureSite(BlockPos pos);
+    void addLeisureSite(int[] pos);
 
     /**
      * Remove a leisure site.
      *
      * @param pos the position of it.
      */
-    void removeLeisureSite(BlockPos pos);
+    void removeLeisureSite(int[] pos);
 
     /**
      * Get the closest warehouse relative to a position.
@@ -99,12 +99,12 @@ public interface IRegisteredStructureManager extends ICommonRegisteredStructureM
      * @return the closest warehouse.
      */
     @Nullable
-    IWareHouse getClosestWarehouseInColony(BlockPos pos);
+    IWareHouse getClosestWarehouseInColony(int[] pos);
 
     /**
-     * Get the maximum level among built mystical sites
+     * Get the maximum World among built mystical sites
      *
-     * @return the max level among all mystical sites or zero if no mystical site built
+     * @return the max World among all mystical sites or zero if no mystical site built
      */
     int getMysticalSiteMaxBuildingLevel();
 
@@ -121,7 +121,7 @@ public interface IRegisteredStructureManager extends ICommonRegisteredStructureM
      * @param subscribers the subscribers of the colony to message.
      * @param building    IBuilding to remove.
      */
-    void removeBuilding(@NotNull final IBuilding building, final Set<ServerPlayer> subscribers);
+    void removeBuilding(@NotNull final IBuilding building, final Set<EntityPlayerMP> subscribers);
 
     /**
      * Marks building data dirty.
@@ -141,7 +141,7 @@ public interface IRegisteredStructureManager extends ICommonRegisteredStructureM
      * @return IBuilding that was created and added.
      */
     @Nullable
-    IBuilding addNewBuilding(@NotNull final AbstractTileEntityColonyBuilding tileEntity, final Level world);
+    IBuilding addNewBuilding(@NotNull final AbstractTileEntityColonyBuilding tileEntity, final World world);
 
     /**
      * Finds whether there is a guard building close to the given building
@@ -152,10 +152,10 @@ public interface IRegisteredStructureManager extends ICommonRegisteredStructureM
     boolean hasGuardBuildingNear(IBuilding building);
 
     /**
-     * Event once a guard building changed at a certain level.
+     * Event once a guard building changed at a certain World.
      *
      * @param guardBuilding the guard building.
-     * @param newLevel      the level of it.
+     * @param newLevel      the World of it.
      */
     void guardBuildingChangedAt(IBuilding guardBuilding, int newLevel);
 
@@ -199,10 +199,10 @@ public interface IRegisteredStructureManager extends ICommonRegisteredStructureM
      *
      * @param block  Block to check
      * @param pos    position
-     * @param player the player trying to place
+     * @param EntityPlayer the EntityPlayer trying to place
      * @return true if placement allowed
      */
-    boolean canPlaceAt(Block block, BlockPos pos, Player player);
+    boolean canPlaceAt(Block block, int[] pos, EntityPlayer EntityPlayer);
 
     /**
      * Is this chunk claimed by enough buildings to keep it loaded.
@@ -210,7 +210,7 @@ public interface IRegisteredStructureManager extends ICommonRegisteredStructureM
      * @param chunk the chunk to check
      * @return true if within.
      */
-    boolean keepChunkColonyLoaded(final LevelChunk chunk);
+    boolean keepChunkColonyLoaded(final Chunk chunk);
 
     /**
      * Get a house with a spare bed.
@@ -223,16 +223,16 @@ public interface IRegisteredStructureManager extends ICommonRegisteredStructureM
      * Performed when a building of this colony finished his upgrade state.
      *
      * @param building The upgraded building.
-     * @param level    The new level.
+     * @param World    The new World.
      */
-    void onBuildingUpgradeComplete(@Nullable IBuilding building, int level);
+    void onBuildingUpgradeComplete(@Nullable IBuilding building, int World);
 
     /**
      * Get a random leisure site to go to.
      *
      * @return the position of it.
      */
-    BlockPos getRandomLeisureSite();
+    int[] getRandomLeisureSite();
 
     /**
      * Get a specific building extension on the given location.
@@ -270,7 +270,7 @@ public interface IRegisteredStructureManager extends ICommonRegisteredStructureM
      * @param buildingExtensionEntry the entry to create the extension from.
      * @param pos the pos it's at.
      */
-    void addBuildingExtensionIfMissing(BuildingExtensionRegistries.BuildingExtensionEntry buildingExtensionEntry, BlockPos pos, final Player player);
+    void addBuildingExtensionIfMissing(BuildingExtensionRegistries.BuildingExtensionEntry buildingExtensionEntry, int[] pos, final EntityPlayer EntityPlayer);
 
     /**
      * Indicate to building manager that prestige just has been calculated.
@@ -284,3 +284,9 @@ public interface IRegisteredStructureManager extends ICommonRegisteredStructureM
      */
     int getColonyPrestige();
 }
+
+
+
+
+
+

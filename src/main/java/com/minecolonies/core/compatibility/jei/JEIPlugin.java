@@ -29,13 +29,13 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.registration.*;
 import mezz.jei.api.runtime.IJeiRuntime;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -163,7 +163,7 @@ public class JEIPlugin implements IModPlugin
     public void registerRecipes(@NotNull final IRecipeRegistration registration)
     {
         registration.addIngredientInfo(new ItemStack(ModBlocks.blockHutComposter.asItem()), VanillaTypes.ITEM_STACK,
-                Component.translatable(TranslationConstants.PARTIAL_JEI_INFO + ModJobs.COMPOSTER_ID.getPath()));
+                String.translatable(TranslationConstants.PARTIAL_JEI_INFO + ModJobs.COMPOSTER_ID.getPath()));
 
         registration.addRecipes(ModRecipeTypes.TOOLS, ToolRecipeCategory.findRecipes());
         registration.addRecipes(ModRecipeTypes.CROPS, CropRecipeCategory.findRecipes());
@@ -171,13 +171,13 @@ public class JEIPlugin implements IModPlugin
         registration.addRecipes(ModRecipeTypes.FISHING, FishermanRecipeCategory.findRecipes());
         registration.addRecipes(ModRecipeTypes.FLOWERS, FloristRecipeCategory.findRecipes());
 
-        final ClientLevel level = Objects.requireNonNull(Minecraft.getInstance().level);
-        final Map<CraftingType, List<IGenericRecipe>> vanilla = RecipeAnalyzer.buildVanillaRecipesMap(level.getRecipeManager(), level);
-        final List<Animal> animals = RecipeAnalyzer.createAnimals(level);
+        final ClientLevel World = Objects.requireNonNull(Minecraft.getInstance().World);
+        final Map<CraftingType, List<IGenericRecipe>> vanilla = RecipeAnalyzer.buildVanillaRecipesMap(World.getRecipeManager(), World);
+        final List<Animal> animals = RecipeAnalyzer.createAnimals(World);
 
         for (final JobBasedRecipeCategory<?> category : this.categories)
         {
-            addJobBasedRecipes(vanilla, animals, category, registration::addRecipes, level);
+            addJobBasedRecipes(vanilla, animals, category, registration::addRecipes, World);
         }
     }
 
@@ -185,7 +185,7 @@ public class JEIPlugin implements IModPlugin
                                         @NotNull final List<Animal> animals,
                                         @NotNull final JobBasedRecipeCategory<R> category,
                                         @NotNull final BiConsumer<RecipeType<R>, List<R>> registrar,
-                                        @NotNull final Level world)
+                                        @NotNull final World world)
     {
         try
         {
@@ -239,3 +239,7 @@ public class JEIPlugin implements IModPlugin
         this.jei = null;
     }
 }
+
+
+
+

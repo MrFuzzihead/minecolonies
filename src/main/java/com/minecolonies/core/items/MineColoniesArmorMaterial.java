@@ -1,7 +1,7 @@
 package com.minecolonies.core.items;
 
 import net.minecraft.Util;
-import net.minecraft.sounds.SoundEvent;
+// [1.7.10] sounds removed
 import net.minecraft.util.LazyLoadedValue;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorItem.Type;
@@ -97,3 +97,4 @@ public class MineColoniesArmorMaterial implements ArmorMaterial
         return this.knockbackResistance;
     }
 }
+

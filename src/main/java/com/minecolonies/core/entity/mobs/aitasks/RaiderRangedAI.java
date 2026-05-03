@@ -15,12 +15,12 @@ import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.other.CustomArrowEntity;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+// [1.7.10] sounds removed
+// [1.7.10] sounds removed
+// [1.7.10] int /* InteractionHand */ removed
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+// [1.7.10] world.entity removed
 
 import static com.minecolonies.api.entity.mobs.RaiderMobUtils.MOB_ATTACK_DAMAGE;
 
@@ -40,7 +40,7 @@ public class RaiderRangedAI<T extends AbstractEntityMinecoloniesMonster & IThrea
     private static final int BOW_HOLDING_DELAY = 40;
 
     /**
-     * Difficulty level at which arrows do pierce
+     * Difficulty World at which arrows do pierce
      */
     private static final double ARROW_PIERCE_DIFFICULTY = 3.0d;
 
@@ -74,7 +74,7 @@ public class RaiderRangedAI<T extends AbstractEntityMinecoloniesMonster & IThrea
     }
 
     @Override
-    protected boolean isInDistanceForAttack(final LivingEntity target)
+    protected boolean isInDistanceForAttack(final EntityLivingBase target)
     {
         if (EntityUtils.isFlying(target))
         {
@@ -95,7 +95,7 @@ public class RaiderRangedAI<T extends AbstractEntityMinecoloniesMonster & IThrea
     }
 
     @Override
-    protected void doAttack(final LivingEntity target)
+    protected void doAttack(final EntityLivingBase target)
     {
         user.getNavigation().stop();
 
@@ -123,7 +123,7 @@ public class RaiderRangedAI<T extends AbstractEntityMinecoloniesMonster & IThrea
         CombatUtils.shootArrow(arrowEntity, target, 10.0f);
 
         // Visuals
-        user.swing(InteractionHand.MAIN_HAND);
+        user.swing(0 /* InteractionHand.MAIN_HAND */);
         user.stopUsingItem();
         SoundEvent attackSound = SoundEvents.SKELETON_SHOOT;
         if (arrowEntity instanceof ICustomAttackSound)
@@ -163,9 +163,9 @@ public class RaiderRangedAI<T extends AbstractEntityMinecoloniesMonster & IThrea
     @Override
     public boolean canAttack()
     {
-        if (nextAttackTime - BOW_HOLDING_DELAY >= user.level.getGameTime() && !user.isUsingItem() && !user.getMainHandItem().isEmpty())
+        if (nextAttackTime - BOW_HOLDING_DELAY >= user.World.getGameTime() && !user.isUsingItem() && !user.getMainHandItem().isEmpty())
         {
-            user.startUsingItem(InteractionHand.MAIN_HAND);
+            user.startUsingItem(0 /* InteractionHand.MAIN_HAND */);
         }
 
         return true;
@@ -185,21 +185,26 @@ public class RaiderRangedAI<T extends AbstractEntityMinecoloniesMonster & IThrea
     }
 
     @Override
-    protected PathResult moveInAttackPosition(final LivingEntity target)
+    protected PathResult moveInAttackPosition(final EntityLivingBase target)
     {
         EntityNavigationUtils.walkToPos(user, target.blockPosition(), (int) getAttackDistance(), false, COMBAT_MOVEMENT_SPEED);
         return user.getNavigation().getPathResult();
     }
 
     @Override
-    protected boolean isAttackableTarget(final LivingEntity target)
+    protected boolean isAttackableTarget(final EntityLivingBase target)
     {
         return (target instanceof EntityCitizen && !target.isInvisible()) || (target instanceof Player && !((Player) target).isCreative() && !target.isSpectator());
     }
 
     @Override
-    protected boolean isWithinPersecutionDistance(final LivingEntity target)
+    protected boolean isWithinPersecutionDistance(final EntityLivingBase target)
     {
         return BlockPosUtil.getDistanceSquared(user.blockPosition(), target.blockPosition()) <= RaiderConstants.MAX_ARCHER_RAIDER_PERSECUTION_DISTANCE * RaiderConstants.MAX_ARCHER_RAIDER_PERSECUTION_DISTANCE;
     }
 }
+
+
+
+
+

@@ -5,11 +5,10 @@ import com.minecolonies.api.inventory.container.ContainerCraftingBrewingstand;
 import com.minecolonies.api.inventory.container.ContainerCraftingFurnace;
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.api.util.ItemStackUtils;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -52,7 +51,7 @@ public class TransferRecipeCraftingTeachingMessage implements IMessage
     }
 
     @Override
-    public void fromBytes(final FriendlyByteBuf buf)
+    public void fromBytes(final PacketBuffer buf)
     {
         itemStacks.clear();
         final int count = buf.readInt();
@@ -64,7 +63,7 @@ public class TransferRecipeCraftingTeachingMessage implements IMessage
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    public void toBytes(final PacketBuffer buf)
     {
         buf.writeInt(itemStacks.size());
         itemStacks.forEach((slot, stack) ->
@@ -77,15 +76,15 @@ public class TransferRecipeCraftingTeachingMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.SERVER;
+        return Boolean.TRUE;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
-        final Player player = ctxIn.getSender();
+        final Player player = ctx.getServerHandler().playerEntity;
         if (player.containerMenu instanceof ContainerCrafting)
         {
             final ContainerCrafting container = (ContainerCrafting) player.containerMenu;
@@ -127,3 +126,5 @@ public class TransferRecipeCraftingTeachingMessage implements IMessage
         }
     }
 }
+
+

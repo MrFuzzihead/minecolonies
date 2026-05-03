@@ -1,10 +1,16 @@
 package com.minecolonies.core.client.particles;
 
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.client.particle.*;
-import net.minecraft.client.multiplayer.ClientLevel;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.Particle;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.util.ResourceLocation;
 
 /**
  * Custom particle for sleeping.
@@ -20,7 +26,7 @@ public class SleepingParticle extends TextureSheetParticle
     private final double coordZ;
 
     /**
-     * The light level of the particle
+     * The light World of the particle
      */
     private static final int LIGHT_LEVEL = 15 << 20 | 15 << 4;
 
@@ -112,3 +118,6 @@ public class SleepingParticle extends TextureSheetParticle
         }
     }
 }
+
+
+

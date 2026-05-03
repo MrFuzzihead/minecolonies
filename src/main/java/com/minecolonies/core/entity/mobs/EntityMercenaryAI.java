@@ -9,11 +9,11 @@ import com.minecolonies.api.sounds.MercenarySounds;
 import com.minecolonies.api.util.*;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] int /* InteractionHand */ removed
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
+// [1.7.10] items shim in com.minecolonies.api.shim
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -47,12 +47,12 @@ public class EntityMercenaryAI extends Goal
     /**
      * The points the mercenaries are checking out.
      */
-    private final List<BlockPos> patrolPoints;
+    private final List<int[]> patrolPoints;
 
     /**
      * The current patrolling position.
      */
-    private BlockPos currentPatrolPos;
+    private int[] currentPatrolPos;
 
     /**
      * Whether we're currently moving to a building
@@ -62,7 +62,7 @@ public class EntityMercenaryAI extends Goal
     /**
      * The position the entity was on last tick
      */
-    private BlockPos lastWorkerPos;
+    private int[] lastWorkerPos;
 
     /**
      * The path for attacking.
@@ -161,13 +161,13 @@ public class EntityMercenaryAI extends Goal
 
                 if (building != null)
                 {
-                    final List<IItemHandler> handlers = new ArrayList<>(InventoryUtils.getItemHandlersFromProvider(building.getTileEntity()));
-                    final IItemHandler handler = handlers.get(rand.nextInt(handlers.size()));
+                    final List<net.minecraftforge.items.IItemHandler> handlers = new ArrayList<>(InventoryUtils.getItemHandlersFromProvider(building.getTileEntity()));
+                    final net.minecraftforge.items.IItemHandler handler = handlers.get(rand.nextInt(handlers.size()));
                     final ItemStack stack = handler.extractItem(rand.nextInt(handler.getSlots()), 5, false);
 
                     if (!ItemStackUtils.isEmpty(stack))
                     {
-                        entity.swing(InteractionHand.OFF_HAND);
+                        entity.swing(1 /* InteractionHand.OFF_HAND */);
                         MessageUtils.format(MESSAGE_INFO_COLONY_MERCENARY_STEAL_BUILDING, stack.getHoverName().getString()).sendTo(entity.getColony()).forAllPlayers();
                     }
                 }
@@ -236,9 +236,9 @@ public class EntityMercenaryAI extends Goal
         // Check if we can attack
         if (distance < MELEE_ATTACK_DIST && attacktimer == 0)
         {
-            entity.swing(InteractionHand.MAIN_HAND);
+            entity.swing(0 /* InteractionHand.MAIN_HAND */);
             entity.playSound(MercenarySounds.mercenaryAttack, 0.55f, 1.0f);
-            entity.getTarget().hurt(entity.level.damageSources().mobAttack(entity), 15);
+            entity.getTarget().hurt(entity.World.damageSources().mobAttack(entity), 15);
             entity.getTarget().setSecondsOnFire(3);
             attacktimer = ATTACK_DELAY;
         }
@@ -271,3 +271,7 @@ public class EntityMercenaryAI extends Goal
         return entity != null && entity.isAlive() && !entity.isInvisible() && entity.getColony() != null && entity.getState() == State.ALIVE;
     }
 }
+
+
+
+

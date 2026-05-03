@@ -3,11 +3,11 @@ package com.minecolonies.core.colony.jobs;
 import com.minecolonies.api.client.render.modeltype.ModModelTypes;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.core.entity.ai.workers.production.EntityAIWorkNether;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] net.minecraft.util.DamageSource removed
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -35,17 +35,17 @@ public class JobNetherWorker extends AbstractJobCrafter<EntityAIWorkNether, JobN
     private Queue<ItemStack> processedResults = new LinkedList<>();
 
     /**
-     * Tag for storage of the citizenInNether value
+     * NBTBase for storage of the citizenInNether value
      */
     private final String TAG_IN_NETHER = "inNether";
 
     /**
-     * Tag for storage of the craftedResults queue
+     * NBTBase for storage of the craftedResults queue
      */
     private final String TAG_CRAFTED = "craftedResults";
 
     /**
-     * Tag for storage of the processedResults queue
+     * NBTBase for storage of the processedResults queue
      */
     private final String TAG_PROCESSED = "processedResults";
 
@@ -55,20 +55,20 @@ public class JobNetherWorker extends AbstractJobCrafter<EntityAIWorkNether, JobN
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compound = super.serializeNBT();
+        final NBTTagCompound compound = super.serializeNBT();
 
-        @NotNull final ListTag craftedList = new ListTag();
+        @NotNull final NBTTagList craftedList = new NBTTagList();
         craftedResults.forEach(item -> {
-            @NotNull final CompoundTag itemCompound = item.serializeNBT();
+            @NotNull final NBTTagCompound itemCompound = item.serializeNBT();
             craftedList.add(itemCompound);
         });
         compound.put(TAG_CRAFTED, craftedList);
 
-        @NotNull final ListTag processedList = new ListTag();
+        @NotNull final NBTTagList processedList = new NBTTagList();
         processedResults.forEach(item -> {
-            @NotNull final CompoundTag itemCompound = item.serializeNBT();
+            @NotNull final NBTTagCompound itemCompound = item.serializeNBT();
             processedList.add(itemCompound);
         });
         compound.put(TAG_PROCESSED, processedList);
@@ -78,21 +78,21 @@ public class JobNetherWorker extends AbstractJobCrafter<EntityAIWorkNether, JobN
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
 
-        final ListTag craftedList = compound.getList(TAG_CRAFTED, CompoundTag.TAG_COMPOUND);
+        final NBTTagList craftedList = compound.getList(TAG_CRAFTED, NBTTagCompound.TAG_COMPOUND);
         for (int i = 0; i < craftedList.size(); ++i)
         {
-            final CompoundTag itemCompound = craftedList.getCompound(i);
+            final NBTTagCompound itemCompound = craftedList.getCompound(i);
             craftedResults.add(ItemStack.of(itemCompound));
         }
 
-        final ListTag processedList = compound.getList(TAG_PROCESSED, CompoundTag.TAG_COMPOUND);
+        final NBTTagList processedList = compound.getList(TAG_PROCESSED, NBTTagCompound.TAG_COMPOUND);
         for (int i = 0; i < processedList.size(); ++i)
         {
-            final CompoundTag itemCompound = processedList.getCompound(i);
+            final NBTTagCompound itemCompound = processedList.getCompound(i);
             processedResults.add(ItemStack.of(itemCompound));
         }
 
@@ -196,13 +196,18 @@ public class JobNetherWorker extends AbstractJobCrafter<EntityAIWorkNether, JobN
     }
 
     @Override
-    public boolean ignoresDamage(@NotNull final DamageSource damageSource)
+    public boolean ignoresDamage(@NotNull final net.minecraft.util.DamageSource source)
     {
-        if (damageSource.typeHolder().is(FIRE_DAMAGE_PREDICATE))
+        if (net.minecraft.util.DamageSource.typeHolder().is(FIRE_DAMAGE_PREDICATE))
         {
             return getColony().getResearchManager().getResearchEffects().getEffectStrength(FIRE_RES) > 0;
         }
 
-        return super.ignoresDamage(damageSource);
+        return super.ignoresDamage(net.minecraft.util.DamageSource);
     }
 }
+
+
+
+
+

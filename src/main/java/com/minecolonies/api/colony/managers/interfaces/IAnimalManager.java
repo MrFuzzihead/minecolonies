@@ -4,11 +4,12 @@ import java.util.List;
 import java.util.Set;
 
 import org.jetbrains.annotations.NotNull;
+import net.minecraft.entity.passive.EntityAnimal;
 import com.minecolonies.api.colony.IAnimalData;
 import com.minecolonies.api.colony.IColony;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.entity.player.EntityPlayerMP;
+// [1.7.10] world.entity removed
 
 /**
  * The interface for managed animals, such as Cavalry horses.
@@ -26,13 +27,13 @@ public interface IAnimalManager
      *
      * @param entity civilian to register
      */
-    void registerAnimal(IManagedAnimal <? extends Animal> entity);
+    void registerAnimal(IManagedAnimal <? extends EntityAnimal> entity);
 
     /**
-     * Get the animal data by ID.
+     * Get the EntityAnimal data by ID.
      *
-     * @param id The animal ID.
-     * @return The animal data, or null if not found.
+     * @param id The EntityAnimal ID.
+     * @return The EntityAnimal data, or null if not found.
      */
     public IAnimalData getAnimal(final int id);
 
@@ -46,21 +47,21 @@ public interface IAnimalManager
      *
      * @return The colony.
      */
-    public IAnimalData createAndRegisterAnimalData(IManagedAnimal<? extends Animal> entity);
+    public IAnimalData createAndRegisterAnimalData(IManagedAnimal<? extends EntityAnimal> entity);
 
     /**
-     * Read the animal information from nbt.
+     * Read the EntityAnimal information from nbt.
      *
      * @param compound the compound to read it from.
      */
-    void read(@NotNull CompoundTag compound);
+    void read(@NotNull NBTTagCompound compound);
 
     /**
-     * Write the animal information to nbt.
+     * Write the EntityAnimal information to nbt.
      *
      * @param compoundNBT the compound to write it to.
      */
-    void write(@NotNull CompoundTag compoundNBT);
+    void write(@NotNull NBTTagCompound compoundNBT);
 
     /**
      * Actions to execute on a colony tick.
@@ -92,5 +93,9 @@ public interface IAnimalManager
      * @param closeSubscribers players that were subscribed but are now out of range
      * @param newSubscribers   players that have just come into range and need data
      */
-    public void sendPackets(@NotNull final Set<ServerPlayer> closeSubscribers, @NotNull final Set<ServerPlayer> newSubscribers);
+    public void sendPackets(@NotNull final Set<EntityPlayerMP> closeSubscribers, @NotNull final Set<EntityPlayerMP> newSubscribers);
 }
+
+
+
+

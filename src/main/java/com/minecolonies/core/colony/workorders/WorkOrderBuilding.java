@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.workorders;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.advancements.AdvancementTriggers;
 import com.minecolonies.api.colony.ICitizenData;
@@ -9,10 +15,10 @@ import com.minecolonies.api.colony.workorders.WorkOrderType;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingBuilder;
 import com.minecolonies.core.entity.ai.workers.util.ConstructionTapeHelper;
 import com.minecolonies.core.util.AdvancementUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.IChatComponent;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -91,7 +97,7 @@ public class WorkOrderBuilding extends AbstractWorkOrder
       String path,
       String translationKey,
       WorkOrderType workOrderType,
-      BlockPos location,
+      int[] location,
       int rotation,
       boolean isMirrored,
       int currentLevel,
@@ -133,11 +139,11 @@ public class WorkOrderBuilding extends AbstractWorkOrder
     }
 
     @Override
-    public Component getDisplayName()
+    public String getDisplayName()
     {
         String customParentName = getCustomParentName();
         String customName = getCustomName();
-        Component buildingComponent = customName.isEmpty() ? Component.translatable(getTranslationKey()) : Component.literal(customName);
+        String buildingComponent = customName.isEmpty() ? String.translatable(getTranslationKey()) : String.literal(customName);
 
         if (parentTranslationKey.isEmpty())
         {
@@ -145,8 +151,8 @@ public class WorkOrderBuilding extends AbstractWorkOrder
         }
         else
         {
-            Component parentComponent = customParentName.isEmpty() ? Component.translatable(parentTranslationKey) : Component.literal(customParentName);
-            return Component.translatable("%s / %s", parentComponent, buildingComponent);
+            String parentComponent = customParentName.isEmpty() ? String.translatable(parentTranslationKey) : String.literal(customParentName);
+            return String.translatable("%s / %s", parentComponent, buildingComponent);
         }
     }
 
@@ -168,11 +174,11 @@ public class WorkOrderBuilding extends AbstractWorkOrder
      * Checks if a builder may accept this workOrder while ignoring the distance to the builder.
      *
      * @param builderLocation position of the builders own hut.
-     * @param builderLevel    level of the builders hut.
+     * @param builderLevel    World of the builders hut.
      * @return true if so.
      */
     @Override
-    public boolean canBuildIgnoringDistance(@NotNull IBuilding building, @NotNull final BlockPos builderLocation, final int builderLevel)
+    public boolean canBuildIgnoringDistance(@NotNull IBuilding building, @NotNull final int[] builderLocation, final int builderLevel)
     {
         //  A Build WorkOrder may be fulfilled by a Builder as long as any ONE of the following is true:
         //  - The Builder's Work AbstractBuilding is built
@@ -182,7 +188,7 @@ public class WorkOrderBuilding extends AbstractWorkOrder
     }
 
     @Override
-    public boolean tooFarFromAnyBuilder(final IColony colony, final int level)
+    public boolean tooFarFromAnyBuilder(final IColony colony, final int World)
     {
         return colony.getServerBuildingManager()
           .getBuildings()
@@ -205,13 +211,13 @@ public class WorkOrderBuilding extends AbstractWorkOrder
     }
 
     /**
-     * Read the WorkOrder data from the CompoundTag.
+     * Read the WorkOrder data from the NBTTagCompound.
      *
-     * @param compound NBT Tag compound.
+     * @param compound NBT NBTBase compound.
      * @param manager  the work manager.
      */
     @Override
-    public void read(@NotNull final CompoundTag compound, final IWorkManager manager)
+    public void read(@NotNull final NBTTagCompound compound, final IWorkManager manager)
     {
         super.read(compound, manager);
         customName = compound.getString(TAG_CUSTOM_NAME);
@@ -220,12 +226,12 @@ public class WorkOrderBuilding extends AbstractWorkOrder
     }
 
     /**
-     * Save the Work Order to an CompoundTag.
+     * Save the Work Order to an NBTTagCompound.
      *
-     * @param compound NBT tag compound.
+     * @param compound NBT NBTBase compound.
      */
     @Override
-    public void write(@NotNull final CompoundTag compound)
+    public void write(@NotNull final NBTTagCompound compound)
     {
         super.write(compound);
         compound.putString(TAG_CUSTOM_NAME, customName);
@@ -234,7 +240,7 @@ public class WorkOrderBuilding extends AbstractWorkOrder
     }
 
     @Override
-    public void serializeViewNetworkData(@NotNull FriendlyByteBuf buf)
+    public void serializeViewNetworkData(@NotNull PacketBuffer buf)
     {
         super.serializeViewNetworkData(buf);
         buf.writeUtf(customName);
@@ -282,3 +288,6 @@ public class WorkOrderBuilding extends AbstractWorkOrder
         }
     }
 }
+
+
+

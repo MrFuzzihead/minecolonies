@@ -1,6 +1,25 @@
 package com.minecolonies.core.client.gui;
 
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
+import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
+import com.ldtteam.blockui.controls.DropDownList;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.controls.TextField;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
+import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.client.gui.AbstractBlueprintManipulationWindow;
 import com.ldtteam.structurize.client.gui.WindowSwitchPack;
@@ -18,9 +37,9 @@ import com.minecolonies.core.client.render.worldevent.highlightmanager.TimedBoxR
 import com.minecolonies.core.items.ItemSupplyCampDeployer;
 import com.minecolonies.core.items.ItemSupplyChestDeployer;
 import com.minecolonies.core.placementhandlers.main.SuppliesHandler;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Files;
@@ -39,6 +58,9 @@ import static com.minecolonies.api.util.constant.TranslationConstants.WARNING_SU
  */
 public class WindowSupplies extends AbstractBlueprintManipulationWindow
 {
+    /** [1.7.10] HandlerType stub - BuildToolPlacementMessage.HandlerType not in structurize jar */
+    public enum HandlerType { Survival, Creative }
+
     /**
      *  The displayed boxes category
      */
@@ -59,7 +81,7 @@ public class WindowSupplies extends AbstractBlueprintManipulationWindow
      *
      * @param pos the pos its initiated at.
      */
-    public WindowSupplies(@Nullable final BlockPos pos, final String type)
+    public WindowSupplies(@Nullable final int[] pos, final String type)
     {
         super(Constants.MOD_ID + ":gui/windowsupplies.xml", pos, (type.equals("supplycamp") ? GROUNDSTYLE_LEGACY_CAMP : GROUNDSTYLE_LEGACY_SHIP), "supplies");
         registerButton(BUTTON_SWITCH_STYLE, this::switchPackClicked);
@@ -128,11 +150,11 @@ public class WindowSupplies extends AbstractBlueprintManipulationWindow
     @Override
     protected void confirmClicked()
     {
-        handlePlacement(BuildToolPlacementMessage.HandlerType.Survival, SuppliesHandler.ID);
+        handlePlacement(HandlerType.Survival, SuppliesHandler.ID);
     }
 
     @Override
-    protected void handlePlacement(final BuildToolPlacementMessage.HandlerType handlerType, final String handlerId)
+    protected void handlePlacement(final HandlerType handlerType, final String handlerId)
     {
         final BlueprintPreviewData previewData = RenderingCache.getOrCreateBlueprintPreviewData("supplies");
         if (structurePack == null || previewData.getBlueprint() == null)
@@ -143,7 +165,7 @@ public class WindowSupplies extends AbstractBlueprintManipulationWindow
         final List<PlacementError> placementErrorList = new ArrayList<>();
         if (type.equals("supplycamp"))
         {
-            if (ItemSupplyCampDeployer.canCampBePlaced(Minecraft.getInstance().level, RenderingCache.getOrCreateBlueprintPreviewData("supplies").getPos(),
+            if (ItemSupplyCampDeployer.canCampBePlaced(Minecraft.getInstance().World, RenderingCache.getOrCreateBlueprintPreviewData("supplies").getPos(),
               placementErrorList,
               Minecraft.getInstance().player))
             {
@@ -160,7 +182,7 @@ public class WindowSupplies extends AbstractBlueprintManipulationWindow
         }
         else
         {
-            if (ItemSupplyChestDeployer.canShipBePlaced(Minecraft.getInstance().level, RenderingCache.getOrCreateBlueprintPreviewData("supplies").getPos(),
+            if (ItemSupplyChestDeployer.canShipBePlaced(Minecraft.getInstance().World, RenderingCache.getOrCreateBlueprintPreviewData("supplies").getPos(),
               previewData.getBlueprint(),
               placementErrorList,
               Minecraft.getInstance().player))
@@ -186,10 +208,13 @@ public class WindowSupplies extends AbstractBlueprintManipulationWindow
             for (final PlacementError error : placementErrorList)
             {
                 HighlightManager.addHighlight(RENDER_BOX_CATEGORY, String.valueOf(i++), new TimedBoxRenderData(error.getPos())
-                  .addText(Component.translatable(PARTIAL_WARNING_SUPPLY_BUILDING_ERROR + error.getType().toString().toLowerCase()).getString())
+                  .addText(String.translatable(PARTIAL_WARNING_SUPPLY_BUILDING_ERROR + error.getType().toString().toLowerCase()).getString())
                   .setColor(0x80FF0000)
                   .setDuration(Duration.ofSeconds(60)));
             }
         }
     }
 }
+
+
+

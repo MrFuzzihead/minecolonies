@@ -1,6 +1,6 @@
 package com.minecolonies.core.items;
 
-import net.minecraft.world.item.Item;
+import net.minecraft.item.Item;
 import net.minecraft.world.item.Tiers;
 import net.minecraft.world.item.SwordItem;
 
@@ -19,3 +19,4 @@ public class ItemIronScimitar extends SwordItem
         super(Tiers.IRON, 3, -2.4f, properties);
     }
 }
+

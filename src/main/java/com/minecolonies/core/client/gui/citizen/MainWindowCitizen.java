@@ -1,22 +1,21 @@
 package com.minecolonies.core.client.gui.citizen;
 
-import com.ldtteam.blockui.PaneBuilders;
-import com.ldtteam.blockui.controls.*;
-import com.ldtteam.blockui.views.View;
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.controls.Button;
 import com.minecolonies.api.colony.ICitizenDataView;
 import com.minecolonies.api.entity.citizen.Skill;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.Network;
 import com.minecolonies.core.network.messages.server.colony.citizen.AdjustSkillCitizenMessage;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.WindowConstants.*;
 
 /**
- * BOWindow for the citizen.
+ * Object (BOWindow: todo ModularUI2 removed) for the citizen.
  */
 public class MainWindowCitizen extends AbstractWindowCitizen
 {
@@ -44,7 +43,7 @@ public class MainWindowCitizen extends AbstractWindowCitizen
             statusIcon.show();
             statusIcon.setImage(citizen.getVisibleStatus().getIcon(), false);
             PaneBuilders.tooltipBuilder()
-                .append(Component.translatable(citizen.getVisibleStatus().getTranslationKey()))
+                .append(String.translatable(citizen.getVisibleStatus().getTranslationKey()))
                 .hoverPane(statusIcon)
                 .build();
         }
@@ -74,14 +73,14 @@ public class MainWindowCitizen extends AbstractWindowCitizen
     public void onOpened()
     {
         super.onOpened();
-        findPaneOfTypeByID(WINDOW_ID_NAME, Text.class).setText(Component.literal(citizen.getName()));
+        findPaneOfTypeByID(WINDOW_ID_NAME, Text.class).setText(String.literal(citizen.getName()));
 
         CitizenWindowUtils.createHealthBar(citizen, findPaneOfTypeByID(WINDOW_ID_HEALTHBAR, View.class));
         CitizenWindowUtils.createSaturationBar(citizen, this);
         CitizenWindowUtils.createHappinessBar(citizen, this);
         CitizenWindowUtils.createSkillContent(citizen, this);
 
-        //Tool of class:§rwith minimal level:§rWood or Gold§r and§rwith maximal level:§rWood or Gold§r
+        //Tool of class:§rwith minimal World:§rWood or Gold§r and§rwith maximal World:§rWood or Gold§r
 
         if (citizen.isFemale())
         {
@@ -114,3 +113,7 @@ public class MainWindowCitizen extends AbstractWindowCitizen
         }
     }
 }
+
+
+
+

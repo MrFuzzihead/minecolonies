@@ -1,43 +1,17 @@
 package com.minecolonies.api.advancements.create_build_request;
-
-import com.google.gson.JsonObject;
 import com.minecolonies.api.advancements.AbstractCriterionTrigger;
+import com.minecolonies.api.advancements.CriterionListeners;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.advancements.critereon.DeserializationContext;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-
-/**
- * A Trigger for any building request that gets made
- */
-public class CreateBuildRequestTrigger extends AbstractCriterionTrigger<CreateBuildRequestListeners, CreateBuildRequestCriterionInstance>
+import net.minecraft.util.ResourceLocation;
+// [1.7.10 BACKPORT] Stubbed out — advancements do not exist in Minecraft 1.7.10.
+// All trigger/listener methods are no-ops.
+/** Stub trigger — no-op in 1.7.10. */
+public class CreateBuildRequestTrigger extends AbstractCriterionTrigger<CriterionListeners<CreateBuildRequestCriterionInstance>, CreateBuildRequestCriterionInstance>
 {
+    private static final ResourceLocation ID = new ResourceLocation(Constants.MOD_ID, Constants.CRITERION_CREATE_BUILD_REQUEST);
     public CreateBuildRequestTrigger()
     {
-        super(new ResourceLocation(Constants.MOD_ID, Constants.CRITERION_CREATE_BUILD_REQUEST), CreateBuildRequestListeners::new);
+        super(ID, CriterionListeners::new);
     }
-
-    /**
-     * Triggers the listener checks if there are any listening in
-     * @param player the player the check regards
-     * @param structureName the structure that is to be created
-     * @param level the level that the request will complete
-     */
-    public void trigger(final ServerPlayer player, final String structureName, final int level)
-    {
-        if (player != null)
-        {
-            final CreateBuildRequestListeners listeners = this.getListeners(player.getAdvancements());
-            if (listeners != null)
-            {
-                listeners.trigger(structureName, level);
-            }
-        }
-    }
-
-    @Override
-    public CreateBuildRequestCriterionInstance createInstance(final JsonObject jsonObject, final DeserializationContext conditionArrayParser)
-    {
-        return CreateBuildRequestCriterionInstance.deserializeFromJson(jsonObject, conditionArrayParser);
-    }
+    // [1.7.10 BACKPORT] trigger(...) methods are no-ops; no advancements system.
 }

@@ -17,13 +17,13 @@ import com.minecolonies.core.colony.buildings.modules.settings.SettingKey;
 import com.minecolonies.core.colony.jobs.JobMiner;
 import com.minecolonies.core.colony.workorders.WorkOrderMiner;
 import com.minecolonies.core.entity.ai.workers.util.MineNode;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+import com.minecolonies.api.util.Tuple;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraft.init.Blocks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
@@ -70,12 +70,12 @@ public class BuildingMiner extends AbstractBuildingStructureBuilder
     /**
      * The location of the topmost cobblestone the ladder starts at.
      */
-    private BlockPos cobbleLocation;
+    private int[] cobbleLocation;
 
     /**
      * The location of the topmost ladder in the shaft.
      */
-    private BlockPos ladderLocation;
+    private int[] ladderLocation;
 
     /**
      * Required constructor.
@@ -83,13 +83,13 @@ public class BuildingMiner extends AbstractBuildingStructureBuilder
      * @param c colony containing the building.
      * @param l location of the building.
      */
-    public BuildingMiner(final IColony c, final BlockPos l)
+    public BuildingMiner(final IColony c, final int[] l)
     {
         super(c, l);
 
-        final ItemStack stackLadder = new ItemStack(Blocks.LADDER);
-        final ItemStack stackTorch = new ItemStack(Blocks.TORCH);
-        final ItemStack stackCobble = new ItemStack(Blocks.COBBLESTONE);
+        final ItemStack stackLadder = new ItemStack(Blocks.ladder);
+        final ItemStack stackTorch = new ItemStack(Blocks.torch);
+        final ItemStack stackCobble = new ItemStack(Blocks.cobblestone);
 
         keepX.put(stack -> ItemStack.isSameItem(stackLadder, stack), new Tuple<>(STACKSIZE, true));
         keepX.put(stack -> ItemStack.isSameItem(stackTorch, stack), new Tuple<>(STACKSIZE, true));
@@ -116,7 +116,7 @@ public class BuildingMiner extends AbstractBuildingStructureBuilder
     }
 
     /**
-     * Getter of the max building level.
+     * Getter of the max building World.
      *
      * @return the integer.
      */
@@ -141,7 +141,7 @@ public class BuildingMiner extends AbstractBuildingStructureBuilder
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
 
@@ -150,9 +150,9 @@ public class BuildingMiner extends AbstractBuildingStructureBuilder
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compound = super.serializeNBT();
+        final NBTTagCompound compound = super.serializeNBT();
 
         BlockPosUtil.writeOptional(compound, TAG_CLOCATION, cobbleLocation);
         BlockPosUtil.writeOptional(compound, TAG_LLOCATION, ladderLocation);
@@ -161,16 +161,16 @@ public class BuildingMiner extends AbstractBuildingStructureBuilder
     }
 
     /**
-     * Returns the depth limit. Limitted by building level.
+     * Returns the depth limit. Limitted by building World.
      * <pre>
-     * - Level 1: 50
-     * - Level 2: 20
-     * - Level 3: 0
+     * - World 1: 50
+     * - World 2: 20
+     * - World 3: 0
      * </pre>
      *
      * @return Depth limit.
      */
-    public int getDepthLimit(final Level level)
+    public int getDepthLimit(final World World)
     {
         int buildingY = this.getLadderLocation().getY() - 5;
 
@@ -190,19 +190,19 @@ public class BuildingMiner extends AbstractBuildingStructureBuilder
             }
         }
 
-        return normalizeMaxDepth(yLevel, level);
+        return normalizeMaxDepth(yLevel, World);
     }
 
     /**
      * Normalize the maximum depth.
      * Make sure that the returned depth respects the world limits and follows the building setting..
-     * @param max the max depth of the given building level.
-     * @param level the world.
+     * @param max the max depth of the given building World.
+     * @param World the world.
      * @return the max.
      */
-    public int normalizeMaxDepth(final int max, final Level level)
+    public int normalizeMaxDepth(final int max, final World World)
     {
-        final int worldMaxDepth = level.getMinBuildHeight() + 5;
+        final int worldMaxDepth = World.getMinBuildHeight() + 5;
         final IntSetting maxDepth = getSetting(MAX_DEPTH);
         if (maxDepth.getValue() == maxDepth.getDefault())
         {
@@ -216,7 +216,7 @@ public class BuildingMiner extends AbstractBuildingStructureBuilder
      *
      * @return the ladder location.
      */
-    public BlockPos getLadderLocation()
+    public int[] getLadderLocation()
     {
         if (ladderLocation == null)
         {
@@ -231,7 +231,7 @@ public class BuildingMiner extends AbstractBuildingStructureBuilder
      *
      * @return the location.
      */
-    public BlockPos getCobbleLocation()
+    public int[] getCobbleLocation()
     {
         if (cobbleLocation == null)
         {
@@ -243,9 +243,9 @@ public class BuildingMiner extends AbstractBuildingStructureBuilder
 
     private void loadLadderPos()
     {
-        final Map<String, Set<BlockPos>> map = getTileEntity().getWorldTagNamePosMap();
-        final Set<BlockPos> cobblePos = map.getOrDefault(TAG_COBBLE, new HashSet<>());
-        final Set<BlockPos> ladderPos = map.getOrDefault(TAG_LADDER, new HashSet<>());
+        final Map<String, Set<int[]>> map = getTileEntity().getWorldTagNamePosMap();
+        final Set<int[]> cobblePos = map.getOrDefault(TAG_COBBLE, new HashSet<>());
+        final Set<int[]> ladderPos = map.getOrDefault(TAG_LADDER, new HashSet<>());
         if (cobblePos.isEmpty() || ladderPos.isEmpty())
         {
             return;
@@ -261,7 +261,7 @@ public class BuildingMiner extends AbstractBuildingStructureBuilder
      * @param rotateTimes  The amount of time to rotate the structure.
      * @param structurePos The position of the structure.
      */
-    public static void initStructure(final MineNode mineNode, final int rotateTimes, final BlockPos structurePos, final BuildingMiner buildingMiner, final Level world, final JobMiner job)
+    public static void initStructure(final MineNode mineNode, final int rotateTimes, final int[] structurePos, final BuildingMiner buildingMiner, final World world, final JobMiner job)
     {
         final String structurePack = buildingMiner.getStructurePack();
         int rotateCount;
@@ -302,7 +302,7 @@ public class BuildingMiner extends AbstractBuildingStructureBuilder
      */
     private static int getRotationFromVector(final BuildingMiner buildingMiner)
     {
-        final BlockPos vector = buildingMiner.getLadderLocation().subtract(buildingMiner.getCobbleLocation());
+        final int[] vector = buildingMiner.getLadderLocation().subtract(buildingMiner.getCobbleLocation());
 
         if (vector.getX() == 1)
         {
@@ -323,3 +323,6 @@ public class BuildingMiner extends AbstractBuildingStructureBuilder
         return 0;
     }
 }
+
+
+

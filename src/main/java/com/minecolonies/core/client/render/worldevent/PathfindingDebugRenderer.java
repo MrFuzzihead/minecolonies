@@ -5,10 +5,10 @@ import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.core.entity.pathfinding.MNode;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Entity;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 
@@ -101,7 +101,7 @@ public class PathfindingDebugRenderer
 
         ctx.poseStack.scale(0.25F, 0.25F, 0.25F);
 
-        WorldRenderMacros.renderBox(ctx.bufferSource, ctx.poseStack, BlockPos.ZERO, BlockPos.ZERO, argbColor);
+        WorldRenderMacros.renderBox(ctx.bufferSource, ctx.poseStack, new int[]{0,0,0}, new int[]{0,0,0}, argbColor);
 
         if (n.parent != null)
         {
@@ -146,3 +146,7 @@ public class PathfindingDebugRenderer
         ctx.poseStack.popPose();
     }
 }
+
+
+
+

@@ -1,7 +1,7 @@
 package com.minecolonies.core.items;
 
 import net.minecraft.Util;
-import net.minecraft.sounds.SoundEvents;
+// [1.7.10] sounds removed
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.Items;
@@ -39,3 +39,4 @@ public class ItemPlateArmor extends ArmorItem
         super(materialIn, equipmentSlotIn, properties);
     }
 }
+

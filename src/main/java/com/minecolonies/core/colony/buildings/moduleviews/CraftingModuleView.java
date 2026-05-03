@@ -1,6 +1,12 @@
 package com.minecolonies.core.colony.buildings.moduleviews;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.MinecoloniesAPIProxy;
 import com.minecolonies.api.colony.buildings.modules.AbstractBuildingModuleView;
 import com.minecolonies.api.colony.jobs.registry.JobEntry;
@@ -12,14 +18,14 @@ import com.minecolonies.core.Network;
 import com.minecolonies.core.client.gui.modules.building.WindowListRecipes;
 import com.minecolonies.core.colony.buildings.views.AbstractBuildingView;
 import com.minecolonies.core.network.messages.server.colony.building.OpenCraftingGUIMessage;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.MenuProvider;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] MenuProvider removed
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -74,7 +80,7 @@ public class CraftingModuleView extends AbstractBuildingModuleView
     private boolean isVisible = false;
 
     @Override
-    public void deserialize(@NotNull FriendlyByteBuf buf)
+    public void deserialize(@NotNull PacketBuffer buf)
     {
         if (buf.readBoolean())
         {
@@ -184,7 +190,7 @@ public class CraftingModuleView extends AbstractBuildingModuleView
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public BOWindow getWindow()
+    public Object /* BOWindow: todo ModularUI2 */ getWindow()
     {
         return new WindowListRecipes(this);
     }
@@ -196,9 +202,9 @@ public class CraftingModuleView extends AbstractBuildingModuleView
     }
 
     @Override
-    public Component getDesc()
+    public String getDesc()
     {
-        return Component.translatable("com.minecolonies.coremod.gui.workerhuts.recipe." + id);
+        return String.translatable("com.minecolonies.coremod.gui.workerhuts.recipe." + id);
     }
 
     /**
@@ -261,8 +267,8 @@ public class CraftingModuleView extends AbstractBuildingModuleView
 
     public void openCraftingGUI()
     {
-        final BlockPos pos = buildingView.getPosition();
-        Minecraft.getInstance().player.openMenu((MenuProvider) Minecraft.getInstance().level.getBlockEntity(pos));
+        final int[] pos = buildingView.getPosition();
+        Minecraft.getInstance().player.openMenu((MenuProvider) Minecraft.getInstance().World.getBlockEntity(pos));
         Network.getNetwork().sendToServer(new OpenCraftingGUIMessage((AbstractBuildingView) buildingView, this.getProducer().getRuntimeID()));
     }
 
@@ -301,3 +307,7 @@ public class CraftingModuleView extends AbstractBuildingModuleView
         return disabledRecipes.contains(recipe);
     }
 }
+
+
+
+

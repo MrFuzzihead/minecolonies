@@ -17,13 +17,13 @@ import com.minecolonies.api.colony.managers.interfaces.IEventStructureManager;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.core.util.CreativeRaiderStructureHandler;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.world.World;
+import net.minecraft.world.Mirror;
+import net.minecraft.world.Rotation;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -55,7 +55,7 @@ public class EventStructureManager implements IEventStructureManager
     /**
      * The map which holds the backup schematics to load. pos,event id
      */
-    private final Map<BlockPos, Integer> backupSchematics = new HashMap<>();
+    private final Map<int[], Integer> backupSchematics = new HashMap<>();
 
     /**
      * Reference to the related event manager
@@ -74,7 +74,7 @@ public class EventStructureManager implements IEventStructureManager
     }
 
     /**
-     * Spawns the given structure at the blockpos and saves a backup for the previous blocks.
+     * Spawns the given structure at the int[] and saves a backup for the previous blocks.
      *
      * @param structure the structure to spawn.
      * @param eventID   the id of the event.
@@ -82,7 +82,7 @@ public class EventStructureManager implements IEventStructureManager
     @Override
     public boolean spawnTemporaryStructure(
       final Blueprint structure,
-      final BlockPos targetSpawnPoint,
+      final int[] targetSpawnPoint,
       final int eventID)
     {
         if (eventManager.getEventByID(eventID) == null)
@@ -90,12 +90,12 @@ public class EventStructureManager implements IEventStructureManager
             return false;
         }
 
-        final Level world = colony.getWorld();
+        final World world = colony.getWorld();
 
         final int y = BlueprintTagUtils.getNumberOfGroundLevels(structure, 4) - 1;
-        final BlockPos spawnPos = targetSpawnPoint.below(y).above(structure.getPrimaryBlockOffset().getY());
-        final BlockPos zeroPos = spawnPos.subtract(structure.getPrimaryBlockOffset());
-        final BlockPos anchor = new BlockPos(zeroPos.getX() + structure.getSizeX() / 2, zeroPos.getY(), zeroPos.getZ() + structure.getSizeZ() / 2);
+        final int[] spawnPos = targetSpawnPoint.below(y).above(structure.getPrimaryBlockOffset().getY());
+        final int[] zeroPos = spawnPos.subtract(structure.getPrimaryBlockOffset());
+        final int[] anchor = new int[]{zeroPos[0] + structure.getSizeX() / 2, zeroPos[1], zeroPos[2] + structure.getSizeZ() / 2};
 
         final Path outputPath = new File(".").toPath()
           .resolve(BLUEPRINT_FOLDER)
@@ -104,7 +104,7 @@ public class EventStructureManager implements IEventStructureManager
           .resolve(colony.getDimension().location().getNamespace() + colony.getDimension().location().getPath())
                                   .resolve(anchor.toString() + ".blueprint");
 
-        final CompoundTag bp = BlueprintUtil.writeBlueprintToNBT(BlueprintUtil.createBlueprint(world, zeroPos, true,
+        final NBTTagCompound bp = BlueprintUtil.writeBlueprintToNBT(BlueprintUtil.createBlueprint(world, zeroPos, true,
                 structure.getSizeX(), structure.getSizeY(), structure.getSizeZ(), anchor.toString(), Optional.of(anchor)));
 
         StructurePacks.storeBlueprint(STRUCTURE_BACKUP_FOLDER, bp, outputPath);
@@ -122,11 +122,11 @@ public class EventStructureManager implements IEventStructureManager
     @Override
     public void loadBackupForEvent(final int eventID)
     {
-        final Iterator<Map.Entry<BlockPos, Integer>> iterator = backupSchematics.entrySet().iterator();
+        final Iterator<Map.Entry<int[], Integer>> iterator = backupSchematics.entrySet().iterator();
 
         while (iterator.hasNext())
         {
-            final Map.Entry<BlockPos, Integer> entry = iterator.next();
+            final Map.Entry<int[], Integer> entry = iterator.next();
 
             if (entry.getValue() == eventID)
             {
@@ -166,18 +166,18 @@ public class EventStructureManager implements IEventStructureManager
     }
 
     @Override
-    public void readFromNBT(@NotNull final CompoundTag compound)
+    public void readFromNBT(@NotNull final NBTTagCompound compound)
     {
         if (compound.contains(TAG_EVENT_STRUCTURE_MANAGER))
         {
             backupSchematics.clear();
-            final CompoundTag structureManagerCompound = compound.getCompound(TAG_EVENT_STRUCTURE_MANAGER);
-            final ListTag schematicTags = structureManagerCompound.getList(TAG_SCHEMATIC_LIST, Tag.TAG_COMPOUND);
+            final NBTTagCompound structureManagerCompound = compound.getCompound(TAG_EVENT_STRUCTURE_MANAGER);
+            final NBTTagList schematicTags = structureManagerCompound.getList(TAG_SCHEMATIC_LIST, NBTBase.TAG_COMPOUND);
 
-            for (final Tag base : schematicTags)
+            for (final NBTBase base : schematicTags)
             {
-                final CompoundTag tagCompound = (CompoundTag) base;
-                final BlockPos pos = BlockPosUtil.read(tagCompound, TAG_POS);
+                final NBTTagCompound tagCompound = (NBTTagCompound) base;
+                final int[] pos = BlockPosUtil.read(tagCompound, TAG_POS);
                 final int eventID = tagCompound.getInt(TAG_EVENT_ID);
                 if (eventManager.getEventByID(eventID) != null)
                 {
@@ -193,14 +193,14 @@ public class EventStructureManager implements IEventStructureManager
     }
 
     @Override
-    public void writeToNBT(@NotNull final CompoundTag compound)
+    public void writeToNBT(@NotNull final NBTTagCompound compound)
     {
-        final CompoundTag structureManagerCompound = new CompoundTag();
-        @NotNull final ListTag schematicTagList = new ListTag();
+        final NBTTagCompound structureManagerCompound = new NBTTagCompound();
+        @NotNull final NBTTagList schematicTagList = new NBTTagList();
 
-        for (final Map.Entry<BlockPos, Integer> entry : backupSchematics.entrySet())
+        for (final Map.Entry<int[], Integer> entry : backupSchematics.entrySet())
         {
-            final CompoundTag entryCompound = new CompoundTag();
+            final NBTTagCompound entryCompound = new NBTTagCompound();
             entryCompound.putInt(TAG_EVENT_ID, entry.getValue());
             BlockPosUtil.write(entryCompound, TAG_POS, entry.getKey());
             schematicTagList.add(entryCompound);
@@ -210,3 +210,8 @@ public class EventStructureManager implements IEventStructureManager
         compound.put(TAG_EVENT_STRUCTURE_MANAGER, structureManagerCompound);
     }
 }
+
+
+
+
+

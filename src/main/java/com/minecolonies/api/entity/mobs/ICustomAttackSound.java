@@ -1,15 +1,11 @@
 package com.minecolonies.api.entity.mobs;
 
-import net.minecraft.sounds.SoundEvent;
-
-/**
- * Used in by RaiderRangedAI to denote that the project has a custom firing sound
- */
+// [1.7.10] SoundEvent does not exist in 1.7.10; replaced with String sound name.
 public interface ICustomAttackSound
 {
     /**
-     * The custom sound event to be used instead of SoundEvents.SKELETON_SHOOT
-     * @return The sound event to be played when used to attack
+     * The custom sound name to be used instead of skeleton shoot sound.
+     * @return The sound name (e.g. "mob.skeleton.hurt") to play when attacking.
      */
-    SoundEvent getAttackSound();
+    String getAttackSound();
 }

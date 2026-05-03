@@ -32,35 +32,35 @@ import com.minecolonies.core.colony.crafting.CustomRecipe;
 import com.minecolonies.core.colony.crafting.CustomRecipeManager;
 import com.minecolonies.core.util.DomumOrnamentumUtils;
 import com.minecolonies.core.util.SchemAnalyzerUtil;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.EnumChatFormatting;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] int /* InteractionHand */ removed
+// [1.7.10] InteractionResult -> boolean
 import net.minecraft.world.item.*;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.block.Block;
+// [1.7.10] world.phys removed
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.CustomizeGuiOverlayEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.client.event.sound.PlaySoundEvent;
 import net.minecraftforge.common.util.Lazy;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.ItemTooltipEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.items.wrapper.InvWrapper;
+import cpw.mods.fml.common.gameevent.TickEvent;
+// [1.7.10] forge event removed
+// [1.7.10] forge event removed
+// [1.7.10] eventbus removed
+// [1.7.10] eventbus removed
+// [1.7.10] ModList removed
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -93,9 +93,9 @@ public class ClientEventHandler
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onwWorldTick(@NotNull final TickEvent.LevelTickEvent event)
     {
-        if (event.level.isClientSide && event.phase == TickEvent.Phase.END && ColonyConstants.rand.nextInt(20) == 0)
+        if (event.World.isClientSide && event.phase == TickEvent.Phase.END && ColonyConstants.rand.nextInt(20) == 0)
         {
-            WorldEventContext.INSTANCE.checkNearbyColony(event.level);
+            WorldEventContext.INSTANCE.checkNearbyColony(event.World);
         }
     }
 
@@ -129,7 +129,7 @@ public class ClientEventHandler
     /**
      * Additional tooltips added to specific items
      */
-    public static Map<Item, Component> extraItemTooltips = new HashMap<>();
+    public static Map<Item, String> extraItemTooltips = new HashMap<>();
 
     /**
      * Fires when an item tooltip is requested, generally from inventory, JEI, or when minecraft is first populating the recipe book.
@@ -157,17 +157,17 @@ public class ClientEventHandler
             IMinecoloniesAPI.getInstance().getColonyManager().getCompatibilityManager().getDyeColor(stack).ifPresent(c ->
             {
                 event.getToolTip().removeIf(line -> line.getContents() instanceof TranslatableContents t && t.getKey().equals("item.dyed"));
-                event.getToolTip().add(1, Component.translatable("%s: %s",
-                    Component.translatable("item.dyed"),
-                    Component.translatable("color.minecraft." + c.getName()).withStyle(Style.EMPTY.withColor(c.getTextColor()).withItalic(false)))
+                event.getToolTip().add(1, String.translatable("%s: %s",
+                    String.translatable("item.dyed"),
+                    String.translatable("color.minecraft." + c.getName()).withStyle(Style.EMPTY.withColor(c.getTextColor()).withItalic(false)))
                     .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY).withItalic(true)));
             });
         }
 
-        IColony colony = IMinecoloniesAPI.getInstance().getColonyManager().getIColony(event.getEntity().level, event.getEntity().blockPosition());
+        IColony colony = IMinecoloniesAPI.getInstance().getColonyManager().getIColony(event.getEntity().World, event.getEntity().blockPosition());
         if (colony == null)
         {
-            colony = IMinecoloniesAPI.getInstance().getColonyManager().getIColonyByOwner(event.getEntity().level, event.getEntity());
+            colony = IMinecoloniesAPI.getInstance().getColonyManager().getIColonyByOwner(event.getEntity().World, event.getEntity());
         }
 
         if (colony == null)
@@ -196,7 +196,7 @@ public class ClientEventHandler
                     }
                 }
 
-                event.getToolTip().add(Component.translatable("com.minecolonies.coremod.tooltip.schematic.tier", tier));
+                event.getToolTip().add(String.translatable("com.minecolonies.coremod.tooltip.schematic.tier", tier));
             }
         }
 
@@ -204,7 +204,7 @@ public class ClientEventHandler
         {
             if (!FoodUtils.EDIBLE.test(stack))
             {
-                event.getToolTip().add(Component.translatable("com.minecolonies.coremod.item.tooltip.wrongfood").withStyle(ChatFormatting.RED));
+                event.getToolTip().add(String.translatable("com.minecolonies.coremod.item.tooltip.wrongfood").withStyle(ChatFormatting.RED));
                 return;
             }
 
@@ -230,15 +230,15 @@ public class ClientEventHandler
                 colonyView.getClientBuildingManager().getBuilding(citizenData.getHomeBuilding()) == null ? 0 : colonyView.getClientBuildingManager().getBuilding(citizenData.getHomeBuilding()).getBuildingLevel();
             if (FoodUtils.canEatLevel(event.getItemStack(), homeBuildingLevel))
             {
-                event.getToolTip().add(Component.translatable(TranslationConstants.TIER_TOOLTIP + foodTier).withStyle(ChatFormatting.GRAY));
+                event.getToolTip().add(String.translatable(TranslationConstants.TIER_TOOLTIP + foodTier).withStyle(ChatFormatting.GRAY));
                 if (cookBuilding != null && !cookBuilding.getModuleView(RESTAURANT_MENU).getMenu().contains(new ItemStorage(event.getItemStack())))
                 {
-                    event.getToolTip().add(Component.translatable("com.minecolonies.coremod.item.tooltip.nomenu").withStyle(ChatFormatting.RED));
+                    event.getToolTip().add(String.translatable("com.minecolonies.coremod.item.tooltip.nomenu").withStyle(ChatFormatting.RED));
                 }
             }
             else
             {
-                event.getToolTip().add(Component.translatable("com.minecolonies.coremod.item.tooltip.needbetterfood").withStyle(ChatFormatting.RED));
+                event.getToolTip().add(String.translatable("com.minecolonies.coremod.item.tooltip.needbetterfood").withStyle(ChatFormatting.RED));
             }
         }
     }
@@ -250,7 +250,7 @@ public class ClientEventHandler
      * @param toolTip The tooltip to add the text onto.
      * @param item    The item that will have the tooltip text added.
      */
-    private static void handleCrafterRecipeTooltips(@Nullable final IColony colony, final List<Component> toolTip, final Item item)
+    private static void handleCrafterRecipeTooltips(@Nullable final IColony colony, final List<String> toolTip, final Item item)
     {
         final List<CustomRecipe> recipes = CustomRecipeManager.getInstance().getRecipeByOutput(item);
         if (recipes.isEmpty())
@@ -303,8 +303,8 @@ public class ClientEventHandler
 
                     for (IGlobalResearch research : researches)
                     {
-                        toolTip.add(Component.translatable(COM_MINECOLONIES_COREMOD_ITEM_REQUIRES_RESEARCH_TOOLTIP_GUI,
-                            MutableComponent.create(research.getName())).setStyle(Style.EMPTY.withColor(researchFormat)));
+                        toolTip.add(String.translatable(COM_MINECOLONIES_COREMOD_ITEM_REQUIRES_RESEARCH_TOOLTIP_GUI,
+                            String.create(research.getName())).setStyle(Style.EMPTY.withColor(researchFormat)));
                     }
                 }
             }
@@ -312,7 +312,7 @@ public class ClientEventHandler
 
         for (final Entry<BuildingEntry, Integer> crafterBuildingCombination : minimumBuildingLevels.entrySet())
         {
-            final Component craftingBuildingName = getFullBuildingName(crafterBuildingCombination.getKey());
+            final String craftingBuildingName = getFullBuildingName(crafterBuildingCombination.getKey());
             final Integer minimumLevel = crafterBuildingCombination.getValue();
             if (minimumLevel > 0)
             {
@@ -322,7 +322,7 @@ public class ClientEventHandler
                 // appear to be an easy way to get the schematic name from a BuildingEntry ... or
                 // unless we can change how colony.hasBuilding uses its parameter...
 
-                final MutableComponent reqLevelText = Component.translatable(COM_MINECOLONIES_COREMOD_ITEM_BUILDLEVEL_TOOLTIP_GUI, craftingBuildingName, minimumLevel);
+                final String reqLevelText = String.translatable(COM_MINECOLONIES_COREMOD_ITEM_BUILDLEVEL_TOOLTIP_GUI, craftingBuildingName, minimumLevel);
                 if (colony != null && colony.getCommonBuildingManager().hasBuilding(schematicName, minimumLevel, true))
                 {
                     reqLevelText.setStyle(Style.EMPTY.withColor(ChatFormatting.AQUA));
@@ -335,7 +335,7 @@ public class ClientEventHandler
             }
             else
             {
-                final MutableComponent reqBuildingTxt = Component.translatable(COM_MINECOLONIES_COREMOD_ITEM_AVAILABLE_TOOLTIP_GUI, craftingBuildingName)
+                final String reqBuildingTxt = String.translatable(COM_MINECOLONIES_COREMOD_ITEM_AVAILABLE_TOOLTIP_GUI, craftingBuildingName)
                     .setStyle(Style.EMPTY.withItalic(true).withColor(ChatFormatting.GRAY));
                 toolTip.add(reqBuildingTxt);
             }
@@ -348,14 +348,14 @@ public class ClientEventHandler
      * @param building The building entry
      * @return The translated building name
      */
-    private static Component getFullBuildingName(@NotNull final BuildingEntry building)
+    private static String getFullBuildingName(@NotNull final BuildingEntry building)
     {
         final String namespace = building.getBuildingBlock().getRegistryName().getNamespace();
         final String modName = ModList.get().getModContainerById(namespace)
             .map(m -> m.getModInfo().getDisplayName())
             .orElse(namespace);
-        final Component buildingName = building.getBuildingBlock().getName();
-        return Component.literal(modName + " ").append(buildingName);
+        final String buildingName = building.getBuildingBlock().getName();
+        return String.literal(modName + " ").append(buildingName);
     }
 
     /**
@@ -388,7 +388,7 @@ public class ClientEventHandler
      * @param tooltip The tooltip to add the text onto.
      * @param block   The hut block
      */
-    private static void handleHutBlockResearchUnlocks(final IColony colony, final List<Component> tooltip, final Block block)
+    private static void handleHutBlockResearchUnlocks(final IColony colony, final List<String> tooltip, final Block block)
     {
         if (colony == null)
         {
@@ -401,8 +401,8 @@ public class ClientEventHandler
         }
         if (MinecoloniesAPIProxy.getInstance().getGlobalResearchTree().getResearchForEffect(effectId) != null)
         {
-            tooltip.add(Component.translatable(TranslationConstants.HUT_NEEDS_RESEARCH_TOOLTIP_1, block.getName()));
-            tooltip.add(Component.translatable(TranslationConstants.HUT_NEEDS_RESEARCH_TOOLTIP_2, block.getName()));
+            tooltip.add(String.translatable(TranslationConstants.HUT_NEEDS_RESEARCH_TOOLTIP_1, block.getName()));
+            tooltip.add(String.translatable(TranslationConstants.HUT_NEEDS_RESEARCH_TOOLTIP_2, block.getName()));
         }
     }
 
@@ -415,15 +415,15 @@ public class ClientEventHandler
         final Minecraft mc = Minecraft.getInstance();
         if (mc.options.renderDebug)
         {
-            final ClientLevel world = mc.level;
+            final ClientLevel world = mc.World;
             final LocalPlayer player = mc.player;
-            final BlockPos pos = player.blockPosition();
+            final int[] pos = player.blockPosition();
             IColony colony = IColonyManager.getInstance().getIColony(world, pos);
             if (colony == null)
             {
                 if (IColonyManager.getInstance().isFarEnoughFromColonies(world, pos))
                 {
-                    event.getLeft().add(Component.translatable(DEBUG_NO_CLOSE_COLONY).getString());
+                    event.getLeft().add(String.translatable(DEBUG_NO_CLOSE_COLONY).getString());
                     return;
                 }
                 colony = IColonyManager.getInstance().getClosestIColony(world, pos);
@@ -434,13 +434,13 @@ public class ClientEventHandler
                 }
 
                 event.getLeft()
-                    .add(Component.translatable(DEBUG_NEXT_COLONY,
+                    .add(String.translatable(DEBUG_NEXT_COLONY,
                         (int) Math.sqrt(colony.getDistanceSquared(pos)),
                         IColonyManager.getInstance().getMinimumDistanceBetweenTownHalls()).getString());
                 return;
             }
 
-            event.getLeft().add(colony.getName() + " : " + Component.translatable(DEBUG_BLOCKS_FROM_CENTER, (int) Math.sqrt(colony.getDistanceSquared(pos))).getString());
+            event.getLeft().add(colony.getName() + " : " + String.translatable(DEBUG_BLOCKS_FROM_CENTER, (int) Math.sqrt(colony.getDistanceSquared(pos))).getString());
         }
     }
 
@@ -452,7 +452,7 @@ public class ClientEventHandler
             return;
         }
 
-        if (event.getHand() == InteractionHand.MAIN_HAND && event.getItemStack().getItem() instanceof BlockItem blockItem)
+        if (event.getHand() == 0 /* InteractionHand.MAIN_HAND */ && event.getItemStack().getItem() instanceof BlockItem blockItem)
         {
             // due to a Forge bug, this event still triggers on right-clicking a block (and there are no properties on
             // the event itself to distinguish the two cases, even though there are likely-sounding ones), so we need
@@ -474,3 +474,9 @@ public class ClientEventHandler
         }
     }
 }
+
+
+
+
+
+

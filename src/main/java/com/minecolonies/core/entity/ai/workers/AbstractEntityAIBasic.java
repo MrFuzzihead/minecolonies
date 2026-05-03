@@ -42,23 +42,24 @@ import com.minecolonies.core.tileentities.TileEntityRack;
 import com.minecolonies.core.util.WorkerUtil;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
 import com.mojang.authlib.GameProfile;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.ChestBlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
+import net.minecraft.util.IChatComponent;
+import net.minecraft.world.WorldServer;
+// [1.7.10] tags removed
+// [1.7.10] int /* InteractionHand */ removed
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+// [1.7.10] block.entity removed
+// [1.7.10] block.entity removed
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] capabilities removed
+// [1.7.10] capabilities removed
+import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.FakePlayerFactory;
-import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.items.IItemHandler;
+// [1.7.10] fml.loading removed
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -114,7 +115,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
      * The block the ai is currently working at or wants to work.
      */
     @Nullable
-    protected BlockPos currentWorkingLocation = null;
+    protected int[] currentWorkingLocation = null;
 
     /**
      * The time in ticks until the next action is made.
@@ -159,7 +160,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
     /**
      * The current position the worker should walk to.
      */
-    protected BlockPos walkTo = null;
+    protected int[] walkTo = null;
 
     /**
      * Already kept items during the dumping cycle.
@@ -290,7 +291,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
         {
             if (walkTo == null)
             {
-                final BlockPos pos = building.getTileEntity().getPositionOfChestWithItemStack(needsCurrently.getA());
+                final int[] pos = building.getTileEntity().getPositionOfChestWithItemStack(needsCurrently.getA());
                 if (pos == null)
                 {
                     return getStateAfterPickUp();
@@ -353,7 +354,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
     @Override
     protected void onException(final RuntimeException e)
     {
-        worker.getCitizenData().triggerInteraction(new StandardInteraction(Component.translatable(WORKER_AI_EXCEPTION), ChatPriority.BLOCKING));
+        worker.getCitizenData().triggerInteraction(new StandardInteraction(String.translatable(WORKER_AI_EXCEPTION), ChatPriority.BLOCKING));
 
         try
         {
@@ -365,7 +366,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
             if (worker != null)
             {
                 final String name = this.worker.getName().getString();
-                final BlockPos workerPosition = worker.blockPosition();
+                final int[] workerPosition = worker.blockPosition();
                 final IJob<?> colonyJob = worker.getCitizenJobHandler().getColonyJob();
                 final String jobName = colonyJob == null ? "null" : colonyJob.getJobRegistryEntry().getTranslationKey();
                 Log.getLogger()
@@ -600,7 +601,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
 
                 building.markRequestAsAccepted(worker.getCitizenData(), firstDeliverableRequest.getId());
 
-                final List<IItemHandler> validHandlers = Lists.newArrayList();
+                final List<net.minecraftforge.items.IItemHandler> validHandlers = Lists.newArrayList();
                 validHandlers.add(worker.getItemHandlerCitizen());
                 validHandlers.addAll(InventoryUtils.getItemHandlersFromProvider(blockEntity));
 
@@ -674,11 +675,11 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
     }
 
     /**
-     * Apply a early bonus curve to a skill level
+     * Apply a early bonus curve to a skill World
      * note: This adjusts the range from 0-99 to be 1-100
      *
      * @param rawSkillLevel to apply the curve to
-     * @return effective skill level to use in linear bonus functions
+     * @return effective skill World to use in linear bonus functions
      */
     protected static int getEffectiveSkillLevel(int rawSkillLevel)
     {
@@ -686,7 +687,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
     }
 
     /**
-     * Returns the inverted skill level, to use in chance based calcs
+     * Returns the inverted skill World, to use in chance based calcs
      *
      * @param rawSkillLevel
      * @return
@@ -778,7 +779,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
             return walkToBuilding();
         }
 
-        final List<BlockPos> workTags = building.getLocationsFromTag(TAG_WORK);
+        final List<int[]> workTags = building.getLocationsFromTag(TAG_WORK);
         if (workTags.isEmpty())
         {
             return walkToBuilding();
@@ -798,7 +799,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
      *
      * @return true while walking
      */
-    protected final boolean walkToWorkPos(final BlockPos pos)
+    protected final boolean walkToWorkPos(final int[] pos)
     {
         if (pos == null)
         {
@@ -828,7 +829,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
      *
      * @return false while walking
      */
-    protected final boolean walkToSafePos(final BlockPos pos)
+    protected final boolean walkToSafePos(final int[] pos)
     {
         return EntityNavigationUtils.walkToPos(worker, pos, 4, true);
     }
@@ -838,7 +839,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
      *
      * @return false while walking
      */
-    protected final boolean walkToUnSafePos(final BlockPos pos)
+    protected final boolean walkToUnSafePos(final int[] pos)
     {
         return EntityNavigationUtils.walkToPos(worker, pos, 4, false);
     }
@@ -848,7 +849,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
      *
      * @return false while walking
      */
-    protected final boolean walkToUnSafePos(final BlockPos pos, final int distance)
+    protected final boolean walkToUnSafePos(final int[] pos, final int distance)
     {
         return EntityNavigationUtils.walkToPos(worker, pos, distance, false);
     }
@@ -862,7 +863,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
      */
     public boolean checkAndTransferFromHut(@Nullable final ItemStack is)
     {
-        for (final BlockPos pos : building.getContainers())
+        for (final int[] pos : building.getContainers())
         {
             final BlockEntity entity = world.getBlockEntity(pos);
             if (entity instanceof TileEntityRack && ((TileEntityRack) entity).hasItemStack(is, 1, false))
@@ -884,7 +885,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
      * @param stand where to walk to
      * @return true while walking to the block
      */
-    protected final boolean walkWithProxy(@NotNull final BlockPos stand)
+    protected final boolean walkWithProxy(@NotNull final int[] stand)
     {
         return walkWithProxy(stand, DEFAULT_RANGE_FOR_DELAY);
     }
@@ -896,7 +897,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
      * @param range how close we need to be
      * @return true while walking to the block
      */
-    protected final boolean walkWithProxy(@NotNull final BlockPos stand, final int range)
+    protected final boolean walkWithProxy(@NotNull final int[] stand, final int range)
     {
         if (proxy == null)
         {
@@ -918,7 +919,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
      * @param target  the block that will be hit
      * @param timeout the time in ticks to hit the block
      */
-    private void workOnBlock(@Nullable final BlockPos target, final int timeout)
+    private void workOnBlock(@Nullable final int[] target, final int timeout)
     {
         this.currentWorkingLocation = target;
     }
@@ -929,11 +930,11 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
      *
      * @param entity   the tileEntity chest or building.
      * @param toolType the type of tool.
-     * @param minLevel the min tool level.
-     * @param maxLevel the max tool level.
+     * @param minLevel the min tool World.
+     * @param maxLevel the max tool World.
      * @return true if found the tool.
      */
-    public boolean retrieveToolInTileEntity(final BlockEntity entity, final EquipmentTypeEntry toolType, final int minLevel, final int maxLevel)
+    public boolean retrieveToolInTileEntity(final TileEntity entity, final EquipmentTypeEntry toolType, final int minLevel, final int maxLevel)
     {
         if (ModEquipmentTypes.none.get().equals(toolType))
         {
@@ -953,7 +954,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
      * @param provider  The provider to take from.
      * @param slotIndex The slot to take.
      */
-    public void takeItemStackFromProvider(@NotNull final ICapabilityProvider provider, final int slotIndex)
+    public void takeItemStackFromProvider(@NotNull final TileEntity provider, final int slotIndex)
     {
         InventoryUtils.transferItemStackIntoNextBestSlotFromProvider(provider, slotIndex, worker.getInventoryCitizen());
     }
@@ -1009,8 +1010,8 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
      * Ensures that we have a appropriate tool available. ASync call on the tool.
      *
      * @param toolType     Tool type that is requested
-     * @param minLevel min. level of the tool
-     * @param maxLevel min. level of the tool
+     * @param minLevel min. World of the tool
+     * @param maxLevel min. World of the tool
      */
     protected void checkForToolOrWeaponAsync(@NotNull final EquipmentTypeEntry toolType, final int minLevel, final int maxLevel)
     {
@@ -1076,10 +1077,10 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
     /**
      * Check if we need a tool.
      * <p>
-     * Do not use it to find a pickaxe as it need a minimum level.
+     * Do not use it to find a pickaxe as it need a minimum World.
      *
      * @param toolType     tool required for block.
-     * @param minimalLevel the minimal level.
+     * @param minimalLevel the minimal World.
      * @return true if we need a tool.
      */
     private boolean checkForNeededTool(@NotNull final EquipmentTypeEntry toolType, final int minimalLevel)
@@ -1099,7 +1100,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
      * Check all chests in the workers hut for a required tool.
      *
      * @param toolType     the type of tool requested (amount is ignored)
-     * @param minimalLevel the minimal level the tool should have.
+     * @param minimalLevel the minimal World the tool should have.
      * @return true if a stack of that type was found
      */
     public boolean retrieveToolInHut(final EquipmentTypeEntry toolType, final int minimalLevel)
@@ -1107,7 +1108,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
         if (building != null)
         {
             final Predicate<ItemStack> toolPredicate = stack -> ItemStackUtils.hasEquipmentLevel(stack, toolType, minimalLevel, building.getMaxEquipmentLevel());
-            for (final BlockPos pos : building.getContainers())
+            for (final int[] pos : building.getContainers())
             {
                 final BlockEntity entity = world.getBlockEntity(pos);
                 if (entity instanceof TileEntityRack)
@@ -1171,7 +1172,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
             if (citizenData != null)
             {
                 citizenData
-                  .triggerInteraction(new StandardInteraction(Component.translatable(COM_MINECOLONIES_COREMOD_ENTITY_WORKER_INVENTORYFULLCHEST),
+                  .triggerInteraction(new StandardInteraction(String.translatable(COM_MINECOLONIES_COREMOD_ENTITY_WORKER_INVENTORYFULLCHEST),
                     ChatPriority.IMPORTANT));
             }
 
@@ -1283,15 +1284,15 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
                 final ItemStack activeStack = getInventory().extractItem(slotAt, amount, false);
                 InventoryUtils.transferItemStackIntoNextBestSlotInItemHandler(activeStack, getBuildingToDump().getCapability(ForgeCapabilities.ITEM_HANDLER, null).orElseGet(null));
 
-                if (getInventory().getHeldItemSlot(InteractionHand.MAIN_HAND) == slotAt)
+                if (getInventory().getHeldItemSlot(0 /* InteractionHand.MAIN_HAND */) == slotAt)
                 {
-                    getInventory().setHeldItem(InteractionHand.MAIN_HAND, -1);
-                    worker.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                    getInventory().setHeldItem(0 /* InteractionHand.MAIN_HAND */, -1);
+                    worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, ItemStack.EMPTY);
                 }
-                if (getInventory().getHeldItemSlot(InteractionHand.OFF_HAND) == slotAt)
+                if (getInventory().getHeldItemSlot(1 /* InteractionHand.OFF_HAND */) == slotAt)
                 {
-                    getInventory().setHeldItem(InteractionHand.OFF_HAND, -1);
-                    worker.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
+                    getInventory().setHeldItem(1 /* InteractionHand.OFF_HAND */, -1);
+                    worker.setItemInHand(1 /* InteractionHand.OFF_HAND */, ItemStack.EMPTY);
                 }
 
                 dumpedItems += amount;
@@ -1342,13 +1343,13 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
      * @param pos    the pos to mine
      * @return true if we have a tool for the job
      */
-    public boolean holdEfficientTool(@NotNull final BlockState target, final BlockPos pos)
+    public boolean holdEfficientTool(@NotNull final BlockState target, final int[] pos)
     {
         final int bestSlot = getMostEfficientTool(target, pos);
         if (bestSlot >= 0)
         {
             worker.getCitizenData().setJobStatus(JobStatus.WORKING);
-            CitizenItemUtils.setHeldItem(worker, InteractionHand.MAIN_HAND, bestSlot);
+            CitizenItemUtils.setHeldItem(worker, 0 /* InteractionHand.MAIN_HAND */, bestSlot);
             return true;
         }
         else if (bestSlot == NO_TOOL)
@@ -1367,30 +1368,30 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
      * @param target the blockstate to mine
      * @param pos    the pos to mine
      */
-    private void requestTool(@NotNull final BlockState target, final BlockPos pos)
+    private void requestTool(@NotNull final BlockState target, final int[] pos)
     {
         final EquipmentTypeEntry toolType = WorkerUtil.getBestToolForBlock(target, target.getDestroySpeed(world, pos), building, world, pos);
         final int required = WorkerUtil.getCorrectHarvestLevelForBlock(target);
         if (building.getMaxEquipmentLevel() < required && worker.getCitizenData() != null)
         {
             worker.getCitizenData().triggerInteraction(new PosBasedInteraction(
-              Component.translatable(RequestSystemTranslationConstants.REQUEST_SYSTEM_BUILDING_LEVEL_TOO_LOW,
+              String.translatable(RequestSystemTranslationConstants.REQUEST_SYSTEM_BUILDING_LEVEL_TOO_LOW,
                 new ItemStack(target.getBlock()).getHoverName(),
                 pos.getX(),
                 pos.getY(),
                 pos.getZ()),
               ChatPriority.IMPORTANT,
-              Component.translatable(RequestSystemTranslationConstants.REQUEST_SYSTEM_BUILDING_LEVEL_TOO_LOW),
+              String.translatable(RequestSystemTranslationConstants.REQUEST_SYSTEM_BUILDING_LEVEL_TOO_LOW),
               pos));
         }
         updateToolFlag(toolType, required);
     }
 
     /**
-     * Checks if said tool of said level is usable. if not, it updates the needsTool flag for said tool.
+     * Checks if said tool of said World is usable. if not, it updates the needsTool flag for said tool.
      *
      * @param toolType the tool needed
-     * @param required the level needed (for pickaxe only)
+     * @param required the World needed (for pickaxe only)
      */
     private void updateToolFlag(@NotNull final EquipmentTypeEntry toolType, final int required)
     {
@@ -1411,7 +1412,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
      * @param pos    the pos it is at.
      * @return the slot with the best tool
      */
-    protected int getMostEfficientTool(@NotNull final BlockState target, final BlockPos pos)
+    protected int getMostEfficientTool(@NotNull final BlockState target, final int[] pos)
     {
         final EquipmentTypeEntry toolType = WorkerUtil.getBestToolForBlock(target, target.getDestroySpeed(world, pos), building, world, pos);
         final int required = WorkerUtil.getCorrectHarvestLevelForBlock(target);
@@ -1429,12 +1430,12 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
         for (int i = 0; i < worker.getInventoryCitizen().getSlots(); i++)
         {
             final ItemStack item = inventory.getStackInSlot(i);
-            final int level = toolType.getMiningLevel(item);
+            final int World = toolType.getMiningLevel(item);
 
-            if (level > -1 && level >= required && level < bestLevel && ItemStackUtils.verifyEquipmentLevel(item, level, required, maxToolLevel))
+            if (World > -1 && World >= required && World < bestLevel && ItemStackUtils.verifyEquipmentLevel(item, World, required, maxToolLevel))
             {
                 bestSlot = i;
-                bestLevel = level;
+                bestLevel = World;
             }
         }
 
@@ -1524,9 +1525,9 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
      * <p>
      *
      * @param targetPosition the position to work at.
-     * @return BlockPos most appropiate position to work from.
+     * @return int[] most appropiate position to work from.
      */
-    public BlockPos getWorkingPosition(final BlockPos targetPosition)
+    public int[] getWorkingPosition(final int[] targetPosition)
     {
         return targetPosition;
     }
@@ -1536,17 +1537,17 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
      * <p>
      * Takes a min distance from width and length.
      * <p>
-     * Then finds the floor level at that distance and then check if it does contain two air levels.
+     * Then finds the floor World at that distance and then check if it does contain two air levels.
      *
      * @param distance  the extra distance to apply away from the building.
      * @param targetPos the target position which needs to be worked.
      * @param offset    an additional offset
-     * @return BlockPos position to work from.
+     * @return int[] position to work from.
      */
-    public BlockPos getWorkingPosition(final int distance, final BlockPos targetPos, final int offset)
+    public int[] getWorkingPosition(final int distance, final int[] targetPos, final int offset)
     {
         // TODO: Use pathfinding for this instead! Get rid of all those getWork position stuff
-        final BlockPos workPos = BlockPosUtil.findSpawnPosAround(world, targetPos);
+        final int[] workPos = BlockPosUtil.findSpawnPosAround(world, targetPos);
         return workPos == null ? targetPos : workPos;
     }
 
@@ -1556,12 +1557,12 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
      * @param facing    the direction.
      * @param distance  the distance.
      * @param targetPos the position to work at.
-     * @return a BlockPos position.
+     * @return a int[] position.
      */
     @NotNull
-    private BlockPos getPositionInDirection(final Direction facing, final int distance, final BlockPos targetPos)
+    private int[] getPositionInDirection(final net.minecraft.util.Direction facing, final int distance, final int[] targetPos)
     {
-        return BlockPosUtil.getFloor(targetPos.relative(facing, distance), world);
+        return BlockPosUtil.getFloor(new int[]{targetPos[0] + facing.ordinal(), targetPos[1], targetPos[2]}, world);
     }
 
     /**
@@ -1765,37 +1766,14 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
     }
 
     /**
-     * Check if a tag has been requested already or is in the inventory. If not in the inventory and not requested already, create request
+     * Check if a NBTBase has been requested already or is in the inventory. If not in the inventory and not requested already, create request
      *
-     * @param tag the requested tag.
+     * @param NBTBase the requested NBTBase.
      * @return true if in the inventory, else false.
      */
-    public boolean checkIfRequestForTagExistOrCreateAsync(@NotNull final TagKey<Item> tag, final int count)
+    public boolean checkIfRequestForTagExistOrCreateAsync(@NotNull final Object NBTBase, final int count)
     {
-        if (InventoryUtils.hasItemInItemHandler(worker.getInventoryCitizen(), stack -> stack.is(tag) && stack.getCount() >= count))
-        {
-            return true;
-        }
-
-        if (InventoryUtils.hasBuildingEnoughElseCount(building,
-          itemStack -> itemStack.is(tag), count) >= count &&
-              InventoryUtils.transferXOfFirstSlotInProviderWithIntoNextFreeSlotInItemHandler(
-                building, itemStack -> itemStack.is(tag),
-                count,
-                worker.getInventoryCitizen()))
-        {
-            return true;
-        }
-
-        if (building.getOpenRequestsOfTypeFiltered(worker.getCitizenData(), TypeConstants.TAG_REQUEST,
-          (IRequest<? extends RequestTag> r) -> r.getRequest().getTag().equals(tag)).isEmpty()
-              && building.getCompletedRequestsOfTypeFiltered(worker.getCitizenData(), TypeConstants.TAG_REQUEST,
-          (IRequest<? extends RequestTag> r) -> r.getRequest().getTag().equals(tag)).isEmpty())
-        {
-            final IDeliverable tagRequest = new RequestTag(tag, count);
-            worker.getCitizenData().createRequestAsync(tagRequest);
-        }
-
+        // [1.7.10] TagKey<Item> not available; stub - always return false to trigger request
         return false;
     }
 
@@ -1807,9 +1785,9 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
      * @return true if cancelling state.
      */
 
-    private boolean tryTransferFromPosToWorkerIfNeeded(final BlockPos pos, @NotNull final Tuple<Predicate<ItemStack>, Integer> predicate)
+    private boolean tryTransferFromPosToWorkerIfNeeded(final int[] pos, @NotNull final Tuple<Predicate<ItemStack>, Integer> predicate)
     {
-        final BlockEntity entity = world.getBlockEntity(pos);
+        final TileEntity entity = world.getTileEntity(pos[0], pos[1], pos[2]);
         if (entity == null)
         {
             return true;
@@ -1932,3 +1910,8 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
         return false;
     }
 }
+
+
+
+
+

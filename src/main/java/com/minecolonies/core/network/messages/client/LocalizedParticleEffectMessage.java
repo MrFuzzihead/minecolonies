@@ -1,16 +1,15 @@
 package com.minecolonies.core.network.messages.client;
 
 import com.minecolonies.api.network.IMessage;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.FriendlyByteBuf;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] world.phys removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,7 +51,7 @@ public class LocalizedParticleEffectMessage implements IMessage
      * @param stack the stack.
      * @param pos   the pos.
      */
-    public LocalizedParticleEffectMessage(final ItemStack stack, final BlockPos pos)
+    public LocalizedParticleEffectMessage(final ItemStack stack, final int[] pos)
     {
         super();
         this.stack = stack;
@@ -62,7 +61,7 @@ public class LocalizedParticleEffectMessage implements IMessage
     }
 
     @Override
-    public void fromBytes(@NotNull final FriendlyByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
         stack = buf.readItem();
         posX = buf.readDouble();
@@ -71,7 +70,7 @@ public class LocalizedParticleEffectMessage implements IMessage
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
         buf.writeItem(stack);
         buf.writeDouble(posX);
@@ -81,15 +80,15 @@ public class LocalizedParticleEffectMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.CLIENT;
+        return Boolean.FALSE;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
-        final ClientLevel world = Minecraft.getInstance().level;
+        final ClientLevel world = Minecraft.getInstance().World;
         final ItemStack localStack = stack;
 
         for (int i = 0; i < 5; ++i)
@@ -106,3 +105,7 @@ public class LocalizedParticleEffectMessage implements IMessage
         }
     }
 }
+
+
+
+

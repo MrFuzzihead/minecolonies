@@ -2,7 +2,7 @@ package com.minecolonies.core.colony.buildings.modules.settings;
 
 import com.minecolonies.api.colony.buildings.modules.ISettingsModule;
 import com.minecolonies.api.colony.buildings.modules.settings.ISettingsModuleView;
-import net.minecraft.network.chat.Component;
+import net.minecraft.util.IChatComponent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -53,9 +53,9 @@ public class CrafterRecipeSetting extends StringSettingWithDesc
 
     @Override
     @Nullable
-    public Component getInactiveReason()
+    public String getInactiveReason()
     {
-        return Component.translatable(NEEDS_RESEARCH_REASON, Component.translatable(WAREHOUSE_MASTER_RESEARCH));
+        return String.translatable(NEEDS_RESEARCH_REASON, String.translatable(WAREHOUSE_MASTER_RESEARCH));
     }
 
     @Override
@@ -64,3 +64,5 @@ public class CrafterRecipeSetting extends StringSettingWithDesc
         return module.getColony().getResearchManager().getResearchEffects().getEffectStrength(RECIPE_MODE) > 0;
     }
 }
+
+

@@ -5,32 +5,53 @@ import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.townhall.AbstractWindowTownHall;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.datafixers.util.Pair;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.renderer.MultiBufferSource;
+import com.minecolonies.api.util.Tuple;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
 import com.mojang.blaze3d.platform.Lighting;
-import net.minecraft.client.resources.model.ModelBakery;
-import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.blockentity.BannerRenderer;
-import net.minecraft.core.Holder;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceKey;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] Holder removed
+// [1.7.10] BuiltInRegistries removed
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.level.block.entity.BannerPattern;
-import net.minecraft.world.level.block.entity.BannerBlockEntity;
-import net.minecraft.util.Mth;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.block.entity.BannerPatterns;
+// [1.7.10] block.entity removed
+// [1.7.10] block.entity removed
+import net.minecraft.util.MathHelper;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] block.entity removed
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.BannerPatterns;
+import net.minecraft.world.level.block.entity.BannerPattern;
+import net.minecraft.world.level.block.entity.BannerBlockEntity;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.blockentity.BannerRenderer;
+import net.minecraft.client.renderer.OverlayTexture;
+import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.util.Mth;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.components.Tooltip;
+import com.mojang.datafixers.util.Pair;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -39,7 +60,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static com.minecolonies.api.util.constant.translation.BaseGameTranslationConstants.BASE_GUI_DONE;
+import net.minecraft.client.gui.components.Button;
 import static net.minecraft.client.gui.components.Button.DEFAULT_NARRATION;
+import static net.minecraft.network.chat.Component.literal;
+import static net.minecraft.network.chat.Component.translatable;
 
 /**
  * A custom rendered Screen (i.e. not blockui) that renders a picker for the banners,
@@ -72,7 +96,7 @@ public class WindowBannerPicker extends Screen
 
     /**
      * The list of patterns that usually require charges, or are to be made more valuable
-     * by excluding them from lower TH levels. Sorted by the TH level they are first introduced at
+     * by excluding them from lower TH levels. Sorted by the TH World they are first introduced at
      */
     private static final ResourceKey[][] EXCLUSION = {
             {    // 1
@@ -133,7 +157,7 @@ public class WindowBannerPicker extends Screen
      */
     public WindowBannerPicker(IColonyView colony, AbstractWindowTownHall hallWindow, final AtomicBoolean isFeatureUnlocked)
     {
-        super(Component.literal("Flag"));
+        super(literal("Flag"));
 
         this.colony = colony;
         this.window = hallWindow;
@@ -188,7 +212,7 @@ public class WindowBannerPicker extends Screen
         this.addRenderableWidget(new Button(
                 center(this.width, 6, SIDE, 7, 0), GUI_Y,
                 SIDE, SIDE,
-                Component.literal(ChatFormatting.RED + "X"),
+                literal(ChatFormatting.RED + "X"),
                 pressed -> layers.remove(activeLayer), DEFAULT_NARRATION)
         {
             @Override
@@ -215,7 +239,7 @@ public class WindowBannerPicker extends Screen
 
             if (!isFeatureUnlocked.get() && patterns.get(i).unwrapKey().get().location().getNamespace().equals(Constants.MOD_ID))
             {
-                button.setTooltip(Tooltip.create(Component.translatable("com.minecolonies.core.gui.banner.patreon")));
+                button.setTooltip(Tooltip.create(translatable("com.minecolonies.core.gui.banner.patreon")));
                 button.blocked = true;
             }
         }
@@ -230,7 +254,7 @@ public class WindowBannerPicker extends Screen
                 center(this.width, 2, 80, 1, 10),
                 this.height - 40,
                 80, SIDE,
-                Component.translatable(BASE_GUI_DONE),
+                translatable(BASE_GUI_DONE),
                 pressed -> {
                     BannerPattern.Builder builder = new BannerPattern.Builder();
                     for (Pair<Holder<BannerPattern>, DyeColor> pair : layers)
@@ -244,7 +268,7 @@ public class WindowBannerPicker extends Screen
                 center(this.width, 2, 80, 0, 10),
                 this.height - 40,
                 80, SIDE,
-                Component.translatable("gui.cancel"),
+                translatable("gui.cancel"),
                 pressed -> window.open(), DEFAULT_NARRATION
         ));
     }
@@ -308,7 +332,7 @@ public class WindowBannerPicker extends Screen
 
         // Render the instructions
         stack.drawCenteredString(this.font,
-                Component.translatable("com.minecolonies.coremod.gui.flag.choose").getString(),
+                translatable("com.minecolonies.coremod.gui.flag.choose").getString(),
                 this.width /2,
                 16,
                 0xFFFFFF /* white */
@@ -412,7 +436,7 @@ public class WindowBannerPicker extends Screen
         int trackEnd = trackY + PATTERN_ROWS*(PATTERN_HEIGHT + PATTERN_MARGIN);
         if (mouseX > trackX + 2 && mouseX < trackX + 8 && mouseY > trackY && mouseY < trackEnd)
             this.scrolling = true;
-        
+
         return super.mouseClicked(mouseX, mouseY, p_231044_5_);
     }
 
@@ -456,8 +480,8 @@ public class WindowBannerPicker extends Screen
                     x - (layer == 0 ? width*2 : 0), y,
                     width * (layer == 0 ? 3 : 1), height,
                     layer == 0
-                            ? Component.translatable("com.minecolonies.coremod.gui.flag.base_layer")
-                            : Component.literal(String.valueOf(layer)),
+                            ? translatable("com.minecolonies.coremod.gui.flag.base_layer")
+                            : literal(String.valueOf(layer)),
                     pressed -> {},
                     DEFAULT_NARRATION
             );
@@ -503,7 +527,7 @@ public class WindowBannerPicker extends Screen
          */
         public PatternButton(int x, int y, int height, Holder<BannerPattern> pattern)
         {
-            super(x, y, height/2, height, Component.literal(""), btn -> {}, DEFAULT_NARRATION);
+            super(x, y, height/2, height, literal(""), btn -> {}, DEFAULT_NARRATION);
             this.pattern = pattern;
             int tempIndex = 0;
             for (final Holder<BannerPattern> pat : WindowBannerPicker.this.patterns)
@@ -571,3 +595,7 @@ public class WindowBannerPicker extends Screen
         }
     }
 }
+
+
+
+

@@ -1,7 +1,7 @@
 package com.minecolonies.api.colony.requestsystem.requestable;
 
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.item.ItemStack;
 
 /**
  * Stack based requests interface for display purposes.
@@ -21,8 +21,11 @@ public interface IStackBasedTask
     int getDisplayCount();
 
     /**
-     * Get a display prefix component.
-     * @return the component.
+     * Get a display prefix String.
+     * @return the String.
      */
-    MutableComponent getDisplayPrefix();
+    String getDisplayPrefix();
 }
+
+
+

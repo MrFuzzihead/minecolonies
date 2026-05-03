@@ -6,14 +6,23 @@
 
 package com.minecolonies.core.client.model;
 
+import net.minecraft.client.model.CubeDeformation;
+import net.minecraft.client.model.CubeListBuilder;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.LayerDefinition;
+import net.minecraft.client.model.MeshDefinition;
+import net.minecraft.client.model.PartDefinition;
+import net.minecraft.client.model.PartPose;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.Model;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.model.Model;
-import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.*;
-import net.minecraft.client.model.HumanoidModel;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
 import org.jetbrains.annotations.NotNull;
 
 public class ScarecrowModel extends Model
@@ -33,7 +42,7 @@ public class ScarecrowModel extends Model
 
     public ScarecrowModel(final ModelPart part)
     {
-        super(RenderType::entitySolid);
+        super(); // [1.7.10] RenderType not available
         head = part.getChild("head");
         post = part.getChild("post");
         leftArmPeg = part.getChild("leftArmPeg");

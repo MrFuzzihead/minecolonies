@@ -1,21 +1,21 @@
 package com.minecolonies.core.items;
 
 import com.minecolonies.api.items.ModItems;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
+// [1.7.10] sounds removed
+// [1.7.10] sounds removed
 import net.minecraft.stats.Stats;
-import net.minecraft.world.InteractionHand;
+// [1.7.10] int /* InteractionHand */ removed
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+// [1.7.10] world.entity removed
 import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.BowItem;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
@@ -38,7 +38,7 @@ public class ItemPharaoScepter extends BowItem
 
     @NotNull
     @Override
-    public InteractionResultHolder<ItemStack> use(@NotNull final Level worldIn, Player playerIn, @NotNull final InteractionHand handIn)
+    public InteractionResultHolder<ItemStack> use(@NotNull final World worldIn, Player playerIn, @NotNull final int /* InteractionHand */ handIn)
     {
         ItemStack itemstack = playerIn.getItemInHand(handIn);
 
@@ -53,7 +53,7 @@ public class ItemPharaoScepter extends BowItem
     }
 
     @Override
-    public void releaseUsing(@NotNull final ItemStack stack, @NotNull final Level worldIn, LivingEntity entityLiving, int timeLeft)
+    public void releaseUsing(@NotNull final ItemStack stack, @NotNull final World worldIn, EntityLivingBase entityLiving, int timeLeft)
     {
         if (entityLiving instanceof Player)
         {
@@ -139,10 +139,14 @@ public class ItemPharaoScepter extends BowItem
             return arrow;
         }
 
-        AbstractArrow entity = ((ArrowItem) ModItems.firearrow).createArrow(arrow.level, new ItemStack(ModItems.firearrow, 1), (LivingEntity) arrow.getOwner());
+        AbstractArrow entity = ((ArrowItem) ModItems.firearrow).createArrow(arrow.World, new ItemStack(ModItems.firearrow, 1), (EntityLivingBase) arrow.getOwner());
         entity.pickup = AbstractArrow.Pickup.DISALLOWED;
         entity.setSecondsOnFire(3);
 
         return entity;
     }
 }
+
+
+
+

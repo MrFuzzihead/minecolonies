@@ -2,12 +2,8 @@ package com.minecolonies.core.entity.mobs.raider.norsemen;
 
 import com.minecolonies.api.entity.mobs.vikings.AbstractEntityNorsemenRaider;
 import com.minecolonies.api.entity.mobs.vikings.INorsemenChiefEntity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.level.Level;
-
-import static com.minecolonies.api.entity.mobs.RaiderMobUtils.MOB_ATTACK_DAMAGE;
-import static com.minecolonies.core.colony.events.raid.RaiderConstants.CHIEF_BONUS_ARMOR;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.world.World;
 
 /**
  * Class for the Chief norsemen entity.
@@ -18,21 +14,19 @@ public class EntityNorsemenChiefRaider extends AbstractEntityNorsemenRaider impl
      * Constructor of the entity.
      *
      * @param worldIn world to construct it in.
-     * @param type    the entity type.
      */
-    public EntityNorsemenChiefRaider(final EntityType<? extends EntityNorsemenChiefRaider> type, final Level worldIn)
+    public EntityNorsemenChiefRaider(final World worldIn)
     {
-        super(type, worldIn);
+        super(worldIn);
     }
 
     @Override
     public void initStatsFor(final double baseHealth, final double difficulty, final double baseDamage)
     {
         super.initStatsFor(baseHealth, difficulty, baseDamage);
-        final double chiefArmor = difficulty * CHIEF_BONUS_ARMOR;
-        this.getAttribute(Attributes.ARMOR).setBaseValue(chiefArmor);
-        this.getAttribute(MOB_ATTACK_DAMAGE.get()).setBaseValue(baseDamage + 1.0);
-        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(baseHealth * 1.5);
+        // No armor attribute in 1.7.10
+        this.getEntityAttribute(SharedMonsterAttributes.attackDamage).setBaseValue(baseDamage + 1.0);
+        this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(baseHealth * 1.5);
         this.setHealth(this.getMaxHealth());
     }
 }

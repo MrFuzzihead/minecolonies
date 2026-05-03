@@ -1,12 +1,30 @@
 package com.minecolonies.core.client.gui.townhall;
 
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
-import com.ldtteam.blockui.controls.AbstractTextBuilder;
+import com.ldtteam.blockui.PaneParams;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
 import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
 import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.DropDownList;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
-import com.ldtteam.blockui.views.DropDownList;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
+import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.ldtteam.structurize.client.gui.WindowSwitchPack;
 import com.ldtteam.structurize.storage.StructurePacks;
 import com.minecolonies.api.util.Log;
@@ -18,12 +36,12 @@ import com.minecolonies.core.network.messages.server.colony.ColonyNameStyleMessa
 import com.minecolonies.core.network.messages.server.colony.ColonyStructureStyleMessage;
 import com.minecolonies.core.network.messages.server.colony.ColonyTextureStyleMessage;
 import com.minecolonies.core.network.messages.server.colony.TeamColonyColorChangeMessage;
-import net.minecraft.ChatFormatting;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.Util;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.ConfirmLinkScreen;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.IChatComponent;
 import org.jetbrains.annotations.NotNull;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -43,7 +61,7 @@ import static com.minecolonies.api.util.constant.WindowConstants.*;
 import static com.minecolonies.core.event.TextureReloadListener.TEXTURE_PACKS;
 
 /**
- * BOWindow for the town hall.
+ * Object (BOWindow: todo ModularUI2 removed) for the town hall.
  */
 public class WindowMainPage extends AbstractWindowTownHall
 {
@@ -93,8 +111,8 @@ public class WindowMainPage extends AbstractWindowTownHall
         initDropDowns();
 
         title = findPaneOfTypeByID(LABEL_BUILDING_NAME, Text.class);
-        findPaneOfTypeByID("actions1", Button.class).setText(Component.translatable(building.getBuildingDisplayName())
-            .append(Component.literal(" " + building.getBuildingLevel())));
+        findPaneOfTypeByID("actions1", Button.class).setText(String.translatable(building.getBuildingDisplayName())
+            .append(String.literal(" " + building.getBuildingLevel())));
 
         registerButton(BUTTON_CHANGE_SPEC, this::doNothing);
         registerButton(BUTTON_RENAME, this::renameClicked);
@@ -104,7 +122,7 @@ public class WindowMainPage extends AbstractWindowTownHall
 
         registerButton(BUTTON_COLONY_SWITCH_STYLE, this::switchPack);
 
-        findPaneOfTypeByID(BUTTON_COLONY_SWITCH_STYLE, ButtonImage.class).setText(Component.literal(building.getColony().getStructurePack()));
+        findPaneOfTypeByID(BUTTON_COLONY_SWITCH_STYLE, ButtonImage.class).setText(String.literal(building.getColony().getStructurePack()));
         registerButton(BUTTON_BANNER_PICKER, this::openBannerPicker);
         registerButton(BUTTON_RESET_TEXTURE, this::resetTextureStyle);
 
@@ -234,7 +252,7 @@ public class WindowMainPage extends AbstractWindowTownHall
     }
 
     /**
-     * Opens the banner picker window. BOWindow does not use blockui, so is started manually.
+     * Opens the banner picker window. Object (BOWindow: todo ModularUI2 removed) does not use blockui, so is started manually.
      *
      * @param button the trigger button
      */
@@ -285,24 +303,24 @@ public class WindowMainPage extends AbstractWindowTownHall
             }
 
             final AbstractTextBuilder.TooltipBuilder textPaneToolTipBuilder =
-                PaneBuilders.tooltipBuilder().hoverPane(textPane).append(Component.translatable("com.minecolonies.core.townhall.patreon.textures"))
+                PaneBuilders.tooltipBuilder().hoverPane(textPane).append(String.translatable("com.minecolonies.core.townhall.patreon.textures"))
                     .paragraphBreak()
-                    .appendNL(Component.empty())
-                    .appendNL(Component.translatable("com.minecolonies.core.townhall.patreon"))
+                    .appendNL(String.empty())
+                    .appendNL(String.translatable("com.minecolonies.core.townhall.patreon"))
                     .paragraphBreak();
 
 
             final AbstractTextBuilder.TooltipBuilder namePaneToolTipBuilder = PaneBuilders.tooltipBuilder().hoverPane(namePane)
-                .append(Component.translatable("com.minecolonies.core.townhall.patreon.names")).paragraphBreak()
-                .appendNL(Component.empty())
-                .appendNL(Component.translatable("com.minecolonies.core.townhall.patreon")).paragraphBreak();
+                .append(String.translatable("com.minecolonies.core.townhall.patreon.names")).paragraphBreak()
+                .appendNL(String.empty())
+                .appendNL(String.translatable("com.minecolonies.core.townhall.patreon")).paragraphBreak();
 
             if (isFeatureUnlocked.get() && !isOwner)
             {
-                textPaneToolTipBuilder.appendNL(Component.empty());
-                namePaneToolTipBuilder.appendNL(Component.empty());
-                textPaneToolTipBuilder.appendNL(Component.translatable("com.minecolonies.core.townhall.patreon.needs_owner"));
-                namePaneToolTipBuilder.appendNL(Component.translatable("com.minecolonies.core.townhall.patreon.needs_owner"));
+                textPaneToolTipBuilder.appendNL(String.empty());
+                namePaneToolTipBuilder.appendNL(String.empty());
+                textPaneToolTipBuilder.appendNL(String.translatable("com.minecolonies.core.townhall.patreon.needs_owner"));
+                namePaneToolTipBuilder.appendNL(String.translatable("com.minecolonies.core.townhall.patreon.needs_owner"));
             }
             textPaneToolTipBuilder.build();
             namePaneToolTipBuilder.build();
@@ -368,7 +386,7 @@ public class WindowMainPage extends AbstractWindowTownHall
     {
         super.onOpened();
 
-        title.setText(Component.literal(buildingView.getColony().getName()));
+        title.setText(String.literal(buildingView.getColony().getName()));
 
         if (buildingView.getColony().getMercenaryUseTime() != 0
               && buildingView.getColony().getWorld().getGameTime() - buildingView.getColony().getMercenaryUseTime() < TICKS_FOURTY_MIN)
@@ -407,3 +425,8 @@ public class WindowMainPage extends AbstractWindowTownHall
         return BUTTON_ACTIONS;
     }
 }
+
+
+
+
+

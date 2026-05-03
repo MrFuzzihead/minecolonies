@@ -15,9 +15,9 @@ import com.minecolonies.core.colony.eventhooks.citizenEvents.CitizenGrownUpEvent
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.ref.WeakReference;
@@ -89,10 +89,10 @@ public class EntityAICitizenChild implements IStateAI
     /**
      * The position we started following on
      */
-    private BlockPos followStart;
+    private int[] followStart;
 
     /**
-     * The blockpos the child is visiting
+     * The int[] the child is visiting
      */
     private IBuilding visitingHut;
 
@@ -310,3 +310,5 @@ public class EntityAICitizenChild implements IStateAI
         return child.isBaby() && child.getCitizenData() != null;
     }
 }
+
+

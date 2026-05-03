@@ -9,11 +9,11 @@ import com.minecolonies.api.colony.requestsystem.manager.IRequestManager;
 import com.minecolonies.api.colony.requestsystem.requestable.IRequestable;
 import com.minecolonies.api.colony.requestsystem.requester.IRequester;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
-import net.minecraft.core.NonNullList;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+import java.util.ArrayList; // [1.7.10] java.util.List -> ArrayList
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -216,7 +216,7 @@ public interface IRequest<R extends IRequestable>
     /**
      * Method to get the ItemStacks used for the delivery.
      *
-     * @return The ItemStacks that the Deliveryman transports around. {@link NonNullList#isEmpty()} means no delivery possible.
+     * @return The ItemStacks that the Deliveryman transports around. {@link java.util.List#isEmpty()} means no delivery possible.
      */
     @NotNull
     ImmutableList<ItemStack> getDeliveries();
@@ -243,22 +243,22 @@ public interface IRequest<R extends IRequestable>
     void addDelivery(@NotNull final List<ItemStack> list);
 
     /**
-     * Method used to get a {@link Component} that can be displayed to the Player and describes the request in short. Should represent the request, in case the player needs to
+     * Method used to get a {@link String} that can be displayed to the Player and describes the request in short. Should represent the request, in case the player needs to
      * fulfill it, or information about this request is required.
      *
      * @return The text that describes this Request.
      */
     @NotNull
-    Component getShortDisplayString();
+    String getShortDisplayString();
 
     /**
-     * Method used to get a {@link Component} that can be displayed to the Player and describes so that the player can complete it. Should represent the request, in case the
+     * Method used to get a {@link String} that can be displayed to the Player and describes so that the player can complete it. Should represent the request, in case the
      * player needs to fulfill it, or information about this request is required.
      *
      * @return The text that describes this Request.
      */
     @NotNull
-    Component getLongDisplayString();
+    String getLongDisplayString();
 
     /**
      * Method used to get a List of ItemStacks that represents the stack. This list is used in GUI to show what the request is. If an empty list is returned then no stack is shown.
@@ -297,10 +297,13 @@ public interface IRequest<R extends IRequestable>
      * @param colony the colony view to obtain information if necessary.
      * @return a list of strings or empty.
      */
-    List<MutableComponent> getResolverToolTip(IColonyView colony);
+    List<String> getResolverToolTip(IColonyView colony);
 
     /**
      * Reset the deliveries of the request.
      */
     void resetDeliveries();
 }
+
+
+

@@ -23,15 +23,15 @@ import com.minecolonies.api.util.constant.translation.RequestSystemTranslationCo
 import com.minecolonies.core.colony.interactionhandling.RequestBasedInteraction;
 import com.minecolonies.core.entity.ai.workers.AbstractAISkeleton;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] net.minecraft.util.DamageSource removed
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
@@ -70,7 +70,7 @@ public abstract class AbstractJob<AI extends AbstractAISkeleton<J> & ITickingSta
     private final ICitizenData citizen;
 
     /**
-     * The name tag of the job.
+     * The name NBTBase of the job.
      */
     private String nameTag = "";
 
@@ -87,7 +87,7 @@ public abstract class AbstractJob<AI extends AbstractAISkeleton<J> & ITickingSta
     /**
      * Position of the work building
      */
-    protected BlockPos workBuildingPos = null;
+    protected int[] workBuildingPos = null;
 
     /**
      * The work building
@@ -134,7 +134,7 @@ public abstract class AbstractJob<AI extends AbstractAISkeleton<J> & ITickingSta
     }
 
     @Override
-    public BlockPos getBuildingPos()
+    public int[] getBuildingPos()
     {
         return workBuildingPos;
     }
@@ -185,9 +185,9 @@ public abstract class AbstractJob<AI extends AbstractAISkeleton<J> & ITickingSta
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compound = new CompoundTag();
+        final NBTTagCompound compound = new NBTTagCompound();
 
         compound.putString(TAG_JOB_TYPE, getJobRegistryEntry().getKey().toString());
         compound.put(TAG_ASYNC_REQUESTS,
@@ -206,12 +206,12 @@ public abstract class AbstractJob<AI extends AbstractAISkeleton<J> & ITickingSta
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         this.asyncRequests.clear();
         if (compound.contains(TAG_ASYNC_REQUESTS))
         {
-            this.asyncRequests.addAll(NBTUtils.streamCompound(compound.getList(TAG_ASYNC_REQUESTS, Tag.TAG_COMPOUND))
+            this.asyncRequests.addAll(NBTUtils.streamCompound(compound.getList(TAG_ASYNC_REQUESTS, NBTBase.TAG_COMPOUND))
                                         .map(StandardFactoryController.getInstance()::deserialize)
                                         .map(o -> (IToken<?>) o)
                                         .collect(Collectors.toSet()));
@@ -228,7 +228,7 @@ public abstract class AbstractJob<AI extends AbstractAISkeleton<J> & ITickingSta
     }
 
     @Override
-    public void serializeToView(final FriendlyByteBuf buffer)
+    public void serializeToView(final PacketBuffer buffer)
     {
         buffer.writeUtf(getJobRegistryEntry().getKey().toString());
         buffer.writeInt(getAsyncRequests().size());
@@ -257,8 +257,8 @@ public abstract class AbstractJob<AI extends AbstractAISkeleton<J> & ITickingSta
 
         if (request != null)
         {
-            citizen.triggerInteraction(new RequestBasedInteraction(Component.translatable(RequestSystemTranslationConstants.REQUEST_RESOLVER_NORMAL,
-              request.getLongDisplayString()), ChatPriority.BLOCKING, Component.translatable(RequestSystemTranslationConstants.REQUEST_RESOLVER_NORMAL), request.getId()));
+            citizen.triggerInteraction(new RequestBasedInteraction(String.translatable(RequestSystemTranslationConstants.REQUEST_RESOLVER_NORMAL,
+              request.getLongDisplayString()), ChatPriority.BLOCKING, String.translatable(RequestSystemTranslationConstants.REQUEST_RESOLVER_NORMAL), request.getId()));
         }
 
         asyncRequests.remove(id);
@@ -313,7 +313,7 @@ public abstract class AbstractJob<AI extends AbstractAISkeleton<J> & ITickingSta
     }
 
     @Override
-    public void triggerDeathAchievement(final DamageSource source, final AbstractEntityCitizen citizen)
+    public void triggerDeathAchievement(final net.minecraft.util.DamageSource source, final AbstractEntityCitizen citizen)
     {
 
     }
@@ -446,28 +446,28 @@ public abstract class AbstractJob<AI extends AbstractAISkeleton<J> & ITickingSta
         workBuilding = null;
         workModule = null;
 
-        citizen.getInventory().moveArmorToInventory(EquipmentSlot.MAINHAND);
-        citizen.getInventory().moveArmorToInventory(EquipmentSlot.OFFHAND);
-        citizen.getInventory().moveArmorToInventory(EquipmentSlot.HEAD);
-        citizen.getInventory().moveArmorToInventory(EquipmentSlot.CHEST);
-        citizen.getInventory().moveArmorToInventory(EquipmentSlot.LEGS);
-        citizen.getInventory().moveArmorToInventory(EquipmentSlot.FEET);
+        citizen.getInventory().moveArmorToInventory(null /* EquipmentSlot. */);
+        citizen.getInventory().moveArmorToInventory(null /* EquipmentSlot. */);
+        citizen.getInventory().moveArmorToInventory(null /* EquipmentSlot. */);
+        citizen.getInventory().moveArmorToInventory(null /* EquipmentSlot. */);
+        citizen.getInventory().moveArmorToInventory(null /* EquipmentSlot. */);
+        citizen.getInventory().moveArmorToInventory(null /* EquipmentSlot. */);
 
         if (this.getCitizen().getEntity().isPresent())
         {
             final EntityCitizen citizenEntity = (EntityCitizen) getCitizen().getEntity().get();
 
-            citizenEntity.setItemSlot(EquipmentSlot.MAINHAND, ItemStackUtils.EMPTY);
-            citizenEntity.setItemSlot(EquipmentSlot.OFFHAND, ItemStackUtils.EMPTY);
-            citizenEntity.setItemSlot(EquipmentSlot.HEAD, ItemStackUtils.EMPTY);
-            citizenEntity.setItemSlot(EquipmentSlot.CHEST, ItemStackUtils.EMPTY);
-            citizenEntity.setItemSlot(EquipmentSlot.LEGS, ItemStackUtils.EMPTY);
-            citizenEntity.setItemSlot(EquipmentSlot.FEET, ItemStackUtils.EMPTY);
+            citizenEntity.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
+            citizenEntity.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
+            citizenEntity.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
+            citizenEntity.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
+            citizenEntity.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
+            citizenEntity.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
         }
     }
 
     @Override
-    public boolean ignoresDamage(@NotNull final DamageSource damageSource)
+    public boolean ignoresDamage(@NotNull final net.minecraft.util.DamageSource source)
     {
         return false;
     }
@@ -495,3 +495,11 @@ public abstract class AbstractJob<AI extends AbstractAISkeleton<J> & ITickingSta
         return entry.hashCode();
     }
 }
+
+
+
+
+
+
+
+

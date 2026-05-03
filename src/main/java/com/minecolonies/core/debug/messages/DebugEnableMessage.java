@@ -2,10 +2,9 @@ package com.minecolonies.core.debug.messages;
 
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.core.debug.DebugPlayerManager;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,27 +29,30 @@ public class DebugEnableMessage implements IMessage
     }
 
     @Override
-    public void fromBytes(@NotNull final FriendlyByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
         enable = buf.readBoolean();
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
         buf.writeBoolean(enable);
     }
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.CLIENT;
+        return Boolean.FALSE;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
         DebugPlayerManager.setDebugModeFor(Minecraft.getInstance().player.getUUID(), enable);
     }
 }
+
+
+

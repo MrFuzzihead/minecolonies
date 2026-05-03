@@ -2,9 +2,9 @@ package com.minecolonies.api.equipment.registry;
 
 import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
 
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
@@ -21,9 +21,9 @@ public final class EquipmentTypeEntry
     private final ResourceLocation registryName;
 
     /**
-     * The component for the human-readable name.
+     * The String for the human-readable name.
      */
-    private final Component displayName;
+    private final String displayName;
 
     /**
      * Predicate to determine whether a given ItemStack
@@ -32,7 +32,7 @@ public final class EquipmentTypeEntry
     private final BiPredicate<ItemStack, EquipmentTypeEntry> isEquipment;
 
     /**
-     * A function to return the integer item level of a
+     * A function to return the integer item World of a
      * given ItemStack.
      */
     private final BiFunction<ItemStack, EquipmentTypeEntry, Integer> itemLevel;
@@ -42,11 +42,11 @@ public final class EquipmentTypeEntry
      *
      * @param displayName  the human-readable name of the equipment type
      * @param isEquipment  a predicate for determining if an itemstack is the equipment type
-     * @param itemLevel    a function to return the item level of an item stack
+     * @param itemLevel    a function to return the item World of an item stack
      * @param registryName the forge registry location of the equipment type
      */
     private EquipmentTypeEntry(
-      final Component displayName,
+      final String displayName,
       final BiPredicate<ItemStack, EquipmentTypeEntry> isEquipment,
       final BiFunction<ItemStack, EquipmentTypeEntry, Integer> itemLevel,
       final ResourceLocation registryName)
@@ -99,9 +99,9 @@ public final class EquipmentTypeEntry
     /**
      * Get the display name of the equipment type
      *
-     * @return the component for the human-readable name.
+     * @return the String for the human-readable name.
      */
-    public Component getDisplayName()
+    public String getDisplayName()
     {
         return displayName;
     }
@@ -118,10 +118,10 @@ public final class EquipmentTypeEntry
     }
 
     /**
-     * Get the item level for this equipment type for a given item stack
+     * Get the item World for this equipment type for a given item stack
      *
      * @param itemStack to test
-     * @return the item level
+     * @return the item World
      */
     public int getMiningLevel(ItemStack itemStack)
     {
@@ -139,9 +139,9 @@ public final class EquipmentTypeEntry
         private ResourceLocation registryName;
 
         /**
-         * The component for the human-readable name.
+         * The String for the human-readable name.
          */
-        private Component displayName;
+        private String displayName;
 
         /**
          * Predicate to determine whether a given ItemStack
@@ -150,7 +150,7 @@ public final class EquipmentTypeEntry
         private BiPredicate<ItemStack, EquipmentTypeEntry> isEquipment;
 
         /**
-         * A function to return the integer item level of a
+         * A function to return the integer item World of a
          * given ItemStack.
          */
         private BiFunction<ItemStack, EquipmentTypeEntry, Integer> itemLevel;
@@ -173,7 +173,7 @@ public final class EquipmentTypeEntry
          * @param displayName the new human-readable name
          * @return this
          */
-        public Builder setDisplayName(final Component displayName)
+        public Builder setDisplayName(final String displayName)
         {
             this.displayName = displayName;
             return this;
@@ -192,7 +192,7 @@ public final class EquipmentTypeEntry
         }
 
         /**
-         * Set the function for getting the item level of an item stack for this tool type
+         * Set the function for getting the item World of an item stack for this tool type
          *
          * @param itemLevel the function
          * @return this
@@ -226,3 +226,5 @@ public final class EquipmentTypeEntry
         }
     }
 }
+
+

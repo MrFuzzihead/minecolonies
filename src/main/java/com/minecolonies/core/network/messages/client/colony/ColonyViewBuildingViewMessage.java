@@ -4,14 +4,13 @@ import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.network.IMessage;
 import io.netty.buffer.Unpooled;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Registries removed
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,13 +20,13 @@ import org.jetbrains.annotations.Nullable;
 public class ColonyViewBuildingViewMessage implements IMessage
 {
     private int          colonyId;
-    private BlockPos     buildingId;
-    private FriendlyByteBuf buildingData;
+    private int[]     buildingId;
+    private PacketBuffer buildingData;
 
     /**
      * Dimension of the colony.
      */
-    private ResourceKey<Level> dimension;
+    private int /* ResourceKey */ dimension;
 
     /**
      * Empty constructor used when registering the
@@ -57,23 +56,23 @@ public class ColonyViewBuildingViewMessage implements IMessage
         super();
         this.colonyId = building.getColony().getID();
         this.buildingId = building.getID();
-        this.buildingData = new FriendlyByteBuf(Unpooled.buffer());
+        this.buildingData = new PacketBuffer(Unpooled.buffer());
         building.serializeToView(this.buildingData, fullSync);
         this.dimension = building.getColony().getDimension();
     }
 
     @Override
-    public void fromBytes(@NotNull final FriendlyByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
         colonyId = buf.readInt();
         buildingId = buf.readBlockPos();
         dimension = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(buf.readUtf(32767)));
-        buildingData = new FriendlyByteBuf(Unpooled.buffer(buf.readableBytes()));
+        buildingData = new PacketBuffer(Unpooled.buffer(buf.readableBytes()));
         buf.readBytes(buildingData, buf.readableBytes());
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
         buildingData.resetReaderIndex();
         buf.writeInt(colonyId);
@@ -84,14 +83,17 @@ public class ColonyViewBuildingViewMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.CLIENT;
+        return Boolean.FALSE;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
         IColonyManager.getInstance().handleColonyBuildingViewMessage(colonyId, buildingId, buildingData, dimension);
     }
 }
+
+
+

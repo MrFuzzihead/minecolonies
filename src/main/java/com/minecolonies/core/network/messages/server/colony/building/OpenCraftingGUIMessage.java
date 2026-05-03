@@ -9,15 +9,15 @@ import com.minecolonies.api.inventory.container.ContainerCraftingFurnace;
 import com.minecolonies.core.colony.buildings.modules.AbstractCraftingBuildingModule;
 import com.minecolonies.core.colony.buildings.views.AbstractBuildingView;
 import com.minecolonies.core.network.messages.server.AbstractBuildingServerMessage;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.entity.player.EntityPlayer;
+// [1.7.10] world.entity removed
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.util.IChatComponent;
 
-import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 
@@ -51,21 +51,21 @@ public class OpenCraftingGUIMessage extends AbstractBuildingServerMessage<IBuild
     }
 
     @Override
-    public void fromBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void fromBytesOverride(@NotNull final PacketBuffer buf)
     {
         this.id = buf.readInt();
     }
 
     @Override
-    public void toBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void toBytesOverride(@NotNull final PacketBuffer buf)
     {
         buf.writeInt(id);
     }
 
     @Override
-    protected void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony, final IBuilding building)
+    protected void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony, final IBuilding building)
     {
-        final ServerPlayer player = ctxIn.getSender();
+        final EntityPlayerMP player = ctx.getServerHandler().playerEntity;
         if (player == null)
         {
             return;
@@ -79,9 +79,9 @@ public class OpenCraftingGUIMessage extends AbstractBuildingServerMessage<IBuild
                 {
                     @NotNull
                     @Override
-                    public Component getDisplayName()
+                    public String getDisplayName()
                     {
-                        return Component.literal("Furnace Crafting GUI");
+                        return String.literal("Furnace Crafting GUI");
                     }
 
                     @NotNull
@@ -90,7 +90,7 @@ public class OpenCraftingGUIMessage extends AbstractBuildingServerMessage<IBuild
                     {
                         return new ContainerCraftingFurnace(id, inv, building.getID(), module.getProducer().getRuntimeID());
                     }
-                }, buffer -> new FriendlyByteBuf(buffer.writeBlockPos(building.getID()).writeInt(module.getProducer().getRuntimeID())));
+                }, buffer -> new PacketBuffer(buffer.writeBlockPos(building.getID()).writeInt(module.getProducer().getRuntimeID())));
             }
             else if (module.canLearn(ModCraftingTypes.BREWING.get()))
             {
@@ -98,9 +98,9 @@ public class OpenCraftingGUIMessage extends AbstractBuildingServerMessage<IBuild
                 {
                     @NotNull
                     @Override
-                    public Component getDisplayName()
+                    public String getDisplayName()
                     {
-                        return Component.literal("Brewing Crafting GUI");
+                        return String.literal("Brewing Crafting GUI");
                     }
 
                     @NotNull
@@ -109,7 +109,7 @@ public class OpenCraftingGUIMessage extends AbstractBuildingServerMessage<IBuild
                     {
                         return new ContainerCraftingBrewingstand(id, inv, building.getID(), module.getProducer().getRuntimeID());
                     }
-                }, buffer -> new FriendlyByteBuf(buffer.writeBlockPos(building.getID()).writeInt(module.getProducer().getRuntimeID())));
+                }, buffer -> new PacketBuffer(buffer.writeBlockPos(building.getID()).writeInt(module.getProducer().getRuntimeID())));
             }
             else
             {
@@ -118,9 +118,9 @@ public class OpenCraftingGUIMessage extends AbstractBuildingServerMessage<IBuild
                   {
                       @NotNull
                       @Override
-                      public Component getDisplayName()
+                      public String getDisplayName()
                       {
-                          return Component.literal("Crafting GUI");
+                          return String.literal("Crafting GUI");
                       }
 
                       @NotNull
@@ -130,9 +130,12 @@ public class OpenCraftingGUIMessage extends AbstractBuildingServerMessage<IBuild
                           return new ContainerCrafting(id, inv, module.canLearn(ModCraftingTypes.LARGE_CRAFTING.get()), building.getID(), module.getProducer().getRuntimeID());
                       }
                   },
-                  buffer -> new FriendlyByteBuf(buffer.writeBoolean(module.canLearn(ModCraftingTypes.LARGE_CRAFTING.get()))).writeBlockPos(building.getID())
+                  buffer -> new PacketBuffer(buffer.writeBoolean(module.canLearn(ModCraftingTypes.LARGE_CRAFTING.get()))).writeBlockPos(building.getID())
                     .writeInt(module.getProducer().getRuntimeID()));
             }
         }
     }
 }
+
+
+

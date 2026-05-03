@@ -10,9 +10,9 @@ import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.util.NBTUtils;
 import com.minecolonies.api.util.constant.SerializationIdentifierConstants;
 import com.minecolonies.api.util.constant.TypeConstants;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.network.PacketBuffer;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -117,10 +117,10 @@ public class StandardRequestSystemCrafterJobDataStore implements IRequestSystemC
 
         @NotNull
         @Override
-        public CompoundTag serialize(
+        public NBTTagCompound serialize(
           @NotNull final IFactoryController controller, @NotNull final StandardRequestSystemCrafterJobDataStore standardRequestSystemCrafterJobDataStore)
         {
-            final CompoundTag compound = new CompoundTag();
+            final NBTTagCompound compound = new NBTTagCompound();
 
             compound.put(TAG_TOKEN, controller.serialize(standardRequestSystemCrafterJobDataStore.id));
             compound.put(TAG_LIST, standardRequestSystemCrafterJobDataStore.queue.stream().map(controller::serialize).collect(NBTUtils.toListNBT()));
@@ -131,14 +131,14 @@ public class StandardRequestSystemCrafterJobDataStore implements IRequestSystemC
 
         @NotNull
         @Override
-        public StandardRequestSystemCrafterJobDataStore deserialize(@NotNull final IFactoryController controller, @NotNull final CompoundTag nbt) throws Throwable
+        public StandardRequestSystemCrafterJobDataStore deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound nbt) throws Throwable
         {
             final IToken<?> token = controller.deserialize(nbt.getCompound(TAG_TOKEN));
-            final LinkedList<IToken<?>> queue = NBTUtils.streamCompound(nbt.getList(TAG_LIST, Tag.TAG_COMPOUND))
-                                                  .map(CompoundTag -> (IToken<?>) controller.deserialize(CompoundTag))
+            final LinkedList<IToken<?>> queue = NBTUtils.streamCompound(nbt.getList(TAG_LIST, NBTBase.TAG_COMPOUND))
+                                                  .map(NBTTagCompound -> (IToken<?>) controller.deserialize(NBTTagCompound))
                                                   .collect(Collectors.toCollection(LinkedList::new));
-            final List<IToken<?>> taskList = NBTUtils.streamCompound(nbt.getList(TAG_ASSIGNED_LIST, Tag.TAG_COMPOUND))
-                                               .map(CompoundTag -> (IToken<?>) controller.deserialize(CompoundTag))
+            final List<IToken<?>> taskList = NBTUtils.streamCompound(nbt.getList(TAG_ASSIGNED_LIST, NBTBase.TAG_COMPOUND))
+                                               .map(NBTTagCompound -> (IToken<?>) controller.deserialize(NBTTagCompound))
                                                .collect(Collectors.toList());
 
             return new StandardRequestSystemCrafterJobDataStore(token, queue, taskList);
@@ -147,7 +147,7 @@ public class StandardRequestSystemCrafterJobDataStore implements IRequestSystemC
         @Override
         public void serialize(
           IFactoryController controller, StandardRequestSystemCrafterJobDataStore input,
-          FriendlyByteBuf packetBuffer)
+          PacketBuffer packetBuffer)
         {
             controller.serialize(packetBuffer, input.id);
             packetBuffer.writeInt(input.queue.size());
@@ -157,7 +157,7 @@ public class StandardRequestSystemCrafterJobDataStore implements IRequestSystemC
         }
 
         @Override
-        public StandardRequestSystemCrafterJobDataStore deserialize(IFactoryController controller, FriendlyByteBuf buffer)
+        public StandardRequestSystemCrafterJobDataStore deserialize(IFactoryController controller, PacketBuffer buffer)
           throws Throwable
         {
             final IToken<?> id = controller.deserialize(buffer);
@@ -185,3 +185,7 @@ public class StandardRequestSystemCrafterJobDataStore implements IRequestSystemC
         }
     }
 }
+
+
+
+

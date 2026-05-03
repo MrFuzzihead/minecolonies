@@ -7,14 +7,14 @@ import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
 import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.PlacementSettings;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import com.minecolonies.api.util.Tuple;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraft.init.Blocks;
+// [1.7.10] block.entity removed
+// [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,12 +53,12 @@ public class SolidPlaceholderPlacementHandler implements IPlacementHandler
     }
 
     @Override
-    public boolean canHandle(Level world, BlockPos pos, BlockState blockState)
+    public boolean canHandle(World world, int[] pos, BlockState blockState)
     {
         return blockState.getBlock() instanceof BlockSolidSubstitution;
     }
 
-    private void searchHandler(final Level world, final BlockPos pos)
+    private void searchHandler(final World world, final int[] pos)
     {
         if (replacementHandler == null)
         {
@@ -75,10 +75,10 @@ public class SolidPlaceholderPlacementHandler implements IPlacementHandler
 
     @Override
     public List<ItemStack> getRequiredItems(
-        Level world,
-        BlockPos pos,
+        World world,
+        int[] pos,
         BlockState blockState,
-        @Nullable CompoundTag tileEntityData,
+        @Nullable NBTTagCompound tileEntityData,
         @NotNull final IPlacementContext placementContext)
     {
         searchHandler(world, pos);
@@ -99,10 +99,10 @@ public class SolidPlaceholderPlacementHandler implements IPlacementHandler
 
     @Override
     public ActionProcessingResult handle(
-        final Level world,
-        final BlockPos pos,
+        final World world,
+        final int[] pos,
         final BlockState blockState,
-        @Nullable final CompoundTag tileEntityData,
+        @Nullable final NBTTagCompound tileEntityData,
         @NotNull final IPlacementContext placementContext)
     {
         if (!placementContext.fancyPlacement())
@@ -124,9 +124,12 @@ public class SolidPlaceholderPlacementHandler implements IPlacementHandler
     public boolean doesWorldStateMatchBlueprintState(
         final BlockState worldState,
         final BlockState blueprintState,
-        final Tuple<BlockEntity, CompoundTag> blockEntityData,
+        final Tuple<BlockEntity, NBTTagCompound> blockEntityData,
         @NotNull final IPlacementContext placementContext)
     {
         return worldState.equals(blueprintState) || (placementContext.fancyPlacement() && BlockUtils.isGoodFloorBlock(worldState));
     }
 }
+
+
+

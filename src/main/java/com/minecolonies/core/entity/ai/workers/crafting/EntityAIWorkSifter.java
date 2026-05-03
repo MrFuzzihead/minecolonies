@@ -16,10 +16,10 @@ import com.minecolonies.core.colony.interactionhandling.StandardInteraction;
 import com.minecolonies.core.colony.jobs.JobSifter;
 import com.minecolonies.core.network.messages.client.LocalizedParticleEffectMessage;
 import com.minecolonies.core.util.WorkerUtil;
-import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] sounds removed
+// [1.7.10] int /* InteractionHand */ removed
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState.*;
@@ -37,7 +37,7 @@ import static com.minecolonies.api.util.constant.StatisticsConstants.ITEM_OBTAIN
 public class EntityAIWorkSifter extends AbstractEntityAICrafting<JobSifter, BuildingSifter>
 {
     /**
-     * Max level which should have an effect on the speed of the worker.
+     * Max World which should have an effect on the speed of the worker.
      */
     private static final int MAX_LEVEL = 50;
 
@@ -140,17 +140,17 @@ public class EntityAIWorkSifter extends AbstractEntityAICrafting<JobSifter, Buil
                 }
                 if (worker.getCitizenData() != null)
                 {
-                    worker.getCitizenData().triggerInteraction(new StandardInteraction(Component.translatable(SIFTER_NO_MESH), ChatPriority.IMPORTANT));
+                    worker.getCitizenData().triggerInteraction(new StandardInteraction(String.translatable(SIFTER_NO_MESH), ChatPriority.IMPORTANT));
                     setDelay(NO_MESH_DELAY);
                 }
             }
             if (!ItemStackUtils.isEmpty(worker.getMainHandItem()))
             {
-                worker.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, ItemStack.EMPTY);
             }
             if (!ItemStackUtils.isEmpty(worker.getOffhandItem()))
             {
-                worker.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
+                worker.setItemInHand(1 /* InteractionHand.OFF_HAND */, ItemStack.EMPTY);
             }
 
             progress = 0;
@@ -171,14 +171,14 @@ public class EntityAIWorkSifter extends AbstractEntityAICrafting<JobSifter, Buil
 
         if (!inputItem.isEmpty() && (ItemStackUtils.isEmpty(worker.getMainHandItem()) || ItemStackUtils.compareItemStacksIgnoreStackSize(worker.getMainHandItem(), inputItem)))
         {
-            worker.setItemInHand(InteractionHand.MAIN_HAND, inputItem);
+            worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, inputItem);
         }
         if (!meshItem.isEmpty() && (ItemStackUtils.isEmpty(worker.getOffhandItem()) || ItemStackUtils.compareItemStacksIgnoreStackSize(worker.getOffhandItem(),
           meshItem,
           false,
           true)))
         {
-            worker.setItemInHand(InteractionHand.OFF_HAND, meshItem);
+            worker.setItemInHand(1 /* InteractionHand.OFF_HAND */, meshItem);
         }
 
         WorkerUtil.faceBlock(building.getPosition(), worker);
@@ -216,8 +216,13 @@ public class EntityAIWorkSifter extends AbstractEntityAICrafting<JobSifter, Buil
         Network.getNetwork()
           .sendToTrackingEntity(new LocalizedParticleEffectMessage(inputItem, building.getID().below()), worker);
 
-        worker.swing(InteractionHand.MAIN_HAND);
+        worker.swing(0 /* InteractionHand.MAIN_HAND */);
         SoundUtils.playSoundAtCitizen(world, building.getID(), SoundEvents.LEASH_KNOT_BREAK);
         return getState();
     }
 }
+
+
+
+
+

@@ -1,97 +1,47 @@
 package com.minecolonies.api.util;
 
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.control.LookControl;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityCreature;
+// [1.7.10] LookControl -> EntityLookHelper
+import net.minecraft.entity.ai.EntityLookHelper;
 
-public class LookHandler extends LookControl
+/**
+ * [1.7.10] Replaces 1.21 LookControl-based LookHandler with EntityLookHelper.
+ */
+public class LookHandler extends EntityLookHelper
 {
     private boolean doneNavigating = true;
+    private Entity  lookingAt      = null;
+    private int     lookAtTimer    = 0;
 
-    /**
-     * Remembers the entity to look at for a short while
-     */
-    private Entity lookingAt   = null;
-    private int    lookAtTimer = 0;
-
-    public LookHandler(final Mob entity)
+    public LookHandler(final EntityCreature entity)
     {
         super(entity);
     }
 
-    @Override
-    public void tick()
+    /** [1.7.10] Called from updateEntity instead of tick(). */
+    public void onUpdate()
     {
-        if (mob.tickCount % 20 == 17)
-        {
-            doneNavigating = this.mob.getNavigation().isDone();
-        }
-
+        // [1.7.10] EntityLookHelper updates via onUpdateLook(); no direct tick override
         if (lookingAt != null && lookAtTimer-- > 0)
         {
-            super.setLookAt(lookingAt);
+            setLookPositionWithEntity(lookingAt, 10.0F, 40.0F);
             if (lookAtTimer == 0)
             {
                 lookingAt = null;
             }
         }
-
-        if (this.resetXRotOnTick())
-        {
-            this.mob.setXRot(0.0F);
-        }
-
-        if (this.lookAtCooldown > 0)
-        {
-            --this.lookAtCooldown;
-
-            // Copy of super tick without needless optional and lambda wrapping
-            double dx = this.wantedX - this.mob.getX();
-            double dz = this.wantedZ - this.mob.getZ();
-
-            if (Math.abs(dz) > (double) 1.0E-5F || Math.abs(dx) > (double) 1.0E-5F)
-            {
-                this.mob.yHeadRot = this.rotateTowards(this.mob.yHeadRot, (float) (Mth.atan2(dz, dx) * (double) (180F / (float) Math.PI)) - 90.0F, this.yMaxRotSpeed);
-            }
-
-            double dEy = this.wantedY - this.mob.getEyeY();
-            double xzlenght = Math.sqrt(dx * dx + dz * dz);
-
-            if (Math.abs(dEy) > (double) 1.0E-5F || Math.abs(xzlenght) > (double) 1.0E-5F)
-            {
-                this.mob.setXRot(this.rotateTowards(this.mob.getXRot(), (float) -(Mth.atan2(dEy, xzlenght) * (double) (180F / (float) Math.PI)), this.xMaxRotAngle));
-            }
-        }
-        else
-        {
-            this.mob.yHeadRot = this.rotateTowards(this.mob.yHeadRot, this.mob.yBodyRot, 10.0F);
-        }
-
-        if (!doneNavigating)
-        {
-            // clampHeadRotationToBody
-            this.mob.yHeadRot = Mth.rotateIfNecessary(this.mob.yHeadRot, this.mob.yBodyRot, (float) this.mob.getMaxHeadYRot());
-        }
     }
 
     public void setLookAtCooldown(final int cooldown)
     {
-        lookAtCooldown = cooldown;
+        lookAtTimer = cooldown;
     }
 
-    @Override
-    public void setLookAt(Entity entity)
+    /** Look at an entity for ~5 seconds. */
+    public void setLookAt(final Entity entity)
     {
-        super.setLookAt(entity);
-        lookAtTimer = 20 * 5;
-        lookingAt = entity;
-    }
-
-    @Override
-    public void setLookAt(Entity entity, float turnY, float turnX)
-    {
-        super.setLookAt(entity, turnY, turnX);
+        setLookPositionWithEntity(entity, 10.0F, 40.0F);
         lookAtTimer = 20 * 5;
         lookingAt = entity;
     }

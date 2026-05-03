@@ -9,8 +9,8 @@ import com.minecolonies.api.util.constant.SerializationIdentifierConstants;
 import com.minecolonies.api.util.constant.TypeConstants;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.requestsystem.requesters.BuildingBasedRequester;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.NotNull;
 
 public class BuildingBasedRequesterFactory implements IFactory<AbstractBuilding, BuildingBasedRequester>
@@ -47,26 +47,26 @@ public class BuildingBasedRequesterFactory implements IFactory<AbstractBuilding,
 
     @NotNull
     @Override
-    public CompoundTag serialize(@NotNull final IFactoryController controller, @NotNull final BuildingBasedRequester output)
+    public NBTTagCompound serialize(@NotNull final IFactoryController controller, @NotNull final BuildingBasedRequester output)
     {
         return output.serialize(controller);
     }
 
     @NotNull
     @Override
-    public BuildingBasedRequester deserialize(@NotNull final IFactoryController controller, @NotNull final CompoundTag nbt)
+    public BuildingBasedRequester deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound nbt)
     {
         return BuildingBasedRequester.deserialize(controller, nbt);
     }
 
     @Override
-    public void serialize(IFactoryController controller, BuildingBasedRequester output, FriendlyByteBuf packetBuffer)
+    public void serialize(IFactoryController controller, BuildingBasedRequester output, PacketBuffer packetBuffer)
     {
         output.serialize(controller, packetBuffer);
     }
 
     @Override
-    public BuildingBasedRequester deserialize(IFactoryController controller, FriendlyByteBuf buffer) throws Throwable
+    public BuildingBasedRequester deserialize(IFactoryController controller, PacketBuffer buffer) throws Throwable
     {
         return BuildingBasedRequester.deserialize(controller, buffer);
     }
@@ -77,3 +77,6 @@ public class BuildingBasedRequesterFactory implements IFactory<AbstractBuilding,
         return SerializationIdentifierConstants.BUILDER_BASED_REQUESTER_ID;
     }
 }
+
+
+

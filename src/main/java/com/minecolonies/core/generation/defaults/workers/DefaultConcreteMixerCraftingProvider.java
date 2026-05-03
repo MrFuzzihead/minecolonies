@@ -3,14 +3,14 @@ package com.minecolonies.core.generation.defaults.workers;
 import com.minecolonies.api.colony.jobs.ModJobs;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.core.generation.CustomRecipeProvider;
-import net.minecraft.data.PackOutput;
-import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] data removed
+// [1.7.10] data removed
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.registries.ForgeRegistries;
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -74,3 +74,6 @@ public class DefaultConcreteMixerCraftingProvider extends CustomRecipeProvider
         }
     }
 }
+
+
+

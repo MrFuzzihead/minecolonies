@@ -1,8 +1,8 @@
 package com.minecolonies.api.util;
 
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.Level;
+import net.minecraft.entity.Entity;
+import net.minecraft.world.World;
 
 /**
  * This class group method use to insure compatibility between minecraft version.
@@ -24,12 +24,12 @@ public final class CompatibilityUtils
      * @param entity to which we get the world from
      * @return the world
      */
-    public static Level getWorldFromEntity(final Entity entity)
+    public static World getWorldFromEntity(final Entity entity)
     {
-        return entity.level();
+        return entity.World();
     }
 
-    public static Level getWorldFromCitizen(final AbstractEntityCitizen baseEntityCitizen)
+    public static World getWorldFromCitizen(final AbstractEntityCitizen baseEntityCitizen)
     {
         return getWorldFromEntity(baseEntityCitizen);
     }
@@ -42,9 +42,11 @@ public final class CompatibilityUtils
      * @param world         The world which we are spawning the entity in.
      * @param entityToSpawn The entity which we are spawning.
      */
-    public static void addEntity(final Level world, final Entity entityToSpawn)
+    public static void addEntity(final World world, final Entity entityToSpawn)
     {
         world.addFreshEntity(entityToSpawn);
     }
 }
+
+
 

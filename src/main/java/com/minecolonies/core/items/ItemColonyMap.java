@@ -6,16 +6,20 @@ import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.api.util.constant.TranslationConstants;
 import com.minecolonies.core.client.gui.map.WindowColonyMap;
 import com.minecolonies.core.tileentities.TileEntityColonyBuilding;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] int /* InteractionHand */ removed
+// [1.7.10] InteractionResult -> boolean
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.item.Properties;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.item.InteractionResult;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.World;
+// [1.7.10] block.entity removed
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.Constants.STACKSIZE;
@@ -27,7 +31,7 @@ import static com.minecolonies.api.util.constant.TranslationConstants.COM_MINECO
 public class ItemColonyMap extends AbstractItemMinecolonies
 {
     /**
-     * Tag of the colony.
+     * NBTBase of the colony.
      */
     public static final String TAG_COLONY = "colony";
 
@@ -47,7 +51,7 @@ public class ItemColonyMap extends AbstractItemMinecolonies
     {
         final ItemStack map = ctx.getPlayer().getItemInHand(ctx.getHand());
 
-        final CompoundTag compound = checkForCompound(map);
+        final NBTTagCompound compound = checkForCompound(map);
         final BlockEntity entity = ctx.getLevel().getBlockEntity(ctx.getClickedPos());
 
         if (entity instanceof TileEntityColonyBuilding buildingEntity)
@@ -77,9 +81,9 @@ public class ItemColonyMap extends AbstractItemMinecolonies
     @Override
     @NotNull
     public InteractionResultHolder<ItemStack> use(
-            final Level worldIn,
+            final World worldIn,
             final Player playerIn,
-            final InteractionHand hand)
+            final int /* InteractionHand */ hand)
     {
         final ItemStack map = playerIn.getItemInHand(hand);
 
@@ -98,9 +102,9 @@ public class ItemColonyMap extends AbstractItemMinecolonies
      * @param map the map to check for.
      * @return the compound of the map.
      */
-    private static CompoundTag checkForCompound(final ItemStack map)
+    private static NBTTagCompound checkForCompound(final ItemStack map)
     {
-        if (!map.hasTag()) map.setTag(new CompoundTag());
+        if (!map.hasTag()) map.setTag(new NBTTagCompound());
         return map.getTag();
     }
 
@@ -109,7 +113,7 @@ public class ItemColonyMap extends AbstractItemMinecolonies
      * @param compound the item compound
      * @param player the player entity opening the window
      */
-    private static void openWindow(CompoundTag compound, Level world, Player player)
+    private static void openWindow(NBTTagCompound compound, World world, Player player)
     {
         if (compound.contains(TAG_COLONY))
         {
@@ -121,7 +125,12 @@ public class ItemColonyMap extends AbstractItemMinecolonies
         }
         else
         {
-            player.displayClientMessage(Component.translatable(TranslationConstants.COM_MINECOLONIES_MAP_NEED_COLONY), true);
+            player.displayClientMessage(String.translatable(TranslationConstants.COM_MINECOLONIES_MAP_NEED_COLONY), true);
         }
     }
 }
+
+
+
+
+

@@ -2,7 +2,7 @@ package com.minecolonies.api.entity.citizen.citizenhandlers;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
-import net.minecraft.network.syncher.EntityDataAccessor;
+// [1.7.10] broken import removed
 import org.jetbrains.annotations.Nullable;
 
 public interface ICitizenColonyHandler
@@ -63,7 +63,7 @@ public interface ICitizenColonyHandler
      *
      * @param dataAccessor
      */
-    void onSyncDataUpdate(EntityDataAccessor<?> dataAccessor);
+    void onSyncDataUpdate(Object /* EntityDataAccessor<?> */ dataAccessor);
 
     boolean registered();
 
@@ -73,3 +73,6 @@ public interface ICitizenColonyHandler
      */
     IColony getColony();
 }
+
+
+

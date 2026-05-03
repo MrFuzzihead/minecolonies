@@ -12,17 +12,16 @@ import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.SoundUtils;
 import com.minecolonies.core.colony.Colony;
 import io.netty.buffer.Unpooled;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] Registries removed
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.World;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,12 +41,12 @@ public class PermissionsMessage
     public static class View implements IMessage
     {
         private int          colonyID;
-        private FriendlyByteBuf data;
+        private PacketBuffer data;
 
         /**
          * The dimension of the
          */
-        private ResourceKey<Level> dimension;
+        private int /* ResourceKey */ dimension;
 
         /**
          * Empty constructor used when registering the
@@ -66,15 +65,15 @@ public class PermissionsMessage
         public View(@NotNull final Colony colony, @NotNull final Rank viewerRank)
         {
             this.colonyID = colony.getID();
-            this.data = new FriendlyByteBuf(Unpooled.buffer());
+            this.data = new PacketBuffer(Unpooled.buffer());
             colony.getPermissions().serializeViewNetworkData(this.data, viewerRank);
             this.dimension = colony.getDimension();
         }
 
         @Override
-        public void fromBytes(@NotNull final FriendlyByteBuf buf)
+        public void fromBytes(@NotNull final PacketBuffer buf)
         {
-            final FriendlyByteBuf newBuf = new FriendlyByteBuf(buf.retain());
+            final PacketBuffer newBuf = new PacketBuffer(buf.retain());
             colonyID = newBuf.readInt();
             dimension = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(newBuf.readUtf(32767)));
             data = newBuf;
@@ -82,21 +81,21 @@ public class PermissionsMessage
 
         @Nullable
         @Override
-        public LogicalSide getExecutionSide()
+        public Boolean getExecutionSide()
         {
-            return LogicalSide.CLIENT;
+            return Boolean.FALSE;
         }
 
         @OnlyIn(Dist.CLIENT)
         @Override
-        public void onExecute(final net.minecraftforge.network.NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+        public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
         {
             IColonyManager.getInstance().handlePermissionsViewMessage(colonyID, data, dimension);
             data.release();
         }
 
         @Override
-        public void toBytes(@NotNull final FriendlyByteBuf buf)
+        public void toBytes(@NotNull final PacketBuffer buf)
         {
             data.resetReaderIndex();
             buf.writeInt(colonyID);
@@ -118,7 +117,7 @@ public class PermissionsMessage
         /**
          * The dimension of the
          */
-        private ResourceKey<Level> dimension;
+        private int /* ResourceKey */ dimension;
 
         /**
          * Empty public constructor.
@@ -148,13 +147,13 @@ public class PermissionsMessage
 
         @Nullable
         @Override
-        public LogicalSide getExecutionSide()
+        public Boolean getExecutionSide()
         {
-            return LogicalSide.SERVER;
+            return Boolean.TRUE;
         }
 
         @Override
-        public void onExecute(final net.minecraftforge.network.NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+        public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
         {
             final IColony colony = IColonyManager.getInstance().getColonyByDimension(colonyID, dimension);
             if (colony == null)
@@ -163,11 +162,11 @@ public class PermissionsMessage
                 return;
             }
 
-            colony.getPermissions().alterPermission(colony.getPermissions().getRank(ctxIn.getSender()), rank, action, enable);
+            colony.getPermissions().alterPermission(colony.getPermissions().getRank(ctx.getServerHandler().playerEntity), rank, action, enable);
         }
 
         @Override
-        public void toBytes(@NotNull final FriendlyByteBuf buf)
+        public void toBytes(@NotNull final PacketBuffer buf)
         {
             buf.writeInt(colonyID);
             buf.writeBoolean(enable);
@@ -177,7 +176,7 @@ public class PermissionsMessage
         }
 
         @Override
-        public void fromBytes(@NotNull final FriendlyByteBuf buf)
+        public void fromBytes(@NotNull final PacketBuffer buf)
         {
             colonyID = buf.readInt();
             enable = buf.readBoolean();
@@ -203,7 +202,7 @@ public class PermissionsMessage
         /**
          * The dimension of the
          */
-        private ResourceKey<Level> dimension;
+        private int /* ResourceKey */ dimension;
 
         /**
          * Empty public constructor.
@@ -228,7 +227,7 @@ public class PermissionsMessage
         }
 
         @Override
-        public void toBytes(@NotNull final FriendlyByteBuf buf)
+        public void toBytes(@NotNull final PacketBuffer buf)
         {
             buf.writeInt(colonyID);
             buf.writeUtf(playerName);
@@ -236,7 +235,7 @@ public class PermissionsMessage
         }
 
         @Override
-        public void fromBytes(@NotNull final FriendlyByteBuf buf)
+        public void fromBytes(@NotNull final PacketBuffer buf)
         {
             colonyID = buf.readInt();
             playerName = buf.readUtf(32767);
@@ -245,17 +244,17 @@ public class PermissionsMessage
 
         @Nullable
         @Override
-        public LogicalSide getExecutionSide()
+        public Boolean getExecutionSide()
         {
-            return LogicalSide.SERVER;
+            return Boolean.TRUE;
         }
 
         @Override
-        public void onExecute(final net.minecraftforge.network.NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+        public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
         {
             final IColony colony = IColonyManager.getInstance().getColonyByDimension(colonyID, dimension);
 
-            if (colony != null && colony.getPermissions().hasPermission(ctxIn.getSender(), Action.EDIT_PERMISSIONS) && colony.getWorld() != null)
+            if (colony != null && colony.getPermissions().hasPermission(ctx.getServerHandler().playerEntity, Action.EDIT_PERMISSIONS) && colony.getWorld() != null)
             {
                 colony.getPermissions().addPlayer(playerName, colony.getPermissions().getRank(colony.getPermissions().NEUTRAL_RANK_ID), colony.getWorld());
             }
@@ -282,7 +281,7 @@ public class PermissionsMessage
         /**
          * the dimension of the colony
          */
-        private ResourceKey<Level> dimension;
+        private int /* ResourceKey */ dimension;
 
         /**
          * Empty public constructor
@@ -306,7 +305,7 @@ public class PermissionsMessage
         }
 
         @Override
-        public void toBytes(FriendlyByteBuf buf)
+        public void toBytes(PacketBuffer buf)
         {
             buf.writeInt(colonyID);
             buf.writeUtf(rankName);
@@ -314,7 +313,7 @@ public class PermissionsMessage
         }
 
         @Override
-        public void fromBytes(FriendlyByteBuf buf)
+        public void fromBytes(PacketBuffer buf)
         {
             this.colonyID = buf.readInt();
             this.rankName = buf.readUtf(32767);
@@ -322,10 +321,10 @@ public class PermissionsMessage
         }
 
         @Override
-        public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+        public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
         {
             final IColony colony = IColonyManager.getInstance().getColonyByDimension(colonyID, dimension);
-            if (colony != null && colony.getPermissions().hasPermission(ctxIn.getSender(), Action.EDIT_PERMISSIONS))
+            if (colony != null && colony.getPermissions().hasPermission(ctx.getServerHandler().playerEntity, Action.EDIT_PERMISSIONS))
             {
                 colony.getPermissions().addRank(rankName);
             }
@@ -344,7 +343,7 @@ public class PermissionsMessage
         /**
          * The dimension of the
          */
-        private ResourceKey<Level> dimension;
+        private int /* ResourceKey */ dimension;
 
         /**
          * Empty public constructor.
@@ -371,7 +370,7 @@ public class PermissionsMessage
         }
 
         @Override
-        public void toBytes(@NotNull final FriendlyByteBuf buf)
+        public void toBytes(@NotNull final PacketBuffer buf)
         {
             buf.writeInt(colonyID);
             buf.writeUtf(playerName);
@@ -380,7 +379,7 @@ public class PermissionsMessage
         }
 
         @Override
-        public void fromBytes(@NotNull final FriendlyByteBuf buf)
+        public void fromBytes(@NotNull final PacketBuffer buf)
         {
             colonyID = buf.readInt();
             playerName = buf.readUtf(32767);
@@ -390,21 +389,21 @@ public class PermissionsMessage
 
         @Nullable
         @Override
-        public LogicalSide getExecutionSide()
+        public Boolean getExecutionSide()
         {
-            return LogicalSide.SERVER;
+            return Boolean.TRUE;
         }
 
         @Override
-        public void onExecute(final net.minecraftforge.network.NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+        public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
         {
             final IColony colony = IColonyManager.getInstance().getColonyByDimension(colonyID, dimension);
 
-            if (colony != null && colony.getPermissions().hasPermission(ctxIn.getSender(), Action.EDIT_PERMISSIONS) && colony.getWorld() != null)
+            if (colony != null && colony.getPermissions().hasPermission(ctx.getServerHandler().playerEntity, Action.EDIT_PERMISSIONS) && colony.getWorld() != null)
             {
                 colony.getPermissions().addPlayer(id, playerName, colony.getPermissions().getRank(colony.getPermissions().NEUTRAL_RANK_ID));
                 Optional.ofNullable(colony.getServerBuildingManager().getTownHall()).ifPresent(th -> th.removePermissionEvents(id));
-                SoundUtils.playSuccessSound(ctxIn.getSender(), ctxIn.getSender().blockPosition());
+                SoundUtils.playSuccessSound(ctx.getServerHandler().playerEntity, ctx.getServerHandler().playerEntity.blockPosition());
             }
             else
             {
@@ -425,7 +424,7 @@ public class PermissionsMessage
         /**
          * The dimension of the
          */
-        private ResourceKey<Level> dimension;
+        private int /* ResourceKey */ dimension;
 
         /**
          * Empty public constructor.
@@ -452,7 +451,7 @@ public class PermissionsMessage
         }
 
         @Override
-        public void toBytes(@NotNull final FriendlyByteBuf buf)
+        public void toBytes(@NotNull final PacketBuffer buf)
         {
             buf.writeInt(colonyID);
             PacketUtils.writeUUID(buf, playerID);
@@ -461,7 +460,7 @@ public class PermissionsMessage
         }
 
         @Override
-        public void fromBytes(@NotNull final FriendlyByteBuf buf)
+        public void fromBytes(@NotNull final PacketBuffer buf)
         {
             colonyID = buf.readInt();
             playerID = PacketUtils.readUUID(buf);
@@ -472,7 +471,7 @@ public class PermissionsMessage
         }
 
         @Override
-        public void onExecute(final net.minecraftforge.network.NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+        public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
         {
             final IColony colony = IColonyManager.getInstance().getColonyByDimension(colonyID, dimension);
 
@@ -481,7 +480,7 @@ public class PermissionsMessage
                 Log.getLogger().error(String.format(COLONY_DOES_NOT_EXIST, colonyID), new Exception());
                 return;
             }
-            final Player player = ctxIn.getSender();
+            final Player player = ctx.getServerHandler().playerEntity;
             if (colony.getPermissions().hasPermission(player, Action.EDIT_PERMISSIONS) && rank != colony.getPermissions().getRankOwner())
             {
                 colony.getPermissions().setPlayerRank(playerID, rank, colony.getWorld());
@@ -500,7 +499,7 @@ public class PermissionsMessage
         /**
          * The dimension of the
          */
-        private ResourceKey<Level> dimension;
+        private int /* ResourceKey */ dimension;
 
         /**
          * Empty public constructor.
@@ -525,7 +524,7 @@ public class PermissionsMessage
         }
 
         @Override
-        public void toBytes(@NotNull final FriendlyByteBuf buf)
+        public void toBytes(@NotNull final PacketBuffer buf)
         {
             buf.writeInt(colonyID);
             PacketUtils.writeUUID(buf, playerID);
@@ -533,7 +532,7 @@ public class PermissionsMessage
         }
 
         @Override
-        public void fromBytes(@NotNull final FriendlyByteBuf buf)
+        public void fromBytes(@NotNull final PacketBuffer buf)
         {
             colonyID = buf.readInt();
             playerID = PacketUtils.readUUID(buf);
@@ -542,13 +541,13 @@ public class PermissionsMessage
 
         @Nullable
         @Override
-        public LogicalSide getExecutionSide()
+        public Boolean getExecutionSide()
         {
-            return LogicalSide.SERVER;
+            return Boolean.TRUE;
         }
 
         @Override
-        public void onExecute(final net.minecraftforge.network.NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+        public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
         {
             final IColony colony = IColonyManager.getInstance().getColonyByDimension(colonyID, dimension);
 
@@ -557,7 +556,7 @@ public class PermissionsMessage
                 Log.getLogger().error(String.format(COLONY_DOES_NOT_EXIST, colonyID), new Exception());
                 return;
             }
-            final ServerPlayer player = ctxIn.getSender();
+            final EntityPlayerMP player = ctx.getServerHandler().playerEntity;
             final ColonyPlayer permissionsPlayer = colony.getPermissions().getPlayers().get(playerID);
             if ((permissionsPlayer.getRank().isHostile() && colony.getPermissions().hasPermission(player, Action.EDIT_PERMISSIONS))
                   || (!permissionsPlayer.getRank().isHostile()
@@ -586,7 +585,7 @@ public class PermissionsMessage
         /**
          * the dimension of the colony
          */
-        private ResourceKey<Level> dimension;
+        private int /* ResourceKey */ dimension;
 
         /**
          * Empty public constructor
@@ -610,7 +609,7 @@ public class PermissionsMessage
         }
 
         @Override
-        public void toBytes(@NotNull final FriendlyByteBuf buf)
+        public void toBytes(@NotNull final PacketBuffer buf)
         {
             buf.writeInt(colonyId);
             buf.writeInt(rankId);
@@ -618,7 +617,7 @@ public class PermissionsMessage
         }
 
         @Override
-        public void fromBytes(@NotNull final FriendlyByteBuf buf)
+        public void fromBytes(@NotNull final PacketBuffer buf)
         {
             colonyId = buf.readInt();
             rankId = buf.readInt();
@@ -626,10 +625,10 @@ public class PermissionsMessage
         }
 
         @Override
-        public void onExecute(final net.minecraftforge.network.NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+        public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
         {
             final IColony colony = IColonyManager.getInstance().getColonyByDimension(colonyId, dimension);
-            if (colony != null && colony.getPermissions().hasPermission(ctxIn.getSender(), Action.EDIT_PERMISSIONS))
+            if (colony != null && colony.getPermissions().hasPermission(ctx.getServerHandler().playerEntity, Action.EDIT_PERMISSIONS))
             {
                 colony.getPermissions().removeRank(colony.getPermissions().getRanks().get(rankId));
             }
@@ -652,7 +651,7 @@ public class PermissionsMessage
         /**
          * the dimension
          */
-        private ResourceKey<Level> dimension;
+        private int /* ResourceKey */ dimension;
         /**
          * the new rank type
          */
@@ -678,7 +677,7 @@ public class PermissionsMessage
         }
 
         @Override
-        public void toBytes(final FriendlyByteBuf buf)
+        public void toBytes(final PacketBuffer buf)
         {
             buf.writeInt(colonyId);
             buf.writeInt(rankId);
@@ -687,7 +686,7 @@ public class PermissionsMessage
         }
 
         @Override
-        public void fromBytes(final FriendlyByteBuf buf)
+        public void fromBytes(final PacketBuffer buf)
         {
             this.colonyId = buf.readInt();
             this.rankId = buf.readInt();
@@ -696,10 +695,10 @@ public class PermissionsMessage
         }
 
         @Override
-        public void onExecute(final net.minecraftforge.network.NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+        public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
         {
             final IColony colony = IColonyManager.getInstance().getColonyByDimension(colonyId, dimension);
-            if (colony != null && colony.getPermissions().hasPermission(ctxIn.getSender(), Action.EDIT_PERMISSIONS))
+            if (colony != null && colony.getPermissions().hasPermission(ctx.getServerHandler().playerEntity, Action.EDIT_PERMISSIONS))
             {
                 final Rank rank = colony.getPermissions().getRank(rankId);
                 switch (rankType)
@@ -722,3 +721,7 @@ public class PermissionsMessage
         }
     }
 }
+
+
+
+

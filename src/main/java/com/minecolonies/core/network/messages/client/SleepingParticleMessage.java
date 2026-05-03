@@ -2,12 +2,11 @@ package com.minecolonies.core.network.messages.client;
 
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.apiimp.initializer.ModParticleTypesInitializer;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -35,7 +34,7 @@ public class SleepingParticleMessage implements IMessage
     }
 
     @Override
-    public void fromBytes(final FriendlyByteBuf byteBuf)
+    public void fromBytes(final PacketBuffer byteBuf)
     {
         x = byteBuf.readDouble();
         y = byteBuf.readDouble();
@@ -43,7 +42,7 @@ public class SleepingParticleMessage implements IMessage
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf byteBuf)
+    public void toBytes(final PacketBuffer byteBuf)
     {
         byteBuf.writeDouble(x);
         byteBuf.writeDouble(y);
@@ -52,16 +51,16 @@ public class SleepingParticleMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.CLIENT;
+        return Boolean.FALSE;
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
-        Minecraft.getInstance().level.addParticle(ModParticleTypesInitializer.SLEEPINGPARTICLE_TYPE,
+        Minecraft.getInstance().World.addParticle(ModParticleTypesInitializer.SLEEPINGPARTICLE_TYPE,
           x,
           y,
           z,
@@ -70,3 +69,6 @@ public class SleepingParticleMessage implements IMessage
           1.0f);
     }
 }
+
+
+

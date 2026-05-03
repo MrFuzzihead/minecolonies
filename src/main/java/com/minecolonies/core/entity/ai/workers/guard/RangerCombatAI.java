@@ -29,15 +29,15 @@ import com.minecolonies.core.entity.pathfinding.pathjobs.PathJobMoveAwayFromLoca
 import com.minecolonies.core.entity.pathfinding.pathjobs.PathJobMoveToLocation;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
-import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] sounds removed
+// [1.7.10] int /* InteractionHand */ removed
+import net.minecraft.entity.EntityLivingBase;
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
 import net.minecraft.world.item.ArrowItem;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 
@@ -119,10 +119,10 @@ public class RangerCombatAI extends AttackMoveAI<EntityCitizen>
 
         if (weaponSlot != -1)
         {
-            CitizenItemUtils.setHeldItem(user, InteractionHand.MAIN_HAND, weaponSlot);
-            if (nextAttackTime - BOW_HOLDING_DELAY >= user.level.getGameTime() && !user.isUsingItem())
+            CitizenItemUtils.setHeldItem(user, 0 /* InteractionHand.MAIN_HAND */, weaponSlot);
+            if (nextAttackTime - BOW_HOLDING_DELAY >= user.World.getGameTime() && !user.isUsingItem())
             {
-                user.startUsingItem(InteractionHand.MAIN_HAND);
+                user.startUsingItem(0 /* InteractionHand.MAIN_HAND */);
             }
             return true;
         }
@@ -144,7 +144,7 @@ public class RangerCombatAI extends AttackMoveAI<EntityCitizen>
     }
 
     @Override
-    protected void doAttack(final LivingEntity target)
+    protected void doAttack(final EntityLivingBase target)
     {
         if (user.distanceToSqr(target) < RANGED_FLEE_SQDIST)
         {
@@ -160,7 +160,7 @@ public class RangerCombatAI extends AttackMoveAI<EntityCitizen>
         }
 
         user.getCitizenData().setVisibleStatus(ARCHER_COMBAT);
-        user.swing(InteractionHand.MAIN_HAND);
+        user.swing(0 /* InteractionHand.MAIN_HAND */);
         user.stopUsingItem();
 
         int amountOfArrows = 1;
@@ -182,7 +182,7 @@ public class RangerCombatAI extends AttackMoveAI<EntityCitizen>
             }
 
             // Add bow enchant effects: Knocback and fire
-            final ItemStack bow = user.getItemInHand(InteractionHand.MAIN_HAND);
+            final ItemStack bow = user.getItemInHand(0 /* InteractionHand.MAIN_HAND */);
 
             if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.FLAMING_ARROWS, bow) > 0)
             {
@@ -205,7 +205,7 @@ public class RangerCombatAI extends AttackMoveAI<EntityCitizen>
         }
 
         target.setLastHurtByMob(user);
-        CitizenItemUtils.damageItemInHand(user, InteractionHand.MAIN_HAND, 1);
+        CitizenItemUtils.damageItemInHand(user, 0 /* InteractionHand.MAIN_HAND */, 1);
         user.stopUsingItem();
     }
 
@@ -213,12 +213,12 @@ public class RangerCombatAI extends AttackMoveAI<EntityCitizen>
     protected double getAttackDistance()
     {
         int attackDist = BASE_DISTANCE_FOR_RANGED_ATTACK;
-        // + 1 Blockrange per building level for a total of +5 from building level
+        // + 1 Blockrange per building World for a total of +5 from building World
         if (user.getCitizenData().getWorkBuilding() != null)
         {
             attackDist += user.getCitizenData().getWorkBuilding().getBuildingLevelEquivalent();
         }
-        // ~ +1 each three levels for a total of +10 from guard level
+        // ~ +1 each three levels for a total of +10 from guard World
         if (user.getCitizenData() != null)
         {
             attackDist += (user.getCitizenData().getCitizenSkillHandler().getLevel(Skill.Adaptability) / 50.0f) * 15;
@@ -255,7 +255,7 @@ public class RangerCombatAI extends AttackMoveAI<EntityCitizen>
     {
         double damage = user.getCitizenData().getCitizenSkillHandler().getLevel(Skill.Agility) / 5d;
 
-        final ItemStack heldItem = user.getItemInHand(InteractionHand.MAIN_HAND);
+        final ItemStack heldItem = user.getItemInHand(0 /* InteractionHand.MAIN_HAND */);
         damage += EnchantmentHelper.getDamageBonus(heldItem, target.getMobType()) / 2.5;
         damage += EnchantmentHelper.getItemEnchantmentLevel(Enchantments.POWER_ARROWS, heldItem);
         damage += user.getCitizenColonyHandler().getColonyOrRegister().getResearchManager().getResearchEffects().getEffectStrength(ARCHER_DAMAGE);
@@ -299,11 +299,11 @@ public class RangerCombatAI extends AttackMoveAI<EntityCitizen>
     }
 
     @Override
-    protected PathResult moveInAttackPosition(final LivingEntity target)
+    protected PathResult moveInAttackPosition(final EntityLivingBase target)
     {
         if (BlockPosUtil.getDistanceSquared(target.blockPosition(), user.blockPosition()) <= 4.0)
         {
-            final PathJobMoveAwayFromLocation job = new PathJobMoveAwayFromLocation(user.level,
+            final PathJobMoveAwayFromLocation job = new PathJobMoveAwayFromLocation(user.World,
               PathfindingUtils.prepareStart(target),
               target.blockPosition(),
               (int) 7.0,
@@ -315,12 +315,12 @@ public class RangerCombatAI extends AttackMoveAI<EntityCitizen>
         }
         else if (BlockPosUtil.getDistance2D(target.blockPosition(), user.blockPosition()) >= 20)
         {
-            final PathJobMoveToLocation job = new PathJobMoveToLocation(user.level, PathfindingUtils.prepareStart(user), target.blockPosition(), 200, user);
+            final PathJobMoveToLocation job = new PathJobMoveToLocation(user.World, PathfindingUtils.prepareStart(user), target.blockPosition(), 200, user);
             final PathResult pathResult = ((MinecoloniesAdvancedPathNavigate) user.getNavigation()).setPathJob(job, null, getCombatMovementSpeed(), true);
             job.setPathingOptions(combatPathingOptions);
             return pathResult;
         }
-        final PathJobCanSee job = new PathJobCanSee(user, target, user.level, ((AbstractBuildingGuards) user.getCitizenData().getWorkBuilding()).getGuardPos(user), 40);
+        final PathJobCanSee job = new PathJobCanSee(user, target, user.World, ((AbstractBuildingGuards) user.getCitizenData().getWorkBuilding()).getGuardPos(user), 40);
         final PathResult pathResult = ((MinecoloniesAdvancedPathNavigate) user.getNavigation()).setPathJob(job, null, getCombatMovementSpeed(), true);
         job.setPathingOptions(combatPathingOptions);
         return pathResult;
@@ -341,19 +341,19 @@ public class RangerCombatAI extends AttackMoveAI<EntityCitizen>
     }
 
     @Override
-    protected boolean isAttackableTarget(final LivingEntity entity)
+    protected boolean isAttackableTarget(final EntityLivingBase entity)
     {
         return AbstractEntityAIGuard.isAttackableTarget(user, entity);
     }
 
     @Override
-    protected boolean isWithinPersecutionDistance(final LivingEntity target)
+    protected boolean isWithinPersecutionDistance(final EntityLivingBase target)
     {
         return parentAI.isWithinPersecutionDistance(target.blockPosition(), getAttackDistance());
     }
 
     @Override
-    protected boolean skipSearch(final LivingEntity entity)
+    protected boolean skipSearch(final EntityLivingBase entity)
     {
         // Found a sleeping guard nearby
         if (entity instanceof EntityCitizen)
@@ -371,7 +371,7 @@ public class RangerCombatAI extends AttackMoveAI<EntityCitizen>
     }
 
     @Override
-    protected void onTargetChange(final LivingEntity newTarget)
+    protected void onTargetChange(final EntityLivingBase newTarget)
     {
         super.onTargetChange(newTarget);
         CombatUtils.notifyGuardsOfTarget(user, newTarget, PATROL_DEVIATION_RAID_POINT);
@@ -389,7 +389,7 @@ public class RangerCombatAI extends AttackMoveAI<EntityCitizen>
     }
 
     @Override
-    protected void onTargetDied(final LivingEntity entity)
+    protected void onTargetDied(final EntityLivingBase entity)
     {
         parentAI.incrementActionsDone();
         user.getCitizenExperienceHandler().addExperience(EXP_PER_MOB_DEATH);
@@ -401,3 +401,8 @@ public class RangerCombatAI extends AttackMoveAI<EntityCitizen>
         user.decreaseSaturationForContinuousAction();
     }
 }
+
+
+
+
+

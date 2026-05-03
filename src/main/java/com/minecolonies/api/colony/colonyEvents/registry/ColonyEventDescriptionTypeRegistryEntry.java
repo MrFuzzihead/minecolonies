@@ -2,9 +2,9 @@ package com.minecolonies.api.colony.colonyEvents.registry;
 
 import com.minecolonies.api.colony.colonyEvents.descriptions.IColonyEventDescription;
 import com.minecolonies.api.util.Log;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -18,12 +18,12 @@ public class ColonyEventDescriptionTypeRegistryEntry
     /**
      * Function for creating the event description from nbt.
      */
-    private final Function<CompoundTag, IColonyEventDescription> nbtEventDescriptionCreator;
+    private final Function<NBTTagCompound, IColonyEventDescription> nbtEventDescriptionCreator;
 
     /**
-     * Function for creating the event description from a {@link FriendlyByteBuf}.
+     * Function for creating the event description from a {@link PacketBuffer}.
      */
-    private final Function<FriendlyByteBuf, IColonyEventDescription> packetBufferEventDescriptionCreator;
+    private final Function<PacketBuffer, IColonyEventDescription> packetBufferEventDescriptionCreator;
 
     /**
      * The name of this registry.
@@ -34,10 +34,10 @@ public class ColonyEventDescriptionTypeRegistryEntry
      * Creates a new registry entry for the given function and registry name.
      *
      * @param nbtEventCreator          the event creator using nbt.
-     * @param packetBufferEventCreator the event creator using a {@link FriendlyByteBuf}.
+     * @param packetBufferEventCreator the event creator using a {@link PacketBuffer}.
      * @param registryID               the registry id.
      */
-    public ColonyEventDescriptionTypeRegistryEntry(@NotNull final Function<CompoundTag, IColonyEventDescription> nbtEventCreator, @NotNull final Function<FriendlyByteBuf, IColonyEventDescription> packetBufferEventCreator, @NotNull final ResourceLocation registryID)
+    public ColonyEventDescriptionTypeRegistryEntry(@NotNull final Function<NBTTagCompound, IColonyEventDescription> nbtEventCreator, @NotNull final Function<PacketBuffer, IColonyEventDescription> packetBufferEventCreator, @NotNull final ResourceLocation registryID)
     {
         if (registryID.getPath().isEmpty())
         {
@@ -55,18 +55,18 @@ public class ColonyEventDescriptionTypeRegistryEntry
      * @param compound the nbt to deserialize the event description from.
      * @return the deserialized event description.
      */
-    public IColonyEventDescription deserializeEventDescriptionFromNBT(@Nonnull final CompoundTag compound)
+    public IColonyEventDescription deserializeEventDescriptionFromNBT(@Nonnull final NBTTagCompound compound)
     {
         return nbtEventDescriptionCreator.apply(compound);
     }
 
     /**
-     * Deserializes the event description from the given {@link FriendlyByteBuf}.
+     * Deserializes the event description from the given {@link PacketBuffer}.
      * 
-     * @param buffer the {@link FriendlyByteBuf} to deserialize the event description from.
+     * @param buffer the {@link PacketBuffer} to deserialize the event description from.
      * @return the deserialized event description.
      */
-    public IColonyEventDescription deserializeEventDescriptionFromFriendlyByteBuf(@Nonnull final FriendlyByteBuf buffer)
+    public IColonyEventDescription deserializeEventDescriptionFromFriendlyByteBuf(@Nonnull final PacketBuffer buffer)
     {
         return packetBufferEventDescriptionCreator.apply(buffer);
     }
@@ -80,3 +80,6 @@ public class ColonyEventDescriptionTypeRegistryEntry
         return registryName;
     }
 }
+
+
+

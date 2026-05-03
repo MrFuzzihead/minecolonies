@@ -6,8 +6,8 @@ import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.core.colony.buildings.modules.WorkerBuildingModule;
 import com.minecolonies.core.colony.buildings.workerbuildings.Stash;
 import com.minecolonies.core.network.messages.server.AbstractBuildingServerMessage;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import org.jetbrains.annotations.NotNull;
 
 public class ChangeDeliveryPriorityMessage extends AbstractBuildingServerMessage<IBuilding>
@@ -43,7 +43,7 @@ public class ChangeDeliveryPriorityMessage extends AbstractBuildingServerMessage
      * @param buf the used byteBuffer.
      */
     @Override
-    public void fromBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void fromBytesOverride(@NotNull final PacketBuffer buf)
     {
         this.up = buf.readBoolean();
     }
@@ -54,13 +54,13 @@ public class ChangeDeliveryPriorityMessage extends AbstractBuildingServerMessage
      * @param buf the used byteBuffer.
      */
     @Override
-    public void toBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void toBytesOverride(@NotNull final PacketBuffer buf)
     {
         buf.writeBoolean(this.up);
     }
 
     @Override
-    protected void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony, final IBuilding building)
+    protected void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony, final IBuilding building)
     {
         if ((building != null && building.hasModule(WorkerBuildingModule.class)) || building instanceof Stash)
         {
@@ -76,3 +76,5 @@ public class ChangeDeliveryPriorityMessage extends AbstractBuildingServerMessage
         }
     }
 }
+
+

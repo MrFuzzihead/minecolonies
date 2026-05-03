@@ -10,14 +10,14 @@ import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.core.colony.buildings.modules.AnimalHerdingModule;
 
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.Entity;
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
 import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.World;
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ public final class RecipeAnalyzer
      * @return the recipe map
      */
     public static Map<CraftingType, List<IGenericRecipe>> buildVanillaRecipesMap(@NotNull final RecipeManager recipeManager,
-                                                                                 @NotNull final Level world)
+                                                                                 @NotNull final World world)
     {
         final ImmutableMap.Builder<CraftingType, List<IGenericRecipe>> builder = ImmutableMap.builder();
 
@@ -60,7 +60,7 @@ public final class RecipeAnalyzer
     @NotNull
     public static List<IGenericRecipe> findRecipes(@NotNull final Map<CraftingType, List<IGenericRecipe>> vanilla,
                                                    @NotNull final ICraftingBuildingModule crafting,
-                                                   @NotNull final Level world)
+                                                   @NotNull final World world)
     {
         final List<IGenericRecipe> recipes = new ArrayList<>();
 
@@ -105,10 +105,10 @@ public final class RecipeAnalyzer
     /**
      * Create example instances of every possible {@link Animal} entity.
      *
-     * @param level a level
+     * @param World a World
      * @return list of animals
      */
-    public static List<Animal> createAnimals(@NotNull final Level level)
+    public static List<Animal> createAnimals(@NotNull final World World)
     {
         final List<Animal> animals = new ArrayList<>();
 
@@ -121,7 +121,7 @@ public final class RecipeAnalyzer
             try
             {
                 // sadly there doesn't seem to be a better way to discover the actual classes for each type, because Java
-                final Entity entity = entityType.create(level);
+                final Entity entity = entityType.create(World);
                 if (entity instanceof Animal animal)
                 {
                     animals.add(animal);
@@ -166,3 +166,6 @@ public final class RecipeAnalyzer
          */
     }
 }
+
+
+

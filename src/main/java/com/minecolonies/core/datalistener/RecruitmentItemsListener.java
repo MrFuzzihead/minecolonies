@@ -8,14 +8,14 @@ import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.MathUtils;
 import com.minecolonies.api.util.constant.ColonyConstants;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] BuiltInRegistries removed
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
-import net.minecraft.util.GsonHelper;
+// [1.7.10] GsonHelper removed
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,7 +30,7 @@ import static com.minecolonies.core.generation.DataGeneratorConstants.COLONY_REC
 public class RecruitmentItemsListener extends SimpleJsonResourceReloadListener
 {
     /**
-     * Base recruitment level.
+     * Base recruitment World.
      */
     public static int BASE_RECRUIT_LEVEL = 15;
 
@@ -40,7 +40,7 @@ public class RecruitmentItemsListener extends SimpleJsonResourceReloadListener
     public static int MAX_RARITY = 9;
 
     /**
-     * Base item count. Per level of rarity it's that much less.
+     * Base item count. Per World of rarity it's that much less.
      */
     public static int BASE_ITEM_COUNT = 5;
 
@@ -86,7 +86,7 @@ public class RecruitmentItemsListener extends SimpleJsonResourceReloadListener
     /**
      * Get a random recruit cost using the input random source.
      *
-     * @param buildingLevel the building level.
+     * @param buildingLevel the building World.
      * @return a random recruit cost.
      */
     @Nullable
@@ -170,3 +170,6 @@ public class RecruitmentItemsListener extends SimpleJsonResourceReloadListener
         ItemStack boots)
     {}
 }
+
+
+

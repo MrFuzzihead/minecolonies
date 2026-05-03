@@ -1,16 +1,47 @@
 package com.minecolonies.core.client.render.mobs.norsemen;
+import com.mojang.math.Axis;
+import com.mojang.math.Pose;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.EntityModelSet;
+import net.minecraft.world.item.BannerItem;
+import net.minecraft.world.level.GameType;
+import net.minecraft.network.chat.FormattedCharSequence;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
+import net.minecraft.world.item.CrossbowItem;
+import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.client.renderer.blockentity.BlockEntityWithoutLevelRenderer;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.MobRenderer;
+import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
+import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
+import net.minecraft.client.renderer.entity.layers.RenderLayerParent;
+import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
 
 import com.minecolonies.api.entity.mobs.AbstractEntityMinecoloniesMonster;
 import com.minecolonies.core.client.render.RenderUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
-import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
-import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
-import net.minecraft.world.InteractionHand;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int /* InteractionHand */ removed
 
 /**
  * Abstract for rendering amazons.
@@ -27,8 +58,12 @@ public abstract class AbstractRendererNorsemen<T extends AbstractEntityMinecolon
     @Override
     public void render(T raider, float p_115456_, float p_115457_, PoseStack p_115458_, MultiBufferSource p_115459_, int p_115460_)
     {
-        model.rightArmPose = RenderUtils.getArmPose(raider, InteractionHand.MAIN_HAND);
-        model.leftArmPose = RenderUtils.getArmPose(raider, InteractionHand.OFF_HAND);
+        model.rightArmPose = RenderUtils.getArmPose(raider, 0 /* InteractionHand.MAIN_HAND */);
+        model.leftArmPose = RenderUtils.getArmPose(raider, 1 /* InteractionHand.OFF_HAND */);
         super.render(raider, p_115456_, p_115457_, p_115458_, p_115459_, p_115460_);
     }
 }
+
+
+
+

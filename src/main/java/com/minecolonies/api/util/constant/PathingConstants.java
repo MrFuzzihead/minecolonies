@@ -1,6 +1,6 @@
 package com.minecolonies.api.util.constant;
 
-import net.minecraft.core.BlockPos;
+// [1.7.10] int[] -> int x,y,z
 
 /**
  * Pathing constants class.
@@ -10,13 +10,13 @@ public final class PathingConstants
     //  Debug Output
     public static final int      DEBUG_VERBOSITY_NONE = 0;
     public static final int      DEBUG_VERBOSITY_FULL = 2;
-    public static final BlockPos BLOCKPOS_IDENTITY    = new BlockPos(0, 0, 0);
-    public static final BlockPos BLOCKPOS_UP          = new BlockPos(0, 1, 0);
-    public static final BlockPos BLOCKPOS_DOWN        = new BlockPos(0, -1, 0);
-    public static final BlockPos BLOCKPOS_NORTH       = new BlockPos(0, 0, -1);
-    public static final BlockPos BLOCKPOS_SOUTH       = new BlockPos(0, 0, 1);
-    public static final BlockPos BLOCKPOS_EAST        = new BlockPos(1, 0, 0);
-    public static final BlockPos BLOCKPOS_WEST        = new BlockPos(-1, 0, 0);
+    public static final int[] BLOCKPOS_IDENTITY    = new int[]{0, 0, 0};
+    public static final int[] BLOCKPOS_UP          = new int[]{0, 1, 0};
+    public static final int[] BLOCKPOS_DOWN        = new int[]{0, -1, 0};
+    public static final int[] BLOCKPOS_NORTH       = new int[]{0, 0, -1};
+    public static final int[] BLOCKPOS_SOUTH       = new int[]{0, 0, 1};
+    public static final int[] BLOCKPOS_EAST        = new int[]{1, 0, 0};
+    public static final int[] BLOCKPOS_WEST        = new int[]{-1, 0, 0};
 
     /**
      * Distance which is considered to be on one side of the fence/glasspane/wall etc.
@@ -58,3 +58,5 @@ public final class PathingConstants
          */
     }
 }
+
+

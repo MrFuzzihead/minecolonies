@@ -5,9 +5,9 @@ import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.core.Network;
 import com.minecolonies.core.client.gui.map.WindowColonyMap;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class ColonyListMessage implements IMessage
     }
 
     @Override
-    public void fromBytes(@NotNull final FriendlyByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
         colonyInfo = new ArrayList<>();
         final int count = buf.readInt();
@@ -59,7 +59,7 @@ public class ColonyListMessage implements IMessage
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
         buf.writeInt(colonies.size());
         for (final IColony colony : colonies)
@@ -74,22 +74,22 @@ public class ColonyListMessage implements IMessage
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
         if (!isLogicalServer)
         {
             WindowColonyMap.setColonies(colonyInfo);
         }
-        else if (ctxIn.getSender() != null)
+        else if (ctx.getServerHandler().playerEntity != null)
         {
-            Network.getNetwork().sendToPlayer(new ColonyListMessage(IColonyManager.getInstance().getColonies(ctxIn.getSender().level)), ctxIn.getSender());
+            Network.getNetwork().sendToPlayer(new ColonyListMessage(IColonyManager.getInstance().getColonies(ctx.getServerHandler().playerEntity.World)), ctx.getServerHandler().playerEntity);
         }
     }
 
     public static class ColonyInfo
     {
         private final int      id;
-        private       BlockPos center;
+        private       int[] center;
         private       String   name;
         private       int      citizencount;
         private       String   owner;
@@ -105,7 +105,7 @@ public class ColonyListMessage implements IMessage
             return id;
         }
 
-        public BlockPos getCenter()
+        public int[] getCenter()
         {
             return center;
         }
@@ -130,3 +130,5 @@ public class ColonyListMessage implements IMessage
         }
     }
 }
+
+

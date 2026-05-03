@@ -3,21 +3,20 @@ package com.minecolonies.core.network.messages.client.colony;
 import com.minecolonies.api.entity.citizen.AbstractCivilianEntity;
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.api.sounds.SoundManager;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.registries.ForgeRegistries;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Registries removed
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] sounds removed
+// [1.7.10] sounds removed
+import net.minecraft.entity.Entity;
+import net.minecraft.world.World;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+// [1.7.10] registries removed
 import org.jetbrains.annotations.Nullable;
 
 import static com.minecolonies.api.util.SoundUtils.PITCH;
@@ -46,12 +45,12 @@ public class PlaySoundForCitizenMessage implements IMessage
     /**
      * The position to play at
      */
-    private BlockPos pos;
+    private int[] pos;
 
     /**
      * The dimension id to play in
      */
-    private ResourceKey<Level> dimensionID;
+    private int /* ResourceKey */ dimensionID;
 
     /**
      * The volume to use
@@ -88,7 +87,7 @@ public class PlaySoundForCitizenMessage implements IMessage
      * @param pos the position to play it at.
      * @param world the world to play it in.
      */
-    public PlaySoundForCitizenMessage(final int entityID, final SoundEvent event, final BlockPos pos, final Level world)
+    public PlaySoundForCitizenMessage(final int entityID, final SoundEvent event, final int[] pos, final World world)
     {
         this(entityID, event, SoundSource.NEUTRAL, pos, world, (float) VOLUME, (float) PITCH, 1, 1);
     }
@@ -101,7 +100,7 @@ public class PlaySoundForCitizenMessage implements IMessage
      * @param pos the position to play it at.
      * @param world the world to play it in.
      */
-    public PlaySoundForCitizenMessage(final int entityID, final SoundEvent event, final SoundSource soundSource, final BlockPos pos, final Level world)
+    public PlaySoundForCitizenMessage(final int entityID, final SoundEvent event, final SoundSource soundSource, final int[] pos, final World world)
     {
         this(entityID, event, soundSource, pos, world, (float) VOLUME, (float) PITCH, 1, 1);
     }
@@ -116,7 +115,7 @@ public class PlaySoundForCitizenMessage implements IMessage
      * @param length the length of the music.
      * @param repetitions the number of repetitions.
      */
-    public PlaySoundForCitizenMessage(final int entityID, final SoundEvent event, final SoundSource soundSource, final BlockPos pos, final Level world, final int length, final int repetitions)
+    public PlaySoundForCitizenMessage(final int entityID, final SoundEvent event, final SoundSource soundSource, final int[] pos, final World world, final int length, final int repetitions)
     {
         this(entityID, event, soundSource, pos, world, (float) VOLUME, (float) PITCH, length, repetitions);
     }
@@ -133,7 +132,7 @@ public class PlaySoundForCitizenMessage implements IMessage
      * @param length the length of the music.
      * @param repetitions the number of repetitions.
      */
-    public PlaySoundForCitizenMessage(final int entityID, final SoundEvent event, final SoundSource soundSource, final BlockPos pos, final Level world, final float volume, final float pitch, final int length, final int repetitions)
+    public PlaySoundForCitizenMessage(final int entityID, final SoundEvent event, final SoundSource soundSource, final int[] pos, final World world, final float volume, final float pitch, final int length, final int repetitions)
     {
         super();
         this.entityid = entityID;
@@ -148,7 +147,7 @@ public class PlaySoundForCitizenMessage implements IMessage
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    public void toBytes(final PacketBuffer buf)
     {
         buf.writeResourceLocation(this.soundEvent.getLocation());
         buf.writeInt(soundSource.ordinal());
@@ -162,7 +161,7 @@ public class PlaySoundForCitizenMessage implements IMessage
     }
 
     @Override
-    public void fromBytes(final FriendlyByteBuf buf)
+    public void fromBytes(final PacketBuffer buf)
     {
         this.soundEvent = ForgeRegistries.SOUND_EVENTS.getValue(buf.readResourceLocation());
         this.soundSource = SoundSource.values()[buf.readInt()];
@@ -177,19 +176,23 @@ public class PlaySoundForCitizenMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.CLIENT;
+        return Boolean.FALSE;
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
-        final Entity entity = Minecraft.getInstance().level.getEntity(this.entityid);
+        final Entity entity = Minecraft.getInstance().World.getEntity(this.entityid);
         if (entity instanceof AbstractCivilianEntity)
         {
             SoundManager.addToQueue(entity.getUUID(), this.soundEvent, this.soundSource, this.repetitions, this.length, this.pos, this.volume, this.pitch);
         }
     }
 }
+
+
+
+

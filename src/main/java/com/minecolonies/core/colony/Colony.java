@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -43,28 +49,28 @@ import com.minecolonies.core.colony.workorders.WorkManager;
 import com.minecolonies.core.datalistener.CitizenNameListener;
 import com.minecolonies.core.network.messages.client.colony.ColonyViewRemoveWorkOrderMessage;
 import com.minecolonies.core.quests.QuestManager;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.util.EnumChatFormatting;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] BuiltInRegistries removed
+// [1.7.10] Registries removed
 import net.minecraft.nbt.*;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerChunkCache;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BannerPattern;
-import net.minecraft.world.level.block.entity.BannerPatterns;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] ServerChunkCache not in 1.7.10
+import net.minecraft.world.WorldServer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.EntityPlayer;
+// [1.7.10] DyeColor not in 1.7.10
+import net.minecraft.world.ChunkCoordIntPair;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
+// [1.7.10] block.entity removed
+// [1.7.10] block.entity removed
+// [1.7.10] int -> int metadata
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.registries.ForgeRegistries;
+import cpw.mods.fml.common.gameevent.TickEvent;
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -100,7 +106,7 @@ public class Colony implements IColony
     /**
      * Dimension of the colony.
      */
-    private ResourceKey<Level> dimensionId;
+    private int /* ResourceKey */ dimensionId;
 
     /**
      * List of loaded chunks for the colony.
@@ -127,7 +133,7 @@ public class Colony implements IColony
     /**
      * List of waypoints of the colony.
      */
-    private final Map<BlockPos, BlockState> wayPoints = new HashMap<>();
+    private final Map<int[], Integer> wayPoints = new HashMap<>();
 
     /**
      * Work Manager of the colony (Request System).
@@ -207,7 +213,7 @@ public class Colony implements IColony
     /**
      * The Positions which players can freely interact.
      */
-    private ImmutableSet<BlockPos> freePositions = ImmutableSet.of();
+    private ImmutableSet<int[]> freePositions = ImmutableSet.of();
 
     /**
      * The Blocks which players can freely interact with.
@@ -233,7 +239,7 @@ public class Colony implements IColony
      * The world the colony currently runs on.
      */
     @Nullable
-    private Level world = null;
+    private World world = null;
 
     /**
      * The name of the colony.
@@ -243,7 +249,7 @@ public class Colony implements IColony
     /**
      * The center of the colony.
      */
-    private BlockPos center;
+    private int[] center;
 
     /**
      * The colony permission object.
@@ -264,12 +270,12 @@ public class Colony implements IColony
     /**
      * The NBTTag compound of the colony itself.
      */
-    private CompoundTag colonyTag;
+    private NBTTagCompound colonyTag;
 
     /**
      * List of players visiting the colony.
      */
-    private final List<Player> visitingPlayers = new ArrayList<>();
+    private final List<EntityPlayer> visitingPlayers = new ArrayList<>();
 
     /**
      * List of players attacking the colony.
@@ -289,12 +295,12 @@ public class Colony implements IColony
     /**
      * The colony team color.
      */
-    private ChatFormatting colonyTeamColor = ChatFormatting.WHITE;
+    private EnumChatFormatting colonyTeamColor = EnumChatFormatting.WHITE;
 
     /**
      * The colony flag, as a list of patterns.
      */
-    private ListTag colonyFlag = new BannerPattern.Builder()
+    private NBTTagList colonyFlag = new BannerPattern.Builder()
         .addPattern(BannerPatterns.BASE, DyeColor.WHITE)
         .toListTag();
 
@@ -344,7 +350,7 @@ public class Colony implements IColony
     private int day = 0;
 
     /**
-     * Colony level settings manager.
+     * Colony World settings manager.
      */
     private final SettingsModule settingsModule = (SettingsModule) BuildingEntry.produceModuleWithoutBuilding(BuildingModules.TOWNHALL_SETTINGS.key);
 
@@ -356,7 +362,7 @@ public class Colony implements IColony
      * @param c  The center of the colony (location of Town Hall).
      */
     @SuppressWarnings("squid:S2637")
-    Colony(final int id, @Nullable final Level w, final BlockPos c)
+    Colony(final int id, @Nullable final World w, final int[] c)
     {
         this(id, w);
         center = c;
@@ -372,7 +378,7 @@ public class Colony implements IColony
      * @param id    The current id for the colony.
      * @param world The world the colony exists in.
      */
-    protected Colony(final int id, @Nullable final Level world)
+    protected Colony(final int id, @Nullable final World world)
     {
         questManager = new QuestManager(this);
         this.id = id;
@@ -532,7 +538,7 @@ public class Colony implements IColony
     {
         if (getConfig().getServer().forceLoadColony.get())
         {
-            for (final ServerPlayer sub : getPackageManager().getCloseSubscribers())
+            for (final EntityPlayerMP sub : getPackageManager().getCloseSubscribers())
             {
                 if (getPermissions().getRank(sub).isColonyManager())
                 {
@@ -540,7 +546,7 @@ public class Colony implements IColony
                     pendingChunks.addAll(pendingToUnloadChunks);
                     for (final long pending : pendingChunks)
                     {
-                        checkChunkAndRegisterTicket(pending, world.getChunk(ChunkPos.getX(pending), ChunkPos.getZ(pending)));
+                        checkChunkAndRegisterTicket(pending, world.getChunk(ChunkCoordIntPair.getX(pending), ChunkCoordIntPair.getZ(pending)));
                     }
 
                     pendingToUnloadChunks.clear();
@@ -554,15 +560,15 @@ public class Colony implements IColony
                 this.forceLoadTimer -= MAX_TICKRATE;
                 if (this.forceLoadTimer <= 0)
                 {
-                    for (final long chunkPos : this.ticketedChunks)
+                    for (final long chunkCoord : this.ticketedChunks)
                     {
-                        final int chunkX = ChunkPos.getX(chunkPos);
-                        final int chunkZ = ChunkPos.getZ(chunkPos);
+                        final int chunkX = ChunkCoordIntPair.getX(ChunkCoordIntPair);
+                        final int chunkZ = ChunkCoordIntPair.getZ(ChunkCoordIntPair);
                         if (world instanceof ServerLevel)
                         {
-                            final ChunkPos pos = new ChunkPos(chunkX, chunkZ);
+                            final ChunkCoordIntPair pos = new ChunkCoordIntPair(chunkX, chunkZ);
                             ((ServerChunkCache) world.getChunkSource()).removeRegionTicket(KEEP_LOADED_TYPE, pos, 2, pos);
-                            pendingToUnloadChunks.add(chunkPos);
+                            pendingToUnloadChunks.add(ChunkCoordIntPair);
                         }
                     }
                     ticketedChunks.clear();
@@ -575,15 +581,15 @@ public class Colony implements IColony
     /**
      * Checks the chunk and registers a ticket for it if needed
      *
-     * @param chunkPos chunk position to check
+     * @param ChunkCoordIntPair chunk position to check
      */
-    private void checkChunkAndRegisterTicket(final long chunkPos, final LevelChunk chunk)
+    private void checkChunkAndRegisterTicket(final long chunkCoord, final Chunk chunk)
     {
         if (forceLoadTimer > 0 && world instanceof ServerLevel)
         {
-            if (!ticketedChunks.contains(chunkPos) && buildingManager.keepChunkColonyLoaded(chunk))
+            if (!ticketedChunks.contains(ChunkCoordIntPair) && buildingManager.keepChunkColonyLoaded(chunk))
             {
-                ticketedChunks.add(chunkPos);
+                ticketedChunks.add(ChunkCoordIntPair);
                 ticketedChunksDirty = true;
                 ((ServerChunkCache) world.getChunkSource()).addRegionTicket(KEEP_LOADED_TYPE, chunk.getPos(), 2, chunk.getPos(), true);
             }
@@ -651,10 +657,10 @@ public class Colony implements IColony
      */
     public void updateAttackingPlayers()
     {
-        final List<Player> visitors = new ArrayList<>(visitingPlayers);
+        final List<EntityPlayer> visitors = new ArrayList<>(visitingPlayers);
 
         //Clean up visiting player.
-        for (final Player player : visitors)
+        for (final EntityPlayer player : visitors)
         {
             if (!packageManager.getCloseSubscribers().contains(player))
             {
@@ -681,7 +687,7 @@ public class Colony implements IColony
      *
      * @param colonyColor the colony color.
      */
-    public void setColonyColor(final ChatFormatting colonyColor)
+    public void setColonyColor(final EnumChatFormatting colonyColor)
     {
         if (this.world != null)
         {
@@ -696,7 +702,7 @@ public class Colony implements IColony
      * @param colonyFlag the list of pattern-color pairs
      */
     @Override
-    public void setColonyFlag(ListTag colonyFlag)
+    public void setColonyFlag(NBTTagList colonyFlag)
     {
         this.colonyFlag = colonyFlag;
         if (researchManager.getResearchEffects().getEffectStrength(SHIELD_USAGE) > 0)
@@ -714,7 +720,7 @@ public class Colony implements IColony
      * @return loaded colony.
      */
     @Nullable
-    public static Colony loadColony(@NotNull final CompoundTag compound, @Nullable final Level world)
+    public static Colony loadColony(@NotNull final NBTTagCompound compound, @Nullable final World world)
     {
         try
         {
@@ -749,7 +755,7 @@ public class Colony implements IColony
      *
      * @param compound compound to read from.
      */
-    public void read(@NotNull final CompoundTag compound)
+    public void read(@NotNull final NBTTagCompound compound)
     {
         dimensionId = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(compound.getString(TAG_DIMENSION)));
 
@@ -788,31 +794,31 @@ public class Colony implements IColony
 
         wayPoints.clear();
         // Waypoints
-        final ListTag wayPointTagList = compound.getList(TAG_WAYPOINT, Tag.TAG_COMPOUND);
+        final NBTTagList wayPointTagList = compound.getList(TAG_WAYPOINT, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < wayPointTagList.size(); ++i)
         {
-            final CompoundTag blockAtPos = wayPointTagList.getCompound(i);
-            final BlockPos pos = BlockPosUtil.read(blockAtPos, TAG_WAYPOINT);
-            final BlockState state = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), blockAtPos);
+            final NBTTagCompound blockAtPos = wayPointTagList.getCompound(i);
+            final int[] pos = BlockPosUtil.read(blockAtPos, TAG_WAYPOINT);
+            final int state = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), blockAtPos);
             wayPoints.put(pos, state);
         }
 
         // Free blocks
         final Set<Block> tempFreeBlocks = new HashSet<>();
-        final ListTag freeBlockTagList = compound.getList(TAG_FREE_BLOCKS, Tag.TAG_STRING);
+        final NBTTagList freeBlockTagList = compound.getList(TAG_FREE_BLOCKS, NBTBase.TAG_STRING);
         for (int i = 0; i < freeBlockTagList.size(); ++i)
         {
             tempFreeBlocks.add(ForgeRegistries.BLOCKS.getValue(new ResourceLocation(freeBlockTagList.getString(i))));
         }
         freeBlocks = ImmutableSet.copyOf(tempFreeBlocks);
 
-        final Set<BlockPos> tempFreePositions = new HashSet<>();
+        final Set<int[]> tempFreePositions = new HashSet<>();
         // Free positions
-        final ListTag freePositionTagList = compound.getList(TAG_FREE_POSITIONS, Tag.TAG_COMPOUND);
+        final NBTTagList freePositionTagList = compound.getList(TAG_FREE_POSITIONS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < freePositionTagList.size(); ++i)
         {
-            final CompoundTag blockTag = freePositionTagList.getCompound(i);
-            final BlockPos block = BlockPosUtil.read(blockTag, TAG_FREE_POSITIONS);
+            final NBTTagCompound blockTag = freePositionTagList.getCompound(i);
+            final int[] block = BlockPosUtil.read(blockTag, TAG_FREE_POSITIONS);
             tempFreePositions.add(block);
         }
         freePositions = ImmutableSet.copyOf(tempFreePositions);
@@ -843,7 +849,7 @@ public class Colony implements IColony
         {
             // This read can occur before the world is non-null, due to Minecraft's order of operations for capabilities.
             // As a result, setColonyColor proper must wait until onWorldLoad fires.
-            this.colonyTeamColor = ChatFormatting.values()[compound.getInt(TAG_TEAM_COLOR)];
+            this.colonyTeamColor = EnumChatFormatting.values()[compound.getInt(TAG_TEAM_COLOR)];
         }
 
         if (compound.contains(TAG_FLAG_PATTERNS))
@@ -900,7 +906,7 @@ public class Colony implements IColony
      *
      * @param compound compound to write to.
      */
-    public CompoundTag write(@NotNull final CompoundTag compound)
+    public NBTTagCompound write(@NotNull final NBTTagCompound compound)
     {
         compound.putInt(DATA_VERSION_TAG, DATA_VERSION);
 
@@ -919,26 +925,26 @@ public class Colony implements IColony
         // Permissions
         permissions.savePermissions(compound);
 
-        final CompoundTag buildingCompound = new CompoundTag();
+        final NBTTagCompound buildingCompound = new NBTTagCompound();
         buildingManager.write(buildingCompound);
         compound.put(TAG_BUILDING_MANAGER, buildingCompound);
 
-        final CompoundTag citizenCompound = new CompoundTag();
+        final NBTTagCompound citizenCompound = new NBTTagCompound();
         citizenManager.write(citizenCompound);
         compound.put(TAG_CITIZEN_MANAGER, citizenCompound);
 
         visitorManager.write(compound);
 
-        final CompoundTag animalCompound = new CompoundTag();
+        final NBTTagCompound animalCompound = new NBTTagCompound();
         animalManager.write(animalCompound);
         compound.put(TAG_ANIMAL_MANAGER, animalCompound);
 
-        final CompoundTag graveCompound = new CompoundTag();
+        final NBTTagCompound graveCompound = new NBTTagCompound();
         graveManager.write(graveCompound);
         compound.put(TAG_GRAVE_MANAGER, graveCompound);
 
         //  Workload
-        @NotNull final CompoundTag workManagerCompound = new CompoundTag();
+        @NotNull final NBTTagCompound workManagerCompound = new NBTTagCompound();
         workManager.write(workManagerCompound);
         compound.put(TAG_WORK, workManagerCompound);
 
@@ -949,15 +955,15 @@ public class Colony implements IColony
         compound.put(NbtTagConstants.TAG_EVENT_DESC_MANAGER, eventDescManager.serializeNBT());
         raidManager.write(compound);
 
-        @NotNull final CompoundTag researchManagerCompound = new CompoundTag();
+        @NotNull final NBTTagCompound researchManagerCompound = new NBTTagCompound();
         researchManager.writeToNBT(researchManagerCompound);
         compound.put(TAG_RESEARCH, researchManagerCompound);
 
         // Waypoints
-        @NotNull final ListTag wayPointTagList = new ListTag();
-        for (@NotNull final Map.Entry<BlockPos, BlockState> entry : wayPoints.entrySet())
+        @NotNull final NBTTagList wayPointTagList = new NBTTagList();
+        for (@NotNull final Map.Entry<int[], int> entry : wayPoints.entrySet())
         {
-            @NotNull final CompoundTag wayPointCompound = new CompoundTag();
+            @NotNull final NBTTagCompound wayPointCompound = new NBTTagCompound();
             BlockPosUtil.write(wayPointCompound, TAG_WAYPOINT, entry.getKey());
             wayPointCompound.put(TAG_BLOCK, NbtUtils.writeBlockState(entry.getValue()));
             wayPointTagList.add(wayPointCompound);
@@ -965,18 +971,18 @@ public class Colony implements IColony
         compound.put(TAG_WAYPOINT, wayPointTagList);
 
         // Free blocks
-        @NotNull final ListTag freeBlocksTagList = new ListTag();
+        @NotNull final NBTTagList freeBlocksTagList = new NBTTagList();
         for (@NotNull final Block block : freeBlocks)
         {
-            freeBlocksTagList.add(StringTag.valueOf(ForgeRegistries.BLOCKS.getKey(block).toString()));
+            freeBlocksTagList.add(NBTTagString.valueOf(ForgeRegistries.BLOCKS.getKey(block).toString()));
         }
         compound.put(TAG_FREE_BLOCKS, freeBlocksTagList);
 
         // Free positions
-        @NotNull final ListTag freePositionsTagList = new ListTag();
-        for (@NotNull final BlockPos pos : freePositions)
+        @NotNull final NBTTagList freePositionsTagList = new NBTTagList();
+        for (@NotNull final int[] pos : freePositions)
         {
-            @NotNull final CompoundTag wayPointCompound = new CompoundTag();
+            @NotNull final NBTTagCompound wayPointCompound = new NBTTagCompound();
             BlockPosUtil.write(wayPointCompound, TAG_FREE_POSITIONS, pos);
             freePositionsTagList.add(wayPointCompound);
         }
@@ -993,7 +999,7 @@ public class Colony implements IColony
         compound.putString(TAG_COL_NAME_STYLE, nameStyle);
         compound.putInt(COLONY_DAY, day);
 
-        final CompoundTag settings = new CompoundTag();
+        final NBTTagCompound settings = new NBTTagCompound();
         settingsModule.serializeNBT(settings);
         compound.put(BuildingModules.TOWNHALL_SETTINGS.key, settings);
 
@@ -1011,7 +1017,7 @@ public class Colony implements IColony
      *
      * @return Dimension ID.
      */
-    public ResourceKey<Level> getDimension()
+    public int /* ResourceKey */ getDimension()
     {
         return dimensionId;
     }
@@ -1034,7 +1040,7 @@ public class Colony implements IColony
      * @param w World object.
      */
     @Override
-    public void onWorldLoad(@NotNull final Level w)
+    public void onWorldLoad(@NotNull final World w)
     {
         if (w.dimension() == dimensionId)
         {
@@ -1056,7 +1062,7 @@ public class Colony implements IColony
      * @param w World object.
      */
     @Override
-    public void onWorldUnload(@NotNull final Level w)
+    public void onWorldUnload(@NotNull final World w)
     {
         if (w != world)
         {
@@ -1096,7 +1102,7 @@ public class Colony implements IColony
      *
      * @return the list of free to interact positions.
      */
-    public Set<BlockPos> getFreePositions()
+    public Set<int[]> getFreePositions()
     {
         return freePositions;
     }
@@ -1116,9 +1122,9 @@ public class Colony implements IColony
      *
      * @param pos position to add.
      */
-    public void addFreePosition(@NotNull final BlockPos pos)
+    public void addFreePosition(@NotNull final int[] pos)
     {
-        ImmutableSet.Builder<BlockPos> builder = ImmutableSet.builder();
+        ImmutableSet.Builder<int[]> builder = ImmutableSet.builder();
         builder.addAll(freePositions);
         builder.add(pos);
         freePositions = builder.build();
@@ -1144,10 +1150,10 @@ public class Colony implements IColony
      *
      * @param pos position to remove.
      */
-    public void removeFreePosition(@NotNull final BlockPos pos)
+    public void removeFreePosition(@NotNull final int[] pos)
     {
-        ImmutableSet.Builder<BlockPos> builder = ImmutableSet.builder();
-        for (final BlockPos tempPos : freePositions)
+        ImmutableSet.Builder<int[]> builder = ImmutableSet.builder();
+        for (final int[] tempPos : freePositions)
         {
             if (!pos.equals(tempPos))
             {
@@ -1181,12 +1187,12 @@ public class Colony implements IColony
      * Any per-world-tick logic should be performed here. NOTE: If the Colony's world isn't loaded, it won't have a world tick. Use onServerTick for logic that should _always_
      * run.
      *
-     * @param event {@link TickEvent.LevelTickEvent}
+     * @param event {@link TickEvent.WorldTickEvent}
      */
     @Override
-    public void onWorldTick(@NotNull final TickEvent.LevelTickEvent event)
+    public void onWorldTick(@NotNull final TickEvent.WorldTickEvent event)
     {
-        if (event.level != getWorld())
+        if (event.World != getWorld())
         {
             /*
              * If the event world is not the colony world ignore. This might happen in interactions with other mods.
@@ -1195,7 +1201,7 @@ public class Colony implements IColony
             return;
         }
 
-        if (!event.level.isClientSide && (event.level.getGameTime() + id) % 20 == 0)
+        if (!event.World.isRemote && (event.World.getGameTime() + id) % 20 == 0)
         {
             connectionManager.tick();
         }
@@ -1210,7 +1216,7 @@ public class Colony implements IColony
      * @param averageTicks the average ticks to upate it.
      * @return a boolean by random.
      */
-    public static boolean shallUpdate(final Level world, final int averageTicks)
+    public static boolean shallUpdate(final World world, final int averageTicks)
     {
         return world.getGameTime() % (world.random.nextInt(averageTicks * 2) + 1) == 0;
     }
@@ -1226,7 +1232,7 @@ public class Colony implements IColony
         {
             final int randomPos = world.random.nextInt(wayPoints.size());
             int count = 0;
-            for (final Map.Entry<BlockPos, BlockState> entry : wayPoints.entrySet())
+            for (final Map.Entry<int[], int> entry : wayPoints.entrySet())
             {
                 if (count++ == randomPos)
                 {
@@ -1256,7 +1262,7 @@ public class Colony implements IColony
      * @return Chunk Coordinates of the center of the colony.
      */
     @Override
-    public BlockPos getCenter()
+    public int[] getCenter()
     {
         return center;
     }
@@ -1287,7 +1293,7 @@ public class Colony implements IColony
     }
 
     @Override
-    public boolean isCoordInColony(@NotNull final Level w, @NotNull final BlockPos pos)
+    public boolean isCoordInColony(@NotNull final World w, @NotNull final int[] pos)
     {
         if (w.dimension() != this.dimensionId)
         {
@@ -1295,12 +1301,12 @@ public class Colony implements IColony
         }
 
 
-        final LevelChunk chunk = w.getChunkAt(pos);
+        final Chunk chunk = w.getChunkAt(pos);
         return ColonyUtils.getOwningColony(chunk) == this.getID();
     }
 
     @Override
-    public long getDistanceSquared(@NotNull final BlockPos pos)
+    public long getDistanceSquared(@NotNull final int[] pos)
     {
         return BlockPosUtil.getDistanceSquared2D(center, pos);
     }
@@ -1328,7 +1334,7 @@ public class Colony implements IColony
      * @return World the colony is in.
      */
     @Nullable
-    public Level getWorld()
+    public World getWorld()
     {
         return world;
     }
@@ -1357,18 +1363,18 @@ public class Colony implements IColony
 
     @Nullable
     @Override
-    public IRequester getRequesterBuildingForPosition(@NotNull final BlockPos pos)
+    public IRequester getRequesterBuildingForPosition(@NotNull final int[] pos)
     {
         return buildingManager.getBuilding(pos);
     }
 
     @Override
     @NotNull
-    public List<Player> getMessagePlayerEntities()
+    public List<EntityPlayer> getMessagePlayerEntities()
     {
-        List<Player> players = new ArrayList<>();
+        List<EntityPlayer> players = new ArrayList<>();
 
-        for (ServerPlayer player : packageManager.getCloseSubscribers())
+        for (EntityPlayerMP player : packageManager.getCloseSubscribers())
         {
             if (permissions.hasPermission(player, Action.RECEIVE_MESSAGES))
             {
@@ -1381,11 +1387,11 @@ public class Colony implements IColony
 
     @Override
     @NotNull
-    public List<Player> getImportantMessageEntityPlayers()
+    public List<EntityPlayer> getImportantMessageEntityPlayers()
     {
         final Set<Player> playerList = new HashSet<>(getMessagePlayerEntities());
 
-        for (final ServerPlayer player : packageManager.getImportantColonyPlayers())
+        for (final EntityPlayerMP player : packageManager.getImportantColonyPlayers())
         {
             if (permissions.getRank(player).isColonyManager())
             {
@@ -1403,7 +1409,7 @@ public class Colony implements IColony
     public void removeWorkOrderInView(final int orderId)
     {
         //  Inform Subscribers of removed workOrder
-        for (final ServerPlayer player : packageManager.getCloseSubscribers())
+        for (final EntityPlayerMP player : packageManager.getCloseSubscribers())
         {
             Network.getNetwork().sendToPlayer(new ColonyViewRemoveWorkOrderMessage(this, orderId), player);
         }
@@ -1415,7 +1421,7 @@ public class Colony implements IColony
      * @param point the waypoint to add.
      * @param block the block at the waypoint.
      */
-    public void addWayPoint(final BlockPos point, final BlockState block)
+    public void addWayPoint(final int[] point, final int block)
     {
         wayPoints.put(point, block);
         this.markDirty();
@@ -1448,7 +1454,7 @@ public class Colony implements IColony
      * @return copy of hashmap.
      */
     @Override
-    public Map<BlockPos, BlockState> getWayPoints()
+    public Map<int[], Integer> getWayPoints()
     {
         return new HashMap<>(wayPoints);
     }
@@ -1612,13 +1618,13 @@ public class Colony implements IColony
      *
      * @return the list.
      */
-    public ImmutableList<Player> getVisitingPlayers()
+    public ImmutableList<EntityPlayer> getVisitingPlayers()
     {
         return ImmutableList.copyOf(visitingPlayers);
     }
 
     @Override
-    public void addVisitingPlayer(final Player player)
+    public void addVisitingPlayer(final EntityPlayer player)
     {
         final Rank rank = getPermissions().getRank(player);
         if (!rank.isColonyManager() && !visitingPlayers.contains(player) && settingsModule.getSetting(BuildingTownHall.ENTER_LEAVE_MESSAGES).getValue())
@@ -1640,7 +1646,7 @@ public class Colony implements IColony
     }
 
     @Override
-    public void removeVisitingPlayer(final Player player)
+    public void removeVisitingPlayer(final EntityPlayer player)
     {
         if (visitingPlayers.contains(player) && settingsModule.getSetting(BuildingTownHall.ENTER_LEAVE_MESSAGES).getValue())
         {
@@ -1661,18 +1667,18 @@ public class Colony implements IColony
     }
 
     /**
-     * Get the NBT tag of the colony.
+     * Get the NBT NBTBase of the colony.
      *
-     * @return the tag of it.
+     * @return the NBTBase of it.
      */
     @Override
-    public CompoundTag getColonyTag()
+    public NBTTagCompound getColonyTag()
     {
         try
         {
             if (this.colonyTag == null || this.isDirty)
             {
-                this.write(new CompoundTag());
+                this.write(new NBTTagCompound());
             }
         }
         catch (final Exception e)
@@ -1683,12 +1689,12 @@ public class Colony implements IColony
     }
 
     /**
-     * Is player part of a wave trying to invade the colony?
+     * Is EntityPlayer part of a wave trying to invade the colony?
      *
-     * @param player the player to check..
+     * @param EntityPlayer the EntityPlayer to check..
      * @return true if so.
      */
-    public boolean isValidAttackingPlayer(final Player player)
+    public boolean isValidAttackingPlayer(final EntityPlayer player)
     {
         if (packageManager.getLastContactInHours() > 1)
         {
@@ -1726,7 +1732,7 @@ public class Colony implements IColony
      *
      * @param IEntityCitizen the citizen to add.
      */
-    public void addGuardToAttackers(final AbstractEntityCitizen IEntityCitizen, final Player player)
+    public void addGuardToAttackers(final AbstractEntityCitizen IEntityCitizen, final EntityPlayer player)
     {
         if (player == null)
         {
@@ -1747,7 +1753,7 @@ public class Colony implements IColony
             }
         }
 
-        for (final Player visitingPlayer : visitingPlayers)
+        for (final EntityPlayer visitingPlayer : visitingPlayers)
         {
             if (visitingPlayer.equals(player))
             {
@@ -1772,10 +1778,10 @@ public class Colony implements IColony
     /**
      * Getter for the colony team color.
      *
-     * @return the ChatFormatting enum color.
+     * @return the EnumChatFormatting enum color.
      */
     @Override
-    public ChatFormatting getTeamColonyColor()
+    public EnumChatFormatting getTeamColonyColor()
     {
         return colonyTeamColor;
     }
@@ -1786,7 +1792,7 @@ public class Colony implements IColony
      * @return the list of pattern-color pairs
      */
     @Override
-    public ListTag getColonyFlag()
+    public NBTTagList getColonyFlag()
     {
         return colonyFlag;
     }
@@ -1849,28 +1855,28 @@ public class Colony implements IColony
     }
 
     @Override
-    public void addLoadedChunk(final long chunkPos, final LevelChunk chunk)
+    public void addLoadedChunk(final long chunkCoord, final Chunk chunk)
     {
         if (world instanceof ServerLevel
             && getConfig().getServer().forceLoadColony.get())
         {
             if (this.forceLoadTimer > 0)
             {
-                checkChunkAndRegisterTicket(chunkPos, chunk);
+                checkChunkAndRegisterTicket(ChunkCoordIntPair, chunk);
             }
             else if (buildingManager.keepChunkColonyLoaded(chunk))
             {
-                this.pendingChunks.add(chunkPos);
+                this.pendingChunks.add(ChunkCoordIntPair);
             }
         }
-        this.loadedChunks.put(chunkPos, chunkPos);
+        this.loadedChunks.put(ChunkCoordIntPair, ChunkCoordIntPair);
     }
 
     @Override
-    public void removeLoadedChunk(final long chunkPos)
+    public void removeLoadedChunk(final long chunkCoord)
     {
-        loadedChunks.remove(chunkPos);
-        pendingToUnloadChunks.remove(chunkPos);
+        loadedChunks.remove(ChunkCoordIntPair);
+        pendingToUnloadChunks.remove(ChunkCoordIntPair);
     }
 
     @Override
@@ -1980,8 +1986,13 @@ public class Colony implements IColony
      *
      * @param dimensionId
      */
-    public void setDimensionId(final ResourceKey<Level> dimensionId)
+    public void setDimensionId(final int /* ResourceKey */ dimensionId)
     {
         this.dimensionId = dimensionId;
     }
 }
+
+
+
+
+

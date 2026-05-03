@@ -2,7 +2,7 @@ package com.minecolonies.core.colony.jobs;
 
 import com.minecolonies.api.colony.jobs.IJobWithColonyFlag;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import com.minecolonies.api.client.render.modeltype.ModModelTypes;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
@@ -10,13 +10,13 @@ import com.minecolonies.api.entity.citizen.Skill;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.core.entity.ai.workers.guard.EntityAIKnight;
 import com.minecolonies.core.util.AttributeModifierUtils;
-import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] tags removed
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.InteractionHand;
+import net.minecraft.nbt.NBTTagCompound;
+// [1.7.10] net.minecraft.util.DamageSource removed
+// [1.7.10] int /* InteractionHand */ removed
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.research.util.ResearchConstants.SHIELD_USAGE;
@@ -60,7 +60,7 @@ public class JobKnight extends AbstractJobGuard<JobKnight> implements IJobWithCo
         {
             final AbstractEntityCitizen citizen = getCitizen().getEntity().get();
 
-            // +1 Heart every 2 level
+            // +1 Heart every 2 World
             final AttributeModifier healthModLevel =
                 new AttributeModifier(GUARD_HEALTH_MOD_LEVEL_NAME,
                     getCitizen().getCitizenSkillHandler().getLevel(Skill.Stamina) + KNIGHT_HP_BONUS,
@@ -76,9 +76,9 @@ public class JobKnight extends AbstractJobGuard<JobKnight> implements IJobWithCo
     }
 
     @Override
-    public boolean ignoresDamage(@NotNull final DamageSource damageSource)
+    public boolean ignoresDamage(@NotNull final net.minecraft.util.DamageSource source)
     {
-        if (damageSource.is(DamageTypeTags.IS_EXPLOSION) && this.getColony().getResearchManager().getResearchEffects().getEffectStrength(SHIELD_USAGE) > 0
+        if (net.minecraft.util.DamageSource.is(DamageTypeTags.IS_EXPLOSION) && this.getColony().getResearchManager().getResearchEffects().getEffectStrength(SHIELD_USAGE) > 0
             && InventoryUtils.findFirstSlotInItemHandlerWith(this.getCitizen().getInventory(), Items.SHIELD) != -1)
         {
             if (!this.getCitizen().getEntity().isPresent())
@@ -86,17 +86,17 @@ public class JobKnight extends AbstractJobGuard<JobKnight> implements IJobWithCo
                 return true;
             }
             final AbstractEntityCitizen worker = this.getCitizen().getEntity().get();
-            CitizenItemUtils.setHeldItem(worker, InteractionHand.OFF_HAND, InventoryUtils.findFirstSlotInItemHandlerWith(this.getCitizen().getInventory(), Items.SHIELD));
-            worker.startUsingItem(InteractionHand.OFF_HAND);
+            CitizenItemUtils.setHeldItem(worker, 1 /* InteractionHand.OFF_HAND */, InventoryUtils.findFirstSlotInItemHandlerWith(this.getCitizen().getInventory(), Items.SHIELD));
+            worker.startUsingItem(1 /* InteractionHand.OFF_HAND */);
 
             // Apply the colony Flag to the shield
-            ItemStack shieldStack = worker.getInventoryCitizen().getHeldItem(InteractionHand.OFF_HAND);
-            CompoundTag nbt = shieldStack.getOrCreateTagElement("BlockEntityTag");
+            ItemStack shieldStack = worker.getInventoryCitizen().getHeldItem(1 /* InteractionHand.OFF_HAND */);
+            NBTTagCompound nbt = shieldStack.getOrCreateTagElement("BlockEntityTag");
             nbt.put(TAG_BANNER_PATTERNS, worker.getCitizenColonyHandler().getColonyOrRegister().getColonyFlag());
 
             return true;
         }
-        return super.ignoresDamage(damageSource);
+        return super.ignoresDamage(net.minecraft.util.DamageSource);
     }
 
     @Override
@@ -105,11 +105,18 @@ public class JobKnight extends AbstractJobGuard<JobKnight> implements IJobWithCo
         if (this.getCitizen().getEntity().isPresent())
         {
             final AbstractEntityCitizen worker = this.getCitizen().getEntity().get();
-            CitizenItemUtils.setHeldItem(worker, InteractionHand.OFF_HAND, InventoryUtils.findFirstSlotInItemHandlerWith(this.getCitizen().getInventory(), Items.SHIELD));
-            worker.startUsingItem(InteractionHand.OFF_HAND);
-            ItemStack shieldStack = worker.getInventoryCitizen().getHeldItem(InteractionHand.OFF_HAND);
-            CompoundTag nbt = shieldStack.getOrCreateTagElement("BlockEntityTag");
+            CitizenItemUtils.setHeldItem(worker, 1 /* InteractionHand.OFF_HAND */, InventoryUtils.findFirstSlotInItemHandlerWith(this.getCitizen().getInventory(), Items.SHIELD));
+            worker.startUsingItem(1 /* InteractionHand.OFF_HAND */);
+            ItemStack shieldStack = worker.getInventoryCitizen().getHeldItem(1 /* InteractionHand.OFF_HAND */);
+            NBTTagCompound nbt = shieldStack.getOrCreateTagElement("BlockEntityTag");
             nbt.put(TAG_BANNER_PATTERNS, worker.getCitizenColonyHandler().getColonyOrRegister().getColonyFlag());
         }
     }
 }
+
+
+
+
+
+
+

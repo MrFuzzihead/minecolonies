@@ -1,5 +1,5 @@
 package com.minecolonies.api;
-
+import net.minecraftforge.registries.IForgeRegistry;
 import com.minecolonies.api.client.render.modeltype.registry.IModelTypeRegistry;
 import com.minecolonies.api.colony.ICitizenDataManager;
 import com.minecolonies.api.colony.IColonyManager;
@@ -28,8 +28,8 @@ import com.minecolonies.api.research.IGlobalResearchTree;
 import com.minecolonies.api.research.ModResearchCosts.ResearchCostEntry;
 import com.minecolonies.api.research.ModResearchEffects;
 import com.minecolonies.api.research.ModResearchRequirements;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.NewRegistryEvent;
+// [1.7.10] registries removed
+// [1.7.10] registries removed
 
 public final class MinecoloniesAPIProxy implements IMinecoloniesAPI
 {
@@ -226,7 +226,7 @@ public final class MinecoloniesAPIProxy implements IMinecoloniesAPI
     }
 
     @Override
-    public void onRegistryNewRegistry(final NewRegistryEvent event)
+    public void onRegistryNewRegistry(final Object event)
     {
         apiInstance.onRegistryNewRegistry(event);
     }
@@ -243,3 +243,4 @@ public final class MinecoloniesAPIProxy implements IMinecoloniesAPI
         return apiInstance.getEventBus();
     }
 }
+

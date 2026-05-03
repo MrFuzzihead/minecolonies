@@ -7,22 +7,22 @@ import com.minecolonies.api.util.SoundUtils;
 import com.minecolonies.core.Network;
 import com.minecolonies.core.network.messages.client.VanillaParticleMessage;
 import com.minecolonies.core.util.TeleportHelper;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.util.EnumChatFormatting;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.world.WorldServer;
+import net.minecraft.entity.player.EntityPlayerMP;
+// [1.7.10] sounds removed
+// [1.7.10] effect removed
+// [1.7.10] effect removed
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -47,15 +47,15 @@ public class ItemScrollColonyTP extends AbstractItemScroll
     }
 
     @Override
-    protected ItemStack onItemUseSuccess(final ItemStack itemStack, final Level world, final ServerPlayer player)
+    protected ItemStack onItemUseSuccess(final ItemStack itemStack, final World world, final EntityPlayerMP player)
     {
         if (world.random.nextInt(10) == 0)
         {
             // Fail
-            player.displayClientMessage(Component.translatable("minecolonies.scroll.failed" + (world.random.nextInt(FAIL_RESPONSES_TOTAL) + 1)).setStyle(Style.EMPTY.withColor(
+            player.displayClientMessage(String.translatable("minecolonies.scroll.failed" + (world.random.nextInt(FAIL_RESPONSES_TOTAL) + 1)).setStyle(Style.EMPTY.withColor(
               ChatFormatting.GOLD)), true);
 
-            BlockPos pos = null;
+            int[] pos = null;
             for (final Direction dir : Direction.Plane.HORIZONTAL)
             {
                 pos = BlockPosUtil.findAround(world,
@@ -100,13 +100,13 @@ public class ItemScrollColonyTP extends AbstractItemScroll
      * @param player user of the item
      * @param colony colony to teleport to
      */
-    protected void doTeleport(final ServerPlayer player, final IColony colony, final ItemStack stack)
+    protected void doTeleport(final EntityPlayerMP player, final IColony colony, final ItemStack stack)
     {
         TeleportHelper.colonyTeleport(player, colony);
     }
 
     @Override
-    public void onUseTick(Level worldIn, LivingEntity entity, ItemStack stack, int count)
+    public void onUseTick(World worldIn, EntityLivingBase entity, ItemStack stack, int count)
     {
         if (!worldIn.isClientSide && worldIn.getGameTime() % 5 == 0)
         {
@@ -115,32 +115,36 @@ public class ItemScrollColonyTP extends AbstractItemScroll
                 entity);
             Network.getNetwork()
               .sendToPlayer(new VanillaParticleMessage(entity.getX(), entity.getY(), entity.getZ(), ParticleTypes.INSTANT_EFFECT),
-                (ServerPlayer) entity);
+                (EntityPlayerMP) entity);
         }
     }
 
     @Override
     public void appendHoverText(
-      @NotNull final ItemStack stack, @Nullable final Level worldIn, @NotNull final List<Component> tooltip, @NotNull final TooltipFlag flagIn)
+      @NotNull final ItemStack stack, @Nullable final World worldIn, @NotNull final List<String> tooltip, @NotNull final TooltipFlag flagIn)
     {
-        final MutableComponent guiHint = Component.translatable(TOOL_COLONY_TELEPORT_SCROLL_DESCRIPTION);
+        final String guiHint = String.translatable(TOOL_COLONY_TELEPORT_SCROLL_DESCRIPTION);
         guiHint.setStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GREEN));
         tooltip.add(guiHint);
 
-        Component colonyDesc = Component.translatable(TOOL_COLONY_TELEPORT_SCROLL_NO_COLONY);
+        String colonyDesc = String.translatable(TOOL_COLONY_TELEPORT_SCROLL_NO_COLONY);
 
         final IColony colony = getColonyView(stack);
         if (colony != null)
         {
-            colonyDesc = Component.literal(colony.getName());
+            colonyDesc = String.literal(colony.getName());
         }
         else if (stack.getOrCreateTag().contains(TAG_CACHED_COLONY_NAME))
         {
-            colonyDesc = Component.literal(stack.getOrCreateTag().getString(TAG_CACHED_COLONY_NAME));
+            colonyDesc = String.literal(stack.getOrCreateTag().getString(TAG_CACHED_COLONY_NAME));
         }
 
-        final MutableComponent guiHint2 = Component.translatable(TOOL_COLONY_TELEPORT_SCROLL_COLONY_NAME, colonyDesc);
+        final String guiHint2 = String.translatable(TOOL_COLONY_TELEPORT_SCROLL_COLONY_NAME, colonyDesc);
         guiHint2.setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD));
         tooltip.add(guiHint2);
     }
 }
+
+
+
+

@@ -5,9 +5,9 @@ import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.colony.requestsystem.requestable.Stack;
 import com.minecolonies.core.colony.buildings.workerbuildings.PostBox;
 import com.minecolonies.core.network.messages.server.AbstractBuildingServerMessage;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -51,7 +51,7 @@ public class PostBoxRequestMessage extends AbstractBuildingServerMessage<PostBox
     }
 
     @Override
-    public void toBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void toBytesOverride(@NotNull final PacketBuffer buf)
     {
 
         buf.writeItem(itemStack);
@@ -60,7 +60,7 @@ public class PostBoxRequestMessage extends AbstractBuildingServerMessage<PostBox
     }
 
     @Override
-    public void fromBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void fromBytesOverride(@NotNull final PacketBuffer buf)
     {
 
         itemStack = buf.readItem();
@@ -70,7 +70,7 @@ public class PostBoxRequestMessage extends AbstractBuildingServerMessage<PostBox
 
     @Override
     protected void onExecute(
-      final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony, final PostBox building)
+      final MessageContext ctx, final boolean isLogicalServer, final IColony colony, final PostBox building)
     {
 
         final int minCount = (deliverAvailable) ? 1 : reqQuantity;
@@ -79,3 +79,5 @@ public class PostBoxRequestMessage extends AbstractBuildingServerMessage<PostBox
         building.createRequest(requestStack, false);
     }
 }
+
+

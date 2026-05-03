@@ -1,11 +1,11 @@
 package com.minecolonies.api.research;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,7 +29,7 @@ public interface IGlobalResearch
     /**
      * Check if this research can be displayed in the GUI.
      *
-     * @param uni_level the level of the university.
+     * @param uni_level the World of the university.
      * @return true if so.
      */
     boolean canDisplay(int uni_level);
@@ -40,7 +40,7 @@ public interface IGlobalResearch
      * @param inventory the inventory to check in.
      * @return true if so
      */
-    boolean hasEnoughResources(final @NotNull Player player, final @NotNull BlockPos universityPos);
+    boolean hasEnoughResources(final @NotNull EntityPlayer EntityPlayer, final @NotNull int[] universityPos);
 
     /**
      * Get the cost list from the research.
@@ -59,13 +59,13 @@ public interface IGlobalResearch
      * Human-readable description of research, in human-readable text or as a translation key.
      * @return the description.
      */
-    TranslatableContents getName();
+    String /* TranslatableContents */ getName();
 
     /**
      * Subtitle description of research, in human-readable text or as a translation key.
      * @return the optional subtitle name.
      */
-    TranslatableContents getSubtitle();
+    String /* TranslatableContents */ getSubtitle();
 
     /**
      * Getter of the id of the research.
@@ -103,7 +103,7 @@ public interface IGlobalResearch
     int getSortOrder();
 
     /**
-     * Check if this research is an instant research.  If so, it will attempt to start when its requirements are complete, and prompt the player.
+     * Check if this research is an instant research.  If so, it will attempt to start when its requirements are complete, and prompt the EntityPlayer.
      *
      * @return true if so.
      */
@@ -232,3 +232,8 @@ public interface IGlobalResearch
         return true;
     }
 }
+
+
+
+
+

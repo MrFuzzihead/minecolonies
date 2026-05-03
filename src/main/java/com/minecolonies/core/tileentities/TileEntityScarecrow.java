@@ -7,11 +7,7 @@ import com.minecolonies.api.tileentities.AbstractTileEntityScarecrow;
 import com.minecolonies.api.tileentities.ScareCrowType;
 import com.minecolonies.core.Network;
 import com.minecolonies.core.network.messages.server.colony.building.fields.FarmFieldRegistrationMessage;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
@@ -21,7 +17,6 @@ import static com.minecolonies.core.colony.buildingextensions.FarmField.*;
 /**
  * The scarecrow tile entity to store extra data.
  */
-@SuppressWarnings("PMD.ExcessiveImports")
 public class TileEntityScarecrow extends AbstractTileEntityScarecrow
 {
     /**
@@ -40,18 +35,16 @@ public class TileEntityScarecrow extends AbstractTileEntityScarecrow
     private ScareCrowType type;
 
     /**
-     * The size of the field in all four directions
-     * in the same order as {@link Direction}:
-     * S, W, N, E
+     * The size of the field in all four directions (S, W, N, E).
      */
     private int[] fieldSize = {DEFAULT_RANGE, DEFAULT_RANGE, DEFAULT_RANGE, DEFAULT_RANGE};
 
     /**
      * Creates an instance of the tileEntity.
      */
-    public TileEntityScarecrow(final BlockPos pos, final BlockState state)
+    public TileEntityScarecrow()
     {
-        super(pos, state);
+        super();
     }
 
     @Override
@@ -68,64 +61,54 @@ public class TileEntityScarecrow extends AbstractTileEntityScarecrow
     @Override
     public IColony getCurrentColony()
     {
-        if (currentColony == null && level != null)
+        if (currentColony == null && worldObj != null)
         {
-            this.currentColony = IColonyManager.getInstance().getIColony(level, worldPosition);
-            // TODO: Remove in 1.20.2
+            this.currentColony = IColonyManager.getInstance().getIColony(worldObj, xCoord, yCoord, zCoord);
             if (currentColony instanceof IColonyView)
             {
-                Network.getNetwork().sendToServer(new FarmFieldRegistrationMessage(currentColony, worldPosition));
+                Network.getNetwork().sendToServer(new FarmFieldRegistrationMessage(currentColony, xCoord, yCoord, zCoord));
             }
         }
         return currentColony;
     }
 
     @Override
-    public void saveAdditional(final CompoundTag compoundTag)
+    public void writeToNBT(final NBTTagCompound NBTTagCompound)
     {
-        super.saveAdditional(compoundTag);
-        compoundTag.putIntArray(TAG_RADIUS, fieldSize);
+        super.writeToNBT(NBTTagCompound);
+        NBTTagCompound.setIntArray(TAG_RADIUS, fieldSize);
     }
 
     @Override
-    public void load(final CompoundTag compoundTag)
+    public void readFromNBT(final NBTTagCompound NBTTagCompound)
     {
-        super.load(compoundTag);
-        if (compoundTag.contains(TAG_RADIUS))
+        super.readFromNBT(NBTTagCompound);
+        if (NBTTagCompound.hasKey(TAG_RADIUS))
         {
-            fieldSize = compoundTag.getIntArray(TAG_RADIUS);
+            fieldSize = NBTTagCompound.getIntArray(TAG_RADIUS);
         }
     }
 
     /**
-     * @param direction the direction for the radius
-     * @param radius    the number of blocks from the scarecrow that the farmer will work with
+     * Sets the field radius in a direction.
+     *
+     * @param directionIndex the direction index (0=S, 1=W, 2=N, 3=E).
+     * @param radius         the number of blocks from the scarecrow.
      */
-    public void setFieldSize(Direction direction, int radius)
+    public void setFieldSize(final int directionIndex, final int radius)
     {
-        this.fieldSize[direction.get2DDataValue()] = Math.min(radius, MAX_RANGE);
-        setChanged();
-    }
-
-    @Override
-    public ClientboundBlockEntityDataPacket getUpdatePacket()
-    {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-    @NotNull
-    @Override
-    public CompoundTag getUpdateTag()
-    {
-        return saveWithId();
+        this.fieldSize[directionIndex] = Math.min(radius, MAX_RANGE);
+        markDirty();
     }
 
     /**
-     * Field size.
-     * @return the field size.
+     * Field size getter.
+     *
+     * @return the field size array.
      */
     public int[] getFieldSize()
     {
         return fieldSize;
     }
 }
+

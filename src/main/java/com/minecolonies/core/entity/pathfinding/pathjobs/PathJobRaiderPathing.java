@@ -8,12 +8,12 @@ import com.minecolonies.core.entity.pathfinding.MNode;
 import com.minecolonies.core.entity.pathfinding.PathingOptions;
 import com.minecolonies.core.entity.pathfinding.SurfaceType;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.LadderBlock;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
+import net.minecraft.world.World;
+// [1.7.10] block import removed
+// [1.7.10] block import removed
+// [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -38,7 +38,7 @@ public class PathJobRaiderPathing extends AbstractPathJob implements IDestinatio
     /**
      * Targeted position
      */
-    private final BlockPos direction;
+    private final int[] direction;
 
     /**
      * Additional cost multiplier
@@ -47,8 +47,8 @@ public class PathJobRaiderPathing extends AbstractPathJob implements IDestinatio
 
     public PathJobRaiderPathing(
       final List<IBuilding> buildings,
-      final Level world,
-      @NotNull final BlockPos start, final BlockPos targetSpawnPoint)
+      final World world,
+      @NotNull final int[] start, final int[] targetSpawnPoint)
     {
         super(world, start, targetSpawnPoint, new PathResult<PathJobRaiderPathing>(), null);
         this.buildings = buildings;
@@ -175,8 +175,10 @@ public class PathJobRaiderPathing extends AbstractPathJob implements IDestinatio
     }
 
     @Override
-    public BlockPos getDestination()
+    public int[] getDestination()
     {
         return direction;
     }
 }
+
+

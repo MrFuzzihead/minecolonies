@@ -1,6 +1,7 @@
 package com.minecolonies.api.eventbus.events;
 
-import net.minecraftforge.eventbus.api.Event;
+// [1.7.10] eventbus removed
+import cpw.mods.fml.common.eventhandler.Event;
 
 /**
  * This event is fired on the client side whenever the CustomRecipeManager has been
@@ -12,3 +13,4 @@ public class CustomRecipesReloadedEvent extends Event
     {
     }
 }
+

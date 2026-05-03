@@ -4,16 +4,16 @@ import com.google.common.collect.Iterables;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.ItemStackUtils;
-import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.Nameable;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import java.util.List;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] int /* InteractionHand */ removed
+// [1.7.10] broken import removed
+// [1.7.10] world.entity removed
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.ItemStack;
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +27,7 @@ import static com.minecolonies.api.util.constant.NbtTagConstants.*;
 /**
  * Basic inventory for the citizens.
  */
-public class InventoryCitizen implements IItemHandlerModifiable, Nameable
+public class InventoryCitizen implements net.minecraft.command.ICommandSender /* Nameable */
 {
     /**
      * The returned slot if a slot hasn't been found.
@@ -48,8 +48,8 @@ public class InventoryCitizen implements IItemHandlerModifiable, Nameable
     /**
      * The inventory. (27 main inventory, 4 armor slots)
      */
-    private NonNullList<ItemStack> mainInventory = NonNullList.withSize(DEFAULT_INV_SIZE, ItemStackUtils.EMPTY);
-    private NonNullList<ItemStack> armorInventory = NonNullList.withSize(4, ItemStackUtils.EMPTY);
+    private java.util.List<ItemStack> mainInventory = java.util.List.withSize(DEFAULT_INV_SIZE, ItemStackUtils.EMPTY);
+    private java.util.List<ItemStack> armorInventory = java.util.List.withSize(4, ItemStackUtils.EMPTY);
 
     /**
      * The index of the currently held items (0-8).
@@ -113,9 +113,9 @@ public class InventoryCitizen implements IItemHandlerModifiable, Nameable
      * @param hand the hand it is held in.
      * @return {@link ItemStack} currently being held by citizen.
      */
-    public ItemStack getHeldItem(final InteractionHand hand)
+    public ItemStack getHeldItem(final int /* InteractionHand */ hand)
     {
-        if (hand.equals(InteractionHand.MAIN_HAND))
+        if (hand.equals(0 /* InteractionHand.MAIN_HAND */))
         {
             return getStackInSlot(mainItem);
         }
@@ -129,9 +129,9 @@ public class InventoryCitizen implements IItemHandlerModifiable, Nameable
      * @param hand the hand it is held in.
      * @param slot Slot index with item to be held by citizen.
      */
-    public void setHeldItem(final InteractionHand hand, final int slot)
+    public void setHeldItem(final int /* InteractionHand */ hand, final int slot)
     {
-        if (hand.equals(InteractionHand.MAIN_HAND))
+        if (hand.equals(0 /* InteractionHand.MAIN_HAND */))
         {
             this.mainItem = slot;
         }
@@ -145,9 +145,9 @@ public class InventoryCitizen implements IItemHandlerModifiable, Nameable
      * @param hand the hand it is held in.
      * @return Slot index of held item
      */
-    public int getHeldItemSlot(final InteractionHand hand)
+    public int getHeldItemSlot(final int /* InteractionHand */ hand)
     {
-        if (hand.equals(InteractionHand.MAIN_HAND))
+        if (hand.equals(0 /* InteractionHand.MAIN_HAND */))
         {
             return mainItem;
         }
@@ -201,7 +201,7 @@ public class InventoryCitizen implements IItemHandlerModifiable, Nameable
     {
         if (size < futureSize)
         {
-            final NonNullList<ItemStack> inv = NonNullList.withSize(futureSize, ItemStackUtils.EMPTY);
+            final java.util.List<ItemStack> inv = java.util.List.withSize(futureSize, ItemStackUtils.EMPTY);
 
             for (int i = 0; i < mainInventory.size(); i++)
             {
@@ -220,9 +220,9 @@ public class InventoryCitizen implements IItemHandlerModifiable, Nameable
      */
     @NotNull
     @Override
-    public Component getName()
+    public String getName()
     {
-        return Component.translatable(this.hasCustomName() ? this.customName : "citizen.inventory");
+        return String.translatable(this.hasCustomName() ? this.customName : "citizen.inventory");
     }
 
     /**
@@ -262,46 +262,49 @@ public class InventoryCitizen implements IItemHandlerModifiable, Nameable
 
     /**
      * Get the armor from a specific equipment slot.
-     * @param equipmentSlot the slot to get it from.
+     * @param slot the slot to get it from.
      * @return the stack.
      */
-    public ItemStack getArmorInSlot(final EquipmentSlot equipmentSlot)
+    public ItemStack getArmorInSlot(final int slot /* EquipmentSlot index 0-3 */)
     {
-        if (equipmentSlot.isArmor())
+        if (slot >= 0 && slot < armorInventory.size())
         {
-            return armorInventory.get(equipmentSlot.getIndex());
+            return armorInventory.get(slot);
         }
         return ItemStack.EMPTY;
     }
 
     /**
      * Force an armor stack in a slot. This is for container interaction only.
-     * @param equipmentSlot the slot to pick.
+     * @param slot the slot to pick (0-3).
      * @param stack the stack to set.
      */
-    public void forceArmorStackToSlot(final EquipmentSlot equipmentSlot, final ItemStack stack)
+    public void forceArmorStackToSlot(final int slot /* EquipmentSlot index 0-3 */, final ItemStack stack)
     {
-        armorInventory.set(equipmentSlot.getIndex(), stack);
-        if (citizen != null)
+        if (slot >= 0 && slot < armorInventory.size())
         {
-            citizen.getEntity().ifPresent(citizen -> citizen.onArmorAdd(stack, equipmentSlot));
-            markDirty();
+            armorInventory.set(slot, stack);
+            if (citizen != null)
+            {
+                // [1.7.10] onArmorAdd not available; entity equipment updated via setCurrentItemOrArmor if needed
+                markDirty();
+            }
         }
     }
 
     /**
      * Force remove armor stack from a slot. This is for container interaction only.
-     * @param equipmentSlot the slot to clear.
+     * @param slot the slot to clear (0-3).
      * @param stack the stack being removed.
      */
-    public void forceClearArmorInSlot(final EquipmentSlot equipmentSlot, final ItemStack stack)
+    public void forceClearArmorInSlot(final int slot /* EquipmentSlot index 0-3 */, final ItemStack stack)
     {
-        if (equipmentSlot.isArmor())
+        if (slot >= 0 && slot < armorInventory.size())
         {
-            armorInventory.set(equipmentSlot.getIndex(), ItemStack.EMPTY);
+            armorInventory.set(slot, ItemStack.EMPTY);
             if (citizen != null)
             {
-                citizen.getEntity().ifPresent(citizen -> citizen.onArmorRemove(stack, equipmentSlot));
+                // [1.7.10] onArmorRemove not available
                 markDirty();
             }
         }
@@ -309,42 +312,36 @@ public class InventoryCitizen implements IItemHandlerModifiable, Nameable
 
     /**
      * Transfer from inventory slot to armor.
-     * @param equipmentSlot the slot to transfer it to.
-     * @param slot the slot to transfer it from.
+     * @param armorSlot the armor slot index (0-3) to transfer it to.
+     * @param invSlot the inventory slot index to transfer it from.
      */
-    public void transferArmorToSlot(final EquipmentSlot equipmentSlot, final int slot)
+    public void transferArmorToSlot(final int armorSlot /* EquipmentSlot index 0-3 */, final int invSlot)
     {
-        if (equipmentSlot.isArmor())
+        if (armorSlot >= 0 && armorSlot < armorInventory.size())
         {
             markDirty();
-            final ItemStack oldArmorStack = armorInventory.get(equipmentSlot.getIndex());
-            final ItemStack newArmorStack = getStackInSlot(slot);
+            final ItemStack oldArmorStack = armorInventory.get(armorSlot);
+            final ItemStack newArmorStack = getStackInSlot(invSlot);
 
-            if (!oldArmorStack.isEmpty())
-            {
-                citizen.getEntity().ifPresent(citizen -> citizen.onArmorRemove(oldArmorStack, equipmentSlot));
-            }
-
-            armorInventory.set(equipmentSlot.getIndex(), newArmorStack);
-            citizen.getEntity().ifPresent(citizen -> citizen.onArmorAdd(newArmorStack, equipmentSlot));
-            setStackInSlot(slot, oldArmorStack);
+            armorInventory.set(armorSlot, newArmorStack);
+            setStackInSlot(invSlot, oldArmorStack);
         }
     }
 
     /**
      * Move armor from armor slots to inventory.
-     * @param equipmentSlot the origin slot.
+     * @param slot the origin armor slot index (0-3).
      */
-    public void moveArmorToInventory(final EquipmentSlot equipmentSlot)
+    public void moveArmorToInventory(final int slot /* EquipmentSlot index 0-3 */)
     {
-        if (equipmentSlot.isArmor())
+        if (slot >= 0 && slot < armorInventory.size())
         {
-            final ItemStack armorStack = armorInventory.get(equipmentSlot.getIndex());
+            final ItemStack armorStack = armorInventory.get(slot);
             if (InventoryUtils.addItemStackToItemHandler(this, armorStack))
             {
                 markDirty();
-                armorInventory.set(equipmentSlot.getIndex(), ItemStack.EMPTY);
-                citizen.getEntity().ifPresent(citizen -> citizen.onArmorRemove(armorStack, equipmentSlot));
+                armorInventory.set(slot, ItemStack.EMPTY);
+                // [1.7.10] onArmorRemove not available
             }
         }
     }
@@ -358,7 +355,7 @@ public class InventoryCitizen implements IItemHandlerModifiable, Nameable
      * @param onBroken action upon item break
      * @return true if the item broke
      */
-    public <T extends LivingEntity> boolean damageInventoryItem(final int slot, int amount, @Nullable T entityIn, @Nullable Consumer<T> onBroken)
+    public <T extends EntityLivingBase> boolean damageInventoryItem(final int slot, int amount, @Nullable T entityIn, @Nullable Consumer<T> onBroken)
     {
         final ItemStack stack = mainInventory.get(slot);
         if (!ItemStackUtils.isEmpty(stack))
@@ -516,9 +513,9 @@ public class InventoryCitizen implements IItemHandlerModifiable, Nameable
      */
     @NotNull
     @Override
-    public Component getDisplayName()
+    public String getDisplayName()
     {
-        return this.hasCustomName() ? Component.literal(customName) : Component.literal(citizen.getName());
+        return this.hasCustomName() ? String.literal(customName) : String.literal(citizen.getName());
     }
 
     /**
@@ -526,7 +523,7 @@ public class InventoryCitizen implements IItemHandlerModifiable, Nameable
      *
      * @param nbtTagCompound the compound to store it in.
      */
-    public void write(final CompoundTag nbtTagCompound)
+    public void write(final NBTTagCompound nbtTagCompound)
     {
         if (citizen != null && citizen.getColony() != null)
         {
@@ -539,13 +536,13 @@ public class InventoryCitizen implements IItemHandlerModifiable, Nameable
 
         nbtTagCompound.putInt(TAG_INV_SIZE, this.mainInventory.size());
 
-        final ListTag invTagList = new ListTag();
+        final NBTTagList invTagList = new NBTTagList();
         freeSlots = mainInventory.size();
         for (int i = 0; i < this.mainInventory.size(); ++i)
         {
             if (!(this.mainInventory.get(i)).isEmpty())
             {
-                final CompoundTag compoundNBT = new CompoundTag();
+                final NBTTagCompound compoundNBT = new NBTTagCompound();
                 compoundNBT.putByte("Slot", (byte) i);
                 (this.mainInventory.get(i)).save(compoundNBT);
                 invTagList.add(compoundNBT);
@@ -554,12 +551,12 @@ public class InventoryCitizen implements IItemHandlerModifiable, Nameable
         }
         nbtTagCompound.put(TAG_INVENTORY, invTagList);
 
-        final ListTag armorTagList = new ListTag();
+        final NBTTagList armorTagList = new NBTTagList();
         for (int i = 0; i < this.armorInventory.size(); ++i)
         {
             if (!(this.armorInventory.get(i)).isEmpty())
             {
-                final CompoundTag compoundNBT = new CompoundTag();
+                final NBTTagCompound compoundNBT = new NBTTagCompound();
                 compoundNBT.putByte("Slot", (byte) i);
                 (this.armorInventory.get(i)).save(compoundNBT);
                 armorTagList.add(compoundNBT);
@@ -573,7 +570,7 @@ public class InventoryCitizen implements IItemHandlerModifiable, Nameable
      *
      * @param nbtTagCompound the compound.
      */
-    public void read(final CompoundTag nbtTagCompound)
+    public void read(final NBTTagCompound nbtTagCompound)
     {
         if (nbtTagCompound.contains(TAG_ARMOR_INVENTORY))
         {
@@ -581,15 +578,15 @@ public class InventoryCitizen implements IItemHandlerModifiable, Nameable
             if (this.mainInventory.size() < size)
             {
                 size -= size % ROW_SIZE;
-                this.mainInventory = NonNullList.withSize(size, ItemStackUtils.EMPTY);
+                this.mainInventory = java.util.List.withSize(size, ItemStackUtils.EMPTY);
             }
 
             freeSlots = mainInventory.size();
 
-            final ListTag nbtTagList = nbtTagCompound.getList(TAG_INVENTORY, 10);
+            final NBTTagList nbtTagList = nbtTagCompound.getList(TAG_INVENTORY, 10);
             for (int i = 0; i < nbtTagList.size(); i++)
             {
-                final CompoundTag compoundNBT = nbtTagList.getCompound(i);
+                final NBTTagCompound compoundNBT = nbtTagList.getCompound(i);
                 final int j = compoundNBT.getByte("Slot") & 255;
                 final ItemStack itemstack = ItemStack.of(compoundNBT);
 
@@ -603,10 +600,10 @@ public class InventoryCitizen implements IItemHandlerModifiable, Nameable
                 }
             }
 
-            final ListTag armorTagList = nbtTagCompound.getList(TAG_ARMOR_INVENTORY, 10);
+            final NBTTagList armorTagList = nbtTagCompound.getList(TAG_ARMOR_INVENTORY, 10);
             for (int i = 0; i < armorTagList.size(); ++i)
             {
-                final CompoundTag compoundNBT = armorTagList.getCompound(i);
+                final NBTTagCompound compoundNBT = armorTagList.getCompound(i);
                 final int j = compoundNBT.getByte("Slot") & 255;
                 final ItemStack itemstack = ItemStack.of(compoundNBT);
 
@@ -621,19 +618,19 @@ public class InventoryCitizen implements IItemHandlerModifiable, Nameable
         }
         else
         {
-            final ListTag nbtTagList = nbtTagCompound.getList(TAG_INVENTORY, 10);
+            final NBTTagList nbtTagList = nbtTagCompound.getList(TAG_INVENTORY, 10);
             if (this.mainInventory.size() < nbtTagList.getCompound(0).getInt(TAG_SIZE))
             {
                 int size = nbtTagList.getCompound(0).getInt(TAG_SIZE);
                 size -= size % ROW_SIZE;
-                this.mainInventory = NonNullList.withSize(size, ItemStackUtils.EMPTY);
+                this.mainInventory = java.util.List.withSize(size, ItemStackUtils.EMPTY);
             }
 
             freeSlots = mainInventory.size();
 
             for (int i = 1; i < nbtTagList.size(); i++)
             {
-                final CompoundTag compoundNBT = nbtTagList.getCompound(i);
+                final NBTTagCompound compoundNBT = nbtTagList.getCompound(i);
 
                 final int j = compoundNBT.getByte("Slot") & 255;
                 final ItemStack itemstack = ItemStack.of(compoundNBT);
@@ -677,3 +674,11 @@ public class InventoryCitizen implements IItemHandlerModifiable, Nameable
         return Iterables.concat(armorInventory, List.of(getStackInSlot(mainItem), getStackInSlot(offhandItem)));
     }
 }
+
+
+
+
+
+
+
+

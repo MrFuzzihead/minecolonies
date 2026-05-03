@@ -3,8 +3,8 @@ package com.minecolonies.api.colony.managers.interfaces;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.colonyEvents.IColonyRaidEvent;
 import com.minecolonies.api.entity.mobs.AbstractEntityMinecoloniesRaider;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -78,14 +78,14 @@ public interface IRaiderManager
      *
      * @return the spawn location.
      */
-    BlockPos calculateSpawnLocation();
+    int[] calculateSpawnLocation();
 
     /**
      * Getter for the last spawn points.
      *
      * @return a copy of the list
      */
-    List<BlockPos> getLastSpawnPoints();
+    List<int[]> getLastSpawnPoints();
 
     /**
      * Calculates the barbarian amount for raids
@@ -129,9 +129,9 @@ public interface IRaiderManager
     boolean canRaid();
 
     /**
-     * calculates the colonies raid level
+     * calculates the colonies raid World
      *
-     * @return the raid level.
+     * @return the raid World.
      */
     int getColonyRaidLevel();
 
@@ -140,7 +140,7 @@ public interface IRaiderManager
      *
      * @return a random building.
      */
-    BlockPos getRandomBuilding();
+    int[] getRandomBuilding();
 
     /**
      * Gets the difficulty modifier for raids, default difficulty is 1.0
@@ -159,13 +159,13 @@ public interface IRaiderManager
      * Writes the raid manager to nbt
      * @param compound to write to
      */
-    void write(CompoundTag compound);
+    void write(NBTTagCompound compound);
 
     /**
      * Reads the raid manager form nbt
      * @param compound to read from
      */
-    void read(CompoundTag compound);
+    void read(NBTTagCompound compound);
 
     /**
      * Gets the amount of citizens lost in a raid.
@@ -175,7 +175,7 @@ public interface IRaiderManager
     int getLostCitizen();
 
     /**
-     * Called when a raider mob dies
+     * Called when a raider EntityCreature dies
      *
      * @param entity
      */
@@ -193,7 +193,7 @@ public interface IRaiderManager
         @Nullable String raidType,
         boolean allowShips,
         @Nullable Integer raiderAmount,
-        @Nullable BlockPos location)
+        @Nullable int[] location)
     {
         public RaidSettings withExplicitType(final @Nullable String raidType)
         {
@@ -206,3 +206,6 @@ public interface IRaiderManager
         }
     }
 }
+
+
+

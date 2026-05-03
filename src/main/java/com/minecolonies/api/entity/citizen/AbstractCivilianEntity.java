@@ -6,14 +6,10 @@ import com.minecolonies.api.entity.other.MinecoloniesMinecart;
 import com.minecolonies.core.entity.other.SittingEntity;
 import com.minecolonies.core.entity.other.cavalry.CavalryHorseEntity;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.npc.Npc;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,7 +17,11 @@ import static com.minecolonies.api.sounds.EventType.GREETING;
 import static com.minecolonies.api.util.SoundUtils.playSoundAtCitizenWith;
 import static com.minecolonies.api.util.constant.Constants.TICKS_SECOND;
 
-public abstract class AbstractCivilianEntity extends AbstractFastMinecoloniesEntity implements Npc
+/**
+ * Base class for civilian entities (citizens, visitors).
+ * In 1.7.10 there is no Npc interface — it is just EntityCreature via AbstractFastMinecoloniesEntity.
+ */
+public abstract class AbstractCivilianEntity extends AbstractFastMinecoloniesEntity
 {
     /**
      * Time after which the next player collision is possible
@@ -30,12 +30,12 @@ public abstract class AbstractCivilianEntity extends AbstractFastMinecoloniesEnt
 
     /**
      * Create a new instance.
-     * @param type from type.
+     *
      * @param worldIn the world.
      */
-    protected AbstractCivilianEntity(final EntityType<? extends PathfinderMob> type, final Level worldIn)
+    protected AbstractCivilianEntity(final World worldIn)
     {
-        super(type, worldIn);
+        super(worldIn);
     }
 
     /**
@@ -46,7 +46,7 @@ public abstract class AbstractCivilianEntity extends AbstractFastMinecoloniesEnt
     public abstract void setCivilianData(@Nullable ICivilianData data);
 
     /**
-     * Setter for the citizen data.
+     * Getter for the citizen data.
      *
      * @return civilian data
      */
@@ -54,85 +54,77 @@ public abstract class AbstractCivilianEntity extends AbstractFastMinecoloniesEnt
 
     /**
      * Mark the citizen dirty to synch the data with the client.
+     *
+     * @param time the time interval.
      */
     public abstract void markDirty(final int time);
 
     /**
-     * Getter for the citizen id.
+     * Getter for the civilian id.
      *
      * @return the id.
      */
     public abstract int getCivilianID();
 
     /**
-     * Setter for the citizen id.
+     * Setter for the civilian id.
      *
      * @param id the id to set.
      */
     public abstract void setCitizenId(int id);
 
     @Override
-    public boolean checkBedExists()
+    public void applyEntityCollision(final Entity entityIn)
     {
-        if (tickCount % 5 == randomVariance % 5)
+        if (entityIn instanceof EntityPlayerMP)
         {
-            return true;
+            onPlayerCollide((EntityPlayer) entityIn);
         }
-
-        if (getSleepingPos().isPresent())
-        {
-            final BlockPos pos = getSleepingPos().get();
-            final BlockState state = level.getBlockState(getSleepingPos().get());
-            return state.getBlock().isBed(state,level,pos,this);
-        }
-
-        return false;
-    }
-
-    @Override
-    public void push(@NotNull final Entity entityIn)
-    {
-        if (entityIn instanceof ServerPlayer)
-        {
-            onPlayerCollide((Player) entityIn);
-        }
-        super.push(entityIn);
+        super.applyEntityCollision(entityIn);
     }
 
     /**
-     * On player collision action
+     * On player collision action.
      *
-     * @param player
+     * @param player the colliding player.
      */
-    public void onPlayerCollide(final Player player)
+    public void onPlayerCollide(final EntityPlayer player)
     {
-        if (player.level().getGameTime() > nextPlayerCollisionTime)
+        if (worldObj.getTotalWorldTime() > nextPlayerCollisionTime)
         {
-            nextPlayerCollisionTime = player.level().getGameTime() + TICKS_SECOND * 15;
-            getNavigation().stop();
-            getLookControl().setLookAt(player);
+            nextPlayerCollisionTime = worldObj.getTotalWorldTime() + TICKS_SECOND * 15;
+            getNavigator().clearPathEntity();
+            getLookHelper().setLookPositionWithEntity(player, 10.0F, 10.0F);
 
-            playSoundAtCitizenWith(level, blockPosition(), GREETING, getCivilianData());
+            playSoundAtCitizenWith(worldObj, (int) posX, (int) posY, (int) posZ, GREETING, getCivilianData());
         }
     }
 
     /**
      * Queue a sound at the citizen.
      *
-     * @param soundEvent  the sound event to play.
+     * @param soundName   the sound resource name.
+     * @param x           x position.
+     * @param y           y position.
+     * @param z           z position.
      * @param length      the length of the event.
      * @param repetitions the number of times to play it.
      */
-    public abstract void queueSound(@NotNull final SoundEvent soundEvent, final BlockPos pos, final int length, final int repetitions);
+    public abstract void queueSound(@NotNull final String soundName, final int x, final int y, final int z, final int length, final int repetitions);
 
     /**
-     * Queue a sound at the citizen.
+     * Queue a sound at the citizen with volume and pitch.
      *
-     * @param soundEvent  the sound event to play.
+     * @param soundName   the sound resource name.
+     * @param x           x position.
+     * @param y           y position.
+     * @param z           z position.
      * @param length      the length of the event.
      * @param repetitions the number of times to play it.
+     * @param volume      the volume.
+     * @param pitch       the pitch.
      */
-    public abstract void queueSound(@NotNull final SoundEvent soundEvent, final BlockPos pos, final int length, final int repetitions, final float volume, final float pitch);
+    public abstract void queueSound(@NotNull final String soundName, final int x, final int y, final int z, final int length, final int repetitions, final float volume, final float pitch);
 
     @Override
     public String toString()
@@ -140,28 +132,21 @@ public abstract class AbstractCivilianEntity extends AbstractFastMinecoloniesEnt
         final ICivilianData data = getCivilianData();
         final String id = data == null ? "none" : "" + data.getId();
         final String colony = data == null ? "none" : "" + data.getColony().getName();
-        return "Enity: " + getDisplayName().getString() + " Type: [" + getClass().getSimpleName() + "] at pos: " + blockPosition() + " civilian id: " + id + " colony: " + colony;
-    }
-
-    @Override
-    protected float getStandingEyeHeight(Pose pose, EntityDimensions dim)
-    {
-        return dim.height * 0.95f;
+        return "Entity: " + getCommandSenderName() + " Type: [" + getClass().getSimpleName() + "] at pos: (" + (int) posX + "," + (int) posY + "," + (int) posZ + ") civilian id: " + id + " colony: " + colony;
     }
 
     /**
      * Prevent riding entities except ours.
      *
      * @param entity entity to ride on
-     * @param force  force flag
      * @return true if successful.
      */
     @Override
-    public boolean startRiding(final @NotNull Entity entity, final boolean force)
+    public boolean mountEntity(final Entity entity)
     {
         if (entity instanceof SittingEntity || entity instanceof MinecoloniesMinecart || entity instanceof CavalryHorseEntity)
         {
-            return super.startRiding(entity, force);
+            return super.mountEntity(entity);
         }
         return false;
     }

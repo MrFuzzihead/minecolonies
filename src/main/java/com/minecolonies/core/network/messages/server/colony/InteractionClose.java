@@ -3,11 +3,11 @@ package com.minecolonies.core.network.messages.server.colony;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.core.network.messages.server.AbstractColonyServerMessage;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -23,7 +23,7 @@ public class InteractionClose extends AbstractColonyServerMessage
     /**
      * The key of the handler to trigger.
      */
-    private Component key;
+    private String key;
 
     /**
      * Empty public constructor.
@@ -44,8 +44,8 @@ public class InteractionClose extends AbstractColonyServerMessage
     public InteractionClose(
       final int colonyId,
       final int citizenId,
-      final ResourceKey<Level> dimension,
-      @NotNull final Component key)
+      final int /* ResourceKey */ dimension,
+      @NotNull final String key)
     {
         super(dimension, colonyId);
         this.citizenId = citizenId;
@@ -58,7 +58,7 @@ public class InteractionClose extends AbstractColonyServerMessage
      * @param buf the used byteBuffer.
      */
     @Override
-    public void fromBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void fromBytesOverride(@NotNull final PacketBuffer buf)
     {
         this.citizenId = buf.readInt();
         this.key = buf.readComponent();
@@ -70,14 +70,14 @@ public class InteractionClose extends AbstractColonyServerMessage
      * @param buf the used byteBuffer.
      */
     @Override
-    public void toBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void toBytesOverride(@NotNull final PacketBuffer buf)
     {
         buf.writeInt(this.citizenId);
         buf.writeComponent(key);
     }
 
     @Override
-    protected void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony)
+    protected void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony)
     {
         ICitizenData citizenData = colony.getCitizenManager().getCivilian(citizenId);
         if (citizenData == null)
@@ -85,11 +85,13 @@ public class InteractionClose extends AbstractColonyServerMessage
             citizenData = colony.getVisitorManager().getVisitor(citizenId);
         }
 
-        if (citizenData != null && ctxIn.getSender() != null)
+        if (citizenData != null && ctx.getServerHandler().playerEntity != null)
         {
-            citizenData.onInteractionClosed(key, ctxIn.getSender());
+            citizenData.onInteractionClosed(key, ctx.getServerHandler().playerEntity);
         }
     }
 }
+
+
 
 

@@ -14,10 +14,10 @@ import com.minecolonies.core.quests.*;
 import com.minecolonies.api.quests.IQuestTriggerTemplate;
 import com.minecolonies.api.quests.ITriggerReturnData;
 import io.netty.buffer.Unpooled;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -54,9 +54,9 @@ public class QuestJsonListener extends SimpleJsonResourceReloadListener
      * Sync to client.
      * @param player to send it to.
      */
-    public static void sendGlobalQuestPackets(final ServerPlayer player)
+    public static void sendGlobalQuestPackets(final EntityPlayerMP player)
     {
-        final FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
+        final PacketBuffer byteBuf = new PacketBuffer(Unpooled.buffer());
         byteBuf.writeInt(globalJsonElementMap.size());
         for (final Map.Entry<ResourceLocation, JsonElement> entry : globalJsonElementMap.entrySet())
         {
@@ -70,7 +70,7 @@ public class QuestJsonListener extends SimpleJsonResourceReloadListener
      * Read the data from the packet and parse it.
      * @param byteBuf pck.
      */
-    public static void readGlobalQuestPackets(final FriendlyByteBuf byteBuf)
+    public static void readGlobalQuestPackets(final PacketBuffer byteBuf)
     {
         globalJsonElementMap.clear();
         final int size = byteBuf.readInt();
@@ -179,7 +179,7 @@ public class QuestJsonListener extends SimpleJsonResourceReloadListener
             questTimeout = 10;
         }
 
-        final Component questName = Component.translatable(jsonObject.get(NAME).getAsString());
+        final String questName = String.translatable(jsonObject.get(NAME).getAsString());
 
         final List<IQuestRewardTemplate> questRewards = new ArrayList<>();
         for (final JsonElement objectivesJson : jsonObject.get(QUEST_REWARDS).getAsJsonArray())
@@ -482,3 +482,5 @@ public class QuestJsonListener extends SimpleJsonResourceReloadListener
         }
     }
 }
+
+

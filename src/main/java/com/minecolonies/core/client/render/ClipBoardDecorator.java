@@ -1,4 +1,10 @@
 package com.minecolonies.core.client.render;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.colony.ICitizenDataView;
 import com.minecolonies.api.colony.IColonyManager;
@@ -9,13 +15,16 @@ import com.minecolonies.api.colony.requestsystem.resolver.retrying.IRetryingRequ
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.util.Log;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.IItemDecorator;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.Minecraft;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -31,7 +40,7 @@ public class ClipBoardDecorator implements IItemDecorator
     @Override
     public boolean render(GuiGraphics graphics, Font font, ItemStack stack, int xOffset, int yOffset)
     {
-        final long gametime = Minecraft.getInstance().level.getGameTime();
+        final long gametime = Minecraft.getInstance().World.getGameTime();
 
         if (lastChange != gametime && gametime % 40 == 0)
         {
@@ -41,11 +50,11 @@ public class ClipBoardDecorator implements IItemDecorator
 
         if (render)
         {
-            final CompoundTag compoundTag = stack.getTag();
-            if (compoundTag != null)
+            final NBTTagCompound NBTTagCompound = stack.getTag();
+            if (NBTTagCompound != null)
             {
-                final int colonyId = compoundTag.getInt(TAG_COLONY);
-                colonyView = IColonyManager.getInstance().getColonyView(colonyId, Minecraft.getInstance().level.dimension());
+                final int colonyId = NBTTagCompound.getInt(TAG_COLONY);
+                colonyView = IColonyManager.getInstance().getColonyView(colonyId, Minecraft.getInstance().World.dimension());
 
                 if (colonyView != null)
                 {
@@ -75,7 +84,7 @@ public class ClipBoardDecorator implements IItemDecorator
                                 ps.pushPose();
                                 ps.translate(0, 0, 200);
                                 graphics.drawCenteredString(font,
-                                  Component.literal(requestTokens.size() + ""),
+                                  String.literal(requestTokens.size() + ""),
                                   xOffset + 15,
                                   yOffset - 2,
                                   0xFFFF4500);
@@ -94,3 +103,6 @@ public class ClipBoardDecorator implements IItemDecorator
         return false;
     }
 }
+
+
+

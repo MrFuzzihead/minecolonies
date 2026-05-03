@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.minecolonies.api.colony.IColony;
 import net.minecraft.nbt.*;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 /**
  * Quest triggers are used to check if a colony fulfills certain conditions for a quest to be made available.
@@ -32,26 +32,26 @@ public interface IQuestTriggerTemplate
     }
 
     /**
-     * Match a nbt tag and a json element tag.
-     * @param nbtTag the nbt tag to check.
-     * @param matchTag the element tag to check.
+     * Match a nbt NBTBase and a json element NBTBase.
+     * @param nbtTag the nbt NBTBase to check.
+     * @param matchTag the element NBTBase to check.
      * @return true if the matchTag fits into the nbtTag or if they match.
      */
-    static boolean matchNbt(final Tag nbtTag, final JsonElement matchTag)
+    static boolean matchNbt(final NBTBase nbtTag, final JsonElement matchTag)
     {
         return matchNbt(nbtTag, matchTag, 1);
     }
 
     /**
-     * Match a nbt tag and a json element tag.
-     * @param nbtTag the nbt tag to check.
-     * @param matchTag the element tag to check.
+     * Match a nbt NBTBase and a json element NBTBase.
+     * @param nbtTag the nbt NBTBase to check.
+     * @param matchTag the element NBTBase to check.
      * @param count the number of elements to match in a list.
      * @return true if the matchTag fits into the nbtTag or if they match.
      */
-    static boolean matchNbt(final Tag nbtTag, final JsonElement matchTag, final int count)
+    static boolean matchNbt(final NBTBase nbtTag, final JsonElement matchTag, final int count)
     {
-        if (nbtTag instanceof final CompoundTag nbtCompound)
+        if (nbtTag instanceof final NBTTagCompound nbtCompound)
         {
             if (!(matchTag instanceof JsonObject matchObject))
             {
@@ -73,13 +73,13 @@ public interface IQuestTriggerTemplate
             return true;
         }
 
-        if (nbtTag instanceof ListTag nbtList)
+        if (nbtTag instanceof NBTTagList nbtList)
         {
             // Check if we're trying to match an element in the list.
             int matchCount = 0;
-            for (final Tag tag : nbtList)
+            for (final NBTBase NBTBase : nbtList)
             {
-                if (matchNbt(tag, matchTag))
+                if (matchNbt(NBTBase, matchTag))
                 {
                     matchCount++;
                     if (matchCount >= count)
@@ -98,9 +98,9 @@ public interface IQuestTriggerTemplate
             for (final JsonElement element: arrayTag)
             {
                 boolean matched = false;
-                for (final Tag tag : nbtList)
+                for (final NBTBase NBTBase : nbtList)
                 {
-                    if (matchNbt(tag, element))
+                    if (matchNbt(NBTBase, element))
                     {
                         matched = true;
                         break;
@@ -122,13 +122,13 @@ public interface IQuestTriggerTemplate
         }
 
         // Full equals for string.
-        if (nbtTag instanceof StringTag && ((JsonPrimitive) matchTag).isString())
+        if (nbtTag instanceof NBTTagString && ((JsonPrimitive) matchTag).isString())
         {
             return nbtTag.getAsString().equals(matchTag.getAsString());
         }
-        else if (nbtTag instanceof ByteTag && ((JsonPrimitive) matchTag).isBoolean())
+        else if (nbtTag instanceof NBTTagByte && ((JsonPrimitive) matchTag).isBoolean())
         {
-            return (((ByteTag) nbtTag).getAsByte() == 0) != matchTag.getAsBoolean();
+            return (((NBTTagByte) nbtTag).getAsByte() == 0) != matchTag.getAsBoolean();
         }
         // Larger equals for numbers.
         else if (nbtTag instanceof NumericTag && ((JsonPrimitive) matchTag).isNumber())
@@ -138,3 +138,6 @@ public interface IQuestTriggerTemplate
         return false;
     }
 }
+
+
+

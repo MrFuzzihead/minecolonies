@@ -1,7 +1,7 @@
 package com.minecolonies.api.entity.citizen.citizenhandlers;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.Item;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.item.Item;
 
 import java.util.Queue;
 
@@ -48,13 +48,13 @@ public interface ICitizenFoodHandler
      * Read from nbt.
      * @param compound to read it from.
      */
-    void read(CompoundTag compound);
+    void read(NBTTagCompound compound);
 
     /**
      * Write to nbt.
      * @param compound to write it to.
      */
-    void write(CompoundTag compound);
+    void write(NBTTagCompound compound);
 
     /**
      * Disease modifier based on the food values.
@@ -75,3 +75,5 @@ public interface ICitizenFoodHandler
      */
     ImmutableList<Item> getLastEatenFoods();
 }
+
+

@@ -2,7 +2,7 @@ package com.minecolonies.api.colony.buildings.views;
 
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.ICitizenDataView;
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.colony.buildings.ICommonBuilding;
@@ -11,8 +11,8 @@ import com.minecolonies.api.colony.requestsystem.request.IRequest;
 import com.minecolonies.api.colony.requestsystem.requester.IRequester;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.crafting.ItemStorage;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -27,36 +27,36 @@ public interface IBuildingView extends IRequester, IModuleContainerView, ICommon
     /**
      * Gets the id for this building.
      *
-     * @return A BlockPos because the building ID is its location.
+     * @return A int[] because the building ID is its location.
      */
     @NotNull
-    BlockPos getID();
+    int[] getID();
 
     /**
      * Get the parent building
      *
      * @return
      */
-    BlockPos getParent();
+    int[] getParent();
 
     /**
-     * Get the max level of the building.
+     * Get the max World of the building.
      *
-     * @return AbstractBuilding max level.
+     * @return AbstractBuilding max World.
      */
     int getBuildingMaxLevel();
 
     /**
-     * Checks if this building is at its max level.
+     * Checks if this building is at its max World.
      *
-     * @return true if the building is at its max level.
+     * @return true if the building is at its max World.
      */
     boolean isBuildingMaxLevel();
 
     /**
-     * Get the current work order level.
+     * Get the current work order World.
      *
-     * @return 0 if none, othewise the current level worked on
+     * @return 0 if none, othewise the current World worked on
      */
     int getCurrentWorkOrderLevel();
 
@@ -107,9 +107,9 @@ public interface IBuildingView extends IRequester, IModuleContainerView, ICommon
     boolean isMirrored();
 
     /**
-     * Get the current work order level.
+     * Get the current work order World.
      *
-     * @return 0 if none, othewise the current level worked on
+     * @return 0 if none, othewise the current World worked on
      */
     boolean hasWorkOrder();
 
@@ -154,14 +154,14 @@ public interface IBuildingView extends IRequester, IModuleContainerView, ICommon
      * @return blockui window.
      */
     @NotNull
-    BOWindow getWindow();
+    Object /* BOWindow: todo ModularUI2 */ getWindow();
 
     /**
-     * Read this view from a {@link FriendlyByteBuf}.
+     * Read this view from a {@link PacketBuffer}.
      *
      * @param buf The buffer to read this view from.
      */
-    void deserialize(@NotNull FriendlyByteBuf buf);
+    void deserialize(@NotNull PacketBuffer buf);
 
     Map<Integer, Collection<IToken<?>>> getOpenRequestsByCitizen();
 
@@ -233,7 +233,7 @@ public interface IBuildingView extends IRequester, IModuleContainerView, ICommon
     default int getRange() { return 0; }
 
     /**
-     * Get lang key of pre-upgrade warning for building level.
+     * Get lang key of pre-upgrade warning for building World.
      * @return empty-string by default. Override for respective building.
      */
     default String getHoverWarningForLevel()
@@ -241,3 +241,7 @@ public interface IBuildingView extends IRequester, IModuleContainerView, ICommon
         return "";
     }
 }
+
+
+
+

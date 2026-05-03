@@ -12,7 +12,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.GameProfileArgument;
-import net.minecraft.network.chat.Component;
+import net.minecraft.util.IChatComponent;
 
 import static com.minecolonies.core.commands.CommandArgumentNames.COLONYID_ARG;
 import static com.minecolonies.core.commands.CommandArgumentNames.PLAYERNAME_ARG;
@@ -29,7 +29,7 @@ public class CommandAddOfficer implements IMCColonyOfficerCommand
     {
         if (!context.getSource().hasPermission(OP_PERM_LEVEL) && !MineColonies.getConfig().getServer().canPlayerUseAddOfficerCommand.get())
         {
-            context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_DISABLED_IN_CONFIG), true);
+            context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_DISABLED_IN_CONFIG), true);
             return 0;
         }
 
@@ -48,13 +48,13 @@ public class CommandAddOfficer implements IMCColonyOfficerCommand
         if (context.getSource().getServer().getPlayerList().getPlayer(profile.getId()) == null)
         {
             // could not find player with given name.
-            context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_PLAYER_NOT_FOUND, profile.getName()), true);
+            context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_PLAYER_NOT_FOUND, profile.getName()), true);
             return 0;
         }
         colony.getPermissions().addPlayer(profile, colony.getPermissions().getRank(colony.getPermissions().OFFICER_RANK_ID));
         colony.getPackageManager().addImportantColonyPlayer(context.getSource().getServer().getPlayerList().getPlayer(profile.getId()));
 
-        context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_OFFICER_ADD_SUCCESS, profile.getName(), colony.getName()), true);
+        context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_OFFICER_ADD_SUCCESS, profile.getName(), colony.getName()), true);
         return 1;
     }
 
@@ -75,3 +75,5 @@ public class CommandAddOfficer implements IMCColonyOfficerCommand
                          .then(IMCCommand.newArgument(PLAYERNAME_ARG, GameProfileArgument.gameProfile()).executes(this::checkPreConditionAndExecute)));
     }
 }
+
+

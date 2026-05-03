@@ -6,9 +6,9 @@ import com.minecolonies.api.research.IGlobalResearchTree;
 import com.minecolonies.api.research.IResearchRequirement;
 import com.minecolonies.api.research.ModResearchRequirements;
 import com.minecolonies.core.util.GsonHelper;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.NBTTagCompound;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
 
 /**
  * Certain building research requirements.
@@ -33,7 +33,7 @@ public class ResearchResearchRequirement implements IResearchRequirement
      *
      * @param nbt the nbt containing the relevant data.
      */
-    public ResearchResearchRequirement(final CompoundTag nbt)
+    public ResearchResearchRequirement(final NBTTagCompound nbt)
     {
         this.researchId = new ResourceLocation(nbt.getString(TAG_ID));
     }
@@ -63,9 +63,9 @@ public class ResearchResearchRequirement implements IResearchRequirement
     }
 
     @Override
-    public MutableComponent getDesc()
+    public String getDesc()
     {
-        return MutableComponent.create(IGlobalResearchTree.getInstance().getResearch(researchId).getName());
+        return String.create(IGlobalResearchTree.getInstance().getResearch(researchId).getName());
     }
 
     @Override
@@ -75,10 +75,14 @@ public class ResearchResearchRequirement implements IResearchRequirement
     }
 
     @Override
-    public CompoundTag writeToNBT()
+    public NBTTagCompound writeToNBT()
     {
-        CompoundTag nbt = new CompoundTag();
+        NBTTagCompound nbt = new NBTTagCompound();
         nbt.putString(TAG_ID, this.researchId.toString());
         return nbt;
     }
 }
+
+
+
+

@@ -8,9 +8,10 @@ import com.ldtteam.structurize.util.BlockInfo;
 import com.minecolonies.api.blocks.AbstractBlockHut;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.items.ModTags;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
+// [1.7.10] tags removed
+import net.minecraft.item.ItemStack;
+import net.minecraft.block.Block;
+// [1.7.10] BlockState -> int metadata
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.Tags;
 
@@ -246,3 +247,5 @@ public class SchemAnalyzerUtil
         }
     }
 }
+
+

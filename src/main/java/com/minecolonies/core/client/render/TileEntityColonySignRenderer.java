@@ -1,4 +1,41 @@
 package com.minecolonies.core.client.render;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.RenderType;
+import com.mojang.math.Pose;
+import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.renderer.entity.MobRenderer;
+import net.minecraft.client.renderer.entity.Material;
+import net.minecraft.client.model.BookModel;
+import net.minecraft.client.renderer.blockentity.BlockEntityWithoutLevelRenderer;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.level.GameType;
+import net.minecraft.network.chat.FormattedCharSequence;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.world.level.block.state.BlockState;
+import org.joml.Matrix4f;
+import net.minecraft.client.renderer.entity.ArrowRenderer;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.ThrownTrident;
+import net.minecraft.client.EntityModelSet;
+import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
+import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
+import net.minecraft.client.renderer.entity.layers.RenderLayerParent;
+import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
 
 import com.minecolonies.api.blocks.ModBlocks;
 import com.minecolonies.core.client.render.worldevent.ColonyWorldRenderMacros;
@@ -6,27 +43,27 @@ import com.minecolonies.core.client.render.worldevent.WorldEventContext;
 import com.minecolonies.core.tileentities.TileEntityColonySign;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
-import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.util.FormattedCharSequence;
-import net.minecraft.network.chat.Style;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import java.util.Random;
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] world.phys removed
+// [1.7.10] world.phys removed
+// [1.7.10] world.phys removed
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraftforge.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
@@ -111,7 +148,7 @@ public class TileEntityColonySignRenderer implements BlockEntityRenderer<TileEnt
         if (colonyName.isEmpty())
         {
             renderText(matrixStack, buffer, combinedLight, "Unknown Colony", 0, 0);
-            renderText(matrixStack, buffer, combinedLight, Component.translatable("com.minecolonies.coremod.dist.blocks",distance).getString(), 3, 0);
+            renderText(matrixStack, buffer, combinedLight, String.translatable("com.minecolonies.coremod.dist.blocks",distance).getString(), 3, 0);
         }
         else
         {
@@ -149,12 +186,12 @@ public class TileEntityColonySignRenderer implements BlockEntityRenderer<TileEnt
             {
                 renderText(matrixStack, buffer, combinedLight, splitName.get(i).getString(), i, offset);
             }
-            renderText(matrixStack, buffer, combinedLight, Component.translatable("com.minecolonies.coremod.dist.blocks",distance).getString(), 3, offset);
+            renderText(matrixStack, buffer, combinedLight, String.translatable("com.minecolonies.coremod.dist.blocks",distance).getString(), 3, offset);
         }
         else
         {
             renderText(matrixStack, buffer, combinedLight, colonyName, 0, offset);
-            renderText(matrixStack, buffer, combinedLight, Component.translatable("com.minecolonies.coremod.dist.blocks",distance).getString(), 3, offset);
+            renderText(matrixStack, buffer, combinedLight, String.translatable("com.minecolonies.coremod.dist.blocks",distance).getString(), 3, offset);
         }
     }
 
@@ -226,7 +263,7 @@ public class TileEntityColonySignRenderer implements BlockEntityRenderer<TileEnt
         if (!(rayTraceResult instanceof final BlockHitResult blockRayTraceResult) || blockRayTraceResult.getType() == HitResult.Type.MISS)
             return;
 
-        final BlockPos posAtCamera = blockRayTraceResult.getBlockPos();
+        final int[] posAtCamera = blockRayTraceResult.getBlockPos();
         if (context.clientLevel.getBlockState(posAtCamera).getBlock() != ModBlocks.blockColonySign)
         {
             return;
@@ -234,18 +271,18 @@ public class TileEntityColonySignRenderer implements BlockEntityRenderer<TileEnt
 
         if (context.clientLevel.getBlockEntity(posAtCamera) instanceof TileEntityColonySign tileEntityColonySign)
         {
-            if (!BlockPos.ZERO.equals(tileEntityColonySign.getPreviousPos()))
+            if (!new int[]{0,0,0}.equals(tileEntityColonySign.getPreviousPos()))
             {
-                renderTextBoxAtPos(context, tileEntityColonySign.getPreviousPos(), List.of(Component.translatable(PREVIOUS).getString()));
+                renderTextBoxAtPos(context, tileEntityColonySign.getPreviousPos(), List.of(String.translatable(PREVIOUS).getString()));
             }
-            if (!BlockPos.ZERO.equals(tileEntityColonySign.getNextPosition()))
+            if (!new int[]{0,0,0}.equals(tileEntityColonySign.getNextPosition()))
             {
-                renderTextBoxAtPos(context, tileEntityColonySign.getNextPosition(), List.of(Component.translatable(NEXT).getString()));
+                renderTextBoxAtPos(context, tileEntityColonySign.getNextPosition(), List.of(String.translatable(NEXT).getString()));
             }
         }
     }
 
-    private static void renderTextBoxAtPos(final WorldEventContext context, final BlockPos pos, final List<String> text)
+    private static void renderTextBoxAtPos(final WorldEventContext context, final int[] pos, final List<String> text)
     {
         final MultiBufferSource.BufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();
         ColonyWorldRenderMacros.renderLineBox(context.poseStack, buffer, new AABB(pos), 0.05f, 0xffffffff, true);
@@ -254,7 +291,7 @@ public class TileEntityColonySignRenderer implements BlockEntityRenderer<TileEnt
         buffer.endBatch();
     }
 
-    public static void renderDebugText(final BlockPos renderPos,
+    public static void renderDebugText(final int[] renderPos,
         final List<String> text,
         final PoseStack matrixStack,
         final boolean forceWhite,
@@ -286,7 +323,7 @@ public class TileEntityColonySignRenderer implements BlockEntityRenderer<TileEnt
 
             for (int i = 0; i < cap; i += mergeEveryXListElements)
             {
-                final MutableComponent renderText = Component.literal(
+                final String renderText = String.literal(
                     mergeEveryXListElements == 1 ? text.get(i) : text.subList(i, Math.min(i + mergeEveryXListElements, cap)).toString());
                 final float textCenterShift = (float) (-fontrenderer.width(renderText) / 2);
 
@@ -311,3 +348,8 @@ public class TileEntityColonySignRenderer implements BlockEntityRenderer<TileEnt
         }
     }
 }
+
+
+
+
+

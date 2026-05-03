@@ -32,18 +32,18 @@ import com.minecolonies.core.colony.jobs.AbstractJobStructure;
 import com.minecolonies.core.entity.ai.workers.util.BuildingProgressStage;
 import com.minecolonies.core.entity.ai.workers.util.BuildingStructureHandler;
 import com.minecolonies.core.tileentities.TileEntityDecorationController;
-import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.AirBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.util.TriPredicate;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] sounds removed
+// [1.7.10] tags removed
+// [1.7.10] int /* InteractionHand */ removed
+import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
+// [1.7.10] net.minecraft.block.Block /* [1.7.10] AirBlock */ -> Blocks.air check
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+// [1.7.10] block.entity removed
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] TriPredicate not in Forge 1.7.10; using org.apache.logging.log4j.util.TriConsumer-pattern
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,7 +53,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import static com.ldtteam.structurize.placement.AbstractBlueprintIterator.NULL_POS;
+// [1.7.10] AbstractBlueprintIterator.NULL_POS may not exist; define locally
+// import static com.ldtteam.structurize.placement.AbstractBlueprintIterator.NULL_POS;
 import static com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState.*;
 import static com.minecolonies.api.research.util.ResearchConstants.BLOCK_PLACE_SPEED;
 import static com.minecolonies.api.util.constant.CitizenConstants.*;
@@ -73,6 +74,8 @@ import static com.minecolonies.core.entity.ai.workers.util.BuildingProgressStage
  */
 public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?, J>, B extends AbstractBuildingStructureBuilder> extends AbstractEntityAIInteract<J, B>
 {
+    /** [1.7.10] sentinel position replacing AbstractBlueprintIterator.NULL_POS */
+    protected static final int[] NULL_POS = new int[]{Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE};
     /**
      * Building block delay
      */
@@ -106,12 +109,12 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
     /**
      * Predicate defining things we don't want the builders to ever touch.
      */
-    protected TriPredicate<BlueprintPositionInfo, BlockPos, IStructureHandler> DONT_TOUCH_PREDICATE = (info, worldPos, handler) ->
+    protected com.minecolonies.api.util.TriPredicate<BlueprintPositionInfo, int[], IStructureHandler> DONT_TOUCH_PREDICATE = (info, worldPos, handler) ->
     {
-        final BlockState worldState = handler.getWorld().getBlockState(worldPos);
+        final BlockState worldState = BlockState.of(handler.getWorld(), worldPos[0], worldPos[1], worldPos[2]);
 
         return worldState.getBlock() instanceof IBuilderUndestroyable
-                 || worldState.getBlock() == Blocks.BEDROCK
+                 || worldState.getBlock() == Blocks.bedrock
                  || (info.getBlockInfo().getState().getBlock() instanceof AbstractBlockHut && handler.getCenterPos().equals(worldPos)
                        && worldState.getBlock() instanceof AbstractBlockHut);
     };
@@ -119,22 +122,22 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
     /**
      * Position where the Builders constructs from.
      */
-    protected BlockPos workFrom;
+    protected int[] workFrom;
 
     /**
      * Previous Position where the Builders constructed from.
      */
-    protected BlockPos prevBlockPosition;
+    protected int[] prevBlockPosition;
 
     /**
      * Block to mine.
      */
-    protected BlockPos blockToMine;
+    protected int[] blockToMine;
 
     /**
      * Block to go to when building
      */
-    protected BlockPos gotoPos = null;
+    protected int[] gotoPos = null;
 
     /**
      * The id in the list of the last picked up item.
@@ -304,7 +307,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
      * @param currentBlock the current block it is working on.
      * @return true while walking to the site.
      */
-    public abstract boolean walkToConstructionSite(final BlockPos currentBlock);
+    public abstract boolean walkToConstructionSite(final int[] currentBlock);
 
     /**
      * Checks for blocks that need to be treated as deco
@@ -342,8 +345,8 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
 
         //Fill workFrom with the position from where the builder should build.
         //also ensure we are at that position.
-        final BlockPos progress = getProgressPos() == null ? NULL_POS : getProgressPos().getA();
-        final BlockPos worldPos = getPosToWorkAt();
+        final int[] progress = getProgressPos() == null ? NULL_POS : getProgressPos().getA();
+        final int[] worldPos = getPosToWorkAt();
 
         if (getProgressPos() != null)
         {
@@ -388,7 +391,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
                 // clear air
                 result = placer.executeStructureStep(world, null, progress, StructurePlacer.Operation.BLOCK_PLACEMENT,
                   () -> placer.getIterator().decrement((info, pos, handler) ->
-                                                         !(info.getBlockInfo().getState().getBlock() instanceof AirBlock)
+                                                         !(info.getBlockInfo().getState().getBlock() instanceof net.minecraft.block.Block /* [1.7.10] AirBlock */)
                                                            || (handler.getWorld().isEmptyBlock(pos))
                                                            || DONT_TOUCH_PREDICATE.test(info, pos, handler)), false);
                 break;
@@ -400,7 +403,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
             case SPAWN:
                 if (placer.getHandler().getBluePrint().getEntities().length == 0)
                 {
-                    result = new StructurePhasePlacementResult(BlockPos.ZERO, new BlockPlacementResult(BlockPos.ZERO, BlockPlacementResult.Result.FINISHED));
+                    result = new StructurePhasePlacementResult(new int[]{0,0,0}, new BlockPlacementResult(new int[]{0,0,0}, BlockPlacementResult.Result.FINISHED));
                 }
                 else
                 {
@@ -482,7 +485,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
             return NEEDS_ITEM;
         }
 
-        worker.swing(InteractionHand.MAIN_HAND);
+        worker.swing(0 /* InteractionHand.MAIN_HAND */);
         worker.queueSound(SoundEvents.BAMBOO_HIT, worker.blockPosition(), 10, 0, 0.5f, 0.1f);
 
         if (result.getBlockResult().getResult() == BlockPlacementResult.Result.BREAK_BLOCK)
@@ -507,7 +510,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
      *
      * @return the position to go to
      */
-    protected BlockPos getPosToWorkAt()
+    protected int[] getPosToWorkAt()
     {
         if (gotoPos != null)
         {
@@ -537,7 +540,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
      * @param handler
      * @return
      */
-    private boolean skipDecorate(final BlueprintPositionInfo info, final BlockPos pos, final IStructureHandler handler)
+    private boolean skipDecorate(final BlueprintPositionInfo info, final int[] pos, final IStructureHandler handler)
     {
         final BlockState blockInfoState = info.getBlockInfo().getState();
         return (!isDecoItem(blockInfoState.getBlock()) && BlockUtils.isAnySolid(blockInfoState)) || DONT_TOUCH_PREDICATE.test(info, pos, handler);
@@ -551,7 +554,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
      * @param handler
      * @return
      */
-    protected boolean skipBuilding(final BlueprintPositionInfo info, final BlockPos pos, final IStructureHandler handler)
+    protected boolean skipBuilding(final BlueprintPositionInfo info, final int[] pos, final IStructureHandler handler)
     {
         final BlockState blockInfoState = info.getBlockInfo().getState();
         return !BlockUtils.canBlockFloatInAir(blockInfoState)
@@ -567,7 +570,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
      * @param handler
      * @return
      */
-    protected boolean skipClearing(final BlueprintPositionInfo info, final BlockPos pos, final IStructureHandler handler)
+    protected boolean skipClearing(final BlueprintPositionInfo info, final int[] pos, final IStructureHandler handler)
     {
         if (info.getBlockInfo().getState().getBlock() == com.ldtteam.structurize.blocks.ModBlocks.blockFluidSubstitution.get())
         {
@@ -589,7 +592,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
      * @param handler
      * @return
      */
-    private boolean skipRemoval(final BlueprintPositionInfo info, final BlockPos pos, final IStructureHandler handler)
+    private boolean skipRemoval(final BlueprintPositionInfo info, final int[] pos, final IStructureHandler handler)
     {
         final BlockState infoBlockState = info.getBlockInfo().getState();
         final Block infoBlock = infoBlockState.getBlock();
@@ -606,9 +609,9 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
     }
 
     /**
-     * Get the level that affects the place speed.
+     * Get the World that affects the place speed.
      *
-     * @return the level.
+     * @return the World.
      */
     public abstract int getPlaceSpeedLevel();
 
@@ -648,7 +651,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
         }
 
         final BlockState worldState = world.getBlockState(blockToMine);
-        if (worldState.getBlock() instanceof AirBlock || worldState.getBlock() == Blocks.WATER)
+        if (worldState.getBlock() instanceof net.minecraft.block.Block /* [1.7.10] AirBlock */ || worldState.getBlock() == Blocks.WATER)
         {
             return BUILDING_STEP;
         }
@@ -660,7 +663,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
 
         if (!mineBlock(blockToMine, null))
         {
-            worker.swing(InteractionHand.MAIN_HAND);
+            worker.swing(0 /* InteractionHand.MAIN_HAND */);
             return getState();
         }
         worker.decreaseSaturationForContinuousAction();
@@ -674,7 +677,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
      * @param position    the position to set it.
      * @param removal     if removal step.
      */
-    public void loadStructure(@NotNull final IBuilderWorkOrder workOrder, final BlockPos position, final boolean removal)
+    public void loadStructure(@NotNull final IBuilderWorkOrder workOrder, final int[] position, final boolean removal)
     {
         this.loadingBlueprint = true;
         workOrder.loadBlueprint(world, (blueprint -> {
@@ -750,7 +753,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
         final Map<ItemStorage, Integer> requestedMap = new HashMap<>();
         for (final ItemStack stack : itemList)
         {
-            if (stack.getItem() instanceof BlockItem && isBlockFree(((BlockItem) stack.getItem()).getBlock().defaultBlockState()))
+            if (stack.getItem() instanceof ItemBlock && isBlockFree(((ItemBlock) stack.getItem()).getBlock().defaultBlockState()))
             {
                 continue;
             }
@@ -889,10 +892,10 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
     /**
      * Store the progressPos in the building if possible for the worker.
      *
-     * @param blockPos the progressResult.
+     * @param int[] the progressResult.
      * @param stage    the current stage.
      */
-    public void storeProgressPos(final BlockPos blockPos, final BuildingProgressStage stage)
+    public void storeProgressPos(final int[] blockPos, final BuildingProgressStage stage)
     {
         /*
          * Override if needed.
@@ -904,13 +907,13 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
      * <p>
      * Takes a min distance from width and length.
      * <p>
-     * Then finds the floor level at that distance and then check if it does contain two air levels.
+     * Then finds the floor World at that distance and then check if it does contain two air levels.
      *
      * @param targetPosition the position to work at.
-     * @return BlockPos position to work from.
+     * @return int[] position to work from.
      */
     @Override
-    public BlockPos getWorkingPosition(final BlockPos targetPosition)
+    public int[] getWorkingPosition(final int[] targetPosition)
     {
         //get length or width either is larger.
         final int length = structurePlacer.getB().getBluePrint().getSizeX();
@@ -930,7 +933,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
     {
         return block == null
                  || BlockUtils.isWater(block)
-                 || block.is(BlockTags.LEAVES)
+                 || block.getBlock() instanceof net.minecraft.block.BlockLeaves
                  || block.getBlock() == ModBlocks.blockDecorationPlaceholder;
     }
 
@@ -950,14 +953,14 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
      * @return the current building position, or null.
      */
     @Nullable
-    public BlockPos getCurrentBuildingPosition()
+    public int[] getCurrentBuildingPosition()
     {
         if (structurePlacer == null || structurePlacer.getA() == null || structurePlacer.getB() == null)
         {
             return null;
         }
 
-        final BlockPos progressPos = structurePlacer.getA().getIterator().getProgressPos();
+        final int[] progressPos = structurePlacer.getA().getIterator().getProgressPos();
         if (progressPos == null || progressPos.equals(NULL_POS))
         {
             return null;
@@ -971,7 +974,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
      *
      * @return the current working position.
      */
-    protected BlockPos getCurrentWorkingPosition()
+    protected int[] getCurrentWorkingPosition()
     {
         return workFrom == null ? getWorkingPosition(getCurrentBuildingPosition()) : workFrom;
     }
@@ -1060,7 +1063,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
      *
      * @return the progress with the current stage.
      */
-    public abstract Tuple<BlockPos, BuildingProgressStage> getProgressPos();
+    public abstract Tuple<int[], BuildingProgressStage> getProgressPos();
 
     /**
      * Check if a solid substitution block should be overwritten in a specific case.
@@ -1077,9 +1080,9 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
      * @param ignored the location the block should be at.
      * @return the Block.
      */
-    public BlockState getSolidSubstitution(final BlockPos ignored)
+    public BlockState getSolidSubstitution(final int[] ignored)
     {
-        return building.getSetting(FILL_BLOCK).getValue().getBlock().defaultBlockState();
+        return new BlockState(building.getSetting(FILL_BLOCK).getValue().getBlock(), 0);
     }
 
     /**
@@ -1094,3 +1097,10 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
      */
     protected abstract boolean checkIfCanceled();
 }
+
+
+
+
+
+
+

@@ -1,8 +1,8 @@
 package com.minecolonies.api.entity.ai.workers.util;
 
 import com.minecolonies.api.equipment.ModEquipmentTypes;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.entity.EquipmentSlot;
+import com.minecolonies.api.util.Tuple;
+// [1.7.10] world.entity removed
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,12 +20,12 @@ public final class GuardGearBuilder
     }
 
     /**
-     * Build the gear for a certain armor level and level range.
+     * Build the gear for a certain armor World and World range.
      *
-     * @param minArmorLevel      the min armor level.
-     * @param maxArmorLevel      the max armor level.
-     * @param levelRange         the level range of the guard.
-     * @param buildingLevelRange the building level range.
+     * @param minArmorLevel      the min armor World.
+     * @param maxArmorLevel      the max armor World.
+     * @param levelRange         the World range of the guard.
+     * @param buildingLevelRange the building World range.
      * @return the list of items.
      */
     public static List<GuardGear> buildGearForLevel(
@@ -35,10 +35,13 @@ public final class GuardGearBuilder
       final Tuple<Integer, Integer> buildingLevelRange)
     {
         final List<GuardGear> armorList = new ArrayList<>();
-        armorList.add(new GuardGear(ModEquipmentTypes.boots.get(), EquipmentSlot.FEET, minArmorLevel, maxArmorLevel, levelRange, buildingLevelRange));
-        armorList.add(new GuardGear(ModEquipmentTypes.chestplate.get(), EquipmentSlot.CHEST, minArmorLevel, maxArmorLevel, levelRange, buildingLevelRange));
-        armorList.add(new GuardGear(ModEquipmentTypes.helmet.get(), EquipmentSlot.HEAD, minArmorLevel, maxArmorLevel, levelRange, buildingLevelRange));
-        armorList.add(new GuardGear(ModEquipmentTypes.leggings.get(), EquipmentSlot.LEGS, minArmorLevel, maxArmorLevel, levelRange, buildingLevelRange));
+        armorList.add(new GuardGear(ModEquipmentTypes.boots.get(), null /* EquipmentSlot. */, minArmorLevel, maxArmorLevel, levelRange, buildingLevelRange));
+        armorList.add(new GuardGear(ModEquipmentTypes.chestplate.get(), null /* EquipmentSlot. */, minArmorLevel, maxArmorLevel, levelRange, buildingLevelRange));
+        armorList.add(new GuardGear(ModEquipmentTypes.helmet.get(), null /* EquipmentSlot. */, minArmorLevel, maxArmorLevel, levelRange, buildingLevelRange));
+        armorList.add(new GuardGear(ModEquipmentTypes.leggings.get(), null /* EquipmentSlot. */, minArmorLevel, maxArmorLevel, levelRange, buildingLevelRange));
         return armorList;
     }
 }
+
+
+

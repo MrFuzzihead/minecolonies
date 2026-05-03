@@ -7,8 +7,8 @@ import com.minecolonies.core.colony.crafting.CustomRecipeManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] GsonHelper removed
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -72,3 +72,4 @@ public class CrafterRecipeListener extends SimpleJsonResourceReloadListener
         Log.getLogger().info("Loaded " + totalRecipes + " recipes for " + recipeManager.getAllRecipes().size() + " crafters");
     }
 }
+

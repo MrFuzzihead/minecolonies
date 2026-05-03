@@ -4,7 +4,7 @@ import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.core.colony.buildings.AbstractBuildingGuards;
-import net.minecraft.core.BlockPos;
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,7 +30,7 @@ public class BuildingGuardTower extends AbstractBuildingGuards
      * @param c the colony
      * @param l the position
      */
-    public BuildingGuardTower(@NotNull final IColony c, final BlockPos l)
+    public BuildingGuardTower(@NotNull final IColony c, final int[] l)
     {
         super(c, l);
     }
@@ -104,9 +104,11 @@ public class BuildingGuardTower extends AbstractBuildingGuards
          * @param c the colony.
          * @param l the location.
          */
-        public View(final IColonyView c, @NotNull final BlockPos l)
+        public View(final IColonyView c, @NotNull final int[] l)
         {
             super(c, l);
         }
     }
 }
+
+

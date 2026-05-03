@@ -1,6 +1,6 @@
 package com.minecolonies.api.items;
 
-import net.minecraft.world.item.Item;
+import net.minecraft.item.Item;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -254,3 +254,4 @@ public final class ModItems
         };
     }
 }
+

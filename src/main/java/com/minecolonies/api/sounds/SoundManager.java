@@ -1,9 +1,10 @@
 package com.minecolonies.api.sounds;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] sounds removed
+// [1.7.10] SoundSource -> String (no SoundSource enum in 1.7.10)
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundSource;
 
 import java.util.*;
 
@@ -32,7 +33,7 @@ public class SoundManager
             return;
         }
 
-        if (Minecraft.getInstance().level == null)
+        if (Minecraft.getInstance().World == null)
         {
             soundQueue.clear();
             return;
@@ -48,7 +49,7 @@ public class SoundManager
             final TimedSound instance = entries.getValue().peek();
             if (instance.timeout <= 0)
             {
-                Minecraft.getInstance().player.level.playSound(Minecraft.getInstance().player,
+                Minecraft.getInstance().player.World.playSound(Minecraft.getInstance().player,
                   instance.pos,
                   instance.soundEvent,
                   instance.source,
@@ -87,10 +88,10 @@ public class SoundManager
     public static void addToQueue(
       final UUID uuid,
       final SoundEvent soundEvent,
-      final SoundSource source,
+      final String source,  // [1.7.10] SoundSource -> String
       final int repetitions,
       final int length,
-      final BlockPos pos,
+      final int[] pos,
       final float volume,
       final float pitch)
     {
@@ -103,17 +104,17 @@ public class SoundManager
      */
     public static class TimedSound
     {
-        final SoundEvent  soundEvent;
-        final SoundSource source;
-        final int         length;
-        final BlockPos    pos;
-        final float       volume;
-        final float       pitch;
+        final SoundEvent soundEvent;
+        final String     source;  // [1.7.10] SoundSource -> String
+        final int        length;
+        final int[]      pos;
+        final float      volume;
+        final float      pitch;
 
         int repetitions;
         int timeout = 0;
 
-        public TimedSound(final SoundEvent soundEvent, final SoundSource source, final int repetitions, final int length, final BlockPos pos, final float volume, final float pitch)
+        public TimedSound(final SoundEvent soundEvent, final String source, final int repetitions, final int length, final int[] pos, final float volume, final float pitch)
         {
             this.soundEvent = soundEvent;
             this.source = source;

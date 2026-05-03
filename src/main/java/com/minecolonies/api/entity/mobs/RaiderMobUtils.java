@@ -12,20 +12,20 @@ import com.minecolonies.api.items.ModItems;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.CompatibilityUtils;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.attributes.RangedAttribute;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.MathHelper;
+import net.minecraft.entity.Entity;
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
+import net.minecraft.init.Items;
+import net.minecraft.world.World;
+// [1.7.10] registries removed
+// [1.7.10] registries removed
+// [1.7.10] registries removed
 
 import java.util.List;
 import java.util.Random;
@@ -37,15 +37,15 @@ import static com.minecolonies.core.colony.events.raid.RaiderConstants.*;
  */
 public final class RaiderMobUtils
 {
-    public static final DeferredRegister<Attribute> ATTRIBUTES = DeferredRegister.create(ForgeRegistries.ATTRIBUTES, Constants.MOD_ID);
+    // [1.7.10] DeferredRegister not available
 
     /**
-     * Mob attribute, used for custom attack damage
+     * EntityCreature attribute, used for custom attack damage
      */
-    public final static RegistryObject<Attribute> MOB_ATTACK_DAMAGE = ATTRIBUTES.register("mc_mob_damage", () -> new RangedAttribute( "mc_mob_damage", 2.0, 1.0, 20));
+    public final static Object MOB_ATTACK_DAMAGE = null; // [1.7.10] attribute registry stubbed
 
     /**
-     * Damage increased by 1 for every 200 raid level difficulty
+     * Damage increased by 1 for every 200 raid World difficulty
      */
     public static int DAMAGE_PER_X_RAID_LEVEL = 400;
 
@@ -60,16 +60,16 @@ public final class RaiderMobUtils
     }
 
     /**
-     * Set mob attributes.
+     * Set EntityCreature attributes.
      *
-     * @param mob    The mob to set the attributes on.
-     * @param colony The colony that the mob is attacking.
+     * @param EntityCreature    The EntityCreature to set the attributes on.
+     * @param colony The colony that the EntityCreature is attacking.
      */
-    public static void setMobAttributes(final AbstractEntityMinecoloniesRaider mob, final IColony colony)
+    public static void setMobAttributes(final AbstractEntityMinecoloniesRaider EntityCreature, final IColony colony)
     {
         final double difficultyModifier = colony.getRaiderManager().getRaidDifficultyModifier();
-        mob.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(FOLLOW_RANGE * 2);
-        mob.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(difficultyModifier < 2.4 ? MOVEMENT_SPEED : MOVEMENT_SPEED * 1.2);
+        EntityCreature.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(FOLLOW_RANGE * 2);
+        EntityCreature.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(difficultyModifier < 2.4 ? MOVEMENT_SPEED : MOVEMENT_SPEED * 1.2);
         final int raidLevel = colony.getRaiderManager().getColonyRaidLevel();
 
         // Base damage
@@ -81,13 +81,13 @@ public final class RaiderMobUtils
         // Base health
         final double baseHealth = getHealthBasedOnRaidLevel(raidLevel) * difficultyModifier;
 
-        mob.initStatsFor(baseHealth, difficultyModifier, attackDamage);
+        EntityCreature.initStatsFor(baseHealth, difficultyModifier, attackDamage);
     }
 
     /**
      * Sets the entity's health based on the raidLevel
      *
-     * @param raidLevel the raid level.
+     * @param raidLevel the raid World.
      * @return returns the health in the form of a double
      */
     public static double getHealthBasedOnRaidLevel(final int raidLevel)
@@ -106,10 +106,10 @@ public final class RaiderMobUtils
      * @param eventID        the event id.
      */
     public static void spawn(
-      final EntityType<?> entityToSpawn,
+      final Class<?> entityToSpawn,
       final int numberOfSpawns,
-      final BlockPos spawnLocation,
-      final Level world,
+      final int[] spawnLocation,
+      final World world,
       final IColony colony,
       final int eventID)
     {
@@ -124,7 +124,7 @@ public final class RaiderMobUtils
 
                 if (entity != null)
                 {
-                    BlockPos spawnpos = BlockPosUtil.findAround(world, spawnLocation.offset(spawnDeviationX, 0, spawnDeviationZ), 5, 5, BlockPosUtil.SOLID_AIR_POS_SELECTOR);
+                    int[] spawnpos = BlockPosUtil.findAround(world, spawnLocation.offset(spawnDeviationX, 0, spawnDeviationZ), 5, 5, BlockPosUtil.SOLID_AIR_POS_SELECTOR);
                     if (spawnpos == null)
                     {
                         spawnpos = spawnLocation.above();
@@ -148,54 +148,54 @@ public final class RaiderMobUtils
     }
 
     /**
-     * Set the equipment of a certain mob.
+     * Set the equipment of a certain EntityCreature.
      *
-     * @param mob the equipment to set up.
+     * @param EntityCreature the equipment to set up.
      */
-    public static void setEquipment(final AbstractEntityMinecoloniesMonster mob)
+    public static void setEquipment(final AbstractEntityMinecoloniesMonster EntityCreature)
     {
-        if (mob instanceof IMeleeBarbarianEntity || mob instanceof IMeleeNorsemenEntity || mob instanceof INorsemenChiefEntity)
+        if (EntityCreature instanceof IMeleeBarbarianEntity || EntityCreature instanceof IMeleeNorsemenEntity || EntityCreature instanceof INorsemenChiefEntity)
         {
-            mob.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.STONE_AXE));
+            EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(Items.STONE_AXE));
         }
-        else if (mob instanceof IPharaoEntity)
+        else if (EntityCreature instanceof IPharaoEntity)
         {
-            mob.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(ModItems.pharaoscepter));
+            EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(ModItems.pharaoscepter));
         }
-        else if (mob instanceof IArcherMobEntity)
+        else if (EntityCreature instanceof IArcherMobEntity)
         {
-            mob.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.BOW));
+            EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(Items.BOW));
         }
-        else if (mob instanceof ISpearmanMobEntity)
+        else if (EntityCreature instanceof ISpearmanMobEntity)
         {
-            mob.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(ModItems.spear));
+            EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(ModItems.spear));
         }
-        else if (mob instanceof IChiefBarbarianEntity)
+        else if (EntityCreature instanceof IChiefBarbarianEntity)
         {
-            mob.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(ModItems.chiefSword));
-            mob.setItemSlot(EquipmentSlot.HEAD, new ItemStack(Items.CHAINMAIL_HELMET));
-            mob.setItemSlot(EquipmentSlot.CHEST, new ItemStack(Items.CHAINMAIL_CHESTPLATE));
-            mob.setItemSlot(EquipmentSlot.LEGS, new ItemStack(Items.CHAINMAIL_LEGGINGS));
-            mob.setItemSlot(EquipmentSlot.FEET, new ItemStack(Items.CHAINMAIL_BOOTS));
+            EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(ModItems.chiefSword));
+            EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(Items.CHAINMAIL_HELMET));
+            EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(Items.CHAINMAIL_CHESTPLATE));
+            EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(Items.CHAINMAIL_LEGGINGS));
+            EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(Items.CHAINMAIL_BOOTS));
         }
-        else if (mob instanceof IPirateEntity)
+        else if (EntityCreature instanceof IPirateEntity)
         {
-            mob.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(ModItems.scimitar));
-            if (mob instanceof ICaptainPirateEntity)
+            EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(ModItems.scimitar));
+            if (EntityCreature instanceof ICaptainPirateEntity)
             {
                 if (new Random().nextBoolean())
                 {
-                    mob.setItemSlot(EquipmentSlot.HEAD, new ItemStack(ModItems.pirateHelmet_1));
-                    mob.setItemSlot(EquipmentSlot.CHEST, new ItemStack(ModItems.pirateChest_1));
-                    mob.setItemSlot(EquipmentSlot.LEGS, new ItemStack(ModItems.pirateLegs_1));
-                    mob.setItemSlot(EquipmentSlot.FEET, new ItemStack(ModItems.pirateBoots_1));
+                    EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(ModItems.pirateHelmet_1));
+                    EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(ModItems.pirateChest_1));
+                    EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(ModItems.pirateLegs_1));
+                    EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(ModItems.pirateBoots_1));
                 }
                 else
                 {
-                    mob.setItemSlot(EquipmentSlot.HEAD, new ItemStack(ModItems.pirateHelmet_2));
-                    mob.setItemSlot(EquipmentSlot.CHEST, new ItemStack(ModItems.pirateChest_2));
-                    mob.setItemSlot(EquipmentSlot.LEGS, new ItemStack(ModItems.pirateLegs_2));
-                    mob.setItemSlot(EquipmentSlot.FEET, new ItemStack(ModItems.pirateBoots_2));
+                    EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(ModItems.pirateHelmet_2));
+                    EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(ModItems.pirateChest_2));
+                    EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(ModItems.pirateLegs_2));
+                    EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(ModItems.pirateBoots_2));
                 }
             }
         }
@@ -219,3 +219,10 @@ public final class RaiderMobUtils
           Entity::isAlive);
     }
 }
+
+
+
+
+
+
+

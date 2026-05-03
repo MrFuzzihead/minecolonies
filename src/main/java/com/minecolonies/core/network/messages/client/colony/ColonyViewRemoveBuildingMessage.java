@@ -3,11 +3,10 @@ package com.minecolonies.core.network.messages.client.colony;
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.core.colony.Colony;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.core.BlockPos;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 public class ColonyViewRemoveBuildingMessage implements IMessage
 {
     private int      colonyId;
-    private BlockPos buildingId;
+    private int[] buildingId;
 
     /**
      * Empty constructor used when registering the
@@ -33,21 +32,21 @@ public class ColonyViewRemoveBuildingMessage implements IMessage
      * @param colony   Colony the building is in.
      * @param building AbstractBuilding that is removed.
      */
-    public ColonyViewRemoveBuildingMessage(@NotNull final Colony colony, final BlockPos building)
+    public ColonyViewRemoveBuildingMessage(@NotNull final Colony colony, final int[] building)
     {
         this.colonyId = colony.getID();
         this.buildingId = building;
     }
 
     @Override
-    public void fromBytes(@NotNull final FriendlyByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
         colonyId = buf.readInt();
         buildingId = buf.readBlockPos();
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
         buf.writeInt(colonyId);
         buf.writeBlockPos(buildingId);
@@ -55,17 +54,20 @@ public class ColonyViewRemoveBuildingMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.CLIENT;
+        return Boolean.FALSE;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
-        if (Minecraft.getInstance().level != null)
+        if (Minecraft.getInstance().World != null)
         {
-            IColonyManager.getInstance().handleColonyViewRemoveBuildingMessage(colonyId, buildingId, Minecraft.getInstance().level.dimension());
+            IColonyManager.getInstance().handleColonyViewRemoveBuildingMessage(colonyId, buildingId, Minecraft.getInstance().World.dimension());
         }
     }
 }
+
+
+

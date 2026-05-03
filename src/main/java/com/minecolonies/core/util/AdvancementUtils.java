@@ -4,7 +4,7 @@ import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.permissions.ColonyPlayer;
 import com.minecolonies.api.colony.permissions.Rank;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -12,7 +12,7 @@ import java.util.function.Predicate;
 public class AdvancementUtils
 {
 
-    public static void TriggerAdvancementPlayersForColony(final IColony colony, Consumer<ServerPlayer> playerConsumer)
+    public static void TriggerAdvancementPlayersForColony(final IColony colony, Consumer<EntityPlayerMP> playerConsumer)
     {
         MinecraftServer minecraftServer = colony.getWorld().getServer();
         if (minecraftServer != null)
@@ -21,7 +21,7 @@ public class AdvancementUtils
 
             for (final ColonyPlayer player : colony.getPermissions().getFilteredPlayers(predicate))
             {
-                final ServerPlayer playerEntity = minecraftServer.getPlayerList().getPlayer(player.getID());
+                final EntityPlayerMP playerEntity = minecraftServer.getPlayerList().getPlayer(player.getID());
                 if (playerEntity != null)
                 {
                     playerConsumer.accept(playerEntity);
@@ -30,3 +30,4 @@ public class AdvancementUtils
         }
     }
 }
+

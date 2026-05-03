@@ -6,14 +6,14 @@ import com.minecolonies.api.colony.buildings.modules.IEntityListModule;
 import com.minecolonies.api.colony.buildings.modules.IPersistentModule;
 
 import com.minecolonies.api.colony.buildings.modules.*;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
 
-import net.minecraftforge.registries.ForgeRegistries;
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
@@ -25,7 +25,7 @@ import java.util.Set;
 public class EntityListModule extends AbstractBuildingModule implements IEntityListModule, IPersistentModule
 {
     /**
-     * Tag to store the mob list.
+     * NBTBase to store the EntityCreature list.
      */
     private static final String TAG_MOBLIST = "newmoblist";
 
@@ -50,14 +50,14 @@ public class EntityListModule extends AbstractBuildingModule implements IEntityL
     }
 
     @Override
-    public void deserializeNBT(CompoundTag compound)
+    public void deserializeNBT(NBTTagCompound compound)
     {
         if (compound.contains(id))
         {
             compound = compound.getCompound(id);
         }
 
-        final ListTag filterableList = compound.getList(TAG_MOBLIST, Tag.TAG_STRING);
+        final NBTTagList filterableList = compound.getList(TAG_MOBLIST, NBTBase.TAG_STRING);
         for (int i = 0; i < filterableList.size(); ++i)
         {
             final ResourceLocation res = new ResourceLocation(filterableList.getString(i));
@@ -69,12 +69,12 @@ public class EntityListModule extends AbstractBuildingModule implements IEntityL
     }
 
     @Override
-    public void serializeNBT(final CompoundTag compound)
+    public void serializeNBT(final NBTTagCompound compound)
     {
-        @NotNull final ListTag filteredMobs = new ListTag();
-        for (@NotNull final ResourceLocation mob : mobsAllowed)
+        @NotNull final NBTTagList filteredMobs = new NBTTagList();
+        for (@NotNull final ResourceLocation EntityCreature : mobsAllowed)
         {
-            filteredMobs.add(StringTag.valueOf(mob.toString()));
+            filteredMobs.add(NBTTagString.valueOf(EntityCreature.toString()));
         }
         compound.put(TAG_MOBLIST, filteredMobs);
     }
@@ -112,7 +112,7 @@ public class EntityListModule extends AbstractBuildingModule implements IEntityL
     }
 
     @Override
-    public void serializeToView(@NotNull final FriendlyByteBuf buf)
+    public void serializeToView(@NotNull final PacketBuffer buf)
     {
         buf.writeInt(mobsAllowed.size());
         for (final ResourceLocation entity : mobsAllowed)
@@ -127,3 +127,8 @@ public class EntityListModule extends AbstractBuildingModule implements IEntityL
         return this.id;
     }
 }
+
+
+
+
+

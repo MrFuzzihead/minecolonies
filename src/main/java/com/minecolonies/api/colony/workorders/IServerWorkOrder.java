@@ -2,8 +2,8 @@ package com.minecolonies.api.colony.workorders;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.Suppression.UNUSED_METHOD_PARAMETERS_SHOULD_BE_REMOVED;
@@ -34,26 +34,26 @@ public interface IServerWorkOrder extends IWorkOrder
     boolean isValid(IColony colony);
 
     /**
-     * Read the WorkOrder data from the CompoundTag.
+     * Read the WorkOrder data from the NBTTagCompound.
      *
-     * @param compound NBT Tag compound
+     * @param compound NBT NBTBase compound
      * @param manager  the workManager calling this method.
      */
-    void read(@NotNull CompoundTag compound, IWorkManager manager);
+    void read(@NotNull NBTTagCompound compound, IWorkManager manager);
 
     /**
-     * Save the Work Order to an CompoundTag.
+     * Save the Work Order to an NBTTagCompound.
      *
-     * @param compound NBT tag compount
+     * @param compound NBT NBTBase compount
      */
-    void write(@NotNull CompoundTag compound);
+    void write(@NotNull NBTTagCompound compound);
 
     /**
      * Writes the workOrders data to a byte buf for transition.
      *
      * @param buf Buffer to write to
      */
-    void serializeViewNetworkData(@NotNull FriendlyByteBuf buf);
+    void serializeViewNetworkData(@NotNull PacketBuffer buf);
 
     /**
      * Executed when a work order is added.
@@ -73,3 +73,6 @@ public interface IServerWorkOrder extends IWorkOrder
      */
     boolean canBuild(IBuilding building);
 }
+
+
+

@@ -1,31 +1,41 @@
 package com.minecolonies.api.blocks.interfaces;
 
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.IForgeRegistry;
+// [1.7.10 BACKPORT] net.minecraft.resources.ResourceLocation -> net.minecraft.util.ResourceLocation
+import net.minecraft.util.ResourceLocation;
+
+// [1.7.10 BACKPORT] Removed IForgeRegistry<Block> and IForgeRegistry<Item> - no equivalent in 1.7.10.
+// Registration is now done via GameRegistry.registerBlock() inside registerBlock().
+// Removed Item.Properties - no equivalent in 1.7.10; creative tab and other properties are set on the block/item directly.
 
 public interface IBlockMinecolonies<B extends IBlockMinecolonies<B>>
 {
     /**
-     * Registery block at gameregistry.
+     * Register this block (and its associated ItemBlock) with the game registry.
+     * In 1.7.10, both the block and its ItemBlock are registered in a single
+     * {@code GameRegistry.registerBlock()} call, so there is no separate item-registry step.
      *
-     * @param registry the registry to use.
-     * @return the block itself.
+     * @return the block itself (fluent API, matches original intent).
      */
-    B registerBlock(final IForgeRegistry<Block> registry);
+    B registerBlock();
 
     /**
-     * Registery block at gameregistry.
+     * No-op in the 1.7.10 backport.
      *
-     * @param registry   the registry to use.
-     * @param properties the item properties.
+     * <p>In 1.21, item registration was a separate event-driven step using
+     * {@code IForgeRegistry<Item>}. In 1.7.10 the ItemBlock is registered together with
+     * the block inside {@link #registerBlock()}, so this method is intentionally empty.
+     * It is kept in the interface so that call-sites in {@code ModBlocksInitializer} do
+     * not need to be deleted — they simply become no-ops.</p>
      */
-    void registerBlockItem(final IForgeRegistry<Item> registry, final Item.Properties properties);
+    // TODO: [1.21 BACKPORT] Original signature:
+    //   void registerBlockItem(IForgeRegistry<Item> registry, Item.Properties properties);
+    default void registerBlockItem() {}
 
     /**
-     * Get the registry name of the block.
-     * @return the registry name.
+     * Returns the namespaced registry key for this block, e.g.
+     * {@code minecolonies:blockHutTownHall}.
+     *
+     * @return the block's {@link ResourceLocation} registry name.
      */
     ResourceLocation getRegistryName();
 }

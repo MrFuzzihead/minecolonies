@@ -11,10 +11,10 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.commands.CommandRuntimeException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentUtils;
-import net.minecraft.world.level.Level;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,9 +28,9 @@ import java.util.UUID;
  */
 public class ColonyIdArgument extends MultipleOptionsArgument<Integer>
 {
-    private static final SimpleCommandExceptionType ERROR_UNKNOWN_PLAYER = new SimpleCommandExceptionType(Component.translatable("argument.player.unknown"));
+    private static final SimpleCommandExceptionType ERROR_UNKNOWN_PLAYER = new SimpleCommandExceptionType(String.translatable("argument.player.unknown"));
     private static final SimpleCommandExceptionType ERROR_UNKNOWN_COLONY =
-        new SimpleCommandExceptionType(Component.translatable("com.minecolonies.command.argument.colony.unknown"));
+        new SimpleCommandExceptionType(String.translatable("com.minecolonies.command.argument.colony.unknown"));
 
     private ColonyIdArgument()
     {
@@ -60,7 +60,7 @@ public class ColonyIdArgument extends MultipleOptionsArgument<Integer>
         {
             if (report)
             {
-                final Component message = Component.translatable(CommandTranslationConstants.COMMAND_COLONY_ID_NOT_FOUND, colonyId);
+                final String message = String.translatable(CommandTranslationConstants.COMMAND_COLONY_ID_NOT_FOUND, colonyId);
                 context.getSource().sendFailure(message);
             }
             return null;
@@ -85,7 +85,7 @@ public class ColonyIdArgument extends MultipleOptionsArgument<Integer>
         }
         catch (CommandSyntaxException e)
         {
-            final Component message = ComponentUtils.fromMessage(e.getRawMessage());
+            final String message = ComponentUtils.fromMessage(e.getRawMessage());
             context.getSource().sendFailure(message);
             throw new RuntimeException(message.getString());
         }
@@ -107,7 +107,7 @@ public class ColonyIdArgument extends MultipleOptionsArgument<Integer>
         final IColony colony = IColonyManager.getInstance().getColonyByWorld(colonyId, context.getSource().getLevel());
         if (colony == null)
         {
-            final Component message = Component.translatable(CommandTranslationConstants.COMMAND_COLONY_ID_NOT_FOUND, colonyId);
+            final String message = String.translatable(CommandTranslationConstants.COMMAND_COLONY_ID_NOT_FOUND, colonyId);
             context.getSource().sendFailure(message);
             throw new CommandRuntimeException(message);
         }
@@ -136,7 +136,7 @@ public class ColonyIdArgument extends MultipleOptionsArgument<Integer>
         @Override
         public Integer resolveValue(final CommandSourceStack source, final String value) throws CommandSyntaxException
         {
-            final IColony colony = IColonyManager.getInstance().getIColony(source.getLevel(), BlockPos.containing(source.getPosition()));
+            final IColony colony = IColonyManager.getInstance().getIColony(source.getLevel(), new int[]{(int)source.getPosition().x, (int)source.getPosition().y, (int)source.getPosition().z});
             if (colony == null)
             {
                 throw ERROR_UNKNOWN_COLONY.create();
@@ -145,9 +145,9 @@ public class ColonyIdArgument extends MultipleOptionsArgument<Integer>
         }
 
         @Override
-        public void createSuggestions(final Level world, final SharedSuggestionProvider suggestionProvider, final SuggestionsBuilder builder)
+        public void createSuggestions(final World world, final SharedSuggestionProvider suggestionProvider, final SuggestionsBuilder builder)
         {
-            builder.suggest("@here", Component.translatable("com.minecolonies.command.argument.colony.here"));
+            builder.suggest("@here", String.translatable("com.minecolonies.command.argument.colony.here"));
         }
     }
 
@@ -166,9 +166,9 @@ public class ColonyIdArgument extends MultipleOptionsArgument<Integer>
         }
 
         @Override
-        public void createSuggestions(final Level world, final SharedSuggestionProvider suggestionProvider, final SuggestionsBuilder builder)
+        public void createSuggestions(final World world, final SharedSuggestionProvider suggestionProvider, final SuggestionsBuilder builder)
         {
-            builder.suggest("@mine", Component.translatable("com.minecolonies.command.argument.colony.mine"));
+            builder.suggest("@mine", String.translatable("com.minecolonies.command.argument.colony.mine"));
         }
     }
 
@@ -195,7 +195,7 @@ public class ColonyIdArgument extends MultipleOptionsArgument<Integer>
         }
 
         @Override
-        public void createSuggestions(final Level world, final SharedSuggestionProvider suggestionProvider, final SuggestionsBuilder builder)
+        public void createSuggestions(final World world, final SharedSuggestionProvider suggestionProvider, final SuggestionsBuilder builder)
         {
             IColonyManager.getInstance().getIColonies(world).stream().map(IColony::getID).forEach(builder::suggest);
         }
@@ -224,7 +224,7 @@ public class ColonyIdArgument extends MultipleOptionsArgument<Integer>
         }
 
         @Override
-        public void createSuggestions(final Level world, final SharedSuggestionProvider suggestionProvider, final SuggestionsBuilder builder)
+        public void createSuggestions(final World world, final SharedSuggestionProvider suggestionProvider, final SuggestionsBuilder builder)
         {
         }
     }
@@ -249,9 +249,12 @@ public class ColonyIdArgument extends MultipleOptionsArgument<Integer>
         }
 
         @Override
-        public void createSuggestions(final Level world, final SharedSuggestionProvider suggestionProvider, final SuggestionsBuilder builder)
+        public void createSuggestions(final World world, final SharedSuggestionProvider suggestionProvider, final SuggestionsBuilder builder)
         {
             suggestionProvider.getOnlinePlayerNames().forEach(builder::suggest);
         }
     }
 }
+
+
+

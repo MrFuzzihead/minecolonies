@@ -1,12 +1,29 @@
 package com.minecolonies.core.client.gui.modules.building;
 
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.PaneParams;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
 import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
 import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Image;
 import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
 import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.colony.buildingextensions.IBuildingExtension;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.BlockPosUtil.DirectionResult;
@@ -15,12 +32,12 @@ import com.minecolonies.core.client.gui.AbstractModuleWindow;
 import com.minecolonies.core.colony.buildingextensions.PlantationField;
 import com.minecolonies.core.colony.buildings.moduleviews.FieldsModuleView;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingPlantation;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.TranslationConstants.COM_MINECOLONIES_COREMOD_GUI_HIRING_OFF;
@@ -28,7 +45,7 @@ import static com.minecolonies.api.util.constant.TranslationConstants.COM_MINECO
 import static com.minecolonies.api.util.constant.translation.GuiTranslationConstants.*;
 
 /**
- * BOWindow for the fields tab in huts.
+ * Object (BOWindow: todo ModularUI2 removed) for the fields tab in huts.
  */
 public class PlantationFieldsModuleWindow extends AbstractModuleWindow<BuildingPlantation.PlantationFieldsModuleView>
 {
@@ -141,11 +158,11 @@ public class PlantationFieldsModuleWindow extends AbstractModuleWindow<BuildingP
     private void updateUI()
     {
         findPaneOfTypeByID(TAG_BUTTON_ASSIGNMENT_MODE, Button.class)
-          .setText(Component.translatable(moduleView.assignFieldManually() ? COM_MINECOLONIES_COREMOD_GUI_HIRING_ON : COM_MINECOLONIES_COREMOD_GUI_HIRING_OFF));
+          .setText(String.translatable(moduleView.assignFieldManually() ? COM_MINECOLONIES_COREMOD_GUI_HIRING_ON : COM_MINECOLONIES_COREMOD_GUI_HIRING_OFF));
         findPaneOfTypeByID(TAG_FIELD_COUNT, Text.class)
-          .setText(Component.translatable(FIELD_LIST_LABEL_FIELD_COUNT, moduleView.getOwnedFields().size(), moduleView.getMaxFieldCount()));
+          .setText(String.translatable(FIELD_LIST_LABEL_FIELD_COUNT, moduleView.getOwnedFields().size(), moduleView.getMaxFieldCount()));
         findPaneOfTypeByID(TAG_PLANT_COUNT, Text.class)
-          .setText(Component.translatable(FIELD_LIST_LABEL_PLANT_COUNT, moduleView.getCurrentPlants(), moduleView.getMaxConcurrentPlants()));
+          .setText(String.translatable(FIELD_LIST_LABEL_PLANT_COUNT, moduleView.getCurrentPlants(), moduleView.getMaxConcurrentPlants()));
     }
 
     @Override
@@ -172,10 +189,10 @@ public class PlantationFieldsModuleWindow extends AbstractModuleWindow<BuildingP
                 final String distance = Integer.toString(field.getSqDistance(buildingView));
                 final DirectionResult direction = BlockPosUtil.calcDirection(buildingView.getPosition(), field.getPosition());
 
-                final Component directionText = switch (direction) {
-                    case SAME -> Component.translatable(FIELD_LIST_PLANTATION_DIRECTION);
+                final String directionText = switch (direction) {
+                    case SAME -> String.translatable(FIELD_LIST_PLANTATION_DIRECTION);
                     case UP, DOWN -> direction.getLongText();
-                    default -> Component.translatable(FIELD_LIST_LABEL_DISTANCE, Component.literal(distance + "m"), direction.getShortText());
+                    default -> String.translatable(FIELD_LIST_LABEL_DISTANCE, String.literal(distance + "m"), direction.getShortText());
                 };
 
                 rowPane.findPaneOfTypeByID(TAG_DISTANCE, Text.class).setText(directionText);
@@ -198,7 +215,7 @@ public class PlantationFieldsModuleWindow extends AbstractModuleWindow<BuildingP
                     {
                         assignButton.disable();
 
-                        MutableComponent warningTooltip = moduleView.getFieldWarningTooltip(field);
+                        String warningTooltip = moduleView.getFieldWarningTooltip(field);
                         if (warningTooltip != null && moduleView.assignFieldManually())
                         {
                             PaneBuilders.tooltipBuilder()
@@ -241,3 +258,7 @@ public class PlantationFieldsModuleWindow extends AbstractModuleWindow<BuildingP
         }
     }
 }
+
+
+
+

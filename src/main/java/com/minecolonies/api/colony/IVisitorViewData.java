@@ -1,6 +1,6 @@
 package com.minecolonies.api.colony;
 
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 
 /**
  * View data for visitors
@@ -14,3 +14,4 @@ public interface IVisitorViewData extends ICitizenDataView
      */
     ItemStack getRecruitCost();
 }
+

@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.managers;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.colony.managers.interfaces.IColonyPackageManager;
 import com.minecolonies.api.colony.workorders.IServerWorkOrder;
@@ -14,10 +20,10 @@ import com.minecolonies.core.network.messages.PermissionsMessage;
 import com.minecolonies.core.network.messages.client.colony.ColonyViewMessage;
 import com.minecolonies.core.network.messages.client.colony.ColonyViewWorkOrderMessage;
 import io.netty.buffer.Unpooled;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.util.FakePlayer;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,17 +38,17 @@ public class ColonyPackageManager implements IColonyPackageManager
      * List of players close to the colony receiving updates. Populated by chunk entry events
      */
     @NotNull
-    private Set<ServerPlayer> closeSubscribers = new HashSet<>();
+    private Set<EntityPlayerMP> closeSubscribers = new HashSet<>();
 
     /**
      * List of players with global permissions, like receiving important messages from far away. Populated on player login and logoff.
      */
-    private Set<ServerPlayer> importantColonyPlayers = new HashSet<>();
+    private Set<EntityPlayerMP> importantColonyPlayers = new HashSet<>();
 
     /**
      * New subscribers which havent received a view yet.
      */
-    private Set<ServerPlayer> newSubscribers = new HashSet<>();
+    private Set<EntityPlayerMP> newSubscribers = new HashSet<>();
 
     /**
      * Variables taking care of updating the views.
@@ -87,7 +93,7 @@ public class ColonyPackageManager implements IColonyPackageManager
     }
 
     @Override
-    public Set<ServerPlayer> getCloseSubscribers()
+    public Set<EntityPlayerMP> getCloseSubscribers()
     {
         return closeSubscribers;
     }
@@ -95,7 +101,7 @@ public class ColonyPackageManager implements IColonyPackageManager
     @Override
     public void updateSubscribers()
     {
-        final Level world = colony.getWorld();
+        final World world = colony.getWorld();
         // If the world or server is null, don't try to update the closeSubscribers this tick.
         if (world == null || world.getServer() == null)
         {
@@ -111,11 +117,11 @@ public class ColonyPackageManager implements IColonyPackageManager
      */
     private void updateClosePlayers()
     {
-        for (Iterator<ServerPlayer> iterator = closeSubscribers.iterator(); iterator.hasNext(); )
+        for (Iterator<EntityPlayerMP> iterator = closeSubscribers.iterator(); iterator.hasNext(); )
         {
-            final ServerPlayer player = iterator.next();
+            final EntityPlayerMP player = iterator.next();
 
-            if (!player.isAlive() || colony.getWorld() != player.level || !WorldUtil.isChunkLoaded(player.level, player.chunkPosition().x, player.chunkPosition().z))
+            if (!player.isAlive() || colony.getWorld() != player.World || !WorldUtil.isChunkLoaded(player.World, player.chunkPosition().x, player.chunkPosition().z))
             {
                 iterator.remove();
                 continue;
@@ -204,16 +210,16 @@ public class ColonyPackageManager implements IColonyPackageManager
     {
         if (isDirty || !newSubscribers.isEmpty())
         {
-            final FriendlyByteBuf colonyFriendlyByteBuf = new FriendlyByteBuf(Unpooled.buffer());
+            final PacketBuffer colonyFriendlyByteBuf = new PacketBuffer(Unpooled.buffer());
             ColonyView.serializeNetworkData(colony, colonyFriendlyByteBuf, !newSubscribers.isEmpty());
-            final Set<ServerPlayer> players = new HashSet<>();
+            final Set<EntityPlayerMP> players = new HashSet<>();
             if (isDirty)
             {
                 players.addAll(closeSubscribers);
             }
             players.addAll(newSubscribers);
 
-            for (ServerPlayer player : players)
+            for (EntityPlayerMP player : players)
             {
                 Network.getNetwork().sendToPlayer(new ColonyViewMessage(colony, colonyFriendlyByteBuf, newSubscribers.contains(player)), player);
             }
@@ -227,7 +233,7 @@ public class ColonyPackageManager implements IColonyPackageManager
         final Permissions permissions = colony.getPermissions();
         if (permissions.isDirty() || !newSubscribers.isEmpty())
         {
-            final Set<ServerPlayer> players = new HashSet<>();
+            final Set<EntityPlayerMP> players = new HashSet<>();
             if (isDirty)
             {
                 players.addAll(closeSubscribers);
@@ -243,7 +249,7 @@ public class ColonyPackageManager implements IColonyPackageManager
         final IWorkManager workManager = colony.getWorkManager();
         if (workManager.isDirty() || !newSubscribers.isEmpty())
         {
-            final Set<ServerPlayer> players = new HashSet<>();
+            final Set<EntityPlayerMP> players = new HashSet<>();
 
             players.addAll(closeSubscribers);
             players.addAll(newSubscribers);
@@ -263,7 +269,7 @@ public class ColonyPackageManager implements IColonyPackageManager
     }
 
     @Override
-    public void addCloseSubscriber(@NotNull final ServerPlayer subscriber)
+    public void addCloseSubscriber(@NotNull final EntityPlayerMP subscriber)
     {
         if (subscriber instanceof FakePlayer)
         {
@@ -280,7 +286,7 @@ public class ColonyPackageManager implements IColonyPackageManager
     }
 
     @Override
-    public void removeCloseSubscriber(@NotNull final ServerPlayer player)
+    public void removeCloseSubscriber(@NotNull final EntityPlayerMP player)
     {
         newSubscribers.remove(player);
         closeSubscribers.remove(player);
@@ -290,7 +296,7 @@ public class ColonyPackageManager implements IColonyPackageManager
      * On login we're adding global subscribers.
      */
     @Override
-    public void addImportantColonyPlayer(@NotNull final ServerPlayer subscriber)
+    public void addImportantColonyPlayer(@NotNull final EntityPlayerMP subscriber)
     {
         if (subscriber instanceof FakePlayer)
         {
@@ -306,7 +312,7 @@ public class ColonyPackageManager implements IColonyPackageManager
      * On logoff we're removing global subscribers.
      */
     @Override
-    public void removeImportantColonyPlayer(@NotNull final ServerPlayer subscriber)
+    public void removeImportantColonyPlayer(@NotNull final EntityPlayerMP subscriber)
     {
         importantColonyPlayers.remove(subscriber);
         newSubscribers.remove(subscriber);
@@ -316,8 +322,11 @@ public class ColonyPackageManager implements IColonyPackageManager
      * Returns the list of online global subscribers of the colony.
      */
     @Override
-    public Set<ServerPlayer> getImportantColonyPlayers()
+    public Set<EntityPlayerMP> getImportantColonyPlayers()
     {
         return importantColonyPlayers;
     }
 }
+
+
+

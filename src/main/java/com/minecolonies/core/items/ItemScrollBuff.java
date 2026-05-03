@@ -5,15 +5,15 @@ import com.minecolonies.core.Network;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.network.messages.client.VanillaParticleMessage;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.sounds.SoundEvents;
+// [1.7.10] effect removed
+// [1.7.10] effect removed
+// [1.7.10] sounds removed
 
-import net.minecraft.world.level.Level;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -22,10 +22,10 @@ import java.util.List;
 import static com.minecolonies.api.util.constant.Constants.TICKS_SECOND;
 import static com.minecolonies.api.util.constant.translation.ToolTranslationConstants.TOOL_GENERIC_SCROLL_BUFF_DESCRIPTION;
 
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 
 /**
  * Magic scroll which applies a regeneration buff to the user and all citizens around
@@ -43,11 +43,11 @@ public class ItemScrollBuff extends AbstractItemScroll
     }
 
     @Override
-    protected ItemStack onItemUseSuccess(final ItemStack itemStack, final Level world, final ServerPlayer player)
+    protected ItemStack onItemUseSuccess(final ItemStack itemStack, final World world, final EntityPlayerMP player)
     {
         if (world.random.nextInt(8) > 0)
         {
-            for (final LivingEntity entity : world.getEntitiesOfClass(EntityCitizen.class, player.getBoundingBox().inflate(15, 2, 15)))
+            for (final EntityLivingBase entity : world.getEntitiesOfClass(EntityCitizen.class, player.getBoundingBox().inflate(15, 2, 15)))
             {
                 addRegenerationWithParticles(entity);
             }
@@ -60,7 +60,7 @@ public class ItemScrollBuff extends AbstractItemScroll
         }
         else
         {
-            player.displayClientMessage(Component.translatable("minecolonies.scroll.failed" + (world.random.nextInt(FAIL_RESPONSES_TOTAL) + 1)).setStyle(Style.EMPTY.withColor(
+            player.displayClientMessage(String.translatable("minecolonies.scroll.failed" + (world.random.nextInt(FAIL_RESPONSES_TOTAL) + 1)).setStyle(Style.EMPTY.withColor(
               ChatFormatting.GOLD)), true);
             player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, TICKS_SECOND * 10));
             SoundUtils.playSoundForPlayer(player, SoundEvents.TOTEM_USE, 0.04f, 1.0f);
@@ -75,7 +75,7 @@ public class ItemScrollBuff extends AbstractItemScroll
      *
      * @param entity entity to apply to
      */
-    private void addRegenerationWithParticles(final LivingEntity entity)
+    private void addRegenerationWithParticles(final EntityLivingBase entity)
     {
         entity.addEffect(new MobEffectInstance(MobEffects.REGENERATION, TICKS_SECOND * 60));
         Network.getNetwork()
@@ -85,9 +85,9 @@ public class ItemScrollBuff extends AbstractItemScroll
 
     @Override
     public void appendHoverText(
-      @NotNull final ItemStack stack, @Nullable final Level worldIn, @NotNull final List<Component> tooltip, @NotNull final TooltipFlag flagIn)
+      @NotNull final ItemStack stack, @Nullable final World worldIn, @NotNull final List<String> tooltip, @NotNull final TooltipFlag flagIn)
     {
-        final MutableComponent guiHint = Component.translatable(TOOL_GENERIC_SCROLL_BUFF_DESCRIPTION);
+        final String guiHint = String.translatable(TOOL_GENERIC_SCROLL_BUFF_DESCRIPTION);
         guiHint.setStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GREEN));
         tooltip.add(guiHint);
     }
@@ -98,3 +98,7 @@ public class ItemScrollBuff extends AbstractItemScroll
         return false;
     }
 }
+
+
+
+

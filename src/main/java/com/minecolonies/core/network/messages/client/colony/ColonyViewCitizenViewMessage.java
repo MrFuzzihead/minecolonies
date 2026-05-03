@@ -5,13 +5,12 @@ import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.core.colony.Colony;
 import io.netty.buffer.Unpooled;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] Registries removed
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,12 +21,12 @@ public class ColonyViewCitizenViewMessage implements IMessage
 {
     private int          colonyId;
     private int          citizenId;
-    private FriendlyByteBuf citizenBuffer;
+    private PacketBuffer citizenBuffer;
 
     /**
      * The dimension the citizen is in.
      */
-    private ResourceKey<Level> dimension;
+    private int /* ResourceKey */ dimension;
 
     /**
      * Empty constructor used when registering the
@@ -48,22 +47,22 @@ public class ColonyViewCitizenViewMessage implements IMessage
         super();
         this.colonyId = colony.getID();
         this.citizenId = citizen.getId();
-        this.citizenBuffer = new FriendlyByteBuf(Unpooled.buffer());
+        this.citizenBuffer = new PacketBuffer(Unpooled.buffer());
         this.dimension = citizen.getColony().getDimension();
         citizen.serializeViewNetworkData(citizenBuffer);
     }
 
     @Override
-    public void fromBytes(@NotNull final FriendlyByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
         colonyId = buf.readInt();
         citizenId = buf.readInt();
         dimension = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(buf.readUtf(32767)));
-        this.citizenBuffer = new FriendlyByteBuf(buf.retain());
+        this.citizenBuffer = new PacketBuffer(buf.retain());
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
         citizenBuffer.resetReaderIndex();
         buf.writeInt(colonyId);
@@ -74,15 +73,18 @@ public class ColonyViewCitizenViewMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.CLIENT;
+        return Boolean.FALSE;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
         IColonyManager.getInstance().handleColonyViewCitizensMessage(colonyId, citizenId, citizenBuffer, dimension);
         citizenBuffer.release();
     }
 }
+
+
+

@@ -1,7 +1,7 @@
 package com.minecolonies.api.entity.citizen.citizenhandlers;
 
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.item.Item;
+import net.minecraft.block.Block;
 
 public interface ICitizenInventoryHandler
 {
@@ -60,3 +60,4 @@ public interface ICitizenInventoryHandler
      */
     boolean isInventoryFull();
 }
+

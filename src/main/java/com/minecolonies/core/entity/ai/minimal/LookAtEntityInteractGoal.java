@@ -1,8 +1,8 @@
 package com.minecolonies.core.entity.ai.minimal;
 
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.entity.EntityLivingBase;
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
 
 import java.util.EnumSet;
 
@@ -11,9 +11,12 @@ import java.util.EnumSet;
  */
 public class LookAtEntityInteractGoal extends LookAtEntityGoal
 {
-    public LookAtEntityInteractGoal(final Mob mob, final Class<? extends LivingEntity> lookAtType, final float lookDistance, final float probability)
+    public LookAtEntityInteractGoal(final EntityCreature EntityCreature, final Class<? extends EntityLivingBase> lookAtType, final float lookDistance, final float probability)
     {
-        super(mob, lookAtType, lookDistance, probability);
+        super(EntityCreature, lookAtType, lookDistance, probability);
         this.setFlags(EnumSet.of(Goal.Flag.LOOK, Goal.Flag.MOVE));
     }
 }
+
+
+

@@ -11,8 +11,8 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.GameProfileArgument;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.entity.player.EntityPlayer;
 
 import static com.minecolonies.core.commands.CommandArgumentNames.COLONYID_ARG;
 import static com.minecolonies.core.commands.CommandArgumentNames.PLAYERNAME_ARG;
@@ -44,13 +44,13 @@ public class CommandChangeOwner implements IMCColonyOfficerCommand
         if (player == null)
         {
             // could not find player with given name.
-            context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_PLAYER_NOT_FOUND, profile.getName()), true);
+            context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_PLAYER_NOT_FOUND, profile.getName()), true);
             return 0;
         }
 
         colony.getPermissions().setOwner(player);
 
-        context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_OWNER_CHANGE_SUCCESS, profile.getName(), colony.getName()), true);
+        context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_OWNER_CHANGE_SUCCESS, profile.getName(), colony.getName()), true);
         return 1;
     }
 
@@ -71,3 +71,5 @@ public class CommandChangeOwner implements IMCColonyOfficerCommand
                          .then(IMCCommand.newArgument(PLAYERNAME_ARG, GameProfileArgument.gameProfile()).executes(this::checkPreConditionAndExecute)));
     }
 }
+
+

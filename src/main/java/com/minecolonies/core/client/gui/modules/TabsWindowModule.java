@@ -1,14 +1,31 @@
 package com.minecolonies.core.client.gui.modules;
 
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
+import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.PaneParams;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.Button;
 import com.ldtteam.blockui.controls.ButtonHandler;
 import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
+import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
+import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
 import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.AbstractWindowSkeleton;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
@@ -98,7 +115,7 @@ public class TabsWindowModule implements IWindowModule
      * @param icon    the icon to render in the tab.
      * @param handler the button handler.
      */
-    public void renderTabButton(int index, final TabImageSide side, final ResourceLocation icon, @Nullable final MutableComponent hoverText, final ButtonHandler handler)
+    public void renderTabButton(int index, final TabImageSide side, final ResourceLocation icon, @Nullable final String hoverText, final ButtonHandler handler)
     {
         final View view = new View();
         view.setID(icon.getPath() + "_view");
@@ -148,7 +165,7 @@ public class TabsWindowModule implements IWindowModule
         /**
          * Function for calculating the X offset.
          */
-        private final BiFunction<BOWindow, Integer, Integer> getXPosition;
+        private final BiFunction<Object /* BOWindow: todo ModularUI2 */, Integer, Integer> getXPosition;
 
         /**
          * Internal constructor.
@@ -156,7 +173,7 @@ public class TabsWindowModule implements IWindowModule
          * @param side       the file part indicating which side to load.
          * @param imageCount how many images exist for this given side.
          */
-        TabImageSide(final String side, final int imageCount, final BiFunction<BOWindow, Integer, Integer> getXPosition)
+        TabImageSide(final String side, final int imageCount, final BiFunction<Object /* BOWindow: todo ModularUI2 */, Integer, Integer> getXPosition)
         {
             this.side = side;
             this.imageCount = imageCount;
@@ -175,3 +192,6 @@ public class TabsWindowModule implements IWindowModule
         }
     }
 }
+
+
+

@@ -1,9 +1,28 @@
 package com.minecolonies.core.client.gui;
 
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
 import com.ldtteam.blockui.Pane;
-import com.ldtteam.blockui.controls.*;
+import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
+import com.ldtteam.blockui.controls.DropDownList;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
+import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.controls.TextField;
 import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
 import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.core.tileentities.TileEntityRack;
@@ -13,17 +32,17 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.render.worldevent.HighlightManager;
 import com.minecolonies.core.client.render.worldevent.highlightmanager.TimedBoxRenderData;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.MathHelper;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.World;
+// [1.7.10] block.entity removed
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,7 +55,7 @@ import static com.minecolonies.api.util.constant.TranslationConstants.MESSAGE_LO
 import static com.minecolonies.api.util.constant.WindowConstants.*;
 
 /**
- * BOWindow for a hut name entry.
+ * Object (BOWindow: todo ModularUI2 removed) for a hut name entry.
  */
 public class WindowHutAllInventory extends AbstractWindowSkeleton
 {
@@ -69,7 +88,7 @@ public class WindowHutAllInventory extends AbstractWindowSkeleton
     /**
      * The previous window.
      */
-    private final BOWindow prev;
+    private final Object /* BOWindow: todo ModularUI2 */ prev;
 
     /**
      * Update delay.
@@ -82,7 +101,7 @@ public class WindowHutAllInventory extends AbstractWindowSkeleton
      * @param b    {@link AbstractBuilding}
      * @param prev the previous window.
      */
-    public WindowHutAllInventory(final IBuildingView b, final BOWindow prev)
+    public WindowHutAllInventory(final IBuildingView b, final Object /* BOWindow: todo ModularUI2 */ prev)
     {
         super(new ResourceLocation(Constants.MOD_ID, "gui/windowhutallinventory.xml"));
         this.building = b;
@@ -117,26 +136,26 @@ public class WindowHutAllInventory extends AbstractWindowSkeleton
     {
         final int row = stackList.getListElementIndexByPane(button);
         final ItemStorage storage = allItems.get(row);
-        final Set<BlockPos> containerList = new HashSet<>(building.getContainers());
+        final Set<int[]> containerList = new HashSet<>(building.getContainers());
         containerList.add(building.getID());
         HighlightManager.clearHighlightsForKey("inventoryHighlight");
 
         MessageUtils.format(MESSAGE_LOCATING_ITEMS).sendTo(Minecraft.getInstance().player);
         close();
 
-        for (BlockPos blockPos : containerList)
+        for (int[] blockPos : containerList)
         {
-            final BlockEntity rack = Minecraft.getInstance().level.getBlockEntity(blockPos);
+            final BlockEntity rack = Minecraft.getInstance().World.getBlockEntity(blockPos);
             if (rack instanceof TileEntityRack)
             {
                 int count = ((TileEntityRack) rack).getCount(storage.getItemStack(), storage.ignoreDamageValue(), false);
                 if (count > 0)
                 {
                     // Varies the color between red(1 pc) over yellow(32 pcs) to green(64+ pcs)
-                    // mixing equation: alpha | red part | green part 
+                    // mixing equation: alpha | red part | green part
                     final int color = 0x80000000 | (Mth.clamp((int) (0xff * (2.0f - count / 32.0f)), 0, 255) << 16)
                         | (Mth.clamp((int) (0xff * count / 32.0f), 0, 255) << 8);
-                    HighlightManager.addHighlight("inventoryHighlight", blockPos.toString(),
+                    HighlightManager.addHighlight("inventoryHighlight", blockPos[0] + "," + blockPos[1] + "," + blockPos[2],
                       new TimedBoxRenderData(blockPos)
                         .setDuration(Duration.ofSeconds(60))
                         .addText("" + count)
@@ -168,19 +187,19 @@ public class WindowHutAllInventory extends AbstractWindowSkeleton
         switch (sortDescriptor)
         {
             case NO_SORT:
-                findPaneOfTypeByID(BUTTON_SORT, ButtonImage.class).setText(Component.literal("v^"));
+                findPaneOfTypeByID(BUTTON_SORT, ButtonImage.class).setText(String.literal("v^"));
                 break;
             case ASC_SORT:
-                findPaneOfTypeByID(BUTTON_SORT, ButtonImage.class).setText(Component.literal("A^"));
+                findPaneOfTypeByID(BUTTON_SORT, ButtonImage.class).setText(String.literal("A^"));
                 break;
             case DESC_SORT:
-                findPaneOfTypeByID(BUTTON_SORT, ButtonImage.class).setText(Component.literal("Av"));
+                findPaneOfTypeByID(BUTTON_SORT, ButtonImage.class).setText(String.literal("Av"));
                 break;
             case COUNT_ASC_SORT:
-                findPaneOfTypeByID(BUTTON_SORT, ButtonImage.class).setText(Component.literal("1^"));
+                findPaneOfTypeByID(BUTTON_SORT, ButtonImage.class).setText(String.literal("1^"));
                 break;
             case COUNT_DESC_SORT:
-                findPaneOfTypeByID(BUTTON_SORT, ButtonImage.class).setText(Component.literal("1v"));
+                findPaneOfTypeByID(BUTTON_SORT, ButtonImage.class).setText(String.literal("1v"));
                 break;
             default:
                 break;
@@ -194,13 +213,13 @@ public class WindowHutAllInventory extends AbstractWindowSkeleton
      */
     private void updateResources()
     {
-        final Set<BlockPos> containerList = new HashSet<>(building.getContainers());
+        final Set<int[]> containerList = new HashSet<>(building.getContainers());
 
         final Map<ItemStorage, Integer> storedItems = new HashMap<>();
-        final Level world = building.getColony().getWorld();
+        final World world = building.getColony().getWorld();
         containerList.add(building.getPosition());
 
-        for (final BlockPos blockPos : containerList)
+        for (final int[] blockPos : containerList)
         {
             final BlockEntity rack = world.getBlockEntity(blockPos);
             if (rack instanceof TileEntityRack)
@@ -276,7 +295,7 @@ public class WindowHutAllInventory extends AbstractWindowSkeleton
     private static String getString(final ItemStack stack)
     {
         final StringBuilder output = new StringBuilder();
-        for (final Component comp : stack.getTooltipLines(Minecraft.getInstance().player, TooltipFlag.Default.NORMAL))
+        for (final String comp : stack.getTooltipLines(Minecraft.getInstance().player, TooltipFlag.Default.NORMAL))
         {
             output.append(comp.getString()).append(" ");
         }
@@ -314,15 +333,15 @@ public class WindowHutAllInventory extends AbstractWindowSkeleton
                 final ItemStorage resource = allItems.get(index);
                 final Text resourceLabel = rowPane.findPaneOfTypeByID("ressourceStackName", Text.class);
                 final String name = resource.getItemStack().getHoverName().getString();
-                resourceLabel.setText(Component.literal(name.substring(0, Math.min(17, name.length()))));
+                resourceLabel.setText(String.literal(name.substring(0, Math.min(17, name.length()))));
                 final Text qtys = rowPane.findPaneOfTypeByID("quantities", Text.class);
                 if (!Screen.hasShiftDown())
                 {
-                    qtys.setText(Component.literal(Utils.format(resource.getAmount())));
+                    qtys.setText(String.literal(Utils.format(resource.getAmount())));
                 }
                 else
                 {
-                    qtys.setText(Component.literal(Integer.toString(resource.getAmount())));
+                    qtys.setText(String.literal(Integer.toString(resource.getAmount())));
                 }
                 final Item imagesrc = resource.getItemStack().getItem();
                 final ItemStack image = new ItemStack(imagesrc, 1);
@@ -332,3 +351,9 @@ public class WindowHutAllInventory extends AbstractWindowSkeleton
         });
     }
 }
+
+
+
+
+
+

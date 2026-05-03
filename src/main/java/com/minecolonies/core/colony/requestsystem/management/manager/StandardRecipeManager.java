@@ -8,9 +8,9 @@ import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.crafting.IRecipeManager;
 import com.minecolonies.api.crafting.IRecipeStorage;
 import com.minecolonies.api.util.NBTUtils;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
@@ -19,7 +19,7 @@ import java.util.Set;
 public class StandardRecipeManager implements IRecipeManager
 {
     /**
-     * The Tag to store the recipes to NBT.
+     * The NBTBase to store the recipes to NBT.
      */
     private static final String TAG_RECIPES = "recipes";
 
@@ -47,7 +47,7 @@ public class StandardRecipeManager implements IRecipeManager
     /**
      * Nbt cache.
      */
-    private ListTag nbtCache = null;
+    private NBTTagList nbtCache = null;
 
     @Override
     public ImmutableMap<IToken<?>, IRecipeStorage> getRecipes()
@@ -94,7 +94,7 @@ public class StandardRecipeManager implements IRecipeManager
     }
 
     @Override
-    public void write(@NotNull final CompoundTag compound)
+    public void write(@NotNull final NBTTagCompound compound)
     {
         if (dirty || nbtCache == null)
         {
@@ -106,9 +106,9 @@ public class StandardRecipeManager implements IRecipeManager
     }
 
     @Override
-    public void read(@NotNull final CompoundTag compound)
+    public void read(@NotNull final NBTTagCompound compound)
     {
-        final ListTag list = compound.getList(TAG_RECIPES, Tag.TAG_COMPOUND);
+        final NBTTagList list = compound.getList(TAG_RECIPES, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++)
         {
             IRecipeStorage recipe = StandardFactoryController.getInstance().deserialize(list.getCompound(i));
@@ -146,3 +146,7 @@ public class StandardRecipeManager implements IRecipeManager
         dirty = true;
     }
 }
+
+
+
+

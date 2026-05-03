@@ -1,106 +1,76 @@
 package com.minecolonies.core.blocks.decorative;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import com.minecolonies.api.blocks.decorative.AbstractColonyFlagBanner;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
-
-import java.util.Map;
-
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 
 /**
  * A custom banner block to construct the associated tile entity that will render the colony flag.
  * This is the wall version. For the floor version: {@link BlockColonyFlagBanner}
+ * [1.7.10] Ported: horizontal facing stored in metadata 0-3; no BlockState/VoxelShape/StateDefinition.
+ * Metadata 0=SOUTH, 1=WEST, 2=NORTH, 3=EAST.
  */
 public class BlockColonyFlagWallBanner extends AbstractColonyFlagBanner<BlockColonyFlagWallBanner>
 {
-    public static final DirectionProperty          HORIZONTAL_FACING = HorizontalDirectionalBlock.FACING;
-    private static final Map<Direction, VoxelShape> BANNER_SHAPES     = Maps.newEnumMap(ImmutableMap.of(
-            Direction.NORTH, Block.box(0.0D, 0.0D, 14.0D, 16.0D, 12.5D, 16.0D),
-            Direction.SOUTH, Block.box(0.0D, 0.0D, 0.0D, 16.0D, 12.5D, 2.0D),
-            Direction.WEST,  Block.box(14.0D, 0.0D, 0.0D, 16.0D, 12.5D, 16.0D),
-            Direction.EAST,  Block.box(0.0D, 0.0D, 0.0D, 2.0D, 12.5D, 16.0D)));
-
     public BlockColonyFlagWallBanner()
     {
         super();
-        this.registerDefaultState(this.stateDefinition.any().setValue(HORIZONTAL_FACING, Direction.NORTH));
     }
 
     @Override
-    public String getDescriptionId() { return this.asItem().getDescriptionId(); }
-
-    @Override
-    public boolean canSurvive(BlockState state, LevelReader worldIn, BlockPos pos)
+    public void setBlockBoundsBasedOnState(final IBlockAccess access, final int x, final int y, final int z)
     {
-        return worldIn.getBlockState(pos.relative(state.getValue(HORIZONTAL_FACING).getOpposite())).isSolid();
-    }
-
-    @Override
-    public BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, LevelAccessor worldIn, BlockPos currentPos, BlockPos facingPos)
-    {
-        return facing == stateIn.getValue(HORIZONTAL_FACING).getOpposite() && !stateIn.canSurvive(worldIn, currentPos) ? Blocks.AIR.defaultBlockState() : super.updateShape(stateIn, facing, facingState, worldIn, currentPos, facingPos);
-    }
-
-    @Override
-    public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context)
-    {
-        return BANNER_SHAPES.get(state.getValue(HORIZONTAL_FACING));
-    }
-
-    @Override
-    public BlockState getStateForPlacement(BlockPlaceContext context)
-    {
-        BlockState blockstate = this.defaultBlockState();
-        LevelReader iworldreader = context.getLevel();
-        BlockPos blockpos = context.getClickedPos();
-        Direction[] adirection = context.getNearestLookingDirections();
-
-        for(Direction direction : adirection)
+        final int meta = access.getBlockMetadata(x, y, z);
+        switch (meta & 0x3)
         {
-            if (direction.getAxis().isHorizontal())
-            {
-                Direction direction1 = direction.getOpposite();
-                blockstate = blockstate.setValue(HORIZONTAL_FACING, direction1);
-                if (blockstate.canSurvive(iworldreader, blockpos))
-                    return blockstate;
-            }
+            case 2: // NORTH — attached to south face of block to north
+                setBlockBounds(0.0f, 0.0f, 14.0f / 16.0f, 1.0f, 12.5f / 16.0f, 1.0f);
+                break;
+            case 0: // SOUTH — attached to north face of block to south
+                setBlockBounds(0.0f, 0.0f, 0.0f, 1.0f, 12.5f / 16.0f, 2.0f / 16.0f);
+                break;
+            case 1: // WEST — attached to east face
+                setBlockBounds(14.0f / 16.0f, 0.0f, 0.0f, 1.0f, 12.5f / 16.0f, 1.0f);
+                break;
+            case 3: // EAST — attached to west face
+            default:
+                setBlockBounds(0.0f, 0.0f, 0.0f, 2.0f / 16.0f, 12.5f / 16.0f, 1.0f);
+                break;
         }
-
-        return null;
     }
 
     @Override
-    public BlockState rotate(BlockState state, Rotation rot)
+    public boolean canBlockStay(final World world, final int x, final int y, final int z)
     {
-        return state.setValue(HORIZONTAL_FACING, rot.rotate(state.getValue(HORIZONTAL_FACING)));
+        final int meta = world.getBlockMetadata(x, y, z);
+        final int facing = meta & 0x3;
+        // The block this banner is attached to must be solid on the face pointing toward us
+        int wx = x, wz = z;
+        ForgeDirection attachedSide;
+        switch (facing)
+        {
+            case 2: wx = x;     wz = z - 1; attachedSide = ForgeDirection.SOUTH; break;
+            case 0: wx = x;     wz = z + 1; attachedSide = ForgeDirection.NORTH; break;
+            case 1: wx = x + 1; wz = z;     attachedSide = ForgeDirection.WEST;  break;
+            default:wx = x - 1; wz = z;     attachedSide = ForgeDirection.EAST;  break;
+        }
+        return world.getBlock(wx, y, wz).isSideSolid(world, wx, y, wz, attachedSide);
     }
 
     @Override
-    public BlockState mirror(BlockState state, Mirror mirrorIn)
+    public boolean isOpaqueCube()
     {
-        return state.rotate(mirrorIn.getRotation(state.getValue(HORIZONTAL_FACING)));
+        return false;
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) { builder.add(HORIZONTAL_FACING); }
+    public boolean renderAsNormalBlock()
+    {
+        return false;
+    }
 
     @Override
     public ResourceLocation getRegistryName()

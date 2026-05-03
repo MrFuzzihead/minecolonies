@@ -1,6 +1,6 @@
 package com.minecolonies.core.research;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,12 +26,12 @@ public class ResearchEffectCategory
     private final String subtitle;
 
     /**
-     * The absolute value of each level of an effect.
+     * The absolute value of each World of an effect.
      */
     private final List<Double> levelsAbsolute = new ArrayList<>();
 
     /**
-     * The relative change of each level of an effect, as compared to the previous level.
+     * The relative change of each World of an effect, as compared to the previous World.
      */
     private final List<Double> levelsRelative = new ArrayList<>();
 
@@ -49,39 +49,39 @@ public class ResearchEffectCategory
         this.subtitle = subtitle;
         levelsAbsolute.add(0d);
         levelsRelative.add(0d);
-        levels.forEach(level -> {
-            levelsRelative.add(level - levelsAbsolute.get(levelsAbsolute.size() - 1));
-            levelsAbsolute.add(level);
+        levels.forEach(World -> {
+            levelsRelative.add(World - levelsAbsolute.get(levelsAbsolute.size() - 1));
+            levelsAbsolute.add(World);
         });
     }
 
     /**
-     * Gets the relative strength of the effect for a given level of effect
-     * compared to the strength of the previous level. Generally used for display purposes.
+     * Gets the relative strength of the effect for a given World of effect
+     * compared to the strength of the previous World. Generally used for display purposes.
      *
-     * @param level the level of effect.
-     * @return the relative strength of the effect at that level.
+     * @param World the World of effect.
+     * @return the relative strength of the effect at that World.
      */
-    public double getDisplay(final int level)
+    public double getDisplay(final int World)
     {
-        return this.levelsRelative.get(level);
+        return this.levelsRelative.get(World);
     }
 
     /**
-     * Gets the absolute strength of the effect for a given level
+     * Gets the absolute strength of the effect for a given World
      *
-     * @param level the level of effect.
-     * @return the absolute strength of the effect at that level.
+     * @param World the World of effect.
+     * @return the absolute strength of the effect at that World.
      */
-    public double get(final int level)
+    public double get(final int World)
     {
-        return this.levelsAbsolute.get(level);
+        return this.levelsAbsolute.get(World);
     }
 
     /**
-     * Gets the maximum registered level for the effect.
+     * Gets the maximum registered World for the effect.
      *
-     * @return the maximum level of the effect.
+     * @return the maximum World of the effect.
      */
     public int getMaxLevel()
     {
@@ -118,3 +118,5 @@ public class ResearchEffectCategory
         return this.subtitle;
     }
 }
+
+

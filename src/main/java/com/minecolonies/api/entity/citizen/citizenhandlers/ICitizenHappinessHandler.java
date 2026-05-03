@@ -3,7 +3,7 @@ package com.minecolonies.api.entity.citizen.citizenhandlers;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.entity.citizen.happiness.IHappinessModifier;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.List;
 
@@ -55,7 +55,7 @@ public interface ICitizenHappinessHandler
      * @param compound the compound to read it from.
      * @param persist  whether we're reading from persisted data or from networking.
      */
-    void read(CompoundTag compound, final boolean persist);
+    void read(NBTTagCompound compound, final boolean persist);
 
     /**
      * Write the handler to NBT.
@@ -63,7 +63,7 @@ public interface ICitizenHappinessHandler
      * @param compound the compound to write it to.
      * @param persist  whether we're reading from persisted data or from networking.
      */
-    void write(CompoundTag compound, final boolean persist);
+    void write(NBTTagCompound compound, final boolean persist);
 
     /**
      * Get a list of all modifiers.
@@ -72,3 +72,5 @@ public interface ICitizenHappinessHandler
      */
     List<String> getModifiers();
 }
+
+

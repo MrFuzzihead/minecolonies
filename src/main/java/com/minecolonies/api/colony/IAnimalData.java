@@ -8,92 +8,93 @@ import org.jetbrains.annotations.NotNull;
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.managers.interfaces.IManagedAnimal;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.animal.Animal;
-import net.minecraftforge.common.util.INBTSerializable;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.entity.passive.EntityAnimal;
+import net.minecraft.network.PacketBuffer;
+// [1.7.10] world.entity removed
+// [1.7.10] INBTSerializable -> manual read/write
 
 /**
- * Data interface for animals managed by the Animal Manager.
+ * Data interface for animals managed by the EntityAnimal Manager.
  */
-public interface IAnimalData extends INBTSerializable<CompoundTag>
+public interface IAnimalData
 {
     /**
-     * Get the animal data ID.
+     * Get the EntityAnimal data ID.
      *
-     * @return the animal data ID
+     * @return the EntityAnimal data ID
     */
     public int getId();
 
     /**
-     * Get the globally unique identifier associated with this animal data.
+     * Get the globally unique identifier associated with this EntityAnimal data.
      *
-     * @return the globally unique identifier associated with this animal data.
+     * @return the globally unique identifier associated with this EntityAnimal data.
      */
     public UUID getUUID();
 
     /**
-     * Initializes the entities values from animal data.
+     * Initializes the entities values from EntityAnimal data.
      */
     public void initEntityValues();
 
     /**
-     * Get the animal entity.
+     * Get the EntityAnimal entity.
      *
-     * @return the animal entity.
+     * @return the EntityAnimal entity.
      */
-    public Optional<IManagedAnimal <? extends Animal>> getManagedAnimal();
+    public Optional<IManagedAnimal <? extends EntityAnimal>> getManagedAnimal();
 
     /**
-     * Set the animal entity.
+     * Set the EntityAnimal entity.
      *
-     * @param entity the animal entity.
+     * @param entity the EntityAnimal entity.
      */
-    public void setManagedAnimal(final IManagedAnimal<? extends Animal> entity);
+    public void setManagedAnimal(final IManagedAnimal<? extends EntityAnimal> entity);
 
     /**
-     * Clear the dirty flag for this animal data.
+     * Clear the dirty flag for this EntityAnimal data.
      */
     public void clearDirty();
 
     /**
-     * Check if this animal data is dirty and needs syncing.
+     * Check if this EntityAnimal data is dirty and needs syncing.
      *
      * @return true if dirty, false otherwise
      */
     public boolean isDirty();
 
     /**
-     * Mark this animal data as dirty and in need of syncing / saving.
+     * Mark this EntityAnimal data as dirty and in need of syncing / saving.
      */
     public void markDirty();
 
     /**
-     * Update the animal data.
+     * Update the EntityAnimal data.
      *
      * @param tickRate the tick rate
      */
     public void update(final int tickRate);
 
     /**
-     * Writes the animal data to a byte buf for transition.
+     * Writes the EntityAnimal data to a byte buf for transition.
      *
      * @param buf Buffer to write to.
      */
-    void serializeViewNetworkData(@NotNull FriendlyByteBuf buf);
+    void serializeViewNetworkData(@NotNull PacketBuffer buf);
 
     /**
-     * Gets the home building of the animal.
+     * Gets the home building of the EntityAnimal.
      * 
-     * @return the home building, or null if the animal does not have a home building.
+     * @return the home building, or null if the EntityAnimal does not have a home building.
      */
     public IBuilding getHomeBuilding();
 
     /**
-     * Sets the home building of the animal.
+     * Sets the home building of the EntityAnimal.
      * 
-     * @param building the new home building of the animal.
+     * @param building the new home building of the EntityAnimal.
      */
     public void setHomeBuilding(@NotNull IBuilding building);
 
@@ -105,18 +106,18 @@ public interface IAnimalData extends INBTSerializable<CompoundTag>
     public void onRemoveBuilding(final IBuilding building);
 
     /**
-     * Sets the last position of the animal.
+     * Sets the last position of the EntityAnimal.
      * 
-     * @param lastPosition the last position of the animal.
+     * @param lastPosition the last position of the EntityAnimal.
      */
-    public void setLastPosition(final BlockPos lastPosition);
+    public void setLastPosition(final int[] lastPosition);
 
     /**
-     * Gets the last position of the animal.
+     * Gets the last position of the EntityAnimal.
      * 
-     * @return the last position of the animal.
+     * @return the last position of the EntityAnimal.
      */
-    public BlockPos getLastPosition();
+    public int[] getLastPosition();
 
     /**
      * Returns the current combat cooldown of the horse. 
@@ -133,3 +134,11 @@ public interface IAnimalData extends INBTSerializable<CompoundTag>
      */
     public void setCombatCooldown(float newCooldown);
 }
+
+
+
+
+
+
+
+

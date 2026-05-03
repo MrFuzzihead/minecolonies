@@ -1,6 +1,6 @@
 package com.minecolonies.api.colony.managers.interfaces;
 
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
@@ -29,7 +29,7 @@ public interface IColonyPackageManager
      *
      * @return a copy of the hashset.
      */
-    Set<ServerPlayer> getCloseSubscribers();
+    Set<EntityPlayerMP> getCloseSubscribers();
 
     /**
      * Update Subscribers with Colony, Citizen, and AbstractBuilding Views.
@@ -66,33 +66,34 @@ public interface IColonyPackageManager
      *
      * @param subscriber the subscriber to add.
      */
-    void addCloseSubscriber(@NotNull final ServerPlayer subscriber);
+    void addCloseSubscriber(@NotNull final EntityPlayerMP subscriber);
 
     /**
      * Adds a new global subscriber to the colony.
      *
      * @param subscriber the subscriber to add.
      */
-    void addImportantColonyPlayer(@NotNull ServerPlayer subscriber);
+    void addImportantColonyPlayer(@NotNull EntityPlayerMP subscriber);
 
     /**
      * Removes an global subscriber from the colony.
      *
      * @param subscriber the subscriber to remove.
      */
-    void removeImportantColonyPlayer(@NotNull ServerPlayer subscriber);
+    void removeImportantColonyPlayer(@NotNull EntityPlayerMP subscriber);
 
     /**
      * Remove a subscriber from the colony.
      *
      * @param player the subscriber to remove.
      */
-    void removeCloseSubscriber(@NotNull final ServerPlayer player);
+    void removeCloseSubscriber(@NotNull final EntityPlayerMP player);
 
     /**
      * Returns the global subscribers.
      *
      * @return global subscribers
      */
-    Set<ServerPlayer> getImportantColonyPlayers();
+    Set<EntityPlayerMP> getImportantColonyPlayers();
 }
+

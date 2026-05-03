@@ -3,20 +3,19 @@ package com.minecolonies.core.network.messages.client;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.core.Network;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.client.resources.sounds.SoundInstance;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayerMP;
+// [1.7.10] sounds removed
+// [1.7.10] sounds removed
+import java.util.Random;
+import net.minecraft.entity.player.EntityPlayer;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -65,14 +64,14 @@ public class PlayAudioMessage implements IMessage
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    public void toBytes(final PacketBuffer buf)
     {
         buf.writeVarInt(category.ordinal());
         buf.writeResourceLocation(soundEvent);
     }
 
     @Override
-    public void fromBytes(final FriendlyByteBuf buf)
+    public void fromBytes(final PacketBuffer buf)
     {
         this.category = SoundSource.values()[buf.readVarInt()];
         this.soundEvent = buf.readResourceLocation();
@@ -80,14 +79,14 @@ public class PlayAudioMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.CLIENT;
+        return Boolean.FALSE;
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
         final Player player = Minecraft.getInstance().player;
 
@@ -118,13 +117,17 @@ public class PlayAudioMessage implements IMessage
         {
             if (stop)
             {
-                Network.getNetwork().sendToPlayer(new StopMusicMessage(), (ServerPlayer) player);
+                Network.getNetwork().sendToPlayer(new StopMusicMessage(), (EntityPlayerMP) player);
             }
 
             for (PlayAudioMessage pam : messages)
             {
-                Network.getNetwork().sendToPlayer(pam, (ServerPlayer) player);
+                Network.getNetwork().sendToPlayer(pam, (EntityPlayerMP) player);
             }
         }
     }
 }
+
+
+
+

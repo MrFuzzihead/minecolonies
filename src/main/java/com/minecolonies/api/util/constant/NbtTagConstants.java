@@ -129,102 +129,102 @@ public final class NbtTagConstants
     public static final String TAG_BUILDING_LEVEL = "buildingLevel";
 
     /**
-     * Tag used to store the containers to NBT.
+     * NBTBase used to store the containers to NBT.
      */
     public static final String TAG_CONTAINERS = "Containers";
 
     /**
-     * The tag to store the building type.
+     * The NBTBase to store the building type.
      */
     public static final String TAG_BUILDING_TYPE = "type";
 
     /**
-     * The tag to store the building location. Location is unique (within a Colony) and so can double as the Id.
+     * The NBTBase to store the building location. Location is unique (within a Colony) and so can double as the Id.
      */
     public static final String TAG_LOCATION = "location";
 
     /**
-     * The tag to store the level of the building.
+     * The NBTBase to store the World of the building.
      */
-    public static final String TAG_SCHEMATIC_LEVEL = "level";
+    public static final String TAG_SCHEMATIC_LEVEL = "World";
 
     /**
-     * The tag to store parent of a building
+     * The NBTBase to store parent of a building
      */
     public static final String TAG_PARENT_SCHEM = "parent";
 
     /**
-     * The tag to store the rotation of the building.
+     * The NBTBase to store the rotation of the building.
      */
     public static final String TAG_ROTATION = "rotation";
 
     /**
-     * The tag to store the md5 hash of the schematic.
+     * The NBTBase to store the md5 hash of the schematic.
      */
     public static final String TAG_SCHEMATIC_MD5 = "schematicMD5";
 
     /**
-     * The tag to store the mirror of the building.
+     * The NBTBase to store the mirror of the building.
      */
     public static final String TAG_MIRROR = "mirror";
 
     /**
-     * The tag to store the style of the building.
+     * The NBTBase to store the style of the building.
      */
     public static final String TAG_STYLE = "style";
 
     /**
-     * The tag to store the pack of the building.
+     * The NBTBase to store the pack of the building.
      */
     public static final String TAG_PACK = "pack";
 
     /**
-     * The tag to store the path of the building blueprint.
+     * The NBTBase to store the path of the building blueprint.
      */
     public static final String TAG_PATH = "path";
 
     /**
-     * The tag to store the texture style of the colonists.
+     * The NBTBase to store the texture style of the colonists.
      */
     public static final String TAG_COL_TEXT = "textstyle";
 
     /**
-     * The tag to store the name style of the colonists.
+     * The NBTBase to store the name style of the colonists.
      */
     public static final String TAG_COL_NAME_STYLE = "namestyle";
 
     /**
-     * The tag to store the day progress.
+     * The NBTBase to store the day progress.
      */
     public static final String COLONY_DAY = "colonyday";
 
     /**
-     * Tag to store if raidable to a colony.
+     * NBTBase to store if raidable to a colony.
      */
     public static final String TAG_RAIDABLE = "raidable";
 
     /**
-     * Tag to store nights since last raid
+     * NBTBase to store nights since last raid
      */
     public static final String TAG_NIGHTS_SINCE_LAST_RAID = "nightsRaid";
 
     /**
-     * Tag to store raid history data
+     * NBTBase to store raid history data
      */
     public static final String TAG_RAID_HISTORY = "raidhistory";
 
     /**
-     * Tag on the ancient tome used to indicate if a raid will happen.
+     * NBTBase on the ancient tome used to indicate if a raid will happen.
      */
     public static final String TAG_RAID_WILL_HAPPEN = "raidWillHappen";
 
     /**
-     * Tag to store if auto deletable to a colony.
+     * NBTBase to store if auto deletable to a colony.
      */
     public static final String TAG_AUTO_DELETE = "autoDelete";
 
     /**
-     * The tag to store the requester Id of the Building.
+     * The NBTBase to store the requester Id of the Building.
      */
     public static final String TAG_REQUESTOR_ID = "Requestor";
 
@@ -242,85 +242,85 @@ public final class NbtTagConstants
     public static final String TAG_HEIGHT  = "height";
 
     /**
-     * Tag to store a snapshot of a given warehouse in the resource scroll.
+     * NBTBase to store a snapshot of a given warehouse in the resource scroll.
      */
     public static final String TAG_WAREHOUSE_SNAPSHOT         = "version";
     public static final String TAG_WAREHOUSE_SNAPSHOT_WO_HASH = "wo_hash";
 
     /**
-     * Tag to store if the field has been taken.
+     * NBTBase to store if the field has been taken.
      */
     public static final String TAG_TAKEN = "taken";
 
     /**
-     * Tag to store the fields positive length.
+     * NBTBase to store the fields positive length.
      */
     public static final String TAG_FIELD_EAST = "plot_east";
 
     /**
-     * Tag to store the fields positive width.
+     * NBTBase to store the fields positive width.
      */
     public static final String TAG_FIELD_SOUTH = "plot_south";
 
     /**
-     * Tag to store the fields negative length.
+     * NBTBase to store the fields negative length.
      */
     public static final String TAG_FIELD_WEST = "plot_west";
 
     /**
-     * Tag to store the fields negative width.
+     * NBTBase to store the fields negative width.
      */
     public static final String TAG_FIELD_NORTH = "plot_north";
 
     /**
-     * Tag to store the fields stage.
+     * NBTBase to store the fields stage.
      */
     public static final String TAG_STAGE = "stage";
 
     /**
-     * Tag to store the owner.
+     * NBTBase to store the owner.
      */
     public static final String TAG_OWNER = "owner";
 
     /**
-     * Tag to store the inventory to nbt.
+     * NBTBase to store the inventory to nbt.
      */
     public static final String TAG_INVENTORY = "inventory";
 
     /**
-     * Tag to store the armor inventory to nbt.
+     * NBTBase to store the armor inventory to nbt.
      */
     public static final String TAG_ARMOR_INVENTORY = "armorinventory";
 
     /**
-     * Tag to store the content to nbt.
+     * NBTBase to store the content to nbt.
      */
     public static final String TAG_CONTENT = "content";
 
     /**
-     * Tag to store an empty stack to nbt.
+     * NBTBase to store an empty stack to nbt.
      */
     public static final String TAG_EMPTY = "empty";
 
     /**
-     * Tag to store the inventory to nbt.
+     * NBTBase to store the inventory to nbt.
      */
     public static final String TAG_LEVEL_MAP = "levelMap";
 
     /**
-     * Tag used when a Compound wraps a list.
+     * NBTBase used when a Compound wraps a list.
      */
     public static final String TAG_LIST = "List";
 
     /**
-     * Tag for the ongoing list of deliveries.
+     * NBTBase for the ongoing list of deliveries.
      */
     public static final String TAG_ONGOING_LIST = "OngoingList";
 
     public static final String TAG_ASSIGNED_LIST = "AssignedList";
 
     /**
-     * Tag used when we store a Request.
+     * NBTBase used when we store a Request.
      */
     public static final String TAG_REQUEST = "Request";
 
@@ -337,27 +337,27 @@ public final class NbtTagConstants
     public static final String TAG_CITIZEN_BY_OPEN_REQUEST = "CitizenByOpenRequest";
 
     /**
-     * Tag used to store the worker to nbt.
+     * NBTBase used to store the worker to nbt.
      */
     public static final String TAG_WORKER = "worker";
 
     /**
-     * Tag to store the buildings hiring mode.
+     * NBTBase to store the buildings hiring mode.
      */
     public static final String TAG_HIRING_MODE = "buildingHiringMode";
 
     /**
-     * Tag to store the assigned module.
+     * NBTBase to store the assigned module.
      */
     public static final String TAG_ASSIGNED = "assigned";
 
     /**
-     * Tag to store the quarry assignment module.
+     * NBTBase to store the quarry assignment module.
      */
     public static final String TAG_QUARRY_ASSIGNMENT = "quarryassignment";
 
     /**
-     * Tag to store if quarry was finished.
+     * NBTBase to store if quarry was finished.
      */
     public static final String TAG_IS_FINISHED = "isfinished";
 
@@ -372,32 +372,32 @@ public final class NbtTagConstants
     public static final String TAG_DISABLED_RECIPES = "disabledrecipes";
 
     /**
-     * Tag to store the id to NBT.
+     * NBTBase to store the id to NBT.
      */
     public static final String TAG_WORKER_ID = "workerId";
 
     /**
-     * The tag used to store the residents.
+     * The NBTBase used to store the residents.
      */
     public static final String TAG_RESIDENTS = "residents";
 
     /**
-     * The tag used to store the residents.
+     * The NBTBase used to store the residents.
      */
     public static final String TAG_WORKING_RESIDENTS = "residents";
 
     /**
-     * The tag used to store the residents.
+     * The NBTBase used to store the residents.
      */
     public static final String TAG_LIVING_RESIDENTS = "residents";
 
     /**
-     * The tag used to store the residents.
+     * The NBTBase used to store the residents.
      */
     public static final String TAG_COURIERS = "couriers";
 
     /**
-     * The tag used to store the residents.
+     * The NBTBase used to store the residents.
      */
     public static final String TAG_MINERS = "miners";
 
@@ -412,7 +412,7 @@ public final class NbtTagConstants
     public static final String TAG_PATIENTS = "patients";
 
     /**
-     * Tag for all chunk storages..
+     * NBTBase for all chunk storages..
      */
     public static final String TAG_CHUNK_STORAGE = "chunk";
 
@@ -427,57 +427,57 @@ public final class NbtTagConstants
     public static final String TAG_Z = "zPos";
 
     /**
-     * Tag for all chunk storages..
+     * NBTBase for all chunk storages..
      */
     public static final String TAG_ALL_CHUNK_STORAGES = "allchunk";
 
     /**
-     * Tag used to store the relative neighbor pos to NBT.
+     * NBTBase used to store the relative neighbor pos to NBT.
      */
     public static final String TAG_RELATIVE_NEIGHBOR = "relNeighbor";
 
     /**
-     * Tag used to store the size.
+     * NBTBase used to store the size.
      */
     public static final String TAG_SIZE = "tagSIze";
 
     /**
-     * Tag used to store the inventory size.
+     * NBTBase used to store the inventory size.
      */
     public static final String TAG_INV_SIZE = "invsize";
 
     /**
-     * Tag used to store if the entity is the main.
+     * NBTBase used to store if the entity is the main.
      */
     public static final String TAG_MAIN = "main";
 
     /**
-     * Tag used to store if the entity is in a Warehouse.
+     * NBTBase used to store if the entity is in a Warehouse.
      */
     public static final String TAG_IN_WAREHOUSE = "inWarehouse";
 
     /**
-     * Tag used to store the team color of the colony.
+     * NBTBase used to store the team color of the colony.
      */
     public static final String TAG_TEAM_COLOR = "teamcolor";
 
     /**
-     * Tag used to store the colony flag
+     * NBTBase used to store the colony flag
      */
     public static final String TAG_FLAG_PATTERNS = "colonyflag";
 
     /**
-     * Tag used by vanilla to store banner patterns
+     * NBTBase used by vanilla to store banner patterns
      */
     public static final String TAG_BANNER_PATTERNS = "Patterns";
 
     /**
-     * Tag used by vanilla to store a single pattern in banner pattern-color pairs
+     * NBTBase used by vanilla to store a single pattern in banner pattern-color pairs
      */
     public static final String TAG_SINGLE_PATTERN = "Pattern";
 
     /**
-     * Tag used by vanilla to store single color in banner pattern-color pairs
+     * NBTBase used by vanilla to store single color in banner pattern-color pairs
      */
     public static final String TAG_PATTERN_COLOR = "Color";
 
@@ -488,7 +488,7 @@ public final class NbtTagConstants
     public static final String TAG_TEXTURE      = "texture";
     public static final String TAG_TEXTURE_UUID = "textureUUID";
     public static final String TAG_SKILL        = "skill";
-    public static final String TAG_LEVEL        = "level";
+    public static final String TAG_LEVEL        = "World";
     public static final String TAG_EXPERIENCE   = "experience";
     public static final String TAG_NEW_SKILLS   = "newSkills";
     public static final String TAG_SATURATION   = "saturation";
@@ -497,7 +497,7 @@ public final class NbtTagConstants
     public static final String TAG_CHAT_OPTIONS = "chatoptions";
 
     /**
-     * Tag of the colony.
+     * NBTBase of the colony.
      */
     public static final String TAG_BUILDER = "builder";
 
@@ -510,7 +510,7 @@ public final class NbtTagConstants
     public static final String TAG_PRINT_PROGRESS   = "printProgrss";
 
     /**
-     * Raid manager tag
+     * Raid manager NBTBase
      */
     public static final String TAG_SCHEMATIC_LIST = "ships";
 
@@ -530,7 +530,7 @@ public final class NbtTagConstants
     public static final String TAG_LADDER_COUNTER = "ladder";
 
     /**
-     * Research manager compound TAG.
+     * Research manager compound NBTBase.
      */
     public static final String TAG_RESEARCH = "research";
 
@@ -595,7 +595,7 @@ public final class NbtTagConstants
     public static final String TAG_CURR_MANA = "currentMana";
 
     /**
-     * Beekeeper tag
+     * Beekeeper NBTBase
      */
     public static final String TAG_HIVES = "hives";
 
@@ -605,17 +605,17 @@ public final class NbtTagConstants
     public static final String TAG_RALLIED_GUARDTOWERS = "guardtowerpositions";
 
     /**
-     * NetherToken tag name for damage amount
+     * NetherToken NBTBase name for damage amount
      */
     public static final String TAG_DAMAGE = "damage-done";
 
     /**
-     * NetherToken tag name for entity type doing the damage
+     * NetherToken NBTBase name for entity type doing the damage
      */
     public static final String TAG_ENTITY_TYPE = "entity-type";
 
     /**
-     * NetherToken tag name for xp dropped by entity
+     * NetherToken NBTBase name for xp dropped by entity
      */
     public static final String TAG_XP_DROPPED = "xp-dropped";
 
@@ -632,32 +632,32 @@ public final class NbtTagConstants
     // --------------------- Chat handling tags --------------------- //
 
     /**
-     * Inquiry tag to store to NBT.
+     * Inquiry NBTBase to store to NBT.
      */
     public static final String TAG_INQUIRY = "inquiry";
 
     /**
-     * Response tag to store each response option.
+     * Response NBTBase to store each response option.
      */
     public static final String TAG_RESPONSE = "response";
 
     /**
-     * Responses tag to store the entire list.
+     * Responses NBTBase to store the entire list.
      */
     public static final String TAG_RESPONSES = "responses";
 
     /**
-     * The tag for the next inquiry to a response.
+     * The NBTBase for the next inquiry to a response.
      */
     public static final String TAG_NEXT_INQUIRY = "nextinquiry";
 
     /**
-     * The tag to store if this interaction is a primary interaction.
+     * The NBTBase to store if this interaction is a primary interaction.
      */
     public static final String TAG_PRIMARY = "primary";
 
     /**
-     * The tag to store the priority of this interaction..
+     * The NBTBase to store the priority of this interaction..
      */
     public static final String TAG_PRIORITY = "priority";
 
@@ -727,7 +727,7 @@ public final class NbtTagConstants
     public static final String MATCH_NBTIGNORE = "ignore";
 
     /**
-     * Version tag.
+     * Version NBTBase.
      */
     public static final String TAG_VERSION = "version";
 
@@ -787,3 +787,4 @@ public final class NbtTagConstants
          */
     }
 }
+

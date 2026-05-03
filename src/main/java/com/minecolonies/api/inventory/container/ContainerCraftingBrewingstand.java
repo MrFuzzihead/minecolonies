@@ -1,20 +1,21 @@
 package com.minecolonies.api.inventory.container;
-
+import net.minecraftforge.items.SlotItemHandler;
 import com.minecolonies.api.inventory.ModContainers;
 import com.minecolonies.api.util.ItemStackUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.SlotItemHandler;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
+// [1.7.10] Inventory removed
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.Container;
+// [1.7.10] int not in 1.7.10
+import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+// [1.7.10] BrewingRecipeRegistry not in 1.7.10 forge
+// [1.7.10] items shim in com.minecolonies.api.shim
+// [1.7.10] items shim in com.minecolonies.api.shim
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -24,22 +25,22 @@ import static com.minecolonies.api.util.constant.InventoryConstants.*;
 /**
  * Crafting container for the recipe teaching of furnace recipes.
  */
-public class ContainerCraftingBrewingstand extends AbstractContainerMenu
+public class ContainerCraftingBrewingstand extends Container
 {
     /**
      * The furnace inventory.
      */
-    private final IItemHandler brewingStandInventory;
+    private final net.minecraftforge.items.IItemHandler brewingStandInventory;
 
     /**
-     * The player assigned to it.
+     * The EntityPlayer assigned to it.
      */
-    private final Inventory playerInventory;
+    private final InventoryPlayer playerInventory;
 
     /**
      * The colony building.
      */
-    public final BlockPos buildingPos;
+    public final int[] buildingPos;
 
     /**
      * The module id.
@@ -50,13 +51,13 @@ public class ContainerCraftingBrewingstand extends AbstractContainerMenu
      * Deserialize packet buffer to container instance.
      *
      * @param windowId     the id of the window.
-     * @param inv          the player inventory.
+     * @param inv          the EntityPlayer inventory.
      * @param packetBuffer network buffer
      * @return new instance
      */
-    public static ContainerCraftingBrewingstand fromFriendlyByteBuf(final int windowId, final Inventory inv, final FriendlyByteBuf packetBuffer)
+    public static ContainerCraftingBrewingstand fromPacketBuffer(final int windowId, final InventoryPlayer inv, final PacketBuffer packetBuffer)
     {
-        final BlockPos tePos = packetBuffer.readBlockPos();
+        final int[] tePos = packetBuffer.readBlockPos();
         final int moduleId = packetBuffer.readInt();
         return new ContainerCraftingBrewingstand(windowId, inv, tePos, moduleId);
     }
@@ -65,18 +66,18 @@ public class ContainerCraftingBrewingstand extends AbstractContainerMenu
      * Constructs the GUI with the player.
      *
      * @param windowId the window id.
-     * @param inv      the player inventory.
+     * @param inv      the EntityPlayer inventory.
      * @param pos      te world pos
      */
-    public ContainerCraftingBrewingstand(final int windowId, final Inventory inv, final BlockPos pos, final int moduleId)
+    public ContainerCraftingBrewingstand(final int windowId, final InventoryPlayer inv, final int[] pos, final int moduleId)
     {
-        super(ModContainers.craftingBrewingstand.get(), windowId);
+        super();
         this.moduleId = moduleId;
 
         this.brewingStandInventory = new IItemHandlerModifiable()
         {
-            ItemStack ingredient = ItemStack.EMPTY;
-            ItemStack potion = ItemStack.EMPTY;
+            ItemStack ingredient = null;
+            ItemStack potion = null;
 
             @Override
             public void setStackInSlot(final int slot, @Nonnull final ItemStack stack)
@@ -144,7 +145,7 @@ public class ContainerCraftingBrewingstand extends AbstractContainerMenu
             @Override
             public ItemStack extractItem(final int slot, final int amount, final boolean simulate)
             {
-                return ItemStack.EMPTY;
+                return null;
             }
 
             @Override
@@ -158,11 +159,11 @@ public class ContainerCraftingBrewingstand extends AbstractContainerMenu
             {
                 if (slot == 3)
                 {
-                    return net.minecraftforge.common.brewing.BrewingRecipeRegistry.isValidIngredient(stack);
+                    return false; // [1.7.10] BrewingRecipeRegistry not available
                 }
                 else if (slot >= 0 && slot < 3)
                 {
-                    return net.minecraftforge.common.brewing.BrewingRecipeRegistry.isValidInput(stack);
+                    return false; // [1.7.10] BrewingRecipeRegistry not available
                 }
                 else
                 {
@@ -179,8 +180,8 @@ public class ContainerCraftingBrewingstand extends AbstractContainerMenu
         this.addSlot(new InputItemHandler(brewingStandInventory, 1, 79, 58));
         this.addSlot(new InputItemHandler(brewingStandInventory, 2, 102, 51));
 
-        // Player inventory slots
-        // Note: The slot numbers are within the player inventory and may be the same as the field inventory.
+        // EntityPlayer inventory slots
+        // Note: The slot numbers are within the EntityPlayer inventory and may be the same as the field inventory.
         int i;
         for (i = 0; i < INVENTORY_ROWS; i++)
         {
@@ -217,7 +218,7 @@ public class ContainerCraftingBrewingstand extends AbstractContainerMenu
          * @param xPosition x positon.
          * @param yPosition y position.
          */
-        public InputItemHandler(final IItemHandler itemHandler, final int index, final int xPosition, final int yPosition)
+        public InputItemHandler(final net.minecraftforge.items.IItemHandler itemHandler, final int index, final int xPosition, final int yPosition)
         {
             super(itemHandler, index, xPosition, yPosition);
         }
@@ -232,31 +233,31 @@ public class ContainerCraftingBrewingstand extends AbstractContainerMenu
         @Override
         public ItemStack remove(final int par1)
         {
-            return ItemStack.EMPTY;
+            return null;
         }
 
         @Override
-        public boolean mayPlace(final @NotNull ItemStack par1ItemStack)
+        public boolean isItemValid(final @NotNull ItemStack par1ItemStack)
         {
             return true;
         }
 
         @Override
-        public boolean mayPickup(final Player par1PlayerEntity)
+        public boolean canTakeStack(final EntityPlayer par1PlayerEntity)
         {
             return false;
         }
     }
 
     @Override
-    public void clicked(final int slotId, final int clickedButton, final ClickType mode, final Player playerIn)
+    public void clicked(final int slotId, final int clickedButton, final int mode, final EntityPlayer playerIn)
     {
         if (slotId >= 0 && slotId < brewingStandInventory.getSlots())
         {
-            if (mode == ClickType.PICKUP
-                  || mode == ClickType.PICKUP_ALL
-                  || mode == ClickType.SWAP
-                  || mode == ClickType.QUICK_MOVE)
+            if (mode == 0
+                  || mode == 1
+                  || mode == 2
+                  || mode == 3)
             {
                 final Slot slot = this.slots.get(slotId);
                 handleSlotClick(slot, this.getCarried());
@@ -305,52 +306,48 @@ public class ContainerCraftingBrewingstand extends AbstractContainerMenu
             copy.setCount(1);
             slot.set(copy);
         }
-        else if (slot.getItem().getCount() > 0)
+        else if (slot.getStack().getCount() > 0)
         {
-            slot.set(ItemStack.EMPTY);
+            slot.set(null);
         }
 
-        return slot.getItem().copy();
+        return slot.getStack().copy();
     }
 
     @Override
-    public boolean stillValid(@NotNull final Player playerIn)
+    public boolean canInteractWith(@NotNull final EntityPlayer playerIn)
     {
         return true;
     }
 
     @NotNull
     @Override
-    public ItemStack quickMoveStack(final Player playerIn, final int index)
+    public ItemStack transferStackInSlot(final EntityPlayer playerIn, final int index)
     {
         final Slot slot = this.slots.get(index);
-        if (slot != null && slot.hasItem())
+        if (slot != null && slot.getHasStack())
         {
-            final ItemStack stack = slot.getItem();
+            final ItemStack stack = slot.getStack();
             if (index < 3)
             {
-                setContainer(ItemStack.EMPTY);
-                return ItemStack.EMPTY;
+                setContainer(null);
+                return null;
             }
             if (index == 3)
             {
-                setInput(ItemStack.EMPTY);
-                return ItemStack.EMPTY;
+                setInput(null);
+                return null;
             }
 
-            if (BrewingRecipeRegistry.isValidIngredient(stack))
-            {
-                setInput(stack);
-                return ItemStack.EMPTY;
+            if (false) { // [1.7.10] BrewingRecipeRegistry not available
+                return null;
             }
-            else if (BrewingRecipeRegistry.isValidInput(stack) && stack.getCount() == 1)
-            {
-                setContainer(stack);
-                return ItemStack.EMPTY;
+            else if (false) { // [1.7.10] BrewingRecipeRegistry not available
+                return null;
             }
         }
 
-        return ItemStack.EMPTY;
+        return null;
     }
 
     /**
@@ -358,7 +355,7 @@ public class ContainerCraftingBrewingstand extends AbstractContainerMenu
      *
      * @return the player.
      */
-    public Player getPlayer()
+    public EntityPlayer getPlayer()
     {
         return playerInventory.player;
     }
@@ -368,9 +365,9 @@ public class ContainerCraftingBrewingstand extends AbstractContainerMenu
      *
      * @return the world obj.
      */
-    public Level getWorldObj()
+    public World getWorldObj()
     {
-        return playerInventory.player.level();
+        return playerInventory.player.World();
     }
 
     /**
@@ -378,7 +375,7 @@ public class ContainerCraftingBrewingstand extends AbstractContainerMenu
      *
      * @return the position.
      */
-    public BlockPos getPos()
+    public int[] getPos()
     {
         return buildingPos;
     }
@@ -392,3 +389,6 @@ public class ContainerCraftingBrewingstand extends AbstractContainerMenu
         return this.moduleId;
     }
 }
+
+
+

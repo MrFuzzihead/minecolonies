@@ -5,13 +5,13 @@ import com.minecolonies.core.commands.commandTypes.IMCCommand;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.server.level.ServerChunkCache;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.World.ChunkPos;
+import net.minecraft.world.World;
+import net.minecraft.server.World.ServerChunkCache;
+import net.minecraft.world.WorldServer;
 
 /**
  * Cleanup task to remove the force flag from all loaded chunks.
@@ -29,12 +29,12 @@ public class CommandUnloadForcedChunks implements IMCCommand
         final Entity sender = context.getSource().getEntity();
         if (sender instanceof Player)
         {
-            final Level world = sender.level;
-            for (long chunk : ((ServerChunkCache) sender.level.getChunkSource()).chunkMap.visibleChunkMap.keySet())
+            final World world = sender.World;
+            for (long chunk : ((ServerChunkCache) sender.World.getChunkSource()).chunkMap.visibleChunkMap.keySet())
             {
                 ((ServerLevel) world).setChunkForced(ChunkPos.getX(chunk), ChunkPos.getZ(chunk), false);
             }
-            MessageUtils.format(Component.literal("Successfully removed forceload flag!")).sendTo((Player) sender);
+            MessageUtils.format(String.literal("Successfully removed forceload flag!")).sendTo((Player) sender);
             return 1;
         }
         return 0;
@@ -64,3 +64,5 @@ public class CommandUnloadForcedChunks implements IMCCommand
         return IMCCommand.newLiteral(getName()).executes(this::checkPreConditionAndExecute);
     }
 }
+
+

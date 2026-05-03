@@ -2,10 +2,10 @@ package com.minecolonies.core.client.gui.citizen;
 
 import com.minecolonies.api.colony.ICitizenDataView;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 /**
- * BOWindow for the citizen.
+ * Object (BOWindow: todo ModularUI2 removed) for the citizen.
  */
 public class JobWindowCitizen extends AbstractWindowCitizen
 {
@@ -20,3 +20,6 @@ public class JobWindowCitizen extends AbstractWindowCitizen
         CitizenWindowUtils.updateJobPage(citizen, this, colony);
     }
 }
+
+
+

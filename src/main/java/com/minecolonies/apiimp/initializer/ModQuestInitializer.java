@@ -7,8 +7,8 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.quests.objectives.*;
 import com.minecolonies.core.quests.rewards.*;
 import com.minecolonies.core.quests.triggers.*;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.DeferredRegister;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] registries removed
 
 import static com.minecolonies.api.quests.registries.QuestRegistries.*;
 
@@ -71,3 +71,5 @@ public final class ModQuestInitializer
         QuestRegistries.cancelAnswerResult = DEFERRED_REGISTER_ANSWER_RESULT.register(CANCEL_ANSWER_ID.getPath(), () -> new QuestRegistries.DialogueAnswerEntry(json -> new IQuestDialogueAnswer.QuestCancellationDialogueAnswer()));
     }
 }
+
+

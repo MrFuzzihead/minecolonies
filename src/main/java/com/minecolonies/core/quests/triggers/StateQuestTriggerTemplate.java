@@ -22,7 +22,7 @@ public class StateQuestTriggerTemplate implements IQuestTriggerTemplate
     public final List<String> nbtPath;
 
     /**
-     * The tag we are trying to match.
+     * The NBTBase we are trying to match.
      */
     public final JsonElement matchTag;
 
@@ -60,12 +60,12 @@ public class StateQuestTriggerTemplate implements IQuestTriggerTemplate
     @Override
     public ITriggerReturnData canTriggerQuest(final IColony colony)
     {
-        Tag subPathCompound = colony.getColonyTag();
+        NBTBase subPathCompound = colony.getColonyTag();
         for (final String subPath : nbtPath)
         {
-            if (subPathCompound instanceof CompoundTag && ((CompoundTag) subPathCompound).contains(subPath))
+            if (subPathCompound instanceof NBTTagCompound && ((NBTTagCompound) subPathCompound).contains(subPath))
             {
-                subPathCompound = ((CompoundTag) subPathCompound).get(subPath);
+                subPathCompound = ((NBTTagCompound) subPathCompound).get(subPath);
             }
             else
             {
@@ -82,3 +82,5 @@ public class StateQuestTriggerTemplate implements IQuestTriggerTemplate
         return new BooleanTriggerReturnData(IQuestTriggerTemplate.matchNbt(subPathCompound, matchTag, matchCount));
     }
 }
+
+

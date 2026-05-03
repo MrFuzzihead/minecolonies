@@ -5,9 +5,9 @@ import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.core.colony.buildings.modules.EnchanterStationsModule;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingEnchanter;
 import com.minecolonies.core.network.messages.server.AbstractBuildingServerMessage;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.core.BlockPos;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -18,7 +18,7 @@ public class EnchanterWorkerSetMessage extends AbstractBuildingServerMessage<Bui
     /**
      * The worker to add/remove.
      */
-    private BlockPos worker;
+    private int[] worker;
 
     /**
      * true if add, false if remove.
@@ -40,7 +40,7 @@ public class EnchanterWorkerSetMessage extends AbstractBuildingServerMessage<Bui
      * @param worker   the worker to add/remove.
      * @param add      true if add, else false
      */
-    public EnchanterWorkerSetMessage(@NotNull final IBuildingView building, final BlockPos worker, final boolean add)
+    public EnchanterWorkerSetMessage(@NotNull final IBuildingView building, final int[] worker, final boolean add)
     {
         super(building);
         this.worker = worker;
@@ -48,21 +48,21 @@ public class EnchanterWorkerSetMessage extends AbstractBuildingServerMessage<Bui
     }
 
     @Override
-    public void fromBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void fromBytesOverride(@NotNull final PacketBuffer buf)
     {
         worker = buf.readBlockPos();
         add = buf.readBoolean();
     }
 
     @Override
-    public void toBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void toBytesOverride(@NotNull final PacketBuffer buf)
     {
         buf.writeBlockPos(worker);
         buf.writeBoolean(add);
     }
 
     @Override
-    protected void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony, final BuildingEnchanter building)
+    protected void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony, final BuildingEnchanter building)
     {
         if (add)
         {
@@ -74,3 +74,5 @@ public class EnchanterWorkerSetMessage extends AbstractBuildingServerMessage<Bui
         }
     }
 }
+
+

@@ -1,8 +1,8 @@
 package com.minecolonies.api.compatibility.candb;
 
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+// [1.7.10] BlockState → int blockMeta
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -19,20 +19,20 @@ public final class ChiselAndBitsCheck extends AbstractChiselAndBitsProxy
      * @param tileEntity the tileEntity.
      * @return if the tileEntity is a candb tileEntity.
      */
-    public static boolean isChiselAndBitsTileEntity(@NotNull final BlockEntity tileEntity)
+    public static boolean isChiselAndBitsTileEntity(@NotNull final TileEntity tileEntity)
     {
         return new ChiselAndBitsCheck().checkForChiselAndBitsTileEntity(tileEntity);
     }
 
     /**
-     * Check if blockState is candb block.
+     * Check if a block meta is a candb chiseled block.
      *
-     * @param blockState the blockState.
-     * @return if the blockState is a candb blockState.
+     * @param blockMeta the block metadata.
+     * @return if the block is a candb block.
      */
-    public static boolean isChiselAndBitsBlock(@NotNull final BlockState blockState)
+    public static boolean isChiselAndBitsBlock(final int blockMeta)
     {
-        return new ChiselAndBitsCheck().checkForChiselAndBitsBlock(blockState);
+        return new ChiselAndBitsCheck().checkForChiselAndBitsBlock(blockMeta);
     }
 
     /**
@@ -41,26 +41,27 @@ public final class ChiselAndBitsCheck extends AbstractChiselAndBitsProxy
      * @param tileEntity the tileEntity.
      * @return the list of itemStacks..
      */
-    public static List<ItemStack> getBitStacks(final BlockEntity tileEntity)
+    public static List<ItemStack> getBitStacks(final TileEntity tileEntity)
     {
         return new ChiselAndBitsCheck().getChiseledStacks(tileEntity);
     }
 
     @Override
-    public boolean checkForChiselAndBitsBlock(@NotNull final BlockState blockState)
+    public boolean checkForChiselAndBitsBlock(final int blockMeta)
     {
         return false;
     }
 
     @Override
-    public boolean checkForChiselAndBitsTileEntity(@NotNull final BlockEntity tileEntity)
+    public boolean checkForChiselAndBitsTileEntity(@NotNull final TileEntity tileEntity)
     {
         return false;
     }
 
     @Override
-    public List<ItemStack> getChiseledStacks(@NotNull final BlockEntity tileEntity)
+    public List<ItemStack> getChiseledStacks(@NotNull final TileEntity tileEntity)
     {
         return Collections.emptyList();
     }
 }
+

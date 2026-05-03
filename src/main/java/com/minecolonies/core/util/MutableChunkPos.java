@@ -1,8 +1,8 @@
 package com.minecolonies.core.util;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.SectionPos;
-import net.minecraft.world.level.ChunkPos;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] SectionPos removed
+import net.minecraft.world.World.ChunkPos;
 
 public class MutableChunkPos extends ChunkPos
 {
@@ -16,7 +16,7 @@ public class MutableChunkPos extends ChunkPos
         this.mutableZ = z;
     }
 
-    public MutableChunkPos(final BlockPos pos)
+    public MutableChunkPos(final int[] pos)
     {
         super(pos);
         this.mutableX = pos.getX() >> 4;
@@ -160,3 +160,6 @@ public class MutableChunkPos extends ChunkPos
         return new ChunkPos(this.mutableX, this.mutableZ);
     }
 }
+
+
+

@@ -6,11 +6,11 @@ import com.minecolonies.core.colony.buildings.workerbuildings.BuildingMiner;
 import com.minecolonies.core.colony.workorders.WorkOrderMiner;
 import com.minecolonies.core.entity.ai.workers.util.MinerLevel;
 import com.minecolonies.core.entity.ai.workers.util.MineNode;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.network.PacketBuffer;
+// [1.7.10] int[] -> int x,y,z
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,18 +22,18 @@ import static com.minecolonies.api.util.constant.BuildingConstants.*;
 import static com.minecolonies.core.entity.ai.workers.production.EntityAIStructureMiner.SHAFT_RADIUS;
 
 /**
- * Module containing miner level management.
+ * Module containing miner World management.
  */
 public class MinerLevelManagementModule extends AbstractBuildingModule implements IPersistentModule
 {
     /**
-     * Stores the levels of the miners mine. This could be a map with (depth,level).
+     * Stores the levels of the miners mine. This could be a map with (depth,World).
      */
     @NotNull
     private final List<MinerLevel> levels = new ArrayList<>();
 
     /**
-     * The number of the current level.
+     * The number of the current World.
      */
     private int currentLevel = 0;
 
@@ -50,16 +50,16 @@ public class MinerLevelManagementModule extends AbstractBuildingModule implement
     private MineNode oldNode = null;
 
     /**
-     * The first y level to start the shaft at.
+     * The first y World to start the shaft at.
      */
     private int startingLevelShaft = 0;
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         startingLevelShaft = compound.getInt(TAG_STARTING_LEVEL);
         currentLevel = compound.getInt(TAG_CURRENT_LEVEL);
-        final ListTag levelTagList = compound.getList(TAG_LEVELS, Tag.TAG_COMPOUND);
+        final NBTTagList levelTagList = compound.getList(TAG_LEVELS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < levelTagList.size(); i++)
         {
             this.levels.add(new MinerLevel(levelTagList.getCompound(i)));
@@ -76,44 +76,44 @@ public class MinerLevelManagementModule extends AbstractBuildingModule implement
     }
 
     @Override
-    public void serializeNBT(final CompoundTag compound)
+    public void serializeNBT(final NBTTagCompound compound)
     {
         compound.putInt(TAG_STARTING_LEVEL, startingLevelShaft);
         compound.putInt(TAG_CURRENT_LEVEL, currentLevel);
-        @NotNull final ListTag levelTagList = new ListTag();
-        for (@NotNull final MinerLevel level : levels)
+        @NotNull final NBTTagList levelTagList = new NBTTagList();
+        for (@NotNull final MinerLevel World : levels)
         {
-            @NotNull final CompoundTag levelCompound = new CompoundTag();
-            level.write(levelCompound);
+            @NotNull final NBTTagCompound levelCompound = new NBTTagCompound();
+            World.write(levelCompound);
             levelTagList.add(levelCompound);
         }
         compound.put(TAG_LEVELS, levelTagList);
 
         if (activeNode != null)
         {
-            final CompoundTag nodeCompound = new CompoundTag();
+            final NBTTagCompound nodeCompound = new NBTTagCompound();
             activeNode.write(nodeCompound);
             compound.put(TAG_ACTIVE, nodeCompound);
         }
 
         if (oldNode != null)
         {
-            final CompoundTag nodeCompound = new CompoundTag();
+            final NBTTagCompound nodeCompound = new NBTTagCompound();
             oldNode.write(nodeCompound);
             compound.put(TAG_OLD, nodeCompound);
         }
     }
 
     @Override
-    public void serializeToView(final FriendlyByteBuf buf)
+    public void serializeToView(final PacketBuffer buf)
     {
         buf.writeInt(currentLevel);
         buf.writeInt(levels.size());
 
-        for (@NotNull final MinerLevel level : levels)
+        for (@NotNull final MinerLevel World : levels)
         {
-            buf.writeInt(level.getNumberOfBuiltNodes());
-            buf.writeInt(level.getDepth());
+            buf.writeInt(World.getNumberOfBuiltNodes());
+            buf.writeInt(World.getDepth());
         }
 
         final List<WorkOrderMiner> list = building.getColony().getWorkManager().getOrderedList(WorkOrderMiner.class, building.getPosition());
@@ -125,7 +125,7 @@ public class MinerLevelManagementModule extends AbstractBuildingModule implement
     }
 
     /**
-     * Adds a level to the levels list.
+     * Adds a World to the levels list.
      *
      * @param currentLevel {@link MinerLevel} to add.
      */
@@ -145,9 +145,9 @@ public class MinerLevelManagementModule extends AbstractBuildingModule implement
     }
 
     /**
-     * Returns the current level.
+     * Returns the current World.
      *
-     * @return Current level.
+     * @return Current World.
      */
     @Nullable
     public MinerLevel getCurrentLevel()
@@ -160,20 +160,20 @@ public class MinerLevelManagementModule extends AbstractBuildingModule implement
     }
 
     /**
-     * Find given level in the levels array.
+     * Find given World in the levels array.
      *
-     * @param level the level.
+     * @param World the World.
      * @return position in the levels array.
      */
-    public int getLevelId(final MinerLevel level)
+    public int getLevelId(final MinerLevel World)
     {
-        return levels.indexOf(level);
+        return levels.indexOf(World);
     }
 
     /**
-     * Sets the current level the miner is at.
+     * Sets the current World the miner is at.
      *
-     * @param currentLevel the level to set.
+     * @param currentLevel the World to set.
      */
     public void setCurrentLevel(final int currentLevel)
     {
@@ -183,9 +183,9 @@ public class MinerLevelManagementModule extends AbstractBuildingModule implement
     }
 
     /**
-     * Getter of the starting level of the shaft. (Y position).
+     * Getter of the starting World of the shaft. (Y position).
      *
-     * @return the start level.
+     * @return the start World.
      */
     public int getStartingLevelShaft()
     {
@@ -250,31 +250,31 @@ public class MinerLevelManagementModule extends AbstractBuildingModule implement
     }
 
     /**
-     * Resets the starting level of the shaft to 0.
+     * Resets the starting World of the shaft to 0.
      *
-     * @param level the level o set it to.
+     * @param World the World o set it to.
      */
-    public void setStartingLevelShaft(final int level)
+    public void setStartingLevelShaft(final int World)
     {
-        this.startingLevelShaft = level;
+        this.startingLevelShaft = World;
     }
 
     /**
-     * Repair the level.
-     * @param level the level to repair.
+     * Repair the World.
+     * @param World the World to repair.
      */
-    public void repairLevel(final int level)
+    public void repairLevel(final int World)
     {
         if (building instanceof BuildingMiner)
         {
-            final BlockPos ladderPos = ((BuildingMiner) building).getLadderLocation();
-            final BlockPos vector = ladderPos.subtract(((BuildingMiner) building).getCobbleLocation());
+            final int[] ladderPos = ((BuildingMiner) building).getLadderLocation();
+            final int[] vector = ladderPos.subtract(((BuildingMiner) building).getCobbleLocation());
             final int xOffset = SHAFT_RADIUS * vector.getX();
             final int zOffset = SHAFT_RADIUS * vector.getZ();
 
             BuildingMiner.initStructure(null,
               0,
-              new BlockPos(ladderPos.getX() + xOffset, levels.get(level).getDepth(), ladderPos.getZ() + zOffset),
+              new int[]{ladderPos[0] + xOffset, levels.get(World).getDepth(), ladderPos[2] + zOffset},
               (BuildingMiner) building,
               building.getColony().getWorld(),
               null);
@@ -290,3 +290,8 @@ public class MinerLevelManagementModule extends AbstractBuildingModule implement
         return levels;
     }
 }
+
+
+
+
+

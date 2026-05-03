@@ -6,9 +6,8 @@ import com.minecolonies.api.crafting.registry.CraftingType;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.recipes.ArchitectsCutterCraftingType;
 import com.minecolonies.core.recipes.BrewingCraftingType;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraftforge.registries.DeferredRegister;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] RecipeType from net.minecraft.world.item.crafting does not exist — stubbed
 
 public final class ModCraftingTypesInitializer
 {
@@ -23,14 +22,14 @@ public final class ModCraftingTypesInitializer
     static
     {
             ModCraftingTypes.SMALL_CRAFTING = DEFERRED_REGISTER.register(ModCraftingTypes.SMALL_CRAFTING_ID.getPath(), () -> new RecipeCraftingType<>(ModCraftingTypes.SMALL_CRAFTING_ID,
-              RecipeType.CRAFTING, r -> r.canCraftInDimensions(2, 2)));
+              null /* [1.7.10] RecipeType.CRAFTING */, r -> r.canCraftInDimensions(2, 2)));
 
             ModCraftingTypes.LARGE_CRAFTING = DEFERRED_REGISTER.register(ModCraftingTypes.LARGE_CRAFTING_ID.getPath(), () -> new RecipeCraftingType<>(ModCraftingTypes.LARGE_CRAFTING_ID,
-              RecipeType.CRAFTING, r -> r.canCraftInDimensions(3, 3)
+              null /* [1.7.10] RecipeType.CRAFTING */, r -> r.canCraftInDimensions(3, 3)
                                           && !r.canCraftInDimensions(2, 2)));
 
             ModCraftingTypes.SMELTING = DEFERRED_REGISTER.register(ModCraftingTypes.SMELTING_ID.getPath(), () -> new RecipeCraftingType<>(ModCraftingTypes.SMELTING_ID,
-              RecipeType.SMELTING, null));
+              null /* [1.7.10] RecipeType.SMELTING */, null));
 
             ModCraftingTypes.BREWING = DEFERRED_REGISTER.register(ModCraftingTypes.BREWING_ID.getPath(), BrewingCraftingType::new);
 

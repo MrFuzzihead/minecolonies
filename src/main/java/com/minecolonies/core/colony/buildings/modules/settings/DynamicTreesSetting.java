@@ -2,7 +2,7 @@ package com.minecolonies.core.colony.buildings.modules.settings;
 
 import com.minecolonies.api.colony.buildings.modules.ISettingsModule;
 import com.minecolonies.api.colony.buildings.modules.settings.ISettingsModuleView;
-import net.minecraftforge.fml.ModList;
+// [1.7.10] ModList removed
 
 public class DynamicTreesSetting extends IntSetting
 {
@@ -43,3 +43,4 @@ public class DynamicTreesSetting extends IntSetting
         return ModList.get().isLoaded("dynamictrees");
     }
 }
+

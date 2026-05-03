@@ -1,10 +1,10 @@
 package com.minecolonies.api.colony.connections;
 
 import com.minecolonies.api.colony.IColony;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.common.util.INBTSerializable;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+// [1.7.10] INBTSerializable -> manual read/write
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -16,8 +16,7 @@ import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_STATUS;
 /**
  * Connection manager interface.
  */
-public interface IColonyConnectionManager extends INBTSerializable<CompoundTag>
-{
+public interface IColonyConnectionManager {
 
 
     /**
@@ -26,13 +25,13 @@ public interface IColonyConnectionManager extends INBTSerializable<CompoundTag>
      * @param connectionPoint the node position.
      * @return
      */
-    boolean addNewConnectionNode(final BlockPos connectionPoint);
+    boolean addNewConnectionNode(final int[] connectionPoint);
 
     /**
      * Remove a connection point and update neighbors.
      * @param connectionPoint the node position.
      */
-    void removeConnectionNode(final BlockPos connectionPoint);
+    void removeConnectionNode(final int[] connectionPoint);
 
     /**
      * Tick to process work.
@@ -55,41 +54,41 @@ public interface IColonyConnectionManager extends INBTSerializable<CompoundTag>
     /**
      * Get a connection node.
      *
-     * @param blockPos its position.
+     * @param int[] its position.
      * @return the node object.
      */
-    ColonyConnectionNode getNode(final BlockPos blockPos);
+    ColonyConnectionNode getNode(final int[] blockPos);
 
     /**
      * Add a new gatehouse.
-     * @param gateHousePosition the blockpos.
+     * @param gateHousePosition the int[].
      */
-    void addNewGateHouse(final BlockPos gateHousePosition);
+    void addNewGateHouse(final int[] gateHousePosition);
 
     /**
      * Remove a gatehouse.
-     * @param gateHousePosition the blockpos.
+     * @param gateHousePosition the int[].
      */
-    void removeGateHouse(final BlockPos gateHousePosition);
+    void removeGateHouse(final int[] gateHousePosition);
 
     /**
      * Attempt to establish a connection.
      * @param clickedPos the clicked position.
      * @param targetColony, the colony we're trying to connect to.
      */
-    boolean attemptEstablishConnection(final BlockPos clickedPos, final IColony targetColony);
+    boolean attemptEstablishConnection(final int[] clickedPos, final IColony targetColony);
 
     /**
      * Serialize connection manager to view.
      * @param buf the buf to serialize it to.
      */
-    void serializeToView(@NotNull FriendlyByteBuf buf);
+    void serializeToView(@NotNull PacketBuffer buf);
 
     /**
      * Deserialize connection manager from buffer for client side usage.
      * @param buf the buf to read it from.
      */
-    void deserializeFromView(@NotNull FriendlyByteBuf buf);
+    void deserializeFromView(@NotNull PacketBuffer buf);
 
     /**
      * Trigger a connection event at a colony.
@@ -110,3 +109,10 @@ public interface IColonyConnectionManager extends INBTSerializable<CompoundTag>
      */
     DiplomacyStatus getColonyDiplomacyStatus(int id);
 }
+
+
+
+
+
+
+

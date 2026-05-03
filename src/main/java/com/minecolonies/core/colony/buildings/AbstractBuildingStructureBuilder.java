@@ -17,12 +17,12 @@ import com.minecolonies.core.colony.buildings.utils.BuildingBuilderResource;
 import com.minecolonies.core.colony.jobs.AbstractJobStructure;
 import com.minecolonies.core.entity.ai.workers.AbstractEntityAIStructureWithWorkOrder;
 import com.minecolonies.core.entity.ai.workers.util.BuildingProgressStage;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,7 +51,7 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuilding
     /**
      * Progress position of the builder.
      */
-    private BlockPos progressPos;
+    private int[] progressPos;
 
     /**
      * Progress stage of the builder.
@@ -66,7 +66,7 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuilding
     /**
      * all the fluids to be removed in fluids_remove.
      */
-    private Map<Integer, List<BlockPos>> fluidsToRemove = new LinkedHashMap<>();
+    private Map<Integer, List<int[]>> fluidsToRemove = new LinkedHashMap<>();
 
     /**
      * The id of the current workOrder.
@@ -79,13 +79,13 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuilding
      * @param c the colony.
      * @param l the position.
      */
-    public AbstractBuildingStructureBuilder(final IColony c, final BlockPos l)
+    public AbstractBuildingStructureBuilder(final IColony c, final int[] l)
     {
         super(c, l);
     }
 
     /**
-     * Getter of the max building level.
+     * Getter of the max building World.
      *
      * @return the integer.
      */
@@ -180,21 +180,21 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuilding
     }
 
     @Override
-    public Map<Predicate<ItemStack>, net.minecraft.util.Tuple<Integer, Boolean>> getRequiredItemsAndAmount()
+    public Map<Predicate<ItemStack>, com.minecolonies.api.util.Tuple<Integer, Boolean>> getRequiredItemsAndAmount()
     {
-        final Map<Predicate<ItemStack>, net.minecraft.util.Tuple<Integer, Boolean>> toKeep = new HashMap<>(super.getRequiredItemsAndAmount());
+        final Map<Predicate<ItemStack>, com.minecolonies.api.util.Tuple<Integer, Boolean>> toKeep = new HashMap<>(super.getRequiredItemsAndAmount());
 
         for (final BuildingBuilderResource stack : getModule(BuildingModules.BUILDING_RESOURCES).getNeededResources().values())
         {
             toKeep.put(itemstack -> ItemStackUtils.compareItemStacksIgnoreStackSize(stack.getItemStack(), itemstack),
-              new net.minecraft.util.Tuple<>(stack.getAmount(), true));
+              new com.minecolonies.api.util.Tuple<>(stack.getAmount(), true));
         }
 
         return toKeep;
     }
 
     @Override
-    public ItemStack forceTransferStack(final ItemStack stack, final Level world)
+    public ItemStack forceTransferStack(final ItemStack stack, final World world)
     {
         final ItemStack itemStack = super.forceTransferStack(stack, world);
         if (ItemStackUtils.isEmpty(itemStack))
@@ -206,7 +206,7 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuilding
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
         if (compound.contains(TAG_PROGRESS_POS))
@@ -218,11 +218,11 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuilding
         if (compound.contains(TAG_FLUIDS_REMOVE))
         {
             fluidsToRemove.clear();
-            ListTag fluidsToRemove = (ListTag) compound.get(TAG_FLUIDS_REMOVE);
+            NBTTagList fluidsToRemove = (NBTTagList) compound.get(TAG_FLUIDS_REMOVE);
             fluidsToRemove.forEach(fluidsRemove -> {
-                int y = ((CompoundTag) fluidsRemove).getInt(TAG_FLUIDS_REMOVE_Y);
-                ListTag positions = (ListTag) ((CompoundTag) fluidsRemove).get(TAG_FLUIDS_REMOVE_POSITIONS);
-                final List<BlockPos> fluids = new ArrayList<BlockPos>();
+                int y = ((NBTTagCompound) fluidsRemove).getInt(TAG_FLUIDS_REMOVE_Y);
+                NBTTagList positions = (NBTTagList) ((NBTTagCompound) fluidsRemove).get(TAG_FLUIDS_REMOVE_POSITIONS);
+                final List<int[]> fluids = new ArrayList<int[]>();
                 for (int i = 0; i < positions.size(); i++)
                 {
                     fluids.add(BlockPosUtil.readFromListNBT(positions, i));
@@ -238,19 +238,19 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuilding
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compound = super.serializeNBT();
+        final NBTTagCompound compound = super.serializeNBT();
         if (progressPos != null)
         {
             BlockPosUtil.write(compound, TAG_PROGRESS_POS, progressPos);
             compound.putInt(TAG_PROGRESS_STAGE, progressStage.ordinal());
         }
 
-        final ListTag fluidsToRemove = new ListTag();
+        final NBTTagList fluidsToRemove = new NBTTagList();
         this.fluidsToRemove.forEach((y, fluids) -> {
-            final CompoundTag fluidsRemove = new CompoundTag();
-            final ListTag positions = new ListTag();
+            final NBTTagCompound fluidsRemove = new NBTTagCompound();
+            final NBTTagList positions = new NBTTagList();
             fluids.forEach(fluid -> BlockPosUtil.writeToListNBT(positions, fluid));
             fluidsRemove.put(TAG_FLUIDS_REMOVE_POSITIONS, positions);
             fluidsRemove.putInt(TAG_FLUIDS_REMOVE_Y, y);
@@ -272,7 +272,7 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuilding
      * @param buf the used ByteBuffer.
      */
     @Override
-    public void serializeToView(@NotNull final FriendlyByteBuf buf, final boolean fullSync)
+    public void serializeToView(@NotNull final PacketBuffer buf, final boolean fullSync)
     {
         super.serializeToView(buf, fullSync);
 
@@ -366,10 +366,10 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuilding
     /**
      * Set the progress position of the builder.
      *
-     * @param blockPos the last blockPos.
+     * @param int[] the last int[].
      * @param stage    the stage to set.
      */
-    public void setProgressPos(final BlockPos blockPos, final BuildingProgressStage stage)
+    public void setProgressPos(final int[] blockPos, final BuildingProgressStage stage)
     {
         this.progressPos = blockPos;
         if (this.progressCounter > COUNT_TO_STORE_POS || blockPos == null || stage != progressStage)
@@ -390,7 +390,7 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuilding
      * @return the current progress and stage.
      */
     @Nullable
-    public Tuple<BlockPos, BuildingProgressStage> getProgress()
+    public Tuple<int[], BuildingProgressStage> getProgress()
     {
         if (this.progressPos == null)
         {
@@ -412,7 +412,7 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuilding
      *
      * @return the blocks to be removed in fluids_remove.
      */
-    public Map<Integer, List<BlockPos>> getFluidsToRemove()
+    public Map<Integer, List<int[]>> getFluidsToRemove()
     {
         return fluidsToRemove;
     }
@@ -568,3 +568,7 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuilding
         this.workOrderId = id;
     }
 }
+
+
+
+

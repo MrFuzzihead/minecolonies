@@ -1,24 +1,30 @@
 package com.minecolonies.core.colony.buildings.workerbuildings.plantation.modules.specific;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.colony.buildingextensions.IBuildingExtension;
 import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.core.colony.buildings.workerbuildings.plantation.modules.generic.PercentageHarvestPlantModule;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.World;
+import net.minecraft.init.Blocks;
 import net.minecraft.world.level.block.VineBlock;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] BlockState -> int metadata
 
 import static com.minecolonies.api.research.util.ResearchConstants.PLANTATION_JUNGLE;
 
 /**
  * Planter module for growing {@link Items#VINE}.
- * All possible positions of the vines should be tagged with the vine tag.
+ * All possible positions of the vines should be tagged with the vine NBTBase.
  * The planter will automatically plant an X amount of vines down, depending on the amount of tagged positions.
  * After that any excess that will grow will be harvested.
  * The planter will make an attempt to not plant the vines next to one another as much as possible.
@@ -34,8 +40,8 @@ public class VinePlantModule extends PercentageHarvestPlantModule
      * Default constructor.
      *
      * @param field    the field instance this module is working on.
-     * @param fieldTag the tag of the field anchor block.
-     * @param workTag  the tag of the working positions.
+     * @param fieldTag the NBTBase of the field anchor block.
+     * @param workTag  the NBTBase of the working positions.
      * @param item     the item which is harvested.
      */
     public VinePlantModule(final IBuildingExtension field, final String fieldTag, final String workTag, final Item item)
@@ -50,7 +56,7 @@ public class VinePlantModule extends PercentageHarvestPlantModule
     }
 
     @Override
-    public BlockState getPlantingBlockState(final Level world, final BlockPos workPosition, final BlockState blockState)
+    public BlockState getPlantingBlockState(final World world, final int[] workPosition, final BlockState blockState)
     {
         return blockState.setValue(VineBlock.UP, VineBlock.isAcceptableNeighbour(world, workPosition.above(), Direction.UP))
                  .setValue(VineBlock.NORTH, VineBlock.isAcceptableNeighbour(world, workPosition.north(), Direction.NORTH))
@@ -77,3 +83,5 @@ public class VinePlantModule extends PercentageHarvestPlantModule
         return 20;
     }
 }
+
+

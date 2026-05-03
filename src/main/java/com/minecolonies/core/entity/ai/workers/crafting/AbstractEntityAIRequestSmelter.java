@@ -22,15 +22,15 @@ import com.minecolonies.core.colony.interactionhandling.StandardInteraction;
 import com.minecolonies.core.colony.jobs.AbstractJobCrafter;
 import com.minecolonies.core.entity.ai.workers.AbstractEntityAIBasic;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
-import net.minecraftforge.items.wrapper.InvWrapper;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+// [1.7.10] int /* InteractionHand */ removed
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraft.init.Blocks;
+// [1.7.10] block.entity removed
+// [1.7.10] block.entity removed
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -58,7 +58,7 @@ public abstract class AbstractEntityAIRequestSmelter<J extends AbstractJobCrafte
     /**
      * Furnace position.
      */
-    private BlockPos furnacePos = null;
+    private int[] furnacePos = null;
 
     /**
      * Initialize the stone smeltery and add all his tasks.
@@ -88,7 +88,7 @@ public abstract class AbstractEntityAIRequestSmelter<J extends AbstractJobCrafte
      */
     private boolean checkForLeftOvers()
     {
-        final BlockPos checkPos = getFurnaceToRetrieveUnrelatedInputFrom();
+        final int[] checkPos = getFurnaceToRetrieveUnrelatedInputFrom();
         if (checkPos != null)
         {
             furnacePos = checkPos;
@@ -120,8 +120,8 @@ public abstract class AbstractEntityAIRequestSmelter<J extends AbstractJobCrafte
     private boolean accelerateFurnaces()
     {
         final int accelerationTicks = (worker.getCitizenData().getCitizenSkillHandler().getLevel(getModuleForJob().getSecondarySkill()) / 10) * 2;
-        final Level world = building.getColony().getWorld();
-        for (final BlockPos pos : building.getModule(FURNACE).getFurnaces())
+        final World world = building.getColony().getWorld();
+        for (final int[] pos : building.getModule(FURNACE).getFurnaces())
         {
             if (WorldUtil.isBlockLoaded(world, pos))
             {
@@ -147,7 +147,7 @@ public abstract class AbstractEntityAIRequestSmelter<J extends AbstractJobCrafte
         if (currentRecipeStorage != null && currentRecipeStorage.getIntermediate() == Blocks.FURNACE)
         {
             int count = 0;
-            for (final BlockPos pos : building.getModule(FURNACE).getFurnaces())
+            for (final int[] pos : building.getModule(FURNACE).getFurnaces())
             {
                 final BlockEntity entity = world.getBlockEntity(pos);
                 if (entity instanceof FurnaceBlockEntity furnaceBlockEntity)
@@ -381,9 +381,9 @@ public abstract class AbstractEntityAIRequestSmelter<J extends AbstractJobCrafte
         furnacePos = null;
         if (entity instanceof FurnaceBlockEntity furnace)
         {
-            if (worker.getItemInHand(InteractionHand.MAIN_HAND).isEmpty())
+            if (worker.getItemInHand(0 /* InteractionHand.MAIN_HAND */).isEmpty())
             {
-                worker.setItemInHand(InteractionHand.MAIN_HAND, inputStack.copy());
+                worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, inputStack.copy());
             }
 
             if (hasFuelInFurnaceAndNoSmeltable(furnace))
@@ -441,7 +441,7 @@ public abstract class AbstractEntityAIRequestSmelter<J extends AbstractJobCrafte
             if (worker.getCitizenData() != null)
             {
                 worker.getCitizenData()
-                    .triggerInteraction(new StandardInteraction(Component.translatable(BAKER_HAS_NO_FURNACES_MESSAGE), ChatPriority.BLOCKING));
+                    .triggerInteraction(new StandardInteraction(String.translatable(BAKER_HAS_NO_FURNACES_MESSAGE), ChatPriority.BLOCKING));
             }
             setDelay(AbstractEntityAIBasic.STANDARD_DELAY);
             return START_WORKING;
@@ -457,7 +457,7 @@ public abstract class AbstractEntityAIRequestSmelter<J extends AbstractJobCrafte
         {
             if (worker.getCitizenData() != null)
             {
-                worker.getCitizenData().triggerInteraction(new StandardInteraction(Component.translatable(FURNACE_USER_NO_FUEL), ChatPriority.BLOCKING));
+                worker.getCitizenData().triggerInteraction(new StandardInteraction(String.translatable(FURNACE_USER_NO_FUEL), ChatPriority.BLOCKING));
             }
             return getState();
         }
@@ -505,10 +505,10 @@ public abstract class AbstractEntityAIRequestSmelter<J extends AbstractJobCrafte
      * Get a furnace with fuel but without smeltable.
      * @return the block pos of it.
      */
-    private BlockPos getEmptyFurnaceWithFuel()
+    private int[] getEmptyFurnaceWithFuel()
     {
         final FurnaceUserModule module = building.getModule(FURNACE);
-        for (final BlockPos pos : module.getFurnaces())
+        for (final int[] pos : module.getFurnaces())
         {
             final BlockEntity entity = world.getBlockEntity(pos);
             if (entity instanceof FurnaceBlockEntity furnaceBlockEntity)
@@ -528,9 +528,9 @@ public abstract class AbstractEntityAIRequestSmelter<J extends AbstractJobCrafte
      * Check for furnaces with missing fuel.
      * @return the pos of the first without fuel.
      */
-    private BlockPos getFurnaceWithoutFuel()
+    private int[] getFurnaceWithoutFuel()
     {
-        for (final BlockPos pos : building.getModule(FURNACE).getFurnaces())
+        for (final int[] pos : building.getModule(FURNACE).getFurnaces())
         {
             final BlockEntity entity = world.getBlockEntity(pos);
             if (entity instanceof FurnaceBlockEntity furnace && !furnace.isLit() && furnace.getItem(FUEL_SLOT).isEmpty())
@@ -548,9 +548,9 @@ public abstract class AbstractEntityAIRequestSmelter<J extends AbstractJobCrafte
      *
      * @return the position of the furnace.
      */
-    private BlockPos getFurnaceToRetrieveOutputFrom()
+    private int[] getFurnaceToRetrieveOutputFrom()
     {
-        for (final BlockPos pos : building.getModule(FURNACE).getFurnaces())
+        for (final int[] pos : building.getModule(FURNACE).getFurnaces())
         {
             final BlockEntity entity = world.getBlockEntity(pos);
             if (entity instanceof FurnaceBlockEntity furnace && (!furnace.isLit() || furnace.getItem(SMELTABLE_SLOT).isEmpty()))
@@ -578,9 +578,9 @@ public abstract class AbstractEntityAIRequestSmelter<J extends AbstractJobCrafte
      * Check furnaces for unrelated inputs to our crafting tasks.
      * @return the furnace pos with waste input in it.
      */
-    private BlockPos getFurnaceToRetrieveUnrelatedInputFrom()
+    private int[] getFurnaceToRetrieveUnrelatedInputFrom()
     {
-        for (final BlockPos pos : building.getModule(FURNACE).getFurnaces())
+        for (final int[] pos : building.getModule(FURNACE).getFurnaces())
         {
             final BlockEntity entity = world.getBlockEntity(pos);
             if (entity instanceof FurnaceBlockEntity furnace)
@@ -609,7 +609,7 @@ public abstract class AbstractEntityAIRequestSmelter<J extends AbstractJobCrafte
     private boolean extractFromFurnaceSlot(final FurnaceBlockEntity furnace, final int slot)
     {
         ItemStack stack = furnace.getItem(slot);
-        final Component name = stack.getHoverName();
+        final String name = stack.getHoverName();
         final int count = stack.getCount();
         if (stack.isEmpty())
         {
@@ -630,7 +630,7 @@ public abstract class AbstractEntityAIRequestSmelter<J extends AbstractJobCrafte
      */
     private boolean areFurnacesLoaded()
     {
-        for (final BlockPos pos : building.getModule(FURNACE).getFurnaces())
+        for (final int[] pos : building.getModule(FURNACE).getFurnaces())
         {
             if (!WorldUtil.isBlockLoaded(world, pos))
             {
@@ -648,8 +648,8 @@ public abstract class AbstractEntityAIRequestSmelter<J extends AbstractJobCrafte
     private int countOfBurningFurnaces()
     {
         int count = 0;
-        final Level world = building.getColony().getWorld();
-        for (final BlockPos pos : building.getModule(FURNACE).getFurnaces())
+        final World world = building.getColony().getWorld();
+        for (final int[] pos : building.getModule(FURNACE).getFurnaces())
         {
             if (WorldUtil.isBlockLoaded(world, pos))
             {
@@ -675,7 +675,7 @@ public abstract class AbstractEntityAIRequestSmelter<J extends AbstractJobCrafte
         final int maxSkillFurnaces = (worker.getCitizenData().getCitizenSkillHandler().getLevel(getModuleForJob().getPrimarySkill()) / 10) + 1;
 
         int count = 0;
-        for (final BlockPos pos : building.getModule(FURNACE).getFurnaces())
+        for (final int[] pos : building.getModule(FURNACE).getFurnaces())
         {
             final BlockEntity entity = world.getBlockEntity(pos);
             if (entity instanceof FurnaceBlockEntity furnace && !furnace.getItem(FUEL_SLOT).isEmpty())
@@ -714,7 +714,7 @@ public abstract class AbstractEntityAIRequestSmelter<J extends AbstractJobCrafte
         {
             if (worker.getCitizenData() != null)
             {
-                worker.getCitizenData().triggerInteraction(new StandardInteraction(Component.translatable(FURNACE_USER_NO_FUEL), ChatPriority.IMPORTANT));
+                worker.getCitizenData().triggerInteraction(new StandardInteraction(String.translatable(FURNACE_USER_NO_FUEL), ChatPriority.IMPORTANT));
             }
             return ImmutableList.of();
         }
@@ -753,8 +753,13 @@ public abstract class AbstractEntityAIRequestSmelter<J extends AbstractJobCrafte
      * @param hoverName the stack name.
      * @param count the stack count.
      */
-    protected void recordSmeltingBuildingStats(final Component hoverName, final int count)
+    protected void recordSmeltingBuildingStats(final String hoverName, final int count)
     {
         StatsUtil.trackStatByName(building, getSmeltingStatName(), hoverName, count);
     }
 }
+
+
+
+
+

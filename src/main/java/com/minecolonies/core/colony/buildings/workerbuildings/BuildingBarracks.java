@@ -1,6 +1,12 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.minecolonies.api.blocks.ModBlocks;
 import com.minecolonies.api.colony.IColony;
@@ -12,18 +18,18 @@ import com.minecolonies.api.util.NBTUtils;
 import com.minecolonies.core.client.gui.huts.WindowBarracksBuilding;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.views.AbstractBuildingView;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import com.minecolonies.api.util.Tuple;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.World;
+import net.minecraft.init.Blocks;
+// [1.7.10] BlockState -> int metadata
 
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
+// [1.7.10] capabilities removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,19 +51,19 @@ public class BuildingBarracks extends AbstractBuilding
     private static final String SCHEMATIC_NAME = "barracks";
 
     /**
-     * Max hut level of the Barracks.
+     * Max hut World of the Barracks.
      */
     private static final int BARRACKS_HUT_MAX_LEVEL = 5;
 
     /**
-     * The tag to store the tower list to NBT.
+     * The NBTBase to store the tower list to NBT.
      */
     private static final String TAG_TOWERS = "towers";
 
     /**
      * The list of barracksTowers.
      */
-    private final List<BlockPos> towers = new ArrayList<>();
+    private final List<int[]> towers = new ArrayList<>();
 
     /**
      * The goldcost for spies
@@ -70,7 +76,7 @@ public class BuildingBarracks extends AbstractBuilding
      * @param colony Colony the building belongs to.
      * @param pos    Location of the building (it's Hut Block).
      */
-    public BuildingBarracks(@NotNull final IColony colony, final BlockPos pos)
+    public BuildingBarracks(@NotNull final IColony colony, final int[] pos)
     {
         super(colony, pos);
         keepX.put((stack) -> stack.getItem() == Items.GOLD_INGOT, new Tuple<>(STACKSIZE, true));
@@ -93,11 +99,11 @@ public class BuildingBarracks extends AbstractBuilding
     @Override
     public void onDestroyed()
     {
-        final Level world = getColony().getWorld();
+        final World world = getColony().getWorld();
 
         if (world != null)
         {
-            for (final BlockPos tower : towers)
+            for (final int[] tower : towers)
             {
                 world.setBlockAndUpdate(tower, Blocks.AIR.defaultBlockState());
             }
@@ -114,7 +120,7 @@ public class BuildingBarracks extends AbstractBuilding
     }
 
     @Override
-    public void registerBlockPosition(@NotNull final BlockState block, @NotNull final BlockPos pos, @NotNull final Level world)
+    public void registerBlockPosition(@NotNull final BlockState block, @NotNull final int[] pos, @NotNull final World world)
     {
         super.registerBlockPosition(block, pos, world);
         if (block.getBlock() == ModBlocks.blockHutBarracksTower)
@@ -166,15 +172,15 @@ public class BuildingBarracks extends AbstractBuilding
             return 0;
         }
 
-        // tower levels must all be 4+ to get increased radius of 3 
+        // tower levels must all be 4+ to get increased radius of 3
         int barracksClaimRadius = 3;
-        for (final BlockPos pos : towers)
+        for (final int[] pos : towers)
         {
             final IBuilding building = colony.getServerBuildingManager().getBuilding(pos);
             if (building != null)
             {
-                if (building.getBuildingLevel() < 4) 
-                { 
+                if (building.getBuildingLevel() < 4)
+                {
                     barracksClaimRadius = 2;
                     break;
                 }
@@ -184,26 +190,26 @@ public class BuildingBarracks extends AbstractBuilding
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
         towers.clear();
-        towers.addAll(NBTUtils.streamCompound(compound.getList(TAG_TOWERS, Tag.TAG_COMPOUND))
+        towers.addAll(NBTUtils.streamCompound(compound.getList(TAG_TOWERS, NBTBase.TAG_COMPOUND))
                         .map(resultCompound -> BlockPosUtil.read(resultCompound, TAG_POS))
                         .collect(Collectors.toList()));
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compound = super.serializeNBT();
-        final ListTag towerTagList = towers.stream().map(pos -> BlockPosUtil.write(new CompoundTag(), TAG_POS, pos)).collect(NBTUtils.toListNBT());
+        final NBTTagCompound compound = super.serializeNBT();
+        final NBTTagList towerTagList = towers.stream().map(pos -> BlockPosUtil.write(new NBTTagCompound(), TAG_POS, pos)).collect(NBTUtils.toListNBT());
         compound.put(TAG_TOWERS, towerTagList);
 
         return compound;
     }
 
-    public List<BlockPos> getTowers()
+    public List<int[]> getTowers()
     {
         return towers;
     }
@@ -219,14 +225,14 @@ public class BuildingBarracks extends AbstractBuilding
          * @param c the colonyview to put it in
          * @param l the positon
          */
-        public View(final IColonyView c, final BlockPos l)
+        public View(final IColonyView c, final int[] l)
         {
             super(c, l);
         }
 
         @NotNull
         @Override
-        public BOWindow getWindow()
+        public Object /* BOWindow: todo ModularUI2 */ getWindow()
         {
             return new WindowBarracksBuilding(this);
         }
@@ -238,3 +244,8 @@ public class BuildingBarracks extends AbstractBuilding
         }
     }
 }
+
+
+
+
+

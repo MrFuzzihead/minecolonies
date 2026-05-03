@@ -13,16 +13,16 @@ import com.minecolonies.core.colony.buildings.modules.AbstractCraftingBuildingMo
 import com.minecolonies.core.colony.buildings.modules.MinimumStockModule;
 import com.minecolonies.core.colony.buildings.modules.settings.BoolSetting;
 import com.minecolonies.core.colony.buildings.modules.settings.SettingKey;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.FlintAndSteelItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+import com.minecolonies.api.util.Tuple;
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemArmor;
+// [1.7.10] FlintAndSteelItem -> Items.flint_and_steel check
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -85,7 +85,7 @@ public class BuildingNetherWorker extends AbstractBuilding
      */
     private long snapTime;
 
-    public BuildingNetherWorker(@NotNull IColony colony, BlockPos pos)
+    public BuildingNetherWorker(@NotNull IColony colony, int[] pos)
     {
         super(colony, pos);
 
@@ -94,20 +94,20 @@ public class BuildingNetherWorker extends AbstractBuilding
         keepX.put(itemStack -> ItemStackUtils.hasEquipmentLevel(itemStack, ModEquipmentTypes.shovel.get(), TOOL_LEVEL_WOOD_OR_GOLD, getMaxEquipmentLevel()), new Tuple<>(1, true));
         keepX.put(itemStack -> ItemStackUtils.hasEquipmentLevel(itemStack, ModEquipmentTypes.sword.get(), TOOL_LEVEL_WOOD_OR_GOLD, getMaxEquipmentLevel()), new Tuple<>(1, true));
 
-        keepX.put(itemStack -> itemStack.getItem() instanceof FlintAndSteelItem, new Tuple<>(1, true));
+        keepX.put(itemStack -> itemStack.getItem() == net.minecraft.init.Items.flint_and_steel, new Tuple<>(1, true));
 
         keepX.put(itemStack -> !ItemStackUtils.isEmpty(itemStack)
-            && itemStack.getItem() instanceof ArmorItem
-            && ((ArmorItem) itemStack.getItem()).getEquipmentSlot() == EquipmentSlot.HEAD, new Tuple<>(1, true));
+            && itemStack.getItem() instanceof ItemArmor
+            && ((ItemArmor) itemStack.getItem()).getEquipmentSlot() == null /* EquipmentSlot. */, new Tuple<>(1, true));
         keepX.put(itemStack -> !ItemStackUtils.isEmpty(itemStack)
-            && itemStack.getItem() instanceof ArmorItem
-            && ((ArmorItem) itemStack.getItem()).getEquipmentSlot() == EquipmentSlot.CHEST, new Tuple<>(1, true));
+            && itemStack.getItem() instanceof ItemArmor
+            && ((ItemArmor) itemStack.getItem()).getEquipmentSlot() == null /* EquipmentSlot. */, new Tuple<>(1, true));
         keepX.put(itemStack -> !ItemStackUtils.isEmpty(itemStack)
-            && itemStack.getItem() instanceof ArmorItem
-            && ((ArmorItem) itemStack.getItem()).getEquipmentSlot() == EquipmentSlot.LEGS, new Tuple<>(1, true));
+            && itemStack.getItem() instanceof ItemArmor
+            && ((ItemArmor) itemStack.getItem()).getEquipmentSlot() == null /* EquipmentSlot. */, new Tuple<>(1, true));
         keepX.put(itemStack -> !ItemStackUtils.isEmpty(itemStack)
-            && itemStack.getItem() instanceof ArmorItem
-            && ((ArmorItem) itemStack.getItem()).getEquipmentSlot() == EquipmentSlot.FEET, new Tuple<>(1, true));
+            && itemStack.getItem() instanceof ItemArmor
+            && ((ItemArmor) itemStack.getItem()).getEquipmentSlot() == null /* EquipmentSlot. */, new Tuple<>(1, true));
     }
 
     @NotNull
@@ -148,7 +148,7 @@ public class BuildingNetherWorker extends AbstractBuilding
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
         if (compound.contains(TAG_CURRENT_TRIPS))
@@ -163,9 +163,9 @@ public class BuildingNetherWorker extends AbstractBuilding
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compound = super.serializeNBT();
+        final NBTTagCompound compound = super.serializeNBT();
 
         compound.putInt(TAG_CURRENT_TRIPS, this.currentTrips);
         compound.putInt(TAG_CURRENT_DAY, this.currentPeriodDay);
@@ -238,11 +238,11 @@ public class BuildingNetherWorker extends AbstractBuilding
      * Get the tagged location that the worker should walk to in the portal.
      * This should be a 'air block' in the portal that can directly be checked to see if the portal is open
      *
-     * @return the block above the tag, null if not available
+     * @return the block above the NBTBase, null if not available
      */
-    public BlockPos getPortalLocation()
+    public int[] getPortalLocation()
     {
-        BlockPos portalLocation = getFirstLocationFromTag("portal");
+        int[] portalLocation = getFirstLocationFromTag("portal");
         if (portalLocation != null)
         {
             return portalLocation.above();
@@ -274,7 +274,7 @@ public class BuildingNetherWorker extends AbstractBuilding
     public void onPlacement()
     {
         super.onPlacement();
-        final Level world = colony.getWorld();
+        final World world = colony.getWorld();
         if (WorldUtil.isNetherType(world))
         {
             final Block block = world.getBlockState(this.getPosition()).getBlock();
@@ -295,3 +295,8 @@ public class BuildingNetherWorker extends AbstractBuilding
         }
     }
 }
+
+
+
+
+

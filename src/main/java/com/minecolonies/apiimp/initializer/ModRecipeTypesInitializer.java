@@ -5,8 +5,8 @@ import com.minecolonies.api.crafting.ModRecipeTypes;
 import com.minecolonies.api.crafting.MultiOutputRecipe;
 import com.minecolonies.api.crafting.registry.RecipeTypeEntry;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.DeferredRegister;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] registries removed
 
 public final class ModRecipeTypesInitializer
 {
@@ -30,3 +30,5 @@ public final class ModRecipeTypesInitializer
                                 .createRecipeTypeEntry());
     }
 }
+
+

@@ -5,14 +5,13 @@ import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.core.colony.ColonyView;
 import com.minecolonies.core.colony.buildings.views.AbstractBuildingView;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Registries removed
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,12 +21,12 @@ import org.jetbrains.annotations.Nullable;
 public class OpenBuildingUIMessage implements IMessage
 {
     private int          colonyId;
-    private BlockPos     buildingId;
+    private int[]     buildingId;
 
     /**
      * Dimension of the colony.
      */
-    private ResourceKey<Level> dimension;
+    private int /* ResourceKey */ dimension;
 
     /**
      * Empty constructor used when registering the
@@ -51,7 +50,7 @@ public class OpenBuildingUIMessage implements IMessage
     }
 
     @Override
-    public void fromBytes(@NotNull final FriendlyByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
         colonyId = buf.readInt();
         buildingId = buf.readBlockPos();
@@ -59,7 +58,7 @@ public class OpenBuildingUIMessage implements IMessage
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
         buf.writeInt(colonyId);
         buf.writeBlockPos(buildingId);
@@ -68,13 +67,13 @@ public class OpenBuildingUIMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.CLIENT;
+        return Boolean.FALSE;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
         if (IColonyManager.getInstance().getColonyView(colonyId, dimension) instanceof ColonyView colonyView && colonyView.getClientBuildingManager().getBuilding(buildingId) instanceof AbstractBuildingView buildingView)
         {
@@ -82,3 +81,6 @@ public class OpenBuildingUIMessage implements IMessage
         }
     }
 }
+
+
+

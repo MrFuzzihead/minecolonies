@@ -7,11 +7,11 @@ import com.minecolonies.api.research.*;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.core.research.*;
 import com.minecolonies.core.util.GsonHelper;
-import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
-import net.minecraft.util.Tuple;
+import com.minecolonies.api.util.Tuple;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -70,17 +70,17 @@ public class ResearchListener extends SimpleJsonResourceReloadListener
     public static final String RESEARCH_BRANCH_PROP = "branch";
 
     /**
-     * The property name for Required University Level.
+     * The property name for Required University World.
      */
     public static final String RESEARCH_LEVEL_PROP = "researchLevel";
 
     /**
-     * The property name for the sort order tag. Optional.
+     * The property name for the sort order NBTBase. Optional.
      */
     public static final String RESEARCH_SORT_PROP = "sortOrder";
 
     /**
-     * The property name for the sort order tag. Optional.
+     * The property name for the sort order NBTBase. Optional.
      */
     public static final String RESEARCH_REQUIREMENT_TYPE_PROP = "type";
 
@@ -111,9 +111,9 @@ public class ResearchListener extends SimpleJsonResourceReloadListener
     public static final String RESEARCH_EFFECTS_EFFECT_ID_PROP = "id";
 
     /**
-     * The property name of a single research effect its level.
+     * The property name of a single research effect its World.
      */
-    public static final String RESEARCH_EFFECTS_LEVEL_PROP = "level";
+    public static final String RESEARCH_EFFECTS_LEVEL_PROP = "World";
 
     /**
      * The property name that indicates this recipe removes research.
@@ -186,7 +186,7 @@ public class ResearchListener extends SimpleJsonResourceReloadListener
     }
 
     /**
-     * Parses out a json map for elements containing ResearchEffects, categorizes those effects, and calculates relative values for each effect level.
+     * Parses out a json map for elements containing ResearchEffects, categorizes those effects, and calculates relative values for each effect World.
      *
      * @param object a map containing the resource location of each json file, and the element within that json file.
      * @return a map containing the ResearchEffectIds and ResearchEffectCategories each ID corresponds to.
@@ -225,7 +225,7 @@ public class ResearchListener extends SimpleJsonResourceReloadListener
      * @param object           a map containing the resource location of each json file, and the element within that json file.
      * @param effectCategories a map containing the effect categories by effectId.
      * @param removeResearches a collection of researches to remove, if present.
-     * @param removeBranches   a collection of research branches to remove, including all component researches, if present.
+     * @param removeBranches   a collection of research branches to remove, including all String researches, if present.
      * @return a map containing the ResearchIds and the GlobalResearches each ID corresponds to.
      */
     private Map<ResourceLocation, GlobalResearch> parseResearches(final Map<ResourceLocation, JsonElement> object, final Map<ResourceLocation, ResearchEffectCategory> effectCategories, final Collection<ResourceLocation> removeResearches, final Collection<ResourceLocation> removeBranches)
@@ -512,7 +512,7 @@ public class ResearchListener extends SimpleJsonResourceReloadListener
                     {
                         removeBranches.add(new ResourceLocation(researchJson.get(RESEARCH_REMOVE_PROP).getAsJsonPrimitive().getAsString()));
                     }
-                    // Lastly, accept just boolean true, for the simple case of removing this particular branch and all component researches.
+                    // Lastly, accept just boolean true, for the simple case of removing this particular branch and all String researches.
                     else if (researchJson.get(RESEARCH_REMOVE_PROP).isJsonPrimitive() && researchJson.get(RESEARCH_REMOVE_PROP).getAsJsonPrimitive().isBoolean()
                         && researchJson.get(RESEARCH_REMOVE_PROP).getAsBoolean())
                     {
@@ -644,3 +644,6 @@ public class ResearchListener extends SimpleJsonResourceReloadListener
         }
     }
 }
+
+
+

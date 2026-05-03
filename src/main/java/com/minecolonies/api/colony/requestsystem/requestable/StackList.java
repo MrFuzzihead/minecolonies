@@ -6,19 +6,14 @@ import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.ReflectionUtils;
 import com.minecolonies.api.util.constant.TypeConstants;
 
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderSet;
-import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.WorldServer;
+// [1.7.10] tags removed
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -188,10 +183,10 @@ public class StackList implements IConcreteDeliverable, INonExhaustiveDeliverabl
      * @param input      the input.
      * @return the compound.
      */
-    public static CompoundTag serialize(final IFactoryController controller, final StackList input)
+    public static NBTTagCompound serialize(final IFactoryController controller, final StackList input)
     {
-        final CompoundTag compound = new CompoundTag();
-        @NotNull final ListTag neededResTagList = new ListTag();
+        final NBTTagCompound compound = new NBTTagCompound();
+        @NotNull final NBTTagList neededResTagList = new NBTTagList();
         for (@NotNull final ItemStack resource : input.theStacks)
         {
             neededResTagList.add(resource.serializeNBT());
@@ -221,14 +216,14 @@ public class StackList implements IConcreteDeliverable, INonExhaustiveDeliverabl
      * @param compound   the compound.
      * @return the deliverable.
      */
-    public static StackList deserialize(final IFactoryController controller, final CompoundTag compound)
+    public static StackList deserialize(final IFactoryController controller, final NBTTagCompound compound)
     {
         final List<ItemStack> stacks = new ArrayList<>();
 
-        final ListTag neededResTagList = compound.getList(NBT_STACK_LIST, Tag.TAG_COMPOUND);
+        final NBTTagList neededResTagList = compound.getList(NBT_STACK_LIST, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < neededResTagList.size(); ++i)
         {
-            final CompoundTag neededRes = neededResTagList.getCompound(i);
+            final NBTTagCompound neededRes = neededResTagList.getCompound(i);
             stacks.add(ItemStack.of(neededRes));
         }
 
@@ -256,7 +251,7 @@ public class StackList implements IConcreteDeliverable, INonExhaustiveDeliverabl
      * @param buffer     the the buffer to write to.
      * @param input      the input to serialize.
      */
-    public static void serialize(final IFactoryController controller, final FriendlyByteBuf buffer, final StackList input)
+    public static void serialize(final IFactoryController controller, final PacketBuffer buffer, final StackList input)
     {
         buffer.writeInt(input.theStacks.size());
         input.theStacks.forEach(res -> buffer.writeItem(res));
@@ -283,7 +278,7 @@ public class StackList implements IConcreteDeliverable, INonExhaustiveDeliverabl
      * @param buffer     the buffer to read.
      * @return the deliverable.
      */
-    public static StackList deserialize(final IFactoryController controller, final FriendlyByteBuf buffer)
+    public static StackList deserialize(final IFactoryController controller, final PacketBuffer buffer)
     {
         final List<ItemStack> stacks = new ArrayList<>();
 
@@ -431,7 +426,7 @@ public class StackList implements IConcreteDeliverable, INonExhaustiveDeliverabl
     }
 
     @Override
-    public List<ItemStack> getRequestedItems() 
+    public List<ItemStack> getRequestedItems()
     {
         return theStacks;
     }
@@ -442,32 +437,25 @@ public class StackList implements IConcreteDeliverable, INonExhaustiveDeliverabl
         return TYPE_TOKENS;
     }
 
-    public StackList(@NotNull final TagKey<Item> tag,
-        @NotNull final ServerLevel level,
+    // [1.7.10] TagKey/ServerLevel/RegistryAccess constructor removed — tags not available in 1.7.10
+    /*
+    public StackList(@NotNull final TagKey<Item> NBTBase,
+        @NotNull final ServerLevel World,
         final String description,
         final int count,
         final int minCount,
         final int leftOver)
     {
-        this(tagToStacks(tag, level.registryAccess(), count), description, count, minCount, leftOver);
+        this(tagToStacks(NBTBase, World.registryAccess(), count), description, count, minCount, leftOver);
     }
 
 
-    /**
-     * Transforms a given tag into a list of itemstacks, with each
-     * itemstack having a count of perStackCount.
-     *
-     * @param tag the tag to transform.
-     * @param registryAccess the registry access.
-     * @param perStackCount the count of each itemstack.
-     * @return the resulting list of itemstacks.
-     */
-    private static List<ItemStack> tagToStacks(@NotNull final TagKey<Item> tag,
+    private static List<ItemStack> tagToStacks(@NotNull final TagKey<Item> NBTBase,
         @NotNull final RegistryAccess registryAccess,
         final int perStackCount)
     {
         final Registry<Item> itemReg = registryAccess.registryOrThrow(Registries.ITEM);
-        final Optional<HolderSet.Named<Item>> opt = itemReg.getTag(tag);
+        final Optional<HolderSet.Named<Item>> opt = itemReg.getTag(NBTBase);
 
         if (opt.isEmpty())
         {
@@ -486,4 +474,11 @@ public class StackList implements IConcreteDeliverable, INonExhaustiveDeliverabl
 
         return stacks;
     }
+    */
 }
+
+
+
+
+
+

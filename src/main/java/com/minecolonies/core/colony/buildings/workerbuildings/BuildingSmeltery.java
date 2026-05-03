@@ -17,16 +17,20 @@ import com.minecolonies.core.colony.buildings.modules.settings.IntSetting;
 import com.minecolonies.core.colony.buildings.modules.settings.SettingKey;
 import com.minecolonies.core.colony.crafting.CustomRecipe;
 import com.minecolonies.core.util.FurnaceRecipes;
-import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.item.*;
-import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.registries.ForgeRegistries;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.WorldServer;
+import com.minecolonies.api.util.Tuple;
+// [1.7.10] net.minecraft.world.item.* removed
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
+import net.minecraft.init.Items;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -48,7 +52,7 @@ public class BuildingSmeltery extends AbstractBuilding
     private static final String SMELTERY_DESC = "smeltery";
 
     /**
-     * Max building level of the smeltery.
+     * Max building World of the smeltery.
      */
     private static final int MAX_BUILDING_LEVEL = 5;
 
@@ -68,7 +72,7 @@ public class BuildingSmeltery extends AbstractBuilding
      * @param c the colony.
      * @param l the location
      */
-    public BuildingSmeltery(final IColony c, final BlockPos l)
+    public BuildingSmeltery(final IColony c, final int[] l)
     {
         super(c, l);
         keepX.put(IColonyManager.getInstance().getCompatibilityManager()::isOre, new Tuple<>(Integer.MAX_VALUE, true));
@@ -117,7 +121,7 @@ public class BuildingSmeltery extends AbstractBuilding
 
         @NotNull
         @Override
-        public List<IGenericRecipe> getAdditionalRecipesForDisplayPurposesOnly(@NotNull final Level world)
+        public List<IGenericRecipe> getAdditionalRecipesForDisplayPurposesOnly(@NotNull final World world)
         {
             final List<IGenericRecipe> recipes = new ArrayList<>(super.getAdditionalRecipesForDisplayPurposesOnly(world));
 
@@ -127,7 +131,7 @@ public class BuildingSmeltery extends AbstractBuilding
                 if (ItemStackUtils.IS_SMELTABLE.and(compatibility::isOre).and(s -> !compatibility.isBreakableOre(s)).test(stack))
                 {
                     final ItemStack output = FurnaceRecipes.getInstance().getSmeltingResult(stack);
-                    recipes.add(createSmeltingRecipe(stack, output, Blocks.FURNACE));
+                    recipes.add(createSmeltingRecipe(stack, output, Blocks.furnace));
                 }
             }
             return recipes;
@@ -178,7 +182,7 @@ public class BuildingSmeltery extends AbstractBuilding
 
         @NotNull
         @Override
-        public List<IGenericRecipe> getAdditionalRecipesForDisplayPurposesOnly(@NotNull final Level world)
+        public List<IGenericRecipe> getAdditionalRecipesForDisplayPurposesOnly(@NotNull final World world)
         {
             final List<IGenericRecipe> recipes = new ArrayList<>(super.getAdditionalRecipesForDisplayPurposesOnly(world));
             final ICompatibilityManager compat = IMinecoloniesAPI.getInstance().getColonyManager().getCompatibilityManager();
@@ -237,23 +241,26 @@ public class BuildingSmeltery extends AbstractBuilding
         @Override
         public ItemStack getCraftingTool(final AbstractEntityCitizen worker)
         {
-            ItemStack pick = new ItemStack(Items.DIAMOND_PICKAXE);
+            ItemStack pick = new ItemStack(Items.diamond_pickaxe);
             int fortuneLevel = building.getBuildingLevel() - 1;
             if (fortuneLevel > 0)
             {
-                pick.enchant(Enchantments.BLOCK_FORTUNE, fortuneLevel);
+                pick.addEnchantment(Enchantment.fortune, fortuneLevel);
             }
             return pick;
         }
 
         protected ResourceLocation getLootTable(Item item)
         {
-            if (item instanceof BlockItem)
+            if (item instanceof ItemBlock)
             {
-                Block itemBlock = Block.byItem(item);
-                return itemBlock.getLootTable();
+                Block itemBlock = Block.getBlockFromItem(item);
+                return new net.minecraft.util.ResourceLocation("minecraft", itemBlock.getUnlocalizedName().replace("tile.", ""));
             }
             return null;
         }
     }
 }
+
+
+

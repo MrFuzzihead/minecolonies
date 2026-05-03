@@ -8,9 +8,9 @@ import com.minecolonies.api.research.factories.ILocalResearchFactory;
 import com.minecolonies.api.research.util.ResearchState;
 import com.minecolonies.api.util.constant.SerializationIdentifierConstants;
 import com.minecolonies.api.util.constant.TypeConstants;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.research.util.ResearchConstants.*;
@@ -43,9 +43,9 @@ public class LocalResearchFactory implements ILocalResearchFactory
 
     @NotNull
     @Override
-    public CompoundTag serialize(@NotNull final IFactoryController controller, @NotNull final ILocalResearch research)
+    public NBTTagCompound serialize(@NotNull final IFactoryController controller, @NotNull final ILocalResearch research)
     {
-        final CompoundTag compound = new CompoundTag();
+        final NBTTagCompound compound = new NBTTagCompound();
         compound.putInt(TAG_STATE, research.getState().ordinal());
         compound.putString(TAG_ID, research.getId().toString());
         compound.putString(TAG_BRANCH, research.getBranch().toString());
@@ -57,7 +57,7 @@ public class LocalResearchFactory implements ILocalResearchFactory
 
     @NotNull
     @Override
-    public ILocalResearch deserialize(@NotNull final IFactoryController controller, @NotNull final CompoundTag nbt)
+    public ILocalResearch deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound nbt)
     {
         final int state = nbt.getInt(TAG_STATE);
         final ResourceLocation id = new ResourceLocation(nbt.getString(TAG_ID));
@@ -72,7 +72,7 @@ public class LocalResearchFactory implements ILocalResearchFactory
     }
 
     @Override
-    public void serialize(IFactoryController controller, ILocalResearch input, FriendlyByteBuf packetBuffer)
+    public void serialize(IFactoryController controller, ILocalResearch input, PacketBuffer packetBuffer)
     {
         packetBuffer.writeInt(input.getState().ordinal());
         packetBuffer.writeUtf(input.getId().toString());
@@ -82,7 +82,7 @@ public class LocalResearchFactory implements ILocalResearchFactory
     }
 
     @Override
-    public ILocalResearch deserialize(IFactoryController controller, FriendlyByteBuf buffer) throws Throwable
+    public ILocalResearch deserialize(IFactoryController controller, PacketBuffer buffer) throws Throwable
     {
         final int state = buffer.readInt();
         final ResourceLocation id = buffer.readResourceLocation();
@@ -102,3 +102,6 @@ public class LocalResearchFactory implements ILocalResearchFactory
         return SerializationIdentifierConstants.LOCAL_RESEARCH_ID;
     }
 }
+
+
+

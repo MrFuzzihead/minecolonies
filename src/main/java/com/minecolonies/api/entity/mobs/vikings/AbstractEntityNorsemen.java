@@ -2,13 +2,7 @@ package com.minecolonies.api.entity.mobs.vikings;
 
 import com.minecolonies.api.entity.mobs.AbstractEntityMinecoloniesMonster;
 import com.minecolonies.api.entity.mobs.RaiderType;
-import com.minecolonies.core.entity.pathfinding.navigation.AbstractAdvancedPathNavigate;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.world.World;
 
 import static com.minecolonies.core.colony.events.raid.RaiderConstants.ONE;
 import static com.minecolonies.core.colony.events.raid.RaiderConstants.OUT_OF_ONE_HUNDRED;
@@ -21,7 +15,7 @@ public abstract class AbstractEntityNorsemen extends AbstractEntityMinecoloniesM
     /**
      * Swim speed for pirates
      */
-    private static final double PIRATE_SWIM_BONUS = 2.3;
+    private static final double NORSEMEN_SWIM_BONUS = 2.3;
 
     /**
      * Amount of unique norsemen textures.
@@ -31,55 +25,38 @@ public abstract class AbstractEntityNorsemen extends AbstractEntityMinecoloniesM
     /**
      * Constructor method for Abstract norsemen..
      *
-     * @param type  the type.
      * @param world the world.
      */
-    public AbstractEntityNorsemen(final EntityType<? extends AbstractEntityNorsemen> type, final Level world)
+    public AbstractEntityNorsemen(final World world)
     {
-        super(type, world, NORSEMEN_TEXTURES);
+        super(world, NORSEMEN_TEXTURES);
     }
 
     @Override
-    public void playAmbientSound()
+    public void playLivingSound()
     {
-        final SoundEvent soundevent = this.getAmbientSound();
-
-        if (soundevent != null && level().random.nextInt(OUT_OF_ONE_HUNDRED) <= ONE)
+        final String sound = getAmbientSoundName();
+        if (sound != null && worldObj.rand.nextInt(OUT_OF_ONE_HUNDRED) <= ONE)
         {
-            this.playSound(soundevent, this.getSoundVolume(), this.getVoicePitch());
+            this.playSound(sound, this.getSoundVolume(), this.getSoundPitch());
         }
     }
 
     @Override
-    public float getVoicePitch()
+    public float getSoundPitch()
     {
-        return (this.random.nextFloat() - this.random.nextFloat()) * 0.1F + 1.0F;
-    }
-
-    @Override
-    public boolean checkSpawnRules(final LevelAccessor worldIn, final MobSpawnType spawnReasonIn)
-    {
-        return true;
-    }
-
-    @NotNull
-    @Override
-    public AbstractAdvancedPathNavigate getNavigation()
-    {
-        AbstractAdvancedPathNavigate navigator = super.getNavigation();
-        navigator.getPathingOptions().withStartSwimCost(2.5D).withSwimCost(1.1D);
-        return navigator;
+        return (this.rand.nextFloat() - this.rand.nextFloat()) * 0.1F + 1.0F;
     }
 
     @Override
     public RaiderType getRaiderType()
     {
-        return RaiderType.NORSEMAN;
+        return RaiderType.VIKING;
     }
 
     @Override
     public double getSwimSpeedFactor()
     {
-        return PIRATE_SWIM_BONUS;
+        return NORSEMEN_SWIM_BONUS;
     }
 }

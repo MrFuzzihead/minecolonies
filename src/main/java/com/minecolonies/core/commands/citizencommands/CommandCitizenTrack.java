@@ -14,10 +14,10 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -50,7 +50,7 @@ public class CommandCitizenTrack implements IMCColonyOfficerCommand
 
         if (citizenData == null)
         {
-            context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_CITIZEN_NOT_FOUND), true);
+            context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_CITIZEN_NOT_FOUND), true);
             return 0;
         }
 
@@ -58,21 +58,21 @@ public class CommandCitizenTrack implements IMCColonyOfficerCommand
 
         if (!optionalEntityCitizen.isPresent())
         {
-            context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_CITIZEN_NOT_LOADED), true);
+            context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_CITIZEN_NOT_LOADED), true);
             return 0;
         }
         final AbstractEntityCitizen entityCitizen = optionalEntityCitizen.get();
 
         if (PathfindingUtils.trackingMap.getOrDefault(sender.getUUID(), UUID.randomUUID()).equals(entityCitizen.getUUID()))
         {
-            context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_ENTITY_TRACK_DISABLED), true);
+            context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_ENTITY_TRACK_DISABLED), true);
             PathfindingUtils.trackingMap.remove(sender.getUUID());
             Network.getNetwork()
-              .sendToPlayer(new SyncPathMessage(new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>()), (ServerPlayer) sender);
+              .sendToPlayer(new SyncPathMessage(new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>()), (EntityPlayerMP) sender);
         }
         else
         {
-            context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_ENTITY_TRACK_ENABLED), true);
+            context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_ENTITY_TRACK_ENABLED), true);
             PathfindingUtils.trackingMap.put(sender.getUUID(), entityCitizen.getUUID());
         }
 
@@ -97,3 +97,6 @@ public class CommandCitizenTrack implements IMCColonyOfficerCommand
                          .then(IMCCommand.newArgument(CITIZENID_ARG, IntegerArgumentType.integer(1)).executes(this::checkPreConditionAndExecute)));
     }
 }
+
+
+

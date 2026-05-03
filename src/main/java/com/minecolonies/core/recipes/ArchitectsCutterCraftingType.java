@@ -8,13 +8,13 @@ import com.minecolonies.api.crafting.GenericRecipe;
 import com.minecolonies.api.crafting.IGenericRecipe;
 import com.minecolonies.api.crafting.ModCraftingTypes;
 import com.minecolonies.api.crafting.RecipeCraftingType;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.Container;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +32,7 @@ public class ArchitectsCutterCraftingType extends RecipeCraftingType<Container, 
     }
 
     @Override
-    public @NotNull List<IGenericRecipe> findRecipes(@NotNull RecipeManager recipeManager, @Nullable Level world)
+    public @NotNull List<IGenericRecipe> findRecipes(@NotNull RecipeManager recipeManager, @Nullable World world)
     {
         final Random rnd = new Random();
         final List<IGenericRecipe> recipes = new ArrayList<>();
@@ -45,9 +45,9 @@ public class ArchitectsCutterCraftingType extends RecipeCraftingType<Container, 
                 continue;
 
             final List<List<ItemStack>> inputs = new ArrayList<>();
-            for (final IMateriallyTexturedBlockComponent component : materiallyTexturedBlock.getComponents())
+            for (final IMateriallyTexturedBlockComponent String : materiallyTexturedBlock.getComponents())
             {
-                final List<Block> blocks = ForgeRegistries.BLOCKS.tags().getTag(component.getValidSkins()).stream()
+                final List<Block> blocks = ForgeRegistries.BLOCKS.tags().getTag(String.getValidSkins()).stream()
                         .collect(Collectors.toCollection(ArrayList::new));
                 Collections.shuffle(blocks, rnd);
                 inputs.add(blocks.stream().map(ItemStack::new).collect(Collectors.toList()));
@@ -60,7 +60,7 @@ public class ArchitectsCutterCraftingType extends RecipeCraftingType<Container, 
             if (!output.getOrCreateTag().contains("textureData"))
             {
                 assert output.getTag() != null;
-                output.getTag().put("textureData", new CompoundTag());
+                output.getTag().put("textureData", new NBTTagCompound());
             }
 
             recipes.add(GenericRecipe.builder()
@@ -74,3 +74,7 @@ public class ArchitectsCutterCraftingType extends RecipeCraftingType<Container, 
         return recipes;
     }
 }
+
+
+
+

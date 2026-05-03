@@ -15,16 +15,16 @@ import com.minecolonies.api.util.WorldUtil;
 import com.minecolonies.core.MineColonies;
 import com.minecolonies.core.client.gui.WindowSupplies;
 import com.minecolonies.core.client.gui.WindowSupplyStory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
+// [1.7.10] InteractionResult -> boolean
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
+// [1.7.10] int /* InteractionHand */ removed
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -73,7 +73,7 @@ public class ItemSupplyCampDeployer extends AbstractItemMinecolonies implements 
 
     @NotNull
     @Override
-    public InteractionResultHolder<ItemStack> use(final Level worldIn, final Player playerIn, final InteractionHand hand)
+    public InteractionResultHolder<ItemStack> use(final World worldIn, final Player playerIn, final int /* InteractionHand */ hand)
     {
         final ItemStack stack = playerIn.getItemInHand(hand);
         if (!stack.getOrCreateTag().contains(TAG_RANDOM_KEY))
@@ -100,7 +100,7 @@ public class ItemSupplyCampDeployer extends AbstractItemMinecolonies implements 
      * @param pos       the position to place the supply camp at.
      * @param direction the direction the supply camp should face.
      */
-    private void placeSupplyCamp(@Nullable final BlockPos pos, @NotNull final Direction direction, final ItemStack itemInHand, final InteractionHand hand)
+    private void placeSupplyCamp(@Nullable final int[] pos, @NotNull final Direction direction, final ItemStack itemInHand, final int /* InteractionHand */ hand)
     {
         if (!itemInHand.getOrCreateTag().contains(TAG_SAW_STORY))
         {
@@ -127,8 +127,8 @@ public class ItemSupplyCampDeployer extends AbstractItemMinecolonies implements 
      * @return true if so.
      */
     public static boolean canCampBePlaced(
-      @NotNull final Level world,
-      @NotNull final BlockPos pos,
+      @NotNull final World world,
+      @NotNull final int[] pos,
       @NotNull final List<PlacementError> placementErrorList,
       final Player placer)
     {
@@ -143,7 +143,7 @@ public class ItemSupplyCampDeployer extends AbstractItemMinecolonies implements 
             return false;
         }
 
-        final BlockPos zeroPos = pos.subtract(blueprint.getPrimaryBlockOffset());
+        final int[] zeroPos = pos.subtract(blueprint.getPrimaryBlockOffset());
         final int sizeX = blueprint.getSizeX();
         final int sizeZ = blueprint.getSizeZ();
         final int groundHeight = BlueprintTagUtils.getNumberOfGroundLevels(blueprint, 1) - 1;
@@ -156,8 +156,8 @@ public class ItemSupplyCampDeployer extends AbstractItemMinecolonies implements 
         {
             for (int x = 0; x < sizeX; x++)
             {
-                final BlockPos worldPos = new BlockPos(zeroPos.getX() + x, groundLevel, zeroPos.getZ() + z);
-                if (blueprint.getBlockState(new BlockPos(x, groundHeight, z)).getBlock() != ModBlocks.blockSubstitution.get())
+                final int[] worldPos = new int[]{zeroPos[0] + x, groundLevel, zeroPos[2] + z};
+                if (blueprint.getBlockState(new int[]{x, groundHeight, z}).getBlock() != ModBlocks.blockSubstitution.get())
                 {
                     checkIfSolidAndNotInColony(world, worldPos, needsSolidBelow, placer);
                 }
@@ -187,7 +187,7 @@ public class ItemSupplyCampDeployer extends AbstractItemMinecolonies implements 
      * @param placementErrorList a list of placement errors.
      * @param placer             the player placing the supply camp.
      */
-    private static void checkIfSolidAndNotInColony(final Level world, final BlockPos pos, @NotNull final List<PlacementError> placementErrorList, final Player placer)
+    private static void checkIfSolidAndNotInColony(final World world, final int[] pos, @NotNull final List<PlacementError> placementErrorList, final Player placer)
     {
         final boolean isSolid = BlockUtils.isAnySolid(world.getBlockState(pos));
         final boolean notInAnyColony = hasPlacePermission(world, pos, placer);
@@ -209,9 +209,13 @@ public class ItemSupplyCampDeployer extends AbstractItemMinecolonies implements 
      * @param placer the placer.
      * @return true if no colony found.
      */
-    private static boolean hasPlacePermission(final Level world, final BlockPos pos, final Player placer)
+    private static boolean hasPlacePermission(final World world, final int[] pos, final Player placer)
     {
         final IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(world, pos);
         return colony == null || colony.getPermissions().hasPermission(placer, Action.PLACE_BLOCKS);
     }
 }
+
+
+
+

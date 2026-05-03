@@ -16,24 +16,18 @@ import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.MathUtils;
 import com.minecolonies.core.entity.pathfinding.navigation.AbstractAdvancedPathNavigate;
 import com.minecolonies.core.entity.pathfinding.navigation.PathingStuckHandler;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageTypes;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.monster.Enemy;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
-import net.minecraftforge.common.util.ITeleporter;
+
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.DamageSource;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 import static com.minecolonies.api.entity.citizen.AbstractEntityCitizen.ENTITY_AI_TICKRATE;
 import static com.minecolonies.api.entity.mobs.RaiderMobUtils.MOB_ATTACK_DAMAGE;
@@ -42,8 +36,9 @@ import static com.minecolonies.core.colony.events.raid.RaiderConstants.*;
 
 /**
  * Abstract for all villain entities.
+ * Ported from 1.21 to 1.7.10.
  */
-public abstract class AbstractEntityMinecoloniesMonster extends AbstractFastMinecoloniesEntity implements IThreatTableEntity, Enemy
+public abstract class AbstractEntityMinecoloniesMonster extends AbstractFastMinecoloniesEntity implements IThreatTableEntity
 {
     /**
      * The New PathNavigate navigator.
@@ -51,12 +46,22 @@ public abstract class AbstractEntityMinecoloniesMonster extends AbstractFastMine
     protected AbstractAdvancedPathNavigate newNavigator;
 
     /**
+     * Goal selector wrapping this.tasks.
+     */
+    protected CustomGoalSelector goalSelector;
+
+    /**
+     * Target selector wrapping this.targetTasks.
+     */
+    protected CustomGoalSelector targetSelector;
+
+    /**
      * The invulnerability timer for spawning, to prevent suffocate/grouping damage.
      */
     private int invulTime = 2 * 20;
 
     /**
-     * Texture id of the pirates.
+     * Texture id of the raiders.
      */
     private int textureId;
 
@@ -68,10 +73,10 @@ public abstract class AbstractEntityMinecoloniesMonster extends AbstractFastMine
     /**
      * The collision threshold
      */
-    private final static int    COLL_THRESHOLD = 50;
+    private static final int COLL_THRESHOLD = 50;
 
     /**
-     * The threattable of the mob
+     * The threattable of the EntityCreature
      */
     private ThreatTable threatTable = new ThreatTable<>(this);
 
@@ -81,56 +86,40 @@ public abstract class AbstractEntityMinecoloniesMonster extends AbstractFastMine
     private ITickRateStateMachine<IState> ai = new TickRateStateMachine<>(CombatAIStates.NO_TARGET, e -> Log.getLogger().warn(e), ENTITY_AI_TICKRATE);
 
     /**
-     * Initial spawn pos of the entity.
+     * Initial spawn pos of the entity (stored as int array [x, y, z]).
      */
-    private BlockPos spawnPos = null;
+    private int[] spawnPos = null;
 
     /**
      * Constructor method for Abstract minecolonies mobs.
      *
      * @param world the world.
-     * @param type  the entity type.
      */
-    public AbstractEntityMinecoloniesMonster(final EntityType<? extends AbstractEntityMinecoloniesMonster> type, final Level world)
+    public AbstractEntityMinecoloniesMonster(final World world)
     {
-        super(type, world);
-        this.setPersistenceRequired();
-        this.goalSelector = new CustomGoalSelector(this.goalSelector);
-        this.targetSelector = new CustomGoalSelector(this.targetSelector);
-        this.xpReward = BARBARIAN_EXP_DROP;
+        super(world);
+        this.isImmuneToFire = false;
+        this.goalSelector = new CustomGoalSelector(this.tasks);
+        this.targetSelector = new CustomGoalSelector(this.targetTasks);
+        this.experienceValue = BARBARIAN_EXP_DROP;
         IMinecoloniesAPI.getInstance().getMobAIRegistry().applyToMob(this);
         RaiderMobUtils.setEquipment(this);
     }
 
     /**
-     * Constructor method for Abstract minecolonies mobs.
+     * Constructor method for Abstract minecolonies mobs with texture count.
      *
-     * @param world the world.
-     * @param type  the entity type.
+     * @param world        the world.
      * @param textureCount the texture count.
      */
-    public AbstractEntityMinecoloniesMonster(final EntityType<? extends AbstractEntityMinecoloniesMonster> type, final Level world, final int textureCount)
+    public AbstractEntityMinecoloniesMonster(final World world, final int textureCount)
     {
-        this(type, world);
+        this(world);
         this.textureId = MathUtils.RANDOM.nextInt(textureCount);
     }
 
-    /**
-     * Ignores cramming
-     */
     @Override
-    public void pushEntities()
-    {
-        if (collisionCounter > COLL_THRESHOLD)
-        {
-            return;
-        }
-
-        super.pushEntities();
-    }
-
-    @Override
-    public void push(@NotNull final Entity entityIn)
+    public void applyEntityCollision(final Entity entityIn)
     {
         if (invulTime > 0)
         {
@@ -147,20 +136,19 @@ public abstract class AbstractEntityMinecoloniesMonster extends AbstractFastMine
             return;
         }
 
-        super.push(entityIn);
+        super.applyEntityCollision(entityIn);
     }
 
     @Override
-    public void playAmbientSound()
+    public void playLivingSound()
     {
-        super.playAmbientSound();
-        final SoundEvent soundevent = this.getAmbientSound();
-        if (soundevent != null && level().random.nextInt(OUT_OF_ONE_HUNDRED) <= ONE)
+        super.playLivingSound();
+        final String ambientSound = getAmbientSoundName();
+        if (ambientSound != null && worldObj.rand.nextInt(OUT_OF_ONE_HUNDRED) <= ONE)
         {
-            this.playSound(soundevent, this.getSoundVolume(), this.getVoicePitch());
+            this.playSound(ambientSound, this.getSoundVolume(), this.getSoundPitch());
         }
     }
-
 
     /**
      * Get the specific raider type of this raider.
@@ -169,68 +157,37 @@ public abstract class AbstractEntityMinecoloniesMonster extends AbstractFastMine
      */
     public abstract RaiderType getRaiderType();
 
-    @NotNull
-    @Override
-    public AbstractAdvancedPathNavigate getNavigation()
-    {
-        if (this.newNavigator == null)
-        {
-            this.newNavigator = IPathNavigateRegistry.getInstance().getNavigateFor(this);
-            this.navigation = newNavigator;
-            this.newNavigator.setCanFloat(true);
-            newNavigator.setSwimSpeedFactor(getSwimSpeedFactor());
-            newNavigator.getPathingOptions().setEnterDoors(true);
-            newNavigator.getPathingOptions().setCanOpenDoors(true);
-            newNavigator.getPathingOptions().withDropCost(1D);
-            newNavigator.getPathingOptions().withJumpCost(1D);
-            newNavigator.getPathingOptions().setPassDanger(true);
-            PathingStuckHandler stuckHandler = PathingStuckHandler.createStuckHandler();
-
-            if (MinecoloniesAPIProxy.getInstance().getConfig().getServer().raidersbreakblocks.get())
-            {
-                stuckHandler.withBlockBreaks();
-                stuckHandler.withCompleteStuckBlockBreak(6);
-            }
-
-            newNavigator.setStuckHandler(stuckHandler);
-        }
-        return newNavigator;
-    }
-
     /**
-     * Get the swim speed factor
+     * Get the ambient sound name for this EntityCreature.
      *
-     * @return speed factor
+     * @return sound resource name or null.
      */
-    public abstract double getSwimSpeedFactor();
-
-    @Override
-    protected SoundEvent getHurtSound(final DamageSource damageSourceIn)
+    @Nullable
+    public String getAmbientSoundName()
     {
-        return RaiderSounds.raiderSounds.get(getRaiderType()).get(RaiderSounds.RaiderSoundTypes.HURT);
+        final Object sound = RaiderSounds.raiderSounds.get(getRaiderType()).get(RaiderSounds.RaiderSoundTypes.SAY);
+        return sound != null ? sound.toString() : null;
     }
 
     @Override
-    protected SoundEvent getDeathSound()
+    protected String getHurtSound()
     {
-        return RaiderSounds.raiderSounds.get(getRaiderType()).get(RaiderSounds.RaiderSoundTypes.DEATH);
+        final Object sound = RaiderSounds.raiderSounds.get(getRaiderType()).get(RaiderSounds.RaiderSoundTypes.HURT);
+        return sound != null ? sound.toString() : "damage.hit";
+    }
+
+    @Override
+    protected String getDeathSound()
+    {
+        final Object sound = RaiderSounds.raiderSounds.get(getRaiderType()).get(RaiderSounds.RaiderSoundTypes.DEATH);
+        return sound != null ? sound.toString() : "EntityCreature.player.death";
     }
 
     @Nullable
     @Override
-    protected SoundEvent getAmbientSound()
+    protected String getLivingSound()
     {
-        return RaiderSounds.raiderSounds.get(getRaiderType()).get(RaiderSounds.RaiderSoundTypes.SAY);
-    }
-
-    /**
-     * Prevent raiders from travelling to other dimensions through portals.
-     */
-    @Nullable
-    @Override
-    public Entity changeDimension(@NotNull final ServerLevel serverWorld, @NotNull final ITeleporter teleporter)
-    {
-        return null;
+        return getAmbientSoundName();
     }
 
     /**
@@ -242,61 +199,66 @@ public abstract class AbstractEntityMinecoloniesMonster extends AbstractFastMine
      */
     public void initStatsFor(final double baseHealth, final double difficulty, final double baseDamage)
     {
-        this.getAttribute(MOB_ATTACK_DAMAGE.get()).setBaseValue(baseDamage);
-
-        final double armor = difficulty * ARMOR;
-        this.getAttribute(Attributes.ARMOR).setBaseValue(armor);
-
-        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(baseHealth);
+        this.getEntityAttribute(SharedMonsterAttributes.attackDamage).setBaseValue(baseDamage);
+        this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(baseHealth);
         this.setHealth(this.getMaxHealth());
+        // 1.7.10 has no armor attribute — damage absorption handled differently
     }
 
     @Override
-    public void aiStep()
+    public void onLivingUpdate()
     {
-        if (!this.isAlive())
+        if (!this.isEntityAlive())
         {
             return;
         }
 
-        if (this.spawnPos == null && this.blockPosition() != BlockPos.ZERO)
+        if (this.spawnPos == null)
         {
-            this.spawnPos = this.blockPosition();
+            this.spawnPos = new int[] { (int) posX, (int) posY, (int) posZ };
         }
 
-        updateSwingTime();
         if (collisionCounter > 0)
         {
             collisionCounter--;
         }
 
-        if (level().isClientSide)
+        if (invulTime > 0)
         {
-            super.aiStep();
+            invulTime--;
+        }
+
+        if (worldObj.isRemote)
+        {
+            super.onLivingUpdate();
             return;
         }
 
-        if (tickCount % ENTITY_AI_TICKRATE == 0)
+        if (ticksExisted % ENTITY_AI_TICKRATE == 0)
         {
             ai.tick();
         }
 
-        super.aiStep();
+        super.onLivingUpdate();
     }
 
     @Override
-    public boolean hurt(@NotNull final DamageSource damageSource, final float damage)
+    public boolean attackEntityFrom(@NotNull final net.minecraft.util.DamageSource source, final float damage)
     {
-        if (damageSource.getEntity() instanceof AbstractEntityMinecoloniesMonster)
+        if (net.minecraft.util.DamageSource.getEntity() instanceof AbstractEntityMinecoloniesMonster)
         {
             return false;
         }
 
-        if (damageSource.getEntity() instanceof LivingEntity attacker)
+        if (net.minecraft.util.DamageSource.getEntity() instanceof EntityLivingBase)
         {
+            final EntityLivingBase attacker = (EntityLivingBase) net.minecraft.util.DamageSource.getEntity();
             if (threatTable.getThreatFor(attacker) == -1)
             {
-                for (final AbstractEntityMinecoloniesMonster monster : level.getEntitiesOfClass(AbstractEntityMinecoloniesMonster.class, AABB.ofSize(position(), 20,5,20)))
+                final AxisAlignedBB area = AxisAlignedBB.getBoundingBox(posX - 10, posY - 2.5, posZ - 10, posX + 10, posY + 2.5, posZ + 10);
+                @SuppressWarnings("unchecked")
+                final List<AbstractEntityMinecoloniesMonster> nearby = worldObj.getEntitiesWithinAABB(AbstractEntityMinecoloniesMonster.class, area);
+                for (final AbstractEntityMinecoloniesMonster monster : nearby)
                 {
                     monster.threatTable.addThreat(attacker, 0);
                 }
@@ -304,56 +266,43 @@ public abstract class AbstractEntityMinecoloniesMonster extends AbstractFastMine
             threatTable.addThreat(attacker, (int) damage);
         }
 
-        if (damageSource.typeHolder().is(DamageTypes.FELL_OUT_OF_WORLD))
-        {
-            return super.hurt(damageSource, damage);
-        }
-
-        return super.hurt(damageSource, damage);
-    }
-
-    /**
-     * Get the default attributes with their values.
-     * @return the attribute modifier map.
-     */
-    public static AttributeSupplier.Builder getDefaultAttributes()
-    {
-        return LivingEntity.createLivingAttributes()
-                 .add(MOB_ATTACK_DAMAGE.get())
-                 .add(Attributes.MAX_HEALTH)
-                 .add(Attributes.ARMOR)
-                 .add(Attributes.MOVEMENT_SPEED, MOVEMENT_SPEED)
-                 .add(Attributes.FOLLOW_RANGE, FOLLOW_RANGE * 2)
-                 .add(Attributes.ATTACK_DAMAGE, Attributes.ATTACK_DAMAGE.getDefaultValue());
+        return super.attackEntityFrom(net.minecraft.util.DamageSource, damage);
     }
 
     @Override
-    public void addAdditionalSaveData(final CompoundTag compound)
+    protected boolean canDespawn()
+    {
+        // Raiders shouldn't despawn
+        return false;
+    }
+
+    @Override
+    public void writeEntityToNBT(final NBTTagCompound compound)
     {
         if (spawnPos != null)
         {
-            compound.putLong(TAG_SPAWN_POS, spawnPos.asLong());
+            final NBTTagCompound posTag = new NBTTagCompound();
+            posTag.setInteger("x", spawnPos[0]);
+            posTag.setInteger("y", spawnPos[1]);
+            posTag.setInteger("z", spawnPos[2]);
+            compound.setTag(TAG_SPAWN_POS, posTag);
         }
-        super.addAdditionalSaveData(compound);
+        super.writeEntityToNBT(compound);
     }
 
     @Override
-    public void readAdditionalSaveData(final CompoundTag compound)
+    public void readEntityFromNBT(final NBTTagCompound compound)
     {
-        if (compound.contains(TAG_SPAWN_POS))
+        if (compound.hasKey(TAG_SPAWN_POS))
         {
-            this.spawnPos = BlockPos.of(compound.getLong(TAG_SPAWN_POS));
+            final NBTTagCompound posTag = compound.getCompoundTag(TAG_SPAWN_POS);
+            this.spawnPos = new int[] { posTag.getInteger("x"), posTag.getInteger("y"), posTag.getInteger("z") };
         }
-        super.readAdditionalSaveData(compound);
+        super.readEntityFromNBT(compound);
     }
 
-    /**
-     * Disallow pushing from fluids to prevent stuck
-     *
-     * @return
-     */
     @Override
-    public boolean isPushedByFluid()
+    public boolean isPushedByWater()
     {
         return false;
     }
@@ -377,12 +326,13 @@ public abstract class AbstractEntityMinecoloniesMonster extends AbstractFastMine
     @Override
     public int getTeamId()
     {
-        // All raiders are in the same team. You're doomed!
+        // All raiders are in the same team
         return -1;
     }
 
     /**
-     * Texture id of the mob.
+     * Texture id of the EntityCreature.
+     *
      * @return the texture id.
      */
     public int getTextureId()
@@ -392,15 +342,16 @@ public abstract class AbstractEntityMinecoloniesMonster extends AbstractFastMine
 
     /**
      * Getter for the initial spawn pos of the entity.
-     * @return the pos.
+     *
+     * @return the pos as int[] {x, y, z}.
      */
-    public BlockPos getSpawnPos()
+    public int[] getSpawnPos()
     {
         return this.spawnPos;
     }
 
     /**
-     * Get the mobs difficulty
+     * Get the EntityCreature difficulty.
      *
      * @return difficulty
      */
@@ -410,13 +361,12 @@ public abstract class AbstractEntityMinecoloniesMonster extends AbstractFastMine
     }
 
     /**
-     * Vanilla monster: Despawn in peaceful
+     * Get the swim speed factor.
      *
-     * @return
+     * @return speed factor
      */
-    @Override
-    protected boolean shouldDespawnInPeaceful()
-    {
-        return true;
-    }
+    public abstract double getSwimSpeedFactor();
 }
+
+
+

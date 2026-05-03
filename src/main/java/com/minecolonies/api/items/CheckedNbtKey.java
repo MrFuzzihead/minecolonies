@@ -1,7 +1,7 @@
 package com.minecolonies.api.items;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTBase;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -51,10 +51,10 @@ public class CheckedNbtKey
      * @param nbt2 the second nbt.
      * @return true if they match.
      */
-    public boolean matches(final CompoundTag nbt1, final CompoundTag nbt2)
+    public boolean matches(final NBTTagCompound nbt1, final NBTTagCompound nbt2)
     {
-        final Tag tag1 = nbt1.get(key);
-        final Tag tag2 = nbt2.get(key);
+        final NBTBase tag1 = nbt1.get(key);
+        final NBTBase tag2 = nbt2.get(key);
 
         if (tag1 == null || tag2 == null)
         {
@@ -67,11 +67,11 @@ public class CheckedNbtKey
                 return tag1.equals(tag2);
             }
 
-            if (tag1 instanceof CompoundTag && tag2 instanceof CompoundTag)
+            if (tag1 instanceof NBTTagCompound && tag2 instanceof NBTTagCompound)
             {
                 for (final CheckedNbtKey key : children)
                 {
-                    if (!key.matches((CompoundTag) tag1, (CompoundTag) tag2))
+                    if (!key.matches((NBTTagCompound) tag1, (NBTTagCompound) tag2))
                     {
                         return false;
                     }
@@ -82,3 +82,7 @@ public class CheckedNbtKey
         }
     }
 }
+
+
+
+

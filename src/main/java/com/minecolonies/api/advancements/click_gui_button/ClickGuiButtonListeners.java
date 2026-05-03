@@ -1,22 +1,11 @@
 package com.minecolonies.api.advancements.click_gui_button;
-
 import com.minecolonies.api.advancements.CriterionListeners;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.PlayerAdvancements;
-
-/**
- * The listener instantiated for every advancement that listens to the associated criterion.
- * A basic class to trigger with the correct arguments
- */
+// [1.7.10 BACKPORT] Stubbed out — advancements do not exist in Minecraft 1.7.10.
+/** Stub listeners — no-op in 1.7.10. */
 public class ClickGuiButtonListeners extends CriterionListeners<ClickGuiButtonCriterionInstance>
 {
-    public ClickGuiButtonListeners(final PlayerAdvancements playerAdvancements)
+    public ClickGuiButtonListeners(final Object playerAdvancements)
     {
         super(playerAdvancements);
-    }
-
-    public void trigger(final String buttonId, final ResourceLocation windowResource)
-    {
-        trigger(instance -> instance.test(buttonId, windowResource));
     }
 }

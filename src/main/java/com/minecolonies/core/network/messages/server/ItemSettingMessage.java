@@ -3,12 +3,12 @@ package com.minecolonies.core.network.messages.server;
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.core.items.ItemClipboard;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.entity.player.EntityPlayerMP;
+// [1.7.10] int /* InteractionHand */ removed
+import net.minecraft.item.ItemStack;
 
 public class ItemSettingMessage implements IMessage
 {
@@ -22,36 +22,36 @@ public class ItemSettingMessage implements IMessage
     }
 
     @Override
-    public void toBytes(FriendlyByteBuf buf)
+    public void toBytes(PacketBuffer buf)
     {
         buf.writeUtf(settingName);
         buf.writeInt(settingValue);
     }
 
     @Override
-    public void fromBytes(FriendlyByteBuf buf)
+    public void fromBytes(PacketBuffer buf)
     {
         settingName = buf.readUtf(32767);
         settingValue = buf.readInt();
     }
 
     @Override
-    public void onExecute(Context ctxIn, boolean isLogicalServer)
+    public void onExecute(Context ctx, boolean isLogicalServer)
     {
-        final ServerPlayer player = ctxIn.getSender();
+        final EntityPlayerMP player = ctx.getServerHandler().playerEntity;
         
         if (player == null) return;
 
-        ItemStack stack = player.getItemInHand(InteractionHand.MAIN_HAND);
+        ItemStack stack = player.getItemInHand(0 /* InteractionHand.MAIN_HAND */);
 
         if (stack == null || !(stack.getItem() instanceof ItemClipboard)) 
         {
             return;
         } 
 
-        CompoundTag tag = stack.getOrCreateTag();
-        tag.putInt(settingName, settingValue);
-        stack.setTag(tag);
+        NBTTagCompound NBTBase = stack.getOrCreateTag();
+        NBTBase.putInt(settingName, settingValue);
+        stack.setTag(NBTBase);
 
         // Make sure inventories/menus notice the change
         player.getInventory().setChanged();
@@ -59,3 +59,8 @@ public class ItemSettingMessage implements IMessage
     }
     
 }
+
+
+
+
+

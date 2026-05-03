@@ -9,8 +9,11 @@ import com.minecolonies.api.util.OptionalPredicate;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.AbstractCraftingBuildingModule;
 import com.minecolonies.core.colony.buildings.modules.AbstractDOCraftingBuildingModule;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.*;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Item;
+import net.minecraft.init.Items;
+// [1.7.10] DyeableArmorItem, ArmorMaterials not available in 1.7.10
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -34,7 +37,7 @@ public class BuildingFletcher extends AbstractBuilding
      * @param c the colony.
      * @param l the location
      */
-    public BuildingFletcher(final IColony c, final BlockPos l)
+    public BuildingFletcher(final IColony c, final int[] l)
     {
         super(c, l);
     }
@@ -81,9 +84,8 @@ public class BuildingFletcher extends AbstractBuilding
             if (isRecipeAllowed.isPresent()) return isRecipeAllowed.get();
 
             final Item output = recipe.getPrimaryOutput().getItem();
-            return output instanceof ArrowItem ||
-                    (output instanceof DyeableArmorItem &&
-                    ((DyeableArmorItem) output).getMaterial() == ArmorMaterials.LEATHER);
+            // [1.7.10] ArrowItem -> Items.arrow; DyeableArmorItem/leather check simplified
+            return output == Items.arrow;
         }
     }
 
@@ -115,3 +117,5 @@ public class BuildingFletcher extends AbstractBuilding
         }
     }
 }
+
+

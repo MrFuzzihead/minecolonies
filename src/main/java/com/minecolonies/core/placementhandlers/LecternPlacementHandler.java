@@ -4,17 +4,17 @@ import com.ldtteam.structurize.placement.IPlacementContext;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
 import com.ldtteam.structurize.placement.handlers.placement.PlacementHandlers;
 import com.ldtteam.structurize.util.BlockUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import com.minecolonies.api.util.Tuple;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
 import net.minecraft.world.level.block.LecternBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.LecternBlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] block.entity removed
+// [1.7.10] block.entity removed
+// [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,18 +24,18 @@ import java.util.List;
 public class LecternPlacementHandler implements IPlacementHandler
 {
     @Override
-    public boolean canHandle(@NotNull final Level world,
-                             @NotNull final BlockPos pos,
+    public boolean canHandle(@NotNull final World world,
+                             @NotNull final int[] pos,
                              @NotNull final BlockState blockState)
     {
         return blockState.getBlock() instanceof LecternBlock;
     }
 
     @Override
-    public List<ItemStack> getRequiredItems(@NotNull final Level world,
-                                            @NotNull final BlockPos pos,
+    public List<ItemStack> getRequiredItems(@NotNull final World world,
+                                            @NotNull final int[] pos,
                                             @NotNull final BlockState blockState,
-                                            @Nullable final CompoundTag tileEntityData,
+                                            @Nullable final NBTTagCompound tileEntityData,
                                             @NotNull final IPlacementContext placementContext)
     {
         final List<ItemStack> itemList = new ArrayList<>();
@@ -51,10 +51,10 @@ public class LecternPlacementHandler implements IPlacementHandler
     }
 
     @Override
-    public ActionProcessingResult handle(@NotNull final Level world,
-                                         @NotNull final BlockPos pos,
+    public ActionProcessingResult handle(@NotNull final World world,
+                                         @NotNull final int[] pos,
                                          @NotNull final BlockState blockState,
-                                         @Nullable CompoundTag tileEntityData,
+                                         @Nullable NBTTagCompound tileEntityData,
                                          @NotNull final IPlacementContext placementContext)
     {
         if (!world.setBlock(pos, blockState, Block.UPDATE_ALL))
@@ -71,9 +71,9 @@ public class LecternPlacementHandler implements IPlacementHandler
     }
 
     @Nullable
-    private static LecternBlockEntity getLectern(@NotNull final BlockPos pos,
+    private static LecternBlockEntity getLectern(@NotNull final int[] pos,
                                                  @NotNull final BlockState blockState,
-                                                 @Nullable final CompoundTag tileEntityData)
+                                                 @Nullable final NBTTagCompound tileEntityData)
     {
         if (tileEntityData != null)
         {
@@ -90,9 +90,13 @@ public class LecternPlacementHandler implements IPlacementHandler
     public boolean doesWorldStateMatchBlueprintState(
         final BlockState worldState,
         final BlockState blueprintState,
-        final Tuple<BlockEntity, CompoundTag> blockEntityData,
+        final Tuple<BlockEntity, NBTTagCompound> blockEntityData,
         @NotNull final IPlacementContext structureHandler)
     {
         return worldState.equals(blueprintState);
     }
 }
+
+
+
+

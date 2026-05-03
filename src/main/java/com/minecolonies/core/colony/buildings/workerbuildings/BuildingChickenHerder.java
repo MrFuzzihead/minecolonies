@@ -7,11 +7,11 @@ import com.minecolonies.api.crafting.IGenericRecipe;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.AnimalHerdingModule;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.Chicken;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
+import net.minecraft.init.Items;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class BuildingChickenHerder extends AbstractBuilding
     private static final String HUT_NAME = "chickenherderhut";
 
     /**
-     * Max building level of the hut.
+     * Max building World of the hut.
      */
     private static final int MAX_BUILDING_LEVEL = 5;
 
@@ -43,7 +43,7 @@ public class BuildingChickenHerder extends AbstractBuilding
      * @param c the colony.
      * @param l the location.
      */
-    public BuildingChickenHerder(final IColony c, final BlockPos l)
+    public BuildingChickenHerder(final IColony c, final int[] l)
     {
         super(c, l);
     }
@@ -62,21 +62,18 @@ public class BuildingChickenHerder extends AbstractBuilding
     {
         public HerdingModule()
         {
-            super(ModJobs.chickenHerder.get(), a -> a instanceof Chicken, new ItemStorage(Items.WHEAT_SEEDS, 2));
+            super(ModJobs.chickenHerder.get(), a -> a instanceof net.minecraft.entity.passive.EntityChicken, new ItemStorage(Items.wheat_seeds, 2));
         }
 
         @NotNull
         @Override
-        public List<IGenericRecipe> getRecipesForDisplayPurposesOnly(@NotNull Animal animal)
+        public List<IGenericRecipe> getRecipesForDisplayPurposesOnly(@NotNull net.minecraft.entity.passive.EntityAnimal animal)
         {
-            final List<IGenericRecipe> recipes = new ArrayList<>(super.getRecipesForDisplayPurposesOnly(animal));
-
-            recipes.add(GenericRecipe.builder()
-                    .withOutput(Items.EGG)
-                    .withRequiredEntity(animal.getType())
-                    .build());
-
-            return recipes;
+            // [1.7.10] EntityType not available; return parent result only
+            return new ArrayList<>(super.getRecipesForDisplayPurposesOnly(animal));
         }
     }
 }
+
+
+

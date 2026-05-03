@@ -14,9 +14,9 @@ import com.minecolonies.core.colony.jobs.JobCombatTraining;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
 import com.minecolonies.core.util.WorkerUtil;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.InteractionHand;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] sounds removed
+// [1.7.10] int /* InteractionHand */ removed
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,7 +29,7 @@ import static com.minecolonies.api.util.constant.StatisticsConstants.LEVELS_GAIN
 public class EntityAICombatTraining extends AbstractEntityAITraining<JobCombatTraining, BuildingCombatAcademy>
 {
     /**
-     * How many actions on one target are done per building level.
+     * How many actions on one target are done per building World.
      */
     private static final int ACTIONS_PER_BUILDING_LEVEL = 5;
 
@@ -56,7 +56,7 @@ public class EntityAICombatTraining extends AbstractEntityAITraining<JobCombatTr
     /**
      * The current pathing target to walk to.
      */
-    private BlockPos currentCombatTarget;
+    private int[] currentCombatTarget;
 
     /**
      * The current training partner of this guard.
@@ -201,17 +201,17 @@ public class EntityAICombatTraining extends AbstractEntityAITraining<JobCombatTr
                 if (shieldSlot != -1)
                 {
                     worker.playSound(SoundEvents.SHIELD_BLOCK, (float) BASIC_VOLUME, (float) SoundUtils.getRandomPitch(worker.getRandom()));
-                    CitizenItemUtils.setHeldItem(worker, InteractionHand.OFF_HAND, shieldSlot);
-                    worker.startUsingItem(InteractionHand.OFF_HAND);
+                    CitizenItemUtils.setHeldItem(worker, 1 /* InteractionHand.OFF_HAND */, shieldSlot);
+                    worker.startUsingItem(1 /* InteractionHand.OFF_HAND */);
                     worker.getLookControl().setLookAt(trainingPartner, (float) TURN_AROUND, (float) TURN_AROUND);
                 }
             }
             else
             {
-                worker.swing(InteractionHand.MAIN_HAND);
+                worker.swing(0 /* InteractionHand.MAIN_HAND */);
                 worker.playSound(SoundEvents.PLAYER_ATTACK_SWEEP, (float) BASIC_VOLUME, (float) SoundUtils.getRandomPitch(worker.getRandom()));
                 trainingPartner.hurt(world.damageSources().source(DamageSourceKeys.TRAINING, worker), 0.0F);
-                CitizenItemUtils.damageItemInHand(worker, InteractionHand.MAIN_HAND, 1);
+                CitizenItemUtils.damageItemInHand(worker, 0 /* InteractionHand.MAIN_HAND */, 1);
             }
             EntityNavigationUtils.walkAwayFrom(worker, trainingPartner.blockPosition(), 4, 1.0);
             targetCounter++;
@@ -253,7 +253,7 @@ public class EntityAICombatTraining extends AbstractEntityAITraining<JobCombatTr
             return KNIGHT_TRAIN_WITH_PARTNER;
         }
 
-        final BlockPos targetPos = academy.getRandomCombatTarget(worker.getRandom());
+        final int[] targetPos = academy.getRandomCombatTarget(worker.getRandom());
         if (targetPos == null)
         {
             worker.stopUsingItem();
@@ -307,15 +307,15 @@ public class EntityAICombatTraining extends AbstractEntityAITraining<JobCombatTr
                 if (shieldSlot != -1)
                 {
                     worker.playSound(SoundEvents.SHIELD_BLOCK, (float) BASIC_VOLUME, (float) SoundUtils.getRandomPitch(worker.getRandom()));
-                    CitizenItemUtils.setHeldItem(worker, InteractionHand.OFF_HAND, shieldSlot);
-                    worker.startUsingItem(InteractionHand.OFF_HAND);
+                    CitizenItemUtils.setHeldItem(worker, 1 /* InteractionHand.OFF_HAND */, shieldSlot);
+                    worker.startUsingItem(1 /* InteractionHand.OFF_HAND */);
                 }
             }
             else
             {
-                worker.swing(InteractionHand.MAIN_HAND);
+                worker.swing(0 /* InteractionHand.MAIN_HAND */);
                 worker.playSound(SoundEvents.PLAYER_ATTACK_SWEEP, (float) BASIC_VOLUME, (float) SoundUtils.getRandomPitch(worker.getRandom()));
-                CitizenItemUtils.damageItemInHand(worker, InteractionHand.MAIN_HAND, 1);
+                CitizenItemUtils.damageItemInHand(worker, 0 /* InteractionHand.MAIN_HAND */, 1);
             }
 
             currentAttackDelay = RANGED_ATTACK_DELAY_BASE;
@@ -345,7 +345,7 @@ public class EntityAICombatTraining extends AbstractEntityAITraining<JobCombatTr
         final int weaponSlot = InventoryUtils.getFirstSlotOfItemHandlerContainingEquipment(getInventory(), ModEquipmentTypes.sword.get(), 0, building.getMaxEquipmentLevel());
         if (weaponSlot != -1)
         {
-            CitizenItemUtils.setHeldItem(worker, InteractionHand.MAIN_HAND, weaponSlot);
+            CitizenItemUtils.setHeldItem(worker, 0 /* InteractionHand.MAIN_HAND */, weaponSlot);
         }
         return true;
     }
@@ -356,3 +356,8 @@ public class EntityAICombatTraining extends AbstractEntityAITraining<JobCombatTr
         return BuildingCombatAcademy.class;
     }
 }
+
+
+
+
+

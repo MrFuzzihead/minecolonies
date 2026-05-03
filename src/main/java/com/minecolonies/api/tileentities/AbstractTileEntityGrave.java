@@ -2,10 +2,6 @@ package com.minecolonies.api.tileentities;
 
 import com.minecolonies.api.colony.IGraveData;
 import com.minecolonies.core.tileentities.TileEntityRack;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 import static com.minecolonies.api.util.constant.Constants.DEFAULT_SIZE;
@@ -14,20 +10,20 @@ import static com.minecolonies.api.util.constant.Constants.TICKS_SECOND;
 /**
  * Abstract class for minecolonies graves.
  */
-public abstract class AbstractTileEntityGrave extends TileEntityRack implements MenuProvider
+public abstract class AbstractTileEntityGrave extends TileEntityRack
 {
     /**
-     * default duration of the countdown before the grave disapear, in ticks (20 ticks / seconds)
+     * Default duration of the countdown before the grave disappears, in ticks (20 ticks / second).
      */
     protected static final int DEFAULT_DECAY_TIMER = TICKS_SECOND * 60 * 10;
 
     /**
-     * Is this grave decayed or not
+     * Is this grave decayed or not.
      */
     protected boolean decayed;
 
     /**
-     * The decay timer counting down before the grave decay and then disapear
+     * The decay timer counting down before the grave decay and then disappears.
      */
     protected int decay_timer;
 
@@ -37,16 +33,17 @@ public abstract class AbstractTileEntityGrave extends TileEntityRack implements 
     @Nullable
     protected IGraveData graveData;
 
-    public AbstractTileEntityGrave(final BlockEntityType<? extends AbstractTileEntityGrave> tileEntityTypeIn, final BlockPos pos, final BlockState state)
+    public AbstractTileEntityGrave()
     {
-        super(tileEntityTypeIn, pos, state, DEFAULT_SIZE * 2);
+        super(DEFAULT_SIZE * 2);
         decay_timer = DEFAULT_DECAY_TIMER;
         decayed = false;
     }
 
     /**
-     * Delay the decay timer by minutes
-     * @param minutes number of minutes to delay the time by
+     * Delay the decay timer by minutes.
+     *
+     * @param minutes number of minutes to delay the time by.
      */
     public void delayDecayTimer(final double minutes)
     {
@@ -54,7 +51,7 @@ public abstract class AbstractTileEntityGrave extends TileEntityRack implements 
     }
 
     /**
-     * Get the graveData of the saved citizen
+     * Get the graveData of the saved citizen.
      */
     public IGraveData getGraveData()
     {
@@ -62,12 +59,13 @@ public abstract class AbstractTileEntityGrave extends TileEntityRack implements 
     }
 
     /**
-     * Set the graveData of the saved citizen
-     * @param graveData
+     * Set the graveData of the saved citizen.
+     *
+     * @param graveData the grave data.
      */
-    public void setGraveData(IGraveData graveData)
+    public void setGraveData(final IGraveData graveData)
     {
         this.graveData = graveData;
-        setChanged();
+        markDirty();
     }
 }

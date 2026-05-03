@@ -1,6 +1,6 @@
 package com.minecolonies.api.colony.buildings.modules.settings;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 /**
  * Key type for settings.
@@ -19,3 +19,4 @@ public interface ISettingKey<T>
      */
     ResourceLocation getUniqueId();
 }
+

@@ -4,8 +4,8 @@ import com.minecolonies.api.colony.buildingextensions.IBuildingExtension;
 import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.core.colony.buildings.workerbuildings.plantation.modules.generic.BoneMealedPlantModule;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.Item;
 import net.minecraft.world.item.Items;
 
 import static com.minecolonies.api.research.util.ResearchConstants.PLANTATION_NETHER;
@@ -29,8 +29,8 @@ public class CrimsonPlantsPlantModule extends BoneMealedPlantModule
      * Default constructor.
      *
      * @param field    the field instance this module is working on.
-     * @param fieldTag the tag of the field anchor block.
-     * @param workTag  the tag of the working positions.
+     * @param fieldTag the NBTBase of the field anchor block.
+     * @param workTag  the NBTBase of the working positions.
      * @param item     the item which is harvested.
      */
     public CrimsonPlantsPlantModule(final IBuildingExtension field, final String fieldTag, final String workTag, final Item item)
@@ -56,3 +56,5 @@ public class CrimsonPlantsPlantModule extends BoneMealedPlantModule
         return ModEquipmentTypes.none.get();
     }
 }
+
+

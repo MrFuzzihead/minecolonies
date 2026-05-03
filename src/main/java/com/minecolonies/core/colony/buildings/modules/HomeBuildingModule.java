@@ -1,13 +1,13 @@
 package com.minecolonies.core.colony.buildings.modules;
 
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.colony.buildings.modules.AbstractBuildingModule;
 import com.minecolonies.api.colony.buildings.modules.IDefinesCoreBuildingStatsModule;
 import com.minecolonies.api.colony.buildings.modules.stat.IStat;
 import com.minecolonies.core.client.gui.huts.WindowHutLiving;
 import com.minecolonies.core.colony.buildings.views.LivingBuildingView;
-import net.minecraft.core.BlockPos;
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -32,16 +32,19 @@ public class HomeBuildingModule extends AbstractBuildingModule implements IDefin
          * @param c the colonyView.
          * @param l the position the hut is at.
          */
-        public View(final IColonyView c, final BlockPos l)
+        public View(final IColonyView c, final int[] l)
         {
             super(c, l);
         }
 
         @NotNull
         @Override
-        public BOWindow getWindow()
+        public Object /* BOWindow: todo ModularUI2 */ getWindow()
         {
             return new WindowHutLiving(this);
         }
     }
 }
+
+
+

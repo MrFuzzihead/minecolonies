@@ -3,10 +3,10 @@ package com.minecolonies.core.commands.killcommands;
 import com.minecolonies.core.commands.commandTypes.IMCOPCommand;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.entity.Entity;
+// [1.7.10] world.entity removed
+import net.minecraft.world.World.entity.EntityTypeTest;
 
 public class CommandKillMonster implements IMCOPCommand
 {
@@ -30,7 +30,7 @@ public class CommandKillMonster implements IMCOPCommand
                 entitiesKilled++;
             }
         });
-        context.getSource().sendSuccess(() -> Component.literal(entitiesKilled + " entities killed"), true);
+        context.getSource().sendSuccess(() -> String.literal(entitiesKilled + " entities killed"), true);
         return 1;
     }
 
@@ -43,3 +43,6 @@ public class CommandKillMonster implements IMCOPCommand
         return "monster";
     }
 }
+
+
+

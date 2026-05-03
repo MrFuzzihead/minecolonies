@@ -7,13 +7,13 @@ import com.ldtteam.structurize.placement.StructureIterators;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.BlueprintPositionInfo;
 import com.ldtteam.structurize.util.PlacementSettings;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+// [1.7.10] BlockState -> int metadata
 import net.minecraftforge.common.util.TriPredicate;
-import net.minecraftforge.items.IItemHandler;
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * A BlueprintIterator which only iterates over one Y-level (layer) of a blueprint, using the iterator pattern of a different iterator
+ * A BlueprintIterator which only iterates over one Y-World (layer) of a blueprint, using the iterator pattern of a different iterator
  */
 public class LayerBlueprintIterator extends AbstractBlueprintIteratorWrapper
 {
@@ -91,52 +91,53 @@ public class LayerBlueprintIterator extends AbstractBlueprintIteratorWrapper
     }
 
     @Override
-    public void setProgressPos(final BlockPos localPosition)
+    public void setProgressPos(final int[] localPosition)
     {
-        if (localPosition.equals(NULL_POS))
+        if (Arrays.equals(localPosition, NULL_POS))
         {
             delegate.setProgressPos(NULL_POS);
         }
         else
         {
-            delegate.setProgressPos(localPosition.atY(0));
+            // [1.7.10] atY(0) → set y=0
+            delegate.setProgressPos(new int[]{localPosition[0], 0, localPosition[2]});
         }
     }
 
     @Override
-    public BlockPos getProgressPos()
+    public int[] getProgressPos()
     {
-        final BlockPos progressPos = delegate.getProgressPos();
-        if (progressPos.equals(NULL_POS))
+        final int[] progressPos = delegate.getProgressPos();
+        if (Arrays.equals(progressPos, NULL_POS))
         {
             return NULL_POS;
         }
-        return progressPos.atY(layer);
+        return new int[]{progressPos[0], layer, progressPos[2]};
     }
 
     @Override
-    public BlockPos getPrevProgressPos()
+    public int[] getPrevProgressPos()
     {
-        final BlockPos prevProgressPos = delegate.getPrevProgressPos();
-        if (prevProgressPos.equals(NULL_POS))
+        final int[] prevProgressPos = delegate.getPrevProgressPos();
+        if (Arrays.equals(prevProgressPos, NULL_POS))
         {
             return NULL_POS;
         }
-        return prevProgressPos.atY(layer);
+        return new int[]{prevProgressPos[0], layer, prevProgressPos[2]};
     }
 
     @Override
-    public BlueprintPositionInfo getBluePrintPositionInfo(final BlockPos localPos)
+    public BlueprintPositionInfo getBluePrintPositionInfo(final int[] localPos)
     {
         // localPos is relative to the original blueprint, so we need to use the original blueprint to retrieve the information
         return originalHandler.getBluePrint().getBluePrintPositionInfo(localPos, hasEntities());
     }
 
     @Override
-    public BlockPos getSize()
+    public int[] getSize()
     {
         final Blueprint blueprint = originalHandler.getBluePrint();
-        return new BlockPos(blueprint.getSizeX(), blueprint.getSizeY(), blueprint.getSizeZ());
+        return new int[]{blueprint.getSizeX(), blueprint.getSizeY(), blueprint.getSizeZ()};
     }
 
     @Override
@@ -156,7 +157,7 @@ public class LayerBlueprintIterator extends AbstractBlueprintIteratorWrapper
          */
         private final IStructureHandler delegate;
         /**
-         * The wrapping LayerBlueprintIterator. It is used to get the current layer we are iterating over, to get just that Y-level from the blueprint
+         * The wrapping LayerBlueprintIterator. It is used to get the current layer we are iterating over, to get just that Y-World from the blueprint
          */
         private LayerBlueprintIterator outer;
 
@@ -222,11 +223,11 @@ public class LayerBlueprintIterator extends AbstractBlueprintIteratorWrapper
             final short sizeX = blueprint.getSizeX();
             final short sizeY = 1;
             final short sizeZ = blueprint.getSizeZ();
-            final CompoundTag[][][] tags = blueprint.getTileEntities();
+            final NBTTagCompound[][][] tags = blueprint.getTileEntities();
             final short[][][] structure = blueprint.getStructure();
             final int layer = getLayer();
             final short[][][] structureAtLayer = new short[][][] { structure[layer] };
-            final List<CompoundTag> tagsAtLayer = new ArrayList<>();
+            final List<NBTTagCompound> tagsAtLayer = new ArrayList<>();
 
             for (int i = 0; i < sizeZ; i++)
             {
@@ -234,15 +235,15 @@ public class LayerBlueprintIterator extends AbstractBlueprintIteratorWrapper
                 {
                     if (tags[layer][i][j] != null)
                     {
-                        final CompoundTag tag = tags[layer][i][j].copy();
-                        // The Blueprint will sort them by stored position again, which will be on the 0'th Y-level in the slice
-                        tag.putShort("y", (short)0);
-                        tagsAtLayer.add(tag);
+                        final NBTTagCompound NBTBase = tags[layer][i][j].copy();
+                        // The Blueprint will sort them by stored position again, which will be on the 0'th Y-World in the slice
+                        NBTBase.putShort("y", (short)0);
+                        tagsAtLayer.add(NBTBase);
                     }
                 }
             }
 
-            layerBlueprint = new Blueprint(sizeX, sizeY, sizeZ, blueprint.getPalleteSize(), Arrays.asList(blueprint.getPalette()), structureAtLayer, tagsAtLayer.toArray(new CompoundTag[0]), blueprint.getRequiredMods());
+            layerBlueprint = new Blueprint(sizeX, sizeY, sizeZ, blueprint.getPalleteSize(), Arrays.asList(blueprint.getPalette()), structureAtLayer, tagsAtLayer.toArray(new NBTTagCompound[0]), blueprint.getRequiredMods());
         }
 
         @Override
@@ -257,13 +258,13 @@ public class LayerBlueprintIterator extends AbstractBlueprintIteratorWrapper
         }
 
         @Override
-        public Level getWorld()
+        public World getWorld()
         {
             return delegate.getWorld();
         }
 
         @Override
-        public BlockPos getCenterPos()
+        public int[] getCenterPos()
         {
             return delegate.getCenterPos()
                 .subtract(delegate.getBluePrint().getPrimaryBlockOffset())
@@ -283,19 +284,19 @@ public class LayerBlueprintIterator extends AbstractBlueprintIteratorWrapper
         }
 
         @Override
-        public @Nullable IItemHandler getInventory()
+        public @Nullable net.minecraftforge.items.IItemHandler getInventory()
         {
             return delegate.getInventory();
         }
 
         @Override
-        public void triggerSuccess(final BlockPos blockPos, final List<ItemStack> list, final boolean b)
+        public void triggerSuccess(final int[] blockPos, final List<ItemStack> list, final boolean b)
         {
             delegate.triggerSuccess(blockPos, list, b);
         }
 
         @Override
-        public void triggerEntitySuccess(final BlockPos blockPos, final List<ItemStack> list, final boolean b)
+        public void triggerEntitySuccess(final int[] blockPos, final List<ItemStack> list, final boolean b)
         {
             delegate.triggerEntitySuccess(blockPos, list, b);
         }
@@ -367,19 +368,19 @@ public class LayerBlueprintIterator extends AbstractBlueprintIteratorWrapper
         }
 
         @Override
-        public void prePlacementLogic(final BlockPos blockPos, final BlockState blockState, final List<ItemStack> list)
+        public void prePlacementLogic(final int[] blockPos, final BlockState blockState, final List<ItemStack> list)
         {
             delegate.prePlacementLogic(blockPos, blockState, list);
         }
 
         @Override
-        public BlockState getSolidBlockForPos(final BlockPos blockPos)
+        public BlockState getSolidBlockForPos(final int[] blockPos)
         {
             return delegate.getSolidBlockForPos(blockPos);
         }
 
         @Override
-        public BlockState getSolidBlockForPos(final BlockPos blockPos, @Nullable final Function<BlockPos, BlockState> function)
+        public BlockState getSolidBlockForPos(final int[] blockPos, @Nullable final Function<int[], BlockState> function)
         {
             return delegate.getSolidBlockForPos(blockPos, function);
         }
@@ -391,3 +392,10 @@ public class LayerBlueprintIterator extends AbstractBlueprintIteratorWrapper
         }
     }
 }
+
+
+
+
+
+
+

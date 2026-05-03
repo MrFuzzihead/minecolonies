@@ -1,9 +1,11 @@
 package com.minecolonies.core.client.gui.modules;
 
+// [1.7.10] blockui replaced by ModularUI2
 import com.ldtteam.blockui.Pane;
-import com.ldtteam.blockui.PaneBuilders;
-import com.ldtteam.blockui.controls.*;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.views.ScrollingList;
+import net.minecraft.world.entity.player.Inventory;
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.colony.requestsystem.request.IRequest;
 import com.minecolonies.api.colony.requestsystem.request.RequestState;
@@ -18,14 +20,14 @@ import com.minecolonies.core.client.gui.AbstractWindowSkeleton;
 import com.minecolonies.core.client.gui.WindowRequestDetail;
 import com.minecolonies.core.colony.requestsystem.requests.StandardRequests;
 import com.minecolonies.core.network.messages.server.colony.UpdateRequestStateMessage;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.wrapper.InvWrapper;
+import net.minecraft.util.EnumChatFormatting;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -163,10 +165,10 @@ public abstract class RequestTreeWindowModule implements IWindowWithLayoutModule
                 {
                     rowPane.findPaneOfTypeByID("detailIcon", ItemIcon.class).setVisible(false);
                     rowPane.findPaneOfTypeByID(REQUEST_SHORT_DETAIL, Text.class)
-                        .setText(Component.literal(request.getShortDisplayString().getString().replace("§f", "")).withStyle(ChatFormatting.BLACK));
+                        .setText(String.literal(request.getShortDisplayString().getString().replace("§f", "")).withStyle(ChatFormatting.BLACK));
                 }
 
-                PaneBuilders.tooltipBuilder().hoverPane(parent.findPaneByID(REQUEST_DETAIL)).build().setText(Component.translatable(DETAILS));
+                PaneBuilders.tooltipBuilder().hoverPane(parent.findPaneByID(REQUEST_DETAIL)).build().setText(String.translatable(DETAILS));
                 if (!isCancellable(request))
                 {
                     rowPane.findPaneOfTypeByID(REQUEST_CANCEL, ButtonImage.class).hide();
@@ -406,3 +408,7 @@ public abstract class RequestTreeWindowModule implements IWindowWithLayoutModule
         int depth)
     {}
 }
+
+
+
+

@@ -10,15 +10,15 @@ import com.minecolonies.core.colony.buildings.workerbuildings.BuildingGateHouse;
 import com.minecolonies.core.network.messages.server.AbstractColonyServerMessage;
 import com.minecolonies.core.tileentities.TileEntityColonyBuilding;
 import com.minecolonies.core.util.TeleportHelper;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.items.wrapper.InvWrapper;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.world.World;
+// [1.7.10] block.entity removed
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -44,14 +44,14 @@ public class TeleportToColonyMessage extends AbstractColonyServerMessage
     /**
      * Gatehouse pos to teleport to.
      */
-    private BlockPos pos;
+    private int[] pos;
 
     public TeleportToColonyMessage()
     {
         super();
     }
 
-    public TeleportToColonyMessage(final ResourceKey<Level> dimensionId, final int colonyId, final BlockPos pos, final int originColonyId, final int cost)
+    public TeleportToColonyMessage(final int /* ResourceKey */ dimensionId, final int colonyId, final int[] pos, final int originColonyId, final int cost)
     {
         super(dimensionId, colonyId);
         this.pos = pos;
@@ -67,14 +67,14 @@ public class TeleportToColonyMessage extends AbstractColonyServerMessage
     }
 
     @Override
-    protected void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony)
+    protected void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony)
     {
-        if (ctxIn.getSender() == null)
+        if (ctx.getServerHandler().playerEntity == null)
         {
             return;
         }
 
-        final IColony originColony = IColonyManager.getInstance().getColonyByDimension(originColonyId, ctxIn.getSender().level.dimension());
+        final IColony originColony = IColonyManager.getInstance().getColonyByDimension(originColonyId, ctx.getServerHandler().playerEntity.World.dimension());
         if (originColony == null)
         {
             return;
@@ -85,14 +85,14 @@ public class TeleportToColonyMessage extends AbstractColonyServerMessage
             return;
         }
 
-        if (originColony.getPermissions().hasPermission(ctxIn.getSender(), Action.TELEPORT_TO_COLONY) || colony.getPermissions().hasPermission(ctxIn.getSender(), Action.TELEPORT_TO_COLONY))
+        if (originColony.getPermissions().hasPermission(ctx.getServerHandler().playerEntity, Action.TELEPORT_TO_COLONY) || colony.getPermissions().hasPermission(ctx.getServerHandler().playerEntity, Action.TELEPORT_TO_COLONY))
         {
             final BlockEntity gateHouse = colony.getWorld().getBlockEntity(pos);
             if (gateHouse instanceof TileEntityColonyBuilding && ((TileEntityColonyBuilding) gateHouse).getBuilding() instanceof BuildingGateHouse)
             {
                 if (cost > 0)
                 {
-                    if (InventoryUtils.attemptReduceStackInItemHandler(new InvWrapper(ctxIn.getSender().getInventory()), new ItemStack(Items.GOLD_NUGGET), cost))
+                    if (InventoryUtils.attemptReduceStackInItemHandler(new InvWrapper(ctx.getServerHandler().playerEntity.getInventory()), new ItemStack(Items.GOLD_NUGGET), cost))
                     {
                         int output = cost/2;
                         if (output <= STACKSIZE)
@@ -114,25 +114,25 @@ public class TeleportToColonyMessage extends AbstractColonyServerMessage
                     }
                 }
 
-                final List<BlockPos> posList = ((TileEntityColonyBuilding) gateHouse).getCachedWorldTagNamePosMap().get(TAG_GATE);
+                final List<int[]> posList = ((TileEntityColonyBuilding) gateHouse).getCachedWorldTagNamePosMap().get(TAG_GATE);
                 if (posList == null || posList.isEmpty())
                 {
-                    TeleportHelper.colonyTeleport(ctxIn.getSender(), colony, pos);
+                    TeleportHelper.colonyTeleport(ctx.getServerHandler().playerEntity, colony, pos);
                 }
                 else
                 {
-                    TeleportHelper.colonyTeleport(ctxIn.getSender(), colony, posList.get(MathUtils.RANDOM.nextInt(posList.size())));
+                    TeleportHelper.colonyTeleport(ctx.getServerHandler().playerEntity, colony, posList.get(MathUtils.RANDOM.nextInt(posList.size())));
                 }
             }
             else
             {
-                TeleportHelper.colonyTeleport(ctxIn.getSender(), colony, pos);
+                TeleportHelper.colonyTeleport(ctx.getServerHandler().playerEntity, colony, pos);
             }
         }
     }
 
     @Override
-    protected void toBytesOverride(final FriendlyByteBuf buf)
+    protected void toBytesOverride(final PacketBuffer buf)
     {
         buf.writeBlockPos(pos);
         buf.writeInt(originColonyId);
@@ -140,10 +140,14 @@ public class TeleportToColonyMessage extends AbstractColonyServerMessage
     }
 
     @Override
-    protected void fromBytesOverride(final FriendlyByteBuf buf)
+    protected void fromBytesOverride(final PacketBuffer buf)
     {
         this.pos = buf.readBlockPos();
         this.originColonyId = buf.readInt();
         this.cost = buf.readInt();
     }
 }
+
+
+
+

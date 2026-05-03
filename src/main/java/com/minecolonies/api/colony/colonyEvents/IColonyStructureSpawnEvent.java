@@ -1,7 +1,7 @@
 package com.minecolonies.api.colony.colonyEvents;
 
 import com.minecolonies.api.util.Tuple;
-import net.minecraft.core.BlockPos;
+// [1.7.10] int[] -> int x,y,z
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ public interface IColonyStructureSpawnEvent extends IColonyEvent
      *
      * @return list of schematics
      */
-    List<Tuple<String, BlockPos>> getSchematicSpawns();
+    List<Tuple<String, int[]>> getSchematicSpawns();
 
     /**
      * Get the ship description for the schematic
@@ -28,3 +28,5 @@ public interface IColonyStructureSpawnEvent extends IColonyEvent
      */
     void setMaxRaiderCount(int maxRaiderCount);
 }
+
+

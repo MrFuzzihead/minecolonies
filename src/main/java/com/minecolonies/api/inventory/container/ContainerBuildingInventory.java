@@ -6,16 +6,17 @@ import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.inventory.ModContainers;
 import com.minecolonies.core.tileentities.TileEntityColonyBuilding;
 import com.minecolonies.api.util.ItemStackUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.Slot;
 import net.minecraftforge.items.SlotItemHandler;
+import net.minecraft.item.ItemStack;
+// [1.7.10] items shim in com.minecolonies.api.shim
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.InventoryConstants.*;
@@ -23,12 +24,12 @@ import static com.minecolonies.api.util.constant.InventoryConstants.*;
 /**
  * Container for Mie
  */
-public class ContainerBuildingInventory extends AbstractContainerMenu
+public class ContainerBuildingInventory extends Container
 {
     /**
      * Lower chest inventory.
      */
-    private final IItemHandler buildingInventory;
+    private final net.minecraftforge.items.IItemHandler buildingInventory;
 
     private final TileEntityColonyBuilding tileEntityColonyBuilding;
 
@@ -41,14 +42,14 @@ public class ContainerBuildingInventory extends AbstractContainerMenu
      * Deserialize packet buffer to container instance.
      *
      * @param windowId     the id of the window.
-     * @param inv          the player inventory.
+     * @param inv          the EntityPlayer inventory.
      * @param packetBuffer network buffer
      * @return new instance
      */
-    public static ContainerBuildingInventory fromFriendlyByteBuf(final int windowId, final Inventory inv, final FriendlyByteBuf packetBuffer)
+    public static ContainerBuildingInventory fromPacketBuffer(final int windowId, final InventoryPlayer inv, final PacketBuffer packetBuffer)
     {
         final int colonyId = packetBuffer.readVarInt();
-        final BlockPos tePos = packetBuffer.readBlockPos();
+        final int[] tePos = packetBuffer.readBlockPos();
         return new ContainerBuildingInventory(windowId, inv, colonyId, tePos);
     }
 
@@ -56,15 +57,15 @@ public class ContainerBuildingInventory extends AbstractContainerMenu
      * Constructor to create an instance of this container.
      *
      * @param windowId the id of the window.
-     * @param inv      the player inventory.
+     * @param inv      the EntityPlayer inventory.
      * @param colonyId colony id
      * @param pos      te world pos
      */
-    public ContainerBuildingInventory(final int windowId, final Inventory inv, final int colonyId, final BlockPos pos)
+    public ContainerBuildingInventory(final int windowId, final InventoryPlayer inv, final int colonyId, final int[] pos)
     {
-        super(ModContainers.buildingInv.get(), windowId);
+        super();
 
-        tileEntityColonyBuilding = (TileEntityColonyBuilding) inv.player.level().getBlockEntity(pos);
+        tileEntityColonyBuilding = (TileEntityColonyBuilding) inv.player.worldObj.getTileEntity(pos[0], pos[1], pos[2]);
         this.buildingInventory = tileEntityColonyBuilding.getInventory();
         final int size = buildingInventory.getSlots();
         this.inventorySize = size / INVENTORY_COLUMNS;
@@ -87,10 +88,10 @@ public class ContainerBuildingInventory extends AbstractContainerMenu
                           @Override
                           public void set(final ItemStack stack)
                           {
-                              super.set(stack);
-                              if (!inv.player.level().isClientSide && !ItemStackUtils.isEmpty(stack))
+                              super.putStack(stack);
+                              if (!inv.player.worldObj.isRemote && !ItemStackUtils.isEmpty(stack))
                               {
-                                  final IColony colony = IColonyManager.getInstance().getColonyByWorld(colonyId, inv.player.level());
+                                  final IColony colony = IColonyManager.getInstance().getColonyByWorld(colonyId, inv.player.worldObj);
                                   final IBuilding building = colony.getServerBuildingManager().getBuilding(pos);
                                   if (building != null)
                                   {
@@ -104,8 +105,8 @@ public class ContainerBuildingInventory extends AbstractContainerMenu
             }
         }
 
-        // Player inventory slots
-        // Note: The slot numbers are within the player inventory and may be the same as the field inventory.
+        // EntityPlayer inventory slots
+        // Note: The slot numbers are within the EntityPlayer inventory and may be the same as the field inventory.
         int i;
         for (i = 0; i < INVENTORY_ROWS; i++)
         {
@@ -133,22 +134,22 @@ public class ContainerBuildingInventory extends AbstractContainerMenu
     }
 
     /**
-     * Handle when the stack in slot {@code index} is shift-clicked. Normally this moves the stack between the player inventory and the other inventory(s).
+     * Handle when the stack in slot {@code index} is shift-clicked. Normally this moves the stack between the EntityPlayer inventory and the other inventory(s).
      *
-     * @param playerIn Player that interacted with this {@code Container}.
+     * @param playerIn EntityPlayer that interacted with this {@code Container}.
      * @param index    Index of the {@link Slot}. This index is relative to the list of slots in this {@code AbstractContainerMenu}, {@link #slots}.
      */
     @Override
-    public ItemStack quickMoveStack(final Player playerIn, final int index)
+    public ItemStack transferStackInSlot(final EntityPlayer playerIn, final int index)
     {
         final Slot slot = this.slots.get(index);
 
-        if (slot == null || !slot.hasItem())
+        if (slot == null || !slot.getHasStack())
         {
             return ItemStackUtils.EMPTY;
         }
 
-        final ItemStack stackCopy = slot.getItem().copy();
+        final ItemStack stackCopy = slot.getStack().copy();
 
         final int maxIndex = this.inventorySize * INVENTORY_COLUMNS;
 
@@ -166,14 +167,14 @@ public class ContainerBuildingInventory extends AbstractContainerMenu
 
         if (ItemStackUtils.getSize(stackCopy) == 0)
         {
-            slot.set(ItemStackUtils.EMPTY);
+            slot.putStack(ItemStackUtils.EMPTY);
         }
         else
         {
-            slot.set(stackCopy);
+            slot.putStack(stackCopy);
         }
 
-        if (playerIn instanceof ServerPlayer)
+        if (playerIn instanceof EntityPlayerMP)
         {
             this.updateRacks(stackCopy);
         }
@@ -207,16 +208,16 @@ public class ContainerBuildingInventory extends AbstractContainerMenu
      * Called when the container is closed.
      */
     @Override
-    public void removed(final Player playerIn)
+    public void onContainerClosed(final EntityPlayer playerIn)
     {
         super.removed(playerIn);
     }
 
     /**
-     * Determines whether supplied player can use this container
+     * Determines whether supplied EntityPlayer can use this container
      */
     @Override
-    public boolean stillValid(@NotNull final Player playerIn)
+    public boolean canInteractWith(@NotNull final EntityPlayer playerIn)
     {
         return this.tileEntityColonyBuilding.isUsableByPlayer(playerIn);
     }
@@ -231,3 +232,6 @@ public class ContainerBuildingInventory extends AbstractContainerMenu
         return inventorySize;
     }
 }
+
+
+

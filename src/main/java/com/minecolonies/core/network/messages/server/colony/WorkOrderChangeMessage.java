@@ -3,8 +3,8 @@ package com.minecolonies.core.network.messages.server.colony;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.core.network.messages.server.AbstractColonyServerMessage;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -57,7 +57,7 @@ public class WorkOrderChangeMessage extends AbstractColonyServerMessage
      * @param buf the used byteBuffer.
      */
     @Override
-    public void fromBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void fromBytesOverride(@NotNull final PacketBuffer buf)
     {
         workOrderId = buf.readInt();
         priority = buf.readInt();
@@ -70,7 +70,7 @@ public class WorkOrderChangeMessage extends AbstractColonyServerMessage
      * @param buf the used byteBuffer.
      */
     @Override
-    public void toBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void toBytesOverride(@NotNull final PacketBuffer buf)
     {
         buf.writeInt(workOrderId);
         buf.writeInt(priority);
@@ -78,7 +78,7 @@ public class WorkOrderChangeMessage extends AbstractColonyServerMessage
     }
 
     @Override
-    protected void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony)
+    protected void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony)
     {
         if (removeWorkOrder)
         {
@@ -90,5 +90,7 @@ public class WorkOrderChangeMessage extends AbstractColonyServerMessage
         }
     }
 }
+
+
 
 

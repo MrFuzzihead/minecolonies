@@ -1,11 +1,11 @@
 package com.minecolonies.core.colony.jobs;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import com.minecolonies.api.client.render.modeltype.ModModelTypes;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.core.entity.ai.workers.production.agriculture.EntityAIWorkPlanter;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageTypes;
+// [1.7.10] net.minecraft.util.DamageSource removed
+// [1.7.10] net.minecraft.util.DamageSource removed
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -43,8 +43,12 @@ public class JobPlanter extends AbstractJobCrafter<EntityAIWorkPlanter, JobPlant
     }
 
     @Override
-    public boolean ignoresDamage(@NotNull final DamageSource damageSource)
+    public boolean ignoresDamage(@NotNull final net.minecraft.util.DamageSource source)
     {
-        return damageSource.typeHolder().is(DamageTypes.CACTUS);
+        return net.minecraft.util.DamageSource.typeHolder().is(DamageTypes.CACTUS);
     }
 }
+
+
+
+

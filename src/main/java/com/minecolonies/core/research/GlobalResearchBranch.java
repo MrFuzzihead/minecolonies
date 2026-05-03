@@ -3,32 +3,33 @@ package com.minecolonies.core.research;
 import com.google.gson.JsonObject;
 import com.minecolonies.api.research.IGlobalResearchBranch;
 import com.minecolonies.api.research.ResearchBranchType;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
 
 import static com.minecolonies.api.research.util.ResearchConstants.BASE_RESEARCH_TIME;
 
 public class GlobalResearchBranch implements IGlobalResearchBranch
 {
     /**
-     * The property name for research branch name keys.  Only applies at the level of branch settings.
+     * The property name for research branch name keys.  Only applies at the World of branch settings.
      * May be a human-readable text, or a translation key.
      */
     public static final String RESEARCH_BRANCH_NAME_PROP = "branch-name";
 
     /**
-     * The property name for the subtitle tag.
+     * The property name for the subtitle NBTBase.
      */
     private static final String RESEARCH_SUBTITLE_PROP = "subtitle";
 
     /**
-     * The property name for the branch type tag.
+     * The property name for the branch type NBTBase.
      */
     public static final String RESEARCH_BRANCH_TYPE_PROP = "branch-type";
 
     /**
-     * The property name for branch's research time modifier.  Only applies at the level of branch settings.
+     * The property name for branch's research time modifier.  Only applies at the World of branch settings.
      */
     public static final String RESEARCH_BASE_TIME_PROP = "base-time";
 
@@ -38,7 +39,7 @@ public class GlobalResearchBranch implements IGlobalResearchBranch
     private static final String RESEARCH_HIDDEN_PROP = "hidden";
 
     /**
-     * The property name for the sort order tag.
+     * The property name for the sort order NBTBase.
      */
     private static final String RESEARCH_SORT_PROP = "sortOrder";
 
@@ -200,26 +201,30 @@ public class GlobalResearchBranch implements IGlobalResearchBranch
      * Reassembles a GlobalResearchBranch from its NBT transmission.
      * @param nbt  The nbt containing the Research Branch data.
      */
-    public GlobalResearchBranch(final CompoundTag nbt)
+    public GlobalResearchBranch(final NBTTagCompound nbt)
     {
         this.name = new TranslatableContents(nbt.getString(RESEARCH_BRANCH_NAME_PROP), null, TranslatableContents.NO_ARGS);
         this.subtitle = new TranslatableContents(nbt.getString(RESEARCH_SUBTITLE_PROP), null, TranslatableContents.NO_ARGS);
         this.type = ResearchBranchType.valueOfTag(nbt.getString(RESEARCH_BRANCH_TYPE_PROP));
         this.baseTime = nbt.getDouble(RESEARCH_BASE_TIME_PROP);
-        this.sortOrder = nbt.getInt(RESEARCH_SORT_PROP);
+        this.sortOrder = nbt.getInteger(RESEARCH_SORT_PROP);
         this.hidden = nbt.getBoolean(RESEARCH_HIDDEN_PROP);
     }
 
     @Override
-    public CompoundTag writeToNBT()
+    public NBTTagCompound writeToNBT()
     {
-        final CompoundTag nbt = new CompoundTag();
-        nbt.putString(RESEARCH_BRANCH_NAME_PROP, this.name.getKey());
-        nbt.putString(RESEARCH_SUBTITLE_PROP, this.subtitle.getKey());
-        nbt.putString(RESEARCH_BRANCH_TYPE_PROP, this.type.tag);
-        nbt.putDouble(RESEARCH_BASE_TIME_PROP, this.baseTime);
-        nbt.putInt(RESEARCH_SORT_PROP, this.sortOrder);
-        nbt.putBoolean(RESEARCH_HIDDEN_PROP, this.hidden);
+        final NBTTagCompound nbt = new NBTTagCompound();
+        nbt.setString(RESEARCH_BRANCH_NAME_PROP, this.name.getKey());
+        nbt.setString(RESEARCH_SUBTITLE_PROP, this.subtitle.getKey());
+        nbt.setString(RESEARCH_BRANCH_TYPE_PROP, this.type.NBTBase);
+        nbt.setDouble(RESEARCH_BASE_TIME_PROP, this.baseTime);
+        nbt.setInteger(RESEARCH_SORT_PROP, this.sortOrder);
+        nbt.setBoolean(RESEARCH_HIDDEN_PROP, this.hidden);
         return nbt;
     }
 }
+
+
+
+

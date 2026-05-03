@@ -1,16 +1,39 @@
 package com.minecolonies.core.client.gui.townhall;
 
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
+import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
+import com.ldtteam.blockui.controls.DropDownList;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
+import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.controls.TextField;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
+import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.ldtteam.blockui.controls.Text;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.AbstractWindowSkeleton;
 import com.minecolonies.core.event.ColonyStoryListener;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.sounds.SimpleSoundInstance;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.level.biome.Biome;
+import net.minecraft.core.Holder;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Holder removed
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] sounds removed
+import net.minecraft.world.biome.Biome;
 
 import java.util.Random;
 
@@ -26,12 +49,12 @@ public class WindowTownHallColonyReactivate extends AbstractWindowSkeleton
     /**
      * Townhall position
      */
-    private final BlockPos pos;
+    private final int[] pos;
     private final String preName;
     private final int closestDistance;
     private final String closestName;
 
-    public WindowTownHallColonyReactivate(final BlockPos pos, final String closestName, final int closestDistance)
+    public WindowTownHallColonyReactivate(final int[] pos, final String closestName, final int closestDistance)
     {
         super(new ResourceLocation(Constants.MOD_ID, "gui/townhall/windowcolonyreactivate.xml"));
         this.pos = pos;
@@ -43,13 +66,13 @@ public class WindowTownHallColonyReactivate extends AbstractWindowSkeleton
         registerButton(BUTTON_CREATE, this::onCreate);
 
         final Random random = new Random(pos.asLong());
-        final Holder<Biome> biome = mc.level.getBiome(pos);
+        final Holder<Biome> biome = mc.World.getBiome(pos);
         this.preName = ColonyStoryListener.pickRandom(ColonyStoryListener.abandonedColonyNames, biome, random);
         final String story = ColonyStoryListener.pickRandom(ColonyStoryListener.abandonedColonyStories, biome, random);
 
-        this.findPaneOfTypeByID("title", Text.class).setText(Component.translatable("com.minecolonies.core.gui.colony.reactivate.title", this.preName));
-        this.findPaneOfTypeByID("text1", Text.class).setText(Component.translatable(story, this.preName, Component.translatable(biome.unwrapKey().get().location().toLanguageKey("biome"))));
-        this.findPaneOfTypeByID("text2", Text.class).setText(Component.translatable("com.minecolonies.core.gui.colony.reactivate.question", this.preName));
+        this.findPaneOfTypeByID("title", Text.class).setText(String.translatable("com.minecolonies.core.gui.colony.reactivate.title", this.preName));
+        this.findPaneOfTypeByID("text1", Text.class).setText(String.translatable(story, this.preName, String.translatable(biome.unwrapKey().get().location().toLanguageKey("biome"))));
+        this.findPaneOfTypeByID("text2", Text.class).setText(String.translatable("com.minecolonies.core.gui.colony.reactivate.question", this.preName));
     }
 
     /**
@@ -60,3 +83,6 @@ public class WindowTownHallColonyReactivate extends AbstractWindowSkeleton
         new WindowTownHallColonyManage(pos, closestName, closestDistance, preName, true).open();
     }
 }
+
+
+

@@ -1,8 +1,8 @@
 package com.minecolonies.api.colony.workorders;
 
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.NotNull;
 
 public interface IWorkOrderView extends IWorkOrder
@@ -20,14 +20,16 @@ public interface IWorkOrderView extends IWorkOrder
      *
      * @param buf Byte buffer to deserialize.
      */
-    void deserialize(@NotNull FriendlyByteBuf buf);
+    void deserialize(@NotNull PacketBuffer buf);
 
     /**
      * Checks if a builder may accept this workOrder while ignoring the distance to the builder.
      *
      * @param builderLocation position of the builders own hut.
-     * @param builderLevel    level of the builders hut.
+     * @param builderLevel    World of the builders hut.
      * @return true if so.
      */
-    boolean canBuildIgnoringDistance(@NotNull final BlockPos builderLocation, final int builderLevel);
+    boolean canBuildIgnoringDistance(@NotNull final int[] builderLocation, final int builderLevel);
 }
+
+

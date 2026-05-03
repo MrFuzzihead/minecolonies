@@ -2,7 +2,7 @@ package com.minecolonies.api.util.constant;
 
 import com.minecolonies.api.colony.buildings.ModBuildings;
 import com.minecolonies.api.colony.jobs.ModJobs;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import static com.minecolonies.api.util.constant.Constants.MOD_ID;
 
 /**
@@ -81,3 +81,4 @@ public final class TagConstants
          */
     }
 }
+

@@ -1,15 +1,21 @@
 package com.minecolonies.core.colony;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.colony.IVisitorViewData;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import net.minecraft.Util;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -41,7 +47,7 @@ public class VisitorDataView extends CitizenDataView implements IVisitorViewData
     }
 
     @Override
-    public void deserialize(@NotNull final FriendlyByteBuf buf)
+    public void deserialize(@NotNull final PacketBuffer buf)
     {
         super.deserialize(buf);
         recruitmentCosts = buf.readItem();
@@ -79,3 +85,6 @@ public class VisitorDataView extends CitizenDataView implements IVisitorViewData
         return cachedTexture;
     }
 }
+
+
+

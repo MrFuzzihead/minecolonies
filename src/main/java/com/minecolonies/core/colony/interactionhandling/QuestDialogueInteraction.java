@@ -1,6 +1,12 @@
 package com.minecolonies.core.colony.interactionhandling;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.ICitizen;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.ICitizenDataView;
@@ -14,13 +20,13 @@ import com.minecolonies.core.Network;
 import com.minecolonies.core.entity.ai.workers.AbstractEntityAIBasic;
 import com.minecolonies.core.network.messages.server.colony.InteractionResponse;
 import com.minecolonies.core.quests.objectives.DialogueObjectiveTemplateTemplate;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.World;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -78,7 +84,7 @@ public class QuestDialogueInteraction extends StandardInteraction
      */
     protected boolean finished = false;
 
-    public QuestDialogueInteraction(final Component inquiry, final IChatPriority priority, final ResourceLocation location, final int index, final ICitizenData citizenData)
+    public QuestDialogueInteraction(final String inquiry, final IChatPriority priority, final ResourceLocation location, final int index, final ICitizenData citizenData)
     {
         super(inquiry, null, priority);
         this.questId = location;
@@ -131,7 +137,7 @@ public class QuestDialogueInteraction extends StandardInteraction
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public boolean onClientResponseTriggered(final int responseId, final Player player, final ICitizenDataView data, final BOWindow window)
+    public boolean onClientResponseTriggered(final int responseId, final Player player, final ICitizenDataView data, final Object /* BOWindow: todo ModularUI2 */ window)
     {
         if (colonyQuest == null)
         {
@@ -142,14 +148,14 @@ public class QuestDialogueInteraction extends StandardInteraction
             final IQuestDialogueAnswer result = this.currentElement.getOptionResult(responseId);
             if (result instanceof IFinalQuestDialogueAnswer)
             {
-                Network.getNetwork().sendToServer(new InteractionResponse(data.getColonyId(), data.getId(), player.level.dimension(), Component.literal(questId.toString()), responseId));
+                Network.getNetwork().sendToServer(new InteractionResponse(data.getColonyId(), data.getId(), player.World.dimension(), String.literal(questId.toString()), responseId));
                 this.currentElement = this.startElement;
                 finished = true;
                 return true;
             }
             else if (result instanceof DialogueObjectiveTemplateTemplate.DialogueElement)
             {
-                Network.getNetwork().sendToServer(new InteractionResponse(data.getColonyId(), data.getId(), player.level.dimension(), Component.literal(questId.toString()), responseId));
+                Network.getNetwork().sendToServer(new InteractionResponse(data.getColonyId(), data.getId(), player.World.dimension(), String.literal(questId.toString()), responseId));
                 this.currentElement = (DialogueObjectiveTemplateTemplate.DialogueElement) result;
                 return false;
             }
@@ -169,9 +175,9 @@ public class QuestDialogueInteraction extends StandardInteraction
     }
 
     @Override
-    public Component getId()
+    public String getId()
     {
-        return Component.literal(this.questId.toString());
+        return String.literal(this.questId.toString());
     }
 
     @Override
@@ -181,7 +187,7 @@ public class QuestDialogueInteraction extends StandardInteraction
     }
 
     @Override
-    public Component getInquiry()
+    public String getInquiry()
     {
         return processText(currentElement.getText());
     }
@@ -190,7 +196,7 @@ public class QuestDialogueInteraction extends StandardInteraction
      * Process the text to include the participant names.
      * @return the processed text.
      */
-    private Component processText(final Component text)
+    private String processText(final String text)
     {
         // TODO: this is not ideal, we should do something more clever and preserve the item subcomponents for tooltips etc
         String localText = text.getString();
@@ -208,33 +214,33 @@ public class QuestDialogueInteraction extends StandardInteraction
         {
             localText = localText.replace("$d", String.valueOf(colonyQuest.getCurrentObjectiveInstance().getMissingQuantity()));
         }
-        return Component.literal(localText);
+        return String.literal(localText);
     }
 
     @Override
-    public boolean isVisible(final Level world)
+    public boolean isVisible(final World world)
     {
         return !finished;
     }
 
     @Override
-    public List<Component> getPossibleResponses()
+    public List<String> getPossibleResponses()
     {
         return currentElement == null ? Collections.emptyList() : currentElement.getOptions().stream().map(this::processText).collect(Collectors.toList());
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag tag = super.serializeNBT();
-        tag.putString(TAG_QUEST_ID, questId.toString());
-        tag.putInt(TAG_QUEST_INDEX, index);
-        tag.putBoolean(TAG_FINISHED, finished);
-        return tag;
+        final NBTTagCompound NBTBase = super.serializeNBT();
+        NBTBase.putString(TAG_QUEST_ID, questId.toString());
+        NBTBase.putInt(TAG_QUEST_INDEX, index);
+        NBTBase.putBoolean(TAG_FINISHED, finished);
+        return NBTBase;
     }
 
     @Override
-    public void deserializeNBT(final @NotNull CompoundTag compoundNBT)
+    public void deserializeNBT(final @NotNull NBTTagCompound compoundNBT)
     {
         super.deserializeNBT(compoundNBT);
         this.questId = new ResourceLocation(compoundNBT.getString(TAG_QUEST_ID));
@@ -271,3 +277,7 @@ public class QuestDialogueInteraction extends StandardInteraction
         return currentElement != null && citizen.isParticipantOfQuest(questId) && citizen.getColony().getQuestManager().getAvailableOrInProgressQuest(questId) != null && citizen.getColony().getQuestManager().getAvailableOrInProgressQuest(questId).getObjectiveIndex() == index;
     }
 }
+
+
+
+

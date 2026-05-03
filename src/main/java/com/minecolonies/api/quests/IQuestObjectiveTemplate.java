@@ -1,7 +1,8 @@
 package com.minecolonies.api.quests;
 
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ChatStyle;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -35,13 +36,13 @@ public interface IQuestObjectiveTemplate
     default void onWorldLoad(IQuestInstance colonyQuest) {}
 
     /**
-     * Get a {@link Component} instance with the text containing the progress of this objective.
+     * Get a {@link String} instance with the text containing the progress of this objective.
      *
      * @param quest the quest to get the info from.
-     * @param style the style to use on subcomponents.
-     * @return the chat component.
+     * @param ChatStyle the ChatStyle to use on subcomponents.
+     * @return the chat String.
      */
-    Component getProgressText(IQuestInstance quest, Style style);
+    String getProgressText(IQuestInstance quest, ChatStyle chatStyle);
 
     /**
      * Get objective data related to the objective.
@@ -67,3 +68,7 @@ public interface IQuestObjectiveTemplate
      */
     int getTarget();
 }
+
+
+
+

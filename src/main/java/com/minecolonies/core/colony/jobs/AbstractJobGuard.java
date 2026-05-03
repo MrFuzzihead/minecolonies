@@ -7,8 +7,8 @@ import com.minecolonies.core.MineColonies;
 import com.minecolonies.core.colony.buildings.AbstractBuildingGuards;
 import com.minecolonies.core.entity.ai.workers.guard.AbstractEntityAIGuard;
 import com.minecolonies.core.util.AttributeModifierUtils;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+// [1.7.10] net.minecraft.util.DamageSource removed
+// [1.7.10] world.entity removed
 
 import static com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState.GUARD_SLEEP;
 import static com.minecolonies.api.util.constant.CitizenConstants.GUARD_HEALTH_MOD_BUILDING_NAME;
@@ -38,7 +38,7 @@ public abstract class AbstractJobGuard<J extends AbstractJobGuard<J>> extends Ab
     }
 
     @Override
-    public void triggerDeathAchievement(final DamageSource source, final AbstractEntityCitizen citizen)
+    public void triggerDeathAchievement(final net.minecraft.util.DamageSource source, final AbstractEntityCitizen citizen)
     {
         super.triggerDeathAchievement(source, citizen);
     }
@@ -88,3 +88,6 @@ public abstract class AbstractJobGuard<J extends AbstractJobGuard<J>> extends Ab
         return 1.2;
     }
 }
+
+
+

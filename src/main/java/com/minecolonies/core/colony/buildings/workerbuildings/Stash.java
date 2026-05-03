@@ -6,8 +6,8 @@ import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IRSComponent;
 import com.minecolonies.api.colony.requestsystem.resolver.IRequestResolver;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.Tuple;
+// [1.7.10] int[] -> int x,y,z
+import com.minecolonies.api.util.Tuple;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -26,7 +26,7 @@ public class Stash extends AbstractBuilding implements IRSComponent
      * @param c the colony.
      * @param l the location.
      */
-    public Stash(final IColony c, final BlockPos l)
+    public Stash(final IColony c, final int[] l)
     {
         super(c, l);
     }
@@ -38,7 +38,7 @@ public class Stash extends AbstractBuilding implements IRSComponent
     }
 
     @Override
-    public Tuple<BlockPos, BlockPos> getCorners()
+    public Tuple<int[], int[]> getCorners()
     {
         return new Tuple<>(getPosition(),getPosition());
     }
@@ -62,3 +62,5 @@ public class Stash extends AbstractBuilding implements IRSComponent
         return 0;
     }
 }
+
+

@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.managers;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -34,16 +40,16 @@ import com.minecolonies.core.network.messages.client.colony.ColonyViewBuildingVi
 import com.minecolonies.core.network.messages.client.colony.ColonyViewBuildingExtensionsUpdateMessage;
 import com.minecolonies.core.network.messages.client.colony.ColonyViewRemoveBuildingMessage;
 import com.minecolonies.core.tileentities.TileEntityDecorationController;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
+import net.minecraft.world.chunk.Chunk;
+// [1.7.10] levelgen removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,7 +65,7 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
      * List of building in the colony.
      */
     @NotNull
-    private ImmutableMap<BlockPos, IBuilding> buildings = ImmutableMap.of();
+    private ImmutableMap<int[], IBuilding> buildings = ImmutableMap.of();
 
     /**
      * Buildings that need to be recalculated for prestige value.
@@ -84,7 +90,7 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
     /**
      * List of leisure sites.
      */
-    private ImmutableList<BlockPos> leisureSites = ImmutableList.of();
+    private ImmutableList<int[]> leisureSites = ImmutableList.of();
 
     /**
      * The townhall of the colony.
@@ -126,7 +132,7 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
     }
 
     @Override
-    public void read(@NotNull final CompoundTag compound)
+    public void read(@NotNull final NBTTagCompound compound)
     {
         buildings = ImmutableMap.of();
         maxChunkX = colony.getCenter().getX() >> 4;
@@ -135,20 +141,20 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
         minChunkZ = colony.getCenter().getZ() >> 4;
 
         // Building extensions (previously fields)
-        final ListTag extensionsTagList;
+        final NBTTagList extensionsTagList;
         if (compound.contains(TAG_FIELDS))
         {
-            extensionsTagList = compound.getList(TAG_FIELDS, Tag.TAG_COMPOUND);
+            extensionsTagList = compound.getList(TAG_FIELDS, NBTBase.TAG_COMPOUND);
         }
         else
         {
-            extensionsTagList = compound.getList(TAG_BUILDING_EXTENSIONS, Tag.TAG_COMPOUND);
+            extensionsTagList = compound.getList(TAG_BUILDING_EXTENSIONS, NBTBase.TAG_COMPOUND);
         }
         for (int i = 0; i < extensionsTagList.size(); ++i)
         {
             try
             {
-                final CompoundTag extensionCompound = extensionsTagList.getCompound(i);
+                final NBTTagCompound extensionCompound = extensionsTagList.getCompound(i);
                 final IBuildingExtension extension = BuildingExtensionDataManager.compoundToExtension(extensionCompound);
                 if (extension != null)
                 {
@@ -162,10 +168,10 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
         }
 
         //  Buildings
-        final ListTag buildingTagList = compound.getList(TAG_BUILDINGS, Tag.TAG_COMPOUND);
+        final NBTTagList buildingTagList = compound.getList(TAG_BUILDINGS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < buildingTagList.size(); ++i)
         {
-            final CompoundTag buildingCompound = buildingTagList.getCompound(i);
+            final NBTTagCompound buildingCompound = buildingTagList.getCompound(i);
             @Nullable final IBuilding b = IBuildingDataManager.getInstance().createFrom(colony, buildingCompound);
             if (b != null)
             {
@@ -176,11 +182,11 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
 
         if (compound.contains(TAG_LEISURE))
         {
-            final ListTag leisureTagList = compound.getList(TAG_LEISURE, Tag.TAG_COMPOUND);
-            final List<BlockPos> leisureSitesList = new ArrayList<>();
+            final NBTTagList leisureTagList = compound.getList(TAG_LEISURE, NBTBase.TAG_COMPOUND);
+            final List<int[]> leisureSitesList = new ArrayList<>();
             for (int i = 0; i < leisureTagList.size(); ++i)
             {
-                final BlockPos pos = BlockPosUtil.read(leisureTagList.getCompound(i), TAG_POS);
+                final int[] pos = BlockPosUtil.read(leisureTagList.getCompound(i), TAG_POS);
                 if (!leisureSitesList.contains(pos))
                 {
                     leisureSitesList.add(pos);
@@ -246,13 +252,13 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
     }
 
     @Override
-    public void write(@NotNull final CompoundTag compound)
+    public void write(@NotNull final NBTTagCompound compound)
     {
         //  Buildings
-        @NotNull final ListTag buildingTagList = new ListTag();
+        @NotNull final NBTTagList buildingTagList = new NBTTagList();
         for (@NotNull final IBuilding b : buildings.values())
         {
-            @NotNull final CompoundTag buildingCompound = b.serializeNBT();
+            @NotNull final NBTTagCompound buildingCompound = b.serializeNBT();
             buildingTagList.add(buildingCompound);
         }
         compound.put(TAG_BUILDINGS, buildingTagList);
@@ -261,10 +267,10 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
         compound.put(TAG_BUILDING_EXTENSIONS, buildingExtensions.values().stream().map(BuildingExtensionDataManager::extensionToCompound).collect(NBTUtils.toListNBT()));
 
         // Leisure sites
-        @NotNull final ListTag leisureTagList = new ListTag();
-        for (@NotNull final BlockPos pos : leisureSites)
+        @NotNull final NBTTagList leisureTagList = new NBTTagList();
+        for (@NotNull final int[] pos : leisureSites)
         {
-            @NotNull final CompoundTag leisureCompound = new CompoundTag();
+            @NotNull final NBTTagCompound leisureCompound = new NBTTagCompound();
             BlockPosUtil.write(leisureCompound, TAG_POS, pos);
             leisureTagList.add(leisureCompound);
         }
@@ -280,7 +286,7 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
     }
 
     @Override
-    public void sendPackets(final Set<ServerPlayer> closeSubscribers, final Set<ServerPlayer> newSubscribers)
+    public void sendPackets(final Set<EntityPlayerMP> closeSubscribers, final Set<EntityPlayerMP> newSubscribers)
     {
         sendBuildingPackets(closeSubscribers, newSubscribers);
         sendBuildingExtensionPackets(closeSubscribers, newSubscribers);
@@ -344,7 +350,7 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
 
         for (@NotNull final IBuilding building : tempBuildings)
         {
-            final BlockPos loc = building.getPosition();
+            final int[] loc = building.getPosition();
             if (WorldUtil.isBlockLoaded(colony.getWorld(), loc) && !building.isMatchingBlock(colony.getWorld().getBlockState(loc).getBlock()))
             {
                 //  Sanity cleanup
@@ -358,7 +364,7 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
             markBuildingExtensionsDirty();
         }
 
-        for (@NotNull final BlockPos pos : leisureSites)
+        for (@NotNull final int[] pos : leisureSites)
         {
             if (WorldUtil.isBlockLoaded(colony.getWorld(), pos) && (!(colony.getWorld().getBlockEntity(pos) instanceof TileEntityDecorationController)))
             {
@@ -377,17 +383,17 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
     }
 
     @Override
-    public List<BlockPos> getLeisureSites()
+    public List<int[]> getLeisureSites()
     {
         return leisureSites;
     }
 
     @Override
-    public BlockPos getRandomLeisureSite()
+    public int[] getRandomLeisureSite()
     {
         final boolean isRaining = colony.getWorld().isRaining();
 
-        BlockPos building = null;
+        int[] building = null;
         final int randomDist = RANDOM.nextInt(4);
         if (randomDist < 1)
         {
@@ -437,9 +443,9 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
     }
 
     @Override
-    public void addLeisureSite(final BlockPos pos)
+    public void addLeisureSite(final int[] pos)
     {
-        final List<BlockPos> tempList = new ArrayList<>(leisureSites);
+        final List<int[]> tempList = new ArrayList<>(leisureSites);
         if (!tempList.contains(pos))
         {
             tempList.add(pos);
@@ -449,11 +455,11 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
     }
 
     @Override
-    public void removeLeisureSite(final BlockPos pos)
+    public void removeLeisureSite(final int[] pos)
     {
         if (leisureSites.contains(pos))
         {
-            final List<BlockPos> tempList = new ArrayList<>(leisureSites);
+            final List<int[]> tempList = new ArrayList<>(leisureSites);
             tempList.remove(pos);
             this.leisureSites = ImmutableList.copyOf(tempList);
             markBuildingsDirty();
@@ -462,7 +468,7 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
 
     @Nullable
     @Override
-    public IWareHouse getClosestWarehouseInColony(final BlockPos pos)
+    public IWareHouse getClosestWarehouseInColony(final int[] pos)
     {
         IWareHouse wareHouse = null;
         double dist = 0;
@@ -485,7 +491,7 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
     @Override
     public boolean keepChunkColonyLoaded(final LevelChunk chunk)
     {
-        final Set<BlockPos> capList = ColonyUtils.getAllClaimingBuildings(chunk).get(colony.getID());
+        final Set<int[]> capList = ColonyUtils.getAllClaimingBuildings(chunk).get(colony.getID());
         return capList != null && capList.size() >= MineColonies.getConfig().getServer().colonyLoadStrictness.get();
     }
 
@@ -512,7 +518,7 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
 
     @NotNull
     @Override
-    public Map<BlockPos, IBuilding> getBuildings()
+    public Map<int[], IBuilding> getBuildings()
     {
         return buildings;
     }
@@ -560,7 +566,7 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
     }
 
     @Override
-    public IBuilding addNewBuilding(@NotNull final AbstractTileEntityColonyBuilding tileEntity, final Level world)
+    public IBuilding addNewBuilding(@NotNull final AbstractTileEntityColonyBuilding tileEntity, final World world)
     {
         tileEntity.setColony(colony);
         if (!buildings.containsKey(tileEntity.getPosition()))
@@ -620,11 +626,11 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
     }
 
     @Override
-    public void removeBuilding(@NotNull final IBuilding building, final Set<ServerPlayer> subscribers)
+    public void removeBuilding(@NotNull final IBuilding building, final Set<EntityPlayerMP> subscribers)
     {
         if (buildings.containsKey(building.getID()))
         {
-            final ImmutableMap.Builder<BlockPos, IBuilding> builder = new ImmutableMap.Builder<>();
+            final ImmutableMap.Builder<int[], IBuilding> builder = new ImmutableMap.Builder<>();
             for (final IBuilding tbuilding : buildings.values())
             {
                 if (tbuilding != building)
@@ -635,7 +641,7 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
 
             buildings = builder.build();
 
-            for (final ServerPlayer player : subscribers)
+            for (final EntityPlayerMP player : subscribers)
             {
                 Network.getNetwork().sendToPlayer(new ColonyViewRemoveBuildingMessage(colony, building.getID()), player);
             }
@@ -766,7 +772,7 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
      */
     private void addBuilding(@NotNull final IBuilding building)
     {
-        buildings = new ImmutableMap.Builder<BlockPos, IBuilding>().putAll(buildings).put(building.getID(), building).build();
+        buildings = new ImmutableMap.Builder<int[], IBuilding>().putAll(buildings).put(building.getID(), building).build();
 
         building.markDirty();
 
@@ -792,11 +798,11 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
      * @param closeSubscribers the current event subscribers.
      * @param newSubscribers   the new event subscribers.
      */
-    private void sendBuildingPackets(final Set<ServerPlayer> closeSubscribers, final Set<ServerPlayer> newSubscribers)
+    private void sendBuildingPackets(final Set<EntityPlayerMP> closeSubscribers, final Set<EntityPlayerMP> newSubscribers)
     {
         if (isBuildingsDirty || !newSubscribers.isEmpty())
         {
-            final Set<ServerPlayer> players = new HashSet<>();
+            final Set<EntityPlayerMP> players = new HashSet<>();
             if (isBuildingsDirty)
             {
                 players.addAll(closeSubscribers);
@@ -819,11 +825,11 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
      * @param closeSubscribers the current event subscribers.
      * @param newSubscribers   the new event subscribers.
      */
-    private void sendBuildingExtensionPackets(final Set<ServerPlayer> closeSubscribers, final Set<ServerPlayer> newSubscribers)
+    private void sendBuildingExtensionPackets(final Set<EntityPlayerMP> closeSubscribers, final Set<EntityPlayerMP> newSubscribers)
     {
         if (isBuildingExtensionsDirty || !newSubscribers.isEmpty())
         {
-            final Set<ServerPlayer> players = new HashSet<>();
+            final Set<EntityPlayerMP> players = new HashSet<>();
             if (isBuildingExtensionsDirty)
             {
                 players.addAll(closeSubscribers);
@@ -834,7 +840,7 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
     }
 
     @Override
-    public boolean canPlaceAt(final Block block, final BlockPos pos, final Player player)
+    public boolean canPlaceAt(final Block block, final int[] pos, final Player player)
     {
         if (block instanceof AbstractBlockHut hutblock)
         {
@@ -845,13 +851,13 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
     }
 
     @Override
-    public void onBuildingUpgradeComplete(@Nullable final IBuilding building, final int level)
+    public void onBuildingUpgradeComplete(@Nullable final IBuilding building, final int World)
     {
         if (building != null)
         {
             colony.getCitizenManager().calculateMaxCitizens();
             markBuildingsDirty();
-            QuestObjectiveEventHandler.onBuildingUpgradeComplete(building, level);
+            QuestObjectiveEventHandler.onBuildingUpgradeComplete(building, World);
         }
     }
 
@@ -902,10 +908,10 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
     }
 
     @Override
-    public void addBuildingExtensionIfMissing(final BuildingExtensionRegistries.BuildingExtensionEntry buildingExtensionEntry, final BlockPos pos, final Player player)
+    public void addBuildingExtensionIfMissing(final BuildingExtensionRegistries.BuildingExtensionEntry buildingExtensionEntry, final int[] pos, final Player player)
     {
         buildingExtensions.computeIfAbsent(new IBuildingExtension.ExtensionId(pos, buildingExtensionEntry), (id) -> {
-            Network.getNetwork().sendToPlayer(new ColonyViewBuildingExtensionsUpdateMessage(colony, buildingExtensions.values()), (ServerPlayer) player);
+            Network.getNetwork().sendToPlayer(new ColonyViewBuildingExtensionsUpdateMessage(colony, buildingExtensions.values()), (EntityPlayerMP) player);
             markBuildingExtensionsDirty();
             return buildingExtensionEntry.produceExtension(pos);
         });
@@ -917,3 +923,8 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
         return colony;
     }
 }
+
+
+
+
+

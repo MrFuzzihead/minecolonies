@@ -1,9 +1,9 @@
 package com.minecolonies.core.generation;
 
-import net.minecraft.data.CachedOutput;
-import net.minecraft.data.DataProvider;
-import net.minecraft.data.PackOutput;
-import net.minecraft.data.recipes.FinishedRecipe;
+// [1.7.10] data removed
+// [1.7.10] data removed
+// [1.7.10] data removed
+// [1.7.10] data removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
@@ -75,3 +75,4 @@ public abstract class CustomRecipeAndLootTableProvider implements DataProvider
         }
     }
 }
+

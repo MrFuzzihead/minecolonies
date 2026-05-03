@@ -1,276 +1,143 @@
 package com.minecolonies.core.tileentities;
 
-import com.ldtteam.structurize.api.util.IRotatableBlockEntity;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
-import com.minecolonies.api.tileentities.MinecoloniesTileEntities;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.WorldUtil;
-import com.minecolonies.core.util.BuildingUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.Connection;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import org.apache.commons.lang3.StringUtils;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import com.minecolonies.api.util.Tuple;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.minecolonies.api.util.constant.NbtTagConstants.*;
 
-public class TileEntityDecorationController extends BlockEntity implements IBlueprintDataProviderBE, IRotatableBlockEntity
+/**
+ * TileEntity for the decoration placeholder block.
+ */
+public class TileEntityDecorationController extends TileEntity implements IBlueprintDataProviderBE
 {
-    /**
-     * The schematic name of the placerholder block.
-     */
+    /** The schematic name. */
     private String schematicName = "";
 
-    /**
-     * The schematic path of the placerholder block.
-     */
+    /** The schematic path. */
     private String schematicPath = "";
 
-    /**
-     * The packName it is included in.
-     */
+    /** The packName. */
     private String packName = "";
 
-    /**
-     * Corner positions of schematic, relative to te pos.
-     */
-    private BlockPos corner1 = BlockPos.ZERO;
-    private BlockPos corner2 = BlockPos.ZERO;
+    /** Corner positions as [x, y, z] int arrays. */
+    private int[] corner1 = new int[]{0, 0, 0};
+    private int[] corner2 = new int[]{0, 0, 0};
 
-    /**
-     * The used rotation/mirror.
-     */
+    /** Rotation (0-3). */
     private int cachedRotation = -1;
+
+    /** Mirror flag. */
     private boolean isMirrored = false;
 
-    /**
-     * Map of block positions relative to TE pos and string tags
-     */
-    private Map<BlockPos, List<String>> tagPosMap = new HashMap<>();
+    /** Map of block positions relative to TE pos and string tags (encoded as long[] keys). */
+    private Map<long[], List<String>> tagPosMap = new HashMap<>();
 
-    public TileEntityDecorationController(final BlockPos pos, final BlockState state)
+    /** NBTBase map cache. */
+    private Map<String, Set<long[]>> worldTagMapCache = null;
+
+    public TileEntityDecorationController()
     {
-        super(MinecoloniesTileEntities.DECO_CONTROLLER.get(), pos, state);
+        super();
+    }
+
+    // â”€â”€â”€ IBlueprintDataProviderBE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+    @Override
+    public String getSchematicName() { return schematicName; }
+
+    @Override
+    public void setSchematicName(final String name) { this.schematicName = name; }
+
+    @Override
+    public Map<long[], List<String>> getPositionedTags() { return tagPosMap; }
+
+    @Override
+    public void setPositionedTags(final Map<long[], List<String>> positionedTags)
+    {
+        this.tagPosMap = positionedTags;
+        this.worldTagMapCache = null;
+        markDirty();
     }
 
     @Override
-    public String getPackName()
+    public Map<String, Set<long[]>> getWorldTagNamePosMap()
     {
-        return packName;
-    }
-
-    @Override
-    public String getBlueprintPath()
-    {
-        return schematicPath;
-    }
-
-    @Override
-    public String getSchematicName()
-    {
-        return schematicName;
-    }
-
-    @Override
-    public void setSchematicName(final String s)
-    {
-        this.schematicName = s;
-        setChanged();
-    }
-
-    /**
-     * Trigger update action.
-     */
-    private void update()
-    {
-        this.setChanged();
-    }
-
-    @Override
-    public void setChanged()
-    {
-        if (level != null)
+        if (worldTagMapCache == null)
         {
-            WorldUtil.markChunkDirty(level, worldPosition);
+            worldTagMapCache = IBlueprintDataProviderBE.super.getWorldTagNamePosMap();
         }
+        return worldTagMapCache;
     }
 
     @Override
-    public Map<BlockPos, List<String>> getPositionedTags()
+    public Tuple<int[], int[]> getSchematicCorners()
     {
-        return tagPosMap;
-    }
-
-    @Override
-    public void setPositionedTags(final Map<BlockPos, List<String>> positionedTags)
-    {
-        tagPosMap = positionedTags;
-        setChanged();
-    }
-
-    @Override
-    public Tuple<BlockPos, BlockPos> getSchematicCorners()
-    {
-        if (corner1 == BlockPos.ZERO || corner2 == BlockPos.ZERO)
-        {
-            return new Tuple<>(worldPosition, worldPosition);
-        }
-
         return new Tuple<>(corner1, corner2);
     }
 
     @Override
-    public void setSchematicCorners(final BlockPos pos1, final BlockPos pos2)
+    public void setSchematicCorners(final int[] pos1, final int[] pos2)
     {
-        corner1 = pos1;
-        corner2 = pos2;
-        setChanged();
+        this.corner1 = pos1;
+        this.corner2 = pos2;
+        markDirty();
     }
 
-    @Override
-    public void readSchematicDataFromNBT(CompoundTag compound)
-    {
-        IBlueprintDataProviderBE.super.readSchematicDataFromNBT(compound);
-        final CompoundTag blueprintDataProvider = compound.getCompound(TAG_BLUEPRINTDATA);
-
-        this.packName = blueprintDataProvider.getString(TAG_PACK);
-        this.schematicPath = blueprintDataProvider.getString(TAG_PATH);
-    }
+    // â”€â”€â”€ NBT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     @Override
-    public void load(@NotNull final CompoundTag compound)
+    public void writeToNBT(@NotNull final NBTTagCompound compound)
     {
-        super.load(compound);
-        IBlueprintDataProviderBE.super.readSchematicDataFromNBT(compound);
-        this.cachedRotation = -1;
-        this.isMirrored = compound.getBoolean(TAG_MIRROR);
-
-        // inexplicably IBlueprintDataProviderBE does not load the pack/path even though it saved them
-        this.packName = compound.getCompound(TAG_BLUEPRINTDATA).getString(TAG_PACK);
-        this.schematicPath = compound.getCompound(TAG_BLUEPRINTDATA).getString(TAG_PATH);
-
-        // the rest of this is backwards compat code that can be removed at some point (maybe even now)
-        if(compound.contains(TAG_PATH) && StringUtils.isEmpty(this.schematicPath))
-        {
-            this.schematicPath = compound.getString(TAG_PATH);
-        }
-        if(compound.contains(TAG_PACK) && StringUtils.isEmpty(this.packName))
-        {
-            this.packName = compound.getString(TAG_PACK);
-        }
-        if(compound.contains(TAG_NAME) && StringUtils.isEmpty(this.schematicName))
-        {
-            this.schematicName = compound.getString(TAG_NAME);
-            if (this.schematicPath == null || this.schematicPath.isEmpty())
-            {
-                //Setup for recovery
-                this.schematicPath = this.schematicName;
-                this.schematicName = "";
-            }
-        }
-        // end of backwards compat code
-
-        if (!this.schematicPath.endsWith(".blueprint"))
-        {
-            this.schematicPath = this.schematicPath + ".blueprint";
-        }
-    }
-
-    @Override
-    public void saveAdditional(@NotNull final CompoundTag compound)
-    {
-        super.saveAdditional(compound);
+        super.writeToNBT(compound);
+        compound.setString(TAG_SCHEMATIC_NAME, schematicName);
+        compound.setString(TAG_PATH, schematicPath);
+        compound.setString(TAG_PACK, packName);
+        compound.setInteger("rotation", cachedRotation);
+        compound.setBoolean("mirrored", isMirrored);
         writeSchematicDataToNBT(compound);
-        compound.putBoolean(TAG_MIRROR, this.isMirrored);
-    }
-
-    @Nullable
-    @Override
-    public ClientboundBlockEntityDataPacket getUpdatePacket()
-    {
-        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
-    public void setBlueprintPath(final String filePath)
+    public void readFromNBT(@NotNull final NBTTagCompound compound)
     {
-        this.schematicPath = filePath;
-        if (!this.schematicPath.endsWith(".blueprint"))
+        super.readFromNBT(compound);
+        schematicName = compound.getString(TAG_SCHEMATIC_NAME);
+        schematicPath = compound.getString(TAG_PATH);
+        packName = compound.getString(TAG_PACK);
+        cachedRotation = compound.getInteger("rotation");
+        isMirrored = compound.getBoolean("mirrored");
+        readSchematicDataFromNBT(compound);
+    }
+
+    @Override
+    public void markDirty()
+    {
+        if (worldObj != null)
         {
-            this.schematicPath = this.schematicPath + ".blueprint";
+            WorldUtil.markChunkDirty(worldObj, xCoord, yCoord, zCoord);
         }
-        setChanged();
     }
 
-    @Override
-    public void setPackName(final String packName)
-    {
-        this.packName = packName;
-        setChanged();
-    }
+    // â”€â”€â”€ Getters / Setters â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    @NotNull
-    @Override
-    public CompoundTag getUpdateTag()
-    {
-        return this.saveWithId();
-    }
+    public String getSchematicPath() { return schematicPath; }
+    public void setSchematicPath(final String path) { this.schematicPath = path; }
 
-    @Override
-    public void onDataPacket(final Connection net, final ClientboundBlockEntityDataPacket packet)
-    {
-        final CompoundTag compound = packet.getTag();
-        this.load(compound);
-    }
+    public String getPackName() { return packName; }
+    public void setPackName(final String name) { this.packName = name; }
 
-    @Override
-    public BlockPos getTilePos()
-    {
-        return worldPosition;
-    }
+    public int getCachedRotation() { return cachedRotation; }
+    public void setCachedRotation(final int rotation) { this.cachedRotation = rotation; }
 
-    @Override
-    public void rotate(final Rotation rotationIn)
-    {
-        this.cachedRotation = -1;
-    }
-
-    @Override
-    public void mirror(final Mirror mirror)
-    {
-        this.isMirrored = mirror != Mirror.NONE;
-    }
-
-    /**
-     * Get the rotation of the controller.
-     * @return the placed rotation.
-     */
-    public Rotation getRotation()
-    {
-        if (this.cachedRotation == -1)
-        {
-            this.cachedRotation = BuildingUtils.getRotationFromBlueprint(getLevel(), getBlockPos());
-        }
-        return BlockPosUtil.getRotationFromRotations(this.cachedRotation);
-    }
-
-    /**
-     * Get the mirroring setting of the controller.
-     * @return true if mirrored.
-     */
-    public boolean getMirror()
-    {
-        return this.isMirrored;
-    }
+    public boolean isMirrored() { return isMirrored; }
+    public void setMirrored(final boolean mirrored) { this.isMirrored = mirrored; }
 }
+

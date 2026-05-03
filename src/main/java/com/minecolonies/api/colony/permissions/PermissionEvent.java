@@ -1,8 +1,8 @@
 package com.minecolonies.api.colony.permissions;
 
 import com.minecolonies.api.network.PacketUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -32,7 +32,7 @@ public class PermissionEvent
     /**
      * Impact permission.
      */
-    private final BlockPos position;
+    private final int[] position;
 
     /**
      * Constructor for permission events.
@@ -42,7 +42,7 @@ public class PermissionEvent
      * @param action   the action happening.
      * @param position the position of the action.
      */
-    public PermissionEvent(final UUID id, final String name, final Action action, final BlockPos position)
+    public PermissionEvent(final UUID id, final String name, final Action action, final int[] position)
     {
         this.id = id;
         this.name = name;
@@ -55,7 +55,7 @@ public class PermissionEvent
      *
      * @param buf the ByteBuf.
      */
-    public PermissionEvent(final FriendlyByteBuf buf)
+    public PermissionEvent(final PacketBuffer buf)
     {
         final UUID uuid = PacketUtils.readUUID(buf);
         if (uuid.equals(UUID.fromString("1-2-3-4-5")))
@@ -105,9 +105,9 @@ public class PermissionEvent
     /**
      * The position at which the event had happened.
      *
-     * @return the BlockPos.
+     * @return the int[].
      */
-    public BlockPos getPosition()
+    public int[] getPosition()
     {
         return position;
     }
@@ -117,7 +117,7 @@ public class PermissionEvent
      *
      * @param buf the buffer.
      */
-    public void serialize(final FriendlyByteBuf buf)
+    public void serialize(final PacketBuffer buf)
     {
         if (id == null)
         {
@@ -156,3 +156,5 @@ public class PermissionEvent
         return Objects.hash(id, name, action, position);
     }
 }
+
+

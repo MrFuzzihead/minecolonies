@@ -1,9 +1,26 @@
 package com.minecolonies.core.client.gui.modules.building;
 
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
-import com.ldtteam.blockui.controls.*;
+import com.ldtteam.blockui.PaneParams;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
+import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
 import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.crafting.IRecipeStorage;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.equipment.ModEquipmentTypes;
@@ -16,11 +33,11 @@ import com.minecolonies.core.network.messages.server.colony.building.worker.AddR
 import com.minecolonies.core.network.messages.server.colony.building.worker.ChangeRecipePriorityMessage;
 import com.minecolonies.core.network.messages.server.colony.building.worker.ToggleRecipeMessage;
 import com.mojang.blaze3d.platform.InputConstants;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Blocks;
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
+import net.minecraft.init.Blocks;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
@@ -29,7 +46,7 @@ import java.util.List;
 import static com.minecolonies.api.util.constant.WindowConstants.*;
 
 /**
- * BOWindow for the hiring or firing of a worker.
+ * Object (BOWindow: todo ModularUI2 removed) for the hiring or firing of a worker.
  */
 public class WindowListRecipes extends AbstractModuleWindow<CraftingModuleView>
 {
@@ -189,8 +206,8 @@ public class WindowListRecipes extends AbstractModuleWindow<CraftingModuleView>
                         {
                             removeButton.disable();
                             PaneBuilders.tooltipBuilder()
-                                .append(Component.translatable("com.minecolonies.coremod.gui.workerhuts.removebuiltin",
-                                    Component.translatable("key.keyboard.left.control")))
+                                .append(String.translatable("com.minecolonies.coremod.gui.workerhuts.removebuiltin",
+                                    String.translatable("key.keyboard.left.control")))
                                 .hoverPane(removeButton)
                                 .build();
                         }
@@ -221,13 +238,13 @@ public class WindowListRecipes extends AbstractModuleWindow<CraftingModuleView>
                 if (moduleView.isDisabled(recipe))
                 {
                     rowPane.findPaneOfTypeByID("gradient", Gradient.class).setVisible(true);
-                    rowPane.findPaneOfTypeByID(BUTTON_TOGGLE, Button.class).setText(Component.translatable("com.minecolonies.coremod.gui.recipe.enable"));
+                    rowPane.findPaneOfTypeByID(BUTTON_TOGGLE, Button.class).setText(String.translatable("com.minecolonies.coremod.gui.recipe.enable"));
                     rowPane.findPaneOfTypeByID(BUTTON_TOGGLE, Button.class).setVisible(recipe.getRecipeSource() != null || moduleView.getActiveRecipes() < moduleView.getMaxRecipes());
                 }
                 else
                 {
                     rowPane.findPaneOfTypeByID("gradient", Gradient.class).setVisible(false);
-                    rowPane.findPaneOfTypeByID(BUTTON_TOGGLE, Button.class).setText(Component.translatable("com.minecolonies.coremod.gui.recipe.disable"));
+                    rowPane.findPaneOfTypeByID(BUTTON_TOGGLE, Button.class).setText(String.translatable("com.minecolonies.coremod.gui.recipe.disable"));
                     rowPane.findPaneOfTypeByID(BUTTON_TOGGLE, Button.class).setVisible(true);
                 }
 
@@ -287,7 +304,12 @@ public class WindowListRecipes extends AbstractModuleWindow<CraftingModuleView>
         {
             lifeCount++;
         }
-        recipeStatus.setText(Component.translatable(TranslationConstants.RECIPE_STATUS, moduleView.getActiveRecipes(), moduleView.getMaxRecipes()));
+        recipeStatus.setText(String.translatable(TranslationConstants.RECIPE_STATUS, moduleView.getActiveRecipes(), moduleView.getMaxRecipes()));
         window.findPaneOfTypeByID(RECIPE_LIST, ScrollingList.class).refreshElementPanes();
     }
 }
+
+
+
+
+

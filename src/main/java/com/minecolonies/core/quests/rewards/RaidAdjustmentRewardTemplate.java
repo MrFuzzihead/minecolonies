@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.quests.IQuestInstance;
 import com.minecolonies.api.quests.IQuestRewardTemplate;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.player.EntityPlayer;
 
 import static com.minecolonies.api.quests.QuestParseConstant.CHANGE_KEY;
 import static com.minecolonies.api.quests.QuestParseConstant.DETAILS_KEY;
@@ -45,3 +45,4 @@ public class RaidAdjustmentRewardTemplate implements IQuestRewardTemplate
         colony.getRaiderManager().setNightsSinceLastRaid(colony.getRaiderManager().getNightsSinceLastRaid() + qty);
     }
 }
+

@@ -16,15 +16,15 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.minecraft.ChatFormatting;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
-import net.minecraft.network.chat.ClickEvent;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.contents.TranslatableContents;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 
 import java.util.concurrent.CompletableFuture;
 
@@ -73,14 +73,14 @@ public class CommandDeleteColony implements IMCColonyOfficerCommand
     }
 
     /**
-     * Modifies a button component with square braces.
+     * Modifies a button String with square braces.
      *
      * @param button the original input button.
-     * @return the output component with braces.
+     * @return the output String with braces.
      */
-    private Component braceButtonComponent(final Component button)
+    private String braceButtonComponent(final String button)
     {
-        return Component.literal("[").append(button).append("]");
+        return String.literal("[").append(button).append("]");
     }
 
     /**
@@ -106,11 +106,11 @@ public class CommandDeleteColony implements IMCColonyOfficerCommand
                                           .withColor(ChatFormatting.DARK_RED)
                                           .withClickEvent(createClickEvent(context, true));
 
-        final Component keepButton = braceButtonComponent(Component.translatable(COMMAND_COLONY_DELETE_CONFIRM_BUILDING_KEEP).setStyle(keepButtonStyle));
-        final Component deleteButton = braceButtonComponent(Component.translatable(COMMAND_COLONY_DELETE_CONFIRM_BUILDING_DELETE).setStyle(deleteButtonStyle));
+        final String keepButton = braceButtonComponent(String.translatable(COMMAND_COLONY_DELETE_CONFIRM_BUILDING_KEEP).setStyle(keepButtonStyle));
+        final String deleteButton = braceButtonComponent(String.translatable(COMMAND_COLONY_DELETE_CONFIRM_BUILDING_DELETE).setStyle(deleteButtonStyle));
 
-        final TranslatableContents contents = new TranslatableContents(COMMAND_COLONY_DELETE_CONFIRM_BUILDING, null, new Component[] { keepButton, deleteButton });
-        context.getSource().sendSuccess(() -> MutableComponent.create(contents).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)), true);
+        final TranslatableContents contents = new TranslatableContents(COMMAND_COLONY_DELETE_CONFIRM_BUILDING, null, new String[] { keepButton, deleteButton });
+        context.getSource().sendSuccess(() -> String.create(contents).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)), true);
         return 1;
     }
 
@@ -131,16 +131,16 @@ public class CommandDeleteColony implements IMCColonyOfficerCommand
                                     .withBold(true)
                                     .withColor(ChatFormatting.DARK_RED)
                                     .withClickEvent(createClickEvent(context, true));
-        final Component confirmButton = braceButtonComponent(Component.translatable(COMMAND_COLONY_DELETE_CONFIRM_FINAL_HERE).setStyle(buttonStyle));
+        final String confirmButton = braceButtonComponent(String.translatable(COMMAND_COLONY_DELETE_CONFIRM_FINAL_HERE).setStyle(buttonStyle));
 
-        Component deleteBuildingsComponent = Component.empty();
+        String deleteBuildingsComponent = String.empty();
         if (BoolArgumentType.getBool(context, DELETE_BUILDINGS_ARG))
         {
-            deleteBuildingsComponent = Component.translatable(COMMAND_COLONY_DELETE_CONFIRM_FINAL_BUILDING).append(" ").setStyle(Style.EMPTY.withBold(true));
+            deleteBuildingsComponent = String.translatable(COMMAND_COLONY_DELETE_CONFIRM_FINAL_BUILDING).append(" ").setStyle(Style.EMPTY.withBold(true));
         }
 
-        final TranslatableContents contents = new TranslatableContents(COMMAND_COLONY_DELETE_CONFIRM_FINAL, null, new Component[] { deleteBuildingsComponent, confirmButton });
-        context.getSource().sendSuccess(() -> MutableComponent.create(contents).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)), true);
+        final TranslatableContents contents = new TranslatableContents(COMMAND_COLONY_DELETE_CONFIRM_FINAL, null, new String[] { deleteBuildingsComponent, confirmButton });
+        context.getSource().sendSuccess(() -> String.create(contents).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)), true);
         return 1;
     }
 
@@ -149,7 +149,7 @@ public class CommandDeleteColony implements IMCColonyOfficerCommand
     {
         if (!context.getSource().hasPermission(OP_PERM_LEVEL) && !MineColonies.getConfig().getServer().canPlayerUseDeleteColonyCommand.get())
         {
-            context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_DISABLED_IN_CONFIG), true);
+            context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_DISABLED_IN_CONFIG), true);
             return false;
         }
 
@@ -171,7 +171,7 @@ public class CommandDeleteColony implements IMCColonyOfficerCommand
 
         BackUpHelper.backupColonyData();
         IColonyManager.getInstance().deleteColonyByDimension(colony.getID(), deleteBuildings, context.getSource().getLevel().dimension());
-        context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_COLONY_DELETE_SUCCESS, colony.getName()), true);
+        context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_COLONY_DELETE_SUCCESS, colony.getName()), true);
         return 1;
     }
 
@@ -207,13 +207,16 @@ public class CommandDeleteColony implements IMCColonyOfficerCommand
         {
             if ("true".startsWith(builder.getRemainingLowerCase()))
             {
-                builder.suggest("true", Component.translatable(COMMAND_COLONY_DELETE_SUGGEST_DELETE));
+                builder.suggest("true", String.translatable(COMMAND_COLONY_DELETE_SUGGEST_DELETE));
             }
             if ("false".startsWith(builder.getRemainingLowerCase()))
             {
-                builder.suggest("false", Component.translatable(COMMAND_COLONY_DELETE_SUGGEST_KEEP));
+                builder.suggest("false", String.translatable(COMMAND_COLONY_DELETE_SUGGEST_KEEP));
             }
             return builder.buildFuture();
         }
     }
 }
+
+
+

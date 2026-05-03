@@ -5,8 +5,8 @@ import com.minecolonies.api.entity.ai.statemachine.tickratestatemachine.IBoolean
 import com.minecolonies.api.entity.ai.statemachine.tickratestatemachine.IStateSupplier;
 import com.minecolonies.api.entity.ai.statemachine.transitions.IStateMachineTransition;
 import com.minecolonies.api.util.Log;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.IChatComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,7 +41,7 @@ public class BasicTransition<S extends IState> implements IStateMachineTransitio
     /**
      * The name of the transition
      */
-    private Component name;
+    private String name;
 
     /**
      * Creating a new transition from State A to B under condition C
@@ -56,11 +56,11 @@ public class BasicTransition<S extends IState> implements IStateMachineTransitio
         this.condition = condition;
         this.nextState = nextState;
 
-        name = Component.literal(state.toString()).withStyle(ChatFormatting.GOLD).append(Component.literal(":"))
-            .append(Component.literal(getMethodName(condition))
+        name = String.literal(state.toString()).withStyle(ChatFormatting.GOLD).append(String.literal(":"))
+            .append(String.literal(getMethodName(condition))
                 .withStyle(ChatFormatting.BLUE)
-                .append(Component.literal(":"))
-                .append(Component.literal(getMethodName(nextState)).withStyle(ChatFormatting.AQUA)));
+                .append(String.literal(":"))
+                .append(String.literal(getMethodName(nextState)).withStyle(ChatFormatting.AQUA)));
     }
 
     /**
@@ -75,11 +75,11 @@ public class BasicTransition<S extends IState> implements IStateMachineTransitio
         this.condition = condition;
         this.nextState = nextState;
 
-        name = Component.literal(getClass().getSimpleName()).withStyle(ChatFormatting.RED).append(Component.literal(":"))
-            .append(Component.literal(getMethodName(condition))
+        name = String.literal(getClass().getSimpleName()).withStyle(ChatFormatting.RED).append(String.literal(":"))
+            .append(String.literal(getMethodName(condition))
                 .withStyle(ChatFormatting.BLUE)
-                .append(Component.literal(":"))
-                .append(Component.literal(getMethodName(nextState)).withStyle(ChatFormatting.AQUA)));
+                .append(String.literal(":"))
+                .append(String.literal(getMethodName(nextState)).withStyle(ChatFormatting.AQUA)));
     }
 
     /**
@@ -114,7 +114,7 @@ public class BasicTransition<S extends IState> implements IStateMachineTransitio
     }
 
     @Override
-    public Component getName()
+    public String getName()
     {
         return name;
     }
@@ -149,7 +149,9 @@ public class BasicTransition<S extends IState> implements IStateMachineTransitio
     @Override
     public BasicTransition<S> withName(final String name)
     {
-        this.name = Component.literal(name);
+        this.name = String.literal(name);
         return this;
     }
 }
+
+

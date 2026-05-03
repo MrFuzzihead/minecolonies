@@ -4,14 +4,12 @@ import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.blocks.AbstractBlockHut;
 import com.minecolonies.api.blocks.AbstractColonyBlock;
 import com.minecolonies.api.colony.IColonyView;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -20,42 +18,54 @@ import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_OTHER_LEVEL
 
 /**
  * A custom item class for hut blocks.
+ *
+ * [1.7.10 BACKPORT] Ported from BlockItem (1.21) to ItemBlock (1.7.10).
+ * Tooltip API: appendHoverText → addInformation; String → String; EnumChatFormatting.
  */
-public class ItemBlockHut extends BlockItem
+@SuppressWarnings("unchecked")
+public class ItemBlockHut extends ItemBlock
 {
     /**
      * This items block.
      */
-    private AbstractColonyBlock<?> block;
+    private final AbstractColonyBlock<?> block;
 
     /**
      * Creates a new ItemBlockHut representing the item form of the given {@link AbstractBlockHut}.
-     * 
-     * @param block   the {@link AbstractBlockHut} this item represents.
-     * @param builder the item properties to use.
+     *
+     * @param block the {@link AbstractColonyBlock} this item represents.
      */
-    public ItemBlockHut(AbstractColonyBlock<?> block, Properties builder)
+    public ItemBlockHut(final AbstractColonyBlock<?> block)
     {
-        super(block, builder);
+        super(block);
         this.block = block;
     }
 
     @Override
-    public void appendHoverText(@NotNull final ItemStack stack, @Nullable final Level world, @NotNull final List<Component> tooltip, @NotNull final TooltipFlag flags)
+    public void addInformation(@NotNull final ItemStack stack,
+                               final EntityPlayer player,
+                               @NotNull final List tooltip,
+                               final boolean advanced)
     {
-        super.appendHoverText(stack, world, tooltip, flags);
+        super.addInformation(stack, player, tooltip, advanced);
 
-        if (stack.hasTag() && stack.getTag().contains(TAG_OTHER_LEVEL))
+        if (stack.hasTagCompound() && stack.getTagCompound().hasKey(TAG_OTHER_LEVEL))
         {
-            final Component level = Component.literal(String.valueOf(stack.getTag().getInt(TAG_OTHER_LEVEL))).withStyle(ChatFormatting.GOLD);
-            tooltip.add(Component.translatable("item.minecolonies.hut.level", level).withStyle(ChatFormatting.GREEN));
+            final int World = stack.getTagCompound().getInteger(TAG_OTHER_LEVEL);
+            tooltip.add(EnumChatFormatting.GREEN + "item.minecolonies.hut.World: "
+                + EnumChatFormatting.GOLD + World);
         }
-        if (stack.hasTag() && stack.getTag().contains(TAG_COLONY_ID) && world != null)
+
+        if (stack.hasTagCompound() && stack.getTagCompound().hasKey(TAG_COLONY_ID) && player != null)
         {
-            // todo: should we store a dimension id as well? because currently this can't tell, so it will sometimes be wrong
-            final IColonyView colony = IMinecoloniesAPI.getInstance().getColonyManager().getColonyView(stack.getTag().getInt(TAG_COLONY_ID), world.dimension());
-            final Component name = colony != null ? Component.literal(colony.getName()) : Component.translatable("item.minecolonies.hut.unknowncolony");
-            tooltip.add(Component.translatable("item.minecolonies.hut.colony", name).withStyle(ChatFormatting.ITALIC));
+            final World world = player.worldObj;
+            // [1.7.10 BACKPORT] dimension() → world.provider.dimensionId
+            final IColonyView colony = IMinecoloniesAPI.getInstance()
+                .getColonyManager()
+                .getColonyView(stack.getTagCompound().getInteger(TAG_COLONY_ID), world.provider.dimensionId);
+            final String name = colony != null ? colony.getName() : "item.minecolonies.hut.unknowncolony";
+            tooltip.add(EnumChatFormatting.ITALIC + "item.minecolonies.hut.colony: " + name);
         }
     }
 }
+

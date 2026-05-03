@@ -5,14 +5,14 @@ import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.colony.permissions.Action;
 import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.core.network.messages.server.AbstractColonyServerMessage;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.core.BlockPos;
-import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.block.Block;
+// [1.7.10] BlockState -> int metadata
+import net.minecraft.init.Blocks;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +27,7 @@ public class ChangeFreeToInteractBlockMessage extends AbstractColonyServerMessag
     /**
      * The position of the free to interact block.
      */
-    private BlockPos pos = new BlockPos(0, 0, 0);
+    private int[] pos = new int[]{0, 0, 0};
 
     /**
      * The blockState which can be freely interacted with.
@@ -58,7 +58,7 @@ public class ChangeFreeToInteractBlockMessage extends AbstractColonyServerMessag
     public ChangeFreeToInteractBlockMessage(@NotNull final IColonyView colony, @NotNull final Block block, @NotNull final MessageType type)
     {
         super(colony);
-        this.pos = new BlockPos(0, 0, 0);
+        this.pos = new int[]{0, 0, 0};
         this.block = block.defaultBlockState();
         this.type = type;
         this.mode = MessageMode.BLOCK;
@@ -71,7 +71,7 @@ public class ChangeFreeToInteractBlockMessage extends AbstractColonyServerMessag
      * @param pos    the position.
      * @param type   the type of
      */
-    public ChangeFreeToInteractBlockMessage(@NotNull final IColonyView colony, @NotNull final BlockPos pos, @NotNull final MessageType type)
+    public ChangeFreeToInteractBlockMessage(@NotNull final IColonyView colony, @NotNull final int[] pos, @NotNull final MessageType type)
     {
         super(colony);
         this.pos = pos;
@@ -81,7 +81,7 @@ public class ChangeFreeToInteractBlockMessage extends AbstractColonyServerMessag
     }
 
     @Override
-    public void fromBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void fromBytesOverride(@NotNull final PacketBuffer buf)
     {
 
         block = Block.stateById(buf.readInt());
@@ -91,7 +91,7 @@ public class ChangeFreeToInteractBlockMessage extends AbstractColonyServerMessag
     }
 
     @Override
-    public void toBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void toBytesOverride(@NotNull final PacketBuffer buf)
     {
 
         buf.writeInt(Block.getId(block));
@@ -108,9 +108,9 @@ public class ChangeFreeToInteractBlockMessage extends AbstractColonyServerMessag
     }
 
     @Override
-    protected void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony)
+    protected void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony)
     {
-        final Player player = ctxIn.getSender();
+        final Player player = ctx.getServerHandler().playerEntity;
         if (player == null)
         {
             return;
@@ -170,3 +170,7 @@ public class ChangeFreeToInteractBlockMessage extends AbstractColonyServerMessag
         BLOCK,
     }
 }
+
+
+
+

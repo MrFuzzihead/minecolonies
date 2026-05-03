@@ -1,7 +1,7 @@
 package com.minecolonies.api.client.render.modeltype;
 
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 /**
  * A class that implements the ISimpleModelType interface. Used to store references to female and male models for citizens.
@@ -75,3 +75,4 @@ public class SimpleModelType implements ISimpleModelType
         return femaleModel;
     }
 }
+

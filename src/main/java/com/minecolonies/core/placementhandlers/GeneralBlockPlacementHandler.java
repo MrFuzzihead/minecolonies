@@ -8,22 +8,22 @@ import com.ldtteam.structurize.util.BlockUtils;
 import com.minecolonies.api.compatibility.candb.ChiselAndBitsCheck;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.WorldUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
+import net.minecraft.nbt.NBTTagCompound;
+import com.minecolonies.api.util.Tuple;
+// [1.7.10] int /* InteractionHand */ removed
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.World;
 import net.minecraft.world.level.block.FenceBlock;
 import net.minecraft.world.level.block.FenceGateBlock;
 import net.minecraft.world.level.block.IronBarsBlock;
 import net.minecraft.world.level.block.WallBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
+// [1.7.10] block.entity removed
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] world.phys removed
+// [1.7.10] world.phys removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,17 +35,17 @@ import static com.ldtteam.structurize.placement.handlers.placement.PlacementHand
 public class GeneralBlockPlacementHandler implements IPlacementHandler
 {
     @Override
-    public boolean canHandle(@NotNull final Level world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
+    public boolean canHandle(@NotNull final World world, @NotNull final int[] pos, @NotNull final BlockState blockState)
     {
         return true;
     }
 
     @Override
     public ActionProcessingResult handle(
-      @NotNull final Level world,
-      @NotNull final BlockPos pos,
+      @NotNull final World world,
+      @NotNull final int[] pos,
       @NotNull final BlockState blockState,
-      @Nullable final CompoundTag tileEntityData,
+      @Nullable final NBTTagCompound tileEntityData,
       @NotNull final IPlacementContext context)
     {
         BlockState placementState = blockState;
@@ -54,7 +54,7 @@ public class GeneralBlockPlacementHandler implements IPlacementHandler
             try
             {
                 final BlockState tempState = blockState.getBlock().getStateForPlacement(
-                  new BlockPlaceContext(world, null, InteractionHand.MAIN_HAND, ItemStack.EMPTY,
+                  new BlockPlaceContext(world, null, 0 /* InteractionHand.MAIN_HAND */, ItemStack.EMPTY,
                     new BlockHitResult(new Vec3(0, 0, 0), Direction.DOWN, pos, true)));
                 if (tempState != null)
                 {
@@ -95,10 +95,10 @@ public class GeneralBlockPlacementHandler implements IPlacementHandler
 
     @Override
     public List<ItemStack> getRequiredItems(
-      @NotNull final Level world,
-      @NotNull final BlockPos pos,
+      @NotNull final World world,
+      @NotNull final int[] pos,
       @NotNull final BlockState blockState,
-      @Nullable final CompoundTag tileEntityData,
+      @Nullable final NBTTagCompound tileEntityData,
       @NotNull final IPlacementContext placementContext)
     {
         final List<ItemStack> itemList = new ArrayList<>();
@@ -119,7 +119,7 @@ public class GeneralBlockPlacementHandler implements IPlacementHandler
     public boolean doesWorldStateMatchBlueprintState(
         final BlockState blueprintState,
         final BlockState worldState,
-        final Tuple<BlockEntity, CompoundTag> tuple,
+        final Tuple<BlockEntity, NBTTagCompound> tuple,
         @NotNull final IPlacementContext iPlacementContext)
     {
         if (worldState.equals(blueprintState))
@@ -133,3 +133,9 @@ public class GeneralBlockPlacementHandler implements IPlacementHandler
             || blueprintState.getBlock() instanceof FenceGateBlock);
     }
 }
+
+
+
+
+
+

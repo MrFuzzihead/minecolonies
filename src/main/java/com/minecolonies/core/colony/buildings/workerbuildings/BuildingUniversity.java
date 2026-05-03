@@ -10,16 +10,16 @@ import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.api.util.StatsUtil;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.WorkerBuildingModule;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraftforge.common.Tags;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+// [1.7.10] NbtUtils removed
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
+// [1.7.10] Object /* Tags */ removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -43,14 +43,14 @@ public class BuildingUniversity extends AbstractBuilding
     private static final String UNIVERSITY = "university";
 
     /**
-     * Offline processing level cap.
+     * Offline processing World cap.
      */
     private static final int OFFLINE_PROCESSING_LEVEL_CAP = 3;
 
     /**
      * List of registered barrels.
      */
-    private final List<BlockPos> bookCases = new ArrayList<>();
+    private final List<int[]> bookCases = new ArrayList<>();
 
     /**
      * Instantiates the building.
@@ -58,7 +58,7 @@ public class BuildingUniversity extends AbstractBuilding
      * @param c the colony.
      * @param l the location.
      */
-    public BuildingUniversity(final IColony c, final BlockPos l)
+    public BuildingUniversity(final IColony c, final int[] l)
     {
         super(c, l);
     }
@@ -71,10 +71,10 @@ public class BuildingUniversity extends AbstractBuilding
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
-        final ListTag furnaceTagList = compound.getList(TAG_BOOKCASES, Tag.TAG_COMPOUND);
+        final NBTTagList furnaceTagList = compound.getList(TAG_BOOKCASES, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < furnaceTagList.size(); ++i)
         {
             bookCases.add(NbtUtils.readBlockPos(furnaceTagList.getCompound(i).getCompound(TAG_POS)));
@@ -82,13 +82,13 @@ public class BuildingUniversity extends AbstractBuilding
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compound = super.serializeNBT();
-        @NotNull final ListTag bookcaseTagList = new ListTag();
-        for (@NotNull final BlockPos entry : bookCases)
+        final NBTTagCompound compound = super.serializeNBT();
+        @NotNull final NBTTagList bookcaseTagList = new NBTTagList();
+        for (@NotNull final int[] entry : bookCases)
         {
-            @NotNull final CompoundTag bookCompound = new CompoundTag();
+            @NotNull final NBTTagCompound bookCompound = new NBTTagCompound();
             bookCompound.put(TAG_POS, NbtUtils.writeBlockPos(entry));
             bookcaseTagList.add(bookCompound);
         }
@@ -98,10 +98,10 @@ public class BuildingUniversity extends AbstractBuilding
     }
 
     @Override
-    public void registerBlockPosition(@NotNull final Block block, @NotNull final BlockPos pos, @NotNull final Level world)
+    public void registerBlockPosition(@NotNull final Block block, @NotNull final int[] pos, @NotNull final World world)
     {
         super.registerBlockPosition(block, pos, world);
-        if (block.defaultBlockState().is(Tags.Blocks.BOOKSHELVES))
+        if (block.defaultBlockState().is(Object /* Tags */.Blocks.BOOKSHELVES))
         {
             bookCases.add(pos);
         }
@@ -112,14 +112,14 @@ public class BuildingUniversity extends AbstractBuilding
      *
      * @return the position of it.
      */
-    public BlockPos getRandomBookShelf()
+    public int[] getRandomBookShelf()
     {
         if (bookCases.isEmpty())
         {
             return getPosition();
         }
-        final BlockPos returnPos = bookCases.get(MathUtils.RANDOM.nextInt(bookCases.size()));
-        if (colony.getWorld().getBlockState(returnPos).is(Tags.Blocks.BOOKSHELVES))
+        final int[] returnPos = bookCases.get(MathUtils.RANDOM.nextInt(bookCases.size()));
+        if (colony.getWorld().getBlockState(returnPos).is(Object /* Tags */.Blocks.BOOKSHELVES))
         {
             return returnPos;
         }
@@ -169,8 +169,8 @@ public class BuildingUniversity extends AbstractBuilding
 
         StatsUtil.trackStat(this, RESEARCH_COMPLETED, 1);
 
-        final MutableComponent message = Component.translatable(RESEARCH_CONCLUDED + ThreadLocalRandom.current().nextInt(3),
-          MutableComponent.create(IGlobalResearchTree.getInstance().getResearch(research.getBranch(), research.getId()).getName()));
+        final String message = String.translatable(RESEARCH_CONCLUDED + ThreadLocalRandom.current().nextInt(3),
+          String.create(IGlobalResearchTree.getInstance().getResearch(research.getBranch(), research.getId()).getName()));
 
         MessageUtils.format(message).sendTo(colony).forManagers();
         colony.getResearchManager().checkAutoStartResearch();
@@ -193,3 +193,9 @@ public class BuildingUniversity extends AbstractBuilding
         }
     }
 }
+
+
+
+
+
+

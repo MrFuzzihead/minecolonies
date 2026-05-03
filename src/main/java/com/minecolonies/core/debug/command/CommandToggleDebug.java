@@ -9,11 +9,11 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.ChatFormatting;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.GameProfileArgument;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.entity.player.EntityPlayerMP;
 
 import static com.minecolonies.core.commands.CommandArgumentNames.PLAYERNAME_ARG;
 
@@ -39,25 +39,25 @@ public class CommandToggleDebug implements IMCOPCommand
 
         if (enabled)
         {
-            context.getSource().sendSuccess(() -> Component.literal("Enabled minecolonies debugging for:" + profile.getName()).withStyle(ChatFormatting.GREEN), true);
+            context.getSource().sendSuccess(() -> String.literal("Enabled minecolonies debugging for:" + profile.getName()).withStyle(ChatFormatting.GREEN), true);
         }
         else
         {
-            context.getSource().sendSuccess(() -> Component.literal("Disabled minecolonies debugging for:" + profile.getName()).withStyle(ChatFormatting.RED), true);
+            context.getSource().sendSuccess(() -> String.literal("Disabled minecolonies debugging for:" + profile.getName()).withStyle(ChatFormatting.RED), true);
         }
 
-        final ServerPlayer player = context.getSource().getServer().getPlayerList().getPlayer(profile.getId());
+        final EntityPlayerMP player = context.getSource().getServer().getPlayerList().getPlayer(profile.getId());
         if (player != null)
         {
             if (enabled)
             {
                 Network.getNetwork().sendToPlayer(new DebugEnableMessage(true), player);
-                player.sendSystemMessage(Component.literal("Enabled minecolonies debugging").withStyle(ChatFormatting.GREEN));
+                player.sendSystemMessage(String.literal("Enabled minecolonies debugging").withStyle(ChatFormatting.GREEN));
             }
             else
             {
                 Network.getNetwork().sendToPlayer(new DebugEnableMessage(false), player);
-                player.sendSystemMessage(Component.literal("Disabled minecolonies debugging").withStyle(ChatFormatting.RED));
+                player.sendSystemMessage(String.literal("Disabled minecolonies debugging").withStyle(ChatFormatting.RED));
             }
         }
 
@@ -80,3 +80,6 @@ public class CommandToggleDebug implements IMCOPCommand
             .then(IMCCommand.newArgument(PLAYERNAME_ARG, GameProfileArgument.gameProfile()).executes(this::checkPreConditionAndExecute));
     }
 }
+
+
+

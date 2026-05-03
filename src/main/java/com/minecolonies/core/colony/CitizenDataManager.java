@@ -2,8 +2,8 @@ package com.minecolonies.core.colony;
 
 import com.minecolonies.api.colony.*;
 import com.minecolonies.api.util.Log;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_ID;
@@ -11,7 +11,7 @@ import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_ID;
 public class CitizenDataManager implements ICitizenDataManager
 {
     @Override
-    public ICitizenData createFromNBT(@NotNull final CompoundTag compound, final IColony colony)
+    public ICitizenData createFromNBT(@NotNull final NBTTagCompound compound, final IColony colony)
     {
         final int id = compound.getInt(TAG_ID);
         final @NotNull CitizenData citizen = new CitizenData(id, colony);
@@ -20,7 +20,7 @@ public class CitizenDataManager implements ICitizenDataManager
     }
 
     @Override
-    public ICitizenDataView createFromNetworkData(final int id, @NotNull final FriendlyByteBuf networkBuffer, final IColonyView colonyView)
+    public ICitizenDataView createFromNetworkData(final int id, @NotNull final PacketBuffer networkBuffer, final IColonyView colonyView)
     {
         ICitizenDataView citizenDataView = colonyView.getCitizen(id) == null ? new CitizenDataView(id, colonyView) : colonyView.getCitizen(id);
 
@@ -38,3 +38,6 @@ public class CitizenDataManager implements ICitizenDataManager
         return citizenDataView;
     }
 }
+
+
+

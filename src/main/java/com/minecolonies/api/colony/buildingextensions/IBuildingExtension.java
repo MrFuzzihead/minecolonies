@@ -6,11 +6,11 @@ import com.minecolonies.api.colony.buildingextensions.registry.BuildingExtension
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.colony.modules.IModuleContainer;
 import com.minecolonies.api.util.BlockPosUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,21 +34,21 @@ public interface IBuildingExtension extends IModuleContainer<IBuildingExtensionM
      *
      * @return central location of the building extension.
      */
-    @NotNull BlockPos getPosition();
+    @NotNull int[] getPosition();
 
     /**
      * Getter for the owning building of the building extension.
      *
      * @return the id or null.
      */
-    @Nullable BlockPos getBuildingId();
+    @Nullable int[] getBuildingId();
 
     /**
      * Sets the owning building of the building extension.
      *
      * @param buildingId id of the building.
      */
-    void setBuilding(final BlockPos buildingId);
+    void setBuilding(final int[] buildingId);
 
     /**
      * Resets the ownership of the building extension.
@@ -73,28 +73,28 @@ public interface IBuildingExtension extends IModuleContainer<IBuildingExtensionM
     /**
      * Stores the NBT data of the building extension.
      */
-    @NotNull CompoundTag serializeNBT();
+    @NotNull NBTTagCompound serializeNBT();
 
     /**
      * Reconstruct the building extension from the given NBT data.
      *
      * @param compound the compound to read from.
      */
-    void deserializeNBT(@NotNull CompoundTag compound);
+    void deserializeNBT(@NotNull NBTTagCompound compound);
 
     /**
      * Serialize a building extension to a buffer.
      *
      * @param buf the buffer to write the building extension data to.
      */
-    void serialize(@NotNull FriendlyByteBuf buf);
+    void serialize(@NotNull PacketBuffer buf);
 
     /**
      * Deserialize a building extension from a buffer.
      *
      * @param buf the buffer to read the building extension data from.
      */
-    void deserialize(@NotNull FriendlyByteBuf buf);
+    void deserialize(@NotNull PacketBuffer buf);
 
     /**
      * Condition to check whether this building extension instance is currently properly placed down.
@@ -132,19 +132,23 @@ public interface IBuildingExtension extends IModuleContainer<IBuildingExtensionM
      * @param pos the pos it's at.
      * @param entry it's entry type.
      */
-    record ExtensionId(BlockPos pos, BuildingExtensionRegistries.BuildingExtensionEntry entry)
+    record ExtensionId(int[] pos, BuildingExtensionRegistries.BuildingExtensionEntry entry)
     {
-        public Tag serializeNBT()
+        public NBTBase serializeNBT()
         {
-            final CompoundTag tag = new CompoundTag();
-            BlockPosUtil.write(tag, TAG_POS, pos);
-            tag.putString(TAG_ID, entry.getRegistryName().toString());
-            return tag;
+            final NBTTagCompound NBTBase = new NBTTagCompound();
+            BlockPosUtil.write(NBTBase, TAG_POS, pos);
+            NBTBase.putString(TAG_ID, entry.getRegistryName().toString());
+            return NBTBase;
         }
 
-        public static ExtensionId deserializeNBT(final CompoundTag nbt)
+        public static ExtensionId deserializeNBT(final NBTTagCompound nbt)
         {
             return new ExtensionId(BlockPosUtil.read(nbt, TAG_POS), BuildingExtensionRegistries.getBuildingExtensionRegistry().getValue(ResourceLocation.tryParse(nbt.getString(TAG_ID))));
         }
     }
 }
+
+
+
+

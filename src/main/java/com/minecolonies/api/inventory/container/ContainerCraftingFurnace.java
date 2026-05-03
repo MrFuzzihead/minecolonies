@@ -3,21 +3,22 @@ package com.minecolonies.api.inventory.container;
 import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.inventory.ModContainers;
 import com.minecolonies.api.util.ItemStackUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
-import net.minecraft.world.inventory.FurnaceResultSlot;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.SlotItemHandler;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
+// [1.7.10] game protocol packet not needed
+import net.minecraft.entity.player.EntityPlayerMP;
+// [1.7.10] Inventory removed
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.Container;
+// [1.7.10] int not in 1.7.10
+import net.minecraft.inventory.Slot;  // [1.7.10] Slot replaced by Slot
+import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+// [1.7.10] items shim in com.minecolonies.api.shim
+// [1.7.10] items shim in com.minecolonies.api.shim
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -27,22 +28,22 @@ import static com.minecolonies.api.util.constant.InventoryConstants.*;
 /**
  * Crafting container for the recipe teaching of furnace recipes.
  */
-public class ContainerCraftingFurnace extends AbstractContainerMenu
+public class ContainerCraftingFurnace extends Container
 {
     /**
      * The furnace inventory.
      */
-    private final IItemHandler furnaceInventory;
+    private final net.minecraftforge.items.IItemHandler furnaceInventory;
 
     /**
-     * The player assigned to it.
+     * The EntityPlayer assigned to it.
      */
-    private final Inventory playerInventory;
+    private final InventoryPlayer playerInventory;
 
     /**
      * The colony building.
      */
-    public final BlockPos buildingPos;
+    public final int[] buildingPos;
 
     /**
      * The module id.
@@ -53,13 +54,13 @@ public class ContainerCraftingFurnace extends AbstractContainerMenu
      * Deserialize packet buffer to container instance.
      *
      * @param windowId     the id of the window.
-     * @param inv          the player inventory.
+     * @param inv          the EntityPlayer inventory.
      * @param packetBuffer network buffer
      * @return new instance
      */
-    public static ContainerCraftingFurnace fromFriendlyByteBuf(final int windowId, final Inventory inv, final FriendlyByteBuf packetBuffer)
+    public static ContainerCraftingFurnace fromPacketBuffer(final int windowId, final InventoryPlayer inv, final PacketBuffer packetBuffer)
     {
-        final BlockPos tePos = packetBuffer.readBlockPos();
+        final int[] tePos = packetBuffer.readBlockPos();
         final int moduleId = packetBuffer.readInt();
         return new ContainerCraftingFurnace(windowId, inv, tePos, moduleId);
     }
@@ -68,17 +69,17 @@ public class ContainerCraftingFurnace extends AbstractContainerMenu
      * Constructs the GUI with the player.
      *
      * @param windowId the window id.
-     * @param inv      the player inventory.
+     * @param inv      the EntityPlayer inventory.
      * @param pos      te world pos
      */
-    public ContainerCraftingFurnace(final int windowId, final Inventory inv, final BlockPos pos, final int moduleId)
+    public ContainerCraftingFurnace(final int windowId, final InventoryPlayer inv, final int[] pos, final int moduleId)
     {
-        super(ModContainers.craftingFurnace.get(), windowId);
+        super();
         this.moduleId = moduleId;
         this.furnaceInventory = new IItemHandlerModifiable()
         {
-            ItemStack input = ItemStack.EMPTY;
-            ItemStack output = ItemStack.EMPTY;
+            ItemStack input = null;
+            ItemStack output = null;
 
             @Override
             public void setStackInSlot(final int slot, @Nonnull final ItemStack stack)
@@ -136,7 +137,7 @@ public class ContainerCraftingFurnace extends AbstractContainerMenu
             @Override
             public ItemStack extractItem(final int slot, final int amount, final boolean simulate)
             {
-                return ItemStack.EMPTY;
+                return null;
             }
 
             @Override
@@ -150,7 +151,7 @@ public class ContainerCraftingFurnace extends AbstractContainerMenu
             {
                 if (slot == 0)
                 {
-                    return !IMinecoloniesAPI.getInstance().getFurnaceRecipes().getSmeltingResult(stack).isEmpty();
+                    return !IMinecoloniesAPI.getInstance().getFurnaceRecipes().getSmeltingResult(stack) == null;
                 }
                 else
                 {
@@ -172,17 +173,17 @@ public class ContainerCraftingFurnace extends AbstractContainerMenu
             @Override
             public ItemStack remove(final int par1)
             {
-                return ItemStack.EMPTY;
+                return null;
             }
 
             @Override
-            public boolean mayPlace(final ItemStack par1ItemStack)
+            public boolean isItemValid(final ItemStack par1ItemStack)
             {
                 return true;
             }
 
             @Override
-            public boolean mayPickup(final Player par1PlayerEntity)
+            public boolean canTakeStack(final EntityPlayer par1PlayerEntity)
             {
                 return false;
             }
@@ -190,8 +191,8 @@ public class ContainerCraftingFurnace extends AbstractContainerMenu
 
         this.addSlot(new SlotItemHandler(furnaceInventory, 1, 116, 35));
 
-        // Player inventory slots
-        // Note: The slot numbers are within the player inventory and may be the same as the field inventory.
+        // EntityPlayer inventory slots
+        // Note: The slot numbers are within the EntityPlayer inventory and may be the same as the field inventory.
         int i;
         for (i = 0; i < INVENTORY_ROWS; i++)
         {
@@ -217,14 +218,14 @@ public class ContainerCraftingFurnace extends AbstractContainerMenu
     }
 
     @Override
-    public void clicked(final int slotId, final int clickedButton, final ClickType mode, final Player playerIn)
+    public void clicked(final int slotId, final int clickedButton, final int mode, final EntityPlayer playerIn)
     {
         if (slotId >= 0 && slotId < FURNACE_SLOTS)
         {
             // 1 is shift-click
-            if (mode == ClickType.PICKUP
-                  || mode == ClickType.PICKUP_ALL
-                  || mode == ClickType.SWAP)
+            if (mode == 0
+                  || mode == 1
+                  || mode == 2)
             {
                 final Slot slot = this.slots.get(slotId);
                 handleSlotClick(slot, this.getCarried());
@@ -264,12 +265,12 @@ public class ContainerCraftingFurnace extends AbstractContainerMenu
             copy.setCount(1);
             slot.set(copy);
         }
-        else if (slot.getItem().getCount() > 0)
+        else if (slot.getStack().getCount() > 0)
         {
-            slot.set(ItemStack.EMPTY);
+            slot.set(null);
         }
 
-        return slot.getItem().copy();
+        return slot.getStack().copy();
     }
 
     /**
@@ -277,9 +278,9 @@ public class ContainerCraftingFurnace extends AbstractContainerMenu
      */
     private void updateFurnaceOutput()
     {
-        if (!playerInventory.player.level().isClientSide)
+        if (!playerInventory.player.World().isRemote)
         {
-            final ServerPlayer player = (ServerPlayer) playerInventory.player;
+            final EntityPlayerMP player = (EntityPlayerMP) playerInventory.player;
             final ItemStack result = IMinecoloniesAPI.getInstance().getFurnaceRecipes().getSmeltingResult(furnaceInventory.getStackInSlot(0));
 
             this.furnaceInventory.insertItem(1, result, false);
@@ -288,25 +289,25 @@ public class ContainerCraftingFurnace extends AbstractContainerMenu
     }
 
     @Override
-    public boolean stillValid(@NotNull final Player playerIn)
+    public boolean canInteractWith(@NotNull final EntityPlayer playerIn)
     {
         return true;
     }
 
     @NotNull
     @Override
-    public ItemStack quickMoveStack(final Player playerIn, final int index)
+    public ItemStack transferStackInSlot(final EntityPlayer playerIn, final int index)
     {
         if (index <= FURNACE_SLOTS)
         {
-            return ItemStack.EMPTY;
+            return null;
         }
 
         ItemStack itemstack = ItemStackUtils.EMPTY;
         final Slot slot = this.slots.get(index);
-        if (slot != null && slot.hasItem())
+        if (slot != null && slot.getHasStack())
         {
-            final ItemStack itemstack1 = slot.getItem();
+            final ItemStack itemstack1 = slot.getStack();
             itemstack = itemstack1.copy();
             if (index == 0)
             {
@@ -327,7 +328,7 @@ public class ContainerCraftingFurnace extends AbstractContainerMenu
                         && !this.moveItemStackTo(itemstack1, FURNACE_SLOTS, HOTBAR_START, false))
                        || !this.moveItemStackTo(itemstack1, FURNACE_SLOTS, TOTAL_SLOTS_FURNACE, false))
             {
-                return ItemStack.EMPTY;
+                return null;
             }
             if (itemstack1.getCount() == 0)
             {
@@ -348,7 +349,7 @@ public class ContainerCraftingFurnace extends AbstractContainerMenu
     @Override
     public boolean canTakeItemForPickAll(final ItemStack stack, final Slot slotIn)
     {
-        return !(slotIn instanceof FurnaceResultSlot) && super.canTakeItemForPickAll(stack, slotIn);
+        return !(slotIn instanceof Slot) && super.canTakeItemForPickAll(stack, slotIn);
     }
 
     /**
@@ -356,7 +357,7 @@ public class ContainerCraftingFurnace extends AbstractContainerMenu
      *
      * @return the player.
      */
-    public Player getPlayer()
+    public EntityPlayer getPlayer()
     {
         return playerInventory.player;
     }
@@ -366,9 +367,9 @@ public class ContainerCraftingFurnace extends AbstractContainerMenu
      *
      * @return the world obj.
      */
-    public Level getWorldObj()
+    public World getWorldObj()
     {
-        return playerInventory.player.level();
+        return playerInventory.player.World();
     }
 
     /**
@@ -376,7 +377,7 @@ public class ContainerCraftingFurnace extends AbstractContainerMenu
      *
      * @return the position.
      */
-    public BlockPos getPos()
+    public int[] getPos()
     {
         return buildingPos;
     }
@@ -390,3 +391,6 @@ public class ContainerCraftingFurnace extends AbstractContainerMenu
         return this.moduleId;
     }
 }
+
+
+

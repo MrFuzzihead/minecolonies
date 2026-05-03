@@ -1,6 +1,6 @@
 package com.minecolonies.api.colony;
 
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -12,12 +12,12 @@ public interface IGraveData
      * get the data NBT of the citizen .
      */
     @Nullable
-    CompoundTag getCitizenDataNBT();
+    NBTTagCompound getCitizenDataNBT();
 
     /**
      * Set data NBT of the citizen .
      */
-    void setCitizenDataNBT(@Nullable CompoundTag citizenDataNBT);
+    void setCitizenDataNBT(@Nullable NBTTagCompound citizenDataNBT);
 
     /**
      * Get the name of the citizen.
@@ -45,11 +45,13 @@ public interface IGraveData
      * Read this CitizenData from the compoundNBT
      * @param compoundNBT
      */
-    void read(CompoundTag compoundNBT);
+    void read(NBTTagCompound compoundNBT);
 
     /**
      * Write this CitizenData to a coumpoundNBT
      * @return
      */
-    CompoundTag write();
+    NBTTagCompound write();
 }
+
+

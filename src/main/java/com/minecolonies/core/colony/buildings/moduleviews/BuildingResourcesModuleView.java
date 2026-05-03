@@ -1,16 +1,16 @@
 package com.minecolonies.core.colony.buildings.moduleviews;
 
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.buildings.modules.AbstractBuildingModuleView;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.modules.building.WindowBuilderResModule;
 import com.minecolonies.core.colony.buildings.utils.BuildingBuilderResource;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -41,7 +41,7 @@ public class BuildingResourcesModuleView extends AbstractBuildingModuleView
     private int totalStages    = 1;
 
     @Override
-    public void deserialize(@NotNull final FriendlyByteBuf buf)
+    public void deserialize(@NotNull final PacketBuffer buf)
     {
         final int size = buf.readInt();
         resources.clear();
@@ -122,7 +122,7 @@ public class BuildingResourcesModuleView extends AbstractBuildingModuleView
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public BOWindow getWindow()
+    public Object /* BOWindow: todo ModularUI2 */ getWindow()
     {
         return new WindowBuilderResModule(this);
     }
@@ -134,8 +134,11 @@ public class BuildingResourcesModuleView extends AbstractBuildingModuleView
     }
 
     @Override
-    public Component getDesc()
+    public String getDesc()
     {
-        return Component.translatable("com.minecolonies.coremod.gui.workerhuts.resourcelist");
+        return String.translatable("com.minecolonies.coremod.gui.workerhuts.resourcelist");
     }
 }
+
+
+

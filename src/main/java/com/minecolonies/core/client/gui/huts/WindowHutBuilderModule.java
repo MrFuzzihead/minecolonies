@@ -4,15 +4,15 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.AbstractWindowWorkerModuleBuilding;
 import com.minecolonies.core.client.gui.WindowHutGuide;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingBuilder;
-import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.AdvancementProgress;
-import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] advancements removed
+// [1.7.10] advancements removed
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.ResourceLocation;
 
 import static com.minecolonies.api.util.constant.WindowConstants.*;
 
 /**
- * BOWindow for the builder hut.
+ * Object (BOWindow: todo ModularUI2 removed) for the builder hut.
  */
 public class WindowHutBuilderModule extends AbstractWindowWorkerModuleBuilding<BuildingBuilder.View>
 {
@@ -65,3 +65,7 @@ public class WindowHutBuilderModule extends AbstractWindowWorkerModuleBuilding<B
         super.onOpened();
     }
 }
+
+
+
+

@@ -20,31 +20,31 @@ import com.minecolonies.core.colony.crafting.LootTableAnalyzer;
 import com.minecolonies.core.generation.ItemNbtCalculator;
 import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.item.*;
-import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.Tags;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.IForgeRegistry;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] BuiltInRegistries removed
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+// [1.7.10] NbtUtils removed
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.network.PacketBuffer;
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] tags removed
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+import net.minecraft.item.Item; import net.minecraft.item.ItemStack; import net.minecraft.item.ItemBlock;
+// [1.7.10] RecipeManager removed
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+// [1.7.10] block.entity removed
+// [1.7.10] BlockState -> int metadata
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+// [1.7.10] Tags removed
+// [1.7.10] ModList removed
+// [1.7.10] registries removed
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -138,9 +138,9 @@ public class CompatibilityManager implements ICompatibilityManager
     private ImmutableSet<ResourceLocation> monsters = ImmutableSet.of();
 
     /**
-     * Mapping of itemstorage to creativemodetab.
+     * Mapping of itemstorage to net.minecraft.creativetab.CreativeTabs.
      */
-    private final Map<ItemStorage, CreativeModeTab> creativeModeTabMap = new HashMap<>();
+    private final Map<ItemStorage, net.minecraft.creativetab.CreativeTabs> creativeModeTabMap = new HashMap<>();
 
     /**
      * Cached mapping of items and colors to dyes.
@@ -180,19 +180,19 @@ public class CompatibilityManager implements ICompatibilityManager
      * @param recipeManager The vanilla recipe manager.
      */
     @Override
-    public void discover(@NotNull final RecipeManager recipeManager, final Level level)
+    public void discover(final World world)
     {
         clear();
-        discoverAllItems(level);
+        discoverAllItems(World);
 
         discoverModCompat();
 
-        discoverCompostRecipes(recipeManager);
+        // [1.7.10] discoverCompostRecipes(recipeManager)  no RecipeManager
         discoverMobs();
     }
 
     @Override
-    public void serialize(@NotNull final FriendlyByteBuf buf)
+    public void serialize(@NotNull final PacketBuffer buf)
     {
         serializeItemStorageList(buf, saplings);
         serializeBlockList(buf, oreBlocks);
@@ -221,10 +221,10 @@ public class CompatibilityManager implements ICompatibilityManager
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void deserialize(@NotNull final FriendlyByteBuf buf, final ClientLevel level)
+    public void deserialize(@NotNull final PacketBuffer buf, final net.minecraft.world.World World)
     {
         clear();
-        discoverAllItems(level);
+        discoverAllItems(World);
 
         saplings.addAll(deserializeItemStorageList(buf));
         oreBlocks.addAll(deserializeBlockList(buf));
@@ -265,56 +265,56 @@ public class CompatibilityManager implements ICompatibilityManager
     }
 
     private static void serializeItemStorageList(
-      @NotNull final FriendlyByteBuf buf,
+      @NotNull final PacketBuffer buf,
       @NotNull final Collection<ItemStorage> list)
     {
         buf.writeCollection(list, StandardFactoryController.getInstance()::serialize);
     }
 
     @NotNull
-    private static List<ItemStorage> deserializeItemStorageList(@NotNull final FriendlyByteBuf buf)
+    private static List<ItemStorage> deserializeItemStorageList(@NotNull final PacketBuffer buf)
     {
         return buf.readList(StandardFactoryController.getInstance()::deserialize);
     }
 
     private static void serializeBlockList(
-      @NotNull final FriendlyByteBuf buf,
+      @NotNull final PacketBuffer buf,
       @NotNull final Collection<Block> list)
     {
-        buf.writeCollection(list.stream().map(ItemStack::new).toList(), FriendlyByteBuf::writeItem);
+        buf.writeCollection(list.stream().map(ItemStack::new).toList(), PacketBuffer::writeItem);
     }
 
     @NotNull
-    private static List<Block> deserializeBlockList(@NotNull final FriendlyByteBuf buf)
+    private static List<Block> deserializeBlockList(@NotNull final PacketBuffer buf)
     {
-        final List<ItemStack> stacks = buf.readList(FriendlyByteBuf::readItem);
+        final List<ItemStack> stacks = buf.readList(PacketBuffer::readItem);
         return stacks.stream()
           .flatMap(stack -> stack.getItem() instanceof BlockItem blockItem
                               ? Stream.of(blockItem.getBlock()) : Stream.empty())
           .toList();
     }
 
+    // [1.7.10] IForgeRegistry does not exist; monsters serialization stubbed.
     private static void serializeRegistryIds(
-      @NotNull final FriendlyByteBuf buf,
-      @NotNull final IForgeRegistry<?> registry,
+      @NotNull final PacketBuffer buf,
+      @NotNull final Object registry,
       @NotNull final Collection<ResourceLocation> ids)
     {
-        buf.writeCollection(ids, (b, id) -> b.writeRegistryIdUnsafe(registry, id));
+        buf.writeInt(0); // stub: write empty list
     }
 
     @NotNull
     private static <T> List<ResourceLocation>
     deserializeRegistryIds(
-      @NotNull final FriendlyByteBuf buf,
-      @NotNull final IForgeRegistry<T> registry)
+      @NotNull final PacketBuffer buf,
+      @NotNull final Object registry)
     {
-        return buf.readList(b -> b.readRegistryIdUnsafe(registry)).stream()
-          .flatMap(item -> Stream.ofNullable(registry.getKey(item)))
-          .toList();
+        int count = buf.readInt(); // stub: read empty list
+        return java.util.Collections.emptyList();
     }
 
     private static void serializeCompostRecipes(
-      @NotNull final FriendlyByteBuf buf,
+      @NotNull final PacketBuffer buf,
       @NotNull final Map<Item, CompostRecipe> compostRecipes)
     {
         final List<CompostRecipe> recipes = compostRecipes.values().stream().distinct().toList();
@@ -322,7 +322,7 @@ public class CompatibilityManager implements ICompatibilityManager
     }
 
     @NotNull
-    private static List<CompostRecipe> deserializeCompostRecipes(@NotNull final FriendlyByteBuf buf)
+    private static List<CompostRecipe> deserializeCompostRecipes(@NotNull final PacketBuffer buf)
     {
         final CompostRecipe.Serializer serializer = ModRecipeSerializer.CompostRecipeSerializer.get();
         final ResourceLocation empty = new ResourceLocation("");
@@ -492,14 +492,14 @@ public class CompatibilityManager implements ICompatibilityManager
     }
 
     @Override
-    public boolean isOre(final BlockState block)
+    @Override
+    public boolean isOre(final Block block)
     {
         if (oreBlocks.isEmpty())
         {
             Log.getLogger().error("isOre when empty");
         }
-
-        return oreBlocks.contains(block.getBlock());
+        return oreBlocks.contains(block);
     }
 
     @Override
@@ -550,9 +550,9 @@ public class CompatibilityManager implements ICompatibilityManager
     }
 
     @Override
-    public void write(@NotNull final CompoundTag compound)
+    public void write(@NotNull final NBTTagCompound compound)
     {
-        @NotNull final ListTag saplingsLeavesTagList =
+        @NotNull final NBTTagList saplingsLeavesTagList =
           leavesToSaplingMap.entrySet()
             .stream()
             .filter(entry -> entry.getKey() != null)
@@ -562,9 +562,9 @@ public class CompatibilityManager implements ICompatibilityManager
     }
 
     @Override
-    public void read(@NotNull final CompoundTag compound)
+    public void read(@NotNull final NBTTagCompound compound)
     {
-        NBTUtils.streamCompound(compound.getList(TAG_SAP_LEAF, Tag.TAG_COMPOUND))
+        NBTUtils.streamCompound(compound.getList(TAG_SAP_LEAF, NBTBase.TAG_COMPOUND))
           .map(CompatibilityManager::readLeafSaplingEntryFromNBT)
           .filter(key -> !key.getA().isAir() && !leavesToSaplingMap.containsKey(key.getA().getBlock()) && !leavesToSaplingMap.containsValue(key.getB()))
           .forEach(key -> leavesToSaplingMap.put(key.getA().getBlock(), key.getB()));
@@ -580,7 +580,7 @@ public class CompatibilityManager implements ICompatibilityManager
     }
 
     @Override
-    public CreativeModeTab getCreativeTab(final ItemStorage checkItem)
+    public net.minecraft.creativetab.CreativeTabs getCreativeTab(final ItemStorage checkItem)
     {
         return creativeModeTabMap.get(checkItem);
     }
@@ -588,7 +588,7 @@ public class CompatibilityManager implements ICompatibilityManager
     @Override
     public int getCreativeTabKey(final ItemStorage checkItem)
     {
-        final CreativeModeTab creativeTab = creativeModeTabMap.get(checkItem);
+        final net.minecraft.creativetab.CreativeTabs creativeTab = creativeModeTabMap.get(checkItem);
         return creativeTab == null ? DEFAULT_TAB_KEY : creativeModeTabMap.get(checkItem).column();
     }
 
@@ -629,7 +629,7 @@ public class CompatibilityManager implements ICompatibilityManager
     /**
      * Create complete list of all existing items, client side only.
      */
-    private void discoverAllItems(final Level level)
+    private void discoverAllItems(final World World)
     {
         if (!food.isEmpty())
         {
@@ -639,7 +639,7 @@ public class CompatibilityManager implements ICompatibilityManager
         final Set<ItemStorage> tempDuplicates = new HashSet<>();
         final Set<ItemStorage> tempFlowers = new HashSet<>();
 
-        final CreativeModeTab.ItemDisplayParameters tempDisplayParams = new CreativeModeTab.ItemDisplayParameters(level.enabledFeatures(), false, level.registryAccess());
+        final net.minecraft.creativetab.CreativeTabs.ItemDisplayParameters tempDisplayParams = new net.minecraft.creativetab.CreativeTabs.ItemDisplayParameters(World.enabledFeatures(), false, World.registryAccess());
 
         final ImmutableList.Builder<ItemStack> listBuilder = new ImmutableList.Builder<>();
 
@@ -710,7 +710,7 @@ public class CompatibilityManager implements ICompatibilityManager
     }
 
     /**
-     * Discover saplings from the vanilla Saplings tag, used for the Forester
+     * Discover saplings from the vanilla Saplings NBTBase, used for the Forester
      */
     private void discoverSaplings(final ItemStack stack)
     {
@@ -738,7 +738,7 @@ public class CompatibilityManager implements ICompatibilityManager
      *
      * @param recipeManager recipe manager
      */
-    private void discoverCompostRecipes(@NotNull final RecipeManager recipeManager)
+    private void discoverCompostRecipes()
     {
         if (compostRecipes.isEmpty())
         {
@@ -762,7 +762,7 @@ public class CompatibilityManager implements ICompatibilityManager
     }
 
     /**
-     * Create complete list of plantable items, from the "minecolonies:florist_flowers" tag, for the Florist.
+     * Create complete list of plantable items, from the "minecolonies:florist_flowers" NBTBase, for the Florist.
      */
     private void discoverPlantables(final ItemStack stack)
     {
@@ -801,16 +801,19 @@ public class CompatibilityManager implements ICompatibilityManager
         }
     }
 
-    private static CompoundTag writeLeafSaplingEntryToNBT(final BlockState state, final ItemStorage storage)
+    // [1.7.10] BlockState/NbtUtils do not exist; leaf-sapling NBT helpers stubbed.
+    private static NBTTagCompound writeLeafSaplingEntryToNBT(final int blockMeta, final ItemStorage storage)
     {
-        final CompoundTag compound = NbtUtils.writeBlockState(state);
-        storage.getItemStack().save(compound);
+        final NBTTagCompound compound = new NBTTagCompound();
+        compound.setInteger("BlockMeta", blockMeta);
+        storage.getItemStack().writeToNBT(compound);
         return compound;
     }
 
-    private static Tuple<BlockState, ItemStorage> readLeafSaplingEntryFromNBT(final CompoundTag compound)
+    private static com.minecolonies.api.util.Tuple<Integer, ItemStorage> readLeafSaplingEntryFromNBT(final NBTTagCompound compound)
     {
-        return new Tuple<>(NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), compound), new ItemStorage(ItemStack.of(compound), false, true));
+        return new com.minecolonies.api.util.Tuple<>(compound.getInteger("BlockMeta"),
+            new ItemStorage(ItemStack.loadItemStackFromNBT(compound), false, true));
     }
 
     /**
@@ -839,35 +842,12 @@ public class CompatibilityManager implements ICompatibilityManager
         return saplings.size();
     }
 
-    @Override
-    public Optional<DyeColor> getDyeColor(final ItemStack stack)
-    {
-        if (stack.getItem() instanceof final DyeableLeatherItem dyeable)
-        {
-            final int color = dyeable.getColor(stack);
-            if (color != DyeableLeatherItem.DEFAULT_LEATHER_COLOR)
-            {
-                final ItemStack undyedStack = stack.copy();
-                dyeable.clearColor(undyedStack);
-
-                final int dyeId = dyeColorMap.computeIfAbsent(Item.getId(undyedStack.getItem()), id ->
-                {
-                    final Int2IntMap map = new Int2IntOpenHashMap();
-                    for (final DyeColor dye : DyeColor.values())
-                    {
-                        final ItemStack dyed = DyeableLeatherItem.dyeArmor(undyedStack, List.of(DyeItem.byColor(dye)));
-                        if (!dyed.isEmpty())
-                        {
-                            map.put(dyeable.getColor(dyed), dye.getId());
-                        }
-                    }
-                    return map;
-                }).getOrDefault(color, -1);
-
-                return dyeId < 0 ? Optional.empty() : Optional.of(DyeColor.byId(dyeId));
-            }
-        }
-
-        return Optional.empty();
-    }
+    // [1.7.10] getDyeColor removed - DyeColor does not exist in 1.7.10.
 }
+
+
+
+
+
+
+

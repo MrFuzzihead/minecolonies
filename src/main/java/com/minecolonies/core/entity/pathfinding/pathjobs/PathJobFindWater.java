@@ -12,13 +12,15 @@ import com.minecolonies.core.entity.pathfinding.PathingOptions;
 import com.minecolonies.core.entity.pathfinding.SurfaceType;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
 import com.minecolonies.core.entity.pathfinding.pathresults.WaterPathResult;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.BlockPos.MutableBlockPos;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.pathfinder.Path;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] MutableBlockPos removed
+// [1.7.10] world.entity removed
+import net.minecraft.world.World;
+// [1.7.10] LevelReader -> IBlockAccess
+import net.minecraft.world.IBlockAccess;
+// [1.7.10] BlockState -> int metadata
+import net.minecraft.pathfinding.Path;
+import net.minecraft.entity.EntityCreature;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -30,9 +32,9 @@ import java.util.List;
 public class PathJobFindWater extends AbstractPathJob implements ISearchPathJob
 {
     private static final int MAX_RANGE = 100;
-    private final        BlockPos                        hutLocation;
+    private final        int[]                        hutLocation;
     @NotNull
-    private final        List<Tuple<BlockPos, BlockPos>> ponds;
+    private final        List<Tuple<int[], int[]>> ponds;
 
     /**
      * AbstractPathJob constructor.
@@ -45,12 +47,12 @@ public class PathJobFindWater extends AbstractPathJob implements ISearchPathJob
      * @param entity the entity.
      */
     public PathJobFindWater(
-        final Level world,
-        @NotNull final BlockPos start,
-        final BlockPos home,
+        final World world,
+        @NotNull final int[] start,
+        final int[] home,
         final int range,
-        @NotNull final List<Tuple<BlockPos, BlockPos>> ponds,
-        final Mob entity)
+        @NotNull final List<Tuple<int[], int[]>> ponds,
+        final EntityCreature entity)
     {
         super(world, start, range, new WaterPathResult(), entity);
         this.ponds = new ArrayList<>(ponds);
@@ -78,12 +80,12 @@ public class PathJobFindWater extends AbstractPathJob implements ISearchPathJob
             return false;
         }
 
-        final MutableBlockPos problemPos = debugDrawEnabled ? BlockPos.ZERO.mutable() : null;
+        final MutableBlockPos problemPos = debugDrawEnabled ? new int[]{0,0,0}.mutable() : null;
         PondState pondState = Pond.checkPond(world, tempWorldPos.set(n.x, n.y - 1, n.z), problemPos);
 
         if (n.isSwimming() && pondState != PondState.INVALID)
         {
-            for (Tuple<BlockPos, BlockPos> existingPond : ponds)
+            for (Tuple<int[], int[]> existingPond : ponds)
             {
                 if (BlockPosUtil.distManhattan(existingPond.getA(), n.x, n.y, n.z) < Pond.WATER_POOL_WIDTH_REQUIREMENT + 2)
                 {
@@ -91,21 +93,21 @@ public class PathJobFindWater extends AbstractPathJob implements ISearchPathJob
                 }
             }
 
-            final PathJobFindFishingPos job = new PathJobFindFishingPos(getActualWorld(), world, new BlockPos(n.x, n.y, n.z), hutLocation, 10);
+            final PathJobFindFishingPos job = new PathJobFindFishingPos(getActualWorld(), world, new int[]{n.x, n.y, n.z}, hutLocation, 10);
             job.setPathingOptions(getPathingOptions());
             final Path path = job.search();
             if (path != null && path.canReach())
             {
-                getResult().pond = new BlockPos(n.x, n.y, n.z);
+                getResult().pond = new int[]{n.x, n.y, n.z};
                 getResult().pondState = pondState;
                 getResult().parent = path.getTarget();
-                
+
                 return true;
             }
         }
 
         // node is not pond -> debug
-        if (problemPos != null && !problemPos.equals(BlockPos.ZERO))
+        if (problemPos != null && !problemPos.equals(new int[]{0,0,0}))
         {
             debugNodesExtra.add(new MNode(n, problemPos.getX(), problemPos.getY(), problemPos.getZ(), -1, -1));
         }
@@ -151,14 +153,14 @@ public class PathJobFindWater extends AbstractPathJob implements ISearchPathJob
      */
     private class PathJobFindFishingPos extends AbstractPathJob implements ISearchPathJob
     {
-        private final BlockPos direction;
+        private final int[] direction;
         private final int      distance;
 
         public PathJobFindFishingPos(
-            final Level actualWorld,
-            final LevelReader world,
-            final @NotNull BlockPos start,
-            final @NotNull BlockPos direction,
+            final World actualWorld,
+            final IBlockAccess world,
+            final @NotNull int[] start,
+            final @NotNull int[] direction,
             final int distance)
         {
             super(actualWorld, world, start, distance + 100, new PathResult(), null);
@@ -206,4 +208,9 @@ public class PathJobFindWater extends AbstractPathJob implements ISearchPathJob
         }
     }
 }
+
+
+
+
+
 

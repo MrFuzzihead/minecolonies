@@ -1,17 +1,23 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
+import net.minecraft.world.level.chunk.LevelChunk;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.NBTUtils;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import java.util.Random;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -34,12 +40,12 @@ public class BuildingArchery extends AbstractBuilding
     /**
      * List of shooting stands in the building.
      */
-    private final List<BlockPos> shootingStands = new ArrayList<>();
+    private final List<int[]> shootingStands = new ArrayList<>();
 
     /**
      * List of shooting targets in the building.
      */
-    private final List<BlockPos> shootingTargets = new ArrayList<>();
+    private final List<int[]> shootingTargets = new ArrayList<>();
 
     /**
      * The abstract constructor of the building.
@@ -47,14 +53,14 @@ public class BuildingArchery extends AbstractBuilding
      * @param c the colony
      * @param l the position
      */
-    public BuildingArchery(@NotNull final IColony c, final BlockPos l)
+    public BuildingArchery(@NotNull final IColony c, final int[] l)
     {
         super(c, l);
     }
 
 
     @Override
-    public void registerBlockPosition(@NotNull final Block block, @NotNull final BlockPos pos, @NotNull final Level world)
+    public void registerBlockPosition(@NotNull final Block block, @NotNull final int[] pos, @NotNull final World world)
     {
         if (block == Blocks.TARGET)
         {
@@ -68,28 +74,28 @@ public class BuildingArchery extends AbstractBuilding
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
         shootingTargets.clear();
         shootingStands.clear();
 
-        final ListTag targetList = compound.getList(TAG_ARCHERY_TARGETS, Tag.TAG_COMPOUND);
+        final NBTTagList targetList = compound.getList(TAG_ARCHERY_TARGETS, NBTBase.TAG_COMPOUND);
         shootingTargets.addAll(NBTUtils.streamCompound(targetList).map(targetCompound -> BlockPosUtil.read(targetCompound, TAG_TARGET)).collect(Collectors.toList()));
 
-        final ListTag standTagList = compound.getList(TAG_ARCHERY_STANDS, Tag.TAG_COMPOUND);
+        final NBTTagList standTagList = compound.getList(TAG_ARCHERY_STANDS, NBTBase.TAG_COMPOUND);
         shootingStands.addAll(NBTUtils.streamCompound(standTagList).map(targetCompound -> BlockPosUtil.read(targetCompound, TAG_STAND)).collect(Collectors.toList()));
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compound = super.serializeNBT();
+        final NBTTagCompound compound = super.serializeNBT();
 
-        final ListTag targetList = shootingTargets.stream().map(target -> BlockPosUtil.write(new CompoundTag(), TAG_TARGET, target)).collect(NBTUtils.toListNBT());
+        final NBTTagList targetList = shootingTargets.stream().map(target -> BlockPosUtil.write(new NBTTagCompound(), TAG_TARGET, target)).collect(NBTUtils.toListNBT());
         compound.put(TAG_ARCHERY_TARGETS, targetList);
 
-        final ListTag standTagList = shootingStands.stream().map(target -> BlockPosUtil.write(new CompoundTag(), TAG_STAND, target)).collect(NBTUtils.toListNBT());
+        final NBTTagList standTagList = shootingStands.stream().map(target -> BlockPosUtil.write(new NBTTagCompound(), TAG_STAND, target)).collect(NBTUtils.toListNBT());
         compound.put(TAG_ARCHERY_STANDS, standTagList);
 
         return compound;
@@ -108,9 +114,9 @@ public class BuildingArchery extends AbstractBuilding
      * @param random the random obj.
      * @return a random shooting stand position.
      */
-    public BlockPos getRandomShootingStandPosition(final RandomSource random)
+    public int[] getRandomShootingStandPosition(final RandomSource random)
     {
-        final List<BlockPos> tagged = getLocationsFromTag(TAG_WORK);
+        final List<int[]> tagged = getLocationsFromTag(TAG_WORK);
         if (!tagged.isEmpty())
         {
             return tagged.get(random.nextInt(tagged.size()));
@@ -128,7 +134,7 @@ public class BuildingArchery extends AbstractBuilding
      * @param random the random obj.
      * @return a random shooting target position.
      */
-    public BlockPos getRandomShootingTarget(final RandomSource random)
+    public int[] getRandomShootingTarget(final RandomSource random)
     {
         if (!shootingTargets.isEmpty())
         {
@@ -137,3 +143,8 @@ public class BuildingArchery extends AbstractBuilding
         return null;
     }
 }
+
+
+
+
+

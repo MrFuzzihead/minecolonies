@@ -4,11 +4,11 @@ import com.minecolonies.api.util.WorldUtil;
 import com.minecolonies.api.util.constant.ColonyConstants;
 import com.minecolonies.core.colony.jobs.AbstractJobGuard;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+import net.minecraft.entity.player.EntityPlayer;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -16,28 +16,28 @@ import java.util.EnumSet;
 public class LookAtEntityGoal extends Goal
 {
     public static final float                         DEFAULT_PROBABILITY = 0.02F;
-    protected final     Mob                           mob;
+    protected final     EntityCreature                           EntityCreature;
     @Nullable
     protected           Entity                        lookAt;
     protected final     float                         lookDistance;
     private             int                           lookTime;
     protected final     float                         probability;
     private final       boolean                       onlyHorizontal;
-    protected final     Class<? extends LivingEntity> lookAtType;
+    protected final     Class<? extends EntityLivingBase> lookAtType;
 
-    public LookAtEntityGoal(Mob mob, Class<? extends LivingEntity> lookAtType, float lookDistance)
+    public LookAtEntityGoal(EntityCreature EntityCreature, Class<? extends EntityLivingBase> lookAtType, float lookDistance)
     {
-        this(mob, lookAtType, lookDistance, DEFAULT_PROBABILITY);
+        this(EntityCreature, lookAtType, lookDistance, DEFAULT_PROBABILITY);
     }
 
-    public LookAtEntityGoal(Mob mob, Class<? extends LivingEntity> lookAtType, float lookDistance, float probability)
+    public LookAtEntityGoal(EntityCreature EntityCreature, Class<? extends EntityLivingBase> lookAtType, float lookDistance, float probability)
     {
-        this(mob, lookAtType, lookDistance, probability, false);
+        this(EntityCreature, lookAtType, lookDistance, probability, false);
     }
 
-    public LookAtEntityGoal(Mob mob, Class<? extends LivingEntity> lookAtType, float lookDistance, float probability, boolean p_148122_)
+    public LookAtEntityGoal(EntityCreature EntityCreature, Class<? extends EntityLivingBase> lookAtType, float lookDistance, float probability, boolean p_148122_)
     {
-        this.mob = mob;
+        this.EntityCreature = EntityCreature;
         this.lookAtType = lookAtType;
         this.lookDistance = lookDistance;
         this.probability = probability;
@@ -54,23 +54,23 @@ public class LookAtEntityGoal extends Goal
         }
         else
         {
-            if (this.mob.getTarget() != null)
+            if (this.EntityCreature.getTarget() != null)
             {
-                this.lookAt = this.mob.getTarget();
+                this.lookAt = this.EntityCreature.getTarget();
             }
 
             if (this.lookAtType == Player.class)
             {
-                this.lookAt = WorldUtil.getNearestPlayer(this.mob, this.mob.getBlockX(), this.mob.getBlockY() + 1, this.mob.getBlockZ(), lookDistance);
+                this.lookAt = WorldUtil.getNearestPlayer(this.EntityCreature, this.EntityCreature.getBlockX(), this.EntityCreature.getBlockY() + 1, this.EntityCreature.getBlockZ(), lookDistance);
             }
             else
             {
-                this.lookAt = WorldUtil.getNearestEntity(this.mob.level.getEntitiesOfClass(this.lookAtType,
-                  this.mob.getBoundingBox().inflate(this.lookDistance, 3.0D, this.lookDistance),
-                  (entity) -> true), this.mob, this.mob.getBlockX(), this.mob.getBlockY() + 1, this.mob.getBlockZ(), lookDistance);
+                this.lookAt = WorldUtil.getNearestEntity(this.EntityCreature.World.getEntitiesOfClass(this.lookAtType,
+                  this.EntityCreature.getBoundingBox().inflate(this.lookDistance, 3.0D, this.lookDistance),
+                  (entity) -> true), this.EntityCreature, this.EntityCreature.getBlockX(), this.EntityCreature.getBlockY() + 1, this.EntityCreature.getBlockZ(), lookDistance);
             }
 
-            if (mob instanceof EntityCitizen citizen && citizen.getCitizenJobHandler().getColonyJob() instanceof AbstractJobGuard<?> job && job.isAsleep())
+            if (EntityCreature instanceof EntityCitizen citizen && citizen.getCitizenJobHandler().getColonyJob() instanceof AbstractJobGuard<?> job && job.isAsleep())
             {
                 return false;
             }
@@ -86,7 +86,7 @@ public class LookAtEntityGoal extends Goal
         {
             return false;
         }
-        else if (this.mob.distanceToSqr(this.lookAt) > (double) (this.lookDistance * this.lookDistance))
+        else if (this.EntityCreature.distanceToSqr(this.lookAt) > (double) (this.lookDistance * this.lookDistance))
         {
             return false;
         }
@@ -99,7 +99,7 @@ public class LookAtEntityGoal extends Goal
     @Override
     public void start()
     {
-        this.lookTime = this.adjustedTickDelay(40 + this.mob.getRandom().nextInt(40));
+        this.lookTime = this.adjustedTickDelay(40 + this.EntityCreature.getRandom().nextInt(40));
     }
 
     @Override
@@ -113,9 +113,12 @@ public class LookAtEntityGoal extends Goal
     {
         if (this.lookAt.isAlive())
         {
-            double d0 = this.onlyHorizontal ? this.mob.getEyeY() : this.lookAt.getEyeY();
-            this.mob.getLookControl().setLookAt(this.lookAt.getX(), d0, this.lookAt.getZ());
+            double d0 = this.onlyHorizontal ? this.EntityCreature.getEyeY() : this.lookAt.getEyeY();
+            this.EntityCreature.getLookControl().setLookAt(this.lookAt.getX(), d0, this.lookAt.getZ());
             --this.lookTime;
         }
     }
 }
+
+
+

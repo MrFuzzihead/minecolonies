@@ -30,13 +30,14 @@ import com.minecolonies.core.colony.workorders.WorkOrderBuilding;
 import com.minecolonies.core.colony.workorders.WorkOrderMiner;
 import com.minecolonies.core.entity.ai.workers.util.BuildingProgressStage;
 import com.minecolonies.core.entity.ai.workers.util.WorkerLoadOnlyStructureHandler;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.item.ItemStack;
+// [1.7.10] block.entity removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static com.ldtteam.structurize.placement.AbstractBlueprintIterator.NULL_POS;
+// [1.7.10] AbstractBlueprintIterator.NULL_POS may not exist; define locally
+// import static com.ldtteam.structurize.placement.AbstractBlueprintIterator.NULL_POS;
 import static com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState.IDLE;
 import static com.minecolonies.api.util.constant.Constants.STACKSIZE;
 import static com.minecolonies.api.util.constant.StatisticsConstants.*;
@@ -67,7 +68,7 @@ public abstract class AbstractEntityAIStructureWithWorkOrder<J extends AbstractJ
     /**
      * Request progress pos.
      */
-    protected BlockPos requestProgress = null;
+    protected int[] requestProgress = null;
 
     /**
      * Variable telling us if we already recalculated the list.
@@ -87,14 +88,14 @@ public abstract class AbstractEntityAIStructureWithWorkOrder<J extends AbstractJ
     }
 
     @Override
-    public void storeProgressPos(final BlockPos blockPos, final BuildingProgressStage stage)
+    public void storeProgressPos(final int[] blockPos, final BuildingProgressStage stage)
     {
         building.setProgressPos(blockPos, stage);
-        worker.getCitizenData().setStatusPosition(blockPos.equals(NULL_POS) ? null : structurePlacer.getB().getProgressPosInWorld(blockPos));
+        worker.getCitizenData().setStatusPosition(Arrays.equals(blockPos, NULL_POS) ? null : structurePlacer.getB().getProgressPosInWorld(blockPos));
     }
 
     @Override
-    public Tuple<BlockPos, BuildingProgressStage> getProgressPos()
+    public Tuple<int[], BuildingProgressStage> getProgressPos()
     {
         return building.getProgress();
     }
@@ -175,7 +176,7 @@ public abstract class AbstractEntityAIStructureWithWorkOrder<J extends AbstractJ
             return;
         }
 
-        final BlockPos pos = workOrder.getLocation();
+        final int[] pos = workOrder.getLocation();
         if (workOrder instanceof WorkOrderBuilding && worker.getCitizenColonyHandler().getColonyOrRegister().getServerBuildingManager().getBuilding(pos) == null)
         {
             Log.getLogger().warn("AbstractBuilding does not exist - removing build request");
@@ -441,7 +442,7 @@ public abstract class AbstractEntityAIStructureWithWorkOrder<J extends AbstractJ
                         case UPGRADE:
                         case REPAIR:
                             // Normally levels are done through the schematic data, but in case it is missing we do it manually here.
-                            final BlockEntity te = worker.level.getBlockEntity(building.getID());
+                            final BlockEntity te = worker.World.getBlockEntity(building.getID());
                             if (te instanceof AbstractTileEntityColonyBuilding && ((IBlueprintDataProviderBE) te).getSchematicName().isEmpty())
                             {
                                 building.onUpgradeComplete(wo.getBlueprint(), wo.getTargetLevel());
@@ -542,3 +543,8 @@ public abstract class AbstractEntityAIStructureWithWorkOrder<J extends AbstractJ
         building.setWorkOrder(null);
     }
 }
+
+
+
+
+

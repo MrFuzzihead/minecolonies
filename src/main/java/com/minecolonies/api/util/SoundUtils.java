@@ -5,17 +5,16 @@ import com.minecolonies.api.colony.ICivilianData;
 import com.minecolonies.api.colony.IVisitorData;
 import com.minecolonies.api.colony.jobs.IJob;
 import com.minecolonies.api.sounds.EventType;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
-import net.minecraft.network.protocol.game.ClientboundSoundPacket;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.event.level.NoteBlockEvent.Note;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Holder removed
+// [1.7.10] protocol.game removed
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.sounds.SoundEvent; // [1.7.10] SoundEvent shim
+// [1.7.10] SoundSource/SoundEvents removed
+import java.util.Random;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.World;
+// [1.7.10] forge event removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -64,13 +63,14 @@ public final class SoundUtils
     private static final double PITCH_MULTIPLIER = 0.4D;
 
     /**
-     * A much less chaotic scale (D major pentatonic) for random pitches
+     * A much less chaotic scale (D major pentatonic) for random pitches.
+     * [1.7.10] Note enum removed; using int indices 0-11 (semitones within octave)
      */
-    public static final Note[] PENTATONIC = {
-      // First Octave
-      Note.A, Note.B, Note.D, Note.E, Note.F_SHARP,
+    public static final int[] PENTATONIC = {
+      // First Octave: A=9, B=11, D=2, E=4, F#=6
+      9, 11, 2, 4, 6,
       // Second Octave
-      Note.A, Note.B, Note.D
+      9, 11, 2
     };
 
     /**
@@ -95,12 +95,15 @@ public final class SoundUtils
      * @param pos     the pos to play it at.
      * @param citizen the citizen to play it for.
      */
-    public static void playRandomSound(@NotNull final Level worldIn, @NotNull final BlockPos pos, @NotNull final ICitizenData citizen)
+    public static void playRandomSound(@NotNull final World worldIn, @NotNull final int[] pos, @NotNull final ICitizenData citizen)
     {
         boolean playerCloseEnough = false;
-        for (final Player player : citizen.getColony().getPackageManager().getCloseSubscribers())
+        for (final EntityPlayer player : citizen.getColony().getPackageManager().getCloseSubscribers())
         {
-            if (player.blockPosition().distSqr(pos) < MIN_REQUIRED_SOUND_DIST)
+            final double dx = player.posX - pos[0];
+            final double dy = player.posY - pos[1];
+            final double dz = player.posZ - pos[2];
+            if (dx * dx + dy * dy + dz * dz < MIN_REQUIRED_SOUND_DIST)
             {
                 playerCloseEnough = true;
                 break;
@@ -174,12 +177,11 @@ public final class SoundUtils
      * @param position the position to play the sound at.
      * @param event    sound to play.
      */
-    public static void playSoundAtCitizen(@NotNull final Level worldIn, @NotNull final BlockPos position, @NotNull final SoundEvent event)
+    public static void playSoundAtCitizen(@NotNull final World worldIn, @NotNull final int[] position, @NotNull final SoundEvent event)
     {
-        worldIn.playSound(null,
-          position,
-          event,
-          SoundSource.NEUTRAL,
+        // [1.7.10] world.playSoundEffect uses string sound name
+        worldIn.playSoundEffect(position[0] + 0.5, position[1] + 0.5, position[2] + 0.5,
+          event.getSoundName(),
           (float) VOLUME,
           (float) PITCH);
     }
@@ -189,23 +191,10 @@ public final class SoundUtils
      * @param player the player to play it for.
      * @param position the position it is played at.
      */
-    public static void playSuccessSound(@NotNull final Player player, @NotNull final BlockPos position)
+    public static void playSuccessSound(@NotNull final EntityPlayer player, @NotNull final int[] position)
     {
-        if (player instanceof ServerPlayer)
-        {
-            ((ServerPlayer) player).connection.send(new ClientboundSoundPacket(SoundEvents.NOTE_BLOCK_BELL,
-              SoundSource.NEUTRAL,
-              position.getX(),
-              position.getY(),
-              position.getZ(),
-              (float) VOLUME * 2,
-              (float) 1.0,
-              player.level().random.nextLong()));
-        }
-        else
-        {
-            player.playNotifySound(SoundEvents.NOTE_BLOCK_BELL.get(), SoundSource.NEUTRAL, 1.0f, 1.0f);
-        }
+        // [1.7.10] Use playSoundAtEntity for note block bell equivalent
+        player.worldObj.playSoundAtEntity(player, "note.harp", (float) VOLUME * 2, 1.0f);
     }
 
     /**
@@ -213,23 +202,10 @@ public final class SoundUtils
      * @param player the player to play it for.
      * @param position the position it is played at.
      */
-    public static void playErrorSound(@NotNull final Player player, @NotNull final BlockPos position)
+    public static void playErrorSound(@NotNull final EntityPlayer player, @NotNull final int[] position)
     {
-        if (player instanceof ServerPlayer)
-        {
-            ((ServerPlayer) player).connection.send(new ClientboundSoundPacket(SoundEvents.NOTE_BLOCK_DIDGERIDOO,
-              SoundSource.NEUTRAL,
-              position.getX(),
-              position.getY(),
-              position.getZ(),
-              (float) VOLUME * 2,
-              (float) 0.3,
-              player.level().random.nextLong()));
-        }
-        else
-        {
-            player.playNotifySound(SoundEvents.NOTE_BLOCK_DIDGERIDOO.get(), SoundSource.NEUTRAL, 1.0f, 0.3f);
-        }
+        // [1.7.10] Use playSoundAtEntity for didgeridoo equivalent
+        player.worldObj.playSoundAtEntity(player, "note.bass", (float) VOLUME * 2, 0.3f);
     }
 
     /**
@@ -241,8 +217,8 @@ public final class SoundUtils
      * @param citizenData the citizen.
      */
     public static void playSoundAtCitizenWith(
-      @NotNull final Level worldIn,
-      @NotNull final BlockPos position,
+      @NotNull final World worldIn,
+      @NotNull final int[] position,
       @Nullable final EventType type,
       @Nullable final ICivilianData citizenData)
     {
@@ -258,8 +234,8 @@ public final class SoundUtils
      * @param citizenData the citizen.
      */
     public static void playSoundAtCitizenWith(
-      @NotNull final Level worldIn,
-      @NotNull final BlockPos position,
+      @NotNull final World worldIn,
+      @NotNull final int[] position,
       @Nullable final EventType type,
       @Nullable final ICivilianData citizenData, final double chance, final double volume)
     {
@@ -316,8 +292,8 @@ public final class SoundUtils
      * @param citizenData the citizen.
      */
     public static void playSoundAtCitizenWith(
-      @NotNull final Level worldIn,
-      @NotNull final BlockPos position,
+      @NotNull final World worldIn,
+      @NotNull final int[] position,
       @Nullable final EventType type,
       @Nullable final ICivilianData citizenData, final double chance)
     {
@@ -330,7 +306,7 @@ public final class SoundUtils
      * @param random the random method.
      * @return a random double for the pitch.
      */
-    public static double getRandomPitch(final RandomSource random)
+    public static double getRandomPitch(final Random random)
     {
         return PITCH_DIVIDER / (random.nextDouble() * PITCH_MULTIPLIER + BASE_PITCH);
     }
@@ -341,25 +317,24 @@ public final class SoundUtils
      * @param random the RNG instance
      * @return a number representing the pitch to the sound engine
      */
-    public static double getRandomPentatonic(final RandomSource random)
+    public static double getRandomPentatonic(final Random random)
     {
         int index = random.nextInt(PENTATONIC.length);
-        int tone = PENTATONIC[index].ordinal() + Math.floorDiv(index, 5) * 12;
+        int tone = PENTATONIC[index] + Math.floorDiv(index, 5) * 12;
         return Math.pow(2.0D, (double)(tone - 12) / 12.0D);
     }
 
     /**
      * Plays a sound for the given player, but not for surrounding entities
      */
-    public static void playSoundForPlayer(final ServerPlayer playerEntity, final SoundEvent sound, float volume, final float pitch)
+    public static void playSoundForPlayer(final EntityPlayerMP playerEntity, final SoundEvent sound, float volume, final float pitch)
     {
-        playerEntity.connection.send(new ClientboundSoundPacket(Holder.direct(sound),
-          playerEntity.getSoundSource(),
-          playerEntity.getX(),
-          playerEntity.getY(),
-          playerEntity.getZ(),
-          16.0F * volume,
-          pitch,
-          playerEntity.level().random.nextLong()));
+        // [1.7.10] Use worldObj.playSoundAtEntity instead of custom packet
+        playerEntity.worldObj.playSoundAtEntity(playerEntity, sound.getSoundName(), 16.0F * volume, pitch);
     }
 }
+
+
+
+
+

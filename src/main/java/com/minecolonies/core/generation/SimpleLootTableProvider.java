@@ -1,20 +1,20 @@
 package com.minecolonies.core.generation;
 
-import com.mojang.datafixers.util.Pair;
-import net.minecraft.data.PackOutput;
-import net.minecraft.data.loot.LootTableProvider;
-import net.minecraft.data.loot.LootTableSubProvider;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.ValidationContext;
-import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer;
-import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
-import net.minecraft.world.level.storage.loot.functions.SetNbtFunction;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import com.minecolonies.api.util.Tuple;
+// [1.7.10] data removed
+// [1.7.10] data removed
+// [1.7.10] data removed
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -100,3 +100,8 @@ public abstract class SimpleLootTableProvider extends LootTableProvider
         return EmptyLootItem.emptyItem();
     }
 }
+
+
+
+
+

@@ -1,11 +1,33 @@
 package com.minecolonies.core.client.gui.map;
 
-import com.ldtteam.blockui.BOGuiGraphics;
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
+import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
+import com.ldtteam.blockui.controls.DropDownList;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
+import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.controls.TextField;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
+import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneParams;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+// [1.7.10] DynamicTexture shim
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.material.MapColor;
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] World.material removed
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 
 /**
@@ -92,3 +114,6 @@ public class MinecraftMap extends Pane implements AutoCloseable
         freeTexture();
     }
 }
+
+
+

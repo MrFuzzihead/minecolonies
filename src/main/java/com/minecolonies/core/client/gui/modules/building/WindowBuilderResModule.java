@@ -1,10 +1,8 @@
 package com.minecolonies.core.client.gui.modules.building;
 
-import com.ldtteam.blockui.Color;
+// [1.7.10] blockui replaced by ModularUI2
 import com.ldtteam.blockui.Pane;
-import com.ldtteam.blockui.PaneBuilders;
 import com.ldtteam.blockui.controls.Button;
-import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.views.ScrollingList;
 import com.minecolonies.api.colony.workorders.IWorkOrderView;
@@ -18,11 +16,11 @@ import com.minecolonies.core.colony.buildings.moduleviews.BuildingResourcesModul
 import com.minecolonies.core.colony.buildings.utils.BuildingBuilderResource;
 import com.minecolonies.core.network.messages.server.colony.building.MarkBuildingDirtyMessage;
 import com.minecolonies.core.network.messages.server.colony.building.TransferItemsRequestMessage;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.wrapper.InvWrapper;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -31,7 +29,7 @@ import java.util.List;
 import static com.minecolonies.api.util.constant.WindowConstants.*;
 
 /**
- * BOWindow for the builder hut.
+ * Object (BOWindow: todo ModularUI2 removed) for the builder hut.
  */
 public class WindowBuilderResModule extends AbstractModuleWindow<BuildingResourcesModuleView>
 {
@@ -102,7 +100,7 @@ public class WindowBuilderResModule extends AbstractModuleWindow<BuildingResourc
 
         if (total > 0)
         {
-            findPaneOfTypeByID(LABEL_PROGRESS, Text.class).setText(Component.translatable("com.minecolonies.coremod.gui.progress.res", (int) ((supplied / total) * 100) + "%", moduleView.getProgress() + "%"));
+            findPaneOfTypeByID(LABEL_PROGRESS, Text.class).setText(String.translatable("com.minecolonies.coremod.gui.progress.res", (int) ((supplied / total) * 100) + "%", moduleView.getProgress() + "%"));
         }
 
         resources.sort(new BuildingBuilderResource.ResourceComparator());
@@ -139,12 +137,12 @@ public class WindowBuilderResModule extends AbstractModuleWindow<BuildingResourc
             if (workOrder != null)
             {
                 final Text pane = findPaneOfTypeByID(LABEL_CONSTRUCTION_NAME, Text.class);
-                final Component text = Component.literal(workOrder.getDisplayName().getString().replace("\n", " "));
+                final String text = String.literal(workOrder.getDisplayName().getString().replace("\n", " "));
                 pane.setText(text);
                 PaneBuilders.tooltipBuilder().hoverPane(pane).build().setText(text);
             }
         }
-        findPaneOfTypeByID(STEP_PROGRESS, Text.class).setText(Component.translatable("com.minecolonies.coremod.gui.progress.step", moduleView.getCurrentStage(), moduleView.getTotalStages()));
+        findPaneOfTypeByID(STEP_PROGRESS, Text.class).setText(String.translatable("com.minecolonies.coremod.gui.progress.step", moduleView.getCurrentStage(), moduleView.getTotalStages()));
     }
 
     /**
@@ -195,20 +193,20 @@ public class WindowBuilderResModule extends AbstractModuleWindow<BuildingResourc
         final int buttonY = rowPane.getHeight() - addButton.getHeight() - 2;
         addButton.setPosition(buttonX, buttonY);
 
-        resourceLabel.setText(Component.literal(resource.getName()));
+        resourceLabel.setText(String.literal(resource.getName()));
         final int missing = resource.getMissingFromPlayer();
         if (missing < 0)
         {
-            resourceMissingLabel.setText(Component.literal(Integer.toString(missing)));
+            resourceMissingLabel.setText(String.literal(Integer.toString(missing)));
         }
         else
         {
             resourceMissingLabel.clearText();
         }
 
-        neededLabel.setText(Component.literal(resource.getAvailable() + " / " + resource.getAmount()));
-        rowPane.findPaneOfTypeByID(RESOURCE_ID, Text.class).setText(Component.literal(Integer.toString(index)));
-        rowPane.findPaneOfTypeByID(RESOURCE_QUANTITY_MISSING, Text.class).setText(Component.literal(Integer.toString(resource.getAmount() - resource.getAvailable())));
+        neededLabel.setText(String.literal(resource.getAvailable() + " / " + resource.getAmount()));
+        rowPane.findPaneOfTypeByID(RESOURCE_ID, Text.class).setText(String.literal(Integer.toString(index)));
+        rowPane.findPaneOfTypeByID(RESOURCE_QUANTITY_MISSING, Text.class).setText(String.literal(Integer.toString(resource.getAmount() - resource.getAvailable())));
 
         final ItemStack stack = new ItemStack(resource.getItem(), 1);
         stack.setTag(resource.getItemStack().getTag());
@@ -262,3 +260,7 @@ public class WindowBuilderResModule extends AbstractModuleWindow<BuildingResourc
         }
     }
 }
+
+
+
+

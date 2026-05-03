@@ -6,12 +6,12 @@ import com.minecolonies.api.research.IResearchCost;
 import com.minecolonies.api.research.ModResearchCosts;
 import com.minecolonies.api.util.NBTUtils;
 import com.minecolonies.core.util.GsonHelper;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.Item;
+// [1.7.10] registries removed
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,9 +48,9 @@ public class ListItemCost implements IResearchCost
      *
      * @param compound the nbt containing the relevant data.
      */
-    public ListItemCost(final CompoundTag compound)
+    public ListItemCost(final NBTTagCompound compound)
     {
-        this.items = NBTUtils.streamCompound(compound.getList(TAG_COST_ITEMS, Tag.TAG_COMPOUND))
+        this.items = NBTUtils.streamCompound(compound.getList(TAG_COST_ITEMS, NBTBase.TAG_COMPOUND))
             .map(itemCompound -> ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemCompound.getString(TAG_COST_ITEM))))
             .toList();
         this.count = compound.getInt(TAG_COST_COUNT);
@@ -90,11 +90,11 @@ public class ListItemCost implements IResearchCost
     }
 
     @Override
-    public CompoundTag writeToNBT()
+    public NBTTagCompound writeToNBT()
     {
-        final CompoundTag compound = new CompoundTag();
-        final ListTag itemList = this.items.stream().map(item -> {
-            final CompoundTag itemCompound = new CompoundTag();
+        final NBTTagCompound compound = new NBTTagCompound();
+        final NBTTagList itemList = this.items.stream().map(item -> {
+            final NBTTagCompound itemCompound = new NBTTagCompound();
             itemCompound.putString(TAG_COST_ITEM, ForgeRegistries.ITEMS.getKey(item).toString());
             return itemCompound;
         }).collect(NBTUtils.toListNBT());
@@ -103,3 +103,7 @@ public class ListItemCost implements IResearchCost
         return compound;
     }
 }
+
+
+
+

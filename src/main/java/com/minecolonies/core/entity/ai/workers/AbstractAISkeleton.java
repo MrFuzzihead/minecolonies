@@ -10,8 +10,8 @@ import com.minecolonies.api.entity.ai.statemachine.tickratestatemachine.TickingT
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.util.CompatibilityUtils;
 import com.minecolonies.api.util.ItemStackUtils;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.level.Level;
+// [1.7.10] world.entity removed
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -20,7 +20,7 @@ import java.util.List;
 import static com.minecolonies.api.entity.citizen.AbstractEntityCitizen.ENTITY_AI_TICKRATE;
 
 /**
- * Skeleton class for worker ai. Here general target execution will be handled. No utility on this level!
+ * Skeleton class for worker ai. Here general target execution will be handled. No utility on this World!
  *
  * @param <J> the job this ai will have.
  */
@@ -30,7 +30,7 @@ public abstract class AbstractAISkeleton<J extends IJob<?>> implements ITickingS
     protected final J                     job;
     @NotNull
     protected final AbstractEntityCitizen worker;
-    protected final Level                 world;
+    protected final World                 world;
 
     /**
      * The statemachine this AI uses
@@ -149,17 +149,17 @@ public abstract class AbstractAISkeleton<J extends IJob<?>> implements ITickingS
      */
     public void onRemoval()
     {
-        worker.setItemSlot(EquipmentSlot.CHEST, ItemStackUtils.EMPTY);
-        worker.setItemSlot(EquipmentSlot.FEET, ItemStackUtils.EMPTY);
-        worker.setItemSlot(EquipmentSlot.HEAD, ItemStackUtils.EMPTY);
-        worker.setItemSlot(EquipmentSlot.LEGS, ItemStackUtils.EMPTY);
-        worker.setItemSlot(EquipmentSlot.OFFHAND, ItemStackUtils.EMPTY);
-        worker.setItemSlot(EquipmentSlot.MAINHAND, ItemStackUtils.EMPTY);
+        worker.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
+        worker.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
+        worker.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
+        worker.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
+        worker.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
+        worker.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
 
-        worker.getInventoryCitizen().moveArmorToInventory(EquipmentSlot.CHEST);
-        worker.getInventoryCitizen().moveArmorToInventory(EquipmentSlot.FEET);
-        worker.getInventoryCitizen().moveArmorToInventory(EquipmentSlot.HEAD);
-        worker.getInventoryCitizen().moveArmorToInventory(EquipmentSlot.LEGS);
+        worker.getInventoryCitizen().moveArmorToInventory(null /* EquipmentSlot. */);
+        worker.getInventoryCitizen().moveArmorToInventory(null /* EquipmentSlot. */);
+        worker.getInventoryCitizen().moveArmorToInventory(null /* EquipmentSlot. */);
+        worker.getInventoryCitizen().moveArmorToInventory(null /* EquipmentSlot. */);
     }
 
     /**
@@ -172,3 +172,7 @@ public abstract class AbstractAISkeleton<J extends IJob<?>> implements ITickingS
         stateMachine.setCurrentDelay(ticksToNextUpdate);
     }
 }
+
+
+
+

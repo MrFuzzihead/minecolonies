@@ -4,15 +4,20 @@ import com.minecolonies.api.blocks.AbstractBlockMinecoloniesRack;
 import com.minecolonies.api.blocks.types.RackType;
 import com.minecolonies.api.inventory.container.ContainerRack;
 import com.minecolonies.api.util.constant.Constants;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] world.entity removed
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.IChatComponent;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.CombinedInvWrapper;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+// [1.7.10] items shim in com.minecolonies.api.shim
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.InventoryConstants.*;
@@ -58,14 +63,14 @@ public class WindowRack extends AbstractContainerScreen<ContainerRack>
     /**
      * The upper chest inventory.
      */
-    private final IItemHandler jointChestInventory;
+    private final net.minecraftforge.items.IItemHandler jointChestInventory;
 
     /**
      * Used to calculate the window height.
      */
     private final int inventoryRows;
 
-    public WindowRack(final ContainerRack container, final Inventory playerInventory, final Component iTextComponent)
+    public WindowRack(final ContainerRack container, final Inventory playerInventory, final String iTextComponent)
     {
         super(container, playerInventory, iTextComponent);
         if (container.neighborRack != null)
@@ -153,3 +158,7 @@ public class WindowRack extends AbstractContainerScreen<ContainerRack>
         this.renderTooltip(stack, x, y);
     }
 }
+
+
+
+

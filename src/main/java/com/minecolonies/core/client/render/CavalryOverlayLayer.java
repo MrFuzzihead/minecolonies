@@ -1,14 +1,38 @@
 package com.minecolonies.core.client.render;
+import com.mojang.math.Axis;
+import com.mojang.math.Pose;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.EntityModelSet;
+import net.minecraft.world.item.BannerItem;
+import net.minecraft.world.level.GameType;
+import net.minecraft.network.chat.FormattedCharSequence;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
+import net.minecraft.world.item.CrossbowItem;
+import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.client.renderer.blockentity.BlockEntityWithoutLevelRenderer;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.MobRenderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.renderer.MultiBufferSource;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.entity.layers.RenderLayerParent;
 import net.minecraft.client.model.HorseModel;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.horse.Horse;
+import net.minecraft.client.renderer.MultiBufferSource;
+// [1.7.10] world.entity removed
 
 import javax.annotation.Nonnull;
 import com.minecolonies.api.util.constant.Constants;
@@ -57,3 +81,6 @@ public class CavalryOverlayLayer extends RenderLayer<Horse, HorseModel<Horse>>
         this.getParentModel().renderToBuffer(pose, vc, packedLight, OverlayTexture.NO_OVERLAY, 1.0f, 1.0f, 1.0f, .85f);
     }
 }
+
+
+

@@ -1,20 +1,26 @@
 package com.minecolonies.core.colony.buildings.workerbuildings.plantation.modules.specific;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
+import net.minecraft.world.level.chunk.LevelChunk;
 
 import com.minecolonies.api.colony.buildingextensions.IBuildingExtension;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.core.colony.buildings.workerbuildings.plantation.modules.generic.BoneMealedPlantModule;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.item.BoneMealItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.World;
+import net.minecraft.init.Blocks;
 import net.minecraft.world.level.block.SeaPickleBlock;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] BlockState -> int metadata
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,8 +46,8 @@ public class SeapicklePlantModule extends BoneMealedPlantModule
      * Default constructor.
      *
      * @param field    the field instance this module is working on.
-     * @param fieldTag the tag of the field anchor block.
-     * @param workTag  the tag of the working positions.
+     * @param fieldTag the NBTBase of the field anchor block.
+     * @param workTag  the NBTBase of the working positions.
      * @param item     the item which is harvested.
      */
     public SeapicklePlantModule(final IBuildingExtension field, final String fieldTag, final String workTag, final Item item)
@@ -56,7 +62,7 @@ public class SeapicklePlantModule extends BoneMealedPlantModule
     }
 
     @Override
-    public PlantationModuleResult.Builder decideFieldWork(final Level world, final @NotNull BlockPos workPosition)
+    public PlantationModuleResult.Builder decideFieldWork(final World world, final @NotNull int[] workPosition)
     {
         // Sea pickles do not work entirely the same as regular bonemeal fields,
         // because they actually require having manually planted the pickles and then continue to grow them
@@ -109,9 +115,11 @@ public class SeapicklePlantModule extends BoneMealedPlantModule
     }
 
     @Override
-    public void applyBonemeal(final AbstractEntityCitizen worker, final BlockPos workPosition, final ItemStack stackInSlot, final Player fakePlayer)
+    public void applyBonemeal(final AbstractEntityCitizen worker, final int[] workPosition, final ItemStack stackInSlot, final Player fakePlayer)
     {
-        BoneMealItem.applyBonemeal(stackInSlot, worker.level(), workPosition.above(), fakePlayer);
-        BoneMealItem.addGrowthParticles(worker.level(), workPosition.above(), 1);
+        BoneMealItem.applyBonemeal(stackInSlot, worker.World(), workPosition.above(), fakePlayer);
+        BoneMealItem.addGrowthParticles(worker.World(), workPosition.above(), 1);
     }
 }
+
+

@@ -14,7 +14,7 @@ import com.minecolonies.api.util.Log;
 import com.minecolonies.core.colony.events.raid.HordeRaidEvent;
 import com.minecolonies.core.colony.events.raid.pirateEvent.ShipBasedRaiderUtils;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
-import net.minecraft.core.BlockPos;
+// [1.7.10] int[] -> int x,y,z
 
 import java.util.List;
 
@@ -33,7 +33,7 @@ public class RaiderWalkAI implements IStateAI
     /**
      * Target block we're walking to
      */
-    private BlockPos targetBlock = null;
+    private int[] targetBlock = null;
 
     /**
      * Campfire walk timer
@@ -73,13 +73,13 @@ public class RaiderWalkAI implements IStateAI
             }
             raider.setTempEnvDamageImmunity(false);
 
-            if (targetBlock == null || raider.level.getGameTime() > walkTimer)
+            if (targetBlock == null || raider.World.getGameTime() > walkTimer)
             {
                 targetBlock = raider.getColony().getRaiderManager().getRandomBuilding();
-                walkTimer = raider.level.getGameTime() + TICKS_SECOND * 240;
+                walkTimer = raider.World.getGameTime() + TICKS_SECOND * 240;
 
-                final List<BlockPos> wayPoints = ((IColonyRaidEvent) event).getWayPoints();
-                final BlockPos moveToPos = ShipBasedRaiderUtils.chooseWaypointFor(wayPoints, raider.blockPosition(), targetBlock);
+                final List<int[]> wayPoints = ((IColonyRaidEvent) event).getWayPoints();
+                final int[] moveToPos = ShipBasedRaiderUtils.chooseWaypointFor(wayPoints, raider.blockPosition(), targetBlock);
                 EntityNavigationUtils.walkToPos(raider, moveToPos, 4, false, !moveToPos.equals(targetBlock) && moveToPos.distManhattan(wayPoints.get(0)) > 50 ? 1.8 : 1.1);
                 walkInBuilding = null;
             }
@@ -99,18 +99,18 @@ public class RaiderWalkAI implements IStateAI
             }
             else if (raider.blockPosition().distSqr(targetBlock) < 25)
             {
-                walkTimer = raider.level.getGameTime() + TICKS_SECOND * 30;
+                walkTimer = raider.World.getGameTime() + TICKS_SECOND * 30;
                 walkInBuilding = raider.getColony().getServerBuildingManager().getBuilding(targetBlock);
             }
             else if (raider.getNavigation().isDone())
             {
-                final List<BlockPos> wayPoints = ((IColonyRaidEvent) event).getWayPoints();
-                final BlockPos moveToPos = ShipBasedRaiderUtils.chooseWaypointFor(wayPoints, raider.blockPosition(), targetBlock);
+                final List<int[]> wayPoints = ((IColonyRaidEvent) event).getWayPoints();
+                final int[] moveToPos = ShipBasedRaiderUtils.chooseWaypointFor(wayPoints, raider.blockPosition(), targetBlock);
 
-                if (moveToPos.equals(BlockPos.ZERO))
+                if (moveToPos.equals(new int[]{0,0,0}))
                 {
                     Log.getLogger().warn("Raider trying to path to zero position, target pos:" + targetBlock + " Waypoints:");
-                    for (final BlockPos pos : wayPoints)
+                    for (final int[] pos : wayPoints)
                     {
                         Log.getLogger().warn(pos.toShortString());
                     }
@@ -128,20 +128,23 @@ public class RaiderWalkAI implements IStateAI
      */
     private void walkToCampFire()
     {
-        if (raider.level.getGameTime() - walkTimer < 0)
+        if (raider.World.getGameTime() - walkTimer < 0)
         {
             return;
         }
 
-        final BlockPos campFire = ((HordeRaidEvent) raider.getColony().getEventManager().getEventByID(raider.getEventID())).getRandomCampfire();
+        final int[] campFire = ((HordeRaidEvent) raider.getColony().getEventManager().getEventByID(raider.getEventID())).getRandomCampfire();
 
         if (campFire == null)
         {
             return;
         }
 
-        walkTimer = raider.level.getGameTime() + raider.level.random.nextInt(1000);
+        walkTimer = raider.World.getGameTime() + raider.World.random.nextInt(1000);
         EntityNavigationUtils.walkToRandomPosAround(raider, campFire, 10, 0.7);
     }
 }
+
+
+
 

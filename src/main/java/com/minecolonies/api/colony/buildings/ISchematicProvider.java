@@ -1,14 +1,14 @@
 package com.minecolonies.api.colony.buildings;
 
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Tuple;
-import net.minecraftforge.common.util.INBTSerializable;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import com.minecolonies.api.util.Tuple;
+// [1.7.10] INBTSerializable -> manual read/write
 
 import java.util.Set;
 
-public interface ISchematicProvider extends INBTSerializable<CompoundTag>
+public interface ISchematicProvider 
 {
     /**
      * Sets the corners of the building based on the schematic.
@@ -16,7 +16,7 @@ public interface ISchematicProvider extends INBTSerializable<CompoundTag>
      * @param corner1 the first corner.
      * @param corner2 the second corner.
      */
-    void setCorners(final BlockPos corner1, final BlockPos corner2);
+    void setCorners(final int[] corner1, final int[] corner2);
 
     /**
      * Get all the corners of the building based on the schematic.
@@ -24,21 +24,21 @@ public interface ISchematicProvider extends INBTSerializable<CompoundTag>
      *
      * @return the corners.
      */
-    Tuple<BlockPos, BlockPos> getCorners();
+    Tuple<int[], int[]> getCorners();
 
     /**
-     * Returns the {@code BlockPos} of the current object, also used as ID.
+     * Returns the {@code int[]} of the current object, also used as ID.
      *
-     * @return {@code BlockPos} of the current object.
+     * @return {@code int[]} of the current object.
      */
-    BlockPos getID();
+    int[] getID();
 
     /**
      * Get the parent building position
      *
      * @return
      */
-    BlockPos getParent();
+    int[] getParent();
 
     /**
      * Whether we have a parent
@@ -51,13 +51,13 @@ public interface ISchematicProvider extends INBTSerializable<CompoundTag>
      * Set the parent building position
      * @param pos
      */
-    void setParent(BlockPos pos);
+    void setParent(int[] pos);
 
     /**
      * Get the child building positions
      * @return
      */
-    Set<BlockPos> getChildren();
+    Set<int[]> getChildren();
 
     /**
      * Returns the rotation of the current building.
@@ -95,11 +95,11 @@ public interface ISchematicProvider extends INBTSerializable<CompoundTag>
     void setBlueprintPath(String path);
 
     /**
-     * Sets the current level of the building.
+     * Sets the current World of the building.
      *
-     * @param level Level of the building.
+     * @param World World of the building.
      */
-    void setBuildingLevel(int level);
+    void setBuildingLevel(int World);
 
     /**
      * Returns whether the instance is dirty or not.
@@ -138,9 +138,9 @@ public interface ISchematicProvider extends INBTSerializable<CompoundTag>
     String getSchematicName();
 
     /**
-     * Children must return their max building level.
+     * Children must return their max building World.
      *
-     * @return Max building level.
+     * @return Max building World.
      */
     int getMaxBuildingLevel();
 
@@ -164,3 +164,7 @@ public interface ISchematicProvider extends INBTSerializable<CompoundTag>
      */
     void onUpgradeSchematicTo(final String oldSchematic, final String newSchematic, final IBlueprintDataProviderBE blueprintDataProvider);
 }
+
+
+
+

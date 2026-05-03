@@ -3,10 +3,11 @@ package com.minecolonies.api.entity.pathfinding;
 import com.minecolonies.core.entity.pathfinding.navigation.MinecoloniesAdvancedPathNavigate;
 import com.minecolonies.core.entity.pathfinding.pathjobs.AbstractPathJob;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Mob;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] world.entity removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import net.minecraft.entity.EntityCreature;
 
 /**
  * Describes the Navigator used by minecolonies entities
@@ -26,7 +27,7 @@ public interface IMinecoloniesNavigator
     @Nullable
     <T extends AbstractPathJob> PathResult<T> setPathJob(
         @NotNull AbstractPathJob job,
-        BlockPos dest,
+        int[] dest,
         double speedFactor, boolean safeDestination);
 
     /**
@@ -46,14 +47,14 @@ public interface IMinecoloniesNavigator
      *
      * @return
      */
-    BlockPos getSafeDestination();
+    int[] getSafeDestination();
 
     /**
      * Gets the entity of the navigator
      *
      * @return
      */
-    Mob getOurEntity();
+    EntityCreature getOurEntity();
 
     /**
      * Pauses the navigator for X ticks from starting any new pathing tasks
@@ -69,3 +70,6 @@ public interface IMinecoloniesNavigator
      */
     IStuckHandler<MinecoloniesAdvancedPathNavigate> getStuckHandler();
 }
+
+
+

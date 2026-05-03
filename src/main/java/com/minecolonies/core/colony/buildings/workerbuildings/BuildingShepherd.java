@@ -11,14 +11,14 @@ import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.AnimalHerdingModule;
 import com.minecolonies.core.colony.buildings.modules.settings.BoolSetting;
 import com.minecolonies.core.colony.buildings.modules.settings.SettingKey;
-import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.Sheep;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraftforge.registries.ForgeRegistries;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] tags removed
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
+import net.minecraft.init.Items;
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -50,7 +50,7 @@ public class BuildingShepherd extends AbstractBuilding
     private static final String HUT_NAME = "shepherdhut";
 
     /**
-     * Max building level of the hut.
+     * Max building World of the hut.
      */
     private static final int MAX_BUILDING_LEVEL = 5;
 
@@ -60,7 +60,7 @@ public class BuildingShepherd extends AbstractBuilding
      * @param c the colony.
      * @param l the location.
      */
-    public BuildingShepherd(final IColony c, final BlockPos l)
+    public BuildingShepherd(final IColony c, final int[] l)
     {
         super(c, l);
     }
@@ -81,7 +81,7 @@ public class BuildingShepherd extends AbstractBuilding
     @Override
     public boolean canEat(final ItemStack stack)
     {
-        if (stack.getItem() == Items.WHEAT)
+        if (stack.getItem() == Items.wheat)
         {
             return false;
         }
@@ -95,25 +95,22 @@ public class BuildingShepherd extends AbstractBuilding
     {
         public HerdingModule()
         {
-            super(ModJobs.shepherd.get(), a -> a instanceof Sheep, new ItemStorage(Items.WHEAT, 2));
+            super(ModJobs.shepherd.get(), a -> a instanceof net.minecraft.entity.passive.EntitySheep, new ItemStorage(Items.wheat, 2));
         }
 
         @NotNull
         @Override
-        public List<IGenericRecipe> getRecipesForDisplayPurposesOnly(@NotNull Animal animal)
+        public List<IGenericRecipe> getRecipesForDisplayPurposesOnly(@NotNull net.minecraft.entity.passive.EntityAnimal animal)
         {
-            final List<IGenericRecipe> recipes = new ArrayList<>(super.getRecipesForDisplayPurposesOnly(animal));
-
-            recipes.add(GenericRecipe.builder()
-                    .withOutputs(ForgeRegistries.ITEMS.tags().getTag(ItemTags.WOOL).stream().map(ItemStack::new).toList())
-                    .withRequiredTool(ModEquipmentTypes.shears.get())
-                    .withRequiredEntity(animal.getType())
-                    .build());
-
-            return recipes;
+            // [1.7.10] ItemTags/ForgeRegistries not available; return parent result only
+            return new ArrayList<>(super.getRecipesForDisplayPurposesOnly(animal));
         }
 
         // we *could* add a custom crafting module to show shears -> wool as well, but it's good
         // enough to show it as a drop on kill (which also happens).
     }
 }
+
+
+
+

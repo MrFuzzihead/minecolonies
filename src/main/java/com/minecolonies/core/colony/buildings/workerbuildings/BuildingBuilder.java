@@ -1,6 +1,6 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
 
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyView;
@@ -18,13 +18,13 @@ import com.minecolonies.core.colony.buildings.modules.settings.BuilderModeSettin
 import com.minecolonies.core.colony.buildings.modules.settings.SettingKey;
 import com.minecolonies.core.colony.buildings.modules.settings.StringSetting;
 import com.minecolonies.core.colony.buildings.views.AbstractBuildingBuilderView;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+import com.minecolonies.api.util.Tuple;
+import net.minecraft.item.ItemStack;
 
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.EquipmentLevelConstants.TOOL_LEVEL_WOOD_OR_GOLD;
@@ -64,7 +64,7 @@ public class BuildingBuilder extends AbstractBuildingStructureBuilder
      * @param c the colony.
      * @param l the position.
      */
-    public BuildingBuilder(final IColony c, final BlockPos l)
+    public BuildingBuilder(final IColony c, final int[] l)
     {
         super(c, l);
 
@@ -94,16 +94,16 @@ public class BuildingBuilder extends AbstractBuildingStructureBuilder
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
         this.purgedMobsToday = compound.getBoolean(TAG_PURGED_MOBS);
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compound = super.serializeNBT();
+        final NBTTagCompound compound = super.serializeNBT();
         compound.putBoolean(TAG_PURGED_MOBS, this.purgedMobsToday);
         return compound;
     }
@@ -143,25 +143,25 @@ public class BuildingBuilder extends AbstractBuildingStructureBuilder
      *
      * @param orderId the id of the work order to select.
      */
-    public void setWorkOrder(int orderId, final NetworkEvent.Context ctxIn)
+    public void setWorkOrder(int orderId, final MessageContext ctx)
     {
         final ICitizenData citizen = getModule(BuildingModules.BUILDER_WORK).getFirstCitizen();
         if (citizen == null)
         {
-            MessageUtils.format(MESSAGE_WARNING_NO_WORKER_ASSIGNED).sendTo(ctxIn.getSender());
+            MessageUtils.format(MESSAGE_WARNING_NO_WORKER_ASSIGNED).sendTo(ctx.getServerHandler().playerEntity);
             return;
         }
 
         IServerWorkOrder wo = getColony().getWorkManager().getWorkOrder(orderId);
         if (!(wo instanceof IBuilderWorkOrder))
         {
-            MessageUtils.format(MESSAGE_WARNING_NOTFORBUILDER).sendTo(ctxIn.getSender());
+            MessageUtils.format(MESSAGE_WARNING_NOTFORBUILDER).sendTo(ctx.getServerHandler().playerEntity);
             return;
         }
 
-        if (!wo.getClaimedBy().equals(BlockPos.ZERO))
+        if (!wo.getClaimedBy().equals(new int[]{0,0,0}))
         {
-            MessageUtils.format(MESSAGE_WARNING_ALREADY_CLAIMED).sendTo(ctxIn.getSender());
+            MessageUtils.format(MESSAGE_WARNING_ALREADY_CLAIMED).sendTo(ctx.getServerHandler().playerEntity);
             return;
         }
 
@@ -179,9 +179,9 @@ public class BuildingBuilder extends AbstractBuildingStructureBuilder
             getColony().getWorkManager().setDirty(true);
             markDirty();
         }
-        else 
+        else
         {
-            MessageUtils.format(MESSAGE_WARNING_CANNOTBUILD).sendTo(ctxIn.getSender());
+            MessageUtils.format(MESSAGE_WARNING_CANNOTBUILD).sendTo(ctx.getServerHandler().playerEntity);
         }
     }
 
@@ -218,16 +218,21 @@ public class BuildingBuilder extends AbstractBuildingStructureBuilder
          * @param c the colony.
          * @param l the position.
          */
-        public View(final IColonyView c, final BlockPos l)
+        public View(final IColonyView c, final int[] l)
         {
             super(c, l);
         }
 
         @NotNull
         @Override
-        public BOWindow getWindow()
+        public Object /* BOWindow: todo ModularUI2 */ getWindow()
         {
             return new WindowHutBuilderModule(this);
         }
     }
 }
+
+
+
+
+

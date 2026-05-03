@@ -15,9 +15,9 @@ import com.minecolonies.core.colony.buildings.modules.TavernBuildingModule;
 import com.minecolonies.core.entity.other.SittingEntity;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
 import com.minecolonies.core.entity.visitor.VisitorCitizen;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.Entity;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] int /* InteractionHand */ removed
+import net.minecraft.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -123,8 +123,8 @@ public class EntityAIVisitor implements IState
 
         if (EntityNavigationUtils.walkToPos(citizen, target.blockPosition(), 2, false) && citizen.hasLineOfSight(target))
         {
-            citizen.swing(InteractionHand.MAIN_HAND);
-            target.hurt(target.level.damageSources().source(DamageSourceKeys.VISITOR), 10.0f);
+            citizen.swing(0 /* InteractionHand.MAIN_HAND */);
+            target.hurt(target.World.damageSources().source(DamageSourceKeys.VISITOR), 10.0f);
         }
 
         return false;
@@ -171,7 +171,7 @@ public class EntityAIVisitor implements IState
         final int random = citizen.getRandom().nextInt(5);
         if (tavern != null && (random == 0 || random == 1 && !citizen.getCitizenColonyHandler().getColonyOrRegister().isDay()) && tavern.hasModule(BuildingModules.TAVERN_VISITOR))
         {
-            final BlockPos pos = tavern.getModule(BuildingModules.TAVERN_VISITOR).getFreeSitPosition();
+            final int[] pos = tavern.getModule(BuildingModules.TAVERN_VISITOR).getFreeSitPosition();
             if (pos != null)
             {
                 ((VisitorData) citizen.getCitizenData()).setSittingPosition(pos);
@@ -199,7 +199,7 @@ public class EntityAIVisitor implements IState
     {
         if ((actionTimeoutCounter -= 50) <= 0)
         {
-            ((VisitorData) citizen.getCitizenData()).setSittingPosition(BlockPos.ZERO);
+            ((VisitorData) citizen.getCitizenData()).setSittingPosition(new int[]{0,0,0});
             return true;
         }
 
@@ -208,7 +208,7 @@ public class EntityAIVisitor implements IState
             return false;
         }
 
-        final BlockPos moveTo = ((VisitorData) citizen.getCitizenData()).getSittingPosition();
+        final int[] moveTo = ((VisitorData) citizen.getCitizenData()).getSittingPosition();
         if (EntityNavigationUtils.walkToPosInBuilding(citizen, moveTo, tavern, 3))
         {
             SittingEntity.sitDown(moveTo, citizen, actionTimeoutCounter);
@@ -234,9 +234,9 @@ public class EntityAIVisitor implements IState
             tavern = (DefaultBuildingInstance) building;
         }
 
-        ((VisitorData) citizen.getCitizenData()).setSittingPosition(BlockPos.ZERO);
+        ((VisitorData) citizen.getCitizenData()).setSittingPosition(new int[]{0,0,0});
 
-        return WorldUtil.isEntityBlockLoaded(citizen.level, citizen.blockPosition());
+        return WorldUtil.isEntityBlockLoaded(citizen.World, citizen.blockPosition());
     }
 
     /**
@@ -262,7 +262,7 @@ public class EntityAIVisitor implements IState
      */
     private void resetLogic()
     {
-        ((VisitorData) citizen.getCitizenData()).setSittingPosition(BlockPos.ZERO);
+        ((VisitorData) citizen.getCitizenData()).setSittingPosition(new int[]{0,0,0});
     }
 
     /**
@@ -273,3 +273,8 @@ public class EntityAIVisitor implements IState
         resetLogic();
     }
 }
+
+
+
+
+

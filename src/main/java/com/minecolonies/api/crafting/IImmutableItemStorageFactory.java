@@ -3,7 +3,7 @@ package com.minecolonies.api.crafting;
 import com.minecolonies.api.colony.requestsystem.factory.FactoryVoidInput;
 import com.minecolonies.api.colony.requestsystem.factory.IFactory;
 import com.minecolonies.api.colony.requestsystem.factory.IFactoryController;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.Constants.PARAMS_ITEMSTORAGE;
@@ -47,4 +47,5 @@ public interface IImmutableItemStorageFactory extends IFactory<FactoryVoidInput,
     @NotNull
     ImmutableItemStorage getNewInstance(@NotNull final ItemStack stack, final int size);
 }
+
 

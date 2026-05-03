@@ -2,8 +2,8 @@ package com.minecolonies.core.colony.buildings.workerbuildings;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,7 +23,7 @@ public class BuildingSwineHerder extends AbstractBuilding
     private static final String HUT_NAME = "swineherderhut";
 
     /**
-     * Max building level of the hut.
+     * Max building World of the hut.
      */
     private static final int MAX_BUILDING_LEVEL = 5;
 
@@ -33,7 +33,7 @@ public class BuildingSwineHerder extends AbstractBuilding
      * @param c the colony.
      * @param l the location.
      */
-    public BuildingSwineHerder(final IColony c, final BlockPos l)
+    public BuildingSwineHerder(final IColony c, final int[] l)
     {
         super(c, l);
     }
@@ -61,3 +61,5 @@ public class BuildingSwineHerder extends AbstractBuilding
         return super.canEat(stack);
     }
 }
+
+

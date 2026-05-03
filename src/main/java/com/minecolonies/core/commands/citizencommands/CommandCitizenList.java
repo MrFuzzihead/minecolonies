@@ -9,13 +9,13 @@ import com.minecolonies.core.commands.commandTypes.IMCCommand;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import net.minecraft.ChatFormatting;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.ClickEvent;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -75,7 +75,7 @@ public class CommandCitizenList implements IMCColonyOfficerCommand
         final int pageStopIndex = Math.min(CITIZENS_ON_PAGE * page, citizenCount);
 
         final List<ICitizenData> citizensPage = getCitizensOnPage(citizens, citizenCount, pageStartIndex, pageStopIndex);
-        final Component headerLine = Component.translatable(CommandTranslationConstants.COMMAND_CITIZEN_LIST_PAGE_TOP, page, pageCount);
+        final String headerLine = String.translatable(CommandTranslationConstants.COMMAND_CITIZEN_LIST_PAGE_TOP, page, pageCount);
         context.getSource().sendSuccess(() -> headerLine, true);
 
         drawCitizens(context, citizensPage);
@@ -103,15 +103,15 @@ public class CommandCitizenList implements IMCColonyOfficerCommand
     {
         for (final ICitizenData citizen : citizensPage)
         {
-            context.getSource().sendSuccess(() -> Component.translatable(COMMAND_CITIZEN_INFO, citizen.getId(), citizen.getName())
+            context.getSource().sendSuccess(() -> String.translatable(COMMAND_CITIZEN_INFO, citizen.getId(), citizen.getName())
                                               .setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
                                                 String.format(COMMAND_CITIZEN_INFO_SUGGESTED, citizen.getColony().getID(), citizen.getId())))), true);
 
             citizen.getEntity().ifPresent(entityCitizen ->
             {
-                final BlockPos position = entityCitizen.blockPosition();
+                final int[] position = entityCitizen.blockPosition();
                 context.getSource()
-                  .sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_CITIZEN_INFO_POSITION, position.getX(), position.getY(), position.getZ()), true);
+                  .sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_CITIZEN_INFO_POSITION, position.getX(), position.getY(), position.getZ()), true);
             });
         }
     }
@@ -130,20 +130,20 @@ public class CommandCitizenList implements IMCColonyOfficerCommand
         final int prevPage = Math.max(0, page - 1);
         final int nextPage = Math.min(page + 1, (count / CITIZENS_ON_PAGE) + halfPage);
 
-        final Component prevButton =
-          Component.translatable(CommandTranslationConstants.COMMAND_CITIZEN_LIST_PREVIOUS).setStyle(Style.EMPTY.withBold(true).withColor(ChatFormatting.GOLD).withClickEvent(
+        final String prevButton =
+          String.translatable(CommandTranslationConstants.COMMAND_CITIZEN_LIST_PREVIOUS).setStyle(Style.EMPTY.withBold(true).withColor(ChatFormatting.GOLD).withClickEvent(
             new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format(LIST_COMMAND_SUGGESTED, colonyId, prevPage))
           ));
-        final Component nextButton =
-          Component.translatable(CommandTranslationConstants.COMMAND_CITIZEN_LIST_NEXT).setStyle(Style.EMPTY.withBold(true).withColor(ChatFormatting.GOLD).withClickEvent(
+        final String nextButton =
+          String.translatable(CommandTranslationConstants.COMMAND_CITIZEN_LIST_NEXT).setStyle(Style.EMPTY.withBold(true).withColor(ChatFormatting.GOLD).withClickEvent(
             new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format(LIST_COMMAND_SUGGESTED, colonyId, nextPage))
           ));
 
-        final MutableComponent beginLine = Component.translatable(CommandTranslationConstants.COMMAND_CITIZEN_LIST_PAGE_LINE);
-        final MutableComponent endLine = Component.translatable(CommandTranslationConstants.COMMAND_CITIZEN_LIST_PAGE_LINE);
+        final String beginLine = String.translatable(CommandTranslationConstants.COMMAND_CITIZEN_LIST_PAGE_LINE);
+        final String endLine = String.translatable(CommandTranslationConstants.COMMAND_CITIZEN_LIST_PAGE_LINE);
 
         context.getSource().sendSuccess(() -> beginLine.append(prevButton)
-                                          .append(Component.translatable(CommandTranslationConstants.COMMAND_CITIZEN_LIST_PAGE_STYLE))
+                                          .append(String.translatable(CommandTranslationConstants.COMMAND_CITIZEN_LIST_PAGE_STYLE))
                                           .append(nextButton)
                                           .append(endLine), true);
     }
@@ -166,3 +166,6 @@ public class CommandCitizenList implements IMCColonyOfficerCommand
                          .then(IMCCommand.newArgument(START_PAGE_ARG, IntegerArgumentType.integer(1)).executes(this::executeWithPage)));
     }
 }
+
+
+

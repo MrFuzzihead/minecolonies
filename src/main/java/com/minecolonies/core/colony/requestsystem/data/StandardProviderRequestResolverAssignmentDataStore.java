@@ -11,10 +11,10 @@ import com.minecolonies.api.util.NBTUtils;
 import com.minecolonies.api.util.constant.NbtTagConstants;
 import com.minecolonies.api.util.constant.SerializationIdentifierConstants;
 import com.minecolonies.api.util.constant.TypeConstants;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.Tuple;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.network.PacketBuffer;
+import com.minecolonies.api.util.Tuple;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -87,14 +87,14 @@ public class StandardProviderRequestResolverAssignmentDataStore implements IProv
 
         @NotNull
         @Override
-        public CompoundTag serialize(
+        public NBTTagCompound serialize(
           @NotNull final IFactoryController controller, @NotNull final StandardProviderRequestResolverAssignmentDataStore standardProviderRequestResolverAssignmentDataStore)
         {
-            CompoundTag compound = new CompoundTag();
+            NBTTagCompound compound = new NBTTagCompound();
 
             compound.put(NbtTagConstants.TAG_TOKEN, controller.serialize(standardProviderRequestResolverAssignmentDataStore.id));
             compound.put(NbtTagConstants.TAG_LIST, standardProviderRequestResolverAssignmentDataStore.assignments.keySet().stream().map(t -> {
-                CompoundTag entryCompound = new CompoundTag();
+                NBTTagCompound entryCompound = new NBTTagCompound();
 
                 entryCompound.put(NbtTagConstants.TAG_TOKEN, controller.serialize(t));
                 entryCompound.put(NbtTagConstants.TAG_LIST, standardProviderRequestResolverAssignmentDataStore.assignments.get(t).stream()
@@ -109,14 +109,14 @@ public class StandardProviderRequestResolverAssignmentDataStore implements IProv
 
         @NotNull
         @Override
-        public StandardProviderRequestResolverAssignmentDataStore deserialize(@NotNull final IFactoryController controller, @NotNull final CompoundTag nbt) throws Throwable
+        public StandardProviderRequestResolverAssignmentDataStore deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound nbt) throws Throwable
         {
             IToken<?> token = controller.deserialize(nbt.getCompound(NbtTagConstants.TAG_TOKEN));
-            Map<IToken<?>, Collection<IToken<?>>> map = NBTUtils.streamCompound(nbt.getList(NbtTagConstants.TAG_LIST, Tag.TAG_COMPOUND))
-                                                          .map(CompoundTag -> {
-                                                              final IToken<?> elementToken = controller.deserialize(CompoundTag.getCompound(NbtTagConstants.TAG_TOKEN));
-                                                              final Collection<IToken<?>> elements = NBTUtils.streamCompound(CompoundTag.getList(NbtTagConstants.TAG_LIST,
-                                                                Tag.TAG_COMPOUND)).map(elementCompound -> (IToken<?>) controller.deserialize(elementCompound))
+            Map<IToken<?>, Collection<IToken<?>>> map = NBTUtils.streamCompound(nbt.getList(NbtTagConstants.TAG_LIST, NBTBase.TAG_COMPOUND))
+                                                          .map(NBTTagCompound -> {
+                                                              final IToken<?> elementToken = controller.deserialize(NBTTagCompound.getCompound(NbtTagConstants.TAG_TOKEN));
+                                                              final Collection<IToken<?>> elements = NBTUtils.streamCompound(NBTTagCompound.getList(NbtTagConstants.TAG_LIST,
+                                                                NBTBase.TAG_COMPOUND)).map(elementCompound -> (IToken<?>) controller.deserialize(elementCompound))
                                                                                                        .collect(Collectors.toList());
 
                                                               return new Tuple<>(elementToken, elements);
@@ -128,7 +128,7 @@ public class StandardProviderRequestResolverAssignmentDataStore implements IProv
         @Override
         public void serialize(
           IFactoryController controller, StandardProviderRequestResolverAssignmentDataStore input,
-          FriendlyByteBuf packetBuffer)
+          PacketBuffer packetBuffer)
         {
             controller.serialize(packetBuffer, input.id);
             packetBuffer.writeInt(input.assignments.size());
@@ -140,7 +140,7 @@ public class StandardProviderRequestResolverAssignmentDataStore implements IProv
         }
 
         @Override
-        public StandardProviderRequestResolverAssignmentDataStore deserialize(IFactoryController controller, FriendlyByteBuf buffer) throws Throwable
+        public StandardProviderRequestResolverAssignmentDataStore deserialize(IFactoryController controller, PacketBuffer buffer) throws Throwable
         {
             final IToken<?> token = controller.deserialize(buffer);
             final Map<IToken<?>, Collection<IToken<?>>> assignments = new HashMap<>();
@@ -167,3 +167,7 @@ public class StandardProviderRequestResolverAssignmentDataStore implements IProv
         }
     }
 }
+
+
+
+

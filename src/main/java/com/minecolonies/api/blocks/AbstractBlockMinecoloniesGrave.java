@@ -1,23 +1,19 @@
 package com.minecolonies.api.blocks;
 
 import com.minecolonies.api.blocks.types.GraveType;
-import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.block.material.Material;
 
-public abstract class AbstractBlockMinecoloniesGrave<B extends AbstractBlockMinecoloniesGrave<B>> extends AbstractBlockMinecolonies<B> implements EntityBlock
+// [1.7.10 BACKPORT] Removed EntityBlock, HorizontalDirectionalBlock, DirectionProperty, EnumProperty
+// Block state properties are handled via metadata in 1.7.10
+
+public abstract class AbstractBlockMinecoloniesGrave<B extends AbstractBlockMinecoloniesGrave<B>> extends AbstractBlockMinecolonies<B>
 {
-    public static final EnumProperty<GraveType> VARIANT = EnumProperty.create("variant", GraveType.class);
+    // [1.7.10] GraveType variant stored via metadata
+    // [1.7.10] FACING stored via metadata bits
 
-    /**
-     * The position it faces.
-     */
-    public static final DirectionProperty      FACING       = HorizontalDirectionalBlock.FACING;
-
-    public AbstractBlockMinecoloniesGrave(final Properties properties)
+    public AbstractBlockMinecoloniesGrave(final Material material)
     {
-        super(properties.noOcclusion());
+        super(material);
     }
 
 }

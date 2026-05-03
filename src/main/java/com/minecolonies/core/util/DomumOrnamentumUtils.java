@@ -5,11 +5,11 @@ import com.ldtteam.domumornamentum.block.interfaces.IDOBlock;
 import com.ldtteam.domumornamentum.client.model.data.MaterialTextureData;
 import com.minecolonies.api.colony.requestsystem.request.IRequest;
 import com.minecolonies.api.colony.requestsystem.requestable.IConcreteDeliverable;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.item.ItemStack;
+import net.minecraft.block.Block;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -71,8 +71,8 @@ public class DomumOrnamentumUtils
         {
             return MaterialTextureData.EMPTY;
         }
-        final CompoundTag tag = stack.getOrCreateTag().getCompound(DO_NBT_TEXTURE_DATA);
-        return MaterialTextureData.deserializeFromNBT(tag);
+        final NBTTagCompound NBTBase = stack.getOrCreateTag().getCompound(DO_NBT_TEXTURE_DATA);
+        return MaterialTextureData.deserializeFromNBT(NBTBase);
     }
 
     /**
@@ -92,14 +92,14 @@ public class DomumOrnamentumUtils
      * @param nbt
      * @return
      */
-    public static MaterialTextureData getTextureDataFromNBT(final CompoundTag nbt)
+    public static MaterialTextureData getTextureDataFromNBT(final NBTTagCompound nbt)
     {
         if (nbt == null || !nbt.contains(DO_NBT_TEXTURE_DATA))
         {
             return null;
         }
 
-        if (nbt.contains(DO_NBT_TEXTURE_DATA, Tag.TAG_COMPOUND))
+        if (nbt.contains(DO_NBT_TEXTURE_DATA, NBTBase.TAG_COMPOUND))
         {
             return MaterialTextureData.deserializeFromNBT(nbt.getCompound(DO_NBT_TEXTURE_DATA));
         }
@@ -112,3 +112,7 @@ public class DomumOrnamentumUtils
         // there are no instances here, only Zuul
     }
 }
+
+
+
+

@@ -5,9 +5,9 @@ import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.EntityListModule;
 import com.minecolonies.core.network.messages.server.AbstractBuildingServerMessage;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -55,7 +55,7 @@ public class AssignFilterableEntityMessage extends AbstractBuildingServerMessage
     }
 
     @Override
-    public void fromBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void fromBytesOverride(@NotNull final PacketBuffer buf)
     {
         this.assign = buf.readBoolean();
         this.entity =buf.readResourceLocation();
@@ -63,7 +63,7 @@ public class AssignFilterableEntityMessage extends AbstractBuildingServerMessage
     }
 
     @Override
-    public void toBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void toBytesOverride(@NotNull final PacketBuffer buf)
     {
         buf.writeBoolean(this.assign);
         buf.writeResourceLocation(this.entity);
@@ -72,7 +72,7 @@ public class AssignFilterableEntityMessage extends AbstractBuildingServerMessage
 
     @Override
     public void onExecute(
-      final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony, final AbstractBuilding building)
+      final MessageContext ctx, final boolean isLogicalServer, final IColony colony, final AbstractBuilding building)
     {
         if (building.getModule(id) instanceof EntityListModule module)
         {
@@ -87,3 +87,5 @@ public class AssignFilterableEntityMessage extends AbstractBuildingServerMessage
         }
     }
 }
+
+

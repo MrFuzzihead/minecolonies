@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.managers;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.ICivilianData;
@@ -17,13 +23,13 @@ import com.minecolonies.core.colony.VisitorData;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingTownHall;
 import com.minecolonies.core.entity.visitor.VisitorCitizen;
 import com.minecolonies.core.network.messages.client.colony.ColonyVisitorViewDataMessage;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.Level;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.Entity;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -134,15 +140,15 @@ public class VisitorManager implements IVisitorManager
     }
 
     @Override
-    public void read(@NotNull final CompoundTag compound)
+    public void read(@NotNull final NBTTagCompound compound)
     {
         if (compound.contains(TAG_VISIT_MANAGER))
         {
-            final CompoundTag visitorManagerNBT = compound.getCompound(TAG_VISIT_MANAGER);
-            final ListTag citizenList = visitorManagerNBT.getList(TAG_VISITORS, Tag.TAG_COMPOUND);
-            for (final Tag citizen : citizenList)
+            final NBTTagCompound visitorManagerNBT = compound.getCompound(TAG_VISIT_MANAGER);
+            final NBTTagList citizenList = visitorManagerNBT.getList(TAG_VISITORS, NBTBase.TAG_COMPOUND);
+            for (final NBTBase citizen : citizenList)
             {
-                final IVisitorData data = VisitorData.loadVisitorFromNBT(colony, (CompoundTag) citizen);
+                final IVisitorData data = VisitorData.loadVisitorFromNBT(colony, (NBTTagCompound) citizen);
                 visitorMap.put(data.getId(), data);
             }
 
@@ -152,11 +158,11 @@ public class VisitorManager implements IVisitorManager
     }
 
     @Override
-    public void write(@NotNull final CompoundTag compoundNBT)
+    public void write(@NotNull final NBTTagCompound compoundNBT)
     {
-        final CompoundTag visitorManagerNBT = new CompoundTag();
+        final NBTTagCompound visitorManagerNBT = new NBTTagCompound();
 
-        final ListTag citizenList = new ListTag();
+        final NBTTagList citizenList = new NBTTagList();
         for (Map.Entry<Integer, IVisitorData> entry : visitorMap.entrySet())
         {
             citizenList.add(entry.getValue().serializeNBT());
@@ -168,7 +174,7 @@ public class VisitorManager implements IVisitorManager
     }
 
     @Override
-    public void sendPackets(@NotNull final Set<ServerPlayer> closeSubscribers, @NotNull final Set<ServerPlayer> newSubscribers)
+    public void sendPackets(@NotNull final Set<EntityPlayerMP> closeSubscribers, @NotNull final Set<EntityPlayerMP> newSubscribers)
     {
         Set<IVisitorData> toSend = null;
         boolean refresh = !newSubscribers.isEmpty() || this.isDirty;
@@ -204,12 +210,12 @@ public class VisitorManager implements IVisitorManager
             return;
         }
 
-        Set<ServerPlayer> players = new HashSet<>(newSubscribers);
+        Set<EntityPlayerMP> players = new HashSet<>(newSubscribers);
         players.addAll(closeSubscribers);
 
         final ColonyVisitorViewDataMessage message = new ColonyVisitorViewDataMessage(colony, toSend, refresh);
 
-        for (final ServerPlayer player : players)
+        for (final EntityPlayerMP player : players)
         {
             Network.getNetwork().sendToPlayer(message, player);
         }
@@ -235,7 +241,7 @@ public class VisitorManager implements IVisitorManager
     }
 
     @Override
-    public <T extends ICivilianData> T spawnOrCreateCivilian(T data, final Level world, List<BlockPos> spawnPositions, final boolean force)
+    public <T extends ICivilianData> T spawnOrCreateCivilian(T data, final World world, List<int[]> spawnPositions, final boolean force)
     {
         if (!colony.getServerBuildingManager().hasTownHall() || (!colony.getSettings().getSetting(BuildingTownHall.MOVE_IN).getValue() && !force))
         {
@@ -248,16 +254,16 @@ public class VisitorManager implements IVisitorManager
             spawnPositions.add(colony.getServerBuildingManager().getTownHall().getPosition());
         }
 
-        for (final BlockPos spawnLocation : spawnPositions)
+        for (final int[] spawnLocation : spawnPositions)
         {
-            if (spawnLocation == null || spawnLocation.equals(BlockPos.ZERO))
+            if (spawnLocation == null || spawnLocation.equals(new int[]{0,0,0}))
             {
                 continue;
             }
 
             if (WorldUtil.isEntityBlockLoaded(world, spawnLocation))
             {
-                BlockPos calculatedSpawn = EntityUtils.getSpawnPoint(world, spawnLocation);
+                int[] calculatedSpawn = EntityUtils.getSpawnPoint(world, spawnLocation);
                 if (calculatedSpawn != null)
                 {
                     VisitorCitizen citizenEntity = (VisitorCitizen) ModEntities.VISITOR.create(colony.getWorld());
@@ -285,7 +291,7 @@ public class VisitorManager implements IVisitorManager
 
         if (colony.getServerBuildingManager().hasTownHall() && WorldUtil.isEntityBlockLoaded(world, colony.getServerBuildingManager().getTownHall().getPosition()))
         {
-            final BlockPos townhallPos = colony.getServerBuildingManager().getTownHall().getPosition();
+            final int[] townhallPos = colony.getServerBuildingManager().getTownHall().getPosition();
             MessageUtils.format(WARNING_COLONY_NO_ARRIVAL_SPACE, townhallPos.getX(), townhallPos.getY(), townhallPos.getZ()).sendTo(colony).forAllPlayers();
         }
         return data;
@@ -335,3 +341,9 @@ public class VisitorManager implements IVisitorManager
         }
     }
 }
+
+
+
+
+
+

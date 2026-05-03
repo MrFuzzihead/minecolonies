@@ -1,20 +1,11 @@
 package com.minecolonies.api.advancements.place_supply;
-
 import com.minecolonies.api.advancements.CriterionListeners;
-import net.minecraft.server.PlayerAdvancements;
-
-/**
- * A default listener, as there are no conditions
- */
+// [1.7.10 BACKPORT] Stubbed out — advancements do not exist in Minecraft 1.7.10.
+/** Stub listeners — no-op in 1.7.10. */
 public class PlaceSupplyListeners extends CriterionListeners<PlaceSupplyCriterionInstance>
 {
-    public PlaceSupplyListeners(final PlayerAdvancements playerAdvancements)
+    public PlaceSupplyListeners(final Object playerAdvancements)
     {
         super(playerAdvancements);
-    }
-
-    public void trigger()
-    {
-        trigger(instance -> true);
     }
 }

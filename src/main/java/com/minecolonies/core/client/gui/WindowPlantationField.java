@@ -1,20 +1,39 @@
 package com.minecolonies.core.client.gui;
 
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
 import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
 import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
+import com.ldtteam.blockui.controls.DropDownList;
+import com.ldtteam.blockui.controls.Image;
 import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.controls.TextField;
+import com.ldtteam.blockui.views.BOWindow;
 import com.ldtteam.blockui.views.Box;
 import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.colony.buildingextensions.plantation.IPlantationModule;
 import com.minecolonies.api.colony.workorders.WorkOrderType;
 import com.minecolonies.api.tileentities.AbstractTileEntityPlantationField;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.network.messages.server.PlantationFieldBuildRequestMessage;
-import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -96,7 +115,7 @@ public class WindowPlantationField extends AbstractWindowSkeleton
             tileEntityPlantationField.getBlockPos(),
             tileEntityPlantationField.getPackName(),
             tileEntityPlantationField.getBlueprintPath(),
-            Minecraft.getInstance().level.dimension(),
+            Minecraft.getInstance().World.dimension(),
             tileEntityPlantationField.getRotation(),
             tileEntityPlantationField.getMirror(),
             builder)).open();
@@ -172,3 +191,6 @@ public class WindowPlantationField extends AbstractWindowSkeleton
         });
     }
 }
+
+
+

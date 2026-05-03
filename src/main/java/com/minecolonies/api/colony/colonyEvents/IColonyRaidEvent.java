@@ -1,7 +1,7 @@
 package com.minecolonies.api.colony.colonyEvents;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.EntityType;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] world.entity removed
 
 import java.util.List;
 
@@ -15,33 +15,33 @@ public interface IColonyRaidEvent extends IColonyEntitySpawnEvent
      *
      * @return the normal type.
      */
-    EntityType<?> getNormalRaiderType();
+    Class /* EntityType */<?> getNormalRaiderType();
 
     /**
      * Get the archer raider type.
      *
      * @return the archer type.
      */
-    EntityType<?> getArcherRaiderType();
+    Class /* EntityType */<?> getArcherRaiderType();
 
     /**
      * Get the boss raider type.
      *
      * @return the boss type.
      */
-    EntityType<?> getBossRaiderType();
+    Class /* EntityType */<?> getBossRaiderType();
 
     /**
      * Add a spawner to an event.
      *
      * @param pos the pos to add the spawner at.
      */
-    void addSpawner(final BlockPos pos);
+    void addSpawner(final int[] pos);
 
     /**
      * Gets the list of waypoints
      */
-    List<BlockPos> getWayPoints();
+    List<int[]> getWayPoints();
 
     /**
      * Whether or not the raid is still active.
@@ -52,3 +52,7 @@ public interface IColonyRaidEvent extends IColonyEntitySpawnEvent
         return getStatus() == EventStatus.PROGRESSING ||getStatus() == EventStatus.PREPARING;
     }
 }
+
+
+
+

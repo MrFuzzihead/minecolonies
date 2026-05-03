@@ -7,7 +7,7 @@ import com.minecolonies.api.entity.citizen.happiness.StaticHappinessSupplier;
 import com.minecolonies.api.quests.IQuestInstance;
 import com.minecolonies.api.quests.IQuestRewardTemplate;
 import com.minecolonies.core.colony.CitizenData;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.player.EntityPlayer;
 
 import static com.minecolonies.api.util.constant.HappinessConstants.QUEST;
 import static com.minecolonies.api.quests.QuestParseConstant.*;
@@ -70,3 +70,4 @@ public class HappinessRewardTemplate implements IQuestRewardTemplate
         }
     }
 }
+

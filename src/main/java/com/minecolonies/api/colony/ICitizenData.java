@@ -10,10 +10,10 @@ import com.minecolonies.api.entity.citizen.citizenhandlers.*;
 import com.minecolonies.api.quests.IQuestGiver;
 import com.minecolonies.api.quests.IQuestParticipant;
 import com.minecolonies.api.util.Tuple;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayerMP;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -88,14 +88,14 @@ public interface ICitizenData extends ICivilianData, IQuestGiver, IQuestParticip
      *
      * @param lastPosition the last position.
      */
-    void setLastPosition(BlockPos lastPosition);
+    void setLastPosition(int[] lastPosition);
 
     /**
      * Get the last position of the citizen.
      *
      * @return the last position.
      */
-    BlockPos getLastPosition();
+    int[] getLastPosition();
 
     /**
      * Sets the citizens current saturation.
@@ -116,7 +116,7 @@ public interface ICitizenData extends ICivilianData, IQuestGiver, IQuestParticip
      *
      * @return the bedPos.
      */
-    BlockPos getBedPos();
+    int[] getBedPos();
 
     /**
      * Set asleep.
@@ -130,7 +130,7 @@ public interface ICitizenData extends ICivilianData, IQuestGiver, IQuestParticip
      *
      * @param bedPos the pos to set.
      */
-    void setBedPos(BlockPos bedPos);
+    void setBedPos(int[] bedPos);
 
     /**
      * The Handler for the citizens happiness.
@@ -160,7 +160,7 @@ public interface ICitizenData extends ICivilianData, IQuestGiver, IQuestParticip
      *
      * @param player the player scheduling it.
      */
-    void scheduleRestart(ServerPlayer player);
+    void scheduleRestart(EntityPlayerMP player);
 
     /**
      * AI will be restarted, also restart building etc
@@ -240,14 +240,14 @@ public interface ICitizenData extends ICivilianData, IQuestGiver, IQuestParticip
      *
      * @return the location, or null if nowhere is particularly interesting right now.
      */
-    @Nullable BlockPos getStatusPosition();
+    @Nullable int[] getStatusPosition();
 
     /**
      * Sets the location of interest of this citizen.
      *
      * @param pos the location, or null to clear.
      */
-    void setStatusPosition(@Nullable BlockPos pos);
+    void setStatusPosition(@Nullable int[] pos);
 
     /**
      * Get the random var of the citizen.
@@ -270,7 +270,7 @@ public interface ICitizenData extends ICivilianData, IQuestGiver, IQuestParticip
      *
      * @param pos position to set
      */
-    void setNextRespawnPosition(final BlockPos pos);
+    void setNextRespawnPosition(final int[] pos);
 
     /**
      * Returns whether the citizen has food in their inventory that's not good enough (but no good food)
@@ -419,7 +419,7 @@ public interface ICitizenData extends ICivilianData, IQuestGiver, IQuestParticip
      * @param key the key of the interaction.
      * @param sender the player closing it.
      */
-    void onInteractionClosed(Component key, ServerPlayer sender);
+    void onInteractionClosed(String key, EntityPlayerMP sender);
 
     /**
      * Called after buildings loaded
@@ -444,7 +444,7 @@ public interface ICitizenData extends ICivilianData, IQuestGiver, IQuestParticip
      * @return the pos to go home to.
      */
     @Nullable
-    BlockPos getHomePosition();
+    int[] getHomePosition();
 
     /**
      * Personal citizen disease modifier.
@@ -471,3 +471,6 @@ public interface ICitizenData extends ICivilianData, IQuestGiver, IQuestParticip
      */
     void onRequestCompleted(IToken<?> token);
 }
+
+
+

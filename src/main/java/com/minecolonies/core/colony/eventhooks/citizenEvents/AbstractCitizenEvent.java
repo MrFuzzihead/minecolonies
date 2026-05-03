@@ -3,9 +3,9 @@ package com.minecolonies.core.colony.eventhooks.citizenEvents;
 import com.minecolonies.api.colony.colonyEvents.descriptions.ICitizenEventDescription;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.core.colony.eventhooks.AbstractEvent;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+// [1.7.10] int[] -> int x,y,z
 
 import static com.minecolonies.api.util.constant.NbtTagConstants.*;
 
@@ -15,7 +15,7 @@ import static com.minecolonies.api.util.constant.NbtTagConstants.*;
 public abstract class AbstractCitizenEvent extends AbstractEvent implements ICitizenEventDescription
 {
 
-    private BlockPos eventPos;
+    private int[] eventPos;
     private String citizenName;
 
     /**
@@ -32,7 +32,7 @@ public abstract class AbstractCitizenEvent extends AbstractEvent implements ICit
      * @param eventPos    the position of the hut block of the building.
      * @param citizenName the name of the building.
      */
-    public AbstractCitizenEvent(final boolean includeInSummary, final BlockPos eventPos, final String citizenName)
+    public AbstractCitizenEvent(final boolean includeInSummary, final int[] eventPos, final String citizenName)
     {
         super(includeInSummary);
         this.eventPos = eventPos;
@@ -40,13 +40,13 @@ public abstract class AbstractCitizenEvent extends AbstractEvent implements ICit
     }
 
     @Override
-    public BlockPos getEventPos()
+    public int[] getEventPos()
     {
         return eventPos;
     }
 
     @Override
-    public void setEventPos(BlockPos eventPos)
+    public void setEventPos(int[] eventPos)
     {
         this.eventPos = eventPos;
     }
@@ -64,16 +64,16 @@ public abstract class AbstractCitizenEvent extends AbstractEvent implements ICit
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        CompoundTag compound = super.serializeNBT();
+        NBTTagCompound compound = super.serializeNBT();
         BlockPosUtil.write(compound, TAG_EVENT_POS, eventPos);
         compound.putString(TAG_CITIZEN_NAME, citizenName);
         return compound;
     }
 
     @Override
-    public void deserializeNBT(CompoundTag compound)
+    public void deserializeNBT(NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
         eventPos = BlockPosUtil.read(compound, TAG_EVENT_POS);
@@ -81,7 +81,7 @@ public abstract class AbstractCitizenEvent extends AbstractEvent implements ICit
     }
 
     @Override
-    public void serialize(FriendlyByteBuf buf)
+    public void serialize(PacketBuffer buf)
     {
         super.serialize(buf);
         buf.writeBlockPos(eventPos);
@@ -89,7 +89,7 @@ public abstract class AbstractCitizenEvent extends AbstractEvent implements ICit
     }
 
     @Override
-    public void deserialize(FriendlyByteBuf buf)
+    public void deserialize(PacketBuffer buf)
     {
         super.deserialize(buf);
         eventPos = buf.readBlockPos();
@@ -102,3 +102,6 @@ public abstract class AbstractCitizenEvent extends AbstractEvent implements ICit
         return toDisplayString();
     }
 }
+
+
+

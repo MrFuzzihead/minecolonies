@@ -12,13 +12,13 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
 import net.minecraft.locale.Language;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
-import net.minecraft.network.chat.Style;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -66,9 +66,9 @@ public class ToolRecipeCategory implements IRecipeCategory<ToolUsage>
 
     @NotNull
     @Override
-    public Component getTitle()
+    public String getTitle()
     {
-        return Component.translatable(TranslationConstants.PARTIAL_JEI_INFO + "tools");
+        return String.translatable(TranslationConstants.PARTIAL_JEI_INFO + "tools");
     }
 
     @NotNull
@@ -130,10 +130,14 @@ public class ToolRecipeCategory implements IRecipeCategory<ToolUsage>
         int x = SLOT_X;
         for (int i = 0; i <= MAX_BUILDING_LEVEL; ++i)
         {
-            final Component text = Component.translatable(TranslationConstants.PARTIAL_JEI_INFO + "onelevelrestriction", i);
+            final String text = String.translatable(TranslationConstants.PARTIAL_JEI_INFO + "onelevelrestriction", i);
             stack.drawString(mc.font, text, (x + (18 - mc.font.width(text)/scale) / 2) * scale, scale, 0, false);
             x += 18;
         }
         stack.pose().popPose();
     }
 }
+
+
+
+

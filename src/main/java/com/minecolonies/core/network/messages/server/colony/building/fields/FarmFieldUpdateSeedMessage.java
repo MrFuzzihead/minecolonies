@@ -4,10 +4,10 @@ import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildingextensions.registry.BuildingExtensionRegistries;
 import com.minecolonies.core.colony.buildingextensions.FarmField;
 import com.minecolonies.core.network.messages.server.AbstractColonyServerMessage;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -23,7 +23,7 @@ public class FarmFieldUpdateSeedMessage extends AbstractColonyServerMessage
     /**
      * The field position.
      */
-    private BlockPos position;
+    private int[] position;
 
     /**
      * Forge default constructor
@@ -40,7 +40,7 @@ public class FarmFieldUpdateSeedMessage extends AbstractColonyServerMessage
      * @param newSeed  the new seed to assign to the field.
      * @param position the field position.
      */
-    public FarmFieldUpdateSeedMessage(@NotNull IColony colony, ItemStack newSeed, BlockPos position)
+    public FarmFieldUpdateSeedMessage(@NotNull IColony colony, ItemStack newSeed, int[] position)
     {
         super(colony);
         this.newSeed = newSeed;
@@ -48,9 +48,9 @@ public class FarmFieldUpdateSeedMessage extends AbstractColonyServerMessage
     }
 
     @Override
-    protected void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony)
+    protected void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony)
     {
-        if (!isLogicalServer || ctxIn.getSender() == null)
+        if (!isLogicalServer || ctx.getServerHandler().playerEntity == null)
         {
             return;
         }
@@ -62,16 +62,18 @@ public class FarmFieldUpdateSeedMessage extends AbstractColonyServerMessage
     }
 
     @Override
-    public void toBytesOverride(final FriendlyByteBuf buf)
+    public void toBytesOverride(final PacketBuffer buf)
     {
         buf.writeItem(newSeed);
         buf.writeBlockPos(position);
     }
 
     @Override
-    public void fromBytesOverride(final FriendlyByteBuf buf)
+    public void fromBytesOverride(final PacketBuffer buf)
     {
         newSeed = buf.readItem();
         position = buf.readBlockPos();
     }
 }
+
+

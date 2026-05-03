@@ -16,9 +16,9 @@ import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.WorkerBuildingModule;
 import com.minecolonies.core.colony.buildings.moduleviews.WorkerBuildingModuleView;
 import com.minecolonies.core.colony.requestsystem.resolvers.core.AbstractCraftingRequestResolver;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Component;
+import net.minecraft.item.ItemStack;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.IChatComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -77,7 +77,7 @@ public class PublicWorkerCraftingRequestResolver extends AbstractCraftingRequest
 
     @NotNull
     @Override
-    public MutableComponent getRequesterDisplayName(@NotNull final IRequestManager manager, @NotNull final IRequest<?> request)
+    public String getRequesterDisplayName(@NotNull final IRequestManager manager, @NotNull final IRequest<?> request)
     {
         final IRequester requester = manager.getColony().getRequesterBuildingForPosition(getLocation().getInDimensionLocation());
         if (requester instanceof IBuildingView)
@@ -85,13 +85,13 @@ public class PublicWorkerCraftingRequestResolver extends AbstractCraftingRequest
             final WorkerBuildingModuleView moduleView = ((IBuildingView) requester).getModuleViewMatching(WorkerBuildingModuleView.class, m -> m.getJobEntry() == getJobEntry());
             if (moduleView != null)
             {
-                return Component.translatable(moduleView.getJobEntry().getTranslationKey());
+                return String.translatable(moduleView.getJobEntry().getTranslationKey());
             }
         }
         if (requester instanceof IBuilding)
         {
             final WorkerBuildingModule module = ((IBuilding) requester).getModuleMatching(WorkerBuildingModule.class, m -> m.getJobEntry() == getJobEntry());
-            return Component.translatable(module.getJobEntry().getTranslationKey());
+            return String.translatable(module.getJobEntry().getTranslationKey());
         }
         return super.getRequesterDisplayName(manager, request);
     }
@@ -114,3 +114,6 @@ public class PublicWorkerCraftingRequestResolver extends AbstractCraftingRequest
         return new PublicCrafting(stack, count, minCount, recipeStorage);
     }
 }
+
+
+

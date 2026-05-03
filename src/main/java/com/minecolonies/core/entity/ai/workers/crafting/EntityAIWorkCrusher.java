@@ -14,9 +14,9 @@ import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.network.messages.client.LocalizedParticleEffectMessage;
 import com.minecolonies.core.util.WorkerUtil;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] int /* InteractionHand */ removed
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState.*;
@@ -143,7 +143,7 @@ public class EntityAIWorkCrusher extends AbstractEntityAICrafting<JobCrusher, Bu
                     currentRequest.addDelivery(currentRecipeStorage.getPrimaryOutput());
                 }
 
-                worker.swing(InteractionHand.MAIN_HAND);
+                worker.swing(0 /* InteractionHand.MAIN_HAND */);
                 job.setCraftCounter(job.getCraftCounter() + 1);
                 currentRecipeStorage.fullfillRecipe(getLootContext(), ImmutableList.of(worker.getItemHandlerCitizen()));
 
@@ -205,9 +205,9 @@ public class EntityAIWorkCrusher extends AbstractEntityAICrafting<JobCrusher, Bu
 
         job.setProgress(job.getProgress() + 1);
 
-        worker.setItemInHand(InteractionHand.MAIN_HAND,
+        worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */,
           currentRecipeStorage.getCleanedInput().get(worker.getRandom().nextInt(currentRecipeStorage.getCleanedInput().size())).getItemStack().copy());
-        worker.setItemInHand(InteractionHand.OFF_HAND, currentRecipeStorage.getPrimaryOutput().copy());
+        worker.setItemInHand(1 /* InteractionHand.OFF_HAND */, currentRecipeStorage.getPrimaryOutput().copy());
         CitizenItemUtils.hitBlockWithToolInHand(worker, building.getPosition());
 
         currentRequest = job.getCurrentTask();
@@ -249,3 +249,7 @@ public class EntityAIWorkCrusher extends AbstractEntityAICrafting<JobCrusher, Bu
     }
 
 }
+
+
+
+

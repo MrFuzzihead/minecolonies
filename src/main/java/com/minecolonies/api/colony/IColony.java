@@ -10,20 +10,22 @@ import com.minecolonies.api.colony.workorders.IWorkManager;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.quests.IQuestManager;
 import com.minecolonies.api.research.IResearchManager;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.CapabilityToken;
-import net.minecraftforge.event.TickEvent;
+import net.minecraft.util.EnumChatFormatting;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
+// [1.7.10] BlockState -> int metadata
+import net.minecraft.world.chunk.Chunk;
+// [1.7.10 BACKPORT] Removed:
+//   net.minecraftforge.common.capabilities.Capability      — no capabilities in 1.7.10
+//   net.minecraftforge.common.capabilities.CapabilityManager — no capabilities in 1.7.10
+//   net.minecraftforge.common.capabilities.CapabilityToken  — no capabilities in 1.7.10
+//   CLOSE_COLONY_CAP static field — replaced by ColonyChunkDataHandler.getColonyTagCapability()
+import cpw.mods.fml.common.gameevent.TickEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,25 +36,30 @@ import java.util.*;
  */
 public interface IColony
 {
-    Capability<IColonyTagCapability> CLOSE_COLONY_CAP = CapabilityManager.get(new CapabilityToken<>() {});
+    // [1.7.10 BACKPORT] CLOSE_COLONY_CAP removed — it was a Forge capability field:
+    //   Capability<IColonyTagCapability> CLOSE_COLONY_CAP = CapabilityManager.get(new CapabilityToken<>() {});
+    // It is replaced by the static accessor:
+    //   ColonyChunkDataHandler.getColonyTagCapability(chunk)
+    // All former   chunk.getCapability(CLOSE_COLONY_CAP, null).resolve().orElse(null)
+    // calls should become: ColonyChunkDataHandler.getColonyTagCapability(chunk)
 
-    void onWorldLoad(@NotNull Level w);
+    void onWorldLoad(@NotNull World w);
 
-    void onWorldUnload(@NotNull Level w);
+    void onWorldUnload(@NotNull World w);
 
     void onServerTick(@NotNull TickEvent.ServerTickEvent event);
 
     @NotNull
     IWorkManager getWorkManager();
 
-    void onWorldTick(@NotNull TickEvent.LevelTickEvent event);
+    void onWorldTick(@NotNull TickEvent.WorldTickEvent event);
 
     /**
      * Returns the position of the colony.
      *
      * @return pos of the colony.
      */
-    BlockPos getCenter();
+    int[] getCenter();
 
     /**
      * Returns the name of the colony.
@@ -77,7 +84,7 @@ public interface IColony
      * @param pos Block Position.
      * @return True if inside colony, otherwise false.
      */
-    boolean isCoordInColony(Level w, BlockPos pos);
+    boolean isCoordInColony(World w, int[] pos);
 
     /**
      * Returns the squared (x, z) distance to the center.
@@ -85,7 +92,7 @@ public interface IColony
      * @param pos Block Position.
      * @return Squared distance to the center in (x, z) direction.
      */
-    long getDistanceSquared(BlockPos pos);
+    long getDistanceSquared(int[] pos);
 
     /**
      * returns this colonies unique id.
@@ -99,14 +106,14 @@ public interface IColony
      *
      * @return the color.
      */
-    ChatFormatting getTeamColonyColor();
+    EnumChatFormatting getTeamColonyColor();
 
     /**
      * Returns this colony's banner patterns, as a List
      *
      * @return a list of pattern-color pairs
      */
-    ListTag getColonyFlag();
+    NBTTagList getColonyFlag();
 
     /**
      * Whether it is day for the colony
@@ -116,7 +123,7 @@ public interface IColony
     boolean isDay();
 
     /**
-     * Get the last contact of a player to the colony in hours.
+     * Get the last contact of a EntityPlayer to the colony in hours.
      *
      * @return an integer with a describing value.
      */
@@ -127,7 +134,7 @@ public interface IColony
      *
      * @return the World the colony is in.
      */
-    Level getWorld();
+    World getWorld();
 
     /**
      * Get the current {@link IRequestManager} for this Colony. Returns null if the current Colony does not support the request system.
@@ -156,14 +163,14 @@ public interface IColony
      * @return The {@link IRequester} from the position, or null.
      */
     @Nullable
-    IRequester getRequesterBuildingForPosition(@NotNull final BlockPos pos);
+    IRequester getRequesterBuildingForPosition(@NotNull final int[] pos);
 
     /**
-     * Remove a visiting player.
+     * Remove a visiting EntityPlayer.
      *
-     * @param player the player.
+     * @param EntityPlayer the EntityPlayer.
      */
-    void removeVisitingPlayer(final Player player);
+    void removeVisitingPlayer(final EntityPlayer EntityPlayer);
 
     /**
      * Get the players in the colony which should receive the message.
@@ -171,12 +178,12 @@ public interface IColony
      * @return list of players
      */
     @NotNull
-    List<Player> getMessagePlayerEntities();
+    List<EntityPlayer> getMessagePlayerEntities();
 
     @NotNull
-    default List<BlockPos> getWayPoints(@NotNull BlockPos position, @NotNull BlockPos target)
+    default List<int[]> getWayPoints(@NotNull int[] position, @NotNull int[] target)
     {
-        final List<BlockPos> tempWayPoints = new ArrayList<>();
+        final List<int[]> tempWayPoints = new ArrayList<>();
         tempWayPoints.addAll(getWayPoints().keySet());
         tempWayPoints.addAll(getServerBuildingManager().getBuildings().keySet());
 
@@ -186,10 +193,10 @@ public interface IColony
         final double minX = Math.min(position.getX(), target.getX());
         final double minZ = Math.min(position.getZ(), target.getZ());
 
-        final Iterator<BlockPos> iterator = tempWayPoints.iterator();
+        final Iterator<int[]> iterator = tempWayPoints.iterator();
         while (iterator.hasNext())
         {
-            final BlockPos p = iterator.next();
+            final int[] p = iterator.next();
             final int x = p.getX();
             final int z = p.getZ();
             if (x < minX || x > maxX || z < minZ || z > maxZ)
@@ -203,7 +210,7 @@ public interface IColony
 
     double getOverallHappiness();
 
-    Map<BlockPos, BlockState> getWayPoints();
+    Map<int[], BlockState> getWayPoints();
 
     String getStructurePack();
 
@@ -275,18 +282,18 @@ public interface IColony
     IColonyConnectionManager getConnectionManager();
 
     /**
-     * Add a visiting player.
+     * Add a visiting EntityPlayer.
      *
-     * @param player the player.
+     * @param EntityPlayer the EntityPlayer.
      */
-    void addVisitingPlayer(final Player player);
+    void addVisitingPlayer(final EntityPlayer EntityPlayer);
 
     /**
      * Get the colony dimension.
      *
      * @return the dimension id.
      */
-    ResourceKey<Level> getDimension();
+    int /* ResourceKey */ getDimension();
 
     /**
      * Check if the colony is on the server or client.
@@ -314,35 +321,35 @@ public interface IColony
      */
     long getMercenaryUseTime();
 
-    CompoundTag getColonyTag();
+    NBTTagCompound getColonyTag();
 
     boolean isColonyUnderAttack();
 
-    boolean isValidAttackingPlayer(Player entity);
+    boolean isValidAttackingPlayer(EntityPlayer entity);
 
     boolean isValidAttackingGuard(AbstractEntityCitizen entity);
 
-    void setColonyColor(ChatFormatting color);
+    void setColonyColor(EnumChatFormatting color);
 
-    void setColonyFlag(ListTag patterns);
+    void setColonyFlag(NBTTagList patterns);
 
-    void addWayPoint(BlockPos pos, BlockState newWayPointState);
+    void addWayPoint(int[] pos, BlockState newWayPointState);
 
-    void addGuardToAttackers(AbstractEntityCitizen entityCitizen, Player followPlayer);
+    void addGuardToAttackers(AbstractEntityCitizen entityCitizen, EntityPlayer followPlayer);
 
-    void addFreePosition(BlockPos pos);
+    void addFreePosition(int[] pos);
 
     void addFreeBlock(Block block);
 
-    void removeFreePosition(BlockPos pos);
+    void removeFreePosition(int[] pos);
 
     void removeFreeBlock(Block block);
 
     void setCanBeAutoDeleted(boolean canBeDeleted);
 
-    CompoundTag write(CompoundTag colonyCompound);
+    NBTTagCompound write(NBTTagCompound colonyCompound);
 
-    void read(CompoundTag compound);
+    void read(NBTTagCompound compound);
 
     /**
      * Returns a set of players receiving important messages for the colony.
@@ -350,7 +357,7 @@ public interface IColony
      * @return set of players.
      */
     @NotNull
-    List<Player> getImportantMessageEntityPlayers();
+    List<EntityPlayer> getImportantMessageEntityPlayers();
 
     /**
      * Tries to use a given amount of additional growth-time for childs.
@@ -370,7 +377,7 @@ public interface IColony
      *
      * @param chunkPos chunk to add
      */
-    void addLoadedChunk(long chunkPos, final LevelChunk chunk);
+    void addLoadedChunk(long chunkPos, final Chunk chunk);
 
     /**
      * Adds a chunk from the colony list
@@ -474,8 +481,14 @@ public interface IColony
     ICitizen getCitizen(int id);
 
     /**
-     * Get the colony level settings module.
+     * Get the colony World settings module.
      * @return the settings module.
      */
     ICommonSettingsModule getSettings();
 }
+
+
+
+
+
+

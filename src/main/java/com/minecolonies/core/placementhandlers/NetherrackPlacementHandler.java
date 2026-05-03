@@ -2,15 +2,15 @@ package com.minecolonies.core.placementhandlers;
 
 import com.ldtteam.structurize.placement.IPlacementContext;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
+import com.minecolonies.api.util.Tuple;
+// [1.7.10] block.entity removed
+// [1.7.10] BlockState -> int metadata
+import net.minecraft.init.Blocks;
 import net.minecraft.world.level.block.NyliumBlock;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,27 +20,27 @@ import java.util.List;
 public class NetherrackPlacementHandler implements IPlacementHandler
 {
     @Override
-    public boolean canHandle(@NotNull Level world, @NotNull BlockPos pos, @NotNull BlockState blockState)
+    public boolean canHandle(@NotNull World world, @NotNull int[] pos, @NotNull BlockState blockState)
     {
         return blockState.getBlock() instanceof NyliumBlock;
     }
 
     @Override
     public ActionProcessingResult handle(
-      @NotNull Level world,
-      @NotNull BlockPos pos,
+      @NotNull World world,
+      @NotNull int[] pos,
       @NotNull BlockState blockState,
-      @Nullable CompoundTag tileEntityData,
+      @Nullable NBTTagCompound tileEntityData,
       @NotNull final IPlacementContext placementContext)
     {
         return !world.setBlock(pos, blockState, 3) ? ActionProcessingResult.DENY : ActionProcessingResult.SUCCESS;
     }
 
     @Override
-    public List<ItemStack> getRequiredItems(@NotNull Level world,
-        @NotNull BlockPos pos,
+    public List<ItemStack> getRequiredItems(@NotNull World world,
+        @NotNull int[] pos,
         @NotNull BlockState blockState,
-        @Nullable CompoundTag tileEntityData,
+        @Nullable NBTTagCompound tileEntityData,
         @NotNull final IPlacementContext placementContext)
     {
         List<ItemStack> itemList = new ArrayList<>();
@@ -60,7 +60,7 @@ public class NetherrackPlacementHandler implements IPlacementHandler
     public boolean doesWorldStateMatchBlueprintState(
         final BlockState worldState,
         final BlockState blueprintState,
-        final Tuple<BlockEntity, CompoundTag> blockEntityData,
+        final Tuple<BlockEntity, NBTTagCompound> blockEntityData,
         @NotNull final IPlacementContext placementContext)
     {
         if (placementContext.fancyPlacement())
@@ -70,3 +70,7 @@ public class NetherrackPlacementHandler implements IPlacementHandler
         return worldState.equals(blueprintState);
     }
 }
+
+
+
+

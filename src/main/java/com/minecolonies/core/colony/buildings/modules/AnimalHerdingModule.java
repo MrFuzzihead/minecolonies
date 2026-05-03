@@ -13,13 +13,14 @@ import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingHospital;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistries;
+// [1.7.10] BuiltInRegistries removed
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.util.ResourceLocation;
+import com.minecolonies.api.util.Tuple;
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
+import net.minecraft.entity.passive.EntityAnimal;
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,11 +38,11 @@ import static com.minecolonies.api.util.constant.EquipmentLevelConstants.TOOL_LE
 public class AnimalHerdingModule extends AbstractBuildingModule implements IHasRequiredItemsModule
 {
     private final JobEntry jobEntry;
-    private final Predicate<Animal> animalPredicate;
+    private final Predicate<EntityAnimal> animalPredicate;
     private final ItemStorage breedingItem;
 
     public AnimalHerdingModule(@NotNull final JobEntry jobEntry,
-                               @NotNull final Predicate<Animal> animalPredicate,
+                               @NotNull final Predicate<EntityAnimal> animalPredicate,
                                @NotNull final ItemStorage breedingItem)
     {
         this.jobEntry = jobEntry;
@@ -66,7 +67,7 @@ public class AnimalHerdingModule extends AbstractBuildingModule implements IHasR
      * @param animal the animal to check.
      * @return true if so.
      */
-    public boolean isCompatible(@NotNull final Animal animal)
+    public boolean isCompatible(@NotNull final EntityAnimal animal)
     {
         return animalPredicate.test(animal);
     }
@@ -91,9 +92,10 @@ public class AnimalHerdingModule extends AbstractBuildingModule implements IHasR
      * @return The list of loot table ids
      */
     @NotNull
-    public List<ResourceLocation> getLootTables(@NotNull final Animal animal)
+    public List<ResourceLocation> getLootTables(@NotNull final EntityAnimal animal)
     {
-        return Collections.singletonList(animal.getLootTable());
+        // [1.7.10] getLootTable() not available on EntityAnimal; return empty list
+        return Collections.emptyList();
     }
 
     @Override
@@ -121,14 +123,9 @@ public class AnimalHerdingModule extends AbstractBuildingModule implements IHasR
      * @return the list of additional display recipes.
      */
     @NotNull
-    public List<IGenericRecipe> getRecipesForDisplayPurposesOnly(@NotNull final Animal animal)
+    public List<IGenericRecipe> getRecipesForDisplayPurposesOnly(@NotNull final EntityAnimal animal)
     {
-        return List.of(GenericRecipe.builder()
-            .withRecipeId(ForgeRegistries.ENTITY_TYPES.getKey(animal.getType()))
-            .withInputs(List.of(getBreedingItems().stream().map(ItemStorage::getItemStack).toList()))
-            .withLootTable(animal.getLootTable())
-            .withRequiredTool(ModEquipmentTypes.axe.get())
-            .withRequiredEntity(animal.getType())
-            .build());
+        // [1.7.10] Simplified - ForgeRegistries/EntityType not available
+        return Collections.emptyList();
     }
 }

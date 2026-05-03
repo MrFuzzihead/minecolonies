@@ -1,15 +1,21 @@
 package com.minecolonies.core.colony.buildings.workerbuildings.plantation.modules.specific;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.colony.buildingextensions.IBuildingExtension;
 import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.core.colony.buildings.workerbuildings.plantation.modules.generic.UpwardsGrowingPlantModule;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.BambooStalkBlock;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.init.Blocks;
+// [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.Nullable;
 
 import static com.minecolonies.api.research.util.ResearchConstants.PLANTATION_JUNGLE;
@@ -38,8 +44,8 @@ public class BambooPlantModule extends UpwardsGrowingPlantModule
      * Default constructor.
      *
      * @param field    the field instance this module is working on.
-     * @param fieldTag the tag of the field anchor block.
-     * @param workTag  the tag of the working positions.
+     * @param fieldTag the NBTBase of the field anchor block.
+     * @param workTag  the NBTBase of the working positions.
      * @param item     the item which is harvested.
      */
     public BambooPlantModule(final IBuildingExtension field, final String fieldTag, final String workTag, final Item item)
@@ -77,3 +83,5 @@ public class BambooPlantModule extends UpwardsGrowingPlantModule
         return ModEquipmentTypes.axe.get();
     }
 }
+
+

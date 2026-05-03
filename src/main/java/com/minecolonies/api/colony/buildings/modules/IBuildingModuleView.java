@@ -1,22 +1,20 @@
 package com.minecolonies.api.colony.buildings.modules;
 
-import com.ldtteam.blockui.views.BOWindow;
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.colony.buildings.registry.BuildingEntry;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.util.constant.Constants;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Default interface for all client side building modules.
+ * Ported to 1.7.10: FriendlyByteBuf→PacketBuffer; Component→String; BlockUI→TODO stub; @OnlyIn(Dist.CLIENT)→@SideOnly(Side.CLIENT).
  */
 public interface IBuildingModuleView
 {
@@ -24,7 +22,7 @@ public interface IBuildingModuleView
      * Deserialize the data on the client side.
      * @param buf the buffer to read it from.
      */
-    void deserialize(@NotNull final FriendlyByteBuf buf);
+    void deserialize(@NotNull final PacketBuffer buf);
 
     /**
      * Set the building view of this module view.
@@ -41,14 +39,14 @@ public interface IBuildingModuleView
 
     /**
      * Get the matching window for the module.
-     * @return the window.
+     * @return the window (ModularUI2 window stub).
+     * TODO: port to ModularUI2 window
      */
-    @OnlyIn(Dist.CLIENT)
-    BOWindow getWindow();
+    @SideOnly(Side.CLIENT)
+    Object getWindow();
 
     /**
      * Get the icon string for the module view.
-     * @Deprecated in favor of getIconResourceLocation
      * @return the icon identifier.
      */
     @Deprecated
@@ -65,13 +63,13 @@ public interface IBuildingModuleView
     {
         return new ResourceLocation(Constants.MOD_ID, "textures/gui/modules/" + getIcon() + ".png");
     }
-    
+
     /**
      * Get the lang string for the title.
      * @return the lang string.
      */
     @Nullable
-    Component getDesc();
+    String getDesc();
 
     IBuildingModuleView setColonyView(IColonyView colonyView);
 
@@ -92,11 +90,11 @@ public interface IBuildingModuleView
      * @param moduleSet
      * @return
      */
-    <M extends IBuildingModule, V extends IBuildingModuleView> IBuildingModuleView  setProducer(BuildingEntry.ModuleProducer<M,V> moduleSet);
+    <M extends IBuildingModule, V extends IBuildingModuleView> IBuildingModuleView setProducer(BuildingEntry.ModuleProducer<M, V> moduleSet);
 
     /**
      * Get the producer of this module
      * @return
      */
-    <M extends IBuildingModule, V extends IBuildingModuleView> BuildingEntry.ModuleProducer<M,V> getProducer();
+    <M extends IBuildingModule, V extends IBuildingModuleView> BuildingEntry.ModuleProducer<M, V> getProducer();
 }

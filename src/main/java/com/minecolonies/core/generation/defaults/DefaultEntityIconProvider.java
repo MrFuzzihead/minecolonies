@@ -5,15 +5,15 @@ import com.google.common.hash.Hashing;
 import com.google.common.hash.HashingOutputStream;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.Util;
-import net.minecraft.data.CachedOutput;
-import net.minecraft.data.DataGenerator;
-import net.minecraft.data.DataProvider;
-import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] data removed
+// [1.7.10] data removed
+// [1.7.10] data removed
+// [1.7.10] data removed
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.IoSupplier;
-import net.minecraftforge.fml.ModList;
+// [1.7.10] ModList removed
 import net.minecraftforge.forgespi.language.IModFileInfo;
 import net.minecraftforge.resource.ResourcePackLoader;
 import org.jetbrains.annotations.NotNull;
@@ -149,3 +149,6 @@ public class DefaultEntityIconProvider implements DataProvider
         cache.writeIfNeeded(outputProvider.file(id, "png"), outputStream.toByteArray(), hashStream.hash());
     }
 }
+
+
+

@@ -2,19 +2,19 @@ package com.minecolonies.core.items;
 
 import com.minecolonies.core.entity.other.SpearEntity;
 import com.minecolonies.core.client.render.SpearItemTileEntityRenderer;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] sounds removed
+// [1.7.10] sounds removed
+// [1.7.10] sounds removed
 import net.minecraft.stats.Stats;
-import net.minecraft.world.InteractionHand;
+// [1.7.10] int /* InteractionHand */ removed
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.TridentItem;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.World;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,7 +41,7 @@ public class ItemSpear extends TridentItem
     }
 
     @Override
-    public void releaseUsing(@NotNull ItemStack stack, @NotNull Level worldIn, @NotNull LivingEntity entityLiving, int timeLeft)
+    public void releaseUsing(@NotNull ItemStack stack, @NotNull World worldIn, @NotNull EntityLivingBase entityLiving, int timeLeft)
     {
         if (entityLiving instanceof Player)
         {
@@ -75,7 +75,7 @@ public class ItemSpear extends TridentItem
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull final Level world, final Player playerEntity, @NotNull final InteractionHand hand)
+    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull final World world, final Player playerEntity, @NotNull final int /* InteractionHand */ hand)
     {
         ItemStack itemstack = playerEntity.getItemInHand(hand);
         if (itemstack.getDamageValue() >= itemstack.getMaxDamage() - 1)
@@ -89,3 +89,7 @@ public class ItemSpear extends TridentItem
         }
     }
 }
+
+
+
+

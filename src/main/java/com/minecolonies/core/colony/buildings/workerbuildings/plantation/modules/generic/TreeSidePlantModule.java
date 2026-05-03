@@ -1,14 +1,20 @@
 package com.minecolonies.core.colony.buildings.workerbuildings.plantation.modules.generic;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.colony.buildingextensions.IBuildingExtension;
 import com.minecolonies.api.util.constant.CitizenConstants;
 import com.minecolonies.core.colony.buildings.workerbuildings.plantation.AbstractPlantationModule;
 import com.minecolonies.core.util.CollectorUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+// [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,8 +40,8 @@ public abstract class TreeSidePlantModule extends AbstractPlantationModule
      * Default constructor.
      *
      * @param field    the field instance this module is working on.
-     * @param fieldTag the tag of the field anchor block.
-     * @param workTag  the tag of the working positions.
+     * @param fieldTag the NBTBase of the field anchor block.
+     * @param workTag  the NBTBase of the working positions.
      * @param item     the item which is harvested.
      */
     protected TreeSidePlantModule(
@@ -48,7 +54,7 @@ public abstract class TreeSidePlantModule extends AbstractPlantationModule
     }
 
     @Override
-    public PlantationModuleResult.Builder decideFieldWork(final Level world, final @NotNull BlockPos workingPosition)
+    public PlantationModuleResult.Builder decideFieldWork(final World world, final @NotNull int[] workingPosition)
     {
         ActionToPerform action = decideWorkAction(world, workingPosition);
         return switch (action)
@@ -74,7 +80,7 @@ public abstract class TreeSidePlantModule extends AbstractPlantationModule
      * @param plantingPosition the specific position to check for.
      * @return the {@link PlantationModuleResult} that the AI is going to perform.
      */
-    private ActionToPerform decideWorkAction(final Level world, final BlockPos plantingPosition)
+    private ActionToPerform decideWorkAction(final World world, final int[] plantingPosition)
     {
         BlockState blockState = world.getBlockState(plantingPosition);
         if (isValidPlantingBlock(blockState))
@@ -127,9 +133,9 @@ public abstract class TreeSidePlantModule extends AbstractPlantationModule
     protected abstract boolean isValidHarvestBlock(BlockState blockState);
 
     @Override
-    public @Nullable BlockPos getNextWorkingPosition(final Level world)
+    public @Nullable int[] getNextWorkingPosition(final World world)
     {
-        for (BlockPos position : getWorkingPositions())
+        for (int[] position : getWorkingPositions())
         {
             if (decideWorkAction(world, position) != ActionToPerform.NONE)
             {
@@ -153,12 +159,12 @@ public abstract class TreeSidePlantModule extends AbstractPlantationModule
     }
 
     @Override
-    public List<BlockPos> getValidWorkingPositions(final @NotNull Level world, final List<BlockPos> workingPositions)
+    public List<int[]> getValidWorkingPositions(final @NotNull World world, final List<int[]> workingPositions)
     {
-        Set<BlockPos> treePositions = new HashSet<>();
-        for (BlockPos position : workingPositions)
+        Set<int[]> treePositions = new HashSet<>();
+        for (int[] position : workingPositions)
         {
-            for (BlockPos adjacentPosition : List.of(position.north(), position.south(), position.west(), position.east()))
+            for (int[] adjacentPosition : List.of(position.north(), position.south(), position.west(), position.east()))
             {
                 if (world.getBlockState(adjacentPosition).isAir())
                 {
@@ -170,7 +176,7 @@ public abstract class TreeSidePlantModule extends AbstractPlantationModule
     }
 
     @Override
-    public BlockPos getPositionToWalkTo(final Level world, final BlockPos workingPosition)
+    public int[] getPositionToWalkTo(final World world, final int[] workingPosition)
     {
         return Stream.of(workingPosition.north(), workingPosition.south(), workingPosition.west(), workingPosition.east())
                  .filter(pos -> world.getBlockState(pos).isAir())
@@ -178,3 +184,5 @@ public abstract class TreeSidePlantModule extends AbstractPlantationModule
                  .orElse(workingPosition);
     }
 }
+
+

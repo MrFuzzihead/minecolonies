@@ -1,8 +1,8 @@
 package com.minecolonies.api.colony.connections;
 
 import com.minecolonies.api.util.BlockPosUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.NbtTagConstants.*;
@@ -15,17 +15,17 @@ public class ColonyConnectionNode
     /**
      * The previous point in the connection grid.
      */
-    private BlockPos previousNode = BlockPos.ZERO;
+    private int[] previousNode = new int[]{0,0,0};
 
     /**
      * The next point in the connection grid.
      */
-    private BlockPos nextNode = BlockPos.ZERO;
+    private int[] nextNode = new int[]{0,0,0};
 
     /**
      * Position of this point.
      */
-    private final BlockPos position;
+    private final int[] position;
 
     /**
      * Connected colony.
@@ -36,7 +36,7 @@ public class ColonyConnectionNode
      * Create a new connection node at a given pos.
      * @param position the pos.
      */
-    public ColonyConnectionNode(final BlockPos position)
+    public ColonyConnectionNode(final int[] position)
     {
         this.position = position;
     }
@@ -45,7 +45,7 @@ public class ColonyConnectionNode
      * Alter the previous node connection.
      * @param previousNode the previous node pos.
      */
-    public void alterPreviousNode(final BlockPos previousNode)
+    public void alterPreviousNode(final int[] previousNode)
     {
         this.previousNode = previousNode;
     }
@@ -54,7 +54,7 @@ public class ColonyConnectionNode
      * Alter the next node connection.
      * @param nextNode the next nod epos.
      */
-    public void alterNextNode(final BlockPos nextNode)
+    public void alterNextNode(final int[] nextNode)
     {
         this.nextNode = nextNode;
     }
@@ -63,7 +63,7 @@ public class ColonyConnectionNode
      * Get position of this point.
      * @return the position.
      */
-    public BlockPos getPosition()
+    public int[] getPosition()
     {
         return position;
     }
@@ -72,7 +72,7 @@ public class ColonyConnectionNode
      * Get the previous node.
      * @return prev node pos or zero if not set.
      */
-    public BlockPos getPreviousNode()
+    public int[] getPreviousNode()
     {
         return previousNode;
     }
@@ -81,7 +81,7 @@ public class ColonyConnectionNode
      * Get the next node.
      * @return next node pos or ZERO if not set.
      */
-    public BlockPos getNextNode()
+    public int[] getNextNode()
     {
         return nextNode;
     }
@@ -106,11 +106,11 @@ public class ColonyConnectionNode
 
     /**
      * Write connections to NBT data for saving.
-     * @return compound NBT-Tag.
+     * @return compound NBT-NBTBase.
      */
-    public CompoundTag write()
+    public NBTTagCompound write()
     {
-        final CompoundTag compound = new CompoundTag();
+        final NBTTagCompound compound = new NBTTagCompound();
         BlockPosUtil.write(compound, TAG_POS, position);
         BlockPosUtil.write(compound, TAG_PREV_POS, previousNode);
         BlockPosUtil.write(compound, TAG_NEXT_POS, nextNode);
@@ -121,9 +121,9 @@ public class ColonyConnectionNode
     /**
      * Read connections from saved NBT data.
      *
-     * @param compound NBT Tag.
+     * @param compound NBT NBTBase.
      */
-    public void read(@NotNull final CompoundTag compound)
+    public void read(@NotNull final NBTTagCompound compound)
     {
         this.previousNode = BlockPosUtil.read(compound, TAG_PREV_POS);
         this.nextNode = BlockPosUtil.read(compound, TAG_NEXT_POS);
@@ -136,6 +136,10 @@ public class ColonyConnectionNode
      */
     public boolean hasNextNode()
     {
-        return !nextNode.equals(BlockPos.ZERO);
+        return !nextNode.equals(new int[]{0,0,0});
     }
 }
+
+
+
+

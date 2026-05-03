@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.minecolonies.api.advancements.AdvancementTriggers;
@@ -8,10 +14,10 @@ import com.minecolonies.api.colony.workorders.WorkOrderType;
 import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.core.colony.buildings.AbstractBuildingGuards;
 import com.minecolonies.core.util.AdvancementUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.world.entity.player.Player;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+// [1.7.10] NbtUtils removed
+import net.minecraft.entity.player.EntityPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,7 +41,7 @@ public class BuildingBarracksTower extends AbstractBuildingGuards
     /**
      * Position of the barracks for this tower.
      */
-    private BlockPos barracks = null;
+    private int[] barracks = null;
 
     /**
      * The abstract constructor of the building.
@@ -43,7 +49,7 @@ public class BuildingBarracksTower extends AbstractBuildingGuards
      * @param c the colony
      * @param l the position
      */
-    public BuildingBarracksTower(@NotNull final IColony c, final BlockPos l)
+    public BuildingBarracksTower(@NotNull final IColony c, final int[] l)
     {
         super(c, l);
     }
@@ -63,7 +69,7 @@ public class BuildingBarracksTower extends AbstractBuildingGuards
     }
 
     @Override
-    public void requestUpgrade(final Player player, final BlockPos builder)
+    public void requestUpgrade(final Player player, final int[] builder)
     {
         final int buildingLevel = getBuildingLevel();
         final IBuilding building = getColony().getServerBuildingManager().getBuilding(barracks);
@@ -110,7 +116,7 @@ public class BuildingBarracksTower extends AbstractBuildingGuards
         if (newLevel == barrack.getMaxBuildingLevel())
         {
             boolean allUpgraded = true;
-            for (BlockPos tower : ((BuildingBarracks) barrack).getTowers())
+            for (int[] tower : ((BuildingBarracks) barrack).getTowers())
             {
                 if (colony.getServerBuildingManager().getBuilding(tower).getBuildingLevel() != barrack.getMaxBuildingLevel())
                 {
@@ -126,16 +132,16 @@ public class BuildingBarracksTower extends AbstractBuildingGuards
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
         barracks = NbtUtils.readBlockPos(compound.getCompound(TAG_POS));
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compound = super.serializeNBT();
+        final NBTTagCompound compound = super.serializeNBT();
         if (barracks != null)
         {
             compound.put(TAG_POS, NbtUtils.writeBlockPos(barracks));
@@ -147,10 +153,14 @@ public class BuildingBarracksTower extends AbstractBuildingGuards
     /**
      * Adds the position of the main barracks.
      *
-     * @param pos the BlockPos.
+     * @param pos the int[].
      */
-    public void addBarracks(final BlockPos pos)
+    public void addBarracks(final int[] pos)
     {
         barracks = pos;
     }
 }
+
+
+
+

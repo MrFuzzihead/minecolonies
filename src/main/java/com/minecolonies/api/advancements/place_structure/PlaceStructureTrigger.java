@@ -1,41 +1,17 @@
 package com.minecolonies.api.advancements.place_structure;
-
-import com.google.gson.JsonObject;
 import com.minecolonies.api.advancements.AbstractCriterionTrigger;
+import com.minecolonies.api.advancements.CriterionListeners;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.advancements.critereon.DeserializationContext;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.NotNull;
-
-/**
- * Triggers whenever the build tool is used to position a new structure
- */
-public class PlaceStructureTrigger extends AbstractCriterionTrigger<PlaceStructureListeners, PlaceStructureCriterionInstance>
+import net.minecraft.util.ResourceLocation;
+// [1.7.10 BACKPORT] Stubbed out — advancements do not exist in Minecraft 1.7.10.
+// All trigger/listener methods are no-ops.
+/** Stub trigger — no-op in 1.7.10. */
+public class PlaceStructureTrigger extends AbstractCriterionTrigger<CriterionListeners<PlaceStructureCriterionInstance>, PlaceStructureCriterionInstance>
 {
+    private static final ResourceLocation ID = new ResourceLocation(Constants.MOD_ID, Constants.CRITERION_STRUCTURE_PLACED);
     public PlaceStructureTrigger()
     {
-        super(new ResourceLocation(Constants.MOD_ID, Constants.CRITERION_STRUCTURE_PLACED), PlaceStructureListeners::new);
+        super(ID, CriterionListeners::new);
     }
-
-    /**
-     * Triggers the listener checks if there are any listening in
-     * @param player the player the check regards
-     * @param structureName the structure id of what was just placed
-     */
-    public void trigger(final ServerPlayer player, final String structureName)
-    {
-        final PlaceStructureListeners listeners = this.getListeners(player.getAdvancements());
-        if (listeners != null)
-        {
-            listeners.trigger(structureName);
-        }
-    }
-
-    @NotNull
-    @Override
-    public PlaceStructureCriterionInstance createInstance(@NotNull final JsonObject jsonObject, @NotNull final DeserializationContext conditionArrayParser)
-    {
-        return PlaceStructureCriterionInstance.deserializeFromJson(jsonObject, conditionArrayParser);
-    }
+    // [1.7.10 BACKPORT] trigger(...) methods are no-ops; no advancements system.
 }

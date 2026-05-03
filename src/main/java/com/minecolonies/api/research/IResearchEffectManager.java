@@ -1,6 +1,6 @@
 package com.minecolonies.api.research;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 /**
  * The manager of unlocked research effects of a given colony.
@@ -29,8 +29,10 @@ public interface IResearchEffectManager
      * or on removal or disable of any effects inside a colony's LocalResearchTree.
      * Because ResearchEffect strengths may not have constantly increasingly impact,
      * and Researches themselves may not necessarily require all (or any) previous levels of an Effect be unlocked,
-     * modifications to a ResearchEffect's behavior can not rely on simply rolling a single research effect level or reduce effect strength.
+     * modifications to a ResearchEffect's behavior can not rely on simply rolling a single research effect World or reduce effect strength.
      * After the modifications are complete, the modifying class can then reapply the full cases of local research.
      */
     void removeAllEffects();
 }
+
+

@@ -7,9 +7,9 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentUtils;
-import net.minecraft.world.level.Level;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -78,7 +78,7 @@ public class MultiColonyIdArgument extends MultipleOptionsArgument<List<Integer>
         }
         catch (CommandSyntaxException e)
         {
-            final Component message = ComponentUtils.fromMessage(e.getRawMessage());
+            final String message = ComponentUtils.fromMessage(e.getRawMessage());
             context.getSource().sendFailure(message);
             throw new RuntimeException(message.getString());
         }
@@ -99,9 +99,9 @@ public class MultiColonyIdArgument extends MultipleOptionsArgument<List<Integer>
         }
 
         @Override
-        public void createSuggestions(final Level world, final SharedSuggestionProvider suggestionProvider, final SuggestionsBuilder builder)
+        public void createSuggestions(final World world, final SharedSuggestionProvider suggestionProvider, final SuggestionsBuilder builder)
         {
-            builder.suggest("@all", Component.translatable("com.minecolonies.command.argument.colony.all"));
+            builder.suggest("@all", String.translatable("com.minecolonies.command.argument.colony.all"));
         }
     }
 
@@ -125,9 +125,12 @@ public class MultiColonyIdArgument extends MultipleOptionsArgument<List<Integer>
         }
 
         @Override
-        public void createSuggestions(final Level world, final SharedSuggestionProvider suggestionProvider, final SuggestionsBuilder builder)
+        public void createSuggestions(final World world, final SharedSuggestionProvider suggestionProvider, final SuggestionsBuilder builder)
         {
             wrapped.createSuggestions(world, suggestionProvider, builder);
         }
     }
 }
+
+
+

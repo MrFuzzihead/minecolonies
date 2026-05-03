@@ -3,14 +3,14 @@ package com.minecolonies.core.items;
 import com.minecolonies.api.entity.mobs.RaiderMobUtils;
 import com.minecolonies.api.entity.mobs.barbarians.AbstractEntityBarbarianRaider;
 import com.minecolonies.api.items.IChiefSwordItem;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] effect removed
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tiers;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.Constants.*;
@@ -34,7 +34,7 @@ public class ItemChiefSword extends SwordItem implements IChiefSwordItem
     }
 
     @Override
-    public void inventoryTick(final ItemStack stack, final Level worldIn, final Entity entityIn, final int itemSlot, final boolean isSelected)
+    public void inventoryTick(final ItemStack stack, final World worldIn, final Entity entityIn, final int itemSlot, final boolean isSelected)
     {
         if (entityIn instanceof Player && isSelected)
         {
@@ -44,7 +44,7 @@ public class ItemChiefSword extends SwordItem implements IChiefSwordItem
     }
 
     @Override
-    public boolean hurtEnemy(final ItemStack stack, final LivingEntity target, @NotNull final LivingEntity attacker)
+    public boolean hurtEnemy(final ItemStack stack, final EntityLivingBase target, @NotNull final EntityLivingBase attacker)
     {
         if (attacker instanceof Player && target instanceof AbstractEntityBarbarianRaider)
         {
@@ -54,3 +54,6 @@ public class ItemChiefSword extends SwordItem implements IChiefSwordItem
         return super.hurtEnemy(stack, target, attacker);
     }
 }
+
+
+

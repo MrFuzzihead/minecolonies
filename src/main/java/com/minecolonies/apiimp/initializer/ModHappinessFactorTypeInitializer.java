@@ -8,8 +8,8 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.colony.jobs.AbstractJobGuard;
 import com.minecolonies.core.colony.jobs.JobPupil;
 import com.minecolonies.core.entity.citizen.citizenhandlers.CitizenHappinessHandler;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.DeferredRegister;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] registries removed
 
 import static com.minecolonies.api.entity.citizen.happiness.HappinessRegistry.*;
 import static com.minecolonies.core.entity.citizen.citizenhandlers.CitizenHappinessHandler.*;
@@ -51,3 +51,5 @@ public final class ModHappinessFactorTypeInitializer
         HappinessRegistry.foodFunction = DEFERRED_REGISTER_HAPPINESS_FUNCTION.register(FOOD_FUNCTION.getPath(), () -> new HappinessFunctionEntry(CitizenHappinessHandler::getFoodFactor));
     }
 }
+
+

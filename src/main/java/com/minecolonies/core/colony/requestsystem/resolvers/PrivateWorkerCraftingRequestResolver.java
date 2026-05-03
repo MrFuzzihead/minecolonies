@@ -12,10 +12,10 @@ import com.minecolonies.api.crafting.IRecipeStorage;
 import com.minecolonies.api.util.constant.TranslationConstants;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.requestsystem.resolvers.core.AbstractCraftingRequestResolver;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Component;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.IChatComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -61,7 +61,7 @@ public class PrivateWorkerCraftingRequestResolver extends AbstractCraftingReques
 
     @NotNull
     @Override
-    public MutableComponent getRequesterDisplayName(@NotNull final IRequestManager manager, @NotNull IRequest<?> request)
+    public String getRequesterDisplayName(@NotNull final IRequestManager manager, @NotNull IRequest<?> request)
     {
         if (request.hasParent())
         {
@@ -69,18 +69,18 @@ public class PrivateWorkerCraftingRequestResolver extends AbstractCraftingReques
         }
         else
         {
-            return Component.translatable(TranslationConstants.COM_MINECOLONIES_PRIVATE_CRAFTING_RESOLVER_NAME);
+            return String.translatable(TranslationConstants.COM_MINECOLONIES_PRIVATE_CRAFTING_RESOLVER_NAME);
         }
 
         if (request == null)
         {
-            return Component.translatable(TranslationConstants.COM_MINECOLONIES_PRIVATE_CRAFTING_RESOLVER_NAME);
+            return String.translatable(TranslationConstants.COM_MINECOLONIES_PRIVATE_CRAFTING_RESOLVER_NAME);
         }
 
         return request.getRequester().getRequesterDisplayName(manager, request)
-                 .append(Component.literal(" ("))
-                 .append(Component.translatable(TranslationConstants.COM_MINECOLONIES_PRIVATE_CRAFTING_RESOLVER_NAME))
-                 .append(Component.literal(")"));
+                 .append(String.literal(" ("))
+                 .append(String.translatable(TranslationConstants.COM_MINECOLONIES_PRIVATE_CRAFTING_RESOLVER_NAME))
+                 .append(String.literal(")"));
     }
 
     @Override
@@ -101,3 +101,6 @@ public class PrivateWorkerCraftingRequestResolver extends AbstractCraftingReques
         return new PrivateCrafting(stack, count, minCount, recipeStorage);
     }
 }
+
+
+

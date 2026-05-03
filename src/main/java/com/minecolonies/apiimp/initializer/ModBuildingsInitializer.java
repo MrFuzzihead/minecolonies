@@ -10,8 +10,8 @@ import com.minecolonies.core.colony.buildings.modules.HomeBuildingModule;
 import com.minecolonies.core.colony.buildings.modules.TavernBuildingModule;
 import com.minecolonies.core.colony.buildings.views.EmptyView;
 import com.minecolonies.core.colony.buildings.workerbuildings.*;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.DeferredRegister;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] registries removed
 
 import static com.minecolonies.core.colony.buildings.modules.BuildingModules.*;
 
@@ -668,3 +668,7 @@ public final class ModBuildingsInitializer
             .createBuildingEntry());
     }
 }
+
+
+
+

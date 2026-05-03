@@ -7,14 +7,14 @@ import com.ldtteam.structurize.util.BlockUtils;
 import com.minecolonies.api.blocks.decorative.AbstractBlockMinecoloniesConstructionTape;
 import com.minecolonies.api.blocks.huts.AbstractBlockMinecoloniesDefault;
 import com.minecolonies.api.util.ShapeUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.pathfinder.PathFinder;
-import net.minecraft.world.phys.shapes.VoxelShape;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.block.*;
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] World.material removed
+import net.minecraft.pathfinding.PathFinder;
+// [1.7.10] world.phys removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,7 +35,7 @@ public enum SurfaceType
      * @return true if the block at that location can be walked on.
      */
     @NotNull
-    public static SurfaceType getSurfaceType(final BlockGetter world, final BlockState blockState, final BlockPos pos)
+    public static SurfaceType getSurfaceType(final BlockGetter world, final BlockState blockState, final int[] pos)
     {
         return getSurfaceType(world, blockState, pos, null);
     }
@@ -49,7 +49,7 @@ public enum SurfaceType
      * @return true if the block at that location can be walked on.
      */
     @NotNull
-    public static SurfaceType getSurfaceType(final BlockGetter world, final BlockState blockState, final BlockPos pos, @Nullable final PathingOptions pathingOptions)
+    public static SurfaceType getSurfaceType(final BlockGetter world, final BlockState blockState, final int[] pos, @Nullable final PathingOptions pathingOptions)
     {
         final Block block = blockState.getBlock();
 
@@ -132,3 +132,6 @@ public enum SurfaceType
         return SurfaceType.DROPABLE;
     }
 }
+
+
+

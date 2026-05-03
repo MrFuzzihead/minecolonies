@@ -15,7 +15,7 @@ import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.core.colony.buildings.AbstractBuildingGuards;
 import com.minecolonies.core.util.AttributeModifierUtils;
 import com.minecolonies.core.util.BuildingUtils;
-import net.minecraft.world.entity.EquipmentSlot;
+// [1.7.10] world.entity removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -49,17 +49,17 @@ public class GuardBuildingModule extends WorkAtHomeBuildingModule implements IBu
         final Optional<AbstractEntityCitizen> optCitizen = citizen.getEntity();
         optCitizen.ifPresent(cit -> {
             AttributeModifierUtils.removeAllHealthModifiers(cit);
-            cit.setItemSlot(EquipmentSlot.CHEST, ItemStackUtils.EMPTY);
-            cit.setItemSlot(EquipmentSlot.FEET, ItemStackUtils.EMPTY);
-            cit.setItemSlot(EquipmentSlot.HEAD, ItemStackUtils.EMPTY);
-            cit.setItemSlot(EquipmentSlot.LEGS, ItemStackUtils.EMPTY);
-            cit.setItemSlot(EquipmentSlot.MAINHAND, ItemStackUtils.EMPTY);
-            cit.setItemSlot(EquipmentSlot.OFFHAND, ItemStackUtils.EMPTY);
+            cit.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
+            cit.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
+            cit.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
+            cit.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
+            cit.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
+            cit.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
 
-            cit.getInventoryCitizen().moveArmorToInventory(EquipmentSlot.CHEST);
-            cit.getInventoryCitizen().moveArmorToInventory(EquipmentSlot.LEGS);
-            cit.getInventoryCitizen().moveArmorToInventory(EquipmentSlot.HEAD);
-            cit.getInventoryCitizen().moveArmorToInventory(EquipmentSlot.FEET);
+            cit.getInventoryCitizen().moveArmorToInventory(null /* EquipmentSlot. */);
+            cit.getInventoryCitizen().moveArmorToInventory(null /* EquipmentSlot. */);
+            cit.getInventoryCitizen().moveArmorToInventory(null /* EquipmentSlot. */);
+            cit.getInventoryCitizen().moveArmorToInventory(null /* EquipmentSlot. */);
         });
     }
 
@@ -128,3 +128,6 @@ public class GuardBuildingModule extends WorkAtHomeBuildingModule implements IBu
         }
     }
 }
+
+
+

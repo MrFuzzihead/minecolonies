@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
@@ -22,20 +28,20 @@ import com.minecolonies.core.colony.buildings.modules.settings.BoolSetting;
 import com.minecolonies.core.colony.buildings.modules.settings.DynamicTreesSetting;
 import com.minecolonies.core.colony.buildings.modules.settings.SettingKey;
 import com.minecolonies.core.colony.buildings.views.AbstractBuildingView;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.BonemealableBlock;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+// [1.7.10] NbtUtils removed
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.WorldServer;
+import com.minecolonies.api.util.Tuple;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
+// [1.7.10] Object /* [1.7.10] BonemealableBlock N/A */ removed; use block instanceof check
+// [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -59,24 +65,24 @@ public class BuildingLumberjack extends AbstractBuilding
     public static final ISettingKey<DynamicTreesSetting> DYNAMIC_TREES_SIZE = new SettingKey<>(DynamicTreesSetting.class, new ResourceLocation(com.minecolonies.api.util.constant.Constants.MOD_ID, "dynamictreeharvestsize"));
 
     /**
-     * NBT tag for lj restriction start
+     * NBT NBTBase for lj restriction start
      */
     private static final String TAG_RESTRICT_START = "startRestrictionPosition";
 
     /**
-     * NBT tag for lj restriction end
+     * NBT NBTBase for lj restriction end
      */
     private static final String TAG_RESTRICT_END = "endRestrictionPosition";
 
     /**
      * The start position of the restricted area.
      */
-    private BlockPos startRestriction = null;
+    private int[] startRestriction = null;
 
     /**
      * The end position of the restricted area.
      */
-    private BlockPos endRestriction = null;
+    private int[] endRestriction = null;
 
     /**
      * The maximum upgrade of the building.
@@ -91,7 +97,7 @@ public class BuildingLumberjack extends AbstractBuilding
     /**
      * A list of all planted nether trees
      */
-    private final Set<BlockPos> netherTrees = new HashSet<>();
+    private final Set<int[]> netherTrees = new HashSet<>();
 
     /**
      * Modifier for fungi growing time. Increase to speed up.
@@ -104,7 +110,7 @@ public class BuildingLumberjack extends AbstractBuilding
      * @param c the colony.
      * @param l the position.
      */
-    public BuildingLumberjack(final IColony c, final BlockPos l)
+    public BuildingLumberjack(final IColony c, final int[] l)
     {
         super(c, l);
 
@@ -152,7 +158,7 @@ public class BuildingLumberjack extends AbstractBuilding
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
 
@@ -174,7 +180,7 @@ public class BuildingLumberjack extends AbstractBuilding
             endRestriction = null;
         }
 
-        final ListTag netherTreeBinTagList = compound.getList(TAG_NETHER_TREE_LIST, Tag.TAG_COMPOUND);
+        final NBTTagList netherTreeBinTagList = compound.getList(TAG_NETHER_TREE_LIST, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < netherTreeBinTagList.size(); i++)
         {
             netherTrees.add(BlockPosUtil.readFromListNBT(netherTreeBinTagList, i));
@@ -182,9 +188,9 @@ public class BuildingLumberjack extends AbstractBuilding
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compound = super.serializeNBT();
+        final NBTTagCompound compound = super.serializeNBT();
 
         if (startRestriction != null)
         {
@@ -196,8 +202,8 @@ public class BuildingLumberjack extends AbstractBuilding
             compound.put(TAG_RESTRICT_END, NbtUtils.writeBlockPos(endRestriction));
         }
 
-        @NotNull final ListTag netherTreeBinCompoundList = new ListTag();
-        for (@NotNull final BlockPos pos : netherTrees)
+        @NotNull final NBTTagList netherTreeBinCompoundList = new NBTTagList();
+        for (@NotNull final int[] pos : netherTrees)
         {
             BlockPosUtil.writeToListNBT(netherTreeBinCompoundList, pos);
         }
@@ -243,7 +249,7 @@ public class BuildingLumberjack extends AbstractBuilding
         return getSetting(RESTRICT).getValue();
     }
 
-    public void setRestrictedArea(final BlockPos startPosition, final BlockPos endPosition)
+    public void setRestrictedArea(final int[] startPosition, final int[] endPosition)
     {
         this.startRestriction = startPosition;
         this.endRestriction = endPosition;
@@ -256,18 +262,18 @@ public class BuildingLumberjack extends AbstractBuilding
         markDirty();
     }
 
-    public BlockPos getStartRestriction()
+    public int[] getStartRestriction()
     {
         return this.startRestriction;
     }
 
-    public BlockPos getEndRestriction()
+    public int[] getEndRestriction()
     {
         return this.endRestriction;
     }
 
     /**
-     * Returns early if no worker is assigned Iterates over the nether tree position list If position is a fungus, grows it depending on worker's level If the block has changed,
+     * Returns early if no worker is assigned Iterates over the nether tree position list If position is a fungus, grows it depending on worker's World If the block has changed,
      * removes the position from the list and returns early If the position is not a fungus, removes the position from the list
      */
     private void bonemealFungi()
@@ -279,10 +285,10 @@ public class BuildingLumberjack extends AbstractBuilding
             return;
         }
         final int modifier = Math.max(0, Math.min(FUNGI_MODIFIER, 100));
-        for (Iterator<BlockPos> iterator = netherTrees.iterator(); iterator.hasNext(); )
+        for (Iterator<int[]> iterator = netherTrees.iterator(); iterator.hasNext(); )
         {
-            final BlockPos pos = iterator.next();
-            final Level world = colony.getWorld();
+            final int[] pos = iterator.next();
+            final World world = colony.getWorld();
             if (WorldUtil.isBlockLoaded(world, pos))
             {
                 final BlockState blockState = world.getBlockState(pos);
@@ -293,18 +299,9 @@ public class BuildingLumberjack extends AbstractBuilding
                     final int rand = world.getRandom().nextInt(100);
                     if (rand < threshold)
                     {
-                        final BonemealableBlock growable = (BonemealableBlock) block;
-                        if (growable.isValidBonemealTarget(world, pos, blockState, world.isClientSide))
-                        {
-                            if (!world.isClientSide)
-                            {
-                                if (growable.isBonemealSuccess(world, world.random, pos, blockState))
-                                {
-                                    growable.performBonemeal((ServerLevel) world, world.random, pos, blockState);
-                                    return;
-                                }
-                            }
-                        }
+                        final Object /* [1.7.10] BonemealableBlock N/A */ growable = (Object /* [1.7.10] BonemealableBlock N/A */) block;
+                        // [1.7.10] BonemealableBlock.isValidBonemealTarget/isBonemealSuccess/performBonemeal not available
+                        // TODO Phase 7: implement bonemeal growth logic using 1.7.10 Block.updateTick or world event
                     }
                 }
                 else
@@ -320,7 +317,7 @@ public class BuildingLumberjack extends AbstractBuilding
      *
      * @return a copy of the list
      */
-    public Set<BlockPos> getNetherTrees()
+    public Set<int[]> getNetherTrees()
     {
         return new HashSet<>(netherTrees);
     }
@@ -330,7 +327,7 @@ public class BuildingLumberjack extends AbstractBuilding
      *
      * @param pos the position
      */
-    public void removeNetherTree(BlockPos pos)
+    public void removeNetherTree(int[] pos)
     {
         netherTrees.remove(pos);
     }
@@ -340,7 +337,7 @@ public class BuildingLumberjack extends AbstractBuilding
      *
      * @param pos the position
      */
-    public void addNetherTree(BlockPos pos)
+    public void addNetherTree(int[] pos)
     {
         netherTrees.add(pos);
     }
@@ -353,7 +350,7 @@ public class BuildingLumberjack extends AbstractBuilding
     }
 
     @Override
-    public void serializeToView(@NotNull final FriendlyByteBuf buf, final boolean fullSync)
+    public void serializeToView(@NotNull final PacketBuffer buf, final boolean fullSync)
     {
         super.serializeToView(buf, fullSync);
 
@@ -365,8 +362,8 @@ public class BuildingLumberjack extends AbstractBuilding
         }
         else
         {
-            buf.writeBlockPos(BlockPos.ZERO);
-            buf.writeBlockPos(BlockPos.ZERO);
+            buf.writeBlockPos(new int[]{0,0,0});
+            buf.writeBlockPos(new int[]{0,0,0});
         }
     }
 
@@ -376,8 +373,8 @@ public class BuildingLumberjack extends AbstractBuilding
     public static class View extends AbstractBuildingView
     {
         private boolean restrict;
-        private BlockPos startRestriction;
-        private BlockPos endRestriction;
+        private int[] startRestriction;
+        private int[] endRestriction;
 
         /**
          * Instantiates the view of the building.
@@ -385,13 +382,13 @@ public class BuildingLumberjack extends AbstractBuilding
          * @param c the colonyView.
          * @param l the location of the block.
          */
-        public View(final IColonyView c, final BlockPos l)
+        public View(final IColonyView c, final int[] l)
         {
             super(c, l);
         }
 
         @Override
-        public void deserialize(@NotNull FriendlyByteBuf buf)
+        public void deserialize(@NotNull PacketBuffer buf)
         {
             super.deserialize(buf);
 
@@ -405,12 +402,12 @@ public class BuildingLumberjack extends AbstractBuilding
             return this.restrict;
         }
 
-        public BlockPos getStartRestriction()
+        public int[] getStartRestriction()
         {
             return this.startRestriction;
         }
 
-        public BlockPos getEndRestriction()
+        public int[] getEndRestriction()
         {
             return this.endRestriction;
         }
@@ -435,3 +432,8 @@ public class BuildingLumberjack extends AbstractBuilding
         }
     }
 }
+
+
+
+
+

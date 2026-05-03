@@ -1,8 +1,8 @@
 package com.minecolonies.core.compatibility.journeymap;
 
 import journeymap.client.api.option.*;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.TextColor;
+import net.minecraft.util.EnumChatFormatting;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -156,3 +156,6 @@ public class JourneymapOptions
         }
     }
 }
+
+
+

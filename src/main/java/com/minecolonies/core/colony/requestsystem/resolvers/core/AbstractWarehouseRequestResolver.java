@@ -25,11 +25,11 @@ import com.minecolonies.core.colony.Colony;
 import com.minecolonies.core.colony.buildings.modules.BuildingModules;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingWareHouse;
 import com.minecolonies.core.tileentities.TileEntityWareHouse;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -108,7 +108,7 @@ public abstract class AbstractWarehouseRequestResolver extends AbstractRequestRe
 
             try
             {
-                for (final Map.Entry<BlockPos, IBuilding> building : colony.getServerBuildingManager().getBuildings().entrySet())
+                for (final Map.Entry<int[], IBuilding> building : colony.getServerBuildingManager().getBuildings().entrySet())
                 {
                     if (building.getValue().getBuildingType() == ModBuildings.wareHouse.get() && building.getValue() != wareHouse)
                     {
@@ -181,8 +181,8 @@ public abstract class AbstractWarehouseRequestResolver extends AbstractRequestRe
             ? ((INonExhaustiveDeliverable) request.getRequest()).getLeftOver()
             : 0;
 
-        final List<Tuple<ItemStack, BlockPos>> inv = wareHouse.getMatchingItemStacksInWarehouse(itemStack -> request.getRequest().matches(itemStack));
-        for (final Tuple<ItemStack, BlockPos> stack : inv)
+        final List<Tuple<ItemStack, int[]>> inv = wareHouse.getMatchingItemStacksInWarehouse(itemStack -> request.getRequest().matches(itemStack));
+        for (final Tuple<ItemStack, int[]> stack : inv)
         {
             final ItemStack s = stack.getA();
             if (s.isEmpty())
@@ -257,8 +257,8 @@ public abstract class AbstractWarehouseRequestResolver extends AbstractRequestRe
 
         final int keep = completedRequest.getRequest() instanceof INonExhaustiveDeliverable ? ((INonExhaustiveDeliverable) completedRequest.getRequest()).getLeftOver() : 0;
 
-        final List<Tuple<ItemStack, BlockPos>> targetStacks = wareHouse.getMatchingItemStacksInWarehouse(itemStack -> completedRequest.getRequest().matches(itemStack));
-        for (final Tuple<ItemStack, BlockPos> tuple : targetStacks)
+        final List<Tuple<ItemStack, int[]>> targetStacks = wareHouse.getMatchingItemStacksInWarehouse(itemStack -> completedRequest.getRequest().matches(itemStack));
+        for (final Tuple<ItemStack, int[]> tuple : targetStacks)
         {
             if (ItemStackUtils.isEmpty(tuple.getA()))
             {
@@ -330,9 +330,9 @@ public abstract class AbstractWarehouseRequestResolver extends AbstractRequestRe
 
     @NotNull
     @Override
-    public MutableComponent getRequesterDisplayName(@NotNull final IRequestManager manager, @NotNull final IRequest<?> request)
+    public String getRequesterDisplayName(@NotNull final IRequestManager manager, @NotNull final IRequest<?> request)
     {
-        return Component.translatable(TranslationConstants.COM_MINECOLONIES_BUILDING_WAREHOUSE_NAME);
+        return String.translatable(TranslationConstants.COM_MINECOLONIES_BUILDING_WAREHOUSE_NAME);
     }
 
     @Override
@@ -360,3 +360,6 @@ public abstract class AbstractWarehouseRequestResolver extends AbstractRequestRe
         return Math.max(distance/10, 1) + wareHouse.getModule(BuildingModules.WAREHOUSE_REQUEST_QUEUE).getMutableRequestList().size();
     }
 }
+
+
+

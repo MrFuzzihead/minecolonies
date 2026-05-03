@@ -4,8 +4,8 @@ import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingBuilder;
 import com.minecolonies.core.network.messages.server.AbstractBuildingServerMessage;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import org.jetbrains.annotations.NotNull;
 
 public class BuilderSelectWorkOrderMessage extends AbstractBuildingServerMessage<BuildingBuilder>
@@ -33,13 +33,13 @@ public class BuilderSelectWorkOrderMessage extends AbstractBuildingServerMessage
     }
 
     @Override
-    public void fromBytesOverride(final FriendlyByteBuf buf)
+    public void fromBytesOverride(final PacketBuffer buf)
     {
         workOrder = buf.readInt();
     }
 
     @Override
-    public void toBytesOverride(final FriendlyByteBuf buf)
+    public void toBytesOverride(final PacketBuffer buf)
     {
         buf.writeInt(workOrder);
     }
@@ -47,14 +47,16 @@ public class BuilderSelectWorkOrderMessage extends AbstractBuildingServerMessage
     /**
      * Executes the action of setting a workorder on the builder.
      *
-     * @param ctxIn            NetworkEvent.Context of the packet.
+     * @param ctx            NetworkEvent.Context of the packet.
      * @param isLogicalServer  Whether the server is logical.
      * @param colony           Colony the building is in.
      * @param building         The builder to set the workorder on.
      */
     @Override
-    protected void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony, final BuildingBuilder building)
+    protected void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony, final BuildingBuilder building)
     {
-        building.setWorkOrder(workOrder, ctxIn);
+        building.setWorkOrder(workOrder, ctx);
     }
 }
+
+

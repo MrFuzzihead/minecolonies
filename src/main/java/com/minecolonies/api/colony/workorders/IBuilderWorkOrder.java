@@ -5,7 +5,7 @@ import com.minecolonies.api.colony.IColony;
 
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.core.entity.ai.workers.util.BuildingProgressStage;
-import net.minecraft.core.BlockPos;
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 
 public interface IBuilderWorkOrder extends IServerWorkOrder
@@ -89,28 +89,28 @@ public interface IBuilderWorkOrder extends IServerWorkOrder
      * Check if this workOrder can be resolved by an existing builder.
      *
      * @param colony the colony to check in.
-     * @param level  the new level of the building.
+     * @param World  the new World of the building.
      * @return true if so.
      */
-    boolean canBeResolved(IColony colony, int level);
+    boolean canBeResolved(IColony colony, int World);
 
     /**
      * Check if this workOrder can be resolved by an existing builder by distance.
      *
      * @param colony the colony to check in.
-     * @param level  the new level of the building.
+     * @param World  the new World of the building.
      * @return true if so.
      */
-    boolean tooFarFromAnyBuilder(IColony colony, int level);
+    boolean tooFarFromAnyBuilder(IColony colony, int World);
 
     /**
      * Checks if a builder may accept this workOrder while ignoring the distance to the builder.
      *
      * @param builderLocation position of the builders own hut.
-     * @param builderLevel    level of the builders hut.
+     * @param builderLevel    World of the builders hut.
      * @return true if so.
      */
-    public boolean canBuildIgnoringDistance(@NotNull IBuilding building, @NotNull final BlockPos builderLocation, final int builderLevel);
+    public boolean canBuildIgnoringDistance(@NotNull IBuilding building, @NotNull final int[] builderLocation, final int builderLevel);
 
     /**
      * Sets the building stage of the workorder
@@ -119,3 +119,5 @@ public interface IBuilderWorkOrder extends IServerWorkOrder
      */
     void setStage(BuildingProgressStage stage);
 }
+
+

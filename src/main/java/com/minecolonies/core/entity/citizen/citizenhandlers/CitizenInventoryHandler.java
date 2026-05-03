@@ -3,8 +3,8 @@ package com.minecolonies.core.entity.citizen.citizenhandlers;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.entity.citizen.citizenhandlers.ICitizenInventoryHandler;
 import com.minecolonies.api.util.InventoryUtils;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.item.Item;
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
 
 /**
  * Handles the inventory of the citizen.
@@ -104,3 +104,4 @@ public class CitizenInventoryHandler implements ICitizenInventoryHandler
         return !citizen.getInventoryCitizen().hasSpace();
     }
 }
+

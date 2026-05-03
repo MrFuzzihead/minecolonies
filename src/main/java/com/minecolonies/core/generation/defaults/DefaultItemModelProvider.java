@@ -2,9 +2,9 @@ package com.minecolonies.core.generation.defaults;
 
 import com.minecolonies.api.items.ModItems;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
+// [1.7.10] data removed
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.Item;
 import net.minecraftforge.client.model.generators.ItemModelProvider;
 import net.minecraftforge.client.model.generators.ModelFile;
 import net.minecraftforge.common.data.ExistingFileHelper;
@@ -50,3 +50,5 @@ public class DefaultItemModelProvider extends ItemModelProvider
         }
     }
 }
+
+

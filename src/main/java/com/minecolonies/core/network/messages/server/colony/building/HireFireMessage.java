@@ -6,8 +6,8 @@ import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.buildings.modules.IAssignsJob;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.core.network.messages.server.AbstractBuildingServerMessage;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -59,7 +59,7 @@ public class HireFireMessage extends AbstractBuildingServerMessage<IBuilding>
      * @param buf the used byteBuffer.
      */
     @Override
-    public void fromBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void fromBytesOverride(@NotNull final PacketBuffer buf)
     {
         hire = buf.readBoolean();
         citizenID = buf.readInt();
@@ -72,7 +72,7 @@ public class HireFireMessage extends AbstractBuildingServerMessage<IBuilding>
      * @param buf the used byteBuffer.
      */
     @Override
-    public void toBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void toBytesOverride(@NotNull final PacketBuffer buf)
     {
         buf.writeBoolean(hire);
         buf.writeInt(citizenID);
@@ -80,7 +80,7 @@ public class HireFireMessage extends AbstractBuildingServerMessage<IBuilding>
     }
 
     @Override
-    protected void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony, final IBuilding building)
+    protected void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony, final IBuilding building)
     {
         if (building.getModule(moduleId) instanceof IAssignsJob module)
         {
@@ -97,3 +97,5 @@ public class HireFireMessage extends AbstractBuildingServerMessage<IBuilding>
         }
     }
 }
+
+

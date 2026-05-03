@@ -7,8 +7,8 @@ import com.minecolonies.api.research.ILocalResearch;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingUniversity;
 import com.minecolonies.core.colony.jobs.JobResearch;
 import com.minecolonies.core.entity.ai.workers.AbstractEntityAIInteract;
-import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundEvents;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] sounds removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -31,7 +31,7 @@ public class EntityAIWorkResearcher extends AbstractEntityAIInteract<JobResearch
     /**
      * The current pos to study at.
      */
-    private BlockPos studyPos = null;
+    private int[] studyPos = null;
 
     /**
      * How long they tried walking to a given study pos.
@@ -124,3 +124,6 @@ public class EntityAIWorkResearcher extends AbstractEntityAIInteract<JobResearch
         return STUDY;
     }
 }
+
+
+

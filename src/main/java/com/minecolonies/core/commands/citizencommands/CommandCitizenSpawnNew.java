@@ -10,7 +10,7 @@ import com.minecolonies.core.commands.commandTypes.IMCOPCommand;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
+import net.minecraft.util.IChatComponent;
 
 import java.util.ArrayList;
 
@@ -32,7 +32,7 @@ public class CommandCitizenSpawnNew implements IMCOPCommand
     {
         final IColony colony = ColonyIdArgument.getColony(context, COLONYID_ARG);
         final ICitizenData newCitizen = colony.getCitizenManager().spawnOrCreateCivilian(null, colony.getWorld(), new ArrayList<>(), true);
-        context.getSource().sendSuccess(() -> Component.translatable(COMMAND_CITIZEN_SPAWN_SUCCESS, newCitizen.getName()), true);
+        context.getSource().sendSuccess(() -> String.translatable(COMMAND_CITIZEN_SPAWN_SUCCESS, newCitizen.getName()), true);
 
         IMinecoloniesAPI.getInstance().getEventBus().post(new CitizenAddedModEvent(newCitizen, CitizenAddedModEvent.CitizenAddedSource.COMMANDS));
         return 1;
@@ -54,3 +54,5 @@ public class CommandCitizenSpawnNew implements IMCOPCommand
                  .then(IMCCommand.newArgument(COLONYID_ARG, ColonyIdArgument.id()).executes(this::checkPreConditionAndExecute));
     }
 }
+
+

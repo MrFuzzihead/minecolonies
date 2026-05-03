@@ -1,14 +1,14 @@
 package com.minecolonies.core.colony.jobs;
 
 import com.minecolonies.core.entity.citizen.EntityCitizen;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import com.minecolonies.api.client.render.modeltype.ModModelTypes;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.core.entity.ai.workers.service.EntityAIWorkEnchanter;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundEvents;
+import net.minecraft.nbt.NBTTagCompound;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] sounds removed
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_BUILDING_TO_DRAIN;
@@ -24,7 +24,7 @@ public class JobEnchanter extends AbstractJobCrafter<EntityAIWorkEnchanter, JobE
     /**
      * Pos of the worker to drain from.
      */
-    private BlockPos posToDrainFrom = null;
+    private int[] posToDrainFrom = null;
 
     /**
      * The waiting ticks of the enchanter at the current pos.
@@ -60,7 +60,7 @@ public class JobEnchanter extends AbstractJobCrafter<EntityAIWorkEnchanter, JobE
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
         if (compound.contains(TAG_BUILDING_TO_DRAIN))
@@ -71,9 +71,9 @@ public class JobEnchanter extends AbstractJobCrafter<EntityAIWorkEnchanter, JobE
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compound = super.serializeNBT();
+        final NBTTagCompound compound = super.serializeNBT();
         if (posToDrainFrom != null)
         {
             BlockPosUtil.write(compound, TAG_BUILDING_TO_DRAIN, posToDrainFrom);
@@ -87,7 +87,7 @@ public class JobEnchanter extends AbstractJobCrafter<EntityAIWorkEnchanter, JobE
      *
      * @param pos the pos of the building to drain.
      */
-    public void setBuildingToDrainFrom(final BlockPos pos)
+    public void setBuildingToDrainFrom(final int[] pos)
     {
         this.posToDrainFrom = pos;
     }
@@ -97,7 +97,7 @@ public class JobEnchanter extends AbstractJobCrafter<EntityAIWorkEnchanter, JobE
      *
      * @return the pos.
      */
-    public BlockPos getPosToDrainFrom()
+    public int[] getPosToDrainFrom()
     {
         return posToDrainFrom;
     }
@@ -118,8 +118,13 @@ public class JobEnchanter extends AbstractJobCrafter<EntityAIWorkEnchanter, JobE
     }
 
     @Override
-    public void playSound(final BlockPos blockPos, final EntityCitizen worker)
+    public void playSound(final int[] blockPos, final EntityCitizen worker)
     {
         worker.queueSound(SoundEvents.ENCHANTMENT_TABLE_USE, worker.blockPosition().above(), 10, 0, 0.5f, worker.getRandom().nextFloat());
     }
 }
+
+
+
+
+

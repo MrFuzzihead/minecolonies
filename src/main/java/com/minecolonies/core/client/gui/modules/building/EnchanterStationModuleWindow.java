@@ -1,6 +1,6 @@
 package com.minecolonies.core.client.gui.modules.building;
 
-import com.ldtteam.blockui.Pane;
+// [1.7.10] blockui replaced by ModularUI2
 import com.ldtteam.blockui.controls.Button;
 import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.views.ScrollingList;
@@ -12,10 +12,10 @@ import com.minecolonies.core.client.gui.AbstractModuleWindow;
 import com.minecolonies.core.colony.buildings.moduleviews.EnchanterStationsModuleView;
 import com.minecolonies.core.colony.buildings.moduleviews.WorkerBuildingModuleView;
 import com.minecolonies.core.colony.buildings.views.AbstractBuildingView;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -29,7 +29,7 @@ import static com.minecolonies.api.util.constant.WindowConstants.*;
 public class EnchanterStationModuleWindow extends AbstractModuleWindow<EnchanterStationsModuleView>
 {
     /**
-     * Tag of the list of workers.
+     * NBTBase of the list of workers.
      */
     private static final String LIST_WORKERS = "gatherWorkers";
 
@@ -46,7 +46,7 @@ public class EnchanterStationModuleWindow extends AbstractModuleWindow<Enchanter
     /**
      * The list of already selected buildings.
      */
-    private List<BlockPos> selectedBuildings;
+    private List<int[]> selectedBuildings;
 
     /**
      * All buildings in the colony with worker.
@@ -88,17 +88,17 @@ public class EnchanterStationModuleWindow extends AbstractModuleWindow<Enchanter
                 String text = "";
                 if (bView instanceof AbstractBuildingView)
                 {
-                    text += bView.getCustomName().isEmpty() ? Component.translatable(bView.getBuildingType().getTranslationKey()).getString() : bView.getCustomName();
+                    text += bView.getCustomName().isEmpty() ? String.translatable(bView.getBuildingType().getTranslationKey()).getString() : bView.getCustomName();
                     text += " " + BlockPosUtil.getDistance2D(buildingView.getPosition(), bView.getPosition()) + "m";
-                    rowPane.findPaneOfTypeByID(WORKER_NAME, Text.class).setText(Component.literal(text));
+                    rowPane.findPaneOfTypeByID(WORKER_NAME, Text.class).setText(String.literal(text));
                     final Button switchButton = rowPane.findPaneOfTypeByID(BUTTON_SWITCH, Button.class);
                     if (selectedBuildings.contains(bView.getID()))
                     {
-                        switchButton.setText(Component.translatable(ON));
+                        switchButton.setText(String.translatable(ON));
                     }
                     else
                     {
-                        switchButton.setText(Component.translatable(OFF));
+                        switchButton.setText(String.translatable(OFF));
                     }
                 }
             }
@@ -117,15 +117,18 @@ public class EnchanterStationModuleWindow extends AbstractModuleWindow<Enchanter
 
         if (buttonText.equals(OFF))
         {
-            button.setText(Component.translatable(ON));
+            button.setText(String.translatable(ON));
             moduleView.addWorker(allBuildings.get(row).getID());
         }
         else
         {
-            button.setText(Component.translatable(OFF));
+            button.setText(String.translatable(OFF));
             moduleView.removeWorker(allBuildings.get(row).getID());
         }
         selectedBuildings = moduleView.getBuildingsToGatherFrom();
         workerList.refreshElementPanes();
     }
 }
+
+
+

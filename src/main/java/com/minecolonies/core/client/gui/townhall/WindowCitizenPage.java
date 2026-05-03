@@ -1,9 +1,26 @@
 package com.minecolonies.core.client.gui.townhall;
 
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
-import com.ldtteam.blockui.controls.*;
+import com.ldtteam.blockui.PaneParams;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
+import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
 import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.colony.ICitizen;
 import com.minecolonies.api.colony.ICitizenDataView;
 import com.minecolonies.api.entity.citizen.Skill;
@@ -11,12 +28,12 @@ import com.minecolonies.core.Network;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingTownHall;
 import com.minecolonies.core.entity.citizen.citizenhandlers.CitizenSkillHandler;
 import com.minecolonies.core.network.messages.server.colony.citizen.RecallSingleCitizenMessage;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.Pose;
+import net.minecraft.util.EnumChatFormatting;
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.Entity;
+// [1.7.10] world.entity removed
 import org.jetbrains.annotations.NotNull;
 
 import java.math.RoundingMode;
@@ -27,7 +44,7 @@ import static com.minecolonies.api.util.constant.TranslationConstants.PARTIAL_HA
 import static com.minecolonies.api.util.constant.WindowConstants.*;
 
 /**
- * BOWindow for the town hall.
+ * Object (BOWindow: todo ModularUI2 removed) for the town hall.
  */
 public class WindowCitizenPage extends AbstractWindowTownHall
 {
@@ -139,11 +156,11 @@ public class WindowCitizenPage extends AbstractWindowTownHall
 
         findPaneOfTypeByID(JOB_LABEL, Text.class).setText(selectedCitizen.getJobComponent().withStyle(ChatFormatting.BOLD));
 
-        findPaneOfTypeByID(HEALTH_SHORT_LABEL, Text.class).setText(Component.literal((int)selectedCitizen.getHealth() + "/" + (int) selectedCitizen.getMaxHealth()));
-        findPaneOfTypeByID(HAPPINESS_SHORT_LABEL, Text.class).setText(Component.literal((int) selectedCitizen.getHappiness() + "/" + 10));
-        findPaneOfTypeByID(SATURATION_SHORT_LABEL, Text.class).setText(Component.literal((int)selectedCitizen.getSaturation() + "/" + 20));
+        findPaneOfTypeByID(HEALTH_SHORT_LABEL, Text.class).setText(String.literal((int)selectedCitizen.getHealth() + "/" + (int) selectedCitizen.getMaxHealth()));
+        findPaneOfTypeByID(HAPPINESS_SHORT_LABEL, Text.class).setText(String.literal((int) selectedCitizen.getHappiness() + "/" + 10));
+        findPaneOfTypeByID(SATURATION_SHORT_LABEL, Text.class).setText(String.literal((int)selectedCitizen.getSaturation() + "/" + 20));
 
-        selectedEntity = Minecraft.getInstance().level.getEntity(selectedCitizen.getEntityId());
+        selectedEntity = Minecraft.getInstance().World.getEntity(selectedCitizen.getEntityId());
         if (selectedEntity != null && selectedEntity.getPose() == Pose.SLEEPING)
         {
             final EntityIcon entityIcon = findPaneOfTypeByID(ENTITY_ICON, EntityIcon.class);
@@ -185,7 +202,7 @@ public class WindowCitizenPage extends AbstractWindowTownHall
             {
                 final ICitizenDataView citizen = citizens.get(index);
                 final Button button = rowPane.findPaneOfTypeByID(NAME_LABEL, ButtonImage.class);
-                button.setText(Component.literal(citizen.getName()));
+                button.setText(String.literal(citizen.getName()));
 
                 final AbstractTextBuilder.TextBuilder textBuilder = PaneBuilders.textBuilder();
                 for (final Map.Entry<Skill, CitizenSkillHandler.SkillData> entry : citizen.getCitizenSkillHandler().getSkills().entrySet())
@@ -193,8 +210,8 @@ public class WindowCitizenPage extends AbstractWindowTownHall
                     final String skillName = entry.getKey().name().toLowerCase(Locale.US);
                     final int skillLevel = entry.getValue().getLevel();
 
-                    textBuilder.append(Component.translatable("com.minecolonies.coremod.gui.citizen.skills." + skillName));
-                    textBuilder.append(Component.literal(": " + skillLevel + " "));
+                    textBuilder.append(String.translatable("com.minecolonies.coremod.gui.citizen.skills." + skillName));
+                    textBuilder.append(String.literal(": " + skillLevel + " "));
                 }
                 PaneBuilders.tooltipBuilder().hoverPane(button).build().setText(textBuilder.build().getText());
                 if (selectedCitizen == citizen)
@@ -229,7 +246,7 @@ public class WindowCitizenPage extends AbstractWindowTownHall
         df.setRoundingMode(RoundingMode.CEILING);
 
         final String roundedHappiness = df.format(buildingView.getColony().getOverallHappiness());
-        findPaneOfTypeByID("happinessTitle", Text.class).setText(Component.translatable("com.minecolonies.coremod.gui.townhall.currenthappiness", roundedHappiness));
+        findPaneOfTypeByID("happinessTitle", Text.class).setText(String.translatable("com.minecolonies.coremod.gui.townhall.currenthappiness", roundedHappiness));
 
         final List<Map.Entry<String, Double>> happinessList = new ArrayList<>(happinessMap.entrySet());
 
@@ -250,7 +267,7 @@ public class WindowCitizenPage extends AbstractWindowTownHall
                 final Image image = rowPane.findPaneOfTypeByID("icon", Image.class);
 
                 final Text label = rowPane.findPaneOfTypeByID("name", Text.class);
-                label.setText(Component.translatable(PARTIAL_HAPPINESS_MODIFIER_NAME + entry.getKey()));
+                label.setText(String.translatable(PARTIAL_HAPPINESS_MODIFIER_NAME + entry.getKey()));
 
                 if (value > 1.0)
                 {
@@ -268,7 +285,7 @@ public class WindowCitizenPage extends AbstractWindowTownHall
                 {
                     image.setImage(new ResourceLocation(UNHAPPY_ICON), false);
                 }
-                PaneBuilders.tooltipBuilder().hoverPane(label).append(Component.translatable("com.minecolonies.coremod.gui.townhall.happiness.desc." + entry.getKey())).build();
+                PaneBuilders.tooltipBuilder().hoverPane(label).append(String.translatable("com.minecolonies.coremod.gui.townhall.happiness.desc." + entry.getKey())).build();
             }
         });
     }
@@ -295,3 +312,8 @@ public class WindowCitizenPage extends AbstractWindowTownHall
         return BUTTON_CITIZENS;
     }
 }
+
+
+
+
+

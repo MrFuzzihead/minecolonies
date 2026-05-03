@@ -14,7 +14,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.network.chat.Component;
+import net.minecraft.util.IChatComponent;
 import net.minecraft.server.MinecraftServer;
 import org.jetbrains.annotations.NotNull;
 
@@ -83,7 +83,7 @@ public class CommandCitizenModify implements IMCColonyOfficerCommand
 
             final String type = context.getNodes().get(5).getNode().getName();
             final String value = valueProvider.apply(citizen);
-            context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_CITIZEN_MODIFY_SUCCESS, type, citizen.getName(), value), true);
+            context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_CITIZEN_MODIFY_SUCCESS, type, citizen.getName(), value), true);
             return 0;
         });
     }
@@ -100,7 +100,7 @@ public class CommandCitizenModify implements IMCColonyOfficerCommand
 
             if (!context.getSource().hasPermission(OP_PERM_LEVEL) && !MineColonies.getConfig().getServer().canPlayerUseModifyCitizensCommand.get())
             {
-                context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_DISABLED_IN_CONFIG), true);
+                context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_DISABLED_IN_CONFIG), true);
                 return 0;
             }
 
@@ -114,7 +114,7 @@ public class CommandCitizenModify implements IMCColonyOfficerCommand
             }
             else
             {
-                context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_REQUIRES_CREATIVE), true);
+                context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_REQUIRES_CREATIVE), true);
                 return 0;
             }
 
@@ -122,7 +122,7 @@ public class CommandCitizenModify implements IMCColonyOfficerCommand
             final ICitizenData citizenData = colony.getCitizenManager().getCivilian(IntegerArgumentType.getInteger(context, CITIZENID_ARG));
             if (citizenData == null)
             {
-                context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_CITIZEN_NOT_FOUND), true);
+                context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_CITIZEN_NOT_FOUND), true);
                 return 0;
             }
 
@@ -135,3 +135,5 @@ public class CommandCitizenModify implements IMCColonyOfficerCommand
         }
     }
 }
+
+

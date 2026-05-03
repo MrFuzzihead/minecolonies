@@ -10,12 +10,12 @@ import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.constant.ColonyConstants;
 import com.minecolonies.api.util.constant.NbtTagConstants;
 import com.minecolonies.core.util.TeleportHelper;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.Tag;
-import net.minecraftforge.common.util.INBTSerializable;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+// [1.7.10] NbtUtils removed
+import net.minecraft.nbt.NBTBase;
+// [1.7.10] INBTSerializable -> manual read/write
 
 import java.util.Map;
 import java.util.Optional;
@@ -27,7 +27,7 @@ import java.util.Optional;
  * Does not handle any interactions with the entities or the citizens.
  * </p>
  */
-public class TravellingManager implements ITravellingManager, INBTSerializable<CompoundTag>
+public class TravellingManager implements ITravellingManager
 {
 
     private final IColony                    colony;
@@ -42,13 +42,13 @@ public class TravellingManager implements ITravellingManager, INBTSerializable<C
     }
 
     @Override
-    public Optional<BlockPos> getTravellingTargetFor(final int citizenId)
+    public Optional<int[]> getTravellingTargetFor(final int citizenId)
     {
         return Optional.ofNullable(travelerDataMap.get(citizenId)).map(TravelerData::getTarget);
     }
 
     @Override
-    public void startTravellingTo(final int citizenId, final BlockPos target, final int travelTimeInTicks)
+    public void startTravellingTo(final int citizenId, final int[] target, final int travelTimeInTicks)
     {
         travelerDataMap.put(citizenId, new TravelerData(citizenId, target, travelTimeInTicks));
         colony.markDirty();
@@ -70,7 +70,7 @@ public class TravellingManager implements ITravellingManager, INBTSerializable<C
         for (final Integer citizenId : travelerDataMap.keySet())
         {
             final ICitizenData citizenData = this.colony.getCitizenManager().getCivilian(citizenId);
-            final BlockPos spawnHutPos;
+            final int[] spawnHutPos;
             if (citizenData.getWorkBuilding() != null)
             {
                 spawnHutPos = citizenData.getWorkBuilding().getPosition();
@@ -103,14 +103,14 @@ public class TravellingManager implements ITravellingManager, INBTSerializable<C
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag data = new CompoundTag();
-        final ListTag output = new ListTag();
+        final NBTTagCompound data = new NBTTagCompound();
+        final NBTTagList output = new NBTTagList();
 
         for (TravelerData travelerData : travelerDataMap.values())
         {
-            CompoundTag serializeNBT = travelerData.serializeNBT();
+            NBTTagCompound serializeNBT = travelerData.serializeNBT();
             output.add(serializeNBT);
         }
 
@@ -120,29 +120,30 @@ public class TravellingManager implements ITravellingManager, INBTSerializable<C
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag nbt)
+    public void deserializeNBT(final NBTTagCompound nbt)
     {
-        final ListTag travelerData = nbt.getList(NbtTagConstants.TRAVELER_DATA, Tag.TAG_COMPOUND);
+        final NBTTagList travelerData = nbt.getList(NbtTagConstants.TRAVELER_DATA, NBTBase.TAG_COMPOUND);
         travelerDataMap.clear();
 
-        for (Tag travelerDatum : travelerData)
+        for (NBTBase travelerDatum : travelerData)
         {
-            if (travelerDatum instanceof final CompoundTag compoundTag)
+            if (travelerDatum instanceof NBTTagCompound)
             {
-                TravelerData data = new TravelerData(compoundTag);
+                final NBTTagCompound nbtCompound = (NBTTagCompound) travelerDatum;
+                TravelerData data = new TravelerData(nbtCompound);
                 travelerDataMap.put(data.getCitizenId(), data);
             }
         }
     }
 
-    private static final class TravelerData implements INBTSerializable<CompoundTag>
+    private static final class TravelerData
     {
         private int      citizenId           = -1;
-        private BlockPos target              = BlockPos.ZERO;
+        private int[] target              = new int[]{0,0,0};
         private int      initialTravelTime   = 0;
         private int      remainingTravelTime = 0;
 
-        public TravelerData(final int citizenId, final BlockPos target, final int initialTravelTime)
+        public TravelerData(final int citizenId, final int[] target, final int initialTravelTime)
         {
             this.citizenId = citizenId;
             this.target = target;
@@ -150,9 +151,9 @@ public class TravellingManager implements ITravellingManager, INBTSerializable<C
             this.remainingTravelTime = initialTravelTime;
         }
 
-        public TravelerData(final CompoundTag tag)
+        public TravelerData(final NBTTagCompound NBTBase)
         {
-            this.deserializeNBT(tag);
+            this.deserializeNBT(NBTBase);
         }
 
         public void onTick()
@@ -179,7 +180,7 @@ public class TravellingManager implements ITravellingManager, INBTSerializable<C
             return citizenId;
         }
 
-        public BlockPos getTarget()
+        public int[] getTarget()
         {
             return target;
         }
@@ -200,9 +201,9 @@ public class TravellingManager implements ITravellingManager, INBTSerializable<C
         }
 
         @Override
-        public CompoundTag serializeNBT()
+        public NBTTagCompound serializeNBT()
         {
-            final CompoundTag data = new CompoundTag();
+            final NBTTagCompound data = new NBTTagCompound();
             data.putInt(NbtTagConstants.TAG_CITIZEN, citizenId);
             data.put(NbtTagConstants.TAG_TARGET, NbtUtils.writeBlockPos(target));
             data.putInt(NbtTagConstants.TAG_INITIAL_TRAVEL_TIME, initialTravelTime);
@@ -211,7 +212,7 @@ public class TravellingManager implements ITravellingManager, INBTSerializable<C
         }
 
         @Override
-        public void deserializeNBT(final CompoundTag nbt)
+        public void deserializeNBT(final NBTTagCompound nbt)
         {
             this.citizenId = nbt.getInt(NbtTagConstants.TAG_CITIZEN);
             this.target = NbtUtils.readBlockPos(nbt.getCompound(NbtTagConstants.TAG_TARGET));
@@ -220,3 +221,8 @@ public class TravellingManager implements ITravellingManager, INBTSerializable<C
         }
     }
 }
+
+
+
+
+

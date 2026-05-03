@@ -1,16 +1,34 @@
 package com.minecolonies.core.client.gui.citizen;
 
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
 import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
+import com.ldtteam.blockui.controls.DropDownList;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.controls.TextField;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
+import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.ldtteam.blockui.views.ScrollingList;
 import com.minecolonies.api.colony.ICitizenDataView;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * BOWindow for the citizen.
+ * Object (BOWindow: todo ModularUI2 removed) for the citizen.
  */
 public class FamilyWindowCitizen extends AbstractWindowCitizen
 {
@@ -40,8 +58,8 @@ public class FamilyWindowCitizen extends AbstractWindowCitizen
         final String firstParent = citizen.getParents().getA();
         final String secondParent = citizen.getParents().getB();
 
-        findPaneOfTypeByID("parentA", Text.class).setText(firstParent.isEmpty() ? Component.translatable("com.minecolonies.coremod.gui.citizen.family.unknown") : Component.literal(firstParent));
-        findPaneOfTypeByID("parentB", Text.class).setText(secondParent.isEmpty() ? Component.translatable("com.minecolonies.coremod.gui.citizen.family.unknown") : Component.literal(secondParent));
+        findPaneOfTypeByID("parentA", Text.class).setText(firstParent.isEmpty() ? String.translatable("com.minecolonies.coremod.gui.citizen.family.unknown") : String.literal(firstParent));
+        findPaneOfTypeByID("parentB", Text.class).setText(secondParent.isEmpty() ? String.translatable("com.minecolonies.coremod.gui.citizen.family.unknown") : String.literal(secondParent));
 
         final int partner = citizen.getPartner();
         final ICitizenDataView partnerView = colony.getCitizen(partner);
@@ -49,11 +67,11 @@ public class FamilyWindowCitizen extends AbstractWindowCitizen
 
         if (partnerView == null)
         {
-            partnerText.setText(Component.literal("-"));
+            partnerText.setText(String.literal("-"));
         }
         else
         {
-            partnerText.setText(Component.literal(partnerView.getName()));
+            partnerText.setText(String.literal(partnerView.getName()));
         }
 
         childrenList.setDataProvider(new ScrollingList.DataProvider()
@@ -76,7 +94,7 @@ public class FamilyWindowCitizen extends AbstractWindowCitizen
             @Override
             public void updateElement(final int index, @NotNull final Pane rowPane)
             {
-                rowPane.findPaneOfTypeByID("name", Text.class).setText(Component.literal(colony.getCitizen(citizen.getChildren().get(index)).getName()));
+                rowPane.findPaneOfTypeByID("name", Text.class).setText(String.literal(colony.getCitizen(citizen.getChildren().get(index)).getName()));
             }
         });
 
@@ -100,8 +118,11 @@ public class FamilyWindowCitizen extends AbstractWindowCitizen
             @Override
             public void updateElement(final int index, @NotNull final Pane rowPane)
             {
-                rowPane.findPaneOfTypeByID("name", Text.class).setText(Component.literal(colony.getCitizen(citizen.getSiblings().get(index)).getName()));
+                rowPane.findPaneOfTypeByID("name", Text.class).setText(String.literal(colony.getCitizen(citizen.getSiblings().get(index)).getName()));
             }
         });
     }
 }
+
+
+

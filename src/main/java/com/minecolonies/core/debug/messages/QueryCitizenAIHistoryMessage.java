@@ -7,11 +7,11 @@ import com.minecolonies.core.Network;
 import com.minecolonies.core.debug.DebugPlayerManager;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.network.messages.server.AbstractColonyServerMessage;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.entity.player.EntityPlayer;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -36,21 +36,21 @@ public class QueryCitizenAIHistoryMessage extends AbstractColonyServerMessage
     }
 
     @Override
-    public void fromBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void fromBytesOverride(@NotNull final PacketBuffer buf)
     {
         this.id = buf.readInt();
     }
 
     @Override
-    public void toBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void toBytesOverride(@NotNull final PacketBuffer buf)
     {
         buf.writeInt(id);
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony)
     {
-        final Player player = ctxIn.getSender();
+        final Player player = ctx.getServerHandler().playerEntity;
         if (player == null || !DebugPlayerManager.hasDebugEnabled(player))
         {
             return;
@@ -64,14 +64,17 @@ public class QueryCitizenAIHistoryMessage extends AbstractColonyServerMessage
 
         if (citizen.getEntity().get() instanceof EntityCitizen entityCitizen)
         {
-            MutableComponent message = Component.literal("Citizen AI: ").append(entityCitizen.getCitizenAI().getHistory());
+            String message = String.literal("Citizen AI: ").append(entityCitizen.getCitizenAI().getHistory());
 
             if (entityCitizen.getCitizenJobHandler().getColonyJob() != null)
             {
-                message.append(Component.literal("Job AI: ").append(entityCitizen.getCitizenJobHandler().getWorkAI().getStateAI().getHistory()));
+                message.append(String.literal("Job AI: ").append(entityCitizen.getCitizenJobHandler().getWorkAI().getStateAI().getHistory()));
             }
 
-            Network.getNetwork().sendToPlayer(new DebugOutputMessage(message, true), ctxIn.getSender());
+            Network.getNetwork().sendToPlayer(new DebugOutputMessage(message, true), ctx.getServerHandler().playerEntity);
         }
     }
 }
+
+
+

@@ -4,10 +4,10 @@ import com.google.gson.JsonObject;
 import com.minecolonies.api.research.IResearchCost;
 import com.minecolonies.api.research.ModResearchCosts;
 import com.minecolonies.core.util.GsonHelper;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.Item;
+// [1.7.10] registries removed
 
 import java.util.List;
 
@@ -44,7 +44,7 @@ public class SimpleItemCost implements IResearchCost
      *
      * @param compound the nbt containing the relevant data.
      */
-    public SimpleItemCost(final CompoundTag compound)
+    public SimpleItemCost(final NBTTagCompound compound)
     {
         this.item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(compound.getString(TAG_COST_ITEM)));
         this.count = compound.getInt(TAG_COST_COUNT);
@@ -80,11 +80,14 @@ public class SimpleItemCost implements IResearchCost
     }
 
     @Override
-    public CompoundTag writeToNBT()
+    public NBTTagCompound writeToNBT()
     {
-        final CompoundTag compound = new CompoundTag();
+        final NBTTagCompound compound = new NBTTagCompound();
         compound.putString(TAG_COST_ITEM, ForgeRegistries.ITEMS.getKey(this.item).toString());
         compound.putInt(TAG_COST_COUNT, this.count);
         return compound;
     }
 }
+
+
+

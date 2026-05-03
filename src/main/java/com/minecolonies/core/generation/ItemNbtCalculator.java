@@ -9,18 +9,18 @@ import com.minecolonies.api.items.CheckedNbtKey;
 import com.minecolonies.api.items.ModTags;
 import com.minecolonies.api.util.CraftingUtils;
 import io.netty.buffer.Unpooled;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.data.CachedOutput;
-import net.minecraft.data.DataProvider;
-import net.minecraft.data.PackOutput;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] HolderLookup removed
+// [1.7.10] data removed
+// [1.7.10] data removed
+// [1.7.10] data removed
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.DyeableLeatherItem;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
@@ -30,7 +30,7 @@ import java.util.concurrent.CompletableFuture;
 import static com.minecolonies.api.util.constant.Constants.MOD_ID;
 
 /**
- * Automatically calculated vanilla level nbts of items.
+ * Automatically calculated vanilla World nbts of items.
  */
 public class ItemNbtCalculator implements DataProvider
 {
@@ -65,15 +65,15 @@ public class ItemNbtCalculator implements DataProvider
             {
                 if (item.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof IMateriallyTexturedBlock texturedBlock)
                 {
-                    final CompoundTag tag = item.hasTag() ? item.getTag() : new CompoundTag();
-                    final CompoundTag textureData = new CompoundTag();
+                    final NBTTagCompound NBTBase = item.hasTag() ? item.getTag() : new NBTTagCompound();
+                    final NBTTagCompound textureData = new NBTTagCompound();
                     for (final IMateriallyTexturedBlockComponent key : texturedBlock.getComponents())
                     {
                         textureData.putString(key.getId().toString(), key.getDefault().builtInRegistryHolder().key().location().toString());
                     }
-                    tag.put("textureData", textureData);
+                    NBTBase.put("textureData", textureData);
                     final ItemStack copy = item.copy();
-                    copy.setTag(tag);
+                    copy.setTag(NBTBase);
                     listBuilder.add(copy);
                 }
                 else
@@ -89,8 +89,8 @@ public class ItemNbtCalculator implements DataProvider
         for (final ItemStack stack : allStacks)
         {
             final ResourceLocation resourceLocation = stack.getItemHolder().unwrapKey().get().location();
-            final CompoundTag tag = (stack.hasTag() && !stack.is(ModTags.ignoreNBT)) ? stack.getTag() : new CompoundTag();
-            final Set<String> keys = tag.isEmpty() ? new HashSet<>() : new HashSet<>(tag.getAllKeys());
+            final NBTTagCompound NBTBase = (stack.hasTag() && !stack.is(ModTags.ignoreNBT)) ? stack.getTag() : new NBTTagCompound();
+            final Set<String> keys = NBTBase.isEmpty() ? new HashSet<>() : new HashSet<>(NBTBase.getAllKeys());
 
             if (stack.getItem() instanceof DyeableLeatherItem)
             {
@@ -110,7 +110,7 @@ public class ItemNbtCalculator implements DataProvider
             final Set<CheckedNbtKey> keyObjectList = new HashSet<>();
             for (String key : keys)
             {
-                keyObjectList.add(createKeyFromNbt(key, tag));
+                keyObjectList.add(createKeyFromNbt(key, NBTBase));
             }
 
             if (keyMapping.containsKey(resourceLocation.toString()))
@@ -169,12 +169,12 @@ public class ItemNbtCalculator implements DataProvider
      *
      * @param keyObject the key object to serialize.
      */
-    public static void serializeKeyToBuffer(final CheckedNbtKey keyObject, final FriendlyByteBuf buf)
+    public static void serializeKeyToBuffer(final CheckedNbtKey keyObject, final PacketBuffer buf)
     {
         buf.writeUtf(keyObject.key);
         if (!keyObject.children.isEmpty())
         {
-            FriendlyByteBuf childBuf = new FriendlyByteBuf(Unpooled.buffer());
+            PacketBuffer childBuf = new PacketBuffer(Unpooled.buffer());
             buf.writeInt(keyObject.children.size());
             for (final var child : keyObject.children)
             {
@@ -193,7 +193,7 @@ public class ItemNbtCalculator implements DataProvider
      *
      * @param buf the buf to deserialize.
      */
-    public static CheckedNbtKey deSerializeKeyFromBuffer(final FriendlyByteBuf buf)
+    public static CheckedNbtKey deSerializeKeyFromBuffer(final PacketBuffer buf)
     {
         String key = buf.readUtf();
         Set<CheckedNbtKey> children = new HashSet<>();
@@ -209,14 +209,14 @@ public class ItemNbtCalculator implements DataProvider
     /**
      * Create a checked nbt key from nbt.
      * @param key the key to retrieve.
-     * @param tag the tag to deserialize it from.
+     * @param NBTBase the NBTBase to deserialize it from.
      * @return a new checked nbt key.
      */
-    public static CheckedNbtKey createKeyFromNbt(final String key, final CompoundTag tag)
+    public static CheckedNbtKey createKeyFromNbt(final String key, final NBTTagCompound NBTBase)
     {
-        if (tag.get(key) instanceof CompoundTag)
+        if (NBTBase.get(key) instanceof NBTTagCompound)
         {
-            final CompoundTag subTag = tag.getCompound(key);
+            final NBTTagCompound subTag = NBTBase.getCompound(key);
             Set<CheckedNbtKey> set = new HashSet<>();
             for (String subKey : subTag.getAllKeys())
             {
@@ -251,3 +251,7 @@ public class ItemNbtCalculator implements DataProvider
         }
     }
 }
+
+
+
+

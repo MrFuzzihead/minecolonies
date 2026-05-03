@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.events.raid;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.ldtteam.structurize.storage.ServerFutureProcessor;
 import com.ldtteam.structurize.storage.StructurePacks;
@@ -19,27 +25,27 @@ import com.minecolonies.api.util.constant.ColonyConstants;
 import com.minecolonies.core.colony.events.raid.pirateEvent.ShipBasedRaiderUtils;
 import com.minecolonies.core.colony.events.raid.pirateEvent.ShipSize;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.server.level.ServerBossEvent;
-import net.minecraft.server.level.ServerPlayer;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+// [1.7.10] NbtUtils removed
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.server.World.ServerBossEvent;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.BossEvent;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
-import net.minecraft.world.level.pathfinder.Path;
+// [1.7.10] effect removed
+// [1.7.10] effect removed
+import net.minecraft.entity.Entity;
+// [1.7.10] world.entity removed
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.world.Mirror;
+// [1.7.10] block.entity removed
+// [1.7.10] block.entity removed
+import net.minecraft.world.World.pathfinder.Path;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -93,7 +99,7 @@ public abstract class AbstractShipRaidEvent implements IColonyRaidEvent, IColony
     /**
      * The raids visual raidbar
      */
-    protected final ServerBossEvent raidBar = new ServerBossEvent(Component.literal("Colony Raid"), BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.NOTCHED_10);
+    protected final ServerBossEvent raidBar = new ServerBossEvent(String.literal("Colony Raid"), BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.NOTCHED_10);
 
     /**
      * The ID of this raid
@@ -108,7 +114,7 @@ public abstract class AbstractShipRaidEvent implements IColonyRaidEvent, IColony
     /**
      * The ships spawnpoint
      */
-    protected BlockPos spawnPoint;
+    protected int[] spawnPoint;
 
     /**
      * The events shipsize
@@ -128,7 +134,7 @@ public abstract class AbstractShipRaidEvent implements IColonyRaidEvent, IColony
     /**
      * Entities which are to be respawned in a loaded chunk.
      */
-    private List<Tuple<EntityType<?>, BlockPos>> respawns = new ArrayList<>();
+    private List<Tuple<EntityType<?>, int[]>> respawns = new ArrayList<>();
 
     /**
      * Rotation of the ship to spawn
@@ -138,7 +144,7 @@ public abstract class AbstractShipRaidEvent implements IColonyRaidEvent, IColony
     /**
      * List of all spawners.
      */
-    private List<BlockPos> spawners = new ArrayList<>();
+    private List<int[]> spawners = new ArrayList<>();
 
     /**
      * Count of spawners.
@@ -153,7 +159,7 @@ public abstract class AbstractShipRaidEvent implements IColonyRaidEvent, IColony
     /**
      * Waypoints helping raiders travel
      */
-    protected List<BlockPos> wayPoints = new ArrayList<>();
+    protected List<int[]> wayPoints = new ArrayList<>();
 
     /**
      * Max raider count.
@@ -190,7 +196,7 @@ public abstract class AbstractShipRaidEvent implements IColonyRaidEvent, IColony
                 final Path path = spawnPathResult.getPath();
                 if (path != null && path.canReach())
                 {
-                    final BlockPos endpoint = path.getEndNode().asBlockPos().below();
+                    final int[] endpoint = path.getEndNode().asBlockPos().below();
                     if (ShipBasedRaiderUtils.canPlaceShipAt(endpoint, blueprint, colony.getWorld()))
                     {
                         spawnPoint = endpoint;
@@ -225,11 +231,11 @@ public abstract class AbstractShipRaidEvent implements IColonyRaidEvent, IColony
      */
     protected void updateRaidBar()
     {
-        final Component directionName = BlockPosUtil.calcDirection(colony.getCenter(), spawnPoint).getLongText();
+        final String directionName = BlockPosUtil.calcDirection(colony.getCenter(), spawnPoint).getLongText();
         raidBar.setName(getDisplayName().append(" - ").append(directionName));
         for (final Player player : colony.getPackageManager().getCloseSubscribers())
         {
-            raidBar.addPlayer((ServerPlayer) player);
+            raidBar.addPlayer((EntityPlayerMP) player);
         }
         raidBar.setVisible(true);
     }
@@ -239,7 +245,7 @@ public abstract class AbstractShipRaidEvent implements IColonyRaidEvent, IColony
      *
      * @return
      */
-    protected abstract MutableComponent getDisplayName();
+    protected abstract String getDisplayName();
 
     @Override
     public void onUpdate()
@@ -257,9 +263,9 @@ public abstract class AbstractShipRaidEvent implements IColonyRaidEvent, IColony
 
         if (!respawns.isEmpty())
         {
-            for (final Tuple<EntityType<?>, BlockPos> entry : respawns)
+            for (final Tuple<EntityType<?>, int[]> entry : respawns)
             {
-                final BlockPos spawnPos = ShipBasedRaiderUtils.getLoadedPositionTowardsCenter(entry.getB(), colony, MAX_LANDING_DISTANCE, spawnPoint, MIN_CENTER_DISTANCE, 10, this.isUnderWater());
+                final int[] spawnPos = ShipBasedRaiderUtils.getLoadedPositionTowardsCenter(entry.getB(), colony, MAX_LANDING_DISTANCE, spawnPoint, MIN_CENTER_DISTANCE, 10, this.isUnderWater());
                 if (spawnPos != null)
                 {
                     RaiderMobUtils.spawn(entry.getA(), 1, spawnPos, colony.getWorld(), colony, id);
@@ -276,7 +282,7 @@ public abstract class AbstractShipRaidEvent implements IColonyRaidEvent, IColony
         // Spawns landing troops.
         if (raiders.size() < spawners.size() * 2)
         {
-            BlockPos spawnPos = ShipBasedRaiderUtils.getLoadedPositionTowardsCenter(spawnPoint, colony, MAX_LANDING_DISTANCE, spawnPoint, MIN_CENTER_DISTANCE, 10, this.isUnderWater());
+            int[] spawnPos = ShipBasedRaiderUtils.getLoadedPositionTowardsCenter(spawnPoint, colony, MAX_LANDING_DISTANCE, spawnPoint, MIN_CENTER_DISTANCE, 10, this.isUnderWater());
             if (spawnPos != null)
             {
                 // Find nice position on the ship
@@ -296,9 +302,9 @@ public abstract class AbstractShipRaidEvent implements IColonyRaidEvent, IColony
         {
             for (final Entity entity : getEntities())
             {
-                if (entity instanceof LivingEntity)
+                if (entity instanceof EntityLivingBase)
                 {
-                    ((LivingEntity) entity).addEffect(new MobEffectInstance(MobEffects.GLOWING, 550));
+                    ((EntityLivingBase) entity).addEffect(new MobEffectInstance(MobEffects.GLOWING, 550));
                 }
             }
         }
@@ -365,7 +371,7 @@ public abstract class AbstractShipRaidEvent implements IColonyRaidEvent, IColony
     }
 
     @Override
-    public void onEntityDeath(final LivingEntity entity)
+    public void onEntityDeath(final EntityLivingBase entity)
     {
         spawnerThresholdKillTracker++;
 
@@ -454,13 +460,13 @@ public abstract class AbstractShipRaidEvent implements IColonyRaidEvent, IColony
     }
 
     @Override
-    public void setSpawnPoint(final BlockPos spawnPoint)
+    public void setSpawnPoint(final int[] spawnPoint)
     {
         this.spawnPoint = spawnPoint;
     }
 
     @Override
-    public BlockPos getSpawnPos()
+    public int[] getSpawnPos()
     {
         return spawnPoint;
     }
@@ -490,25 +496,25 @@ public abstract class AbstractShipRaidEvent implements IColonyRaidEvent, IColony
     }
 
     @Override
-    public List<Tuple<String, BlockPos>> getSchematicSpawns()
+    public List<Tuple<String, int[]>> getSchematicSpawns()
     {
-        final List<Tuple<String, BlockPos>> paths = new ArrayList<>();
+        final List<Tuple<String, int[]>> paths = new ArrayList<>();
         paths.add(new Tuple<>("decorations" + ShipBasedRaiderUtils.SHIP_FOLDER + shipSize.schematicPrefix + this.getShipDesc() + ".blueprint", spawnPoint));
         return paths;
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        CompoundTag compound = new CompoundTag();
+        NBTTagCompound compound = new NBTTagCompound();
         compound.putInt(TAG_EVENT_ID, id);
         compound.putInt(TAG_DAYS_LEFT, daysToGo);
         compound.putInt(TAG_EVENT_STATUS, status.ordinal());
 
-        @NotNull final ListTag spawnerListCompound = new ListTag();
-        for (@NotNull final BlockPos entry : spawners)
+        @NotNull final NBTTagList spawnerListCompound = new NBTTagList();
+        for (@NotNull final int[] entry : spawners)
         {
-            @NotNull final CompoundTag spawnerCompound = new CompoundTag();
+            @NotNull final NBTTagCompound spawnerCompound = new NBTTagCompound();
             spawnerCompound.put(TAG_POS, NbtUtils.writeBlockPos(entry));
             spawnerListCompound.add(spawnerCompound);
         }
@@ -525,13 +531,13 @@ public abstract class AbstractShipRaidEvent implements IColonyRaidEvent, IColony
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         id = compound.getInt(TAG_EVENT_ID);
         status = EventStatus.values()[compound.getInt(TAG_EVENT_STATUS)];
         daysToGo = compound.getInt(TAG_DAYS_LEFT);
 
-        @NotNull final ListTag spawnerListCompound = compound.getList(TAG_SPAWNERS, Tag.TAG_COMPOUND);
+        @NotNull final NBTTagList spawnerListCompound = compound.getList(TAG_SPAWNERS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < spawnerListCompound.size(); i++)
         {
             spawners.add(NbtUtils.readBlockPos(spawnerListCompound.getCompound(i).getCompound(TAG_POS)));
@@ -547,14 +553,14 @@ public abstract class AbstractShipRaidEvent implements IColonyRaidEvent, IColony
     }
 
     @Override
-    public void addSpawner(final BlockPos pos)
+    public void addSpawner(final int[] pos)
     {
         this.spawners.add(pos);
         maxSpawners++;
     }
 
     @Override
-    public List<BlockPos> getWayPoints()
+    public List<int[]> getWayPoints()
     {
         return wayPoints;
     }
@@ -585,3 +591,9 @@ public abstract class AbstractShipRaidEvent implements IColonyRaidEvent, IColony
         this.maxRaiderCount = maxRaiderCount;
     }
 }
+
+
+
+
+
+

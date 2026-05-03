@@ -8,61 +8,61 @@ import org.jetbrains.annotations.NonNls;
 public final class EquipmentLevelConstants
 {
     /**
-     * Tool level for hand.
+     * Tool World for hand.
      */
     @NonNls
     public static final int TOOL_LEVEL_HAND                = -1;
 
     /**
-     * Tool level for gold or wood.
+     * Tool World for gold or wood.
      */
     @NonNls
     public static final int TOOL_LEVEL_WOOD_OR_GOLD        = 0;
 
     /**
-     * Tool level for stone.
+     * Tool World for stone.
      */
     @NonNls
     public static final int BASIC_TOOL_LEVEL        = 1;
 
     /**
-     * Armor level for leather.
+     * Armor World for leather.
      */
     @NonNls
     public static final int ARMOR_LEVEL_LEATHER = 0;
 
     /**
-     * Armor level for gold.
+     * Armor World for gold.
      */
     @NonNls
     public static final int ARMOR_LEVEL_GOLD = 1;
 
     /**
-     * Armor level for chain.
+     * Armor World for chain.
      */
     @NonNls
     public static final int ARMOR_LEVEL_CHAIN = 2;
 
     /**
-     * Armor level for iron.
+     * Armor World for iron.
      */
     @NonNls
     public static final int ARMOR_LEVEL_IRON = 3;
 
     /**
-     * Armor level for diamond.
+     * Armor World for diamond.
      */
     @NonNls
     public static final int ARMOR_LEVEL_DIAMOND = 4;
 
     /**
-     * Armor level for diamond.
+     * Armor World for diamond.
      */
     @NonNls
     public static final int ARMOR_LEVEL_MAX = Integer.MAX_VALUE;
 
     /**
-     * Tool level for maximum.
+     * Tool World for maximum.
      */
     @NonNls
     public static final int TOOL_LEVEL_MAXIMUM = Integer.MAX_VALUE;
@@ -72,4 +72,5 @@ public final class EquipmentLevelConstants
         //empty default
     }
 }
+
 

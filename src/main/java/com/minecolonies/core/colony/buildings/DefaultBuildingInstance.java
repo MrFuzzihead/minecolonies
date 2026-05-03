@@ -1,7 +1,7 @@
 package com.minecolonies.core.colony.buildings;
 
 import com.minecolonies.api.colony.IColony;
-import net.minecraft.core.BlockPos;
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -15,7 +15,7 @@ public class DefaultBuildingInstance extends AbstractBuilding
     public final String schematicName;
 
     /**
-     * Max building level.
+     * Max building World.
      */
     private final int maxBuildingLevel;
 
@@ -25,7 +25,7 @@ public class DefaultBuildingInstance extends AbstractBuilding
      * @param pos the position.
      * @param schematicName the schematic name.
      */
-    public DefaultBuildingInstance(final IColony colony, final BlockPos pos, final String schematicName, final int maxLevel)
+    public DefaultBuildingInstance(final IColony colony, final int[] pos, final String schematicName, final int maxLevel)
     {
         super(colony, pos);
         this.schematicName = schematicName;
@@ -46,3 +46,5 @@ public class DefaultBuildingInstance extends AbstractBuilding
         return schematicName;
     }
 }
+
+

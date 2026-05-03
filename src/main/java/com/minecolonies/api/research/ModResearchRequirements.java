@@ -3,9 +3,9 @@ package com.minecolonies.api.research;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] registries removed
 
 /**
  * Registry entries for research requirement types.
@@ -17,10 +17,10 @@ public class ModResearchRequirements
     public static final ResourceLocation BUILDING_SINGLE_RESEARCH_REQ_ID     = new ResourceLocation(Constants.MOD_ID, "single-building");
     public static final ResourceLocation RESEARCH_RESEARCH_REQ_ID            = new ResourceLocation(Constants.MOD_ID, "research");
 
-    public static RegistryObject<ResearchRequirementEntry> buildingResearchRequirement;
-    public static RegistryObject<ResearchRequirementEntry> buildingAlternatesResearchRequirement;
-    public static RegistryObject<ResearchRequirementEntry> buildingSingleResearchRequirement;
-    public static RegistryObject<ResearchRequirementEntry> researchResearchRequirement;
+    public static ResearchRequirementEntry buildingResearchRequirement;
+    public static ResearchRequirementEntry buildingAlternatesResearchRequirement;
+    public static ResearchRequirementEntry buildingSingleResearchRequirement;
+    public static ResearchRequirementEntry researchResearchRequirement;
 
     private ModResearchRequirements()
     {
@@ -33,7 +33,7 @@ public class ModResearchRequirements
     @FunctionalInterface
     public interface ReadFromNBTFunction
     {
-        IResearchRequirement read(final CompoundTag compound);
+        IResearchRequirement read(final NBTTagCompound compound);
     }
 
     /**
@@ -90,7 +90,7 @@ public class ModResearchRequirements
         /**
          * Read a research requirement instance from NBT.
          */
-        public IResearchRequirement readFromNBT(final CompoundTag nbt)
+        public IResearchRequirement readFromNBT(final NBTTagCompound nbt)
         {
             return readFromNBT.read(nbt);
         }
@@ -104,3 +104,7 @@ public class ModResearchRequirements
         }
     }
 }
+
+
+
+

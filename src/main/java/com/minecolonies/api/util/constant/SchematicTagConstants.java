@@ -43,7 +43,7 @@ public class SchematicTagConstants
     public static final String TAG_LADDER = "ladder";
 
     /**
-     * Leisure tag.
+     * Leisure NBTBase.
      */
     public static final String TAG_LEISURE = "leisure";
 
@@ -96,3 +96,4 @@ public class SchematicTagConstants
         };
     }
 }
+

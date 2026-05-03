@@ -2,7 +2,7 @@ package com.minecolonies.core.quests.objectives;
 
 import com.minecolonies.api.quests.IQuestInstance;
 import com.minecolonies.api.quests.IObjectiveInstance;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.player.EntityPlayer;
 
 /**
  * Specific objective for block breaking.
@@ -17,3 +17,4 @@ public interface IBreakBlockObjectiveTemplate
      */
     void onBlockBreak(IObjectiveInstance blockMiningProgressData, final IQuestInstance colonyQuest, final Player player);
 }
+

@@ -3,8 +3,8 @@ package com.minecolonies.core.entity.ai.workers.util;
 import com.google.common.collect.ImmutableList;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.Vec2i;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Mth;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.MathHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,7 +13,7 @@ import java.util.*;
 /**
  * Miner Node Data StructureIterator.
  * <p>
- * When a node is completed we should add the surrounding nodes to level as AVAILABLE also note that we don't want node (0, -1) because there will be a ladder on the back wall of
+ * When a node is completed we should add the surrounding nodes to World as AVAILABLE also note that we don't want node (0, -1) because there will be a ladder on the back wall of
  * the initial node, and we cant put the connection through the ladder
  */
 public class MineNode
@@ -89,13 +89,13 @@ public class MineNode
     }
 
     /**
-     * Creates a node from the NBT Tag. Returns the created node
+     * Creates a node from the NBT NBTBase. Returns the created node
      *
      * @param compound Compound to read from
      * @return Node created from compound
      */
     @NotNull
-    public static MineNode createFromNBT(@NotNull final CompoundTag compound)
+    public static MineNode createFromNBT(@NotNull final NBTTagCompound compound)
     {
         // for backwards compatibility check if the types are doubles
         final boolean hasDoubles = compound.contains(TAG_X);
@@ -162,7 +162,7 @@ public class MineNode
      *
      * @param compound Compound to write to
      */
-    public void write(@NotNull final CompoundTag compound)
+    public void write(@NotNull final NBTTagCompound compound)
     {
         compound.putInt(TAG_X, x);
         compound.putInt(TAG_Z, z);
@@ -309,12 +309,12 @@ public class MineNode
     /**
      * Return a random next node to work at, might be at this node or at a parent.
      *
-     * @param level the level it is part of.
+     * @param World the World it is part of.
      * @param step  the step.
      * @return the next node to go to.
      */
     @Nullable
-    public MineNode getRandomNextNode(final MinerLevel level, final int step)
+    public MineNode getRandomNextNode(final MinerLevel World, final int step)
     {
         if (step > 3)
         {
@@ -325,22 +325,22 @@ public class MineNode
         switch (random.nextInt(3))
         {
             case 0:
-                nextNode = level.getOpenNode(getNorthNodeCenter());
+                nextNode = World.getOpenNode(getNorthNodeCenter());
                 break;
             case 1:
-                nextNode = level.getOpenNode(getSouthNodeCenter());
+                nextNode = World.getOpenNode(getSouthNodeCenter());
                 break;
             case 2:
-                nextNode = level.getOpenNode(getEastNodeCenter());
+                nextNode = World.getOpenNode(getEastNodeCenter());
                 break;
             default:
-                nextNode = level.getOpenNode(getWestNodeCenter());
+                nextNode = World.getOpenNode(getWestNodeCenter());
         }
 
         if (nextNode == null || nextNode.style == NodeType.SHAFT)
         {
-            final MineNode parent = level.getOpenNode(getParent());
-            return parent == null ? null : parent.getRandomNextNode(level, step + 1);
+            final MineNode parent = World.getOpenNode(getParent());
+            return parent == null ? null : parent.getRandomNextNode(World, step + 1);
         }
         return nextNode;
     }
@@ -457,3 +457,7 @@ public class MineNode
         this.rot = Optional.of(rot);
     }
 }
+
+
+
+

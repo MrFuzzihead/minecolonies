@@ -17,8 +17,8 @@ import com.minecolonies.core.colony.jobs.JobPupil;
 import com.minecolonies.core.colony.jobs.JobTeacher;
 import com.minecolonies.core.entity.ai.workers.AbstractEntityAIInteract;
 import com.minecolonies.core.entity.other.SittingEntity;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 
@@ -235,3 +235,4 @@ public class EntityAIWorkTeacher extends AbstractEntityAIInteract<JobTeacher, Bu
         return DECIDE;
     }
 }
+

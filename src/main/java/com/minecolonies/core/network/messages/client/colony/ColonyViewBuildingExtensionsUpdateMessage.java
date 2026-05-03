@@ -8,13 +8,12 @@ import com.minecolonies.api.network.IMessage;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.core.colony.buildingextensions.registry.BuildingExtensionDataManager;
 import io.netty.buffer.Unpooled;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] Registries removed
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,7 +32,7 @@ public class ColonyViewBuildingExtensionsUpdateMessage implements IMessage
     /**
      * Dimension of the colony.
      */
-    private ResourceKey<Level> dimension;
+    private int /* ResourceKey */ dimension;
 
     /**
      * The list of building extension items.
@@ -64,21 +63,21 @@ public class ColonyViewBuildingExtensionsUpdateMessage implements IMessage
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
         buf.writeInt(colonyId);
         buf.writeUtf(dimension.location().toString());
         buf.writeInt(extensions.size());
         for (final IBuildingExtension extension : extensions.keySet())
         {
-            final FriendlyByteBuf buffer = BuildingExtensionDataManager.extensionToBuffer(extension);
+            final PacketBuffer buffer = BuildingExtensionDataManager.extensionToBuffer(extension);
             buf.writeInt(buffer.readableBytes());
             buf.writeBytes(buffer);
         }
     }
 
     @Override
-    public void fromBytes(@NotNull final FriendlyByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
         colonyId = buf.readInt();
         dimension = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(buf.readUtf(32767)));
@@ -87,7 +86,7 @@ public class ColonyViewBuildingExtensionsUpdateMessage implements IMessage
         for (int i = 0; i < extensionCount; i++)
         {
             final int readableBytes = buf.readInt();
-            final FriendlyByteBuf data = new FriendlyByteBuf(Unpooled.buffer(readableBytes));
+            final PacketBuffer data = new PacketBuffer(Unpooled.buffer(readableBytes));
             buf.readBytes(data, readableBytes);
             final IBuildingExtension extension = BuildingExtensionDataManager.bufferToExtension(data);
             extensions.put(extension, extension);
@@ -96,13 +95,13 @@ public class ColonyViewBuildingExtensionsUpdateMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.CLIENT;
+        return Boolean.FALSE;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
         final IColonyView view = IColonyManager.getInstance().getColonyView(colonyId, dimension);
         if (view != null)
@@ -111,7 +110,7 @@ public class ColonyViewBuildingExtensionsUpdateMessage implements IMessage
             view.getClientBuildingManager().getBuildingExtensions(extension -> true).forEach(existingExtension -> {
                 if (this.extensions.containsKey(existingExtension))
                 {
-                    final FriendlyByteBuf copyBuffer = new FriendlyByteBuf(Unpooled.buffer());
+                    final PacketBuffer copyBuffer = new PacketBuffer(Unpooled.buffer());
                     this.extensions.get(existingExtension).serialize(copyBuffer);
                     existingExtension.deserialize(copyBuffer);
                     extensions.add(existingExtension);
@@ -127,3 +126,6 @@ public class ColonyViewBuildingExtensionsUpdateMessage implements IMessage
         }
     }
 }
+
+
+

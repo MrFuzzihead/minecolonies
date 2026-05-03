@@ -1,11 +1,30 @@
 package com.minecolonies.core.client.gui.modules.building;
 
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
+import com.ldtteam.blockui.controls.DropDownList;
 import com.ldtteam.blockui.controls.Image;
 import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.controls.TextField;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
 import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.colony.requestsystem.request.IRequest;
 import com.minecolonies.api.colony.requestsystem.request.RequestState;
 import com.minecolonies.api.colony.requestsystem.requestable.IStackBasedTask;
@@ -14,10 +33,10 @@ import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.AbstractModuleWindow;
 import com.minecolonies.core.colony.buildings.moduleviews.RequestTaskModuleView;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -84,9 +103,9 @@ public class WindowHutRequestTaskModule extends AbstractModuleWindow<RequestTask
                 else
                 {
                     rowPane.findPaneOfTypeByID(REQUESTER, Text.class)
-                      .setText(Component.literal(request.getRequester().getRequesterDisplayName(buildingView.getColony().getRequestManager(), request).getString() + " -> " + parent.getRequester().getRequesterDisplayName(buildingView.getColony().getRequestManager(), parent).getString()));
+                      .setText(String.literal(request.getRequester().getRequesterDisplayName(buildingView.getColony().getRequestManager(), request).getString() + " -> " + parent.getRequester().getRequesterDisplayName(buildingView.getColony().getRequestManager(), parent).getString()));
                     PaneBuilders.tooltipBuilder().hoverPane(rowPane.findPaneOfTypeByID(REQUESTER, Text.class))
-                      .build().setText(Component.literal(request.getRequester().getLocation().getInDimensionLocation().toShortString() + " -> " + parent.getRequester().getLocation().getInDimensionLocation().toShortString()));
+                      .build().setText(String.literal(request.getRequester().getLocation().getInDimensionLocation().toShortString() + " -> " + parent.getRequester().getLocation().getInDimensionLocation().toShortString()));
 
                 }
 
@@ -103,12 +122,12 @@ public class WindowHutRequestTaskModule extends AbstractModuleWindow<RequestTask
                 else
                 {
                     rowPane.findPaneOfTypeByID("detailIcon", ItemIcon.class).setVisible(false);
-                    rowPane.findPaneOfTypeByID(REQUEST_SHORT_DETAIL, Text.class).setText(Component.literal(request.getShortDisplayString().getString().replace("§f", "")).withStyle(request.getState() == RequestState.IN_PROGRESS ? ChatFormatting.DARK_GREEN : ChatFormatting.BLACK));
+                    rowPane.findPaneOfTypeByID(REQUEST_SHORT_DETAIL, Text.class).setText(String.literal(request.getShortDisplayString().getString().replace("§f", "")).withStyle(request.getState() == RequestState.IN_PROGRESS ? ChatFormatting.DARK_GREEN : ChatFormatting.BLACK));
                 }
 
                 if (request.getRequest() instanceof IDeliverymanRequestable)
                 {
-                    rowPane.findPaneOfTypeByID(REQUEST_PRIORITY, Text.class).setText(Component.translatable(COM_MINECOLONIES_COREMOD_ENTITY_DELIVERYMAN_PRIORITY)
+                    rowPane.findPaneOfTypeByID(REQUEST_PRIORITY, Text.class).setText(String.translatable(COM_MINECOLONIES_COREMOD_ENTITY_DELIVERYMAN_PRIORITY)
                                                                                        .append(String.valueOf(((IDeliverymanRequestable) request.getRequest()).getPriority())));
                 }
 
@@ -118,3 +137,5 @@ public class WindowHutRequestTaskModule extends AbstractModuleWindow<RequestTask
         });
     }
 }
+
+

@@ -8,9 +8,9 @@ import com.minecolonies.api.colony.requestsystem.requestable.INonExhaustiveDeliv
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.ReflectionUtils;
 import com.minecolonies.api.util.constant.TypeConstants;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
@@ -55,9 +55,9 @@ public class SmeltableOre implements INonExhaustiveDeliverable
         this.leftOver = 0;
     }
 
-    public static CompoundTag serialize(final IFactoryController controller, final SmeltableOre ore)
+    public static NBTTagCompound serialize(final IFactoryController controller, final SmeltableOre ore)
     {
-        final CompoundTag compound = new CompoundTag();
+        final NBTTagCompound compound = new NBTTagCompound();
         compound.putInt(NBT_COUNT, ore.count);
 
         if (!ItemStackUtils.isEmpty(ore.result))
@@ -68,7 +68,7 @@ public class SmeltableOre implements INonExhaustiveDeliverable
         return compound;
     }
 
-    public static SmeltableOre deserialize(final IFactoryController controller, final CompoundTag compound)
+    public static SmeltableOre deserialize(final IFactoryController controller, final NBTTagCompound compound)
     {
         final int count = compound.getInt(NBT_COUNT);
         final ItemStack result = compound.contains(NBT_RESULT) ? ItemStackUtils.deserializeFromNBT(compound.getCompound(NBT_RESULT)) : ItemStackUtils.EMPTY;
@@ -83,7 +83,7 @@ public class SmeltableOre implements INonExhaustiveDeliverable
      * @param buffer     the the buffer to write to.
      * @param input      the input to serialize.
      */
-    public static void serialize(final IFactoryController controller, final FriendlyByteBuf buffer, final SmeltableOre input)
+    public static void serialize(final IFactoryController controller, final PacketBuffer buffer, final SmeltableOre input)
     {
         buffer.writeInt(input.getCount());
 
@@ -101,7 +101,7 @@ public class SmeltableOre implements INonExhaustiveDeliverable
      * @param buffer     the buffer to read.
      * @return the deliverable.
      */
-    public static SmeltableOre deserialize(final IFactoryController controller, final FriendlyByteBuf buffer)
+    public static SmeltableOre deserialize(final IFactoryController controller, final PacketBuffer buffer)
     {
         final int count = buffer.readInt();
         final ItemStack result = buffer.readBoolean() ? buffer.readItem() : ItemStack.EMPTY;
@@ -162,3 +162,6 @@ public class SmeltableOre implements INonExhaustiveDeliverable
         return leftOver;
     }
 }
+
+
+

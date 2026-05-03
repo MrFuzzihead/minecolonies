@@ -4,11 +4,11 @@ import com.google.common.collect.ImmutableList;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.util.Tuple;
 import com.minecolonies.api.util.constant.NbtTagConstants;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.Level;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,12 +26,12 @@ public abstract class AbstractInteractionResponseHandler implements IInteraction
     /**
      * The text the citizen is saying.
      */
-    private Component inquiry;
+    private String inquiry;
 
     /**
      * The map of response options of the player, to new inquires of the interacting entity.
      */
-    private Map<Component, Component> responses = new LinkedHashMap<>();
+    private Map<String, String> responses = new LinkedHashMap<>();
 
     /**
      * If the interaction is a primary (true) or secondary (false) interaction.
@@ -53,15 +53,15 @@ public abstract class AbstractInteractionResponseHandler implements IInteraction
      */
     @SafeVarargs
     public AbstractInteractionResponseHandler(
-      @NotNull final Component inquiry,
+      @NotNull final String inquiry,
       final boolean primary,
       final IChatPriority priority,
-      final Tuple<Component, Component>... responseTuples)
+      final Tuple<String, String>... responseTuples)
     {
         this.inquiry = inquiry;
         this.primary = primary;
         this.priority = priority;
-        for (final Tuple<Component, Component> element : responseTuples)
+        for (final Tuple<String, String> element : responseTuples)
         {
             this.responses.put(element.getA(), element.getB());
         }
@@ -76,20 +76,20 @@ public abstract class AbstractInteractionResponseHandler implements IInteraction
     }
 
     @Override
-    public Component getInquiry()
+    public String getInquiry()
     {
         return inquiry;
     }
 
     @Nullable
     @Override
-    public Component getResponseResult(final Component response)
+    public String getResponseResult(final String response)
     {
         return responses.getOrDefault(response, null);
     }
 
     @Override
-    public List<Component> getPossibleResponses()
+    public List<String> getPossibleResponses()
     {
         return ImmutableList.copyOf(responses.keySet());
     }
@@ -99,37 +99,37 @@ public abstract class AbstractInteractionResponseHandler implements IInteraction
      *
      * @return the serialized data.
      */
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag tag = new CompoundTag();
-        tag.putString(TAG_INQUIRY, Component.Serializer.toJson(this.inquiry));
-        final ListTag list = new ListTag();
-        for (final Map.Entry<Component, Component> element : responses.entrySet())
+        final NBTTagCompound NBTBase = new NBTTagCompound();
+        NBTBase.putString(TAG_INQUIRY, String.Serializer.toJson(this.inquiry));
+        final NBTTagList list = new NBTTagList();
+        for (final Map.Entry<String, String> element : responses.entrySet())
         {
-            final CompoundTag elementTag = new CompoundTag();
-            elementTag.putString(TAG_RESPONSE, Component.Serializer.toJson(element.getKey()));
-            elementTag.putString(TAG_NEXT_INQUIRY, Component.Serializer.toJson(element.getValue()));
+            final NBTTagCompound elementTag = new NBTTagCompound();
+            elementTag.putString(TAG_RESPONSE, String.Serializer.toJson(element.getKey()));
+            elementTag.putString(TAG_NEXT_INQUIRY, String.Serializer.toJson(element.getValue()));
 
             list.add(elementTag);
         }
-        tag.put(TAG_RESPONSES, list);
-        tag.putBoolean(TAG_PRIMARY, isPrimary());
-        tag.putInt(TAG_PRIORITY, priority.getPriority());
-        tag.putString(NbtTagConstants.TAG_HANDLER_TYPE, getType());
-        return tag;
+        NBTBase.put(TAG_RESPONSES, list);
+        NBTBase.putBoolean(TAG_PRIMARY, isPrimary());
+        NBTBase.putInt(TAG_PRIORITY, priority.getPriority());
+        NBTBase.putString(NbtTagConstants.TAG_HANDLER_TYPE, getType());
+        return NBTBase;
     }
 
     /**
      * Deserialize the response handler from NBT.
      */
-    public void deserializeNBT(@NotNull final CompoundTag compoundNBT)
+    public void deserializeNBT(@NotNull final NBTTagCompound compoundNBT)
     {
-        this.inquiry = Component.Serializer.fromJson(compoundNBT.getString(TAG_INQUIRY));
-        final ListTag list = compoundNBT.getList(TAG_RESPONSES, Tag.TAG_COMPOUND);
+        this.inquiry = String.Serializer.fromJson(compoundNBT.getString(TAG_INQUIRY));
+        final NBTTagList list = compoundNBT.getList(TAG_RESPONSES, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++)
         {
-            final CompoundTag nbt = list.getCompound(i);
-            this.responses.put(Component.Serializer.fromJson(nbt.getString(TAG_RESPONSE)), Component.Serializer.fromJson(nbt.getString(TAG_NEXT_INQUIRY)));
+            final NBTTagCompound nbt = list.getCompound(i);
+            this.responses.put(String.Serializer.fromJson(nbt.getString(TAG_RESPONSE)), String.Serializer.fromJson(nbt.getString(TAG_NEXT_INQUIRY)));
         }
         this.primary = compoundNBT.getBoolean(TAG_PRIMARY);
         this.priority = ChatPriority.values()[compoundNBT.getInt(TAG_PRIORITY)];
@@ -148,7 +148,7 @@ public abstract class AbstractInteractionResponseHandler implements IInteraction
     }
 
     @Override
-    public boolean isVisible(final Level world)
+    public boolean isVisible(final World world)
     {
         return true;
     }
@@ -159,3 +159,7 @@ public abstract class AbstractInteractionResponseHandler implements IInteraction
         return true;
     }
 }
+
+
+
+

@@ -1,15 +1,34 @@
 package com.minecolonies.core.client.gui;
 
-import com.ldtteam.blockui.Alignment;
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
+import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
-import com.ldtteam.blockui.controls.AbstractTextBuilder.TextBuilder;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
+import com.ldtteam.blockui.controls.DropDownList;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.controls.TextField;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
+import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
 import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.client.resources.language.I18n;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
 
 import java.util.Arrays;
 import java.util.function.Supplier;
@@ -49,7 +68,7 @@ public class WindowInfo extends AbstractWindowSkeleton
             final View view = pageBuilder.get();
             switchView.addChild(view);
 
-            final Text name = nameBuilder.get().append(Component.translatable(translationPrefix + i + ".name")).build();
+            final Text name = nameBuilder.get().append(String.translatable(translationPrefix + i + ".name")).build();
             name.setPosition(30, 0);
             name.setSize(90, 11);
             name.setTextAlignment(Alignment.MIDDLE);
@@ -57,7 +76,7 @@ public class WindowInfo extends AbstractWindowSkeleton
 
             final TextBuilder preText = textBuilder.get();
             Arrays.stream((translationPrefix + i).split("\\n"))
-                .map(Component::translatable)
+                .map(String::translatable)
                 .forEach(preText::appendNL);
             final Text text = preText.build();
             text.setPosition(0, 16);
@@ -69,3 +88,6 @@ public class WindowInfo extends AbstractWindowSkeleton
         setPage(false, 0);
     }
 }
+
+
+

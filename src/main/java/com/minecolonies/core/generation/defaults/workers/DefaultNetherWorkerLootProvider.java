@@ -8,22 +8,22 @@ import com.minecolonies.core.generation.CustomRecipeAndLootTableProvider;
 import com.minecolonies.core.generation.CustomRecipeProvider;
 import com.minecolonies.core.generation.DatagenLootTableManager;
 import com.minecolonies.core.generation.SimpleLootTableProvider;
-import net.minecraft.data.PackOutput;
-import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] data removed
+// [1.7.10] data removed
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] world.entity removed
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer;
-import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
-import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
-import net.minecraftforge.registries.ForgeRegistries;
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -202,10 +202,10 @@ public class DefaultNetherWorkerLootProvider extends CustomRecipeAndLootTablePro
         return mobs;
     }
 
-    private LootPoolSingletonContainer.Builder<?> createAdventureToken(@NotNull final EntityType<?> mob, final int damage_done, final int xp_gained)
+    private LootPoolSingletonContainer.Builder<?> createAdventureToken(@NotNull final EntityType<?> EntityCreature, final int damage_done, final int xp_gained)
     {
-        final CompoundTag nbt = new CompoundTag();
-        nbt.putString(TAG_ENTITY_TYPE, ForgeRegistries.ENTITY_TYPES.getKey(mob).toString());
+        final NBTTagCompound nbt = new NBTTagCompound();
+        nbt.putString(TAG_ENTITY_TYPE, ForgeRegistries.ENTITY_TYPES.getKey(EntityCreature).toString());
         nbt.putInt(TAG_DAMAGE, damage_done);
         nbt.putInt(TAG_XP_DROPPED, xp_gained);
 
@@ -269,3 +269,8 @@ public class DefaultNetherWorkerLootProvider extends CustomRecipeAndLootTablePro
         }
     }
 }
+
+
+
+
+

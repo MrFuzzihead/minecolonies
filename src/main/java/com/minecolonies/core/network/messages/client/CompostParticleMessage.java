@@ -1,14 +1,13 @@
 package com.minecolonies.core.network.messages.client;
 
 import com.minecolonies.api.network.IMessage;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.network.FriendlyByteBuf;
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.BlockPos;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +26,7 @@ public class CompostParticleMessage implements IMessage
     /**
      * The position.
      */
-    private BlockPos pos;
+    private int[] pos;
 
     /**
      * Empty constructor used when registering the
@@ -42,35 +41,35 @@ public class CompostParticleMessage implements IMessage
      *
      * @param pos Coordinates
      */
-    public CompostParticleMessage(final BlockPos pos)
+    public CompostParticleMessage(final int[] pos)
     {
         super();
         this.pos = pos;
     }
 
     @Override
-    public void fromBytes(@NotNull final FriendlyByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
         pos = buf.readBlockPos();
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
         buf.writeBlockPos(pos);
     }
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.CLIENT;
+        return Boolean.FALSE;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
-        final ClientLevel world = Minecraft.getInstance().level;
+        final ClientLevel world = Minecraft.getInstance().World;
         final int amount = random.nextInt(15) + 1;
         final BlockState state = world.getBlockState(pos);
         double d0;
@@ -112,3 +111,6 @@ public class CompostParticleMessage implements IMessage
         }
     }
 }
+
+
+

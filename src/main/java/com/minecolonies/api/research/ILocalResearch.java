@@ -1,7 +1,7 @@
 package com.minecolonies.api.research;
 
 import com.minecolonies.api.research.util.ResearchState;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 /**
  * Interface defining how a local research at a colony is. This represents how a colony stores researches they finished or started.
@@ -66,3 +66,4 @@ public interface ILocalResearch
      */
     boolean research(IResearchEffectManager effects, ILocalResearchTree tree);
 }
+

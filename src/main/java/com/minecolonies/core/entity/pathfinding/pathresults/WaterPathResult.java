@@ -2,7 +2,7 @@ package com.minecolonies.core.entity.pathfinding.pathresults;
 
 import com.minecolonies.api.util.Pond.PondState;
 import com.minecolonies.core.entity.pathfinding.pathjobs.PathJobFindWater;
-import net.minecraft.core.BlockPos;
+// [1.7.10] int[] -> int x,y,z
 
 /**
  * Contains the result of the path job to find water.
@@ -12,12 +12,12 @@ public class WaterPathResult extends PathResult<PathJobFindWater>
     /**
      * The position of the parent (stand block).
      */
-    public BlockPos parent;
+    public int[] parent;
 
     /**
      * The position of the pond.
      */
-    public BlockPos pond;
+    public int[] pond;
 
     /*
      * Whether this pond is suboptimal or not
@@ -29,3 +29,5 @@ public class WaterPathResult extends PathResult<PathJobFindWater>
      */
     public boolean isEmpty;
 }
+
+

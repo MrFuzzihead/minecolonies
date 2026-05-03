@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.crafting;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.google.gson.JsonObject;
 import com.minecolonies.api.blocks.ModBlocks;
@@ -12,15 +18,15 @@ import com.minecolonies.core.Network;
 import com.minecolonies.core.blocks.MinecoloniesCropBlock;
 import com.minecolonies.core.colony.buildings.modules.AnimalHerdingModule;
 import io.netty.buffer.Unpooled;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.storage.loot.LootDataManager;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayerMP;
+// [1.7.10] world.entity removed
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
+// [1.7.10] world.World.storage removed
 import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -62,7 +68,7 @@ public class CustomRecipeManager
     private final Map<ResourceLocation, List<LootTableAnalyzer.LootDrop>> lootTables = new HashMap<>();
 
     /**
-     * The collection of recipe templates, pending tag loading.
+     * The collection of recipe templates, pending NBTBase loading.
      */
     private final Map<ResourceLocation, JsonObject> recipeTemplates = new HashMap<>();
 
@@ -304,9 +310,9 @@ public class CustomRecipeManager
      * @param lootTableManager the loot table manager
      */
     public void buildLootData(@NotNull final LootDataManager lootTableManager,
-                              @NotNull final Level level)
+                              @NotNull final World World)
     {
-        final List<Animal> animals = RecipeAnalyzer.createAnimals(level);
+        final List<Animal> animals = RecipeAnalyzer.createAnimals(World);
 
         final List<ResourceLocation> lootIds = new ArrayList<>();
         for (final Map<ResourceLocation, CustomRecipe> recipes : recipeMap.values())
@@ -369,9 +375,9 @@ public class CustomRecipeManager
      * Sends relevant Custom Recipes loaded from the Custom Recipe Manager to the client.
      * @param player the player to send the new data to.
      */
-    public void sendCustomRecipeManagerPackets(final ServerPlayer player)
+    public void sendCustomRecipeManagerPackets(final EntityPlayerMP player)
     {
-        final FriendlyByteBuf recipeMgrFriendlyByteBuf = new FriendlyByteBuf(Unpooled.buffer());
+        final PacketBuffer recipeMgrFriendlyByteBuf = new PacketBuffer(Unpooled.buffer());
         serializeNetworkData(recipeMgrFriendlyByteBuf);
         Network.getNetwork().sendToPlayer(new CustomRecipeManagerMessage(recipeMgrFriendlyByteBuf), player);
     }
@@ -381,7 +387,7 @@ public class CustomRecipeManager
      * This version sends the full Custom Recipe Manager.
      * @param recipeMgrFriendlyByteBuf packet buffer to encode the data into.
      */
-    private void serializeNetworkData(final FriendlyByteBuf recipeMgrFriendlyByteBuf)
+    private void serializeNetworkData(final PacketBuffer recipeMgrFriendlyByteBuf)
     {
         recipeMgrFriendlyByteBuf.writeVarInt(recipeMap.size());
         for (Map.Entry<String, Map<ResourceLocation, CustomRecipe>> crafter : recipeMap.entrySet())
@@ -409,7 +415,7 @@ public class CustomRecipeManager
      * Ingests the custom recipes packet, and applies it to the recipe manager.
      * @param buff packet buffer containing the received data.
      */
-    public void handleCustomRecipeManagerMessage(final FriendlyByteBuf buff)
+    public void handleCustomRecipeManagerMessage(final PacketBuffer buff)
     {
         reset();
 
@@ -443,3 +449,6 @@ public class CustomRecipeManager
         }
     }
 }
+
+
+

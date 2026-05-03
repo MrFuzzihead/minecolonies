@@ -1,39 +1,17 @@
 package com.minecolonies.api.advancements.click_gui_button;
-
-import com.google.gson.JsonObject;
 import com.minecolonies.api.advancements.AbstractCriterionTrigger;
+import com.minecolonies.api.advancements.CriterionListeners;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.advancements.critereon.DeserializationContext;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.NotNull;
-
-public class ClickGuiButtonTrigger extends AbstractCriterionTrigger<ClickGuiButtonListeners, ClickGuiButtonCriterionInstance>
+import net.minecraft.util.ResourceLocation;
+// [1.7.10 BACKPORT] Stubbed out — advancements do not exist in Minecraft 1.7.10.
+// All trigger/listener methods are no-ops.
+/** Stub trigger — no-op in 1.7.10. */
+public class ClickGuiButtonTrigger extends AbstractCriterionTrigger<CriterionListeners<ClickGuiButtonCriterionInstance>, ClickGuiButtonCriterionInstance>
 {
+    private static final ResourceLocation ID = new ResourceLocation(Constants.MOD_ID, Constants.CRITERION_CLICK_GUI_BUTTON);
     public ClickGuiButtonTrigger()
     {
-        super(new ResourceLocation(Constants.MOD_ID, Constants.CRITERION_CLICK_GUI_BUTTON), ClickGuiButtonListeners::new);
+        super(ID, CriterionListeners::new);
     }
-
-    /**
-     * Triggers the listener checks if there are any listening in
-     * @param player the player the check regards
-     * @param buttonId the id of the button in blockui
-     * @param windowResource the blockui window id to refer to
-     */
-    public void trigger(final ServerPlayer player, final String buttonId, final ResourceLocation windowResource)
-    {
-        final ClickGuiButtonListeners listeners = this.getListeners(player.getAdvancements());
-        if (listeners != null)
-        {
-            listeners.trigger(buttonId, windowResource);
-        }
-    }
-
-    @NotNull
-    @Override
-    public ClickGuiButtonCriterionInstance createInstance(@NotNull final JsonObject jsonObject, @NotNull final DeserializationContext conditionArrayParser)
-    {
-        return ClickGuiButtonCriterionInstance.deserializeFromJson(jsonObject, conditionArrayParser);
-    }
+    // [1.7.10 BACKPORT] trigger(...) methods are no-ops; no advancements system.
 }

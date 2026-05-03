@@ -5,8 +5,8 @@ import com.minecolonies.api.colony.buildings.modules.IPersistentModule;
 import com.minecolonies.api.colony.managers.interfaces.IStatisticsManager;
 import com.minecolonies.api.util.MathUtils;
 import com.minecolonies.core.colony.managers.StatisticsManager;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 
 /**
  * Building statistic module.
@@ -19,19 +19,19 @@ public class BuildingStatisticsModule extends AbstractBuildingModule implements 
     private IStatisticsManager statisticsManager = new StatisticsManager();
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         statisticsManager.readFromNBT(compound);
     }
 
     @Override
-    public void serializeNBT(final CompoundTag compound)
+    public void serializeNBT(final NBTTagCompound compound)
     {
         statisticsManager.writeToNBT(compound);
     }
 
     @Override
-    public void serializeToView(final FriendlyByteBuf buf, final boolean fullSync)
+    public void serializeToView(final PacketBuffer buf, final boolean fullSync)
     {
         statisticsManager.serialize(buf, fullSync);
     }
@@ -72,3 +72,6 @@ public class BuildingStatisticsModule extends AbstractBuildingModule implements 
         }
     }
 }
+
+
+

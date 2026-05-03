@@ -25,23 +25,23 @@ import com.minecolonies.core.event.EventHandler;
 import com.minecolonies.core.network.messages.client.OpenDecoBuildWindowMessage;
 import com.minecolonies.core.network.messages.client.OpenPlantationFieldBuildWindowMessage;
 import com.minecolonies.core.util.AdvancementUtils;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World.ChunkPos;
+import net.minecraft.world.World;
+import net.minecraft.world.Mirror;
+// [1.7.10] BlockState -> int metadata
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.BlockSnapshot;
-import net.minecraftforge.event.level.BlockEvent;
-import net.minecraftforge.items.wrapper.InvWrapper;
+// [1.7.10] forge event removed
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.Nullable;
 
 import static com.minecolonies.api.util.constant.NbtTagConstants.*;
@@ -60,14 +60,14 @@ public class SurvivalHandler implements ISurvivalBlueprintHandler
     }
 
     @Override
-    public Component getDisplayName()
+    public String getDisplayName()
     {
-        return Component.translatable("com.minecolonies.coremod.blueprint.placement");
+        return String.translatable("com.minecolonies.coremod.blueprint.placement");
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public boolean canHandle(final Blueprint blueprint, final ClientLevel clientLevel, final Player player, final BlockPos blockPos, final PlacementSettings placementSettings)
+    public boolean canHandle(final Blueprint blueprint, final ClientLevel clientLevel, final Player player, final int[] blockPos, final PlacementSettings placementSettings)
     {
         if (IMinecoloniesAPI.getInstance().getConfig().getServer().blueprintBuildMode.get())
         {
@@ -84,9 +84,9 @@ public class SurvivalHandler implements ISurvivalBlueprintHandler
       final String packName,
       final String blueprintPath,
       final boolean clientPack,
-      final Level world,
+      final World world,
       final Player player,
-      final BlockPos blockPos,
+      final int[] blockPos,
       final PlacementSettings placementSettings)
     {
         if (blueprint == null)
@@ -135,7 +135,7 @@ public class SurvivalHandler implements ISurvivalBlueprintHandler
         {
             Network.getNetwork()
               .sendToPlayer(new OpenPlantationFieldBuildWindowMessage(blockPos, packName, blueprintPath, placementSettings.getRotation(), placementSettings.mirror),
-                (ServerPlayer) player);
+                (EntityPlayerMP) player);
         }
         if (anchor.getBlock() instanceof AbstractBlockHut<?> anchorBlock)
         {
@@ -157,7 +157,7 @@ public class SurvivalHandler implements ISurvivalBlueprintHandler
                 }
 
                 final ItemStack inventoryStack = slot == -1 ? stack : player.getInventory().getItem(slot);
-                final CompoundTag compound = inventoryStack.getTag();
+                final NBTTagCompound compound = inventoryStack.getTag();
                 if (compound != null && compound.contains(TAG_COLONY_ID) && tempColony != null && tempColony.getID() != compound.getInt(TAG_COLONY_ID))
                 {
                     MessageUtils.format(WRONG_COLONY, compound.getInt(TAG_COLONY_ID)).sendTo(player);
@@ -177,7 +177,7 @@ public class SurvivalHandler implements ISurvivalBlueprintHandler
                   blueprintPath);
                 try
                 {
-                    MinecraftForge.EVENT_BUS.post(new BlockEvent.EntityPlaceEvent(BlockSnapshot.create(world.dimension(), world, blockPos), world.getBlockState(blockPos.below()), player));
+                    MinecraftForge.EVENT_BUS.post(new BlockEvent.EntityPlaceEvent(BlockSnapshot.create(world.dimension(), world, blockPos), world.getBlockState(new int[]{blockPos[0], blockPos[1]-1, blockPos[2]}), player));
                 }
                 catch (final Exception e)
                 {
@@ -189,27 +189,27 @@ public class SurvivalHandler implements ISurvivalBlueprintHandler
                 {
                     // Townhall Placement
                     SoundUtils.playSuccessSound(player, player.blockPosition());
-                    AdvancementTriggers.PLACE_STRUCTURE.trigger((ServerPlayer) player, anchorBlock.getBlueprintName());
+                    AdvancementTriggers.PLACE_STRUCTURE.trigger((EntityPlayerMP) player, anchorBlock.getBlueprintName());
                     return;
                 }
 
                 AdvancementUtils.TriggerAdvancementPlayersForColony(tempColony, playerMP -> AdvancementTriggers.PLACE_STRUCTURE.trigger(playerMP, anchorBlock.getBlueprintName()));
 
-                int level = 0;
+                int World = 0;
                 boolean finishedUpgrade = false;
                 if (compound != null)
                 {
                     if (compound.contains(TAG_OTHER_LEVEL))
                     {
-                        level = compound.getInt(TAG_OTHER_LEVEL);
+                        World = compound.getInt(TAG_OTHER_LEVEL);
                     }
                     if (compound.contains(TAG_PASTEABLE))
                     {
                         String newBlueprintPath = blueprintPath;
                         newBlueprintPath = newBlueprintPath.substring(0, newBlueprintPath.length() - 1);
-                        newBlueprintPath += level;
-                        CreativeBuildingStructureHandler.loadAndPlaceStructureWithRotation(player.level, StructurePacks.getBlueprintFuture(packName, newBlueprintPath),
-                          blockPos, placementSettings.getRotation(), placementSettings.getMirror() != Mirror.NONE ? Mirror.FRONT_BACK : Mirror.NONE, true, (ServerPlayer) player);
+                        newBlueprintPath += World;
+                        CreativeBuildingStructureHandler.loadAndPlaceStructureWithRotation(player.World, StructurePacks.getBlueprintFuture(packName, newBlueprintPath),
+                          blockPos, placementSettings.getRotation(), placementSettings.getMirror() != Mirror.NONE ? Mirror.FRONT_BACK : Mirror.NONE, true, (EntityPlayerMP) player);
                         finishedUpgrade = true;
                     }
                 }
@@ -242,8 +242,8 @@ public class SurvivalHandler implements ISurvivalBlueprintHandler
                     building.setStructurePack(packName);
                     building.setBlueprintPath(blueprintPath);
 
-                    building.setBuildingLevel(level);
-                    if (level > 0)
+                    building.setBuildingLevel(World);
+                    if (World > 0)
                     {
                         building.setDeconstructed();
                     }
@@ -267,19 +267,19 @@ public class SurvivalHandler implements ISurvivalBlueprintHandler
         {
             if (blueprint.getBlockState(blueprint.getPrimaryBlockOffset()).getBlock() instanceof ILeveledBlueprintAnchorBlock)
             {
-                int level = Utils.getBlueprintLevel(blueprint.getFileName());
-                if (level == -1)
+                int World = Utils.getBlueprintLevel(blueprint.getFileName());
+                if (World == -1)
                 {
-                    Network.getNetwork().sendToPlayer(new OpenDecoBuildWindowMessage(blockPos, packName, blueprintPath, placementSettings.getRotation(), placementSettings.mirror), (ServerPlayer) player);
+                    Network.getNetwork().sendToPlayer(new OpenDecoBuildWindowMessage(blockPos, packName, blueprintPath, placementSettings.getRotation(), placementSettings.mirror), (EntityPlayerMP) player);
                 }
                 else
                 {
-                    Network.getNetwork().sendToPlayer(new OpenDecoBuildWindowMessage(blockPos, packName, blueprintPath.replace(level + ".blueprint", "1.blueprint"), placementSettings.getRotation(), placementSettings.mirror), (ServerPlayer) player);
+                    Network.getNetwork().sendToPlayer(new OpenDecoBuildWindowMessage(blockPos, packName, blueprintPath.replace(World + ".blueprint", "1.blueprint"), placementSettings.getRotation(), placementSettings.mirror), (EntityPlayerMP) player);
                 }
             }
             else
             {
-                Network.getNetwork().sendToPlayer(new OpenDecoBuildWindowMessage(blockPos, packName, blueprintPath, placementSettings.getRotation(), placementSettings.mirror), (ServerPlayer) player);
+                Network.getNetwork().sendToPlayer(new OpenDecoBuildWindowMessage(blockPos, packName, blueprintPath, placementSettings.getRotation(), placementSettings.mirror), (EntityPlayerMP) player);
             }
         }
 
@@ -290,16 +290,16 @@ public class SurvivalHandler implements ISurvivalBlueprintHandler
      * Check if the blueprint is fully inside colony boundaries.
      * @param blueprint the blueprint to check.
      * @param colony the colony to check for.
-     * @param blockPos the position to check at.
+     * @param int[] the position to check at.
      * @return true if so.
      */
-    private boolean isBlueprintInColony(final Blueprint blueprint, final IColony colony, final BlockPos blockPos)
+    private boolean isBlueprintInColony(final Blueprint blueprint, final IColony colony, final int[] blockPos)
     {
-        final Level world = colony.getWorld();
-        final BlockPos zeroPos = blockPos.subtract(blueprint.getPrimaryBlockOffset());
+        final World world = colony.getWorld();
+        final int[] zeroPos = new int[]{blockPos[0] - blueprint.getPrimaryBlockOffset()[0], blockPos[1] - blueprint.getPrimaryBlockOffset()[1], blockPos[2] - blueprint.getPrimaryBlockOffset()[2]};
 
-        final BlockPos pos1 = new BlockPos(zeroPos.getX(), zeroPos.getY(), zeroPos.getZ());
-        final BlockPos pos2 = new BlockPos(zeroPos.getX() + blueprint.getSizeX() - 1, zeroPos.getY() + blueprint.getSizeY() - 1, zeroPos.getZ() + blueprint.getSizeZ() - 1);
+        final int[] pos1 = new int[]{zeroPos[0], zeroPos[1], zeroPos[2]};
+        final int[] pos2 = new int[]{zeroPos[0] + blueprint.getSizeX() - 1, zeroPos[1] + blueprint.getSizeY() - 1, zeroPos[2] + blueprint.getSizeZ() - 1};
 
         final int minX = Math.min(pos1.getX(), pos2.getX()) + 1;
         final int maxX = Math.max(pos1.getX(), pos2.getX());
@@ -324,3 +324,12 @@ public class SurvivalHandler implements ISurvivalBlueprintHandler
         return true;
     }
 }
+
+
+
+
+
+
+
+
+

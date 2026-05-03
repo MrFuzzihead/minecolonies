@@ -1,18 +1,24 @@
 package com.minecolonies.core.colony.buildings.workerbuildings.plantation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
+import net.minecraft.world.level.chunk.LevelChunk;
 
 import com.minecolonies.api.colony.buildingextensions.IBuildingExtension;
 import com.minecolonies.api.colony.buildingextensions.plantation.IPlantationModule;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.core.colony.buildingextensions.PlantationField;
 import com.minecolonies.core.colony.buildingextensions.modules.AbstractBuildingExtensionModule;
-import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.item.BoneMealItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+// [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -29,12 +35,12 @@ public abstract class AbstractPlantationModule extends AbstractBuildingExtension
     protected static final int DEFAULT_MAX_PLANTS = 20;
 
     /**
-     * The tag that the field anchor block contains in order to select which of these modules to use.
+     * The NBTBase that the field anchor block contains in order to select which of these modules to use.
      */
     private final String fieldTag;
 
     /**
-     * The tag that the individual working positions must contain.
+     * The NBTBase that the individual working positions must contain.
      */
     private final String workTag;
 
@@ -47,8 +53,8 @@ public abstract class AbstractPlantationModule extends AbstractBuildingExtension
      * Default constructor.
      *
      * @param field    the field instance this module is working on.
-     * @param fieldTag the tag of the field anchor block.
-     * @param workTag  the tag of the working positions.
+     * @param fieldTag the NBTBase of the field anchor block.
+     * @param workTag  the NBTBase of the working positions.
      * @param item     the item which is harvested.
      */
     protected AbstractPlantationModule(
@@ -91,9 +97,9 @@ public abstract class AbstractPlantationModule extends AbstractBuildingExtension
     }
 
     @Override
-    public List<BlockPos> getValidWorkingPositions(final @NotNull Level world, final List<BlockPos> workingPositions)
+    public List<int[]> getValidWorkingPositions(final @NotNull World world, final List<int[]> workingPositions)
     {
-        List<BlockPos> result = new ArrayList<>();
+        List<int[]> result = new ArrayList<>();
         int maxWorkingPositions = getMaxWorkingPositions();
         for (int i = 0; i < maxWorkingPositions; i++)
         {
@@ -124,22 +130,22 @@ public abstract class AbstractPlantationModule extends AbstractBuildingExtension
     }
 
     @Override
-    public BlockPos getPositionToWalkTo(final Level world, final BlockPos workingPosition)
+    public int[] getPositionToWalkTo(final World world, final int[] workingPosition)
     {
         return workingPosition;
     }
 
     @Override
-    public BlockState getPlantingBlockState(final Level world, final BlockPos workPosition, final BlockState blockState)
+    public BlockState getPlantingBlockState(final World world, final int[] workPosition, final BlockState blockState)
     {
         return blockState;
     }
 
     @Override
-    public void applyBonemeal(AbstractEntityCitizen worker, BlockPos workPosition, ItemStack stackInSlot, Player fakePlayer)
+    public void applyBonemeal(AbstractEntityCitizen worker, int[] workPosition, ItemStack stackInSlot, Player fakePlayer)
     {
-        BoneMealItem.applyBonemeal(stackInSlot, worker.level(), workPosition, fakePlayer);
-        BoneMealItem.addGrowthParticles(worker.level(), workPosition, 1);
+        BoneMealItem.applyBonemeal(stackInSlot, worker.World(), workPosition, fakePlayer);
+        BoneMealItem.addGrowthParticles(worker.World(), workPosition, 1);
     }
 
     /**
@@ -147,7 +153,7 @@ public abstract class AbstractPlantationModule extends AbstractBuildingExtension
      *
      * @return a list of working positions.
      */
-    protected final List<BlockPos> getWorkingPositions()
+    protected final List<int[]> getWorkingPositions()
     {
         if (extension instanceof PlantationField plantationField)
         {
@@ -179,3 +185,5 @@ public abstract class AbstractPlantationModule extends AbstractBuildingExtension
         return fieldTag.equals(that.fieldTag);
     }
 }
+
+

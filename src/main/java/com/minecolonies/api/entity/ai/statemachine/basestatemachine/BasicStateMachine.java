@@ -6,10 +6,10 @@ import com.minecolonies.api.entity.ai.statemachine.transitions.IStateMachineEven
 import com.minecolonies.api.entity.ai.statemachine.transitions.IStateMachineOneTimeEvent;
 import com.minecolonies.api.entity.ai.statemachine.transitions.IStateMachineTransition;
 import com.minecolonies.api.util.Log;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] fml.loading removed
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalTime;
@@ -65,7 +65,7 @@ public class BasicStateMachine<T extends IStateMachineTransition<S>, S extends I
      */
     private boolean     historyEnabled = !FMLEnvironment.production;
     private int         historyIndex   = -1;
-    private Component[] stateHistory   = new Component[20];
+    private String[] stateHistory   = new String[20];
 
     DateTimeFormatter SIMPLE_TIME = new DateTimeFormatterBuilder()
         .appendValue(HOUR_OF_DAY, 2)
@@ -232,10 +232,10 @@ public class BasicStateMachine<T extends IStateMachineTransition<S>, S extends I
                 if (historyEnabled)
                 {
                     historyIndex = (historyIndex + 1) % stateHistory.length;
-                    stateHistory[historyIndex] = Component.literal(LocalTime.now().format(SIMPLE_TIME) + " ")
+                    stateHistory[historyIndex] = String.literal(LocalTime.now().format(SIMPLE_TIME) + " ")
                         .withStyle(ChatFormatting.GRAY)
                         .append(transition.getName())
-                        .append(Component.literal("->").append(Component.literal(newState.toString()).withStyle(ChatFormatting.LIGHT_PURPLE)));
+                        .append(String.literal("->").append(String.literal(newState.toString()).withStyle(ChatFormatting.LIGHT_PURPLE)));
                 }
             }
 
@@ -286,18 +286,18 @@ public class BasicStateMachine<T extends IStateMachineTransition<S>, S extends I
         }
 
         historyEnabled = enabled;
-        stateHistory = new Component[memorySize];
+        stateHistory = new String[memorySize];
     }
 
     @Override
-    public Component getHistory()
+    public String getHistory()
     {
-        MutableComponent history = Component.literal("Current state:").append(Component.literal(state + "\n").withStyle(ChatFormatting.GOLD));
+        String history = String.literal("Current state:").append(String.literal(state + "\n").withStyle(ChatFormatting.GOLD));
         int index = historyIndex;
         for (int i = 0; i < stateHistory.length; i++)
         {
             index = ((index + 1) + stateHistory.length) % stateHistory.length;
-            Component entry = stateHistory[index];
+            String entry = stateHistory[index];
             if (entry == null)
             {
                 continue;
@@ -309,3 +309,6 @@ public class BasicStateMachine<T extends IStateMachineTransition<S>, S extends I
         return history;
     }
 }
+
+
+

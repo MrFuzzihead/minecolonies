@@ -3,12 +3,12 @@ package com.minecolonies.api.entity.citizen.citizenhandlers;
 public interface ICitizenExperienceHandler
 {
     /**
-     * Updates the level of the citizen.
+     * Updates the World of the citizen.
      */
     void updateLevel();
 
     /**
-     * Add experience points to citizen. Increases the citizen level if he has sufficient experience. This will reset the experience.
+     * Add experience points to citizen. Increases the citizen World if he has sufficient experience. This will reset the experience.
      *
      * @param xp the amount of points added.
      */
@@ -24,3 +24,4 @@ public interface ICitizenExperienceHandler
      */
     void gatherXp();
 }
+

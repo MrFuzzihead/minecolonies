@@ -1,7 +1,31 @@
 package com.minecolonies.core.client.gui.modules.building;
 
-import com.ldtteam.blockui.controls.*;
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
+import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
+import com.ldtteam.blockui.controls.DropDownList;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
+import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.controls.TextField;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
+import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
 import com.ldtteam.blockui.views.View;
+import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.controls.ItemIcon;
+import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.View;
+import net.minecraft.world.entity.EntityType;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.util.Tuple;
 import com.minecolonies.api.util.constant.Constants;
@@ -12,10 +36,10 @@ import com.minecolonies.core.client.gui.citizen.CitizenWindowUtils;
 import com.minecolonies.core.colony.buildings.modules.expedition.ExpeditionLog;
 import com.minecolonies.core.colony.buildings.moduleviews.ExpeditionLogModuleView;
 import com.minecolonies.core.network.messages.server.colony.building.MarkBuildingDirtyMessage;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -61,8 +85,8 @@ public class ExpeditionLogModuleWindow extends AbstractModuleWindow<ExpeditionLo
     {
         final ExpeditionLog expeditionLog = moduleView.getLog();
 
-        findPaneOfTypeByID(WINDOW_ID_NAME, Text.class).setText(Component.literal(Objects.requireNonNullElse(expeditionLog.getName(), "")));
-        findPaneOfTypeByID("status", Text.class).setText(Component.translatable(TranslationConstants.PARTIAL_EXPEDITION_STATUS + expeditionLog.getStatus().name().toLowerCase(Locale.US)));
+        findPaneOfTypeByID(WINDOW_ID_NAME, Text.class).setText(String.literal(Objects.requireNonNullElse(expeditionLog.getName(), "")));
+        findPaneOfTypeByID("status", Text.class).setText(String.translatable(TranslationConstants.PARTIAL_EXPEDITION_STATUS + expeditionLog.getStatus().name().toLowerCase(Locale.US)));
 
         final Gradient bg = findPaneOfTypeByID("resourcesbg", Gradient.class);
         if (expeditionLog.getStatus().equals(ExpeditionLog.Status.KILLED))
@@ -200,3 +224,5 @@ public class ExpeditionLogModuleWindow extends AbstractModuleWindow<ExpeditionLo
         clearChildren(lootView, size);
     }
 }
+
+

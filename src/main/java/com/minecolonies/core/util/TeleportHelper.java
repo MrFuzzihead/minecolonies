@@ -6,13 +6,13 @@ import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.EntityUtils;
 import com.minecolonies.api.util.MessageUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.level.TicketType;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.world.WorldServer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.server.World.TicketType;
+import net.minecraft.world.World.ChunkPos;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.translation.CommandTranslationConstants.COMMAND_COLONY_ID_NOT_FOUND;
@@ -33,14 +33,14 @@ public final class TeleportHelper
         // Intentionally left empty.
     }
 
-    public static boolean teleportCitizen(final AbstractEntityCitizen citizen, final Level world, final BlockPos location)
+    public static boolean teleportCitizen(final AbstractEntityCitizen citizen, final World world, final int[] location)
     {
         if (citizen == null || world == null || world.isClientSide)
         {
             return false;
         }
 
-        final BlockPos spawnPoint = EntityUtils.getSpawnPoint(world, location);
+        final int[] spawnPoint = EntityUtils.getSpawnPoint(world, location);
         if (spawnPoint == null)
         {
             return false;
@@ -67,7 +67,7 @@ public final class TeleportHelper
      *
      * @param player the player to teleport home.
      */
-    public static void homeTeleport(@NotNull final ServerPlayer player)
+    public static void homeTeleport(@NotNull final EntityPlayerMP player)
     {
         final IColony colony = IColonyManager.getInstance().getIColonyByOwner(player.getCommandSenderWorld(), player);
         if (colony == null)
@@ -82,10 +82,10 @@ public final class TeleportHelper
     /**
      * Teleports the player to the nearest safe surface location above their current location
      */
-    public static void surfaceTeleport(@NotNull final ServerPlayer player)
+    public static void surfaceTeleport(@NotNull final EntityPlayerMP player)
     {
-        BlockPos position = BlockPos.containing(player.getX(), 250, player.getZ()); //start at current position
-        final ServerLevel world = (ServerLevel) player.level;
+        int[] position = new int[]{(int)player.posX, 250, (int)player.posZ}; //start at current position
+        final ServerLevel world = (ServerLevel) player.World;
 
         position = BlockPosUtil.findLand(position, world);
 
@@ -107,7 +107,7 @@ public final class TeleportHelper
      * @param player    the player to teleport.
      * @param id        the colony id.
      */
-    public static void colonyTeleportByID(@NotNull final ServerPlayer player, final int id, final ResourceKey<Level> dimension)
+    public static void colonyTeleportByID(@NotNull final EntityPlayerMP player, final int id, final int /* ResourceKey */ dimension)
     {
         final IColony colony = IColonyManager.getInstance().getColonyByDimension(id, dimension);
         if (colony == null)
@@ -125,7 +125,7 @@ public final class TeleportHelper
      * @param player the player to teleport.
      * @param colony the colony to teleport to.
      */
-    public static void colonyTeleport(@NotNull final ServerPlayer player, @NotNull final IColony colony)
+    public static void colonyTeleport(@NotNull final EntityPlayerMP player, @NotNull final IColony colony)
     {
         colonyTeleport(player, colony, null);
     }
@@ -137,9 +137,9 @@ public final class TeleportHelper
      * @param colony the colony to teleport to.
      * @param pos the preferred position to teleport to.
      */
-    public static void colonyTeleport(@NotNull final ServerPlayer player, @NotNull final IColony colony, final BlockPos pos)
+    public static void colonyTeleport(@NotNull final EntityPlayerMP player, @NotNull final IColony colony, final int[] pos)
     {
-        BlockPos position = pos;
+        int[] position = pos;
         if (pos == null)
         {
             if (colony.getServerBuildingManager().getTownHall() != null)
@@ -177,3 +177,6 @@ public final class TeleportHelper
         MessageUtils.format(COMMAND_TELEPORT_SUCCESS, colony.getName()).sendTo(player);
     }
 }
+
+
+

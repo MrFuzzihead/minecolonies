@@ -18,18 +18,18 @@ import com.minecolonies.core.colony.jobs.AbstractJobStructure;
 import com.minecolonies.core.entity.ai.workers.AbstractEntityAIStructure;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
 import com.minecolonies.core.util.WorkerUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.items.IItemHandler;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] tags removed
+import net.minecraft.util.MathHelper;
+// [1.7.10] int /* InteractionHand */ removed
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+import net.minecraft.world.block.Mirror;
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -84,7 +84,7 @@ public class BuildingStructureHandler<J extends AbstractJobStructure<?, J>, B ex
      * @param entityAIStructure the AI handling this structure.
      */
     public BuildingStructureHandler(
-      final Level world,
+      final World world,
         final IWorkOrder workOrder,
       final AbstractEntityAIStructure<J, B> entityAIStructure,
         final BuildingProgressStage[] stages)
@@ -165,11 +165,11 @@ public class BuildingStructureHandler<J extends AbstractJobStructure<?, J>, B ex
     }
 
     @Override
-    public void prePlacementLogic(final BlockPos worldPos, final BlockState blockState, final List<ItemStack> requiredItems)
+    public void prePlacementLogic(final int[] worldPos, final BlockState blockState, final List<ItemStack> requiredItems)
     {
         WorkerUtil.faceBlock(worldPos, structureAI.getWorker());
         //Move out of the way when placing blocks
-        structureAI.getWorker().setItemSlot(EquipmentSlot.MAINHAND, requiredItems.isEmpty() ? ItemStackUtils.EMPTY : requiredItems.get(0));
+        structureAI.getWorker().setItemSlot(null /* EquipmentSlot. */, requiredItems.isEmpty() ? ItemStackUtils.EMPTY : requiredItems.get(0));
 
         if (Mth.floor(structureAI.getWorker().getX()) == worldPos.getX()
               && Mth.abs(worldPos.getY() - (int) structureAI.getWorker().getY()) <= 1
@@ -179,20 +179,20 @@ public class BuildingStructureHandler<J extends AbstractJobStructure<?, J>, B ex
             EntityNavigationUtils.walkAwayFrom(structureAI.getWorker(), worldPos, 1, 1.0);
         }
 
-        structureAI.getWorker().swing(InteractionHand.MAIN_HAND);
+        structureAI.getWorker().swing(0 /* InteractionHand.MAIN_HAND */);
     }
 
     @Nullable
     @Override
-    public IItemHandler getInventory()
+    public net.minecraftforge.items.IItemHandler getInventory()
     {
         return structureAI.getWorker().getInventoryCitizen();
     }
 
     @Override
-    public void triggerSuccess(final BlockPos pos, final List<ItemStack> list, final boolean placement)
+    public void triggerSuccess(final int[] pos, final List<ItemStack> list, final boolean placement)
     {
-        final BlockPos worldPos = getProgressPosInWorld(pos);
+        final int[] worldPos = getProgressPosInWorld(pos);
         final BlockState state = getBluePrint().getBlockState(pos);
         if (building != null)
         {
@@ -213,15 +213,15 @@ public class BuildingStructureHandler<J extends AbstractJobStructure<?, J>, B ex
                   .getStatisticsManager()
                   .increment(BLOCKS_PLACED, structureAI.getWorker().getCitizenColonyHandler().getColonyOrRegister().getDay());
             }
-            
+
             BlockState blockStateForSound;
-            if (state.getBlock() == com.ldtteam.structurize.blocks.ModBlocks.blockSolidSubstitution.get()) 
+            if (state.getBlock() == com.ldtteam.structurize.blocks.ModBlocks.blockSolidSubstitution.get())
             {
                 // If the builder is placing a substitution block, use the sound of the substituted block
                 // fancyPlacement() could be checked here, but is always true for this Handler.
                 blockStateForSound = structureAI.getSolidSubstitution(pos);
             }
-            else 
+            else
             {
                 // If the block is not a substitution block, use the sound of the block itself
                 blockStateForSound = state;
@@ -236,7 +236,7 @@ public class BuildingStructureHandler<J extends AbstractJobStructure<?, J>, B ex
     }
 
     @Override
-    public void triggerEntitySuccess(final BlockPos blockPos, final List<ItemStack> list, final boolean placement)
+    public void triggerEntitySuccess(final int[] blockPos, final List<ItemStack> list, final boolean placement)
     {
         if (placement)
         {
@@ -324,13 +324,13 @@ public class BuildingStructureHandler<J extends AbstractJobStructure<?, J>, B ex
     }
 
     @Override
-    public BlockState getSolidBlockForPos(final BlockPos blockPos)
+    public BlockState getSolidBlockForPos(final int[] blockPos)
     {
         return structureAI.getSolidSubstitution(blockPos);
     }
 
     @Override
-    public BlockState getSolidBlockForPos(final BlockPos worldPos, @Nullable final Function<BlockPos, BlockState> virtualBlocks)
+    public BlockState getSolidBlockForPos(final int[] worldPos, @Nullable final Function<int[], BlockState> virtualBlocks)
     {
         return structureAI.getSolidSubstitution(worldPos);
     }
@@ -353,3 +353,10 @@ public class BuildingStructureHandler<J extends AbstractJobStructure<?, J>, B ex
         return false;
     }
 }
+
+
+
+
+
+
+

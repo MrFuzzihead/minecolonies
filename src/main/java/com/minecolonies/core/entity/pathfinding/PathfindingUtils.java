@@ -11,24 +11,24 @@ import com.minecolonies.api.util.ShapeUtil;
 import com.minecolonies.core.Network;
 import com.minecolonies.core.entity.pathfinding.world.CachingBlockLookup;
 import com.minecolonies.core.network.messages.client.SyncPathReachedMessage;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.Half;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.VoxelShape;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
+import net.minecraft.entity.player.EntityPlayerMP;
+// [1.7.10] tags removed
+import net.minecraft.util.MathHelper;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
+import net.minecraft.world.World.LevelReader;
+import net.minecraft.block.*;
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] block import removed
+// [1.7.10] World.material removed
+// [1.7.10] World.material removed
+// [1.7.10] World.material removed
+// [1.7.10] world.phys removed
+// [1.7.10] world.phys removed
+// [1.7.10] world.phys removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,7 +58,7 @@ public class PathfindingUtils
      * @param reached the reached blocks.
      * @param players the tracking players.
      */
-    public static void syncDebugReachedPositions(final HashSet<BlockPos> reached, final List<ServerPlayer> players)
+    public static void syncDebugReachedPositions(final HashSet<int[]> reached, final List<EntityPlayerMP> players)
     {
         if (reached.isEmpty() || players.isEmpty())
         {
@@ -67,7 +67,7 @@ public class PathfindingUtils
 
         final SyncPathReachedMessage message = new SyncPathReachedMessage(reached);
 
-        for (final ServerPlayer player : players)
+        for (final EntityPlayerMP player : players)
         {
             Network.getNetwork().sendToPlayer(message, player);
         }
@@ -81,24 +81,22 @@ public class PathfindingUtils
      * @param entity Entity for the pathfinding operation.
      * @return ChunkCoordinates for starting location.
      */
-    public static BlockPos prepareStart(@NotNull final LivingEntity entity)
+    public static int[] prepareStart(@NotNull final EntityLivingBase entity)
     {
-        final BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(Mth.floor(entity.getX()),
-            Mth.floor(entity.getY()),
-            Mth.floor(entity.getZ()));
-        final Level level = entity.level;
-        BlockState bs = level.getBlockState(pos);
+        final int[] pos = new int[]{(int)entity.posX, (int)entity.posY, (int)entity.posZ};
+        final World World = entity.World;
+        BlockState bs = World.getBlockState(pos);
         final Block b = bs.getBlock();
 
         // Check if the entity is standing ontop of another block with part of its bb
-        final BlockPos.MutableBlockPos below = new BlockPos.MutableBlockPos(pos.getX(), pos.getY() - 1, pos.getZ());
+        final int[] below = new int[]{pos[0], pos[1] - 1, pos[2]};
         if (b instanceof CarpetBlock || b instanceof FloatingCarpetBlock || b instanceof WaterlilyBlock)
         {
             return pos.above().immutable();
         }
 
-        final BlockState belowState = level.getBlockState(below);
-        if (entity.onGround() && SurfaceType.getSurfaceType(level, belowState, below) != SurfaceType.WALKABLE)
+        final BlockState belowState = World.getBlockState(below);
+        if (entity.onGround() && SurfaceType.getSurfaceType(World, belowState, below) != SurfaceType.WALKABLE)
         {
             int minX = Mth.floor(entity.getBoundingBox().minX);
             int minZ = Mth.floor(entity.getBoundingBox().minZ);
@@ -109,11 +107,11 @@ public class PathfindingUtils
             {
                 for (int z = minZ; z <= maxZ; z++)
                 {
-                    final BlockPos toCheck = new BlockPos(x, below.getY(), z);
+                    final int[] toCheck = new int[]{x, below[1], z};
                     // Only check other positions than the current
-                    if ((x != pos.getX() || z != pos.getZ())
-                        && SurfaceType.getSurfaceType(level, level.getBlockState(toCheck), toCheck) == SurfaceType.WALKABLE
-                        && Math.abs(ShapeUtil.max(level.getBlockState(toCheck).getCollisionShape(level, toCheck), Direction.Axis.Y) + toCheck.getY() - entity.getY()) < 0.1)
+                    if ((x != pos[0] || z != pos[2])
+                        && SurfaceType.getSurfaceType(World, World.getBlockState(toCheck), toCheck) == SurfaceType.WALKABLE
+                        && Math.abs(ShapeUtil.max(World.getBlockState(toCheck).getCollisionShape(World, toCheck), Direction.Axis.Y) + toCheck.getY() - entity.getY()) < 0.1)
                     {
                         pos.setX(x);
                         pos.setZ(z);
@@ -125,7 +123,7 @@ public class PathfindingUtils
         }
 
         // 1 Up when we're standing within this collision shape
-        final VoxelShape collisionShape = bs.getCollisionShape(level, pos);
+        final VoxelShape collisionShape = bs.getCollisionShape(World, pos);
         final boolean isFineToStandIn = canStandInSolidBlock(bs);
         if (bs.blocksMotion() && !isFineToStandIn && collisionShape.max(Direction.Axis.Y) > 0)
         {
@@ -138,21 +136,21 @@ public class PathfindingUtils
                     && relPosZ >= box.minZ && relPosZ <= box.maxZ
                     && box.maxY > 0)
                 {
-                    pos.set(pos.getX(), pos.getY() + 1, pos.getZ());
-                    bs = level.getBlockState(pos);
+                    pos.set(pos[0], pos[1] + 1, pos[2]);
+                    bs = World.getBlockState(pos);
                     break;
                 }
             }
         }
 
-        BlockState down = level.getBlockState(pos.below());
-        while (canStandInSolidBlock(bs) && canStandInSolidBlock(down) && !down.getBlock().isLadder(down, level, pos.below(), entity) && down.getFluidState().isEmpty())
+        BlockState down = World.getBlockState(pos.below());
+        while (canStandInSolidBlock(bs) && canStandInSolidBlock(down) && !down.getBlock().isLadder(down, World, pos.below(), entity) && down.getFluidState().isEmpty())
         {
             pos.move(Direction.DOWN, 1);
             bs = down;
-            down = level.getBlockState(pos.below());
+            down = World.getBlockState(pos.below());
 
-            if (pos.getY() < entity.getCommandSenderWorld().getMinBuildHeight())
+            if (pos[1] < entity.getCommandSenderWorld().getMinBuildHeight())
             {
                 return entity.blockPosition();
             }
@@ -162,13 +160,13 @@ public class PathfindingUtils
         {
             while (!bs.getFluidState().isEmpty())
             {
-                pos.set(pos.getX(), pos.getY() + 1, pos.getZ());
-                bs = level.getBlockState(pos);
+                pos.set(pos[0], pos[1] + 1, pos[2]);
+                bs = World.getBlockState(pos);
             }
         }
         else if (b instanceof FenceBlock || b instanceof WallBlock || b instanceof AbstractBlockMinecoloniesDefault || (bs.blocksMotion() && !canStandInSolidBlock(bs)))
         {
-            final VoxelShape shape = bs.getCollisionShape(level, pos);
+            final VoxelShape shape = bs.getCollisionShape(World, pos);
             if (shape.isEmpty())
             {
                 return pos.immutable();
@@ -182,11 +180,11 @@ public class PathfindingUtils
 
             if (Math.abs(dX) < Math.abs(dZ))
             {
-                pos.set(pos.getX(), pos.getY(), dZ < 0 ? pos.getZ() - 1 : pos.getZ() + 1);
+                pos.set(pos[0], pos[1], dZ < 0 ? pos[2] - 1 : pos[2] + 1);
             }
             else
             {
-                pos.set(dX < 0 ? pos.getX() - 1 : pos.getX() + 1, pos.getY(), pos.getZ());
+                pos.set(dX < 0 ? pos[0] - 1 : pos[0] + 1, pos[1], pos[2]);
             }
         }
 
@@ -217,7 +215,7 @@ public class PathfindingUtils
      * @param pos   the position.
      * @param p     the path.
      */
-    public static void setLadderFacing(@NotNull final LevelReader world, final BlockPos pos, @NotNull final PathPointExtended p)
+    public static void setLadderFacing(@NotNull final LevelReader world, final int[] pos, @NotNull final PathPointExtended p)
     {
         final BlockState state = world.getBlockState(pos);
         final Block block = state.getBlock();
@@ -267,7 +265,7 @@ public class PathfindingUtils
      * @param pos the pos in the world.
      * @return true if so.
      */
-    public static boolean isWater(@NotNull final BlockGetter world, final BlockPos pos)
+    public static boolean isWater(@NotNull final BlockGetter world, final int[] pos)
     {
         return isWater(world, pos, null, null);
     }
@@ -280,7 +278,7 @@ public class PathfindingUtils
      * @param pFluidState existing fluidstate or null
      * @return true if so.
      */
-    public static boolean isWater(@NotNull final BlockGetter world, final BlockPos pos, @Nullable BlockState pState, @Nullable FluidState pFluidState)
+    public static boolean isWater(@NotNull final BlockGetter world, final int[] pos, @Nullable BlockState pState, @Nullable FluidState pFluidState)
     {
         BlockState state = pState;
         if (state == null)
@@ -326,7 +324,7 @@ public class PathfindingUtils
      * @param pFluidState existing fluidstate or null
      * @return true if so.
      */
-    public static boolean isLava(@NotNull final BlockGetter world, final BlockPos pos, @Nullable BlockState pState, @Nullable FluidState pFluidState)
+    public static boolean isLava(@NotNull final BlockGetter world, final int[] pos, @Nullable BlockState pState, @Nullable FluidState pFluidState)
     {
         BlockState state = pState;
         if (state == null)
@@ -575,3 +573,8 @@ public class PathfindingUtils
         return Math.abs(a - b) < 0.000005;
     }
 }
+
+
+
+
+

@@ -8,8 +8,8 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.colony.jobs.JobDruid;
 import com.minecolonies.core.colony.jobs.JobKnight;
 import com.minecolonies.core.colony.jobs.JobRanger;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.DeferredRegister;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] registries removed
 
 import static com.minecolonies.api.util.constant.translation.JobTranslationConstants.*;
 
@@ -58,3 +58,5 @@ public final class ModGuardTypesInitializer
           .createGuardType());
     }
 }
+
+

@@ -3,13 +3,13 @@ package com.minecolonies.core.client.gui;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.huts.WindowHutBuilderModule;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 import static com.minecolonies.api.util.constant.WindowConstants.GUIDE_CLOSE;
 import static com.minecolonies.api.util.constant.WindowConstants.GUIDE_CONFIRM;
 
 /**
- * BOWindow for the builder hut.
+ * Object (BOWindow: todo ModularUI2 removed) for the builder hut.
  */
 public class WindowHutGuide extends AbstractWindowSkeleton
 {
@@ -40,3 +40,6 @@ public class WindowHutGuide extends AbstractWindowSkeleton
         new WindowHutBuilderModule(building, false).open();
     }
 }
+
+
+

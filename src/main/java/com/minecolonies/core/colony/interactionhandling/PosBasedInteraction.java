@@ -9,9 +9,9 @@ import com.minecolonies.api.colony.interactionhandling.InteractionValidatorRegis
 import com.minecolonies.api.colony.interactionhandling.ModInteractionResponseHandlers;
 import com.minecolonies.api.util.Tuple;
 import com.minecolonies.api.util.WorldUtil;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
+import net.minecraft.nbt.NBTTagCompound;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -28,21 +28,21 @@ public class PosBasedInteraction extends ServerCitizenInteraction
     private static final String POS_TAG = "pos";
 
     @SuppressWarnings("unchecked")
-    private static final Tuple<Component, Component>[] responses = (Tuple<Component, Component>[]) new Tuple[] {
-      new Tuple<>(Component.translatable(INTERACTION_R_OKAY), null),
-      new Tuple<>(Component.translatable(INTERACTION_R_IGNORE), null),
-      new Tuple<>(Component.translatable(INTERACTION_R_REMIND), null),
-      new Tuple<>(Component.translatable(INTERACTION_R_SKIP), null)};
+    private static final Tuple<String, String>[] responses = (Tuple<String, String>[]) new Tuple[] {
+      new Tuple<>(String.translatable(INTERACTION_R_OKAY), null),
+      new Tuple<>(String.translatable(INTERACTION_R_IGNORE), null),
+      new Tuple<>(String.translatable(INTERACTION_R_REMIND), null),
+      new Tuple<>(String.translatable(INTERACTION_R_SKIP), null)};
 
     /**
      * The position this is related to.
      */
-    private BlockPos pos = null;
+    private int[] pos = null;
 
     /**
      * Specific validator for this one.
      */
-    private BiPredicate<ICitizenData, BlockPos> validator;
+    private BiPredicate<ICitizenData, int[]> validator;
 
     /**
      * The server interaction response handler.
@@ -53,10 +53,10 @@ public class PosBasedInteraction extends ServerCitizenInteraction
      * @param validator the validator id.
      */
     public PosBasedInteraction(
-      final Component inquiry,
+      final String inquiry,
       final IChatPriority priority,
-      final Component validator,
-      final BlockPos pos)
+      final String validator,
+      final int[] pos)
     {
         super(inquiry, true, priority, null, validator, responses);
         this.validator = InteractionValidatorRegistry.getPosBasedInteractionValidatorPredicate(validator);
@@ -71,9 +71,9 @@ public class PosBasedInteraction extends ServerCitizenInteraction
      * @param pos      the pos this is related to.
      */
     public PosBasedInteraction(
-      final Component inquiry,
+      final String inquiry,
       final IChatPriority priority,
-      final BlockPos pos)
+      final int[] pos)
     {
         super(inquiry, true, priority, null, inquiry, responses);
         this.validator = InteractionValidatorRegistry.getPosBasedInteractionValidatorPredicate(inquiry);
@@ -111,15 +111,15 @@ public class PosBasedInteraction extends ServerCitizenInteraction
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag tag = super.serializeNBT();
-        BlockPosUtil.writeToNBT(tag, POS_TAG, pos);
-        return tag;
+        final NBTTagCompound NBTBase = super.serializeNBT();
+        BlockPosUtil.writeToNBT(NBTBase, POS_TAG, pos);
+        return NBTBase;
     }
 
     @Override
-    public void deserializeNBT(@NotNull final CompoundTag compoundNBT)
+    public void deserializeNBT(@NotNull final NBTTagCompound compoundNBT)
     {
         super.deserializeNBT(compoundNBT);
         this.pos = BlockPosUtil.readFromNBT(compoundNBT, POS_TAG);
@@ -137,3 +137,6 @@ public class PosBasedInteraction extends ServerCitizenInteraction
         return ModInteractionResponseHandlers.POS.getPath();
     }
 }
+
+
+

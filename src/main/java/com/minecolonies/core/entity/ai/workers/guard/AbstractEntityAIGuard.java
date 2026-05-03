@@ -33,14 +33,14 @@ import com.minecolonies.core.entity.other.SittingEntity;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
 import com.minecolonies.core.network.messages.client.SleepingParticleMessage;
 import com.minecolonies.core.util.TeleportHelper;
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.registries.ForgeRegistries;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.MathHelper;
+// [1.7.10] int /* InteractionHand */ removed
+// [1.7.10] effect removed
+// [1.7.10] effect removed
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.ref.WeakReference;
@@ -93,12 +93,12 @@ public abstract class AbstractEntityAIGuard<J extends AbstractJobGuard<J>, B ext
     /**
      * The current target for our guard.
      */
-    protected LivingEntity target = null;
+    protected EntityLivingBase target = null;
 
     /**
-     * The current blockPos we're patrolling at.
+     * The current int[] we're patrolling at.
      */
-    protected BlockPos currentPatrolPoint = null;
+    protected int[] currentPatrolPoint = null;
 
     /**
      * The guard building assigned to this job.
@@ -163,7 +163,7 @@ public abstract class AbstractEntityAIGuard<J extends AbstractJobGuard<J>, B ext
     /**
      * The last position a guard did some guard task on
      */
-    private BlockPos lastGuardActionPos;
+    private int[] lastGuardActionPos;
 
     public AbstractEntityAIGuard(@NotNull final J job)
     {
@@ -254,7 +254,7 @@ public abstract class AbstractEntityAIGuard<J extends AbstractJobGuard<J>, B ext
         }
         else
         {
-            worker.swing(InteractionHand.OFF_HAND);
+            worker.swing(1 /* InteractionHand.OFF_HAND */);
             sleepingCitizen.hurt(world.damageSources().source(DamageSourceKeys.WAKEY, this.worker), 1);
             sleepingCitizen.setLastHurtByMob(worker);
             return CombatAIStates.NO_TARGET;
@@ -277,7 +277,7 @@ public abstract class AbstractEntityAIGuard<J extends AbstractJobGuard<J>, B ext
 
         final double chance = 1 / (1 + worker.getCitizenColonyHandler().getColonyOrRegister().getResearchManager().getResearchEffects().getEffectStrength(SLEEP_LESS));
 
-        // Chance to fall asleep every 10sec, Chance is 1 in (10 + level/2) = 1 in Level1:5,Level2:6 Level6:8 Level 12:11 etc
+        // Chance to fall asleep every 10sec, Chance is 1 in (10 + World/2) = 1 in Level1:5,Level2:6 Level6:8 World 12:11 etc
         if (worker.getRandom().nextInt((int) (worker.getCitizenData().getCitizenSkillHandler().getLevel(Skill.Adaptability) * 0.5) + 20) == 1
               && worker.getRandom().nextDouble() < chance)
         {
@@ -498,9 +498,9 @@ public abstract class AbstractEntityAIGuard<J extends AbstractJobGuard<J>, B ext
 
     /**
      * Provides a random patrol point from all buildings in the colony when the guard is set to automatic patrol mode.
-     * @return a BlockPos of the patrol point.
+     * @return a int[] of the patrol point.
      */
-    protected BlockPos randomPatrolPoint()
+    protected int[] randomPatrolPoint()
     {
         return buildingGuards.getColony().getServerBuildingManager().getRandomBuilding(b -> true);
     }
@@ -563,14 +563,14 @@ public abstract class AbstractEntityAIGuard<J extends AbstractJobGuard<J>, B ext
                 if (building instanceof BuildingMiner)
                 {
                     final BuildingMiner buildingMiner = (BuildingMiner) building;
-                    final MinerLevel level = buildingMiner.getModule(BuildingModules.MINER_LEVELS).getCurrentLevel();
-                    if (level == null)
+                    final MinerLevel World = buildingMiner.getModule(BuildingModules.MINER_LEVELS).getCurrentLevel();
+                    if (World == null)
                     {
                         setNextPatrolTarget(buildingMiner.getPosition());
                     }
                     else
                     {
-                        setNextPatrolTarget(level.getRandomCompletedNode(buildingMiner));
+                        setNextPatrolTarget(World.getRandomCompletedNode(buildingMiner));
                     }
                 }
                 else
@@ -591,7 +591,7 @@ public abstract class AbstractEntityAIGuard<J extends AbstractJobGuard<J>, B ext
      *
      * @param target the next patrol target.
      */
-    private void setNextPatrolTarget(final BlockPos target)
+    private void setNextPatrolTarget(final int[] target)
     {
         currentPatrolPoint = target;
     }
@@ -601,7 +601,7 @@ public abstract class AbstractEntityAIGuard<J extends AbstractJobGuard<J>, B ext
      *
      * @return
      */
-    public BlockPos getCurrentPatrolPoint()
+    public int[] getCurrentPatrolPoint()
     {
         return currentPatrolPoint;
     }
@@ -628,7 +628,7 @@ public abstract class AbstractEntityAIGuard<J extends AbstractJobGuard<J>, B ext
      *
      * @param attacker the citizens attacker.
      */
-    public void startHelpCitizen(final LivingEntity attacker)
+    public void startHelpCitizen(final EntityLivingBase attacker)
     {
         if (canHelp(attacker.blockPosition()))
         {
@@ -643,7 +643,7 @@ public abstract class AbstractEntityAIGuard<J extends AbstractJobGuard<J>, B ext
      * @param pos
      * @return true if not fighting/helping already
      */
-    public boolean canHelp(final BlockPos pos)
+    public boolean canHelp(final int[] pos)
     {
         if ((getState() == CombatAIStates.NO_TARGET || getState() == GUARD_SLEEP) && canBeInterrupted())
         {
@@ -728,7 +728,7 @@ public abstract class AbstractEntityAIGuard<J extends AbstractJobGuard<J>, B ext
      * @param entityPos the position to check.
      * @return true if so.
      */
-    public boolean isWithinPersecutionDistance(final BlockPos entityPos, final double attackRange)
+    public boolean isWithinPersecutionDistance(final int[] entityPos, final double attackRange)
     {
         return BlockPosUtil.getDistanceSquared(getTaskReferencePoint(), entityPos) <= Math.pow(getPersecutionDistance() + attackRange, 2);
     }
@@ -738,7 +738,7 @@ public abstract class AbstractEntityAIGuard<J extends AbstractJobGuard<J>, B ext
      *
      * @return the position depending ont he task.
      */
-    private BlockPos getTaskReferencePoint()
+    private int[] getTaskReferencePoint()
     {
         switch (buildingGuards.getTask())
         {
@@ -811,7 +811,7 @@ public abstract class AbstractEntityAIGuard<J extends AbstractJobGuard<J>, B ext
      * @param entity
      * @return
      */
-    public static boolean isAttackableTarget(final AbstractEntityCitizen user, final LivingEntity entity)
+    public static boolean isAttackableTarget(final AbstractEntityCitizen user, final EntityLivingBase entity)
     {
         if (IColonyManager.getInstance().getCompatibilityManager().getAllMonsters().contains(ForgeRegistries.ENTITY_TYPES.getKey(entity.getType())) && !user.getCitizenData()
                                                                                                                                                           .getWorkBuilding()
@@ -849,3 +849,8 @@ public abstract class AbstractEntityAIGuard<J extends AbstractJobGuard<J>, B ext
         return false;
     }
 }
+
+
+
+
+

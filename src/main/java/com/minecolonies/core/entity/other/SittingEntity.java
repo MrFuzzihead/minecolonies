@@ -4,258 +4,140 @@ import com.minecolonies.api.entity.ModEntities;
 import com.minecolonies.api.entity.other.AbstractFastMinecoloniesEntity;
 import com.minecolonies.api.util.EntityUtils;
 import com.minecolonies.api.util.LookHandler;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.StairBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.NetworkHooks;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityCreature;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.DamageSource;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.List;
 
 /**
  * Entity used to sit on, for animation purposes.
  */
 public class SittingEntity extends Entity
 {
-    /**
-     * The lifetime in ticks of the entity, auto-dismounts after.
-     */
     int maxLifeTime = 100;
-    private BlockPos sittingpos = BlockPos.ZERO;
+    private int[] sittingpos = new int[]{0, 0, 0};
 
-    /**
-     * Set to track sitting entities in the world.
-     */
-    private static Map<ResourceKey<Level>, Set<BlockPos>> existingSittingEntities = new HashMap<>();
+    /** [1.7.10] dimension keyed by int dimensionId */
+    private static Map<Integer, Set<int[]>> existingSittingEntities = new HashMap<>();
 
-    public SittingEntity(final EntityType<?> type, final Level worldIn)
+    public SittingEntity(final World worldIn)
     {
-        super(type, worldIn);
-
+        super(worldIn);
         this.setInvisible(true);
-        this.noPhysics = true;
-        this.setNoGravity(true);
+        this.noClip = true;
+        this.gravityActive = false;
     }
 
-    public SittingEntity(final EntityType<?> type, final Level worldIn, double x, double y, double z, int lifeTime)
+    public SittingEntity(final World worldIn, final double x, final double y, final double z, final int lifeTime)
     {
-        super(type, worldIn);
-
-        this.setPos(x, y, z);
-
+        super(worldIn);
+        this.setPosition(x, y, z);
         this.setInvisible(true);
-        this.noPhysics = true;
-        this.setNoGravity(true);
+        this.noClip = true;
+        this.gravityActive = false;
         this.maxLifeTime = lifeTime;
     }
 
-    /**
-     * Do not let the entity be destroyed
-     */
-    public boolean hurt(DamageSource source, float amount)
-    {
-        return false;
-    }
-
-    /**
-     * No Collision
-     */
-    public boolean isPickable()
+    @Override
+    public boolean attackEntityFrom(final DamageSource source, final float amount)
     {
         return false;
     }
 
     @Override
-    protected void readAdditionalSaveData(final CompoundTag compound)
+    public boolean canBeCollidedWith()
     {
-
+        return false;
     }
 
     @Override
-    protected void addAdditionalSaveData(final CompoundTag compound)
-    {
+    protected void readEntityFromNBT(final NBTTagCompound compound) {}
 
+    @Override
+    protected void writeEntityToNBT(final NBTTagCompound compound) {}
+
+    @Override
+    protected void entityInit() {}
+
+    @Override
+    public void setDead()
+    {
+        super.setDead();
+        existingSittingEntities.getOrDefault(worldObj.provider.dimensionId, new HashSet<>()).remove(sittingpos);
     }
 
     @Override
-    public Packet<ClientGamePacketListener> getAddEntityPacket()
+    public void onUpdate()
     {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    @Override
-    protected void defineSynchedData()
-    {
-
-    }
-
-    @Override
-    public void remove(final RemovalReason removalReason)
-    {
-        super.remove(removalReason);
-        existingSittingEntities.getOrDefault(level.dimension(), new HashSet<>()).remove(sittingpos);
-    }
-
-    @Override
-    public void tick()
-    {
-        if (this.level.isClientSide)
+        if (this.worldObj.isRemote)
         {
             return;
         }
 
-        if (!this.isVehicle() || maxLifeTime-- < 0)
+        // [1.7.10] isVehicle() → riddenByEntity != null
+        if (this.riddenByEntity == null || maxLifeTime-- < 0)
         {
-            // Upsizes entity again
-
-            if (getPassengers().size() > 0)
+            if (riddenByEntity != null)
             {
-                this.ejectPassengers();
+                riddenByEntity.mountEntity(null);
             }
-
-            this.remove(Entity.RemovalReason.DISCARDED);
+            this.setDead();
         }
     }
 
-    @Override
-    protected void addPassenger(Entity passenger)
-    {
-        super.addPassenger(passenger);
-        if (this.level.isClientSide)
-        {
-            return;
-        }
+    // [1.7.10] addPassenger/removePassenger don't exist; riding handled via mountEntity
 
-        passenger.dimensions = passenger.dimensions.scale(1.0f, 0.5f);
-    }
-
-    @Override
-    protected void removePassenger(Entity passenger)
-    {
-        super.removePassenger(passenger);
-        if (this.level.isClientSide)
-        {
-            return;
-        }
-
-        if (passenger instanceof LivingEntity)
-        {
-            passenger.dimensions = ((LivingEntity) passenger).isBaby() ? passenger.getType().getDimensions().scale(0.5f) : passenger.getType().getDimensions();
-        }
-    }
-
-    @NotNull
-    @Override
-    public Vec3 getDismountLocationForPassenger(@NotNull final LivingEntity passenger)
-    {
-        final BlockPos start = sittingpos == BlockPos.ZERO ? blockPosition().above() : sittingpos;
-        final BlockPos spawn = EntityUtils.getSpawnPoint(this.level, start);
-        if (spawn == null)
-        {
-            return super.getDismountLocationForPassenger(passenger);
-        }
-        return new Vec3(spawn.getX() + 0.5, spawn.getY() + 0.2, spawn.getZ() + 0.5);
-    }
-
-    /**
-     * Sets the lifetime
-     *
-     * @param maxLifeTime the max life span of the entity.
-     */
     public void setMaxLifeTime(final int maxLifeTime)
     {
         this.maxLifeTime = maxLifeTime;
     }
 
-    /**
-     * Sets the original block to sit "at" also used for standing up again.
-     *
-     * @param pos
-     */
-    public void setSittingPos(final BlockPos pos)
+    public void setSittingPos(final int[] pos)
     {
         sittingpos = pos;
     }
 
-    /**
-     * Check if the sitting position at the location is already occupied.
-     * @param pos the world pos to check.
-     * @param world the world it is in.
-     * @return true if sitting pos is occupied.
-     */
-    public static boolean isSittingPosOccupied(final BlockPos pos, final Level world)
+    public static boolean isSittingPosOccupied(final int[] pos, final World world)
     {
-        return existingSittingEntities.computeIfAbsent(world.dimension(), k -> new HashSet<>()).contains(pos);
+        return existingSittingEntities.computeIfAbsent(world.provider.dimensionId, k -> new HashSet<>()).contains(pos);
     }
 
     /**
-     * Makes the given entity sit down onto a new sitting entity
-     *
-     * @param pos         the position to sit at
-     * @param entity      entity to sit down
-     * @param maxLifeTime max time to sit
+     * Makes the given entity sit down onto a new sitting entity.
      */
-    public static boolean sitDown(final BlockPos pos, final Mob entity, final int maxLifeTime)
+    public static boolean sitDown(final int[] pos, final EntityCreature entity, final int maxLifeTime)
     {
-        if (entity.getVehicle() != null)
+        if (entity.ridingEntity != null)
         {
-            // Already riding an entity, abort
             return true;
         }
 
-        if (existingSittingEntities.getOrDefault(entity.level.dimension(), new HashSet<>()).contains(pos))
+        if (existingSittingEntities.getOrDefault(entity.worldObj.provider.dimensionId, new HashSet<>()).contains(pos))
         {
             return false;
         }
-        existingSittingEntities.computeIfAbsent(entity.level.dimension(), k -> new HashSet<>()).add(pos);
+        existingSittingEntities.computeIfAbsent(entity.worldObj.provider.dimensionId, k -> new HashSet<>()).add(pos);
 
-        final SittingEntity sittingEntity = (SittingEntity) ModEntities.SITTINGENTITY.create(entity.level);
+        final SittingEntity sittingEntity = new SittingEntity(entity.worldObj);
 
-        // Find the lowest box and sit on that
-        final BlockState state = entity.level.getBlockState(pos);
-        double minY = 1;
+        // [1.7.10] Block collision shape → use 1.0 default seat height; full shape API not available
+        double minY = 1.0;
+        // TODO: inspect block at pos to find lower collision box (stair, slab) for accurate sit height
 
-        final List<AABB> shapes = state.getCollisionShape(entity.level, pos).toAabbs();
-        for (final AABB box : shapes)
-        {
-            if (box.maxY < minY)
-            {
-                minY = box.maxY;
-            }
-        }
-
-        if (shapes.isEmpty())
-        {
-            minY = 0;
-        }
-
-        entity.getNavigation().stop();
-        sittingEntity.setPos(pos.getX() + 0.5, (pos.getY() + minY) - entity.getBbHeight() / 2 - 0.1, pos.getZ() + 0.5);
+        entity.getNavigator().clearPathEntity();
+        sittingEntity.setPosition(pos[0] + 0.5, (pos[1] + minY) - entity.height / 2 - 0.1, pos[2] + 0.5);
         sittingEntity.setMaxLifeTime(maxLifeTime);
         sittingEntity.setSittingPos(pos);
-        entity.level.addFreshEntity(sittingEntity);
-        entity.startRiding(sittingEntity);
+        entity.worldObj.spawnEntityInWorld(sittingEntity);
+        entity.mountEntity(sittingEntity);
 
-        if (state.getBlock() instanceof StairBlock && entity instanceof AbstractFastMinecoloniesEntity abstractFastMinecoloniesEntity)
-        {
-            final BlockPos lookAt = pos.relative(state.getValue(StairBlock.FACING).getOpposite()).above();
-            final LookHandler lookHandler = (LookHandler) abstractFastMinecoloniesEntity.getLookControl();
-            lookHandler.setLookAt(lookAt.getX(), lookAt.getY(), lookAt.getZ());
-            lookHandler.setLookAtCooldown(40);
-        }
+        // [1.7.10] StairBlock facing look-at — not yet ported
+        // TODO: check if block is a stair and set look direction
 
         return true;
     }

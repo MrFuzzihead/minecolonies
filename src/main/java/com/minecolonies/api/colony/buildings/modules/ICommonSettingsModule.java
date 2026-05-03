@@ -2,7 +2,7 @@ package com.minecolonies.api.colony.buildings.modules;
 
 import com.minecolonies.api.colony.buildings.modules.settings.ISetting;
 import com.minecolonies.api.colony.buildings.modules.settings.ISettingKey;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -34,5 +34,6 @@ public interface ICommonSettingsModule
      * @param value the value.
      * @param sender the player that updated the setting.
      */
-    void updateSetting(ISettingKey<?> settingKey, ISetting<?> value, final ServerPlayer sender);
+    void updateSetting(ISettingKey<?> settingKey, ISetting<?> value, final EntityPlayerMP sender);
 }
+

@@ -1,17 +1,17 @@
 package com.minecolonies.core.colony.buildings.modules.settings;
 
-import com.ldtteam.blockui.Pane;
-import com.ldtteam.blockui.controls.TextField;
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.buildings.modules.ICommonSettingsModule;
 import com.minecolonies.api.colony.buildings.modules.ISettingsModule;
 import com.minecolonies.api.colony.buildings.modules.settings.ISetting;
 import com.minecolonies.api.colony.buildings.modules.settings.ISettingKey;
 import com.minecolonies.api.colony.buildings.modules.settings.ISettingsModuleView;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.util.ResourceLocation;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 /**
  * Stores an integer setting.
@@ -73,49 +73,25 @@ public class IntSetting implements ISetting<Integer>
         return new ResourceLocation("minecolonies:gui/layouthuts/layoutintsetting.xml");
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void setupHandler(
       final ISettingKey<?> key,
-      final Pane pane,
+      final Object pane,
       final ICommonSettingsModule settingsModuleView,
-      final IBuildingView building, final BOWindow window)
+      final IBuildingView building, final Object /* BOWindow: todo ModularUI2 */ window)
     {
-        pane.findPaneOfTypeByID("trigger", TextField.class).setHandler(input -> {
-            try
-            {
-                if (input.getText().isEmpty())
-                {
-                    this.value = 0;
-                }
-                else
-                {
-                    this.value = Integer.parseInt(input.getText());
-                    settingsModuleView.trigger(key);
-                }
-            }
-            catch (final NumberFormatException ex)
-            {
-                //Noop
-            }
-        });
+        // [1.7.10] todo: ModularUI2 port
     }
 
     @Override
     public void render(
       final ISettingKey<?> key,
-      final Pane pane,
+      final Object pane,
       final ICommonSettingsModule settingsModuleView,
       final IBuildingView building,
-      final BOWindow window)
+      final Object /* BOWindow: todo ModularUI2 */ window)
     {
-        final TextField field = pane.findPaneOfTypeByID("trigger", TextField.class);
-        field.setEnabled(isActive((ISettingsModuleView) settingsModuleView));
-        setHoverPane(key, field, settingsModuleView);
-        if (!field.getText().equals(String.valueOf(this.value)))
-        {
-            field.setText(String.valueOf(value));
-        }
+        // [1.7.10] todo: ModularUI2 port
     }
 
     @Override
@@ -136,3 +112,6 @@ public class IntSetting implements ISetting<Integer>
         this.value = value;
     }
 }
+
+
+

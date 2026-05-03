@@ -3,10 +3,10 @@ package com.minecolonies.core.colony.managers;
 import com.minecolonies.api.colony.managers.interfaces.IStatisticsManager;
 import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -102,7 +102,7 @@ public class StatisticsManager implements IStatisticsManager
     }
 
     @Override
-    public void serialize(@NotNull final FriendlyByteBuf buf, final boolean fullSync)
+    public void serialize(@NotNull final PacketBuffer buf, final boolean fullSync)
     {
         buf.writeBoolean(fullSync);
         buf.writeVarInt(fullSync ? stats.size() : dirtyStats.size());
@@ -141,7 +141,7 @@ public class StatisticsManager implements IStatisticsManager
     }
 
     @Override
-    public void deserialize(@NotNull final FriendlyByteBuf buf)
+    public void deserialize(@NotNull final PacketBuffer buf)
     {
         final boolean fullSync = buf.readBoolean();
         if (fullSync)
@@ -166,18 +166,18 @@ public class StatisticsManager implements IStatisticsManager
     }
 
     @Override
-    public void writeToNBT(@NotNull final CompoundTag compound)
+    public void writeToNBT(@NotNull final NBTTagCompound compound)
     {
-        final ListTag statManagerNBT = new ListTag();
+        final NBTTagList statManagerNBT = new NBTTagList();
         for (final Map.Entry<String, Int2IntLinkedOpenHashMap> stat : stats.entrySet())
         {
-            final CompoundTag statCompound = new CompoundTag();
+            final NBTTagCompound statCompound = new NBTTagCompound();
             statCompound.putString(TAG_ID, stat.getKey());
 
-            final ListTag statNBT = new ListTag();
+            final NBTTagList statNBT = new NBTTagList();
             for (final Map.Entry<Integer, Integer> dailyStats : stat.getValue().entrySet())
             {
-                final CompoundTag timeStampTag = new CompoundTag();
+                final NBTTagCompound timeStampTag = new NBTTagCompound();
 
                 timeStampTag.putInt(TAG_TIME, dailyStats.getKey());
                 timeStampTag.putInt(TAG_QUANTITY, dailyStats.getValue());
@@ -193,23 +193,23 @@ public class StatisticsManager implements IStatisticsManager
     }
 
     @Override
-    public void readFromNBT(@NotNull final CompoundTag compound)
+    public void readFromNBT(@NotNull final NBTTagCompound compound)
     {
         stats.clear();
         if (compound.contains(TAG_STAT_MANAGER))
         {
-            final ListTag statsNbts = compound.getList(TAG_STAT_MANAGER, Tag.TAG_COMPOUND);
+            final NBTTagList statsNbts = compound.getList(TAG_STAT_MANAGER, NBTBase.TAG_COMPOUND);
             for (int i = 0; i < statsNbts.size(); i++)
             {
-                final CompoundTag statCompound = statsNbts.getCompound(i);
+                final NBTTagCompound statCompound = statsNbts.getCompound(i);
                 final String id = statCompound.getString(TAG_ID);
-                final ListTag timeStampNbts = statCompound.getList(TAG_STAT, Tag.TAG_COMPOUND);
+                final NBTTagList timeStampNbts = statCompound.getList(TAG_STAT, NBTBase.TAG_COMPOUND);
                 final Int2IntLinkedOpenHashMap timeStamps = new Int2IntLinkedOpenHashMap();
                 for (int j = 0; j < timeStampNbts.size(); j++)
                 {
-                    final CompoundTag compoundTag = timeStampNbts.getCompound(j);
-                    final int day = compoundTag.getInt(TAG_TIME);
-                    final int qty = compoundTag.getInt(TAG_QUANTITY);
+                    final NBTTagCompound NBTTagCompound = timeStampNbts.getCompound(j);
+                    final int day = NBTTagCompound.getInt(TAG_TIME);
+                    final int qty = NBTTagCompound.getInt(TAG_QUANTITY);
 
                     timeStamps.put(day, qty);
                 }
@@ -219,3 +219,7 @@ public class StatisticsManager implements IStatisticsManager
         }
     }
 }
+
+
+
+

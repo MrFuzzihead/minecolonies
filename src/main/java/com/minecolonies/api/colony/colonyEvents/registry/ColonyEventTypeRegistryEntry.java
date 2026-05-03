@@ -3,8 +3,8 @@ package com.minecolonies.api.colony.colonyEvents.registry;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.colonyEvents.IColonyEvent;
 import com.minecolonies.api.util.Log;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -18,7 +18,7 @@ public class ColonyEventTypeRegistryEntry
     /**
      * Function for creating the event objects.
      */
-    private final BiFunction<IColony, CompoundTag, IColonyEvent> eventCreator;
+    private final BiFunction<IColony, NBTTagCompound, IColonyEvent> eventCreator;
 
     /**
      * The registry id.
@@ -36,7 +36,7 @@ public class ColonyEventTypeRegistryEntry
      * @param eventCreator the event creator.
      * @param registryID   the registry id.
      */
-    public ColonyEventTypeRegistryEntry(@NotNull final BiFunction<IColony, CompoundTag, IColonyEvent> eventCreator, @NotNull final ResourceLocation registryID)
+    public ColonyEventTypeRegistryEntry(@NotNull final BiFunction<IColony, NBTTagCompound, IColonyEvent> eventCreator, @NotNull final ResourceLocation registryID)
     {
         this(eventCreator, registryID, false);
     }
@@ -49,7 +49,7 @@ public class ColonyEventTypeRegistryEntry
      * @param isRaidEvent  whether this is a raid event (must extend from IColonyRaidEvent)
      */
     public ColonyEventTypeRegistryEntry(
-        @NotNull final BiFunction<IColony, CompoundTag, IColonyEvent> eventCreator,
+        @NotNull final BiFunction<IColony, NBTTagCompound, IColonyEvent> eventCreator,
         @NotNull final ResourceLocation registryID,
         final boolean isRaidEvent)
     {
@@ -70,7 +70,7 @@ public class ColonyEventTypeRegistryEntry
      * @param compound the nbt to deserialize the event from.
      * @return the deserialized event.
      */
-    public IColonyEvent deserializeEvent(@Nonnull final IColony colony, @Nonnull final CompoundTag compound)
+    public IColonyEvent deserializeEvent(@Nonnull final IColony colony, @Nonnull final NBTTagCompound compound)
     {
         return eventCreator.apply(colony, compound);
     }
@@ -95,3 +95,5 @@ public class ColonyEventTypeRegistryEntry
         return isRaidEvent;
     }
 }
+
+

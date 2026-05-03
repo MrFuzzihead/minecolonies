@@ -3,12 +3,12 @@ package com.minecolonies.core.network.messages.server.colony;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.core.network.messages.server.AbstractColonyServerMessage;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.items.wrapper.InvWrapper;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+// [1.7.10] items shim in com.minecolonies.api.shim
 
 import static com.minecolonies.core.colony.buildings.workerbuildings.BuildingBarracks.SPIES_GOLD_COST;
 
@@ -27,9 +27,9 @@ public class HireSpiesMessage extends AbstractColonyServerMessage
     }
 
     @Override
-    protected void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony)
+    protected void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony)
     {
-        final Player player = ctxIn.getSender();
+        final Player player = ctx.getServerHandler().playerEntity;
         if (player == null)
         {
             return;
@@ -44,15 +44,18 @@ public class HireSpiesMessage extends AbstractColonyServerMessage
     }
 
     @Override
-    protected void toBytesOverride(final FriendlyByteBuf buf)
+    protected void toBytesOverride(final PacketBuffer buf)
     {
 
 
     }
 
     @Override
-    protected void fromBytesOverride(final FriendlyByteBuf buf)
+    protected void fromBytesOverride(final PacketBuffer buf)
     {
 
     }
 }
+
+
+

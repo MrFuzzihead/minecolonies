@@ -6,24 +6,13 @@ import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.OptionalPredicate;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.CraftingContainer;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.inventory.TransientCraftingContainer;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingRecipe;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.SmeltingRecipe;
-import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,8 +37,8 @@ public class GenericRecipe implements IGenericRecipe
         private Block intermediate = Blocks.AIR;
         private ResourceLocation   lootTable = null;
         private EquipmentTypeEntry requiredTool = ModEquipmentTypes.none.get();
-        private EntityType<?>      requiredEntity = null;
-        private Supplier<List<Component>> restrictions = List::of;
+        private Class /* EntityType */ <?>      requiredEntity = null;
+        private Supplier<List<String>> restrictions = List::of;
         private int levelSort = -1;
 
         /** Default constructor */
@@ -100,20 +89,15 @@ public class GenericRecipe implements IGenericRecipe
          * @param output the recipe output.
          * @return this
          */
-        public Builder withOutput(@NotNull final ItemLike output)
+        // [1.7.10] ItemLike replaced with Block
+        public Builder withOutput(@NotNull final Block output)
         {
             return withOutput(new ItemStack(output));
         }
 
-        /**
-         * Set the main output result of this recipe.
-         * @param output the recipe output.
-         * @param count the count.
-         * @return this
-         */
-        public Builder withOutput(@NotNull final ItemLike output, final int count)
+        public Builder withOutput(@NotNull final Block output, final int count)
         {
-            return withOutput(new ItemStack(output, count));
+            return withOutput(new ItemStack(output, count, 0));
         }
 
         /**
@@ -210,7 +194,7 @@ public class GenericRecipe implements IGenericRecipe
          * @param requiredEntity the entity type.
          * @return this
          */
-        public Builder withRequiredEntity(@Nullable EntityType<?> requiredEntity)
+        public Builder withRequiredEntity(@Nullable Class /* EntityType */ <?> requiredEntity)
         {
             this.requiredEntity = requiredEntity;
             return this;
@@ -223,9 +207,9 @@ public class GenericRecipe implements IGenericRecipe
          * @apiNote Each restriction is expected to be a translation key for the main JEI display, with
          *          an optional extra key with .tip suffix for a tooltip.  Both take the same parameters.
          */
-        public Builder withRestrictions(@NotNull List<Component> restrictions)
+        public Builder withRestrictions(@NotNull List<String> restrictions)
         {
-            final List<Component> fixedRestrictions = Collections.unmodifiableList(restrictions);
+            final List<String> fixedRestrictions = Collections.unmodifiableList(restrictions);
             return withRestrictions(() -> fixedRestrictions);
         }
 
@@ -236,7 +220,7 @@ public class GenericRecipe implements IGenericRecipe
          * @apiNote Each restriction is expected to be a translation key for the main JEI display, with
          *          an optional extra key with .tip suffix for a tooltip.  Both take the same parameters.
          */
-        public Builder withRestrictions(@NotNull Supplier<List<Component>> restrictions)
+        public Builder withRestrictions(@NotNull Supplier<List<String>> restrictions)
         {
             this.restrictions = restrictions;
             return this;
@@ -333,31 +317,11 @@ public class GenericRecipe implements IGenericRecipe
      * @param world the world.
      * @return the recipe, or null.
      */
+    // [1.7.10] Recipe API does not exist; stubbed to return null.
     @Nullable
-    public static IGenericRecipe of(@Nullable final Recipe<?> recipe, @NotNull final Level world)
+    public static IGenericRecipe of(@Nullable final Object recipe, @NotNull final World world)
     {
-        if (recipe == null) return null;
-
-        final List<List<ItemStack>> inputs = compactInputs(recipe.getIngredients().stream()
-                .map(ingredient -> Arrays.asList(ingredient.getItems()))
-                .toList());
-
-        final Builder builder = builder()
-                .withRecipeId(recipe.getId())
-                .withOutput(recipe.getResultItem(world.registryAccess()))
-                .withAdditionalOutputs(calculateSecondaryOutputs(recipe, world))
-                .withInputs(inputs);
-
-        if (recipe instanceof SmeltingRecipe)
-        {
-            builder.withGridSize(1).withIntermediate(Blocks.FURNACE);
-        }
-        else
-        {
-            builder.withGridSize(recipe.canCraftInDimensions(2, 2) ? 2 : 3);
-        }
-
-        return builder.build();
+        return null;
     }
 
     @Nullable
@@ -376,8 +340,8 @@ public class GenericRecipe implements IGenericRecipe
     private final Block intermediate;
     @Nullable private final ResourceLocation   lootTable;
     private final EquipmentTypeEntry requiredTool;
-    @Nullable private final EntityType<?>      requiredEntity;
-    private final Supplier<List<Component>> restrictions;
+    @Nullable private final Class /* EntityType */ <?>      requiredEntity;
+    private final Supplier<List<String>> restrictions;
     private final int levelSort;
 
     @Override
@@ -419,7 +383,7 @@ public class GenericRecipe implements IGenericRecipe
 
     @NotNull
     @Override
-    public Supplier<List<Component>> getRestrictions()
+    public Supplier<List<String>> getRestrictions()
     {
         return this.restrictions;
     }
@@ -481,7 +445,7 @@ public class GenericRecipe implements IGenericRecipe
 
     @Nullable
     @Override
-    public EntityType<?> getRequiredEntity()
+    public Class /* EntityType */ <?> getRequiredEntity()
     {
         return this.requiredEntity;
     }
@@ -500,44 +464,11 @@ public class GenericRecipe implements IGenericRecipe
         return result;
     }
 
+    // [1.7.10] Recipe/CraftingRecipe/CraftingContainer do not exist; stubbed.
     @NotNull
-    private static List<ItemStack> calculateSecondaryOutputs(@NotNull final Recipe<?> recipe,
-                                                             @Nullable final Level world)
+    private static List<ItemStack> calculateSecondaryOutputs(@NotNull final Object recipe,
+                                                             @Nullable final World world)
     {
-        if (recipe instanceof final CraftingRecipe craftingRecipe)
-        {
-            final List<Ingredient> inputs = recipe.getIngredients();
-            final CraftingContainer inv = new TransientCraftingContainer(new AbstractContainerMenu(MenuType.CRAFTING, 0)
-            {
-                @Override
-                public @NotNull ItemStack quickMoveStack(final @NotNull Player player, final int slot)
-                {
-                    return ItemStack.EMPTY;
-                }
-
-                @Override
-                public boolean stillValid(@NotNull final Player playerIn)
-                {
-                    return false;
-                }
-
-            }, 3, 3);
-            for (int slot = 0; slot < inputs.size(); ++slot)
-            {
-                final ItemStack[] stacks = inputs.get(slot).getItems();
-                if (stacks.length > 0)
-                {
-                    inv.setItem(slot, stacks[0].copy());
-                }
-            }
-            if (craftingRecipe.matches(inv, world))
-            {
-                return craftingRecipe.getRemainingItems(inv).stream()
-                        .filter(ItemStackUtils::isNotEmpty)
-                        .filter(stack -> stack.getItem() != buildTool.get())  // this is filtered out of the inputs too
-                        .collect(Collectors.toList());
-            }
-        }
         return Collections.emptyList();
     }
 
@@ -640,3 +571,6 @@ public class GenericRecipe implements IGenericRecipe
         }
     }
 }
+
+
+

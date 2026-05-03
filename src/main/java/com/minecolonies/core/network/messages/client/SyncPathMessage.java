@@ -3,11 +3,10 @@ package com.minecolonies.core.network.messages.client;
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.core.client.render.worldevent.PathfindingDebugRenderer;
 import com.minecolonies.core.entity.pathfinding.MNode;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
@@ -65,7 +64,7 @@ public class SyncPathMessage implements IMessage
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    public void toBytes(final PacketBuffer buf)
     {
         buf.writeInt(lastDebugNodesVisited.size());
         for (final MNode node : lastDebugNodesVisited)
@@ -105,7 +104,7 @@ public class SyncPathMessage implements IMessage
     }
 
     @Override
-    public void fromBytes(final FriendlyByteBuf buf)
+    public void fromBytes(final PacketBuffer buf)
     {
         int size = buf.readInt();
         for (int i = 0; i < size; i++)
@@ -146,14 +145,14 @@ public class SyncPathMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.CLIENT;
+        return Boolean.FALSE;
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
         PathfindingDebugRenderer.lastDebugNodesVisited = lastDebugNodesVisited;
         PathfindingDebugRenderer.lastDebugNodesNotVisited = lastDebugNodesNotVisited;
@@ -163,3 +162,5 @@ public class SyncPathMessage implements IMessage
         PathfindingDebugRenderer.debugNodesExtra = debugNodesExtra;
     }
 }
+
+

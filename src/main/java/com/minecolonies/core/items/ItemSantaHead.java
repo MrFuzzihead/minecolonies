@@ -1,10 +1,10 @@
 package com.minecolonies.core.items;
 
 import net.minecraft.Util;
-import net.minecraft.sounds.SoundEvents;
+// [1.7.10] sounds removed
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
-import net.minecraft.world.item.Item;
+import net.minecraft.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,3 +39,5 @@ public class ItemSantaHead extends ArmorItem
         super(materialIn, equipmentSlotIn, properties);
     }
 }
+
+

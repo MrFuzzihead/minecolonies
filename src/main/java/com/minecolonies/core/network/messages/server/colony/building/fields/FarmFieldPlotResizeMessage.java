@@ -5,11 +5,11 @@ import com.minecolonies.api.colony.buildingextensions.registry.BuildingExtension
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.core.colony.buildingextensions.FarmField;
 import com.minecolonies.core.tileentities.TileEntityScarecrow;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+// [1.7.10] block.entity removed
 
 import java.util.Arrays;
 
@@ -33,7 +33,7 @@ public class FarmFieldPlotResizeMessage implements IMessage
     /**
      * The field position.
      */
-    private BlockPos position;
+    private int[] position;
 
     /**
      * Forge default constructor
@@ -48,7 +48,7 @@ public class FarmFieldPlotResizeMessage implements IMessage
      * @param direction the specified direction for the new radius
      * @param position  the field position.
      */
-    public FarmFieldPlotResizeMessage(int size, Direction direction, BlockPos position)
+    public FarmFieldPlotResizeMessage(int size, Direction direction, int[] position)
     {
         super();
         this.size = size;
@@ -57,9 +57,9 @@ public class FarmFieldPlotResizeMessage implements IMessage
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
-        final BlockEntity fieldBlock = ctxIn.getSender().level.getBlockEntity(position);
+        final BlockEntity fieldBlock = ctx.getServerHandler().playerEntity.World.getBlockEntity(position);
         if (fieldBlock instanceof TileEntityScarecrow scarecrow)
         {
             final int currentSum = Arrays.stream(scarecrow.getFieldSize()).sum();
@@ -83,7 +83,7 @@ public class FarmFieldPlotResizeMessage implements IMessage
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    public void toBytes(final PacketBuffer buf)
     {
         buf.writeInt(size);
         buf.writeInt(direction.get2DDataValue());
@@ -91,10 +91,13 @@ public class FarmFieldPlotResizeMessage implements IMessage
     }
 
     @Override
-    public void fromBytes(final FriendlyByteBuf buf)
+    public void fromBytes(final PacketBuffer buf)
     {
         size = buf.readInt();
         direction = Direction.from2DDataValue(buf.readInt());
         position = buf.readBlockPos();
     }
 }
+
+
+

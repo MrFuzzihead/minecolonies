@@ -4,16 +4,16 @@ import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.core.tileentities.TileEntityColonyBuilding;
 import com.minecolonies.api.util.SoundUtils;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.sounds.SoundEvents;
+// [1.7.10] effect removed
+// [1.7.10] effect removed
+// [1.7.10] block.entity removed
+// [1.7.10] InteractionResult -> boolean
+// [1.7.10] sounds removed
 
-import net.minecraft.world.level.Level;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -23,10 +23,10 @@ import java.util.Set;
 import static com.minecolonies.api.util.constant.Constants.TICKS_SECOND;
 import static com.minecolonies.api.util.constant.translation.ToolTranslationConstants.TOOL_GENERIC_SCROLL_HIGHLIGHT_DESCRIPTION;
 
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 
 /**
  * Magic scroll which highlights and speedbuffs workers of the building it is applied to
@@ -61,11 +61,11 @@ public class ItemScrollHighlight extends AbstractItemScroll
             if (ctx.getLevel().random.nextInt(10) == 0)
             {
                 ctx.getPlayer()
-                  .displayClientMessage(Component.translatable(
+                  .displayClientMessage(String.translatable(
                     "minecolonies.scroll.failed" + (ctx.getLevel().random.nextInt(FAIL_RESPONSES_TOTAL) + 1)).setStyle(Style.EMPTY.withColor(
                     ChatFormatting.GOLD)), true);
                 ctx.getPlayer().addEffect(new MobEffectInstance(MobEffects.GLOWING, TICKS_SECOND * 300));
-                SoundUtils.playSoundForPlayer((ServerPlayer) ctx.getPlayer(), SoundEvents.ENDER_CHEST_OPEN, 0.3f, 1.0f);
+                SoundUtils.playSoundForPlayer((EntityPlayerMP) ctx.getPlayer(), SoundEvents.ENDER_CHEST_OPEN, 0.3f, 1.0f);
                 return InteractionResult.SUCCESS;
             }
 
@@ -81,7 +81,7 @@ public class ItemScrollHighlight extends AbstractItemScroll
                 }
             }
 
-            SoundUtils.playSoundForPlayer((ServerPlayer) ctx.getPlayer(), SoundEvents.PLAYER_LEVELUP, 0.3f, 1.0f);
+            SoundUtils.playSoundForPlayer((EntityPlayerMP) ctx.getPlayer(), SoundEvents.PLAYER_LEVELUP, 0.3f, 1.0f);
         }
 
         return InteractionResult.SUCCESS;
@@ -94,17 +94,21 @@ public class ItemScrollHighlight extends AbstractItemScroll
     }
 
     @Override
-    protected ItemStack onItemUseSuccess(final ItemStack itemStack, final Level world, final ServerPlayer player)
+    protected ItemStack onItemUseSuccess(final ItemStack itemStack, final World world, final EntityPlayerMP player)
     {
         return itemStack;
     }
 
     @Override
     public void appendHoverText(
-      @NotNull final ItemStack stack, @Nullable final Level worldIn, @NotNull final List<Component> tooltip, @NotNull final TooltipFlag flagIn)
+      @NotNull final ItemStack stack, @Nullable final World worldIn, @NotNull final List<String> tooltip, @NotNull final TooltipFlag flagIn)
     {
-        final MutableComponent guiHint = Component.translatable(TOOL_GENERIC_SCROLL_HIGHLIGHT_DESCRIPTION);
+        final String guiHint = String.translatable(TOOL_GENERIC_SCROLL_HIGHLIGHT_DESCRIPTION);
         guiHint.setStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GREEN));
         tooltip.add(guiHint);
     }
 }
+
+
+
+

@@ -1,9 +1,9 @@
 package com.minecolonies.core.entity.pathfinding.pathjobs;
 
-import com.ldtteam.domumornamentum.block.decorative.FloatingCarpetBlock;
-import com.ldtteam.domumornamentum.block.decorative.PanelBlock;
-import com.ldtteam.domumornamentum.block.decorative.ShingleBlock;
-import com.ldtteam.domumornamentum.block.decorative.ShingleSlabBlock;
+// [1.7.10] domumornamentum removed
+// [1.7.10] domumornamentum removed
+// [1.7.10] domumornamentum removed
+// [1.7.10] domumornamentum removed
 import com.minecolonies.api.blocks.decorative.AbstractBlockMinecoloniesConstructionTape;
 import com.minecolonies.api.entity.pathfinding.IDynamicHeuristicNavigator;
 import com.minecolonies.api.entity.pathfinding.IPathJob;
@@ -21,22 +21,23 @@ import com.minecolonies.core.entity.pathfinding.world.ChunkCache;
 import com.minecolonies.core.network.messages.client.SyncPathMessage;
 import com.minecolonies.core.util.WorkerUtil;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.Half;
-import net.minecraft.world.level.pathfinder.BlockPathTypes;
-import net.minecraft.world.level.pathfinder.Node;
-import net.minecraft.world.level.pathfinder.Path;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
+import net.minecraft.entity.EntityCreature;
+import net.minecraft.entity.player.EntityPlayerMP;
+// [1.7.10] tags removed
+// [1.7.10] world.entity removed
+import net.minecraft.world.World;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.block.*;
+// [1.7.10] BlockStateProperties removed
+// [1.7.10] Half removed
+// [1.7.10] BlockPathTypes removed
+import net.minecraft.pathfinding.PathPoint; // [1.7.10] Node -> PathPoint
+import net.minecraft.pathfinding.PathEntity; // [1.7.10] Path -> PathEntity
+import net.minecraft.pathfinding.Path; // [1.7.10] Path exists in 1.7.10
+// [1.7.10] world.phys removed
+// [1.7.10] world.phys removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,7 +50,7 @@ import static com.minecolonies.core.entity.pathfinding.PathingOptions.MAX_COST;
 /**
  * Abstract class for Jobs that run in the multithreaded path finder.
  */
-public abstract class AbstractPathJob implements Callable<Path>, IPathJob
+public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
 {
     /**
      * Maximium amount of nodes explored
@@ -60,24 +61,24 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
      * Start position to path from.
      */
     @NotNull
-    protected final BlockPos start;
+    protected final int[] start;
 
     /**
      * The pathing cache.
      */
     @NotNull
-    protected final LevelReader world;
+    protected final IBlockAccess world;
 
     /**
      * The original world, do not use offthread
      */
-    private final Level actualWorld;
+    private final World actualWorld;
 
     /**
      * The entity this job belongs to, can be none
      */
     @Nullable
-    protected Mob entity = null;
+    protected EntityCreature entity = null;
 
     /**
      * Cached block lookup
@@ -87,7 +88,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
     /**
      * Mutable pos used ot retrieve world info directly
      */
-    protected BlockPos.MutableBlockPos tempWorldPos = new BlockPos.MutableBlockPos();
+    protected int[] tempWorldPos = new int[]{0,0,0};
 
     /**
      * The result of the path calculation.
@@ -163,7 +164,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
     private MNode bestNode = null;
 
     /**
-     * Visited level
+     * Visited World
      */
     private int visitedLevel = 1;
 
@@ -176,7 +177,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
      * @param result path result.
      * @param entity the entity.
      */
-    public AbstractPathJob(final Level world, @NotNull final BlockPos start, int range, final PathResult result, @Nullable final Mob entity)
+    public AbstractPathJob(final World world, @NotNull final int[] start, int range, final PathResult result, @Nullable final EntityCreature entity)
     {
         range = Math.max(10, range);
 
@@ -185,12 +186,12 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
         final int minZ = (int) (start.getZ() - range * 1.3);
         final int maxX = (int) (start.getX() + range * 1.3);
         final int maxZ = (int) (start.getZ() + range * 1.3);
-        this.world = new ChunkCache(world, new BlockPos(minX, 0, minZ), new BlockPos(maxX, 0, maxZ));
+        this.world = new ChunkCache(world, new int[]{minX, 0, minZ}, new int[]{maxX, 0, maxZ});
         this.actualWorld = world;
 
         this.maxNodes = Math.min(MAX_NODES, range * range);
         nodesToVisit = new PriorityQueue<>(range * 2);
-        this.start = new BlockPos(start);
+        this.start = new int[]{start};
 
         cachedBlockLookup = new CachingBlockLookup(start, this.world);
 
@@ -213,12 +214,12 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
      * @param result
      * @param entity
      */
-    protected AbstractPathJob(final Level actualWorld, final LevelReader chunkCache, @NotNull final BlockPos start, int range, final PathResult result, @Nullable final Mob entity)
+    protected AbstractPathJob(final World actualWorld, final IBlockAccess chunkCache, @NotNull final int[] start, int range, final PathResult result, @Nullable final EntityCreature entity)
     {
         range = Math.max(10, range);
         this.maxNodes = Math.min(MAX_NODES, range * range);
         nodesToVisit = new PriorityQueue<>(range * 2);
-        this.start = new BlockPos(start);
+        this.start = new int[]{start};
 
         world = chunkCache;
         cachedBlockLookup = new CachingBlockLookup(start, this.world);
@@ -242,7 +243,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
      * @param result path result.
      * @param entity the entity.
      */
-    public AbstractPathJob(final Level world, @NotNull final BlockPos start, @NotNull final BlockPos end, final PathResult result, @Nullable final Mob entity)
+    public AbstractPathJob(final World world, @NotNull final int[] start, @NotNull final int[] end, final PathResult result, @Nullable final EntityCreature entity)
     {
         // Load at least 2 chunks further around start+end, extended with more distance
         final int expandedRange = (2 * 16) + BlockPosUtil.distManhattan(start, end) / 2;
@@ -251,7 +252,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
         final int minZ = Math.min(start.getZ(), end.getZ()) - expandedRange;
         final int maxX = Math.max(start.getX(), end.getX()) + expandedRange;
         final int maxZ = Math.max(start.getZ(), end.getZ()) + expandedRange;
-        this.world = new ChunkCache(world, new BlockPos(minX, 0, minZ), new BlockPos(maxX, 0, maxZ));
+        this.world = new ChunkCache(world, new int[]{minX, 0, minZ}, new int[]{maxX, 0, maxZ});
 
         // Max nodes in relation to the box area
         final int xDiff = Math.max(1, Math.abs(start.getX() - end.getX()));
@@ -262,7 +263,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
         this.maxNodes =
           Math.min(MAX_NODES, 300 + Math.max(Math.max(Math.max(2, xDiff / 10) * yDiff * zDiff, xDiff * Math.max(2, yDiff / 10) * zDiff), xDiff * yDiff * Math.max(2, zDiff / 10)));
         nodesToVisit = new PriorityQueue<>(maxNodes / 4);
-        this.start = new BlockPos(start);
+        this.start = new int[]{start};
 
         cachedBlockLookup = new CachingBlockLookup(start, this.world);
         actualWorld = world;
@@ -282,7 +283,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
      * @return path to follow or null.
      */
     @Override
-    public final Path call()
+    public final PathEntity call()
     {
         try
         {
@@ -303,21 +304,21 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
      */
     private MNode getAndSetupStartNode()
     {
-        final MNode startNode = new MNode(null, start.getX(), start.getY(), start.getZ(), 0, computeHeuristic(start.getX(), start.getY(), start.getZ()) * heuristicMod);
+        final MNode startNode = new MNode(null, start[0], start[1], start[2], 0, computeHeuristic(start[0], start[1], start[2]) * heuristicMod);
 
-        if (PathfindingUtils.isLadder(cachedBlockLookup.getBlockState(start.getX(), start.getY(), start.getZ()), pathingOptions))
+        if (PathfindingUtils.isLadder(cachedBlockLookup.getBlockState(start[0], start[1], start[2]), pathingOptions))
         {
             startNode.setLadder();
         }
-        else if (!pathingOptions.canWalkUnderWater() && PathfindingUtils.isLiquid(cachedBlockLookup.getBlockState(start.below())))
+        else if (!pathingOptions.canWalkUnderWater() && PathfindingUtils.isLiquid(cachedBlockLookup.getBlockState(start[0], start[1] - 1, start[2])))
         {
             startNode.setSwimming();
         }
 
-        startNode.setOnRails(pathingOptions.canUseRails() && cachedBlockLookup.getBlockState(start).getBlock() instanceof BaseRailBlock);
+        startNode.setOnRails(pathingOptions.canUseRails() && cachedBlockLookup.getBlockState(start[0], start[1], start[2]).getBlock() instanceof BaseRailBlock);
 
         nodesToVisit.offer(startNode);
-        nodes.put(MNode.computeNodeKey(start.getX(), start.getY(), start.getZ()), startNode);
+        nodes.put(MNode.computeNodeKey(start[0], start[1], start[2]), startNode);
 
         ++totalNodesAdded;
 
@@ -331,7 +332,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
      * @return Path of a path to the given location, a best-effort, or null.
      */
     @Nullable
-    protected Path search()
+    protected PathEntity search()
     {
         bestNode = getAndSetupStartNode();
         double bestNodeEndScore = getEndNodeScore(bestNode);
@@ -491,7 +492,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
             }
         }
 
-        RecentTargetCache.add(new BlockPos(bestNode.x, bestNode.y, bestNode.z), 50);
+        RecentTargetCache.add(new int[]{bestNode.x, bestNode.y, bestNode.z}, 50);
         return finalizePath(bestNode);
     }
 
@@ -728,7 +729,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
         int nextX = node.x + dX;
         int nextY = node.y + dY;
         int nextZ = node.z + dZ;
-        
+
         final int newY;
         //  Can we traverse into this node?  Fix the y up, skip on already explored nodes
         if (node.isVisited())
@@ -1134,7 +1135,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
      * @return the path.
      */
     @NotNull
-    private Path finalizePath(final MNode targetNode)
+    private PathEntity finalizePath(final MNode targetNode)
     {
         //  Compute length of path, since we need to allocate an array.  This is cheaper/faster than building a List
         //  and converting it.  Yes, we have targetNode.steps, but I do not want to rely on that being accurate (I might
@@ -1152,8 +1153,8 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
             node = node.parent;
         }
 
-        final Node[] points = new Node[pathLength];
-        points[0] = new PathPointExtended(new BlockPos(node.x, node.y, node.z));
+        final PathPoint[] points = new PathPoint[pathLength];
+        points[0] = new PathPointExtended(new int[]{node.x, node.y, node.z});
         if (debugDrawEnabled)
         {
             addPathNodeToDebug(node);
@@ -1161,7 +1162,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
 
 
         MNode nextInPath = null;
-        Node next = null;
+        PathPoint next = null;
         node = targetNode;
         while (node.parent != null)
         {
@@ -1172,7 +1173,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
 
             --pathLength;
 
-            final BlockPos pos = new BlockPos(node.x, node.y, node.z);
+            final int[] pos = new int[]{node.x, node.y, node.z};
             final PathPointExtended p = new PathPointExtended(pos);
             if (railsLength >= MineColonies.getConfig().getServer().minimumRailsToPath.get())
             {
@@ -1195,7 +1196,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
             {
                 p.setOnLadder(true);
                 // TODO: Check working, logic is a bit odd
-                if (nextInPath != null && nextInPath.y > pos.getY())
+                if (nextInPath != null && nextInPath.y > pos[1])
                 {
                     //  We only care about facing if going up
                     //In the case of BlockVines (Which does not have Direction) we have to check the metadata of the vines... bitwise...
@@ -1205,7 +1206,8 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
 
             if (next != null)
             {
-                next.cameFrom = p;
+            // [1.7.10] PathPoint does not have cameFrom - skipped
+            // next.cameFrom = p;
             }
             next = p;
             points[pathLength] = p;
@@ -1222,7 +1224,9 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
         }
 
         result.searchedNodes = totalNodesVisited;
-        return new Path(Arrays.asList(points), new BlockPos(targetNode.x, targetNode.y, targetNode.z), reachesDestination);
+        // [1.7.10] PathEntity takes PathPoint[] directly; reachesDestination stored in PathResult
+        result.setPathReachesDestination(reachesDestination);
+        return new PathEntity(points);
     }
 
     /**
@@ -1237,7 +1241,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
         {
             return Integer.MIN_VALUE;
         }
-        //  Check (y+1) first, as it's always needed, either for the upper body (level),
+        //  Check (y+1) first, as it's always needed, either for the upper body (World),
         //  lower body (headroom drop) or lower body (jump up)
         if (checkHeadBlock(node, x, y, z))
         {
@@ -1256,7 +1260,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
         final SurfaceType walkability = SurfaceType.getSurfaceType(world, below, tempWorldPos.set(x, y - 1, z), pathingOptions);
         if (walkability == SurfaceType.WALKABLE)
         {
-            //  Level path
+            //  World path
             return y;
         }
         else if (walkability == SurfaceType.NOT_PASSABLE)
@@ -1583,7 +1587,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
             }
             if (SurfaceType.getSurfaceType(world, below, tempWorldPos.set(x, y - i, z), getPathingOptions()) == SurfaceType.WALKABLE)
             {
-                //  Level path
+                //  World path
                 return y - i + 1;
             }
             else if (!below.isAir())
@@ -1775,7 +1779,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
      *
      * @param points the points to print.
      */
-    private void doDebugPrinting(@NotNull final Node[] points)
+    private void doDebugPrinting(@NotNull final PathPoint[] points)
     {
         if (debugDrawEnabled)
         {
@@ -1783,7 +1787,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
             {
                 Log.getLogger().info("Path found:");
 
-                for (@NotNull final Node p : points)
+                for (@NotNull final PathPoint p : points)
                 {
                     Log.getLogger().info(String.format("Step: [%d,%d,%d]", p.x, p.y, p.z));
                 }
@@ -1829,7 +1833,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
     /**
      * Sync the path to the client.
      */
-    public void syncDebug(final List<ServerPlayer> debugWatchers)
+    public void syncDebug(final List<EntityPlayerMP> debugWatchers)
     {
         if (debugDrawEnabled)
         {
@@ -1840,7 +1844,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
               debugNodesOrgPath,
               debugNodesExtra);
 
-            for (final ServerPlayer player : debugWatchers)
+            for (final EntityPlayerMP player : debugWatchers)
             {
                 Network.getNetwork().sendToPlayer(message, player);
             }
@@ -1870,19 +1874,19 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
     }
 
     @Override
-    public Mob getEntity()
+    public EntityCreature getEntity()
     {
         return entity;
     }
 
     @Override
-    public Level getActualWorld()
+    public World getActualWorld()
     {
         return actualWorld;
     }
 
     @Override
-    public BlockPos getStart()
+    public int[] getStart()
     {
         return start;
     }
@@ -1897,3 +1901,9 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
             + reachesDestination + (this instanceof IDestinationPathJob ? " dest:" + ((IDestinationPathJob) this).getDestination().toShortString() : "");
     }
 }
+
+
+
+
+
+

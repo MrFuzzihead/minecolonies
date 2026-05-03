@@ -2,12 +2,11 @@ package com.minecolonies.core.research;
 
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.api.research.IGlobalResearchTree;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,7 +19,7 @@ public class GlobalResearchTreeMessage implements IMessage
     /**
      * The buffer with the data.
      */
-    private FriendlyByteBuf treeBuffer;
+    private PacketBuffer treeBuffer;
 
     /**
      * Empty constructor used when registering the message
@@ -35,38 +34,41 @@ public class GlobalResearchTreeMessage implements IMessage
      *
      * @param buf               the bytebuffer.
      */
-    public GlobalResearchTreeMessage(final FriendlyByteBuf buf)
+    public GlobalResearchTreeMessage(final PacketBuffer buf)
     {
-        this.treeBuffer = new FriendlyByteBuf(buf.copy());
+        this.treeBuffer = new PacketBuffer(buf.copy());
     }
 
     @Override
-    public void fromBytes(@NotNull final FriendlyByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
-        treeBuffer = new FriendlyByteBuf(buf.retain());
+        treeBuffer = new PacketBuffer(buf.retain());
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
         buf.writeBytes(treeBuffer);
     }
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.CLIENT;
+        return Boolean.FALSE;
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
-        if (Minecraft.getInstance().level != null)
+        if (Minecraft.getInstance().World != null)
         {
             IGlobalResearchTree.getInstance().handleGlobalResearchTreeMessage(treeBuffer);
         }
         treeBuffer.release();
     }
 }
+
+
+

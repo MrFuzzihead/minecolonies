@@ -6,9 +6,9 @@ import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.core.commands.commandTypes.IMCCommand;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.core.BlockPos;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+// [1.7.10] int[] -> int x,y,z
 
 import static com.minecolonies.api.util.constant.translation.CommandTranslationConstants.COMMAND_WHO_AM_I_HAS_COLONY;
 import static com.minecolonies.api.util.constant.translation.CommandTranslationConstants.COMMAND_WHO_AM_I_NO_COLONY;
@@ -37,7 +37,7 @@ public class CommandWhoAmI implements IMCCommand
             return 0;
         }
 
-        final BlockPos pos = colony.getCenter();
+        final int[] pos = colony.getCenter();
         final String colonyName = colony.getName();
         final String playerName = sender.getDisplayName().getString();
         final String posString = "x: " + pos.getX() + " y: " + pos.getY() + " z: " + pos.getZ();
@@ -54,3 +54,5 @@ public class CommandWhoAmI implements IMCCommand
         return "whoami";
     }
 }
+
+

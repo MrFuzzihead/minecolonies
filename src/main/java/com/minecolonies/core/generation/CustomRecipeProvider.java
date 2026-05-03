@@ -8,16 +8,16 @@ import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.colony.crafting.CustomRecipe;
-import net.minecraft.data.CachedOutput;
-import net.minecraft.data.DataProvider;
-import net.minecraft.data.PackOutput;
-import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] data removed
+// [1.7.10] data removed
+// [1.7.10] data removed
+// [1.7.10] data removed
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -204,16 +204,16 @@ public abstract class CustomRecipeProvider implements DataProvider
         }
 
         @NotNull
-        public CustomRecipeBuilder minBuildingLevel(final int level)
+        public CustomRecipeBuilder minBuildingLevel(final int World)
         {
-            this.json.addProperty(CustomRecipe.RECIPE_BUILDING_MIN_LEVEL_PROP, level);
+            this.json.addProperty(CustomRecipe.RECIPE_BUILDING_MIN_LEVEL_PROP, World);
             return this;
         }
 
         @NotNull
-        public CustomRecipeBuilder maxBuildingLevel(final int level)
+        public CustomRecipeBuilder maxBuildingLevel(final int World)
         {
-            this.json.addProperty(CustomRecipe.RECIPE_BUILDING_MAX_LEVEL_PROP, level);
+            this.json.addProperty(CustomRecipe.RECIPE_BUILDING_MAX_LEVEL_PROP, World);
             return this;
         }
 
@@ -343,3 +343,7 @@ public abstract class CustomRecipeProvider implements DataProvider
         }
     }
 }
+
+
+
+

@@ -13,17 +13,16 @@ import com.minecolonies.api.util.Log;
 import com.minecolonies.core.blocks.BlockDecorationController;
 import com.minecolonies.core.colony.buildings.AbstractBuildingStructureBuilder;
 import com.minecolonies.core.colony.workorders.WorkOrderDecoration;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Registries removed
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.World;
+import net.minecraft.world.Rotation;
+// [1.7.10] BlockState -> int metadata
 import org.apache.commons.lang3.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,7 +38,7 @@ public class DecorationBuildRequestMessage implements IMessage
     /**
      * The id of the building.
      */
-    private BlockPos pos;
+    private int[] pos;
 
     /**
      * The display name of the decoration.
@@ -64,7 +63,7 @@ public class DecorationBuildRequestMessage implements IMessage
     /**
      * The dimension.
      */
-    private ResourceKey<Level> dimension;
+    private int /* ResourceKey */ dimension;
 
     /**
      * Type of workorder.
@@ -74,7 +73,7 @@ public class DecorationBuildRequestMessage implements IMessage
     /**
      * The builder, or ZERO to auto-assign.
      */
-    private BlockPos builder;
+    private int[] builder;
 
     /**
      * Empty constructor used when registering the
@@ -92,7 +91,7 @@ public class DecorationBuildRequestMessage implements IMessage
      * @param path        blueprint path.
      * @param dimension   the dimension we're executing on.
      */
-    public DecorationBuildRequestMessage(final WorkOrderType workOrderType, @NotNull final BlockPos pos, final String packName, final String path, final ResourceKey<Level> dimension, final Rotation rotation, final boolean mirror, final BlockPos builder)
+    public DecorationBuildRequestMessage(final WorkOrderType workOrderType, @NotNull final int[] pos, final String packName, final String path, final int /* ResourceKey */ dimension, final Rotation rotation, final boolean mirror, final int[] builder)
     {
         super();
         this.workOrderType = workOrderType;
@@ -106,7 +105,7 @@ public class DecorationBuildRequestMessage implements IMessage
     }
 
     @Override
-    public void fromBytes(@NotNull final FriendlyByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
         this.workOrderType = WorkOrderType.values()[buf.readInt()];
         this.pos = buf.readBlockPos();
@@ -119,7 +118,7 @@ public class DecorationBuildRequestMessage implements IMessage
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
         buf.writeInt(this.workOrderType.ordinal());
         buf.writeBlockPos(this.pos);
@@ -133,20 +132,20 @@ public class DecorationBuildRequestMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.SERVER;
+        return Boolean.TRUE;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
         final IColony colony = IColonyManager.getInstance().getColonyByPosFromDim(dimension, pos);
         if (colony == null)
         {
             return;
         }
-        final Player player = ctxIn.getSender();
+        final Player player = ctx.getServerHandler().playerEntity;
 
         //Verify player has permission to change this hut its settings
         if (!colony.getPermissions().hasPermission(player, Action.MANAGE_HUTS))
@@ -165,7 +164,7 @@ public class DecorationBuildRequestMessage implements IMessage
         }
 
         ServerFutureProcessor.queueBlueprint(new ServerFutureProcessor.BlueprintProcessingData(StructurePacks.getBlueprintFuture(packName, path),
-          player.level,
+          player.World,
           (blueprint -> {
               if (blueprint == null)
               {
@@ -191,7 +190,7 @@ public class DecorationBuildRequestMessage implements IMessage
                   0);
               order.setBlueprint(blueprint, colony.getWorld());
 
-              if (!builder.equals(BlockPos.ZERO))
+              if (!builder.equals(new int[]{0,0,0}))
               {
                   final IBuilding building = colony.getServerBuildingManager().getBuilding(builder);
                   if (building instanceof AbstractBuildingStructureBuilder)
@@ -204,4 +203,8 @@ public class DecorationBuildRequestMessage implements IMessage
           })));
     }
 }
+
+
+
+
 

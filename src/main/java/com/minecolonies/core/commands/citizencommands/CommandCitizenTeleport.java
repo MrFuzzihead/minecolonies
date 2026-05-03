@@ -13,8 +13,8 @@ import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.coordinates.Coordinates;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
 
 import java.util.Optional;
 
@@ -39,7 +39,7 @@ public class CommandCitizenTeleport implements IMCColonyOfficerCommand
 
         if (citizenData == null)
         {
-            context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_CITIZEN_NOT_FOUND), true);
+            context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_CITIZEN_NOT_FOUND), true);
             return 0;
         }
 
@@ -47,15 +47,15 @@ public class CommandCitizenTeleport implements IMCColonyOfficerCommand
 
         if (!optionalEntityCitizen.isPresent())
         {
-            context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_CITIZEN_NOT_LOADED), true);
+            context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_CITIZEN_NOT_LOADED), true);
             return 0;
         }
 
         final AbstractEntityCitizen entityCitizen = optionalEntityCitizen.get();
         final Coordinates targetLocation = Vec3Argument.getCoordinates(context, POS_ARG);
-        final BlockPos targetPos = targetLocation.getBlockPos(context.getSource());
+        final int[] targetPos = targetLocation.getBlockPos(context.getSource());
 
-        if (context.getSource().getLevel() == entityCitizen.level)
+        if (context.getSource().getLevel() == entityCitizen.World)
         {
             entityCitizen.moveTo(targetPos.getX(), targetPos.getY(), targetPos.getZ(), entityCitizen.getViewYRot(1F), entityCitizen.getViewXRot(1F));
             entityCitizen.getNavigation().stop();
@@ -83,3 +83,5 @@ public class CommandCitizenTeleport implements IMCColonyOfficerCommand
                                          .executes(this::checkPreConditionAndExecute))));
     }
 }
+
+

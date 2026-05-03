@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.managers;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,12 +24,12 @@ import com.minecolonies.core.Network;
 import com.minecolonies.core.colony.AnimalData;
 import com.minecolonies.core.network.messages.client.colony.ColonyViewAnimalViewDataMessage;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.Entity;
+// [1.7.10] world.entity removed
 
 public class AnimalManager implements IAnimalManager
 {
@@ -210,21 +216,21 @@ public class AnimalManager implements IAnimalManager
      * @param compound the compound to read it from.
      */
     @Override
-    public void read(@NotNull final CompoundTag compound)
+    public void read(@NotNull final NBTTagCompound compound)
     {
-        // If the tag doesn't exist, don't mutate current state.
-        if (!compound.contains(TAG_ANIMAL_MANAGER, Tag.TAG_COMPOUND))
+        // If the NBTBase doesn't exist, don't mutate current state.
+        if (!compound.contains(TAG_ANIMAL_MANAGER, NBTBase.TAG_COMPOUND))
         {
             return;
         }
 
-        final CompoundTag animalManagerNBT = compound.getCompound(TAG_ANIMAL_MANAGER);
+        final NBTTagCompound animalManagerNBT = compound.getCompound(TAG_ANIMAL_MANAGER);
 
         // Start from a clean slate so reloads don't accumulate stale entries.
         animalMap.clear();
 
         // Restore next id even if animals list is absent/corrupt.
-        if (animalManagerNBT.contains(TAG_NEXTID, Tag.TAG_INT))
+        if (animalManagerNBT.contains(TAG_NEXTID, NBTBase.TAG_INT))
         {
             nextAnimalID = animalManagerNBT.getInt(TAG_NEXTID);
         }
@@ -234,13 +240,13 @@ public class AnimalManager implements IAnimalManager
         }
 
         // Read animals list (if present). If missing, we still keep nextAnimalID restored.
-        if (animalManagerNBT.contains(TAG_ANIMALS, Tag.TAG_LIST))
+        if (animalManagerNBT.contains(TAG_ANIMALS, NBTBase.TAG_LIST))
         {
-            final ListTag animalList = animalManagerNBT.getList(TAG_ANIMALS, Tag.TAG_COMPOUND);
+            final NBTTagList animalList = animalManagerNBT.getList(TAG_ANIMALS, NBTBase.TAG_COMPOUND);
 
             for (int i = 0; i < animalList.size(); i++)
             {
-                final CompoundTag animalTag = animalList.getCompound(i);
+                final NBTTagCompound animalTag = animalList.getCompound(i);
 
                 try
                 {
@@ -278,11 +284,11 @@ public class AnimalManager implements IAnimalManager
      * @throws UnsupportedOperationException if not implemented.
      */
     @Override
-    public void write(@NotNull CompoundTag compoundNBT)
+    public void write(@NotNull NBTTagCompound compoundNBT)
     {
-        final CompoundTag animalManagerNBT = new CompoundTag();
+        final NBTTagCompound animalManagerNBT = new NBTTagCompound();
 
-        final ListTag animalList = new ListTag();
+        final NBTTagList animalList = new NBTTagList();
         for (Map.Entry<Integer, IAnimalData> entry : animalMap.entrySet())
         {
             animalList.add(entry.getValue().serializeNBT());
@@ -334,7 +340,7 @@ public class AnimalManager implements IAnimalManager
      * @param newSubscribers   players that have just come into range and need data
      */
     @Override
-    public void sendPackets(@NotNull final Set<ServerPlayer> closeSubscribers, @NotNull final Set<ServerPlayer> newSubscribers)
+    public void sendPackets(@NotNull final Set<EntityPlayerMP> closeSubscribers, @NotNull final Set<EntityPlayerMP> newSubscribers)
     {
         Set<IAnimalData> toSend = null;
         boolean refresh = !newSubscribers.isEmpty() || this.isDirty;
@@ -370,14 +376,19 @@ public class AnimalManager implements IAnimalManager
             return;
         }
 
-        Set<ServerPlayer> players = new HashSet<>(newSubscribers);
+        Set<EntityPlayerMP> players = new HashSet<>(newSubscribers);
         players.addAll(closeSubscribers);
 
         final ColonyViewAnimalViewDataMessage message = new ColonyViewAnimalViewDataMessage(colony, toSend, refresh);
 
-        for (final ServerPlayer player : players)
+        for (final EntityPlayerMP player : players)
         {
             Network.getNetwork().sendToPlayer(message, player);
         }
     }
 }
+
+
+
+
+

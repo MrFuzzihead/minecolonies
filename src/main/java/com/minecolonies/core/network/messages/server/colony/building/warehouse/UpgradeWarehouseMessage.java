@@ -5,15 +5,15 @@ import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingWareHouse;
 import com.minecolonies.core.network.messages.server.AbstractBuildingServerMessage;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.items.wrapper.InvWrapper;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.init.Blocks;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+// [1.7.10] items shim in com.minecolonies.api.shim
 
 /**
- * Issues the upgrade of the warehouse pos level 5.
+ * Issues the upgrade of the warehouse pos World 5.
  */
 public class UpgradeWarehouseMessage extends AbstractBuildingServerMessage<BuildingWareHouse>
 {
@@ -26,13 +26,13 @@ public class UpgradeWarehouseMessage extends AbstractBuildingServerMessage<Build
     }
 
     @Override
-    protected void toBytesOverride(final FriendlyByteBuf buf)
+    protected void toBytesOverride(final PacketBuffer buf)
     {
 
     }
 
     @Override
-    protected void fromBytesOverride(final FriendlyByteBuf buf)
+    protected void fromBytesOverride(final PacketBuffer buf)
     {
 
     }
@@ -43,15 +43,15 @@ public class UpgradeWarehouseMessage extends AbstractBuildingServerMessage<Build
     }
 
     @Override
-    protected void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony, final BuildingWareHouse building)
+    protected void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony, final BuildingWareHouse building)
     {
-        final Player player = ctxIn.getSender();
+        final Player player = ctx.getServerHandler().playerEntity;
         if (player == null)
         {
             return;
         }
 
-        building.upgradeContainers(player.level);
+        building.upgradeContainers(player.World);
 
         final boolean isCreative = player.isCreative();
         if (!isCreative)
@@ -63,3 +63,6 @@ public class UpgradeWarehouseMessage extends AbstractBuildingServerMessage<Build
         }
     }
 }
+
+
+

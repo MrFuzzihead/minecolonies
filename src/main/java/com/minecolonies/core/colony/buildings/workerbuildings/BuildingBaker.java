@@ -18,10 +18,10 @@ import com.minecolonies.api.util.OptionalPredicate;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.AbstractCraftingBuildingModule;
 import com.minecolonies.core.colony.jobs.AbstractJobCrafter;
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+// [1.7.10] int[] -> int x,y,z
+import com.minecolonies.api.util.Tuple;
+import net.minecraft.item.ItemStack;
+import net.minecraft.init.Items;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -43,7 +43,7 @@ public class BuildingBaker extends AbstractBuilding
     private static final String BAKER = "baker";
 
     /**
-     * Max hut level of the bakery.
+     * Max hut World of the bakery.
      */
     private static final int BAKER_HUT_MAX_LEVEL = 5;
 
@@ -53,7 +53,7 @@ public class BuildingBaker extends AbstractBuilding
      * @param c Colony the building is in.
      * @param l Location of the building.
      */
-    public BuildingBaker(final IColony c, final BlockPos l)
+    public BuildingBaker(final IColony c, final int[] l)
     {
         super(c, l);
     }
@@ -71,9 +71,9 @@ public class BuildingBaker extends AbstractBuilding
     }
 
     /**
-     * Gets the max level of the bakery's hut.
+     * Gets the max World of the bakery's hut.
      *
-     * @return The max level of the bakery's hut.
+     * @return The max World of the bakery's hut.
      */
     @Override
     public int getMaxBuildingLevel()
@@ -90,7 +90,7 @@ public class BuildingBaker extends AbstractBuilding
     @Override
     public boolean canEat(final ItemStack stack)
     {
-        if (stack.getItem() == Items.WHEAT)
+        if (stack.getItem() == Items.wheat)
         {
             return false;
         }
@@ -222,3 +222,5 @@ public class BuildingBaker extends AbstractBuilding
         }
     }
 }
+
+

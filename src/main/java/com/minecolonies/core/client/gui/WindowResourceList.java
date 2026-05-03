@@ -2,12 +2,31 @@ package com.minecolonies.core.client.gui;
 
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
+import com.ldtteam.blockui.controls.DropDownList;
 import com.ldtteam.blockui.controls.Image;
 import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.controls.TextField;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
 import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.colony.requestsystem.request.IRequest;
 import com.minecolonies.api.colony.requestsystem.requestable.deliveryman.Delivery;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
@@ -20,11 +39,11 @@ import com.minecolonies.core.colony.buildings.moduleviews.BuildingResourcesModul
 import com.minecolonies.core.colony.buildings.utils.BuildingBuilderResource;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingBuilder;
 import com.minecolonies.core.network.messages.server.colony.building.MarkBuildingDirtyMessage;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.wrapper.InvWrapper;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -37,7 +56,7 @@ import static com.minecolonies.core.client.gui.modules.building.WindowBuilderRes
 import static com.minecolonies.core.colony.buildings.utils.BuildingBuilderResource.RessourceAvailability.*;
 
 /**
- * BOWindow for the resource list item.
+ * Object (BOWindow: todo ModularUI2 removed) for the resource list item.
  */
 public class WindowResourceList extends AbstractWindowSkeleton
 {
@@ -123,7 +142,7 @@ public class WindowResourceList extends AbstractWindowSkeleton
 
         if (total > 0)
         {
-            findPaneOfTypeByID(LABEL_PROGRESS, Text.class).setText(Component.translatable("com.minecolonies.coremod.gui.progress.res",
+            findPaneOfTypeByID(LABEL_PROGRESS, Text.class).setText(String.translatable("com.minecolonies.coremod.gui.progress.res",
               (int) ((supplied / total) * 100) + "%",
               moduleView.getProgress() + "%"));
         }
@@ -184,14 +203,14 @@ public class WindowResourceList extends AbstractWindowSkeleton
         //Make sure we have a fresh view
         Network.getNetwork().sendToServer(new MarkBuildingDirtyMessage(builder));
 
-        findPaneOfTypeByID(LABEL_WORKERNAME, Text.class).setText(Component.literal(builder.getWorkerName()));
+        findPaneOfTypeByID(LABEL_WORKERNAME, Text.class).setText(String.literal(builder.getWorkerName()));
         if (moduleView.getWorkOrderId() > -1)
         {
             final IWorkOrderView workOrderView = moduleView.getBuildingView().getColony().getWorkOrder(moduleView.getWorkOrderId());
             if (workOrderView != null)
             {
                 final Text pane = findPaneOfTypeByID(LABEL_CONSTRUCTION_NAME, Text.class);
-                final Component text = Component.literal(workOrderView.getDisplayName().getString().replace("\n", " "));
+                final String text = String.literal(workOrderView.getDisplayName().getString().replace("\n", " "));
                 pane.setText(text);
                 PaneBuilders.tooltipBuilder().hoverPane(pane).build().setText(text);
             }
@@ -222,12 +241,12 @@ public class WindowResourceList extends AbstractWindowSkeleton
         if (resource.getAmountInDelivery() > 0)
         {
             rowPane.findPaneOfTypeByID(IN_DELIVERY_ICON, Image.class).setVisible(true);
-            rowPane.findPaneOfTypeByID(IN_DELIVERY_AMOUNT, Text.class).setText(Component.literal(String.valueOf(resource.getAmountInDelivery())));
+            rowPane.findPaneOfTypeByID(IN_DELIVERY_AMOUNT, Text.class).setText(String.literal(String.valueOf(resource.getAmountInDelivery())));
         }
         else if (warehouseAmount > 0)
         {
             rowPane.findPaneOfTypeByID(IN_WAREHOUSE_ICON, Image.class).setVisible(true);
-            rowPane.findPaneOfTypeByID(IN_DELIVERY_AMOUNT, Text.class).setText(Component.literal(String.valueOf(warehouseAmount)));
+            rowPane.findPaneOfTypeByID(IN_DELIVERY_AMOUNT, Text.class).setText(String.literal(String.valueOf(warehouseAmount)));
         }
 
         switch (resource.getAvailabilityStatus())
@@ -255,20 +274,20 @@ public class WindowResourceList extends AbstractWindowSkeleton
                 break;
         }
 
-        resourceLabel.setText(Component.literal(resource.getName()));
+        resourceLabel.setText(String.literal(resource.getName()));
         final int missing = resource.getMissingFromPlayer();
         if (missing < 0)
         {
-            resourceMissingLabel.setText(Component.literal(Integer.toString(missing)));
+            resourceMissingLabel.setText(String.literal(Integer.toString(missing)));
         }
         else
         {
             resourceMissingLabel.clearText();
         }
 
-        neededLabel.setText(Component.literal(resource.getAvailable() + " / " + resource.getAmount()));
-        rowPane.findPaneOfTypeByID(RESOURCE_ID, Text.class).setText(Component.literal(Integer.toString(index)));
-        rowPane.findPaneOfTypeByID(RESOURCE_QUANTITY_MISSING, Text.class).setText(Component.literal(Integer.toString(resource.getAmount() - resource.getAvailable())));
+        neededLabel.setText(String.literal(resource.getAvailable() + " / " + resource.getAmount()));
+        rowPane.findPaneOfTypeByID(RESOURCE_ID, Text.class).setText(String.literal(Integer.toString(index)));
+        rowPane.findPaneOfTypeByID(RESOURCE_QUANTITY_MISSING, Text.class).setText(String.literal(Integer.toString(resource.getAmount() - resource.getAvailable())));
 
         final ItemStack stack = new ItemStack(resource.getItem(), 1);
         stack.setTag(resource.getItemStack().getTag());
@@ -284,3 +303,6 @@ public class WindowResourceList extends AbstractWindowSkeleton
         window.findPaneOfTypeByID(LIST_RESOURCES, ScrollingList.class).refreshElementPanes();
     }
 }
+
+
+

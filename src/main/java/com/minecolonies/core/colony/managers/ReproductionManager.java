@@ -15,7 +15,7 @@ import com.minecolonies.core.colony.buildings.modules.LivingBuildingModule;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingTownHall;
 import com.minecolonies.core.colony.eventhooks.citizenEvents.CitizenBornEvent;
 import com.minecolonies.core.util.AdvancementUtils;
-import net.minecraft.core.BlockPos;
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -132,7 +132,7 @@ public class ReproductionManager implements IReproductionManager
                     }
                     else
                     {
-                        final BlockPos altPos = colony.getServerBuildingManager().getRandomBuilding(b -> b.hasModule(LivingBuildingModule.class) && !b.getPosition().equals(newHome.getPosition()) && BlockPosUtil.getDistance2D(b.getPosition(), newHome.getPosition()) < 50);
+                        final int[] altPos = colony.getServerBuildingManager().getRandomBuilding(b -> b.hasModule(LivingBuildingModule.class) && !b.getPosition().equals(newHome.getPosition()) && BlockPosUtil.getDistance2D(b.getPosition(), newHome.getPosition()) < 50);
                         if (altPos != null)
                         {
                             final IBuilding building = colony.getServerBuildingManager().getBuilding(altPos);
@@ -264,3 +264,5 @@ public class ReproductionManager implements IReproductionManager
         return false;
     }
 }
+
+

@@ -5,9 +5,11 @@ import com.minecolonies.api.research.requirements.BuildingAlternatesResearchRequ
 import com.minecolonies.api.research.requirements.BuildingResearchRequirement;
 import com.minecolonies.api.research.requirements.ResearchResearchRequirement;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
+// [1.7.10] registries removed
+// [1.7.10] registries removed
 
 import static com.minecolonies.api.research.ModResearchRequirements.*;
 
@@ -47,3 +49,5 @@ public class ModResearchRequirementInitializer
         return DEFERRED_REGISTER.register(registryName.getPath(), () -> new ResearchRequirementEntry(registryName, readFromNBT, readFromJson));
     }
 }
+
+

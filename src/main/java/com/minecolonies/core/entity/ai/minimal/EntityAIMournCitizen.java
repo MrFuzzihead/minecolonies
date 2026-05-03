@@ -15,11 +15,11 @@ import com.minecolonies.core.colony.buildings.workerbuildings.BuildingGraveyard;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
 import com.minecolonies.core.tileentities.TileEntityNamedGrave;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.ai.targeting.TargetingConditions;
-import net.minecraft.world.level.block.entity.BlockEntity;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
+import net.minecraft.entity.Entity;
+// [1.7.10] world.entity removed
+// [1.7.10] block.entity removed
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Iterator;
@@ -77,7 +77,7 @@ public class EntityAIMournCitizen implements IStateAI
     /**
      * Position of the grave to walk to.
      */
-    private BlockPos gravePos;
+    private int[] gravePos;
 
     /**
      * Instantiates this task.
@@ -171,12 +171,12 @@ public class EntityAIMournCitizen implements IStateAI
         }
 
         // Try find the grave of one of the diseased.
-        final Set<Tuple<BlockPos, Direction>> gravePositions = ((BuildingGraveyard) graveyard).getGravePositions();
-        for (final Tuple<BlockPos, Direction> gravePos : gravePositions)
+        final Set<Tuple<int[], Direction>> gravePositions = ((BuildingGraveyard) graveyard).getGravePositions();
+        for (final Tuple<int[], Direction> gravePos : gravePositions)
         {
-            if (WorldUtil.isBlockLoaded(citizen.level, gravePos.getA()))
+            if (WorldUtil.isBlockLoaded(citizen.World, gravePos.getA()))
             {
-                final BlockEntity blockEntity = citizen.level.getBlockEntity(gravePos.getA());
+                final BlockEntity blockEntity = citizen.World.getBlockEntity(gravePos.getA());
                 if (blockEntity instanceof TileEntityNamedGrave)
                 {
                     final Iterator<String> iterator = citizen.getCitizenData().getCitizenMournHandler().getDeceasedCitizens().iterator();
@@ -247,7 +247,7 @@ public class EntityAIMournCitizen implements IStateAI
 
         if (closestEntity == null)
         {
-            closestEntity = this.citizen.level.getNearestEntity(EntityCitizen.class,
+            closestEntity = this.citizen.World.getNearestEntity(EntityCitizen.class,
               TargetingConditions.DEFAULT,
               citizen,
               citizen.getX(),
@@ -324,7 +324,7 @@ public class EntityAIMournCitizen implements IStateAI
     /**
      * Call this function to get the mourn location
      *
-     * @return blockPos of the location to mourn at
+     * @return int[] of the location to mourn at
      */
     protected IBuilding getMournLocation()
     {
@@ -337,3 +337,7 @@ public class EntityAIMournCitizen implements IStateAI
         return citizen.getCitizenData().getHomeBuilding();
     }
 }
+
+
+
+

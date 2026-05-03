@@ -7,10 +7,10 @@ import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.pathfinding.MNode;
 import com.minecolonies.core.entity.pathfinding.PathingOptions;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.world.World;
+// [1.7.10] BlockState -> int metadata
+import net.minecraft.world.chunk.Chunk;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -35,13 +35,13 @@ public class PathJobPathway extends AbstractPathJob implements IDestinationPathJ
     /**
      * The destination pos
      */
-    private final BlockPos end;
+    private final int[] end;
 
     public PathJobPathway(
       final int colonyID,
       final List<IBuilding> buildings,
-      final Level world,
-      @NotNull final BlockPos start, final BlockPos end, final EntityCitizen citizen)
+      final World world,
+      @NotNull final int[] start, final int[] end, final EntityCitizen citizen)
     {
         super(world, start, end, new PathResult<PathJobPathway>(), citizen);
         this.colonyid = colonyID;
@@ -127,8 +127,10 @@ public class PathJobPathway extends AbstractPathJob implements IDestinationPathJ
     }
 
     @Override
-    public BlockPos getDestination()
+    public int[] getDestination()
     {
         return end;
     }
 }
+
+

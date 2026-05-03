@@ -13,13 +13,13 @@ import com.minecolonies.core.tileentities.TileEntityColonyBuilding;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.Utils;
 import com.minecolonies.api.util.WorldUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import com.minecolonies.api.util.Tuple;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+// [1.7.10] block.entity removed
+// [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,17 +32,17 @@ import static com.ldtteam.structurize.placement.handlers.placement.PlacementHand
 public class HutPlacementHandler implements IPlacementHandler
 {
     @Override
-    public boolean canHandle(@NotNull final Level world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
+    public boolean canHandle(@NotNull final World world, @NotNull final int[] pos, @NotNull final BlockState blockState)
     {
         return blockState.getBlock() instanceof AbstractBlockHut<?>;
     }
 
     @Override
     public ActionProcessingResult handle(
-      @NotNull final Level world,
-      @NotNull final BlockPos pos,
+      @NotNull final World world,
+      @NotNull final int[] pos,
       @NotNull final BlockState blockState,
-      @Nullable final CompoundTag tileEntityData,
+      @Nullable final NBTTagCompound tileEntityData,
       @NotNull final IPlacementContext placementContext)
     {
         if (world.getBlockState(pos).equals(blockState))
@@ -73,7 +73,7 @@ public class HutPlacementHandler implements IPlacementHandler
                         final String location = StructurePacks.getStructurePack(placementContext.getBluePrint().getPackName()).getSubPath(placementContext.getBluePrint().getFilePath().resolve(placementContext.getBluePrint().getFileName()));
                         ((IBlueprintDataProviderBE) be).setBlueprintPath(location);
                     }
-                    else if(!((IBlueprintDataProviderBE) be).getPositionedTags().getOrDefault(BlockPos.ZERO, Collections.emptyList()).contains("invisible"))
+                    else if(!((IBlueprintDataProviderBE) be).getPositionedTags().getOrDefault(new int[]{0,0,0}, Collections.emptyList()).contains("invisible"))
                     {
                         final String partialPath;
                         if (((IBlueprintDataProviderBE) be).getSchematicName().isEmpty())
@@ -115,10 +115,10 @@ public class HutPlacementHandler implements IPlacementHandler
 
     @Override
     public List<ItemStack> getRequiredItems(
-      @NotNull final Level world,
-      @NotNull final BlockPos pos,
+      @NotNull final World world,
+      @NotNull final int[] pos,
       @NotNull final BlockState blockState,
-      @Nullable final CompoundTag tileEntityData,
+      @Nullable final NBTTagCompound tileEntityData,
       @NotNull final IPlacementContext context)
     {
         final List<ItemStack> itemList = new ArrayList<>();
@@ -139,9 +139,14 @@ public class HutPlacementHandler implements IPlacementHandler
     public boolean doesWorldStateMatchBlueprintState(
         final BlockState worldState,
         final BlockState blueprintState,
-        final Tuple<BlockEntity, CompoundTag> blockEntityData,
+        final Tuple<BlockEntity, NBTTagCompound> blockEntityData,
         @NotNull final IPlacementContext structureHandler)
     {
         return worldState.equals(blueprintState);
     }
 }
+
+
+
+
+

@@ -23,16 +23,16 @@ import com.minecolonies.api.util.constant.WindowConstants;
 import com.minecolonies.core.client.gui.WindowHutGuide;
 import com.minecolonies.core.client.gui.WindowRequestDetail;
 import com.minecolonies.core.client.gui.citizen.RequestWindowCitizen;
-import net.minecraft.advancements.*;
-import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.advancements.critereon.ItemUsedOnLocationTrigger;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] advancements removed
+// [1.7.10] advancements removed
+// [1.7.10] advancements removed
+// [1.7.10] HolderLookup removed
+// [1.7.10] data removed
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.World.ItemLike;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.common.data.ForgeAdvancementProvider;
 import org.jetbrains.annotations.NotNull;
@@ -57,8 +57,8 @@ public class DefaultAdvancementsProvider extends ForgeAdvancementProvider
         Advancement.Builder.advancement()
           .parent(new ResourceLocation("story/root"))
           .display(ModItems.supplyChest,
-            Component.translatable("advancements.minecolonies.root.title"),
-            Component.translatable("advancements.minecolonies.root.description"),
+            String.translatable("advancements.minecolonies.root.title"),
+            String.translatable("advancements.minecolonies.root.description"),
             null,
             FrameType.TASK, false, false, false)
           .addCriterion("supply_ship", new PlaceSupplyCriterionInstance())
@@ -81,8 +81,8 @@ public class DefaultAdvancementsProvider extends ForgeAdvancementProvider
 
         final Advancement root = Advancement.Builder.advancement()
                 .display(ModItems.supplyChest,
-                        Component.translatable("advancements.minecolonies.root.title"),
-                        Component.translatable("advancements.minecolonies.root.description"),
+                        String.translatable("advancements.minecolonies.root.title"),
+                        String.translatable("advancements.minecolonies.root.description"),
                         new ResourceLocation("textures/block/light_gray_wool.png"),
                         FrameType.TASK, true, true, false)
                 .addCriterion("supply_ship_placed", new PlaceSupplyCriterionInstance())
@@ -249,8 +249,8 @@ public class DefaultAdvancementsProvider extends ForgeAdvancementProvider
 
         final Advancement root = Advancement.Builder.advancement()
                 .display(ModBlocks.blockHutBuilder,
-                        Component.translatable("advancements.minecolonies.root.production.title"),
-                        Component.translatable("advancements.minecolonies.root.production.description"),
+                        String.translatable("advancements.minecolonies.root.production.title"),
+                        String.translatable("advancements.minecolonies.root.production.description"),
                         new ResourceLocation("structurize:textures/block/cactus/cactus_planks.png"),
                         FrameType.TASK, false, false, false)
                 .addCriterion("builders_hut", completeBuildRequest(ModBuildings.builder.get(), 1))
@@ -446,8 +446,8 @@ public class DefaultAdvancementsProvider extends ForgeAdvancementProvider
 
         final Advancement root = Advancement.Builder.advancement()
                 .display(ModBlocks.blockHutBarracks,
-                        Component.translatable("advancements.minecolonies.root.military.title"),
-                        Component.translatable("advancements.minecolonies.root.military.description"),
+                        String.translatable("advancements.minecolonies.root.military.title"),
+                        String.translatable("advancements.minecolonies.root.military.description"),
                         new ResourceLocation("textures/block/stone_bricks.png"),
                         FrameType.TASK, true, false, false)
                 .addCriterion("guardtower", completeBuildRequest(ModBuildings.guardTower.get(), 1))
@@ -507,8 +507,8 @@ public class DefaultAdvancementsProvider extends ForgeAdvancementProvider
                                     @NotNull final String name)
     {
         return new DisplayInfo(new ItemStack(icon),
-                Component.translatable("advancements.minecolonies." + name + ".title"),
-                Component.translatable("advancements.minecolonies." + name + ".description"),
+                String.translatable("advancements.minecolonies." + name + ".title"),
+                String.translatable("advancements.minecolonies." + name + ".description"),
                 null, frame, true, true, false);
     }
 
@@ -517,8 +517,8 @@ public class DefaultAdvancementsProvider extends ForgeAdvancementProvider
                                           @NotNull final String name)
     {
         return new DisplayInfo(new ItemStack(icon),
-                Component.translatable("advancements.minecolonies." + name + ".title"),
-                Component.translatable("advancements.minecolonies." + name + ".description"),
+                String.translatable("advancements.minecolonies." + name + ".title"),
+                String.translatable("advancements.minecolonies." + name + ".description"),
                 null, frame, true, true, true);
     }
 
@@ -534,14 +534,17 @@ public class DefaultAdvancementsProvider extends ForgeAdvancementProvider
     }
 
     @NotNull
-    private static CriterionTriggerInstance createBuildRequest(@NotNull final BuildingEntry building, final int level)
+    private static CriterionTriggerInstance createBuildRequest(@NotNull final BuildingEntry building, final int World)
     {
-        return new CreateBuildRequestCriterionInstance(building.getRegistryName().getPath(), level);
+        return new CreateBuildRequestCriterionInstance(building.getRegistryName().getPath(), World);
     }
 
     @NotNull
-    private static CriterionTriggerInstance completeBuildRequest(@NotNull final BuildingEntry building, final int level)
+    private static CriterionTriggerInstance completeBuildRequest(@NotNull final BuildingEntry building, final int World)
     {
-        return new CompleteBuildRequestCriterionInstance(building.getRegistryName().getPath(), level);
+        return new CompleteBuildRequestCriterionInstance(building.getRegistryName().getPath(), World);
     }
 }
+
+
+

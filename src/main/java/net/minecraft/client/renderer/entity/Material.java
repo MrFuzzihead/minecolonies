@@ -1,0 +1,3 @@
+package net.minecraft.client.renderer.entity;
+/** [1.7.10 stub] Material - rendering material */
+public class Material { private final net.minecraft.util.ResourceLocation texture; public Material(net.minecraft.util.ResourceLocation atlas, net.minecraft.util.ResourceLocation texture) { this.texture = texture; } public net.minecraft.util.ResourceLocation texture() { return texture; } public Object buffer(Object source, java.util.function.Function<net.minecraft.util.ResourceLocation, Object> func) { return null; } }

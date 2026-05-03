@@ -11,18 +11,18 @@ import com.minecolonies.api.util.DamageSourceKeys;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.constant.ColonyConstants;
 import com.minecolonies.core.entity.pathfinding.SurfaceType;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.LadderBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.pathfinder.Node;
-import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fml.loading.FMLEnvironment;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
+// [1.7.10] block import removed
+// [1.7.10] block import removed
+// [1.7.10] BlockState -> int metadata
+import net.minecraft.pathfinding.PathPoint;
+// [1.7.10] world.phys removed
+// [1.7.10] fml.loading removed
 
 import java.util.Objects;
 import java.util.Random;
@@ -32,7 +32,7 @@ import static com.minecolonies.api.util.BlockPosUtil.HORIZONTAL_DIRS;
 /**
  * Stuck handler for pathing
  */
-public class PathingStuckHandler<NAV extends PathNavigation & IMinecoloniesNavigator> implements IStuckHandler<NAV>
+public class PathingStuckHandler<NAV extends PathNavigate & IMinecoloniesNavigator> implements IStuckHandler<NAV>
 {
     /**
      * The distance at which we consider a target to arrive
@@ -78,7 +78,7 @@ public class PathingStuckHandler<NAV extends PathNavigation & IMinecoloniesNavig
     /**
      * The previously desired go to position of the entity
      */
-    private BlockPos prevDestination = BlockPos.ZERO;
+    private int[] prevDestination = new int[]{0,0,0};
 
     /**
      * Whether breaking blocks is enabled
@@ -132,7 +132,7 @@ public class PathingStuckHandler<NAV extends PathNavigation & IMinecoloniesNavig
     /**
      * The start position of moving away unstuck
      */
-    private BlockPos  moveAwayStartPos = BlockPos.ZERO;
+    private int[]  moveAwayStartPos = new int[]{0,0,0};
     private Direction movingAwayDir    = Direction.EAST;
 
     private Random rand = new Random();
@@ -146,7 +146,7 @@ public class PathingStuckHandler<NAV extends PathNavigation & IMinecoloniesNavig
      *
      * @return new stuck handler
      */
-    public static <NAV extends PathNavigation & IMinecoloniesNavigator> PathingStuckHandler<NAV> createStuckHandler()
+    public static <NAV extends PathNavigate & IMinecoloniesNavigator> PathingStuckHandler<NAV> createStuckHandler()
     {
         return new PathingStuckHandler<>();
     }
@@ -178,7 +178,7 @@ public class PathingStuckHandler<NAV extends PathNavigation & IMinecoloniesNavig
             // Try path first, if path fits target pos
             if (globalTimeout > MIN_TP_DELAY)
             {
-                if (navigator.getSafeDestination() != null && navigator.getSafeDestination() != BlockPos.ZERO)
+                if (navigator.getSafeDestination() != null && navigator.getSafeDestination() != new int[]{0,0,0})
                 {
                     final int distance = Math.max(MIN_DIST_FOR_TP, BlockPosUtil.distManhattan(navigator.getSafeDestination(), navigator.getOurEntity().blockPosition()));
                     if (globalTimeout > timePerBlockDistance * distance)
@@ -199,7 +199,7 @@ public class PathingStuckHandler<NAV extends PathNavigation & IMinecoloniesNavig
 
         prevDestination = navigator.getSafeDestination();
 
-        if (prevDestination != null && prevDestination != BlockPos.ZERO)
+        if (prevDestination != null && prevDestination != new int[]{0,0,0})
         {
             final double distanceToGoal =
                 navigator.getOurEntity()
@@ -240,7 +240,7 @@ public class PathingStuckHandler<NAV extends PathNavigation & IMinecoloniesNavig
                 // Delay next action when the entity is moving
                 delayToNextUnstuckAction = Math.max(delayToNextUnstuckAction, 100);
 
-                if ((stuckLevel == 0 || (prevDestination != null && prevDestination != BlockPos.ZERO && navigator.getPath().getTarget().distSqr(prevDestination) < 25)))
+                if ((stuckLevel == 0 || (prevDestination != null && prevDestination != new int[]{0,0,0} && navigator.getPath().getTarget().distSqr(prevDestination) < 25)))
                 {
                     progressedNodes = navigator.getPath().getNextNodeIndex() > lastPathIndex ? progressedNodes + 1 : progressedNodes;
                     if (progressedNodes > 5 && (navigator.getPath().getEndNode() == null || !moveAwayStartPos.equals(navigator.getPath().getEndNode().asBlockPos())))
@@ -264,7 +264,7 @@ public class PathingStuckHandler<NAV extends PathNavigation & IMinecoloniesNavig
     public void resetGlobalStuckTimers()
     {
         globalTimeout = 0;
-        prevDestination = BlockPos.ZERO;
+        prevDestination = new int[]{0,0,0};
         resetStuckTimers();
     }
 
@@ -273,9 +273,9 @@ public class PathingStuckHandler<NAV extends PathNavigation & IMinecoloniesNavig
      */
     private void completeStuckAction(final NAV navigator)
     {
-        final BlockPos desired = navigator.getSafeDestination();
-        final Level world = navigator.getOurEntity().level();
-        final Mob entity = navigator.getOurEntity();
+        final int[] desired = navigator.getSafeDestination();
+        final World world = navigator.getOurEntity().World();
+        final EntityCreature entity = navigator.getOurEntity();
 
         if (!FMLEnvironment.production)
         {
@@ -284,9 +284,9 @@ public class PathingStuckHandler<NAV extends PathNavigation & IMinecoloniesNavig
                     + canTeleportGoal);
         }
 
-        if (canTeleportGoal && desired != null && desired != BlockPos.ZERO)
+        if (canTeleportGoal && desired != null && desired != new int[]{0,0,0})
         {
-            final BlockPos tpPos = BlockPosUtil.findAround(world, desired, 10, 10,
+            final int[] tpPos = BlockPosUtil.findAround(world, desired, 10, 10,
                 (posworld, pos) -> SurfaceType.getSurfaceType(posworld, posworld.getBlockState(pos.below()), pos.below()) == SurfaceType.WALKABLE
                     && SurfaceType.getSurfaceType(posworld, posworld.getBlockState(pos), pos) == SurfaceType.DROPABLE
                     && SurfaceType.getSurfaceType(posworld, posworld.getBlockState(pos.above()), pos.above()) == SurfaceType.DROPABLE);
@@ -303,17 +303,17 @@ public class PathingStuckHandler<NAV extends PathNavigation & IMinecoloniesNavig
 
         if (completeStuckBlockBreakRange > 0)
         {
-            final BlockPos neighbour = prevDestination != null && prevDestination != BlockPos.ZERO
+            final int[] neighbour = prevDestination != null && prevDestination != new int[]{0,0,0}
                 ? prevDestination
                 : navigator.getPath() != null ? navigator.getPath().getTarget() : entity.blockPosition().east();
-            final Direction facing = BlockPosUtil.getFacing(BlockPos.containing(entity.position()), neighbour);
+            final Direction facing = BlockPosUtil.getFacing(new int[]{(int)entity.posX, (int)entity.posY, (int)entity.posZ}, neighbour);
             for (int i = 1; i <= completeStuckBlockBreakRange; i++)
             {
-                if (!world.isEmptyBlock(BlockPos.containing(entity.position()).relative(facing, i)) || !world.isEmptyBlock(BlockPos.containing(entity.position())
+                if (!world.isEmptyBlock(new int[]{(int)entity.posX, (int)entity.posY, (int)entity.posZ}.relative(facing, i)) || !world.isEmptyBlock(new int[]{(int)entity.posX, (int)entity.posY, (int)entity.posZ}
                     .relative(facing, i)
                     .above()))
                 {
-                    breakBlocksAhead(world, BlockPos.containing(entity.position()).relative(facing, i - 1), facing);
+                    breakBlocksAhead(world, new int[]{(int)entity.posX, (int)entity.posY, (int)entity.posZ}.relative(facing, i - 1), facing);
                     break;
                 }
             }
@@ -324,7 +324,7 @@ public class PathingStuckHandler<NAV extends PathNavigation & IMinecoloniesNavig
     }
 
     /**
-     * Tries unstuck options depending on the level
+     * Tries unstuck options depending on the World
      */
     private void tryUnstuck(final NAV navigator)
     {
@@ -425,12 +425,12 @@ public class PathingStuckHandler<NAV extends PathNavigation & IMinecoloniesNavig
     }
 
     /**
-     * Random chance to decrease to a previous level of stuck
+     * Random chance to decrease to a previous World of stuck
      */
     private void chanceStuckLevel(NAV nav)
     {
         stuckLevel++;
-        // 20 % to decrease to the previous level again
+        // 20 % to decrease to the previous World again
         if (stuckLevel > 1 && rand.nextInt(6) == 0)
         {
             stuckLevel = Math.max(1, stuckLevel - 2);
@@ -446,7 +446,7 @@ public class PathingStuckHandler<NAV extends PathNavigation & IMinecoloniesNavig
         lastPathIndex = -1;
         progressedNodes = 0;
         stuckLevel = STARTING_STUCK_LEVEL;
-        moveAwayStartPos = BlockPos.ZERO;
+        moveAwayStartPos = new int[]{0,0,0};
     }
 
     /**
@@ -456,7 +456,7 @@ public class PathingStuckHandler<NAV extends PathNavigation & IMinecoloniesNavig
      * @param start  the position the entity is at.
      * @param facing the direction the goal is in.
      */
-    private boolean breakBlocksAhead(final Level world, final BlockPos start, final Direction facing)
+    private boolean breakBlocksAhead(final World world, final int[] start, final Direction facing)
     {
         // In entity
         if (!world.isEmptyBlock(start))
@@ -494,7 +494,7 @@ public class PathingStuckHandler<NAV extends PathNavigation & IMinecoloniesNavig
      * @param world the world the block is in.
      * @param pos   the pos the block is at.
      */
-    private void setAirIfPossible(final Level world, final BlockPos pos)
+    private void setAirIfPossible(final World world, final int[] pos)
     {
         final BlockState state = world.getBlockState(pos);
         final Block blockAtPos = state.getBlock();
@@ -512,10 +512,10 @@ public class PathingStuckHandler<NAV extends PathNavigation & IMinecoloniesNavig
      */
     private void placeLadders(final NAV navigator)
     {
-        final Level world = navigator.getOurEntity().level;
-        final Mob entity = navigator.getOurEntity();
+        final World world = navigator.getOurEntity().World;
+        final EntityCreature entity = navigator.getOurEntity();
 
-        BlockPos entityPos = entity.blockPosition();
+        int[] entityPos = entity.blockPosition();
 
         while (world.getBlockState(entityPos).getBlock() == Blocks.LADDER)
         {
@@ -534,12 +534,12 @@ public class PathingStuckHandler<NAV extends PathNavigation & IMinecoloniesNavig
      */
     private void placeLeaves(final NAV navigator)
     {
-        final Level world = navigator.getOurEntity().level();
-        final Mob entity = navigator.getOurEntity();
+        final World world = navigator.getOurEntity().World();
+        final EntityCreature entity = navigator.getOurEntity();
 
         final Direction badFacing = navigator.getSafeDestination() == null
             ? entity.getDirection().getOpposite()
-            : BlockPosUtil.getFacing(BlockPos.containing(entity.position()), navigator.getSafeDestination()).getOpposite();
+            : BlockPosUtil.getFacing(new int[]{(int)entity.posX, (int)entity.posY, (int)entity.posZ}, navigator.getSafeDestination()).getOpposite();
 
         for (final Direction dir : HORIZONTAL_DIRS)
         {
@@ -550,7 +550,7 @@ public class PathingStuckHandler<NAV extends PathNavigation & IMinecoloniesNavig
 
             for (int i = 1; i <= (dir == badFacing.getOpposite() ? 3 : 1); i++)
             {
-                if (!tryPlaceLeaveOnPos(world, BlockPos.containing(entity.position()).below().relative(dir, i)))
+                if (!tryPlaceLeaveOnPos(world, new int[]{(int)entity.posX, (int)entity.posY, (int)entity.posZ}.below().relative(dir, i)))
                 {
                     break;
                 }
@@ -565,7 +565,7 @@ public class PathingStuckHandler<NAV extends PathNavigation & IMinecoloniesNavig
      * @param pos
      * @return
      */
-    private boolean tryPlaceLeaveOnPos(final Level world, final BlockPos pos)
+    private boolean tryPlaceLeaveOnPos(final World world, final int[] pos)
     {
         if (world.isEmptyBlock(pos))
         {
@@ -582,11 +582,11 @@ public class PathingStuckHandler<NAV extends PathNavigation & IMinecoloniesNavig
      */
     private void breakBlocks(final NAV navigator)
     {
-        final Level world = navigator.getOurEntity().level();
-        final Mob entity = navigator.getOurEntity();
+        final World world = navigator.getOurEntity().World();
+        final EntityCreature entity = navigator.getOurEntity();
 
         final Direction facing =
-            navigator.getSafeDestination() == null ? entity.getDirection() : BlockPosUtil.getFacing(BlockPos.containing(entity.position()), navigator.getSafeDestination());
+            navigator.getSafeDestination() == null ? entity.getDirection() : BlockPosUtil.getFacing(new int[]{(int)entity.posX, (int)entity.posY, (int)entity.posZ}, navigator.getSafeDestination());
 
         if (breakBlocksAhead(world, entity.blockPosition(), facing) && entity.getHealth() >= entity.getMaxHealth() / 3)
         {
@@ -600,7 +600,7 @@ public class PathingStuckHandler<NAV extends PathNavigation & IMinecoloniesNavig
      * @param world world to use
      * @param pos   position to set
      */
-    private void tryPlaceLadderAt(final Level world, final BlockPos pos)
+    private void tryPlaceLadderAt(final World world, final int[] pos)
     {
         final BlockState state = world.getBlockState(pos);
         if ((canBreakBlocks || state.canBeReplaced() || state.isAir()) && state.getBlock() != Blocks.LADDER && !(state.getBlock() instanceof IBuilderUndestroyable) && !state.is(
@@ -709,3 +709,7 @@ public class PathingStuckHandler<NAV extends PathNavigation & IMinecoloniesNavig
         return stuckLevel;
     }
 }
+
+
+
+

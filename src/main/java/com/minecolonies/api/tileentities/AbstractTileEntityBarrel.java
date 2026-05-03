@@ -1,21 +1,18 @@
 package com.minecolonies.api.tileentities;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 
-public abstract class AbstractTileEntityBarrel extends BlockEntity
+public abstract class AbstractTileEntityBarrel extends TileEntity
 {
     /**
      * The number of items it needs to start composting
      */
     public static final int MAX_ITEMS = 64;
 
-    public AbstractTileEntityBarrel(final BlockEntityType<?> tileEntityTypeIn, final BlockPos pos, final BlockState state)
+    public AbstractTileEntityBarrel()
     {
-        super(tileEntityTypeIn, pos, state);
+        super();
     }
 
     /**

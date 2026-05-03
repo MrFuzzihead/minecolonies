@@ -1,6 +1,6 @@
 package com.minecolonies.api.entity.citizen.citizenhandlers;
 
-import net.minecraft.core.BlockPos;
+// [1.7.10] int[] -> int x,y,z
 
 public interface ICitizenSleepHandler
 {
@@ -17,7 +17,7 @@ public interface ICitizenSleepHandler
      * @param bedLocation The possible location to sleep.
      * @return if successful.
      */
-    boolean trySleep(BlockPos bedLocation);
+    boolean trySleep(int[] bedLocation);
 
     /**
      * Called when the citizen wakes up.
@@ -29,7 +29,7 @@ public interface ICitizenSleepHandler
      *
      * @return the bed location.
      */
-    BlockPos getBedLocation();
+    int[] getBedLocation();
 
     /**
      * Whether we should start to go sleeping
@@ -38,3 +38,5 @@ public interface ICitizenSleepHandler
      */
     boolean shouldGoSleep();
 }
+
+

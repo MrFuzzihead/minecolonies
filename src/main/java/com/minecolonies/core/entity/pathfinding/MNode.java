@@ -1,6 +1,6 @@
 package com.minecolonies.core.entity.pathfinding;
 
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -99,7 +99,7 @@ public class MNode implements Comparable<MNode>
      * Create an MNode from a bytebuf.
      * @param byteBuf the buffer to load it from.
      */
-    public MNode(final FriendlyByteBuf byteBuf)
+    public MNode(final PacketBuffer byteBuf)
     {
         if (byteBuf.readBoolean())
         {
@@ -117,7 +117,7 @@ public class MNode implements Comparable<MNode>
      * Serialize the Node to buf.
      * @param byteBuf
      */
-    public void serializeToBuf(final FriendlyByteBuf byteBuf)
+    public void serializeToBuf(final PacketBuffer byteBuf)
     {
         byteBuf.writeBoolean(this.parent != null);
         if (this.parent != null)
@@ -405,3 +405,5 @@ public class MNode implements Comparable<MNode>
         return "Node: [" + x + "," + y + "," + z + "] visited:" + visitedCount + " cost:" + cost + " heuristic:" + heuristic;
     }
 }
+
+

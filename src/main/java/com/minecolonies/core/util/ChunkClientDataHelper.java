@@ -3,7 +3,7 @@ package com.minecolonies.core.util;
 import com.minecolonies.api.colony.IColonyTagCapability;
 import com.minecolonies.core.event.ClientChunkUpdatedEvent;
 import com.minecolonies.api.util.ChunkCapData;
-import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.MinecraftForge;
 
 import java.util.ArrayList;
@@ -75,3 +75,4 @@ public class ChunkClientDataHelper
         MinecraftForge.EVENT_BUS.post(new ClientChunkUpdatedEvent(chunk));
     }
 }
+

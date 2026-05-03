@@ -1,12 +1,31 @@
 package com.minecolonies.core.client.gui;
 
-import com.ldtteam.blockui.Color;
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
 import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
 import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
+import com.ldtteam.blockui.controls.DropDownList;
+import com.ldtteam.blockui.controls.Image;
 import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
-import com.ldtteam.blockui.views.DropDownList;
+import com.ldtteam.blockui.controls.TextField;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
 import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.placement.BlockPlacementResult;
 import com.ldtteam.structurize.placement.StructurePhasePlacementResult;
@@ -26,15 +45,15 @@ import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.Network;
 import com.minecolonies.core.colony.buildings.views.AbstractBuildingBuilderView;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import com.minecolonies.api.util.Tuple;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraft.world.Mirror;
+import net.minecraft.world.Rotation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,7 +63,7 @@ import java.util.concurrent.Future;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.ldtteam.structurize.placement.AbstractBlueprintIterator.NULL_POS;
+// [1.7.10] NULL_POS from AbstractBlueprintIterator not in structurize jar
 import static com.minecolonies.api.util.constant.TranslationConstants.ACTION_BUILD;
 import static com.minecolonies.api.util.constant.TranslationConstants.OUT_OF_COLONY;
 import static com.minecolonies.api.util.constant.WindowConstants.*;
@@ -60,7 +79,7 @@ public class WindowBuildDecoration extends AbstractWindowSkeleton
      * List of style for the section.
      */
     @NotNull
-    private final List<Tuple<String, BlockPos>> builders = new ArrayList<>();
+    private final List<Tuple<String, int[]>> builders = new ArrayList<>();
 
     /**
      * Path of the blueprint in the pack.
@@ -80,7 +99,7 @@ public class WindowBuildDecoration extends AbstractWindowSkeleton
     /**
      * A function that will supply the message, given the position of the requested builder, if any.
      */
-    private final Function<BlockPos, IMessage> buildRequestMessage;
+    private final Function<int[], IMessage> buildRequestMessage;
 
     /**
      * Drop down list for builders.
@@ -95,7 +114,7 @@ public class WindowBuildDecoration extends AbstractWindowSkeleton
     /**
      * The position of the decoration anchor
      */
-    private final BlockPos structurePos;
+    private final int[] structurePos;
 
     /**
      * The blueprint future of this.
@@ -106,12 +125,12 @@ public class WindowBuildDecoration extends AbstractWindowSkeleton
      * Constructs the decoration build confirmation dialog
      */
     public WindowBuildDecoration(
-      final BlockPos pos,
+      final int[] pos,
       final String packMeta,
       final String path,
       final Rotation rotation,
       final boolean mirror,
-      Function<BlockPos, IMessage> buildRequestMessage)
+      Function<int[], IMessage> buildRequestMessage)
     {
         super(new ResourceLocation(Constants.MOD_ID, "gui/windowbuildbuilding.xml"));
         this.path = path;
@@ -120,7 +139,7 @@ public class WindowBuildDecoration extends AbstractWindowSkeleton
         registerButton(BUTTON_BUILD, this::confirmedBuild);
         registerButton(BUTTON_CANCEL, this::close);
 
-        findPaneOfTypeByID(BUTTON_BUILD, Button.class).setText(Component.translatable(ACTION_BUILD));
+        findPaneOfTypeByID(BUTTON_BUILD, Button.class).setText(String.translatable(ACTION_BUILD));
         findPaneOfTypeByID(BUTTON_BUILD, Button.class).hide();
         findPaneOfTypeByID(BUTTON_DECONSTRUCT_BUILDING, Button.class).hide();
         findPaneOfTypeByID(BUTTON_REPAIR, Button.class).hide();
@@ -157,7 +176,7 @@ public class WindowBuildDecoration extends AbstractWindowSkeleton
     private void updateBuilders()
     {
         IColonyView colony = (IColonyView) IColonyManager.getInstance()
-                                             .getIColony(Minecraft.getInstance().level, structurePos);
+                                             .getIColony(Minecraft.getInstance().World, structurePos);
 
         if (colony == null)
         {
@@ -167,7 +186,7 @@ public class WindowBuildDecoration extends AbstractWindowSkeleton
         }
 
         builders.clear();
-        builders.add(new Tuple<>(Component.translatable(ModJobs.builder.get().getTranslationKey()).getString() + ":", BlockPos.ZERO));
+        builders.add(new Tuple<>(String.translatable(ModJobs.builder.get().getTranslationKey()).getString() + ":", new int[]{0,0,0}));
         builders.addAll(colony.getClientBuildingManager().getBuildings().values().stream()
                           .filter(build -> build instanceof AbstractBuildingBuilderView && !((AbstractBuildingBuilderView) build).getWorkerName().isEmpty()
                                              && build.getBuildingType() != ModBuildings.miner.get()
@@ -216,7 +235,7 @@ public class WindowBuildDecoration extends AbstractWindowSkeleton
             return;
         }
 
-        final Level world = Minecraft.getInstance().level;
+        final World world = Minecraft.getInstance().World;
         resources.clear();
 
         try
@@ -231,11 +250,11 @@ public class WindowBuildDecoration extends AbstractWindowSkeleton
               structurePos,
               blueprintFuture.get(),
               new PlacementSettings());
-            structure.getBluePrint().setRotationMirror(RotationMirror.of(rotation, mirror ? Mirror.FRONT_BACK : Mirror.NONE), Minecraft.getInstance().level);
+            structure.getBluePrint().setRotationMirror(RotationMirror.of(rotation, mirror ? Mirror.FRONT_BACK : Mirror.NONE), Minecraft.getInstance().World);
 
             StructurePlacer placer = new StructurePlacer(structure);
             StructurePhasePlacementResult result;
-            BlockPos progressPos = NULL_POS;
+            int[] progressPos = new int[]{0, -1, 0}; // [1.7.10] NULL_POS replacement
 
             do
             {
@@ -319,8 +338,8 @@ public class WindowBuildDecoration extends AbstractWindowSkeleton
                 final ItemStorage resource = tempRes.get(index);
                 final Text resourceLabel = rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class);
                 final Text quantityLabel = rowPane.findPaneOfTypeByID(RESOURCE_QUANTITY_MISSING, Text.class);
-                resourceLabel.setText(Component.literal(resource.getItemStack().getHoverName().getString()));
-                quantityLabel.setText(Component.literal(Integer.toString(resource.getAmount())));
+                resourceLabel.setText(String.literal(resource.getItemStack().getHoverName().getString()));
+                quantityLabel.setText(String.literal(Integer.toString(resource.getAmount())));
                 resourceLabel.setColors(WHITE);
                 quantityLabel.setColors(WHITE);
                 final ItemStack itemIcon = new ItemStack(resource.getItem(), 1);
@@ -332,11 +351,15 @@ public class WindowBuildDecoration extends AbstractWindowSkeleton
 
     private void confirmedBuild()
     {
-        final BlockPos builder = buildersDropDownList.getSelectedIndex() == 0
-                                   ? BlockPos.ZERO
+        final int[] builder = buildersDropDownList.getSelectedIndex() == 0
+                                   ? new int[]{0,0,0}
                                    : builders.get(buildersDropDownList.getSelectedIndex()).getB();
 
         Network.getNetwork().sendToServer(buildRequestMessage.apply(builder));
         close();
     }
 }
+
+
+
+

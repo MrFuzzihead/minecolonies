@@ -5,18 +5,19 @@ import com.minecolonies.api.blocks.types.RackType;
 import com.minecolonies.api.inventory.ModContainers;
 import com.minecolonies.api.tileentities.AbstractTileEntityRack;
 import com.minecolonies.api.util.ItemStackUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.SlotItemHandler;
-import net.minecraftforge.items.wrapper.CombinedInvWrapper;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.entity.player.EntityPlayerMP;
+// [1.7.10] Inventory removed
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.Container;
+// [1.7.10] int not in 1.7.10
+import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
+// [1.7.10] items shim in com.minecolonies.api.shim
+// [1.7.10] items shim in com.minecolonies.api.shim
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.InventoryConstants.*;
@@ -24,12 +25,12 @@ import static com.minecolonies.api.util.constant.InventoryConstants.*;
 /**
  * The container class for the rack.
  */
-public class ContainerRack extends AbstractContainerMenu
+public class ContainerRack extends Container
 {
     /**
      * The inventory.
      */
-    private final IItemHandler inventory;
+    private final net.minecraftforge.items.IItemHandler inventory;
 
     /**
      * The tileEntity.
@@ -50,14 +51,14 @@ public class ContainerRack extends AbstractContainerMenu
      * Deserialize packet buffer to container instance.
      *
      * @param windowId     the id of the window.
-     * @param inv          the player inventory.
+     * @param inv          the EntityPlayer inventory.
      * @param packetBuffer network buffer
      * @return new instance
      */
-    public static ContainerRack fromFriendlyByteBuf(final int windowId, final Inventory inv, final FriendlyByteBuf packetBuffer)
+    public static ContainerRack fromPacketBuffer(final int windowId, final InventoryPlayer inv, final PacketBuffer packetBuffer)
     {
-        final BlockPos tePos = packetBuffer.readBlockPos();
-        final BlockPos neighborPos = packetBuffer.readBlockPos();
+        final int[] tePos = packetBuffer.readBlockPos();
+        final int[] neighborPos = packetBuffer.readBlockPos();
         return new ContainerRack(windowId, inv, tePos, neighborPos);
     }
 
@@ -69,13 +70,13 @@ public class ContainerRack extends AbstractContainerMenu
      * @param rack     te world pos.
      * @param neighbor neighbor te world pos
      */
-    public ContainerRack(final int windowId, final Inventory inv, final BlockPos rack, final BlockPos neighbor)
+    public ContainerRack(final int windowId, final InventoryPlayer inv, final int[] rack, final int[] neighbor)
     {
-        super(ModContainers.rackInv.get(), windowId);
+        super();
 
-        final AbstractTileEntityRack abstractTileEntityRack = (AbstractTileEntityRack) inv.player.level().getBlockEntity(rack);
+        final AbstractTileEntityRack abstractTileEntityRack = (AbstractTileEntityRack) inv.player.World().getBlockEntity(rack);
         // TODO: bug, what if neighbor is actually bp.ZERO? (unlikely to happen)
-        final AbstractTileEntityRack neighborRack = neighbor.equals(BlockPos.ZERO) ? null : (AbstractTileEntityRack) inv.player.level().getBlockEntity(neighbor);
+        final AbstractTileEntityRack neighborRack = neighbor.equals(new int[]{0,0,0}) ? null : (AbstractTileEntityRack) inv.player.World().getBlockEntity(neighbor);
 
         if (neighborRack != null)
         {
@@ -117,8 +118,8 @@ public class ContainerRack extends AbstractContainerMenu
             }
         }
 
-        // Player inventory slots
-        // Note: The slot numbers are within the player inventory and may be the same as the field inventory.
+        // EntityPlayer inventory slots
+        // Note: The slot numbers are within the EntityPlayer inventory and may be the same as the field inventory.
         int i;
         for (i = 0; i < INVENTORY_ROWS; i++)
         {
@@ -146,9 +147,9 @@ public class ContainerRack extends AbstractContainerMenu
     }
 
     @Override
-    public void clicked(int slotId, int dragType, @NotNull ClickType clickTypeIn, Player player)
+    public void clicked(int slotId, int dragType, @NotNull int clickTypeIn, EntityPlayer player)
     {
-        if (player.level().isClientSide || slotId >= inventory.getSlots() || slotId < 0)
+        if (player.World().isRemote || slotId >= inventory.getSlots() || slotId < 0)
         {
             super.clicked(slotId, dragType, clickTypeIn, player);
             return;
@@ -165,16 +166,16 @@ public class ContainerRack extends AbstractContainerMenu
 
     @NotNull
     @Override
-    public ItemStack quickMoveStack(final Player playerIn, final int index)
+    public ItemStack transferStackInSlot(final EntityPlayer playerIn, final int index)
     {
         final Slot slot = this.slots.get(index);
 
-        if (slot == null || !slot.hasItem())
+        if (slot == null || !slot.getHasStack())
         {
             return ItemStackUtils.EMPTY;
         }
 
-        final ItemStack stackCopy = slot.getItem().copy();
+        final ItemStack stackCopy = slot.getStack().copy();
 
         final int maxIndex = this.inventorySize * INVENTORY_COLUMNS;
 
@@ -200,7 +201,7 @@ public class ContainerRack extends AbstractContainerMenu
             slot.setChanged();
         }
 
-        if (playerIn instanceof ServerPlayer)
+        if (playerIn instanceof EntityPlayerMP)
         {
             this.updateRacks(stackCopy);
         }
@@ -236,8 +237,12 @@ public class ContainerRack extends AbstractContainerMenu
     }
 
     @Override
-    public boolean stillValid(final Player playerIn)
+    public boolean canInteractWith(final EntityPlayer playerIn)
     {
         return true;
     }
 }
+
+
+
+

@@ -7,16 +7,16 @@ import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.util.ColonyUtils;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.core.colony.Colony;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraft.world.level.storage.LevelResource;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
+// [1.7.10] dimension removed
+// [1.7.10] world.World.storage removed
 import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -91,7 +91,7 @@ public final class BackUpHelper
               new File(ServerLifecycleHooks.getCurrentServer().getWorldPath(LevelResource.ROOT).toFile(), FILENAME_MINECOLONIES_PATH);
             final ZipOutputStream zos = new ZipOutputStream(fos);
 
-            for (final ResourceKey<Level> dimensionType : net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer().levels.keySet())
+            for (final int /* ResourceKey */ dimensionType : net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer().levels.keySet())
             {
                 for (int i = 1; i <= IColonyManager.getInstance().getTopColonyId() + 1; i++)
                 {
@@ -177,7 +177,7 @@ public final class BackUpHelper
         try
         {
             @NotNull final File file = BackUpHelper.getSaveLocation();
-            @Nullable final CompoundTag data = BackUpHelper.loadNBTFromPath(file);
+            @Nullable final NBTTagCompound data = BackUpHelper.loadNBTFromPath(file);
             if (data != null)
             {
                 Log.getLogger().info("Loading Minecolonies colony manager Backup Data");
@@ -198,7 +198,7 @@ public final class BackUpHelper
     {
         @NotNull final File saveDir = new File(ServerLifecycleHooks.getCurrentServer().getWorldPath(LevelResource.ROOT).toFile(), FILENAME_MINECOLONIES_PATH);
 
-        for (final ResourceKey<Level> dimensionType : ServerLifecycleHooks.getCurrentServer().levels.keySet())
+        for (final int /* ResourceKey */ dimensionType : ServerLifecycleHooks.getCurrentServer().levels.keySet())
         {
             int missingFilesInRow = 0;
             for (int i = 1; i <= MAX_COLONY_LOAD && missingFilesInRow < 5; i++)
@@ -285,12 +285,12 @@ public final class BackUpHelper
     }
 
     /**
-     * Save an CompoundTag to a file.  Does so in a safe manner using an intermediate tmp file.
+     * Save an NBTTagCompound to a file.  Does so in a safe manner using an intermediate tmp file.
      *
      * @param file     The destination file to write the data to.
-     * @param compound The CompoundTag to write to the file.
+     * @param compound The NBTTagCompound to write to the file.
      */
-    public static void saveNBTToPath(@Nullable final File file, @NotNull final CompoundTag compound)
+    public static void saveNBTToPath(@Nullable final File file, @NotNull final NBTTagCompound compound)
     {
         try
         {
@@ -307,12 +307,12 @@ public final class BackUpHelper
     }
 
     /**
-     * Load a file and return the data as an CompoundTag.
+     * Load a file and return the data as an NBTTagCompound.
      *
      * @param file The path to the file.
-     * @return the data from the file as an CompoundTag, or null.
+     * @return the data from the file as an NBTTagCompound, or null.
      */
-    public static CompoundTag loadNBTFromPath(@Nullable final File file)
+    public static NBTTagCompound loadNBTFromPath(@Nullable final File file)
     {
         try
         {
@@ -333,7 +333,7 @@ public final class BackUpHelper
      */
     public static void saveColonies()
     {
-        @NotNull final CompoundTag compound = new CompoundTag();
+        @NotNull final NBTTagCompound compound = new NBTTagCompound();
         IColonyManager.getInstance().write(compound);
 
         @NotNull final File file = getSaveLocation();
@@ -342,7 +342,7 @@ public final class BackUpHelper
           new File(net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer().getWorldPath(LevelResource.ROOT).toFile(), FILENAME_MINECOLONIES_PATH);
         for (final IColony colony : IColonyManager.getInstance().getAllColonies())
         {
-            final CompoundTag colonyCompound = new CompoundTag();
+            final NBTTagCompound colonyCompound = new NBTTagCompound();
             colony.write(colonyCompound);
             saveNBTToPath(new File(saveDir, getFolderForDimension(colony.getDimension().location()) + String.format(FILENAME_COLONY, colony.getID())), colonyCompound);
         }
@@ -354,7 +354,7 @@ public final class BackUpHelper
      * @param colonyID    id of the colony to delete
      * @param dimensionID dimension of the colony to delete
      */
-    public static void markColonyDeleted(final int colonyID, final ResourceKey<Level> dimensionID)
+    public static void markColonyDeleted(final int colonyID, final int /* ResourceKey */ dimensionID)
     {
         @NotNull final File saveDir =
           new File(net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer().getWorldPath(LevelResource.ROOT).toFile(), FILENAME_MINECOLONIES_PATH);
@@ -410,11 +410,11 @@ public final class BackUpHelper
      * @param loadDeleted whether to load deleted colonies aswell.
      * @param claimChunks if chunks shall be claimed on loading.
      */
-    public static void loadColonyBackup(final int colonyId, final ResourceKey<Level> dimension, boolean loadDeleted, boolean claimChunks)
+    public static void loadColonyBackup(final int colonyId, final int /* ResourceKey */ dimension, boolean loadDeleted, boolean claimChunks)
     {
         @NotNull final File saveDir = new File(ServerLifecycleHooks.getCurrentServer().getWorldPath(LevelResource.ROOT).toFile(), FILENAME_MINECOLONIES_PATH);
         @NotNull final File backupFile = new File(saveDir, getFolderForDimension(dimension.location()) + String.format(FILENAME_COLONY, colonyId));
-        CompoundTag compound = loadNBTFromPath(backupFile);
+        NBTTagCompound compound = loadNBTFromPath(backupFile);
         if (compound == null)
         {
             if (loadDeleted)
@@ -436,7 +436,7 @@ public final class BackUpHelper
         else
         {
             Log.getLogger().warn("Colony:" + colonyId + " is missing, loading backup!");
-            final Level colonyWorld = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer().getLevel(dimension);
+            final World colonyWorld = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer().getLevel(dimension);
             final Colony loadedColony = Colony.loadColony(compound, colonyWorld);
             if (loadedColony == null || colonyWorld == null)
             {
@@ -505,7 +505,7 @@ public final class BackUpHelper
             int maxZ = Integer.MIN_VALUE;
             int minZ = Integer.MAX_VALUE;
 
-            for (final BlockPos buildingPos : colony.getServerBuildingManager().getBuildings().keySet())
+            for (final int[] buildingPos : colony.getServerBuildingManager().getBuildings().keySet())
             {
                 if (buildingPos.getX() > maxX)
                 {
@@ -579,8 +579,8 @@ public final class BackUpHelper
                 addFileToZipWithPath(minecoloniesZipDir + File.separator + colonyManager.getName(), zos, colonyManager);
             }
 
-            // Save level.dat
-            final File levelDat = new File(topworldDir, "level.dat");
+            // Save World.dat
+            final File levelDat = new File(topworldDir, "World.dat");
             if (levelDat.exists())
             {
                 addFileToZipWithPath(worldname + File.separator + levelDat.getName(), zos, levelDat);
@@ -638,3 +638,7 @@ public final class BackUpHelper
         return new File(saveDir, String.format(FILENAME_EXPORT, colony.getID())).getAbsolutePath();
     }
 }
+
+
+
+

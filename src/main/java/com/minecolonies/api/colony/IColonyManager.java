@@ -5,13 +5,13 @@ import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.compatibility.ICompatibilityManager;
 import com.minecolonies.api.crafting.IRecipeManager;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.event.TickEvent;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.World;
+import cpw.mods.fml.common.gameevent.TickEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,13 +31,13 @@ public interface IColonyManager
      *
      * @param w          World of the colony.
      * @param pos        Coordinate of the center of the colony.
-     * @param player     the player that creates the colony - owner.
+     * @param EntityPlayer     the EntityPlayer that creates the colony - owner.
      * @param colonyName the initial colony name.
      * @param pack       the default pack of the colony.
      * @return the created colony instance.
      */
     @Nullable
-    IColony createColony(@NotNull Level w, BlockPos pos, @NotNull Player player, @NotNull String colonyName, @NotNull String pack);
+    IColony createColony(@NotNull World w, int[] pos, @NotNull EntityPlayer EntityPlayer, @NotNull String colonyName, @NotNull String pack);
 
     /**
      * Delete the colony in a world.
@@ -46,7 +46,7 @@ public interface IColonyManager
      * @param canDestroy if can destroy the buildings.
      * @param world      the world.
      */
-    void deleteColonyByWorld(int id, boolean canDestroy, Level world);
+    void deleteColonyByWorld(int id, boolean canDestroy, World world);
 
     /**
      * Delete the colony by dimension.
@@ -55,7 +55,7 @@ public interface IColonyManager
      * @param canDestroy if can destroy the buildings.
      * @param dimension  the dimension.
      */
-    void deleteColonyByDimension(int id, boolean canDestroy, ResourceKey<Level> dimension);
+    void deleteColonyByDimension(int id, boolean canDestroy, int /* ResourceKey */ dimension);
 
     /**
      * Removes a colony view
@@ -63,7 +63,7 @@ public interface IColonyManager
      * @param id        the id of the colony.
      * @param dimension the dimension it is in.
      */
-    void removeColonyView(int id, ResourceKey<Level> dimension);
+    void removeColonyView(int id, int /* ResourceKey */ dimension);
 
     /**
      * Get Colony by UUID.
@@ -73,7 +73,7 @@ public interface IColonyManager
      * @return Colony with given ID.
      */
     @Nullable
-    IColony getColonyByWorld(int id, Level world);
+    IColony getColonyByWorld(int id, World world);
 
     /**
      * Get Colony by UUID.
@@ -83,7 +83,7 @@ public interface IColonyManager
      * @return Colony with given ID.
      */
     @Nullable
-    IColony getColonyByDimension(int id, ResourceKey<Level> dimension);
+    IColony getColonyByDimension(int id, int /* ResourceKey */ dimension);
 
     /**
      * Get a AbstractBuilding by a World and coordinates.
@@ -92,7 +92,7 @@ public interface IColonyManager
      * @param pos Block position.
      * @return AbstractBuilding at the given location.
      */
-    IBuilding getBuilding(@NotNull Level w, @NotNull BlockPos pos);
+    IBuilding getBuilding(@NotNull World w, @NotNull int[] pos);
 
     /**
      * Get colony that contains a given coordinate from world.
@@ -102,7 +102,7 @@ public interface IColonyManager
      * @return Colony at the given location.
      */
     @Nullable
-    IColony getColonyByPosFromWorld(@NotNull Level w, @NotNull BlockPos pos);
+    IColony getColonyByPosFromWorld(@NotNull World w, @NotNull int[] pos);
 
     /**
      * Get colony that contains a given coordinate from dimension.
@@ -111,7 +111,7 @@ public interface IColonyManager
      * @param pos coordinates.
      * @return Colony at the given location.
      */
-    IColony getColonyByPosFromDim(ResourceKey<Level> dim, @NotNull BlockPos pos);
+    IColony getColonyByPosFromDim(int /* ResourceKey */ dim, @NotNull int[] pos);
 
     /**
      * Check if a position is too close to another colony to found a new colony.
@@ -120,7 +120,7 @@ public interface IColonyManager
      * @param pos coordinates.
      * @return true if so.
      */
-    boolean isFarEnoughFromColonies(@NotNull Level w, @NotNull BlockPos pos);
+    boolean isFarEnoughFromColonies(@NotNull World w, @NotNull int[] pos);
 
     /**
      * Get all colonies in this world.
@@ -129,7 +129,7 @@ public interface IColonyManager
      * @return a list of colonies.
      */
     @NotNull
-    List<IColony> getColonies(@NotNull Level w);
+    List<IColony> getColonies(@NotNull World w);
 
     /**
      * Get all colonies in all worlds.
@@ -155,16 +155,16 @@ public interface IColonyManager
      * @param dimension the dimension it is in.
      * @return Returns the view belonging to the building at (x, y, z).
      */
-    IBuildingView getBuildingView(final ResourceKey<Level> dimension, BlockPos pos);
+    IBuildingView getBuildingView(final int /* ResourceKey */ dimension, int[] pos);
 
     /**
-     * Get all colonies in this world.  (Side neutral; on clients it returns the subset of views known to the player.)
+     * Get all colonies in this world.  (Side neutral; on clients it returns the subset of views known to the EntityPlayer.)
      *
      * @param w World.
      * @return a list of colonies.
      */
     @NotNull
-    List<IColony> getIColonies(@NotNull Level w);
+    List<IColony> getIColonies(@NotNull World w);
 
     /**
      * Side neutral method to get colony. On clients it returns the view. On servers it returns the colony itself.
@@ -174,16 +174,16 @@ public interface IColonyManager
      * @return View of colony or colony itself depending on side.
      */
     @Nullable
-    IColony getIColony(@NotNull Level w, @NotNull BlockPos pos);
+    IColony getIColony(@NotNull World w, @NotNull int[] pos);
 
     /**
-     * Get all colony views in this world known to the current player.
+     * Get all colony views in this world known to the current EntityPlayer.
      *
      * @param w World.
      * @return a list of colony views.
      */
     @NotNull
-    List<IColonyView> getColonyViews(@NotNull Level w);
+    List<IColonyView> getColonyViews(@NotNull World w);
 
     /**
      * Gets the colony view aat the given position
@@ -192,17 +192,17 @@ public interface IColonyManager
      * @param pos
      * @return IColonyView
      */
-    IColonyView getColonyView(@NotNull Level w, @NotNull BlockPos pos);
+    IColonyView getColonyView(@NotNull World w, @NotNull int[] pos);
 
     /**
-     * Side neutral method to get colony. On clients it returns the view. On servers it returns the colony itself. {@link #getClosestColony(Level, BlockPos)}
+     * Side neutral method to get colony. On clients it returns the view. On servers it returns the colony itself. {@link #getClosestColony(World, blockPos)}
      *
      * @param w   World.
      * @param pos Block position.
      * @return View of colony or colony itself depending on side, closest to coordinates.
      */
     @Nullable
-    IColony getClosestIColony(@NotNull Level w, @NotNull BlockPos pos);
+    IColony getClosestIColony(@NotNull World w, @NotNull int[] pos);
 
     /**
      * Returns the closest view {@link #getColonyView}.
@@ -213,7 +213,7 @@ public interface IColonyManager
      */
     // TODO: Check usages, some of the probably want to avoid getting a distant colony and use getColonyView at pos instead
     @Nullable
-    IColonyView getClosestColonyView(@Nullable Level w, @Nullable BlockPos pos);
+    IColonyView getClosestColonyView(@Nullable World w, @Nullable int[] pos);
 
     /**
      * Get closest colony by x,y,z.
@@ -222,31 +222,31 @@ public interface IColonyManager
      * @param pos coordinates.
      * @return Colony closest to coordinates.
      */
-    IColony getClosestColony(@NotNull Level w, @NotNull BlockPos pos);
+    IColony getClosestColony(@NotNull World w, @NotNull int[] pos);
 
     /**
      * Side neutral method to get colony. On clients it returns the view. On servers it returns the colony itself.
      * <p>
-     * Returns a colony or view with the given Player as owner.
+     * Returns a colony or view with the given EntityPlayer as owner.
      *
      * @param w     World.
-     * @param owner Entity Player.
-     * @return IColony belonging to specific player.
+     * @param owner Entity EntityPlayer.
+     * @return IColony belonging to specific EntityPlayer.
      */
     @Nullable
-    IColony getIColonyByOwner(@NotNull Level w, @NotNull Player owner);
+    IColony getIColonyByOwner(@NotNull World w, @NotNull EntityPlayer owner);
 
     /**
      * Side neutral method to get colony. On clients it returns the view. On servers it returns the colony itself.
      * <p>
-     * Returns a colony or view with given Player as owner.
+     * Returns a colony or view with given EntityPlayer as owner.
      *
      * @param w     World
      * @param owner UUID of the owner.
-     * @return IColony belonging to specific player.
+     * @return IColony belonging to specific EntityPlayer.
      */
     @Nullable
-    IColony getIColonyByOwner(@NotNull Level w, UUID owner);
+    IColony getIColonyByOwner(@NotNull World w, UUID owner);
 
     /**
      * Returns the minimum distance between two town halls, to not make colonies collide.
@@ -265,19 +265,19 @@ public interface IColonyManager
     /**
      * Write colonies to NBT data for saving.
      *
-     * @param compound NBT-Tag.
+     * @param compound NBT-NBTBase.
      */
-    void write(@NotNull CompoundTag compound);
+    void write(@NotNull NBTTagCompound compound);
 
     /**
      * Read Colonies from saved NBT data.
      *
-     * @param compound NBT Tag.
+     * @param compound NBT NBTBase.
      */
-    void read(@NotNull CompoundTag compound);
+    void read(@NotNull NBTTagCompound compound);
 
     /**
-     * On Client tick, clears views when player left.
+     * On Client tick, clears views when EntityPlayer left.
      *
      * @param event {@link TickEvent.ClientTickEvent}.
      */
@@ -286,14 +286,14 @@ public interface IColonyManager
     /**
      * On world tick, tick every Colony in that world. NOTE: Review this for performance.
      */
-    void onWorldTick(@NotNull TickEvent.LevelTickEvent event);
+    void onWorldTick(@NotNull TickEvent.WorldTickEvent event);
 
     /**
      * When a world is loaded, Colonies in that world need to grab the reference to the World. Additionally, when loading the first world, load the manager data.
      *
      * @param world World.
      */
-    void onWorldLoad(@NotNull Level world);
+    void onWorldLoad(@NotNull World world);
 
     /**
      * Sets the cap for this world to loaded
@@ -305,18 +305,18 @@ public interface IColonyManager
      *
      * @param world World.
      */
-    void onWorldUnload(@NotNull Level world);
+    void onWorldUnload(@NotNull World world);
 
     /**
      * Sends view message to the right view.
      *
      * @param colonyId          ID of the colony.
-     * @param colonyData        {@link FriendlyByteBuf} with colony data.
+     * @param colonyData        {@link PacketBuffer} with colony data.
      * @param isNewSubscription whether this is a new subscription or not.
      * @param dim               the dimension.
      * @param world             the world it is in.
      */
-    void handleColonyViewMessage(int colonyId, @NotNull FriendlyByteBuf colonyData, @NotNull Level world, boolean isNewSubscription, ResourceKey<Level> dim);
+    void handleColonyViewMessage(int colonyId, @NotNull PacketBuffer colonyData, @NotNull World world, boolean isNewSubscription, int /* ResourceKey */ dim);
 
     /**
      * Get IColonyView by ID.
@@ -325,38 +325,38 @@ public interface IColonyManager
      * @param dimension the dimension id.
      * @return The IColonyView belonging to the colony.
      */
-    IColonyView getColonyView(int id, final ResourceKey<Level> dimension);
+    IColonyView getColonyView(int id, final int /* ResourceKey */ dimension);
 
     /**
-     * Returns result of {@link IColonyView#handlePermissionsViewMessage(FriendlyByteBuf)} if {@link #getColonyView(int, ResourceKey)}. gives a not-null result. If {@link #getColonyView(int,
+     * Returns result of {@link IColonyView#handlePermissionsViewMessage(PacketBuffer)} if {@link #getColonyView(int, ResourceKey)}. gives a not-null result. If {@link #getColonyView(int,
      * ResourceKey)} is null, returns null.
      *
      * @param colonyID ID of the colony.
-     * @param data     {@link FriendlyByteBuf} with colony data.
+     * @param data     {@link PacketBuffer} with colony data.
      * @param dim      the dimension.
      */
-    void handlePermissionsViewMessage(int colonyID, @NotNull FriendlyByteBuf data, ResourceKey<Level> dim);
+    void handlePermissionsViewMessage(int colonyID, @NotNull PacketBuffer data, int /* ResourceKey */ dim);
 
     /**
-     * Returns result of {@link IColonyView#handleColonyViewCitizensMessage(int, FriendlyByteBuf)} if {@link #getColonyView(int, ResourceKey)} gives a not-null result. If {@link
+     * Returns result of {@link IColonyView#handleColonyViewCitizensMessage(int, PacketBuffer)} if {@link #getColonyView(int, ResourceKey)} gives a not-null result. If {@link
      * #getColonyView(int, ResourceKey)} is null, returns null.
      *
      * @param colonyId  ID of the colony.
      * @param citizenId ID of the citizen.
-     * @param buf       {@link FriendlyByteBuf} with colony data.
+     * @param buf       {@link PacketBuffer} with colony data.
      * @param dim       the dimension.
      */
-    void handleColonyViewCitizensMessage(int colonyId, int citizenId, FriendlyByteBuf buf, ResourceKey<Level> dim);
+    void handleColonyViewCitizensMessage(int colonyId, int citizenId, PacketBuffer buf, int /* ResourceKey */ dim);
 
     /**
-     * Returns result of {@link IColonyView#handleColonyViewWorkOrderMessage(FriendlyByteBuf)} (int, ByteBuf)} if {@link #getColonyView(int, ResourceKey)} gives a not-null result. If {@link
+     * Returns result of {@link IColonyView#handleColonyViewWorkOrderMessage(PacketBuffer)} (int, ByteBuf)} if {@link #getColonyView(int, ResourceKey)} gives a not-null result. If {@link
      * #getColonyView(int, ResourceKey)} is null, returns null.
      *
      * @param colonyId ID of the colony.
-     * @param buf      {@link FriendlyByteBuf} with colony data.
+     * @param buf      {@link PacketBuffer} with colony data.
      * @param dim      the dimension.
      */
-    void handleColonyViewWorkOrderMessage(int colonyId, FriendlyByteBuf buf, ResourceKey<Level> dim);
+    void handleColonyViewWorkOrderMessage(int colonyId, PacketBuffer buf, int /* ResourceKey */ dim);
 
     /**
      * Returns result of {@link IColonyView#handleColonyViewRemoveCitizenMessage(int)} if {@link #getColonyView(int, ResourceKey)} gives a not-null result. If {@link #getColonyView(int,
@@ -366,28 +366,28 @@ public interface IColonyManager
      * @param citizenId ID of the citizen.
      * @param dim       the dimension.
      */
-    void handleColonyViewRemoveCitizenMessage(int colonyId, int citizenId, ResourceKey<Level> dim);
+    void handleColonyViewRemoveCitizenMessage(int colonyId, int citizenId, int /* ResourceKey */ dim);
 
     /**
-     * Returns result of {@link IColonyView#handleColonyBuildingViewMessage(BlockPos, FriendlyByteBuf)} if {@link #getColonyView(int, ResourceKey)} gives a not-null result. If {@link
+     * Returns result of {@link IColonyView#handleColonyBuildingViewMessage(blockPos, PacketBuffer)} if {@link #getColonyView(int, ResourceKey)} gives a not-null result. If {@link
      * #getColonyView(int, ResourceKey)} is null, returns null.
      *
      * @param colonyId   ID of the colony.
      * @param buildingId ID of the building.
-     * @param buf        {@link FriendlyByteBuf} with colony data.
+     * @param buf        {@link PacketBuffer} with colony data.
      * @param dim        the dimension.
      */
-    void handleColonyBuildingViewMessage(int colonyId, BlockPos buildingId, @NotNull FriendlyByteBuf buf, ResourceKey<Level> dim);
+    void handleColonyBuildingViewMessage(int colonyId, int[] buildingId, @NotNull PacketBuffer buf, int /* ResourceKey */ dim);
 
     /**
-     * Returns result of {@link IColonyView#handleColonyViewRemoveBuildingMessage(BlockPos)} if {@link #getColonyView(int, ResourceKey)} gives a not-null result. If {@link
+     * Returns result of {@link IColonyView#handleColonyViewRemoveBuildingMessage(blockPos)} if {@link #getColonyView(int, ResourceKey)} gives a not-null result. If {@link
      * #getColonyView(int, ResourceKey)} is null, returns null.
      *
      * @param colonyId   ID of the colony.
      * @param buildingId ID of the building.
      * @param dim        the dimension.
      */
-    void handleColonyViewRemoveBuildingMessage(int colonyId, final BlockPos buildingId, final ResourceKey<Level> dim);
+    void handleColonyViewRemoveBuildingMessage(int colonyId, final int[] buildingId, final int /* ResourceKey */ dim);
 
     /**
      * Returns result of {@link IColonyView#handleColonyViewRemoveWorkOrderMessage(int)} if {@link #getColonyView(int, ResourceKey)} gives a not-null result. If {@link #getColonyView(int,
@@ -397,7 +397,7 @@ public interface IColonyManager
      * @param workOrderId ID of the workOrder.
      * @param dim         the dimension.
      */
-    void handleColonyViewRemoveWorkOrderMessage(int colonyId, int workOrderId, ResourceKey<Level> dim);
+    void handleColonyViewRemoveWorkOrderMessage(int colonyId, int workOrderId, int /* ResourceKey */ dim);
 
     /**
      * Whether or not a new schematic have been downloaded.
@@ -420,7 +420,7 @@ public interface IColonyManager
      * @param pos   the position to check.
      * @return true if a colony has been found.
      */
-    boolean isCoordinateInAnyColony(@NotNull Level world, BlockPos pos);
+    boolean isCoordinateInAnyColony(@NotNull World world, int[] pos);
 
     /**
      * Get an instance of the compatibilityManager.
@@ -452,5 +452,9 @@ public interface IColonyManager
      * Open the new reactivation window.
      * @param pos the pos to open it at.
      */
-    void openReactivationWindow(final BlockPos pos);
+    void openReactivationWindow(final int[] pos);
 }
+
+
+
+

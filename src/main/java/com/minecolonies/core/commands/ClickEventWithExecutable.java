@@ -1,6 +1,6 @@
 package com.minecolonies.core.commands;
 
-import net.minecraft.network.chat.ClickEvent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -25,7 +25,7 @@ public class ClickEventWithExecutable extends ClickEvent
     }
 
     /**
-     * Triggered when the chat component is clicked.
+     * Triggered when the chat String is clicked.
      */
     @Override
     @NotNull
@@ -42,3 +42,5 @@ public class ClickEventWithExecutable extends ClickEvent
         return super.getAction();
     }
 }
+
+

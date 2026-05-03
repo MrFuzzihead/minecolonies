@@ -1,10 +1,27 @@
 package com.minecolonies.core.client.gui.modules.building;
 
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
 import com.ldtteam.blockui.Loader;
 import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.PaneParams;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.views.BOWindow;
 import com.ldtteam.blockui.views.Box;
 import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
 import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.colony.buildings.modules.settings.ISetting;
 import com.minecolonies.api.colony.buildings.modules.settings.ISettingKey;
@@ -12,14 +29,14 @@ import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.AbstractModuleWindow;
 import com.minecolonies.core.colony.buildings.moduleviews.SettingsModuleView;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.WindowConstants.LIST_SETTINGS;
 
 /**
- * BOWindow for all the settings of a hut.
+ * Object (BOWindow: todo ModularUI2 removed) for all the settings of a hut.
  */
 public class SettingsModuleWindow extends AbstractModuleWindow<SettingsModuleView>
 {
@@ -92,7 +109,7 @@ public class SettingsModuleWindow extends AbstractModuleWindow<SettingsModuleVie
                     final Text rowIdField = rowPane.findPaneOfTypeByID("id", Text.class);
                     if (rowIdField != null)
                     {
-                        rowIdField.setText(Component.literal(key.getUniqueId().toString()));
+                        rowIdField.setText(String.literal(key.getUniqueId().toString()));
                     }
                     else
                     {
@@ -104,7 +121,7 @@ public class SettingsModuleWindow extends AbstractModuleWindow<SettingsModuleVie
                     final Text rowDescriptionField = rowPane.findPaneOfTypeByID("desc", Text.class);
                     if (rowDescriptionField != null)
                     {
-                        rowDescriptionField.setText(Component.translatable("com.minecolonies.coremod.setting." + key.getUniqueId().toString()));
+                        rowDescriptionField.setText(String.translatable("com.minecolonies.coremod.setting." + key.getUniqueId().toString()));
                     }
                 }
 
@@ -113,3 +130,7 @@ public class SettingsModuleWindow extends AbstractModuleWindow<SettingsModuleVie
         });
     }
 }
+
+
+
+

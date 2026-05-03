@@ -3,7 +3,7 @@ package com.minecolonies.api.colony.buildings.modules.settings;
 import com.minecolonies.api.colony.requestsystem.factory.FactoryVoidInput;
 import com.minecolonies.api.colony.requestsystem.factory.IFactory;
 import com.minecolonies.api.colony.requestsystem.factory.IFactoryController;
-import net.minecraft.world.item.BlockItem;
+import net.minecraft.item.ItemBlock;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -20,21 +20,21 @@ public interface IBlockSettingFactory<T extends ISetting> extends IFactory<Facto
             throw new IllegalArgumentException("Unsupported context - Not correct number of parameters. Only 2 are allowed!");
         }
 
-        if (!(context[0] instanceof BlockItem))
+        if (!(context[0] instanceof ItemBlock))
         {
-            throw new IllegalArgumentException("First parameter is supposed to be a BlockItem!");
+            throw new IllegalArgumentException("First parameter is supposed to be a ItemBlock!");
         }
 
-        if (!(context[1] instanceof BlockItem))
+        if (!(context[1] instanceof ItemBlock))
         {
-            throw new IllegalArgumentException("Second parameter is supposed to be a BlockItem!");
+            throw new IllegalArgumentException("Second parameter is supposed to be a ItemBlock!");
         }
 
-        final BlockItem def = (BlockItem) context[0];
-        final BlockItem current = (BlockItem) context[1];
+        final ItemBlock def = (ItemBlock) context[0];
+        final ItemBlock current = (ItemBlock) context[1];
         return getNewInstance(def, current);
     }
 
     @NotNull
-    T getNewInstance(final BlockItem def, final BlockItem current);
+    T getNewInstance(final ItemBlock def, final ItemBlock current);
 }

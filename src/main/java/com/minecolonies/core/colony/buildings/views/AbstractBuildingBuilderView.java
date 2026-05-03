@@ -1,8 +1,8 @@
 package com.minecolonies.core.colony.buildings.views;
 
 import com.minecolonies.api.colony.IColonyView;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.core.BlockPos;
+import net.minecraft.network.PacketBuffer;
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -21,13 +21,13 @@ public abstract class AbstractBuildingBuilderView extends AbstractBuildingView
      * @param c the colony.
      * @param l the position.
      */
-    public AbstractBuildingBuilderView(final IColonyView c, final BlockPos l)
+    public AbstractBuildingBuilderView(final IColonyView c, final int[] l)
     {
         super(c, l);
     }
 
     @Override
-    public void deserialize(@NotNull final FriendlyByteBuf buf)
+    public void deserialize(@NotNull final PacketBuffer buf)
     {
         super.deserialize(buf);
         workerName = buf.readUtf(32767);
@@ -43,3 +43,5 @@ public abstract class AbstractBuildingBuilderView extends AbstractBuildingView
         return workerName;
     }
 }
+
+

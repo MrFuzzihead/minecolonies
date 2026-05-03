@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.buildings.modules;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.colony.buildings.modules.AbstractBuildingModule;
 import com.minecolonies.api.colony.buildings.modules.IPersistentModule;
@@ -9,12 +15,12 @@ import com.minecolonies.api.colony.requestsystem.StandardFactoryController;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.colony.buildings.modules.settings.SettingKey;
-import net.minecraft.nbt.Tag;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedHashMap;
@@ -53,13 +59,13 @@ public class SettingsModule extends AbstractBuildingModule implements IPersisten
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
-        final CompoundTag settingsCompound = compound.contains("settings") ? compound.getCompound("settings") : compound;
-        final ListTag list = settingsCompound.getList("settingslist", Tag.TAG_COMPOUND);
+        final NBTTagCompound settingsCompound = compound.contains("settings") ? compound.getCompound("settings") : compound;
+        final NBTTagList list = settingsCompound.getList("settingslist", NBTBase.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++)
         {
-            final CompoundTag entryCompound = list.getCompound(i);
+            final NBTTagCompound entryCompound = list.getCompound(i);
             final ResourceLocation key = new ResourceLocation(entryCompound.getString("key"));
             try
             {
@@ -79,12 +85,12 @@ public class SettingsModule extends AbstractBuildingModule implements IPersisten
     }
 
     @Override
-    public void serializeNBT(final CompoundTag compound)
+    public void serializeNBT(final NBTTagCompound compound)
     {
-        final ListTag list = new ListTag();
+        final NBTTagList list = new NBTTagList();
         for (final Map.Entry<ISettingKey<?>, ISetting<?>> setting : settings.entrySet())
         {
-            final CompoundTag entryCompound = new CompoundTag();
+            final NBTTagCompound entryCompound = new NBTTagCompound();
             entryCompound.putString("key", setting.getKey().getUniqueId().toString());
             entryCompound.put("value", StandardFactoryController.getInstance().serialize(setting.getValue()));
             list.add(entryCompound);
@@ -93,7 +99,7 @@ public class SettingsModule extends AbstractBuildingModule implements IPersisten
     }
 
     @Override
-    public void serializeToView(final FriendlyByteBuf buf)
+    public void serializeToView(final PacketBuffer buf)
     {
         buf.writeInt(settings.size());
         for (final Map.Entry<ISettingKey<?>, ISetting<?>> setting : settings.entrySet())
@@ -104,7 +110,7 @@ public class SettingsModule extends AbstractBuildingModule implements IPersisten
     }
 
     @Override
-    public void updateSetting(final ISettingKey<?> settingKey, final ISetting<?> value, final ServerPlayer sender)
+    public void updateSetting(final ISettingKey<?> settingKey, final ISetting<?> value, final EntityPlayerMP sender)
     {
         if (settings.containsKey(settingKey))
         {
@@ -120,3 +126,8 @@ public class SettingsModule extends AbstractBuildingModule implements IPersisten
         return setting == null ? def : setting.getValue();
     }
 }
+
+
+
+
+

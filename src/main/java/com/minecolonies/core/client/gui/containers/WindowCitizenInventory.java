@@ -3,16 +3,17 @@ package com.minecolonies.core.client.gui.containers;
 import com.minecolonies.api.colony.ICitizen;
 import com.minecolonies.api.inventory.container.ContainerCitizenInventory;
 import com.minecolonies.api.util.constant.Constants;
-import com.mojang.blaze3d.platform.Lighting;
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.Minecraft;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+// [1.7.10] world.entity removed
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
@@ -76,7 +77,7 @@ public class WindowCitizenInventory extends AbstractContainerScreen<ContainerCit
      */
     private final int inventoryRows;
 
-    public WindowCitizenInventory(final ContainerCitizenInventory container, final Inventory playerInventory, final Component iTextComponent)
+    public WindowCitizenInventory(final ContainerCitizenInventory container, final Inventory playerInventory, final String iTextComponent)
     {
         super(container, playerInventory, iTextComponent);
         this.inventoryRows = (container.getItems().size() - 36) / 9;
@@ -139,11 +140,11 @@ public class WindowCitizenInventory extends AbstractContainerScreen<ContainerCit
         optionalEntity.ifPresent(entity -> {
             float relativeMouseX = (float)Math.atan(mouseX / 40.0F);
             float relativeMouseY = (float)Math.atan(mouseY / 40.0F);
-            renderEntityInInventoryFollowsAngle(stack, x, y, scale, relativeMouseX, relativeMouseY, (LivingEntity) entity);
+            renderEntityInInventoryFollowsAngle(stack, x, y, scale, relativeMouseX, relativeMouseY, (EntityLivingBase) entity);
         });
     }
 
-    public static void renderEntityInInventoryFollowsAngle(GuiGraphics stack, int x, int y, int scale, float angleXComponent, float angleYComponent, LivingEntity entity) {
+    public static void renderEntityInInventoryFollowsAngle(GuiGraphics stack, int x, int y, int scale, float angleXComponent, float angleYComponent, EntityLivingBase entity) {
         float f = angleXComponent;
         float f1 = angleYComponent;
         Quaternionf quaternionf = (new Quaternionf()).rotateZ((float)Math.PI);
@@ -167,7 +168,7 @@ public class WindowCitizenInventory extends AbstractContainerScreen<ContainerCit
         entity.yHeadRot = f6;
     }
 
-    public static void renderEntityInInventory(GuiGraphics stack, int x, int y, int scale, Quaternionf quaternionf, @Nullable Quaternionf quaternionf1, LivingEntity entity) {
+    public static void renderEntityInInventory(GuiGraphics stack, int x, int y, int scale, Quaternionf quaternionf, @Nullable Quaternionf quaternionf1, EntityLivingBase entity) {
         stack.pose().pushPose();
         stack.pose().translate(x, y, 50.0D);
         stack.pose().mulPoseMatrix((new Matrix4f()).scaling((float)scale, (float)scale, (float)(-scale)));
@@ -206,3 +207,7 @@ public class WindowCitizenInventory extends AbstractContainerScreen<ContainerCit
         return citizenData;
     }
 }
+
+
+
+

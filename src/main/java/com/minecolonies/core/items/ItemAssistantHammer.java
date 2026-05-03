@@ -27,25 +27,25 @@ import com.minecolonies.core.colony.interactionhandling.SimpleNotificationIntera
 import com.minecolonies.core.entity.ai.workers.util.BuildingProgressStage;
 import com.minecolonies.core.network.messages.server.PlayerAssistantBuildRequestMessage;
 import com.minecolonies.core.placementhandlers.SolidPlaceholderPlacementHandler;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
+import net.minecraft.util.EnumChatFormatting;
+// [1.7.10] int[] -> int x,y,z
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] sounds removed
+// [1.7.10] sounds removed
+// [1.7.10] int /* InteractionHand */ removed
+// [1.7.10] InteractionResult -> boolean
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.items.wrapper.InvWrapper;
+import net.minecraft.world.World;
+import net.minecraft.world.Mirror;
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] world.phys removed
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -58,7 +58,7 @@ import java.util.List;
 public class ItemAssistantHammer extends AbstractItemMinecolonies
 {
     /**
-     * The compound tag for the last pos the tool has been clicked.
+     * The compound NBTBase for the last pos the tool has been clicked.
      */
     private static final String TAG_LAST_POS = "lastPos";
 
@@ -80,12 +80,12 @@ public class ItemAssistantHammer extends AbstractItemMinecolonies
      *
      * @param player
      */
-    public void useOnBlock(final Player player, final BlockPos interactPos)
+    public void useOnBlock(final Player player, final int[] interactPos)
     {
-        final Level level = player.level();
-        final IColonyView view = IColonyManager.getInstance().getColonyView(level, interactPos);
+        final World World = player.World();
+        final IColonyView view = IColonyManager.getInstance().getColonyView(World, interactPos);
 
-        if (view == null || level == null || !view.getPermissions().hasPermission(player, Action.PLACE_BLOCKS))
+        if (view == null || World == null || !view.getPermissions().hasPermission(player, Action.PLACE_BLOCKS))
         {
             return;
         }
@@ -101,7 +101,7 @@ public class ItemAssistantHammer extends AbstractItemMinecolonies
                 unclaimed = false;
                 if (workOrder.getBlueprint() == null)
                 {
-                    workOrder.loadBlueprint(player.level, b -> {});
+                    workOrder.loadBlueprint(player.World, b -> {});
                     return;
                 }
 
@@ -125,7 +125,7 @@ public class ItemAssistantHammer extends AbstractItemMinecolonies
                 final BuildAttemptResult buildAttemptResult = tryBuildingBlockNearby(player, view, workOrder, interactPos, handlers);
                 if (buildAttemptResult.areBlocksToBuildNearby() && !buildAttemptResult.didTryBuilding())
                 {
-                    player.displayClientMessage(Component.translatable("item.minecolonies.assistanthammer.noitems"), true);
+                    player.displayClientMessage(String.translatable("item.minecolonies.assistanthammer.noitems"), true);
                 }
 
                 break;
@@ -134,7 +134,7 @@ public class ItemAssistantHammer extends AbstractItemMinecolonies
 
         if (unclaimed)
         {
-            player.displayClientMessage(Component.translatable("item.minecolonies.assistanthammer.onlyactive"), true);
+            player.displayClientMessage(String.translatable("item.minecolonies.assistanthammer.onlyactive"), true);
         }
     }
 
@@ -146,14 +146,14 @@ public class ItemAssistantHammer extends AbstractItemMinecolonies
      * @param colony
      * @param workOrder
      */
-    public void placeBlock(final Player player, final IColony colony, final IWorkOrder workOrder, final BlockPos interactPos)
+    public void placeBlock(final Player player, final IColony colony, final IWorkOrder workOrder, final int[] interactPos)
     {
         if (workOrder.isClaimed())
         {
             final BuildingProgressStage stage = workOrder.getStage();
             if (stage == BuildingProgressStage.CLEAR || stage == BuildingProgressStage.CLEAR_NON_SOLIDS)
             {
-                player.displayClientMessage(Component.translatable("item.minecolonies.assistanthammer.notcleared"), true);
+                player.displayClientMessage(String.translatable("item.minecolonies.assistanthammer.notcleared"), true);
                 player.inventoryMenu.broadcastFullState();
                 return;
             }
@@ -161,8 +161,8 @@ public class ItemAssistantHammer extends AbstractItemMinecolonies
             // Fallback incase the builder did not load it yet for reasons
             if (workOrder.getBlueprint() == null)
             {
-                workOrder.loadBlueprint(player.level(), b -> {});
-                player.displayClientMessage(Component.translatable("item.minecolonies.assistanthammer.notloaded"), true);
+                workOrder.loadBlueprint(player.World(), b -> {});
+                player.displayClientMessage(String.translatable("item.minecolonies.assistanthammer.notloaded"), true);
                 player.inventoryMenu.broadcastFullState();
                 return;
             }
@@ -180,7 +180,7 @@ public class ItemAssistantHammer extends AbstractItemMinecolonies
             final BuildAttemptResult buildAttemptResult = tryBuildingBlockNearby(player, colony, workOrder, interactPos, handlers);
             if (buildAttemptResult.areBlocksToBuildNearby() && !buildAttemptResult.didTryBuilding())
             {
-                player.displayClientMessage(Component.translatable("item.minecolonies.assistanthammer.noitems"), true);
+                player.displayClientMessage(String.translatable("item.minecolonies.assistanthammer.noitems"), true);
                 player.inventoryMenu.broadcastFullState();
             }
 
@@ -196,7 +196,7 @@ public class ItemAssistantHammer extends AbstractItemMinecolonies
     {
         if (context.getLevel().isClientSide)
         {
-            final BlockPos interactPos = context.getClickedPos().relative(context.getClickedFace());
+            final int[] interactPos = context.getClickedPos().relative(context.getClickedFace());
             useOnBlock(context.getPlayer(), interactPos);
         }
 
@@ -205,11 +205,11 @@ public class ItemAssistantHammer extends AbstractItemMinecolonies
 
     @NotNull
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand)
+    public InteractionResultHolder<ItemStack> use(World World, Player player, int /* InteractionHand */ hand)
     {
-        if (level.isClientSide)
+        if (World.isClientSide)
         {
-            final BlockPos interactPos = BlockPos.containing(player.getEyePosition().add(player.getLookAngle().multiply(3, 3, 3)));
+            final int[] interactPos = new int[]{(int)(player.posX + player.getLookVec().xCoord * 3), (int)(player.posY + player.getEyeHeight() + player.getLookVec().yCoord * 3), (int)(player.posZ + player.getLookVec().zCoord * 3)}; // [1.7.10] eye pos + look angle
             useOnBlock(player, interactPos);
         }
 
@@ -228,10 +228,10 @@ public class ItemAssistantHammer extends AbstractItemMinecolonies
         final Player player,
         final IColony colony,
         final IWorkOrder workOrder,
-        final BlockPos interactPos,
+        final int[] interactPos,
         final List<IPlacementHandler> handlers)
     {
-        final BlockPos.MutableBlockPos workPos = new BlockPos.MutableBlockPos();
+        final int[] workPos = new int[]{0,0,0};
         boolean areBlocksToBuildNearby = false;
         player.getCooldowns().addCooldown(this, 5);
 
@@ -250,7 +250,7 @@ public class ItemAssistantHammer extends AbstractItemMinecolonies
                         }
 
                         workPos.set(x + interactPos.getX(), y + interactPos.getY(), z + interactPos.getZ());
-                        final BlockState levelState = player.level().getBlockState(workPos);
+                        final BlockState levelState = player.World().getBlockState(workPos);
                         final BlockInfo blockInfo =
                             workOrder.getBlueprint().getBlockInfoAsMap().get(workPos.subtract(workOrder.getLocation()).offset(workOrder.getBlueprint().getPrimaryBlockOffset()));
 
@@ -267,9 +267,9 @@ public class ItemAssistantHammer extends AbstractItemMinecolonies
                         IPlacementHandler foundHandler = null;
                         for (final IPlacementHandler handler : handlers)
                         {
-                            if (handler.canHandle(player.level(), BlockPos.ZERO, blockInfo.getState()))
+                            if (handler.canHandle(player.World(), new int[]{0,0,0}, blockInfo.getState()))
                             {
-                                final List<ItemStack> itemList = handler.getRequiredItems(player.level(), workPos, blockInfo.getState(), blockInfo.getTileEntityData(), new SimplePlacementContext(true,              new PlacementSettings(workOrder.isMirrored() ? Mirror.FRONT_BACK : Mirror.NONE, BlockPosUtil.getRotationFromRotations(workOrder.getRotation()))));
+                                final List<ItemStack> itemList = handler.getRequiredItems(player.World(), workPos, blockInfo.getState(), blockInfo.getTileEntityData(), new SimplePlacementContext(true,              new PlacementSettings(workOrder.isMirrored() ? Mirror.FRONT_BACK : Mirror.NONE, BlockPosUtil.getRotationFromRotations(workOrder.getRotation()))));
                                 requiredItem.addAll(itemList);
 
                                 foundHandler = handler;
@@ -362,7 +362,7 @@ public class ItemAssistantHammer extends AbstractItemMinecolonies
                                 if (buildingBuilder != null)
                                 {
                                     buildingBuilder.getModule(BuildingModules.BUILDER_WORK).getAssignedCitizen()
-                                        .forEach(citizen -> citizen.triggerInteraction(new SimpleNotificationInteraction(Component.translatable(
+                                        .forEach(citizen -> citizen.triggerInteraction(new SimpleNotificationInteraction(String.translatable(
                                             "item.minecolonies.assistanthammer.happybuilder"),
                                             ChatPriority.CHITCHAT)));
                                 }
@@ -371,7 +371,7 @@ public class ItemAssistantHammer extends AbstractItemMinecolonies
 
                         for (int i = 0; i < 50; ++i)
                         {
-                            player.level().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, blockInfo.getState()),
+                            player.World().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, blockInfo.getState()),
                                 workPos.getX() + 0.5f - 0.5 + ColonyConstants.rand.nextFloat(1.5f),
                                 workPos.getY() + 0.5f - 0.5 + ColonyConstants.rand.nextFloat(1.5f),
                                 workPos.getZ() + 0.5f - 0.5 + ColonyConstants.rand.nextFloat(1.5f),
@@ -381,9 +381,9 @@ public class ItemAssistantHammer extends AbstractItemMinecolonies
                         }
 
                         // Small random hammer "clang" sound
-                        if (player.level().isClientSide() && ColonyConstants.rand.nextInt(5) == 0)
+                        if (player.World().isClientSide() && ColonyConstants.rand.nextInt(5) == 0)
                         {
-                            player.level()
+                            player.World()
                                 .playSound(player,
                                     workPos,
                                     SoundEvents.CHAIN_HIT,
@@ -393,7 +393,7 @@ public class ItemAssistantHammer extends AbstractItemMinecolonies
                         }
 
                         // placement sound of the block being placed, also heared by other players nearby
-                        player.level()
+                        player.World()
                             .playSound(player,
                                 workPos,
                                 blockInfo.getState().getSoundType().getPlaceSound(),
@@ -421,9 +421,14 @@ public class ItemAssistantHammer extends AbstractItemMinecolonies
         boolean didTryBuilding) {}
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltipList, TooltipFlag flag)
+    public void appendHoverText(ItemStack stack, @Nullable World world, List<String> tooltipList, TooltipFlag flag)
     {
-        tooltipList.add(Component.translatable("item.minecolonies.assistanthammer.reach", reach).withStyle(ChatFormatting.BLUE));
-        tooltipList.add(Component.translatable("item.minecolonies.assistanthammer.desc").withStyle(ChatFormatting.ITALIC).withStyle(ChatFormatting.GRAY));
+        tooltipList.add(String.translatable("item.minecolonies.assistanthammer.reach", reach).withStyle(ChatFormatting.BLUE));
+        tooltipList.add(String.translatable("item.minecolonies.assistanthammer.desc").withStyle(ChatFormatting.ITALIC).withStyle(ChatFormatting.GRAY));
     }
 }
+
+
+
+
+

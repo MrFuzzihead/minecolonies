@@ -1,7 +1,7 @@
 package com.minecolonies.core.items;
 
 import net.minecraft.Util;
-import net.minecraft.sounds.SoundEvents;
+// [1.7.10] sounds removed
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
@@ -44,3 +44,4 @@ public class ItemPirateGear extends ArmorItem
         super(materialIn, equipmentSlotIn, properties);
     }
 }
+

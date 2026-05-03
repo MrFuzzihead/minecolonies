@@ -5,8 +5,8 @@ import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import com.minecolonies.api.util.Log;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NbtIo;
 
 import java.io.ByteArrayInputStream;
@@ -78,7 +78,7 @@ public class SchemFixerUtil
                 }
                 try
                 {
-                    CompoundTag compoundNBT = NbtIo.readCompressed(new ByteArrayInputStream(java.nio.file.Files.readAllBytes(blueprintFile.toPath())));
+                    NBTTagCompound compoundNBT = NbtIo.readCompressed(new ByteArrayInputStream(java.nio.file.Files.readAllBytes(blueprintFile.toPath())));
                     final Blueprint blueprint = BlueprintUtil.readBlueprintFromNBT(compoundNBT);
                     if (fixSchematicNameAndCorners(blueprint))
                     {
@@ -101,14 +101,14 @@ public class SchemFixerUtil
     private static boolean fixSchematicNameAndCorners(final Blueprint blueprint)
     {
         boolean changed = false;
-        CompoundTag compoundNBT = blueprint.getBlockInfoAsMap().get(blueprint.getPrimaryBlockOffset()).getTileEntityData();
+        NBTTagCompound compoundNBT = blueprint.getBlockInfoAsMap().get(blueprint.getPrimaryBlockOffset()).getTileEntityData();
 
         if (compoundNBT == null)
         {
             // Fix offset
-            final BlockPos original = blueprint.getPrimaryBlockOffset();
+            final int[] original = blueprint.getPrimaryBlockOffset();
             blueprint.setCachePrimaryOffset(null);
-            final BlockPos autoPos = blueprint.getPrimaryBlockOffset();
+            final int[] autoPos = blueprint.getPrimaryBlockOffset();
             blueprint.setCachePrimaryOffset(original);
             compoundNBT = blueprint.getBlockInfoAsMap().get(autoPos).getTileEntityData();
 
@@ -122,7 +122,7 @@ public class SchemFixerUtil
 
         if (compoundNBT != null && compoundNBT.contains(TAG_BLUEPRINTDATA))
         {
-            final CompoundTag schemDataCompound = (CompoundTag) compoundNBT.get(TAG_BLUEPRINTDATA);
+            final NBTTagCompound schemDataCompound = (NBTTagCompound) compoundNBT.get(TAG_BLUEPRINTDATA);
             final String name = schemDataCompound.getString(TAG_SCHEMATIC_NAME);
             if (name.contains("citizen") || name.contains("home"))
             {
@@ -132,10 +132,10 @@ public class SchemFixerUtil
             if (!name.equals(blueprint.getName()))
             {
                 schemDataCompound.putString(TAG_SCHEMATIC_NAME, blueprint.getName());
-                BlockPosUtil.writeToNBT(schemDataCompound, TAG_CORNER_ONE, BlockPos.ZERO.subtract(blueprint.getPrimaryBlockOffset()));
+                BlockPosUtil.writeToNBT(schemDataCompound, TAG_CORNER_ONE, new int[]{0,0,0}.subtract(blueprint.getPrimaryBlockOffset()));
                 BlockPosUtil.writeToNBT(schemDataCompound,
                   TAG_CORNER_TWO,
-                  new BlockPos(blueprint.getSizeX() - 1, blueprint.getSizeY() - 1, blueprint.getSizeZ() - 1).subtract(blueprint.getPrimaryBlockOffset()));
+                    new int[]{blueprint.getSizeX() - 1 - blueprint.getPrimaryBlockOffset()[0], blueprint.getSizeY() - 1 - blueprint.getPrimaryBlockOffset()[1], blueprint.getSizeZ() - 1 - blueprint.getPrimaryBlockOffset()[2]});
                 Log.getLogger().warn("Fixing blueprint schematic name and corners for:" + blueprint.getName());
                 return true;
             }
@@ -143,3 +143,8 @@ public class SchemFixerUtil
         return changed;
     }
 }
+
+
+
+
+

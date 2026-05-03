@@ -4,7 +4,7 @@ import com.minecolonies.api.colony.requestsystem.location.ILocation;
 import com.minecolonies.api.colony.requestsystem.manager.IRequestManager;
 import com.minecolonies.api.colony.requestsystem.request.IRequest;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
-import net.minecraft.network.chat.MutableComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -51,5 +51,6 @@ public interface IRequester
      * @return The display name of the requester.
      */
     @NotNull
-    MutableComponent getRequesterDisplayName(@NotNull final IRequestManager manager, @NotNull final IRequest<?> request);
+    String getRequesterDisplayName(@NotNull final IRequestManager manager, @NotNull final IRequest<?> request);
 }
+

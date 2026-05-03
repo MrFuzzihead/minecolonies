@@ -13,7 +13,8 @@ public interface IBuildingUpgradeObjectiveTemplate
      *
      * @param progressData the objective data.
      * @param colonyQuest  the quest.
-     * @param level        reached lvl.
+     * @param World        reached lvl.
      */
-    void onBuildingUpgrade(IObjectiveInstance progressData, final IQuestInstance colonyQuest, final int level);
+    void onBuildingUpgrade(IObjectiveInstance progressData, final IQuestInstance colonyQuest, final int World);
 }
+

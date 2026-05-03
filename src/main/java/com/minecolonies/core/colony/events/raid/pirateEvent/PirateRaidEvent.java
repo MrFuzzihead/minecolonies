@@ -6,11 +6,11 @@ import com.minecolonies.api.entity.ModEntities;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.colony.events.raid.AbstractShipRaidEvent;
 
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] world.entity removed
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 
 import org.jetbrains.annotations.NotNull;
 
@@ -60,7 +60,7 @@ public class PirateRaidEvent extends AbstractShipRaidEvent
      * @param compound the NBT compound
      * @return the colony to load.
      */
-    public static IColonyEvent loadFromNBT(@NotNull final IColony colony, @NotNull final CompoundTag compound)
+    public static IColonyEvent loadFromNBT(@NotNull final IColony colony, @NotNull final NBTTagCompound compound)
     {
         final PirateRaidEvent raidEvent = new PirateRaidEvent(colony);
         raidEvent.deserializeNBT(compound);
@@ -86,8 +86,12 @@ public class PirateRaidEvent extends AbstractShipRaidEvent
     }
 
     @Override
-    protected MutableComponent getDisplayName()
+    protected String getDisplayName()
     {
-        return Component.translatable(RAID_PIRATE);
+        return String.translatable(RAID_PIRATE);
     }
 }
+
+
+
+

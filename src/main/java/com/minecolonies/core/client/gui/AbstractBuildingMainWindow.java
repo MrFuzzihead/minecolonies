@@ -7,12 +7,12 @@ import com.minecolonies.core.Network;
 import com.minecolonies.core.colony.buildings.views.AbstractBuildingView;
 import com.minecolonies.core.network.messages.server.colony.OpenInventoryMessage;
 import com.minecolonies.core.network.messages.server.colony.building.BuildRequestMessage;
-import net.minecraft.client.resources.language.I18n;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
 
 import static com.minecolonies.api.util.constant.TranslationConstants.*;
 import static com.minecolonies.api.util.constant.WindowConstants.*;
@@ -70,15 +70,15 @@ public abstract class AbstractBuildingMainWindow<B extends IBuildingView> extend
 
         if (buttonLabel.equalsIgnoreCase(ACTION_CANCEL_BUILD) || buttonLabel.equalsIgnoreCase(ACTION_CANCEL_UPGRADE))
         {
-            Network.getNetwork().sendToServer(new BuildRequestMessage(buildingView, BuildRequestMessage.Mode.BUILD, BlockPos.ZERO));
+            Network.getNetwork().sendToServer(new BuildRequestMessage(buildingView, BuildRequestMessage.Mode.BUILD, new int[]{0,0,0}));
         }
         else if (buttonLabel.equalsIgnoreCase(ACTION_CANCEL_REPAIR))
         {
-            Network.getNetwork().sendToServer(new BuildRequestMessage(buildingView, BuildRequestMessage.Mode.REPAIR, BlockPos.ZERO));
+            Network.getNetwork().sendToServer(new BuildRequestMessage(buildingView, BuildRequestMessage.Mode.REPAIR, new int[]{0,0,0}));
         }
         else if (buttonLabel.equalsIgnoreCase(ACTION_CANCEL_DECONSTRUCTION))
         {
-            Network.getNetwork().sendToServer(new BuildRequestMessage(buildingView, BuildRequestMessage.Mode.REMOVE, BlockPos.ZERO));
+            Network.getNetwork().sendToServer(new BuildRequestMessage(buildingView, BuildRequestMessage.Mode.REMOVE, new int[]{0,0,0}));
         }
         else
         {
@@ -141,24 +141,24 @@ public abstract class AbstractBuildingMainWindow<B extends IBuildingView> extend
         {
             if (buildingView.getBuildingLevel() == 0)
             {
-                buttonBuild.setText(Component.translatable(ACTION_CANCEL_BUILD));
+                buttonBuild.setText(String.translatable(ACTION_CANCEL_BUILD));
             }
             else
             {
-                buttonBuild.setText(Component.translatable(ACTION_CANCEL_UPGRADE));
+                buttonBuild.setText(String.translatable(ACTION_CANCEL_UPGRADE));
             }
         }
         else if (buildingView.isRepairing())
         {
-            buttonBuild.setText(Component.translatable(ACTION_CANCEL_REPAIR));
+            buttonBuild.setText(String.translatable(ACTION_CANCEL_REPAIR));
         }
         else if (buildingView.isDeconstructing())
         {
-            buttonBuild.setText(Component.translatable(ACTION_CANCEL_DECONSTRUCTION));
+            buttonBuild.setText(String.translatable(ACTION_CANCEL_DECONSTRUCTION));
         }
         else
         {
-            buttonBuild.setText(Component.translatable(ACTION_BUILD_REPAIR));
+            buttonBuild.setText(String.translatable(ACTION_BUILD_REPAIR));
         }
     }
 
@@ -170,11 +170,16 @@ public abstract class AbstractBuildingMainWindow<B extends IBuildingView> extend
 
         if (title != null)
         {
-            final MutableComponent component = Component.translatable(buildingView.getBuildingDisplayName());
-            final MutableComponent componentWithLevel = component.append(" ").append(String.valueOf(buildingView.getBuildingLevel()));
+            final String String = String.translatable(buildingView.getBuildingDisplayName());
+            final String componentWithLevel = String.append(" ").append(String.valueOf(buildingView.getBuildingLevel()));
             title.setText(componentWithLevel);
         }
 
         updateButtonBuild(this.buildingView);
     }
 }
+
+
+
+
+

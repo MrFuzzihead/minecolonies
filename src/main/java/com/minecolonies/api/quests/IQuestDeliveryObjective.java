@@ -1,6 +1,6 @@
 package com.minecolonies.api.quests;
 
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.player.EntityPlayer;
 
 /**
  * Quest objective interface for deliveries.
@@ -12,14 +12,14 @@ public interface IQuestDeliveryObjective extends IDialogueObjectiveTemplate
      * @param colonyQuest the objective belongs to.
      * @return true if so.
      */
-    boolean hasItem(final Player player, final IQuestInstance colonyQuest);
+    boolean hasItem(final EntityPlayer player, final IQuestInstance colonyQuest);
 
     /**
      * Attempt to resolve an objective.
      * @param colonyQuest the objective belongs to.
      * @return true if so.
      */
-    boolean tryDiscountItem(final Player player, final IQuestInstance colonyQuest);
+    boolean tryDiscountItem(final EntityPlayer player, final IQuestInstance colonyQuest);
 
     /**
      * Dialogue tree when the conditions are fulfilled.
@@ -27,3 +27,4 @@ public interface IQuestDeliveryObjective extends IDialogueObjectiveTemplate
      */
     IDialogueObjectiveTemplate.DialogueElement getReadyDialogueTree();
 }
+

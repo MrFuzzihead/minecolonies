@@ -15,14 +15,14 @@ import journeymap.client.api.model.MapPolygonWithHoles;
 import journeymap.client.api.model.ShapeProperties;
 import journeymap.client.api.model.TextProperties;
 import journeymap.client.api.util.PolygonHelper;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.util.EnumChatFormatting;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Registries removed
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.world.World.ChunkPos;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,7 +36,7 @@ import static com.minecolonies.api.util.constant.Constants.MOD_ID;
  */
 public class ColonyBorderMapping
 {
-    private static final Map<ResourceKey<Level>, Map<Integer, ColonyBorderOverlay>> overlays = new HashMap<>();
+    private static final Map<int /* ResourceKey */, Map<Integer, ColonyBorderOverlay>> overlays = new HashMap<>();
 
     static final Codec<List<ColonyBorderOverlay>> DIM_BORDER_CODEC = ColonyBorderOverlay.CODEC.listOf();
 
@@ -54,8 +54,8 @@ public class ColonyBorderMapping
      */
     public static String getCurrentColony()
     {
-        final BlockPos pos = Minecraft.getInstance().player.blockPosition();
-        final IColony colony = IColonyManager.getInstance().getIColony(Minecraft.getInstance().level, pos);
+        final int[] pos = Minecraft.getInstance().player.blockPosition();
+        final IColony colony = IColonyManager.getInstance().getIColony(Minecraft.getInstance().World, pos);
         return colony != null ? colony.getName() : "";
     }
 
@@ -63,7 +63,7 @@ public class ColonyBorderMapping
      * Loads cached colony data, if any.  Also starts tracking data for a dimension.
      */
     public static void load(@NotNull final Journeymap jmap,
-                            @NotNull final ResourceKey<Level> dimension)
+                            @NotNull final int /* ResourceKey */ dimension)
     {
         if (overlays.containsKey(dimension)) return;    // don't bother reloading
 
@@ -85,7 +85,7 @@ public class ColonyBorderMapping
      * Stops tracking data for a dimension and clears any related overlays.
      */
     public static void unload(@NotNull final Journeymap jmap,
-                              @NotNull final ResourceKey<Level> dimension)
+                              @NotNull final int /* ResourceKey */ dimension)
     {
         final Map<Integer, ColonyBorderOverlay> dimensionOverlays = overlays.remove(dimension);
 
@@ -110,10 +110,10 @@ public class ColonyBorderMapping
      * @param chunk The chunk that was just loaded.
      */
     public static void updateChunk(@NotNull final Journeymap jmap,
-                                   @NotNull final ResourceKey<Level> dimension,
+                                   @NotNull final int /* ResourceKey */ dimension,
                                    @NotNull final LevelChunk chunk)
     {
-        final Level world = Minecraft.getInstance().level;
+        final World world = Minecraft.getInstance().World;
         if (world == null || !dimension.equals(world.dimension())) return;
 
         final Map<Integer, ColonyBorderOverlay> dimensionOverlays = overlays.get(dimension);
@@ -150,7 +150,7 @@ public class ColonyBorderMapping
      * @param dimension The dimension to check
      */
     public static void updatePending(@NotNull final Journeymap jmap,
-                                     @NotNull final ResourceKey<Level> dimension)
+                                     @NotNull final int /* ResourceKey */ dimension)
     {
         final IColonyManager colonyManager = MinecoloniesAPIProxy.getInstance().getColonyManager();
 
@@ -163,7 +163,7 @@ public class ColonyBorderMapping
     /** Overlay tracking information for one entire colony */
     private static class ColonyBorderOverlay
     {
-        private final ResourceKey<Level> dimension;
+        private final int /* ResourceKey */ dimension;
         private final int id;
         private final String name;
         private final Set<ChunkPos> chunks;
@@ -193,7 +193,7 @@ public class ColonyBorderMapping
                 ).apply(instance, ColonyBorderOverlay::new));
 
         /** Deserialization */
-        private ColonyBorderOverlay(@NotNull final ResourceKey<Level> dimension,
+        private ColonyBorderOverlay(@NotNull final int /* ResourceKey */ dimension,
                                     final int id,
                                     final String colonyName,
                                     final int colour,
@@ -207,7 +207,7 @@ public class ColonyBorderMapping
         }
 
         /** Normal construction */
-        public ColonyBorderOverlay(@NotNull final ResourceKey<Level> dimension,
+        public ColonyBorderOverlay(@NotNull final int /* ResourceKey */ dimension,
                                    final int id)
         {
             this.dimension = dimension;
@@ -288,7 +288,7 @@ public class ColonyBorderMapping
 
         /** Update the map overlays if needed */
         public void updatePending(@NotNull final Journeymap jmap,
-                                  @NotNull final ResourceKey<Level> dimension,
+                                  @NotNull final int /* ResourceKey */ dimension,
                                   final int id,
                                   @NotNull final IColonyManager colonyManager)
         {
@@ -364,3 +364,6 @@ public class ColonyBorderMapping
         }
     }
 }
+
+
+

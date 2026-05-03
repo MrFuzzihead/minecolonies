@@ -1,5 +1,6 @@
 package com.minecolonies.api.blocks;
 
+// [1.7.10 BACKPORT] Structurize interfaces kept tentatively; may need adjustment to match 1.7.10 Structurize jar.
 import com.ldtteam.structurize.blocks.interfaces.*;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.placement.structure.AbstractStructureHandler;
@@ -17,28 +18,19 @@ import com.minecolonies.api.tileentities.AbstractTileEntityColonyBuilding;
 import com.minecolonies.api.util.*;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.api.util.constant.TranslationConstants;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.items.wrapper.InvWrapper;
-import net.minecraftforge.registries.IForgeRegistry;
+// [1.7.10 BACKPORT] 1.21 imports removed; 1.7.10 replacements below.
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.block.Block;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,22 +44,31 @@ import static com.minecolonies.api.util.constant.TranslationConstants.*;
 /**
  * Base class for all Minecolonies Hut Blocks. Hut Blocks are the base blocks for Minecolonies buildings.
  * Extending this class enables all the blueprint functionalities.
+ *
+ * [1.7.10 BACKPORT] Ported from 1.21:
+ *   - int[] → int x, int y, int z
+ *   - World → World
+ *   - Player → EntityPlayer; EntityPlayerMP → EntityPlayerMP; EntityLivingBase → EntityLivingBase
+ *   - BlockState → int meta
+ *   - NBTTagCompound → NBTTagCompound
+ *   - BlockEntity → TileEntity
+ *   - String/String → String
+ *   - @OnlyIn(Dist.CLIENT) → @SideOnly(Side.CLIENT)
+ *   - registerBlockItem(IForgeRegistry<Item>, Item.Properties) → registerBlockItem() (no-arg)
+ *   - Structurize interface methods: tentative – depends on 1.7.10 Structurize API.
  */
 @SuppressWarnings("PMD.ExcessiveImports")
 public abstract class AbstractBlockHut<B extends AbstractBlockHut<B>> extends AbstractColonyBlock<B> implements
-                                                                                                                        IAnchorBlock,
-                                                                                                                        INamedBlueprintAnchorBlock,
-                                                                                                                        ILeveledBlueprintAnchorBlock,
-                                                                                                                        IRequirementsBlueprintAnchorBlock,
-                                                                                                                        IInvisibleBlueprintAnchorBlock,
-                                                                                                                        ISpecialCreativeHandlerAnchorBlock,
-                                                                                                                        IBuildingBrowsableBlock
-
+                                                                                                                         IAnchorBlock,
+                                                                                                                         INamedBlueprintAnchorBlock,
+                                                                                                                         ILeveledBlueprintAnchorBlock,
+                                                                                                                         IRequirementsBlueprintAnchorBlock,
+                                                                                                                         IInvisibleBlueprintAnchorBlock,
+                                                                                                                         ISpecialCreativeHandlerAnchorBlock,
+                                                                                                                         IBuildingBrowsableBlock
 {
     /**
      * Constructor for a hut block.
-     * <p>
-     * Registers the block, sets the creative tab, as well as the resistance and the hardness.
      */
     public AbstractBlockHut()
     {
@@ -75,41 +76,31 @@ public abstract class AbstractBlockHut<B extends AbstractBlockHut<B>> extends Ab
     }
 
     /**
-     * Constructor for a hut block.
-     * <p>
-     * Registers the block, sets the creative tab, as well as the resistance and the hardness.
+     * Event-Handler for placement of this block by the build tool.
      *
-     * @param properties custom properties.
-     */
-    public AbstractBlockHut(final Properties properties)
-    {
-        super(properties);
-    }
-
-    /**
-     * Event-Handler for placement of this block.
-     * <p>
-     * Override for custom logic.
-     *
-     * @param worldIn the word we are in.
-     * @param pos     the position where the block was placed.
-     * @param state   the state the placed block is in.
-     * @param placer  the player placing the block.
-     * @param stack   the itemstack from where the block was placed.
-     * @param mirror  the mirror used.
-     * @param style   the style of the building
+     * @param worldIn       the world.
+     * @param x             block x.
+     * @param y             block y.
+     * @param z             block z.
+     * @param meta          block metadata (encodes facing).
+     * @param placer        the entity placing the block.
+     * @param stack         the ItemStack placed from.
+     * @param mirror        whether the blueprint is mirrored.
+     * @param style         style / pack name.
+     * @param blueprintPath path within the pack.
      */
     public void onBlockPlacedByBuildTool(
-      @NotNull final Level worldIn,
-      @NotNull final BlockPos pos,
-      final BlockState state,
-      final LivingEntity placer,
+      @NotNull final World worldIn,
+      final int x, final int y, final int z,
+      final int meta,
+      final EntityLivingBase placer,
       final ItemStack stack,
       final boolean mirror,
       final String style,
       final String blueprintPath)
     {
-        final BlockEntity tileEntity = worldIn.getBlockEntity(pos);
+        // [1.7.10 BACKPORT] getBlockEntity → getBlockTileEntity
+        final TileEntity tileEntity = worldIn.getTileEntity(x, y, z);
         if (tileEntity instanceof AbstractTileEntityColonyBuilding)
         {
             ((AbstractTileEntityColonyBuilding) tileEntity).setMirror(mirror);
@@ -117,31 +108,49 @@ public abstract class AbstractBlockHut<B extends AbstractBlockHut<B>> extends Ab
             ((AbstractTileEntityColonyBuilding) tileEntity).setBlueprintPath(blueprintPath);
         }
 
-        setPlacedBy(worldIn, pos, state, placer, stack);
+        // [1.7.10 BACKPORT] setPlacedBy → onBlockPlacedBy
+        onBlockPlacedBy(worldIn, x, y, z, placer, stack);
     }
 
     @Override
-    public boolean isVisible(@Nullable final CompoundTag beData)
+    public boolean isVisible(@Nullable final NBTTagCompound beData)
     {
-        final Map<BlockPos, List<String>> data = readTagPosMapFrom(beData.getCompound(TAG_BLUEPRINTDATA));
-        return !data.getOrDefault(BlockPos.ZERO, new ArrayList<>()).contains("invisible");
+        // [1.7.10 BACKPORT] NBTTagCompound → NBTTagCompound; new int[]{0,0,0} → origin key
+        // TODO: verify IBlueprintDataProviderBE.readTagPosMapFrom is available in 1.7.10 Structurize
+        final Map<?, List<String>> data = readTagPosMapFrom(beData.getCompoundTag(TAG_BLUEPRINTDATA));
+        return !data.getOrDefault(null, new ArrayList<>()).contains("invisible");
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public List<MutableComponent> getRequirements(final ClientLevel level, final BlockPos pos, final LocalPlayer player)
+    @SideOnly(Side.CLIENT)
+    public List<String> getRequirements(final World World, final int x, final int y, final int z, final EntityPlayer player)
     {
-        final List<MutableComponent> requirements = new ArrayList<>();
-        final IColonyView colonyView = IColonyManager.getInstance().getClosestColonyView(level, pos);
+        final List<String> requirements = new ArrayList<>();
+        // [1.7.10 BACKPORT] IColonyManager.getClosestColonyView — coordinates as ints
+        final IColonyView colonyView = IColonyManager.getInstance().getClosestColonyView(World, x, y, z);
         if (colonyView == null)
         {
-            requirements.add(Component.translatable("com.minecolonies.coremod.hut.incolony").setStyle((Style.EMPTY).withColor(ChatFormatting.RED)));
+            requirements.add("com.minecolonies.coremod.hut.incolony");
             return requirements;
         }
 
-        if (InventoryUtils.findFirstSlotInItemHandlerWith(new InvWrapper(player.getInventory()), this) == -1)
+        // [1.7.10 BACKPORT] InventoryUtils.findFirstSlotInItemHandlerWith → findFirstSlotInItemHandlerWith
+        //   InvWrapper is a 1.21 Forge concept; replaced with player inventory check.
+        boolean hasBuildingBlock = false;
+        for (int i = 0; i < player.inventory.getSizeInventory(); i++)
         {
-            requirements.add(Component.translatable("com.minecolonies.coremod.hut.cost", Component.translatable("block." + Constants.MOD_ID + "." + getHutName())).setStyle((Style.EMPTY).withColor(ChatFormatting.RED)));
+            final ItemStack s = player.inventory.getStackInSlot(i);
+            if (s != null && s.getItem() instanceof net.minecraft.item.ItemBlock
+                    && ((net.minecraft.item.ItemBlock) s.getItem()).field_150939_a == this)
+            {
+                hasBuildingBlock = true;
+                break;
+            }
+        }
+
+        if (!hasBuildingBlock)
+        {
+            requirements.add("com.minecolonies.coremod.hut.cost");
             return requirements;
         }
 
@@ -153,41 +162,42 @@ public abstract class AbstractBlockHut<B extends AbstractBlockHut<B>> extends Ab
 
         if (MinecoloniesAPIProxy.getInstance().getGlobalResearchTree().getResearchForEffect(effectId) != null)
         {
-            requirements.add(Component.translatable(TranslationConstants.HUT_NEEDS_RESEARCH_TOOLTIP_1, getName()));
-            requirements.add(Component.translatable(TranslationConstants.HUT_NEEDS_RESEARCH_TOOLTIP_2, getName()));
+            requirements.add(TranslationConstants.HUT_NEEDS_RESEARCH_TOOLTIP_1);
+            requirements.add(TranslationConstants.HUT_NEEDS_RESEARCH_TOOLTIP_2);
         }
 
         return requirements;
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public boolean areRequirementsMet(final ClientLevel level, final BlockPos pos, final LocalPlayer player)
+    @SideOnly(Side.CLIENT)
+    public boolean areRequirementsMet(final World World, final int x, final int y, final int z, final EntityPlayer player)
     {
-        if (player.isCreative())
+        if (player.capabilities.isCreativeMode)
         {
             return true;
         }
-        return this.getRequirements(level, pos, player).isEmpty();
+        return this.getRequirements(World, x, y, z, player).isEmpty();
     }
 
     @Override
-    public List<MutableComponent> getDesc()
+    public List<String> getDesc()
     {
-        final List<MutableComponent> desc = new ArrayList<>();
-        desc.add(Component.translatable(getBuildingEntry().getTranslationKey()));
-        desc.add(Component.translatable(getBuildingEntry().getTranslationKey() + ".desc"));
+        final List<String> desc = new ArrayList<>();
+        desc.add(getBuildingEntry().getTranslationKey());
+        desc.add(getBuildingEntry().getTranslationKey() + ".desc");
         return desc;
     }
 
     @Override
-    public Component getBlueprintDisplayName()
+    public String getBlueprintDisplayName()
     {
-        return Component.translatable(getBuildingEntry().getTranslationKey());
+        // [1.7.10 BACKPORT] String.translatable → translation key as plain String
+        return getBuildingEntry().getTranslationKey();
     }
 
     @Override
-    public int getLevel(final CompoundTag beData)
+    public int getLevel(final NBTTagCompound beData)
     {
         if (beData == null)
         {
@@ -196,50 +206,63 @@ public abstract class AbstractBlockHut<B extends AbstractBlockHut<B>> extends Ab
 
         try
         {
-            return Integer.parseInt(beData.getCompound(TAG_BLUEPRINTDATA).getString(TAG_SCHEMATIC_NAME).replaceAll("[^0-9]", ""));
+            return Integer.parseInt(beData.getCompoundTag(TAG_BLUEPRINTDATA).getString(TAG_SCHEMATIC_NAME).replaceAll("[^0-9]", ""));
         }
         catch (final NumberFormatException exception)
         {
-            Log.getLogger().error("Couldn't get level from hut: " + getHutName() + ". Potential corrubt blockEntity data.");
+            Log.getLogger().error("Couldn't get World from hut: " + getHutName() + ". Potential corrupt blockEntity data.");
             return 0;
         }
     }
 
     @Override
-    public AbstractStructureHandler getStructureHandler(final Level level, final BlockPos blockPos, final Blueprint blueprint, final PlacementSettings placementSettings, final boolean b)
+    public AbstractStructureHandler getStructureHandler(
+      final World World,
+      final int x, final int y, final int z,
+      final Blueprint blueprint,
+      final PlacementSettings placementSettings,
+      final boolean b)
     {
-        return new CreativeBuildingStructureHandler(level, blockPos, blueprint, placementSettings, b);
+        // [1.7.10 BACKPORT] CreativeBuildingStructureHandler — signature may differ; depends on Structurize 1.7.10 API.
+        return new CreativeBuildingStructureHandler(World, x, y, z, blueprint, placementSettings, b);
     }
 
     @Override
     public boolean setup(
-      final ServerPlayer player,
-      final Level world,
-      final BlockPos pos,
+      final EntityPlayerMP player,
+      final World world,
+      final int x, final int y, final int z,
       final Blueprint blueprint,
       final PlacementSettings settings,
       final boolean fancyPlacement,
       final String pack,
       final String path)
     {
-        final BlockState anchor = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
-        if (!(anchor.getBlock() instanceof AbstractBlockHut<?>) || (!fancyPlacement && player.isCreative()))
+        // [1.7.10 BACKPORT] BlockState → int meta; blueprint.getBlockState → blueprint.getBlock/getMeta
+        // TODO: verify Blueprint API in 1.7.10 Structurize
+        final int anchorMeta = blueprint.getMetaAt(blueprint.getPrimaryBlockOffset());
+        final Block anchorBlock = blueprint.getBlockAt(blueprint.getPrimaryBlockOffset());
+
+        if (!(anchorBlock instanceof AbstractBlockHut<?>) || (!fancyPlacement && player.capabilities.isCreativeMode))
         {
             return true;
         }
 
-        if (!IMinecoloniesAPI.getInstance().getConfig().getServer().blueprintBuildMode.get() && !canPaste(anchor.getBlock(), player, pos))
+        if (!IMinecoloniesAPI.getInstance().getConfig().getServer().blueprintBuildMode.get() && !canPaste(anchorBlock, player, x, y, z))
         {
             return false;
         }
-        world.destroyBlock(pos, true);
-        world.setBlockAndUpdate(pos, anchor);
-        ((AbstractBlockHut<?>) anchor.getBlock()).onBlockPlacedByBuildTool(world,
-          pos,
-          anchor,
+
+        // [1.7.10 BACKPORT] destroyBlock → setBlock to air; setBlockAndUpdate → setBlock
+        world.setBlock(x, y, z, net.minecraft.init.Blocks.air, 0, 3);
+        world.setBlock(x, y, z, anchorBlock, anchorMeta, 3);
+
+        ((AbstractBlockHut<?>) anchorBlock).onBlockPlacedByBuildTool(world,
+          x, y, z,
+          anchorMeta,
           player,
           null,
-          settings.getMirror() != Mirror.NONE,
+          settings.getMirror() != com.ldtteam.structurize.util.Mirror.NONE,
           pack,
           path);
 
@@ -248,25 +271,27 @@ public abstract class AbstractBlockHut<B extends AbstractBlockHut<B>> extends Ab
             return true;
         }
 
-        @Nullable final IBuilding building = IColonyManager.getInstance().getBuilding(world, pos);
+        @Nullable final IBuilding building = IColonyManager.getInstance().getBuilding(world, x, y, z);
         if (building == null)
         {
-            if (anchor.getBlock() != ModBlocks.blockHutTownHall)
+            if (anchorBlock != ModBlocks.blockHutTownHall)
             {
-                SoundUtils.playErrorSound(player, player.blockPosition());
+                // [1.7.10 BACKPORT] player.blockPosition() → x,y,z
+                SoundUtils.playErrorSound(player, x, y, z);
                 Log.getLogger().error("BuildTool: building is null!", new Exception());
                 return false;
             }
         }
         else
         {
-            SoundUtils.playSuccessSound(player, player.blockPosition());
+            SoundUtils.playSuccessSound(player, x, y, z);
             if (building.getTileEntity() != null)
             {
-                final IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(world, pos);
+                final IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(world, x, y, z);
                 if (colony == null)
                 {
-                    Log.getLogger().info("No colony for " + player.getName().getString());
+                    // [1.7.10 BACKPORT] player.getName().getString() → player.getCommandSenderName()
+                    Log.getLogger().info("No colony for " + player.getCommandSenderName());
                     return false;
                 }
                 else
@@ -289,7 +314,8 @@ public abstract class AbstractBlockHut<B extends AbstractBlockHut<B>> extends Ab
                 building.setBuildingLevel(1);
             }
 
-            building.setIsMirrored(settings.mirror != Mirror.NONE);
+            // [1.7.10 BACKPORT] settings.mirror field access preserved; Mirror enum may differ in Structurize 1.7.10
+            building.setIsMirrored(settings.mirror != com.ldtteam.structurize.util.Mirror.NONE);
             building.onUpgradeComplete(blueprint, building.getBuildingLevel());
         }
         return true;
@@ -297,24 +323,27 @@ public abstract class AbstractBlockHut<B extends AbstractBlockHut<B>> extends Ab
 
     /**
      * Check if we got permissions to paste.
-     * @param anchor the anchor of the paste.
+     *
+     * @param anchor the anchor block type.
      * @param player the player pasting it.
-     * @param pos the position its pasted at.
-     * @return true if fine.
+     * @param x      block x.
+     * @param y      block y.
+     * @param z      block z.
+     * @return true if allowed.
      */
-    private boolean canPaste(final Block anchor, final Player player, final BlockPos pos)
+    private boolean canPaste(final Block anchor, final EntityPlayer player, final int x, final int y, final int z)
     {
-        final IColony colony = IColonyManager.getInstance().getIColony(player.level(), pos);
+        // [1.7.10 BACKPORT] player.World() → player.worldObj
+        final IColony colony = IColonyManager.getInstance().getIColony(player.worldObj, x, y, z);
 
         if (colony == null)
         {
-            if(anchor == ModBlocks.blockHutTownHall)
+            if (anchor == ModBlocks.blockHutTownHall)
             {
                 return true;
             }
 
-            //  Not in a colony
-            if (IColonyManager.getInstance().getIColonyByOwner(player.level(), player) == null)
+            if (IColonyManager.getInstance().getIColonyByOwner(player.worldObj, player) == null)
             {
                 MessageUtils.format(MESSAGE_WARNING_TOWN_HALL_NOT_PRESENT).sendTo(player);
             }
@@ -327,33 +356,36 @@ public abstract class AbstractBlockHut<B extends AbstractBlockHut<B>> extends Ab
         }
         else if (!colony.getPermissions().hasPermission(player, Action.PLACE_HUTS))
         {
-            //  No permission to place hut in colony
             MessageUtils.format(PERMISSION_OPEN_HUT, colony.getName()).sendTo(player);
             return false;
         }
         else
         {
-            return colony.getServerBuildingManager().canPlaceAt(anchor, pos, player);
+            return colony.getServerBuildingManager().canPlaceAt(anchor, x, y, z, player);
         }
     }
 
     /**
      * Get the blueprint name.
+     *
      * @return the name.
      */
     public String getBlueprintName()
     {
-        return getBuildingEntry().getRegistryName().getPath();
+        return getBuildingEntry().getRegistryName().getResourcePath();
     }
 
     @Override
-    public void registerBlockItem(final IForgeRegistry<Item> registry, final Item.Properties properties)
+    public void registerBlockItem()
     {
-        registry.register(getRegistryName(), new ItemBlockHut(this, properties));
+        // [1.7.10 BACKPORT] IForgeRegistry<Item> parameter removed.
+        // Caller registers via GameRegistry.registerBlock(this, ItemBlockHut.class, name).
+        // This method kept as no-op; registration happens in ModBlocksInitializer.
     }
 
     /**
      * Can this block be right-clicked without the appropriate permissions?
+     *
      * @return true if so. Default false.
      */
     public boolean canRightClickWithoutPermissions()
@@ -364,12 +396,17 @@ public abstract class AbstractBlockHut<B extends AbstractBlockHut<B>> extends Ab
     /**
      * Check if the block can be placed at the given position by the player.
      *
-     * @param pos the position to check.
+     * @param x      block x.
+     * @param y      block y.
+     * @param z      block z.
      * @param player the player trying to place the block.
      * @return true if the block can be placed.
      */
-    public boolean canPlaceAt(final BlockPos pos, final Player player)
+    public boolean canPlaceAt(final int x, final int y, final int z, final EntityPlayer player)
     {
         return true;
     }
 }
+
+
+

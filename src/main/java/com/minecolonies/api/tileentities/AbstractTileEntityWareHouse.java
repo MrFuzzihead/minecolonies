@@ -3,10 +3,7 @@ package com.minecolonies.api.tileentities;
 import com.minecolonies.api.inventory.InventoryCitizen;
 import com.minecolonies.api.util.Tuple;
 import com.minecolonies.core.tileentities.TileEntityColonyBuilding;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -14,24 +11,25 @@ import java.util.function.Predicate;
 
 public abstract class AbstractTileEntityWareHouse extends TileEntityColonyBuilding
 {
-    public AbstractTileEntityWareHouse(final BlockEntityType<? extends AbstractTileEntityWareHouse> warehouse, final BlockPos pos, final BlockState state)
+    public AbstractTileEntityWareHouse()
     {
-        super(warehouse, pos, state);
+        super();
     }
 
     /**
      * Method to get the first matching ItemStack in the Warehouse.
      *
      * @param itemStackSelectionPredicate The predicate to select the ItemStack with.
-     * @return The first matching ItemStack.
+     * @param count                       min count required.
+     * @return true if found.
      */
     public abstract boolean hasMatchingItemStackInWarehouse(@NotNull Predicate<ItemStack> itemStackSelectionPredicate, int count);
 
     /**
      * Method used to check if this warehouse holds any of the requested itemstacks.
      *
-     * @param itemStack The stack to check with to check with.
-     * @param count the min count.
+     * @param itemStack The stack to check with.
+     * @param count     the min count.
      * @param ignoreNBT if the nbt value should be ignored.
      * @return True when the warehouse holds a stack, false when not.
      */
@@ -40,10 +38,10 @@ public abstract class AbstractTileEntityWareHouse extends TileEntityColonyBuildi
     /**
      * Method used to check if this warehouse holds any of the requested itemstacks.
      *
-     * @param itemStack The stack to check with to check with.
-     * @param count the min count.
+     * @param itemStack The stack to check with.
+     * @param count     the min count.
      * @param ignoreNBT if the nbt value should be ignored.
-     * @param leftOver the leftover to keep at the warehouse at all times.
+     * @param leftOver  the leftover to keep at the warehouse at all times.
      * @return True when the warehouse holds a stack, false when not.
      */
     public abstract boolean hasMatchingItemStackInWarehouse(@NotNull final ItemStack itemStack, final int count, final boolean ignoreNBT, final int leftOver);
@@ -51,28 +49,33 @@ public abstract class AbstractTileEntityWareHouse extends TileEntityColonyBuildi
     /**
      * Method used to check if this warehouse holds any of the requested itemstacks.
      *
-     * @param itemStack The stack to check with to check with.
-     * @param count the min count.
-     * @param ignoreNBT if the nbt value should be ignored.
+     * @param itemStack    The stack to check with.
+     * @param count        the min count.
+     * @param ignoreNBT    if the nbt value should be ignored.
      * @param ignoreDamage the ignore damage.
-     * @param leftOver the leftover to keep at the warehouse at all times.
+     * @param leftOver     the leftover to keep at the warehouse at all times.
      * @return True when the warehouse holds a stack, false when not.
      */
-    public abstract boolean hasMatchingItemStackInWarehouse(@NotNull final ItemStack itemStack, final int count, final boolean ignoreNBT, final boolean ignoreDamage, final int leftOver);
+    public abstract boolean hasMatchingItemStackInWarehouse(
+      @NotNull final ItemStack itemStack,
+      final int count,
+      final boolean ignoreNBT,
+      final boolean ignoreDamage,
+      final int leftOver);
 
     /**
-     * Method used to check if this warehouse holds any of the requested itemstacks.
+     * Method used to find all matching stacks in the warehouse.
      *
      * @param itemStackSelectionPredicate The predicate to check with.
-     * @return True when the warehouse holds a stack, false when not.
+     * @return list of matching stacks with positions as [x, y, z] arrays.
      */
     @NotNull
-    public abstract List<Tuple<ItemStack, BlockPos>> getMatchingItemStacksInWarehouse(@NotNull Predicate<ItemStack> itemStackSelectionPredicate);
+    public abstract List<Tuple<ItemStack, int[]>> getMatchingItemStacksInWarehouse(@NotNull Predicate<ItemStack> itemStackSelectionPredicate);
 
     /**
-     * Dump the inventory of a citizen into the warehouse. Go through all items and search the right chest to dump it in.
+     * Dump the inventory of a citizen into the warehouse.
      *
-     * @param inventoryCitizen the inventory of the citizen
+     * @param inventoryCitizen the inventory of the citizen.
      */
     public abstract void dumpInventoryIntoWareHouse(@NotNull InventoryCitizen inventoryCitizen);
 }

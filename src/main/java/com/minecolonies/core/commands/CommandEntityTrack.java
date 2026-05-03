@@ -12,10 +12,10 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -45,21 +45,21 @@ public class CommandEntityTrack implements IMCColonyOfficerCommand
             final Collection<? extends Entity> entities = EntityArgument.getEntities(context, "entity");
             if (entities.isEmpty())
             {
-                context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_ENTITY_NOT_FOUND), true);
+                context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_ENTITY_NOT_FOUND), true);
                 return 0;
             }
 
             final Entity entity = entities.iterator().next();
             if (PathfindingUtils.trackingMap.getOrDefault(sender.getUUID(), UUID.randomUUID()).equals(entity.getUUID()))
             {
-                context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_ENTITY_TRACK_DISABLED), true);
+                context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_ENTITY_TRACK_DISABLED), true);
                 PathfindingUtils.trackingMap.remove(sender.getUUID());
                 Network.getNetwork()
-                  .sendToPlayer(new SyncPathMessage(new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>()), (ServerPlayer) sender);
+                  .sendToPlayer(new SyncPathMessage(new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>()), (EntityPlayerMP) sender);
             }
             else
             {
-                context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_ENTITY_TRACK_ENABLED), true);
+                context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_ENTITY_TRACK_ENABLED), true);
                 PathfindingUtils.trackingMap.put(sender.getUUID(), entity.getUUID());
             }
             return 1;
@@ -86,3 +86,6 @@ public class CommandEntityTrack implements IMCColonyOfficerCommand
         return IMCCommand.newLiteral(getName()).then(IMCCommand.newArgument("entity", EntityArgument.entities()).executes(this::checkPreConditionAndExecute));
     }
 }
+
+
+

@@ -1,6 +1,6 @@
 package com.minecolonies.core.entity.pathfinding;
 
-import net.minecraft.core.BlockPos;
+// [1.7.10] int[] -> int x,y,z
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,12 +25,12 @@ public class RecentTargetCache
      */
     private static class TargetInfo
     {
-        BlockPos pos;
+        int[] pos;
         long     expiresAt;
         double   extraCost;
     }
 
-    private static final Map<BlockPos, TargetInfo>         cache    = new ConcurrentHashMap<>();
+    private static final Map<int[], TargetInfo>         cache    = new ConcurrentHashMap<>();
     private static final ConcurrentLinkedQueue<TargetInfo> expiries = new ConcurrentLinkedQueue<>();
 
     /**
@@ -39,7 +39,7 @@ public class RecentTargetCache
      * @param pos
      * @param extraCost extra cost assigned to further paths resulting in this pos
      */
-    public static void add(BlockPos pos, double extraCost)
+    public static void add(int[] pos, double extraCost)
     {
         TargetInfo targetWithTIme = new TargetInfo();
         targetWithTIme.expiresAt = System.currentTimeMillis() + EXPIRE_TIME;
@@ -51,12 +51,12 @@ public class RecentTargetCache
     }
 
     /**
-     * Get the extra cost associated with ending a path at this blockpos
+     * Get the extra cost associated with ending a path at this int[]
      *
      * @param pos
      * @return
      */
-    public static double getExtraCost(BlockPos pos)
+    public static double getExtraCost(int[] pos)
     {
         cleanup();
         TargetInfo targetInfo = cache.get(pos);
@@ -91,3 +91,5 @@ public class RecentTargetCache
         }
     }
 }
+
+

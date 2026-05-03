@@ -3,8 +3,8 @@ package com.minecolonies.core.entity.pathfinding.pathjobs;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.core.entity.pathfinding.MNode;
 import com.minecolonies.core.entity.pathfinding.PathingOptions;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class PathJobSignConnection extends PathJobMoveToLocation implements IDestinationPathJob
 {
-    public PathJobSignConnection(final Level world, @NotNull final BlockPos start, final BlockPos end, final int range)
+    public PathJobSignConnection(final World world, @NotNull final int[] start, final int[] end, final int range)
     {
         super(world, start, end, range, null);
         maxNodes = 20000;
@@ -25,3 +25,5 @@ public class PathJobSignConnection extends PathJobMoveToLocation implements IDes
         return BlockPosUtil.distSqr(destination.getX(), destination.getY(), destination.getZ(), n.x, destination.getY(), n.z) <= 4;
     }
 }
+
+

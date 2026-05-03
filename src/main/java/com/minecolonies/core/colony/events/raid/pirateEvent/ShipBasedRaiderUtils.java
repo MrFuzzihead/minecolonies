@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.events.raid.pirateEvent;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.google.common.collect.Lists;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
@@ -10,17 +16,17 @@ import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.WorldUtil;
 import com.minecolonies.core.MineColonies;
 import com.minecolonies.core.entity.pathfinding.PathfindingUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.FluidTags;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] tags removed
+// [1.7.10] tags removed
+// [1.7.10] world.entity removed
+import net.minecraft.world.World;
+import net.minecraft.init.Blocks;
+import net.minecraft.world.Mirror;
+// [1.7.10] block.entity removed
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.pathfinder.Path;
+// [1.7.10] BlockState -> int metadata
+import net.minecraft.world.World.pathfinder.Path;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -66,7 +72,7 @@ public final class ShipBasedRaiderUtils
      * @return true if successful.
      */
     public static boolean spawnPirateShip(
-      final BlockPos targetSpawnPoint,
+      final int[] targetSpawnPoint,
       final IColony colony,
       final Blueprint blueprint,
       final IColonyRaidEvent event)
@@ -81,19 +87,19 @@ public final class ShipBasedRaiderUtils
      *
      * @param location the location to set it up at.
      * @param world    the world to place it in.
-     * @param mob      the mob to spawn.
+     * @param EntityCreature      the EntityCreature to spawn.
      * @param event    the event.
      * @param colonyId the colony id.
      */
-    public static void setupSpawner(final BlockPos location, final Level world, final EntityType<?> mob, final IColonyRaidEvent event, final int colonyId)
+    public static void setupSpawner(final int[] location, final World world, final EntityType<?> EntityCreature, final IColonyRaidEvent event, final int colonyId)
     {
         world.removeBlock(location, false);
         world.setBlockAndUpdate(location, Blocks.SPAWNER.defaultBlockState());
         final SpawnerBlockEntity spawner = new SpawnerBlockEntity(location, Blocks.SPAWNER.defaultBlockState());
 
         spawner.getSpawner().requiredPlayerRange = SPAWNER_DISTANCE;
-        spawner.getSpawner().setEntityId(mob, world, world.getRandom(), location);
-        // Sets nbt for mobs to spawn, assumes colony in same dimension as mob.
+        spawner.getSpawner().setEntityId(EntityCreature, world, world.getRandom(), location);
+        // Sets nbt for mobs to spawn, assumes colony in same dimension as EntityCreature.
         spawner.getSpawner().nextSpawnData.getEntityToSpawn().putInt(TAG_EVENT_ID, event.getID());
         spawner.getSpawner().nextSpawnData.getEntityToSpawn().putInt(TAG_COLONY_ID, colonyId);
 
@@ -106,11 +112,11 @@ public final class ShipBasedRaiderUtils
      *
      * @param colony     the colony.
      * @param spawnPoint the spawn point.
-     * @param raidLevel  the raid level.
+     * @param raidLevel  the raid World.
      * @param rotation   the rotation.
      * @return true if successful.
      */
-    public static boolean canSpawnShipAt(final IColony colony, final BlockPos spawnPoint, final int raidLevel, final int rotation, final String shipName)
+    public static boolean canSpawnShipAt(final IColony colony, final int[] spawnPoint, final int raidLevel, final int rotation, final String shipName)
     {
         return canSpawnShipAt(colony, spawnPoint, raidLevel, rotation, shipName, 3);
     }
@@ -120,19 +126,19 @@ public final class ShipBasedRaiderUtils
      *
      * @param colony     the colony.
      * @param spawnPoint the spawn point.
-     * @param raidLevel  the raid level.
+     * @param raidLevel  the raid World.
      * @param rotation   the rotation.
      * @param neededDepth the required depth.
      * @return true if successful.
      */
-    public static boolean canSpawnShipAt(final IColony colony, final BlockPos spawnPoint, final int raidLevel, final int rotation, final String shipName, final int neededDepth)
+    public static boolean canSpawnShipAt(final IColony colony, final int[] spawnPoint, final int raidLevel, final int rotation, final String shipName, final int neededDepth)
     {
         if (spawnPoint.equals(colony.getCenter()))
         {
             return false;
         }
 
-        final Level world = colony.getWorld();
+        final World world = colony.getWorld();
         final String shipSize = ShipSize.getShipForRaiderAmount(raidLevel).schematicPrefix + shipName;
 
         final Blueprint blueprint = StructurePacks.getBlueprint(STORAGE_STYLE, "decorations" + SHIP_FOLDER + shipSize + ".blueprint");
@@ -149,7 +155,7 @@ public final class ShipBasedRaiderUtils
      * @param world the world to use
      * @return true if ship fits
      */
-    public static boolean canPlaceShipAt(final BlockPos pos, final Blueprint ship, final Level world)
+    public static boolean canPlaceShipAt(final int[] pos, final Blueprint ship, final World world)
     {
         return canPlaceShipAt(pos, ship, world, 3);
     }
@@ -162,9 +168,9 @@ public final class ShipBasedRaiderUtils
      * @param world the world to use
      * @return true if ship fits
      */
-    public static boolean canPlaceShipAt(final BlockPos pos, final Blueprint ship, final Level world, final int neededDepth)
+    public static boolean canPlaceShipAt(final int[] pos, final Blueprint ship, final World world, final int neededDepth)
     {
-        final BlockPos zeroPos = pos.subtract(ship.getPrimaryBlockOffset());
+        final int[] zeroPos = pos.subtract(ship.getPrimaryBlockOffset());
         final List<Predicate<BlockState>> allowedShipMaterials = Lists.newArrayList();
 
         allowedShipMaterials.add(BlockBehaviour.BlockStateBase::liquid);
@@ -178,7 +184,7 @@ public final class ShipBasedRaiderUtils
 
         if (isSurfaceAreaMostlyMaterial(allowedShipMaterials, world, pos.getY(),
           zeroPos,
-          new BlockPos(zeroPos.getX() + ship.getSizeX() - 1, zeroPos.getY(), zeroPos.getZ() + ship.getSizeZ() - 1),
+          new int[]{zeroPos[0] + ship.getSizeX() - 1, zeroPos[1], zeroPos[2] + ship.getSizeZ() - 1},
           0.85))
         {
             for (int i = 0; i < neededDepth; i++)
@@ -207,9 +213,9 @@ public final class ShipBasedRaiderUtils
      */
     public static boolean isSurfaceAreaMostlyMaterial(
       @NotNull final List<Predicate<BlockState>> materials,
-      @NotNull final Level world,
-      final int baseY, @NotNull final BlockPos from,
-      @NotNull final BlockPos to,
+      @NotNull final World world,
+      final int baseY, @NotNull final int[] from,
+      @NotNull final int[] to,
       final double percentRequired)
     {
         final int xDist = Math.abs(from.getX() - to.getX());
@@ -236,7 +242,7 @@ public final class ShipBasedRaiderUtils
         {
             for (int z = 0; z < zDist; z++)
             {
-                final BlockState state = world.getBlockState(new BlockPos(from.getX() + (x * xDir), baseY, from.getZ() + (z * zDir)));
+                final BlockState state = world.getBlockState(new int[]{from[0] + (x * xDir), baseY, from[2] + (z * zDir)});
                 boolean suitableBlock = false;
                 for (final Predicate<BlockState> pred : materials)
                 {
@@ -252,7 +258,7 @@ public final class ShipBasedRaiderUtils
                 {
                     for (int i = 1; i <= 5; i++)
                     {
-                        if (world.getBlockState(new BlockPos(from.getX() + (x * xDir), baseY + i, from.getZ() + (z * zDir))).blocksMotion())
+                        if (world.getBlockState(new int[]{from[0] + (x * xDir), baseY + i, from[2] + (z * zDir)}).blocksMotion())
                         {
                             suitableBlock = false;
                             break;
@@ -276,7 +282,7 @@ public final class ShipBasedRaiderUtils
     }
 
     /**
-     * Returns a loaded blockpos towards the colony center
+     * Returns a loaded int[] towards the colony center
      *
      * @param startPos       the start position
      * @param colony         the colony to use
@@ -286,11 +292,11 @@ public final class ShipBasedRaiderUtils
      * @param accuracy       the accuracy of steps to check in percent, min 1.
      * @return the position.
      */
-    public static BlockPos getLoadedPositionTowardsCenter(
-      final BlockPos startPos,
+    public static int[] getLoadedPositionTowardsCenter(
+      final int[] startPos,
       final IColony colony,
       final int maxDistance,
-      final BlockPos maxDistancePos,
+      final int[] maxDistancePos,
       final int minDistance,
       final int accuracy)
     {
@@ -298,7 +304,7 @@ public final class ShipBasedRaiderUtils
     }
 
     /**
-     * Returns a loaded blockpos towards the colony center
+     * Returns a loaded int[] towards the colony center
      *
      * @param startPos       the start position
      * @param colony         the colony to use
@@ -309,11 +315,11 @@ public final class ShipBasedRaiderUtils
      * @param underWater     if an underwater spawn pos is okay.
      * @return the position.
      */
-    public static BlockPos getLoadedPositionTowardsCenter(
-      final BlockPos startPos,
+    public static int[] getLoadedPositionTowardsCenter(
+      final int[] startPos,
       final IColony colony,
       final int maxDistance,
-      final BlockPos maxDistancePos,
+      final int[] maxDistancePos,
       final int minDistance,
       final int accuracy,
       final boolean underWater)
@@ -345,13 +351,13 @@ public final class ShipBasedRaiderUtils
             }
         }
 
-        BlockPos diff = colony.getCenter().subtract(startPos);
-        diff = new BlockPos(diff.getX() / accuracy, diff.getY() / accuracy, diff.getZ() / accuracy);
+        int[] diff = colony.getCenter().subtract(startPos);
+        diff = new int[]{diff[0] / accuracy, diff[1] / accuracy, diff[2] / accuracy};
 
         final int sqMaxDist = maxDistance * maxDistance;
         final int sqMinDist = minDistance * minDistance;
 
-        BlockPos tempPos = new BlockPos(startPos);
+        int[] tempPos = new int[]{startPos};
 
         for (int i = 0; i < accuracy; i++)
         {
@@ -378,7 +384,7 @@ public final class ShipBasedRaiderUtils
      * @param radius   the radius to check for.
      * @return the position.
      */
-    public static BlockPos findSpawnPosOnShip(final BlockPos spawnPos, final Level world, final int radius)
+    public static int[] findSpawnPosOnShip(final int[] spawnPos, final World world, final int radius)
     {
         for (int y = 0; y <= radius * 2; y += 2)
         {
@@ -404,18 +410,18 @@ public final class ShipBasedRaiderUtils
      * @param spacing min distance between waypoints
      * @return list of waypoints
      */
-    public static List<BlockPos> createWaypoints(final Level world, final Path path, final int spacing)
+    public static List<int[]> createWaypoints(final World world, final Path path, final int spacing)
     {
-        List<BlockPos> wayPoints = new ArrayList<>();
+        List<int[]> wayPoints = new ArrayList<>();
         if (path == null)
         {
             return wayPoints;
         }
 
-        BlockPos lastPoint = BlockPos.ZERO;
+        int[] lastPoint = new int[]{0,0,0};
         for (int i = 0; i < path.getNodeCount(); i++)
         {
-            final BlockPos point = path.getNode(i).asBlockPos();
+            final int[] point = path.getNode(i).asBlockPos();
             if (lastPoint.distManhattan(point) > spacing
                 && world.getBlockState(point).isAir() && world.getBlockState(point.above()).isAir())
             {
@@ -435,11 +441,11 @@ public final class ShipBasedRaiderUtils
      * @param wayPoints waypoints to compare
      * @return position to go to
      */
-    public static BlockPos chooseWaypointFor(final List<BlockPos> wayPoints, final BlockPos startPos, final BlockPos target)
+    public static int[] chooseWaypointFor(final List<int[]> wayPoints, final int[] startPos, final int[] target)
     {
-        BlockPos closest = target;
-        BlockPos secondClosest = target;
-        for (final BlockPos wayPoint : wayPoints)
+        int[] closest = target;
+        int[] secondClosest = target;
+        for (final int[] wayPoint : wayPoints)
         {
             final int distToStart = wayPoint.distManhattan(startPos);
             if (distToStart > 5 && distToStart < closest.distManhattan(startPos))
@@ -462,3 +468,9 @@ public final class ShipBasedRaiderUtils
         return closest;
     }
 }
+
+
+
+
+
+

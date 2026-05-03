@@ -10,14 +10,14 @@ import com.minecolonies.core.Network;
 import com.minecolonies.core.datalistener.model.Disease;
 import com.minecolonies.core.network.messages.client.colony.GlobalDiseaseSyncMessage;
 import io.netty.buffer.Unpooled;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.util.RandomSource;
+// [1.7.10] GsonHelper removed
+import java.util.Random;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.util.random.WeightedRandomList;
 import org.jetbrains.annotations.NotNull;
@@ -62,9 +62,9 @@ public class DiseasesListener extends SimpleJsonResourceReloadListener
      *
      * @param player to send it to.
      */
-    public static void sendGlobalDiseasesPackets(final ServerPlayer player)
+    public static void sendGlobalDiseasesPackets(final EntityPlayerMP player)
     {
-        final FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
+        final PacketBuffer byteBuf = new PacketBuffer(Unpooled.buffer());
         byteBuf.writeInt(DISEASES.unwrap().size());
         for (final Disease disease : DISEASES.unwrap())
         {
@@ -85,14 +85,14 @@ public class DiseasesListener extends SimpleJsonResourceReloadListener
      *
      * @param byteBuf pck.
      */
-    public static void readGlobalDiseasesPackets(final FriendlyByteBuf byteBuf)
+    public static void readGlobalDiseasesPackets(final PacketBuffer byteBuf)
     {
         final List<Disease> newDiseases = new ArrayList<>();
         final int size = byteBuf.readInt();
         for (int i = 0; i < size; i++)
         {
             final ResourceLocation id = byteBuf.readResourceLocation();
-            final Component name = byteBuf.readComponent();
+            final String name = byteBuf.readComponent();
             final int rarity = byteBuf.readInt();
 
             final List<ItemStorage> cureItems = new ArrayList<>();
@@ -164,7 +164,7 @@ public class DiseasesListener extends SimpleJsonResourceReloadListener
             }
 
             final JsonObject object = entry.getValue().getAsJsonObject();
-            final Component name = Component.translatable(GsonHelper.getAsString(object, KEY_NAME));
+            final String name = String.translatable(GsonHelper.getAsString(object, KEY_NAME));
             final int rarity = GsonHelper.getAsInt(object, KEY_RARITY);
             final List<ItemStorage> cureItems = new ArrayList<>();
             for (final JsonElement jsonElement : object.getAsJsonArray(KEY_ITEMS))
@@ -186,3 +186,7 @@ public class DiseasesListener extends SimpleJsonResourceReloadListener
         DISEASES = WeightedRandomList.create(diseases);
     }
 }
+
+
+
+

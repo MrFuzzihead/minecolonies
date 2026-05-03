@@ -10,8 +10,8 @@ import com.minecolonies.api.util.StatsUtil;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingBaker;
 import com.minecolonies.core.colony.jobs.JobBaker;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -81,3 +81,4 @@ public class EntityAIWorkBaker extends AbstractEntityAIRequestSmelter<JobBaker, 
     }
 
 }
+

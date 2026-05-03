@@ -1,10 +1,16 @@
 package com.minecolonies.core.colony.buildings.moduleviews;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingFlorist;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.IChatComponent;
 
 import static com.minecolonies.api.util.constant.BuildingConstants.BUILDING_FLOWER_LIST;
 import static com.minecolonies.api.util.constant.Constants.MAX_BUILDING_LEVEL;
@@ -16,7 +22,7 @@ import static com.minecolonies.api.util.constant.TranslationConstants.*;
 public class FloristFlowerListModuleView extends ItemListModuleView
 {
     /**
-     * The max level the building doesn't let filtering yet.
+     * The max World the building doesn't let filtering yet.
      */
     private static final int MAX_LEVEL_BEFORE_SORTING = 3;
 
@@ -26,7 +32,7 @@ public class FloristFlowerListModuleView extends ItemListModuleView
     public FloristFlowerListModuleView()
     {
         super(BUILDING_FLOWER_LIST,
-            Component.translatable(FLORIST_FLOWER_DESC),
+            String.translatable(FLORIST_FLOWER_DESC),
             true,
             (buildingView) -> BuildingFlorist.getPlantablesForBuildingLevel(buildingView.getBuildingLevel()));
     }
@@ -68,3 +74,6 @@ public class FloristFlowerListModuleView extends ItemListModuleView
         super.addItem(item);
     }
 }
+
+
+

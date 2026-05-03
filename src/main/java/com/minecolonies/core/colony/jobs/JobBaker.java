@@ -1,12 +1,12 @@
 package com.minecolonies.core.colony.jobs;
 
 import com.minecolonies.core.entity.citizen.EntityCitizen;
-import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.ResourceLocation;
 import com.minecolonies.api.client.render.modeltype.ModModelTypes;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.core.entity.ai.workers.crafting.EntityAIWorkBaker;
-import net.minecraft.sounds.SoundEvents;
+// [1.7.10] sounds removed
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -49,9 +49,14 @@ public class JobBaker extends AbstractJobCrafter<EntityAIWorkBaker, JobBaker>
     }
 
     @Override
-    public void playSound(final BlockPos blockPos, final EntityCitizen worker)
+    public void playSound(final int[] blockPos, final EntityCitizen worker)
     {
         worker.queueSound(SoundEvents.FIRECHARGE_USE, blockPos, 10, 0, 0.5f, 0.1f);
     }
 }
+
+
+
+
+
 

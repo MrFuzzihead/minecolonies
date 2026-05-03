@@ -3,8 +3,8 @@ package com.minecolonies.core.colony.jobs;
 import com.minecolonies.api.client.render.modeltype.ModModelTypes;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.core.entity.ai.workers.production.EntityAIStructureMiner;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] net.minecraft.util.DamageSource removed
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.research.util.ResearchConstants.FIRE_DAMAGE_PREDICATE;
@@ -51,14 +51,14 @@ public class JobMiner extends AbstractJobStructure<EntityAIStructureMiner, JobMi
     }
 
     @Override
-    public boolean ignoresDamage(@NotNull final DamageSource damageSource)
+    public boolean ignoresDamage(@NotNull final net.minecraft.util.DamageSource source)
     {
-        if (damageSource.typeHolder().is(FIRE_DAMAGE_PREDICATE))
+        if (net.minecraft.util.DamageSource.typeHolder().is(FIRE_DAMAGE_PREDICATE))
         {
             return getColony().getResearchManager().getResearchEffects().getEffectStrength(FIRE_RES) > 0;
         }
 
-        return super.ignoresDamage(damageSource);
+        return super.ignoresDamage(net.minecraft.util.DamageSource);
     }
 
     @Override
@@ -67,3 +67,7 @@ public class JobMiner extends AbstractJobStructure<EntityAIStructureMiner, JobMi
         return 1.2;
     }
 }
+
+
+
+

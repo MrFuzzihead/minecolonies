@@ -7,25 +7,25 @@ import com.minecolonies.api.items.IBlockOverlayItem;
 import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.core.Network;
 import com.minecolonies.core.network.messages.server.colony.ChangeFreeToInteractBlockMessage;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.EnumChatFormatting;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] int /* InteractionHand */ removed
+// [1.7.10] InteractionResult -> boolean
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] world.phys removed
+// [1.7.10] world.phys removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,17 +42,17 @@ import static com.minecolonies.api.util.constant.translation.ToolTranslationCons
 public class ItemScepterPermission extends AbstractItemMinecolonies implements IBlockOverlayItem
 {
     /**
-     * The NBT tag of the mode
+     * The NBT NBTBase of the mode
      */
     private static final String TAG_ITEM_MODE = "scepterMode";
 
     /**
-     * the scepters block mode tag value
+     * the scepters block mode NBTBase value
      */
     private static final String TAG_VALUE_MODE_BLOCK = "modeBlock";
 
     /**
-     * the scepters location mode tag value
+     * the scepters location mode NBTBase value
      */
     private static final String TAG_VALUE_MODE_LOCATION = "modeLocation";
 
@@ -75,8 +75,8 @@ public class ItemScepterPermission extends AbstractItemMinecolonies implements I
     @NotNull
     private static InteractionResult handleAddBlockType(
       final Player playerIn,
-      final Level worldIn,
-      final BlockPos pos,
+      final World worldIn,
+      final int[] pos,
       final IColonyView iColonyView)
     {
         final BlockState blockState = iColonyView.getWorld().getBlockState(pos);
@@ -97,8 +97,8 @@ public class ItemScepterPermission extends AbstractItemMinecolonies implements I
     @NotNull
     private static InteractionResult handleAddLocation(
       final Player playerIn,
-      final Level worldIn,
-      final BlockPos pos,
+      final World worldIn,
+      final int[] pos,
       final IColonyView iColonyView)
     {
         final ChangeFreeToInteractBlockMessage.MessageType type = Screen.hasControlDown()
@@ -126,7 +126,7 @@ public class ItemScepterPermission extends AbstractItemMinecolonies implements I
         final ItemStack scepter = ctx.getPlayer().getItemInHand(ctx.getHand());
         if (!scepter.hasTag())
         {
-            scepter.setTag(new CompoundTag());
+            scepter.setTag(new NBTTagCompound());
         }
 
         final IColonyView iColonyView = IColonyManager.getInstance().getClosestColonyView(ctx.getLevel(), ctx.getClickedPos());
@@ -134,7 +134,7 @@ public class ItemScepterPermission extends AbstractItemMinecolonies implements I
         {
             return InteractionResult.FAIL;
         }
-        final CompoundTag compound = scepter.getTag();
+        final NBTTagCompound compound = scepter.getTag();
         return handleItemAction(compound, ctx.getPlayer(), ctx.getLevel(), ctx.getClickedPos(), iColonyView);
     }
 
@@ -149,9 +149,9 @@ public class ItemScepterPermission extends AbstractItemMinecolonies implements I
     @Override
     @NotNull
     public InteractionResultHolder<ItemStack> use(
-      final Level worldIn,
+      final World worldIn,
       final Player playerIn,
-      final InteractionHand hand)
+      final int /* InteractionHand */ hand)
     {
         final ItemStack scepter = playerIn.getItemInHand(hand);
         if (worldIn.isClientSide)
@@ -160,16 +160,16 @@ public class ItemScepterPermission extends AbstractItemMinecolonies implements I
         }
         if (!scepter.hasTag())
         {
-            scepter.setTag(new CompoundTag());
+            scepter.setTag(new NBTTagCompound());
         }
-        final CompoundTag compound = scepter.getTag();
+        final NBTTagCompound compound = scepter.getTag();
 
         toggleItemMode(playerIn, compound);
 
         return new InteractionResultHolder<>(InteractionResult.SUCCESS, scepter);
     }
 
-    private static void toggleItemMode(final Player playerIn, final CompoundTag compound)
+    private static void toggleItemMode(final Player playerIn, final NBTTagCompound compound)
     {
         final String itemMode = compound.getString(TAG_ITEM_MODE);
 
@@ -189,7 +189,7 @@ public class ItemScepterPermission extends AbstractItemMinecolonies implements I
 
     @NotNull
     @Override
-    public List<OverlayBox> getOverlayBoxes(@NotNull final Level world, @NotNull final Player player, @NotNull final ItemStack stack)
+    public List<OverlayBox> getOverlayBoxes(@NotNull final World world, @NotNull final Player player, @NotNull final ItemStack stack)
     {
         final List<OverlayBox> boxes = new ArrayList<>();
         final IColonyView colony = IColonyManager.getInstance().getClosestColonyView(world, player.blockPosition());
@@ -203,7 +203,7 @@ public class ItemScepterPermission extends AbstractItemMinecolonies implements I
         {
             case TAG_VALUE_MODE_BLOCK:
                 final Set<Block> freeBlocks = new HashSet<>(colony.getFreeBlocks());
-                for (final BlockPos pos : BlockPos.withinManhattan(player.blockPosition(), BLOCK_OVERLAY_RANGE_XZ, BLOCK_OVERLAY_RANGE_Y, BLOCK_OVERLAY_RANGE_XZ))
+                for (final int[] pos : new java.util.ArrayList<int[]>()) // TODO: [1.7.10] BlockPos.withinManhattan stub
                 {
                     if (world.isLoaded(pos) && freeBlocks.contains(world.getBlockState(pos).getBlock()))
                     {
@@ -213,7 +213,7 @@ public class ItemScepterPermission extends AbstractItemMinecolonies implements I
                 break;
             case TAG_VALUE_MODE_LOCATION:
             default:
-                for (final BlockPos pos : colony.getFreePositions())
+                for (final int[] pos : colony.getFreePositions())
                 {
                     boxes.add(new OverlayBox(AABB.unitCubeFromLowerCorner(Vec3.atLowerCornerOf(pos)), GREEN_OVERLAY, 0.02f, true));
                 }
@@ -224,32 +224,32 @@ public class ItemScepterPermission extends AbstractItemMinecolonies implements I
     }
 
     @Override
-    public void appendHoverText(@NotNull final ItemStack stack, @Nullable final Level level,
-                                @NotNull final List<Component> tooltip, @NotNull final TooltipFlag flags)
+    public void appendHoverText(@NotNull final ItemStack stack, @Nullable final World World,
+                                @NotNull final List<String> tooltip, @NotNull final TooltipFlag flags)
     {
         final String itemMode = stack.getOrCreateTag().getString(TAG_ITEM_MODE);
-        final MutableComponent mode;
+        final String mode;
         switch (itemMode)
         {
             case TAG_VALUE_MODE_BLOCK:
-                mode = Component.translatable(TOOL_PERMISSION_SCEPTER_MODE_BLOCK);
+                mode = String.translatable(TOOL_PERMISSION_SCEPTER_MODE_BLOCK);
                 break;
             case TAG_VALUE_MODE_LOCATION:
             default:
-                mode = Component.translatable(TOOL_PERMISSION_SCEPTER_MODE_LOCATION);
+                mode = String.translatable(TOOL_PERMISSION_SCEPTER_MODE_LOCATION);
                 break;
         }
-        tooltip.add(Component.translatable(TOOL_PERMISSION_SCEPTER_MODE, mode.withStyle(ChatFormatting.YELLOW)));
+        tooltip.add(String.translatable(TOOL_PERMISSION_SCEPTER_MODE, mode.withStyle(ChatFormatting.YELLOW)));
 
-        super.appendHoverText(stack, level, tooltip, flags);
+        super.appendHoverText(stack, World, tooltip, flags);
     }
 
     @NotNull
     private static InteractionResult handleItemAction(
-      final CompoundTag compound,
+      final NBTTagCompound compound,
       final Player playerIn,
-      final Level worldIn,
-      final BlockPos pos,
+      final World worldIn,
+      final int[] pos,
       final IColonyView iColonyView)
     {
         final String tagItemMode = compound.getString(TAG_ITEM_MODE);
@@ -266,3 +266,8 @@ public class ItemScepterPermission extends AbstractItemMinecolonies implements I
         }
     }
 }
+
+
+
+
+

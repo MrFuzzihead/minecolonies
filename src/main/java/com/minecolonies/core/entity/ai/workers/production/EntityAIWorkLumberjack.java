@@ -25,24 +25,23 @@ import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
 import com.minecolonies.core.entity.pathfinding.pathresults.TreePathResult;
 import com.minecolonies.core.util.WorkerUtil;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.pathfinder.Node;
-import net.minecraft.world.level.pathfinder.Path;
-import net.minecraft.world.phys.AABB;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] sounds removed
+// [1.7.10] tags removed
+// [1.7.10] tags removed
+// [1.7.10] tags removed
+// [1.7.10] int /* InteractionHand */ removed
+// [1.7.10] BlockItem -> ItemBlock (not used directly here)
+import net.minecraft.item.ItemStack;
+import net.minecraft.init.Items;
+import net.minecraft.block.Block;
+// [1.7.10] pathfinder.Node -> not used
+// [1.7.10] pathfinder.Path -> not used
+// [1.7.10] world.phys removed
 import net.minecraftforge.common.IPlantable;
-import net.minecraftforge.common.Tags;
+// [1.7.10] Tags removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,7 +50,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState.*;
-import static com.minecolonies.api.items.ModTags.fungi;
+// [1.7.10] ModTags.fungi does not exist in 1.7.10; removed import
 import static com.minecolonies.api.util.constant.Constants.TICKS_SECOND;
 import static com.minecolonies.api.util.constant.StatisticsConstants.ITEM_OBTAINED;
 import static com.minecolonies.api.util.constant.StatisticsConstants.TREE_CUT;
@@ -147,7 +146,7 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
     /**
      * Position where the Builders constructs from.
      */
-    private BlockPos workFrom;
+    private int[] workFrom;
 
     /**
      * The time in ticks the lumberjack has waited already. Directly connected with the MAX_WAITING_TIME.
@@ -404,8 +403,8 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
         {
             if (building.shouldRestrict())
             {
-                final BlockPos startPos = building.getStartRestriction();
-                final BlockPos endPos = building.getEndRestriction();
+                final int[] startPos = building.getStartRestriction();
+                final int[] endPos = building.getEndRestriction();
 
                 pathResult = worker.getNavigation()
                     .walkToTree(startPos,
@@ -545,7 +544,7 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
 
         if (isOnSapling())
         {
-            @Nullable final BlockPos spawnPoint = EntityUtils.getSpawnPoint(world, workFrom);
+            @Nullable final int[] spawnPoint = EntityUtils.getSpawnPoint(world, workFrom);
             if (spawnPoint != null)
             {
                 WorkerUtil.setSpawnPoint(spawnPoint, worker);
@@ -554,7 +553,7 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
 
         if (job.getTree().hasLeaves() && shouldBreakLeaves)
         {
-            final BlockPos leaf = job.getTree().peekNextLeaf();
+            final int[] leaf = job.getTree().peekNextLeaf();
             if (!mineBlock(leaf, workFrom))
             {
                 return getState();
@@ -564,7 +563,7 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
         else if (job.getTree().hasLogs())
         {
             //take first log from queue
-            final BlockPos log = job.getTree().peekNextLog();
+            final int[] log = job.getTree().peekNextLog();
 
             if (job.getTree().isDynamicTree())
             {
@@ -572,7 +571,7 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
                 if (!mineBlock(log, workFrom, false, false, Compatibility.getDynamicTreeBreakAction(
                   world,
                   log,
-                  worker.getItemInHand(InteractionHand.MAIN_HAND),
+                  worker.getItemInHand(0 /* InteractionHand.MAIN_HAND */),
                   worker.blockPosition())))
                 {
                     return getState();
@@ -648,7 +647,7 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
      * @param workAt block to work at.
      * @return true while walking to the site.
      */
-    public boolean walkToTree(final BlockPos workAt)
+    public boolean walkToTree(final int[] workAt)
     {
         if (workFrom == null || world.getBlockState(workFrom.above()).is(BlockTags.SAPLINGS) || world.getBlockState(workFrom).is(BlockTags.SAPLINGS))
         {
@@ -681,7 +680,10 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
      */
     private Boolean isPassable(final BlockState blockState)
     {
-        return blockState.is(BlockTags.LEAVES) || blockState.is(ModTags.hugeMushroomBlocks);
+        // [1.7.10] BlockTags.LEAVES → instanceof BlockLeaves; ModTags.hugeMushroomBlocks → explicit mushroom blocks
+        return blockState.getBlock() instanceof net.minecraft.block.BlockLeaves
+            || blockState.getBlock() == net.minecraft.init.Blocks.brown_mushroom_block
+            || blockState.getBlock() == net.minecraft.init.Blocks.red_mushroom_block;
     }
 
     /**
@@ -721,27 +723,27 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
             if (path != null)
             {
                 // Unstuck with path
-                final List<BlockPos> checkPositions = new ArrayList<>();
+                final List<int[]> checkPositions = new ArrayList<>();
                 Node next = path.getNode(Math.min(path.getNextNodeIndex() + 1, path.getNodeCount() - 1));
 
                 // Blocks in front of the worker
                 for (int i = 0; i < 2; i++)
                 {
-                    checkPositions.add(new BlockPos(next.x, next.y + i, next.z));
+                    checkPositions.add(new int[]{next.x, next.y + i, next.z});
                 }
                 if (next.cameFrom != null)
                 {
                     next = next.cameFrom;
                     for (int i = 0; i < 2; i++)
                     {
-                        checkPositions.add(new BlockPos(next.x, next.y + i, next.z));
+                        checkPositions.add(new int[]{next.x, next.y + i, next.z});
                     }
                     if (next.cameFrom != null)
                     {
                         next = next.cameFrom;
                         for (int i = 0; i < 2; i++)
                         {
-                            checkPositions.add(new BlockPos(next.x, next.y + i, next.z));
+                            checkPositions.add(new int[]{next.x, next.y + i, next.z});
                         }
                     }
                 }
@@ -753,12 +755,15 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
         }
 
         // General unstuck
-        ArrayList<BlockPos> checkPositions = new ArrayList<>();
+        ArrayList<int[]> checkPositions = new ArrayList<>();
 
-        for (Direction direction : Direction.Plane.HORIZONTAL)
+        for (net.minecraft.util.EnumFacing direction : net.minecraft.util.EnumFacing.HORIZONTALS)
         {
-            checkPositions.add(new BlockPos(worker.blockPosition().getX(), worker.blockPosition().getY(), worker.blockPosition().getZ()).relative(direction));
-            checkPositions.add(new BlockPos(worker.blockPosition().getX(), worker.blockPosition().getY() + 1, worker.blockPosition().getZ()).relative(direction));
+            final int wx = (int)worker.posX + direction.getFrontOffsetX();
+            final int wy = (int)worker.posY;
+            final int wz = (int)worker.posZ + direction.getFrontOffsetZ();
+            checkPositions.add(new int[]{wx, wy, wz});
+            checkPositions.add(new int[]{wx, wy + 1, wz});
         }
 
         mineIfEqualsBlockTag(checkPositions, BlockTags.LEAVES);
@@ -766,14 +771,14 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
     }
 
     /**
-     * Checks blocks for tag and mines the first it fines if its the same
+     * Checks blocks for NBTBase and mines the first it fines if its the same
      *
      * @param blockPositions block positions
-     * @param tag            tag to check
+     * @param NBTBase            NBTBase to check
      */
-    private boolean mineIfEqualsBlockTag(List<BlockPos> blockPositions, TagKey<Block> tag)
+    private boolean mineIfEqualsBlockTag(List<int[]> blockPositions, Object NBTBase)
     {
-        for (BlockPos currentPos : blockPositions)
+        for (int[] currentPos : blockPositions)
         {
             if (MineColonies.getConfig().getServer().pathfindingDebugVerbosity.get() > 0)
             {
@@ -782,10 +787,10 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
                     currentPos.getX(),
                     currentPos.getY(),
                     currentPos.getZ(),
-                    tag.toString(),
-                    world.getBlockState(currentPos).is(tag)));
+                    NBTBase.toString(),
+                    world.getBlockState(currentPos).is(NBTBase)));
             }
-            if (world.getBlockState(currentPos).is(tag))
+            if (world.getBlockState(currentPos).is(NBTBase))
             {
                 mineBlock(currentPos);
                 return true;
@@ -825,7 +830,7 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
      * @param location the location to plant the sapling at
      * @return true if a sapling was planted
      */
-    private boolean plantSapling(@NotNull final BlockPos location)
+    private boolean plantSapling(@NotNull final int[] location)
     {
         final BlockState worldState = world.getBlockState(location);
         final Block worldBlock = worldState.getBlock();
@@ -839,7 +844,7 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
         if (saplingSlot != -1)
         {
             final ItemStack stack = getInventory().getStackInSlot(saplingSlot);
-            CitizenItemUtils.setHeldItem(worker, InteractionHand.MAIN_HAND, saplingSlot);
+            CitizenItemUtils.setHeldItem(worker, 0 /* InteractionHand.MAIN_HAND */, saplingSlot);
 
             if (job.getTree().isDynamicTree() && Compatibility.isDynamicTreeSapling(stack))
             {
@@ -860,7 +865,7 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
                 world.playSound(null,
                   this.worker.blockPosition(),
                   soundType.getPlaceSound(),
-                  SoundSource.BLOCKS, 
+                  SoundSource.BLOCKS,
                   (soundType.getVolume() + 1.0F) * 0.5F,
                   soundType.getPitch() * 0.8F);
             }
@@ -926,7 +931,7 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
     {
         while (!job.getTree().getStumpLocations().isEmpty())
         {
-            final BlockPos pos = job.getTree().getStumpLocations().get(0);
+            final int[] pos = job.getTree().getStumpLocations().get(0);
             final ItemStack sapling = getInventory().getStackInSlot(saplingSlot);
             if (sapling.is(Tags.Items.MUSHROOMS))
             {
@@ -1019,7 +1024,7 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
     }
 
     @Override
-    public BlockPos getWorkingPosition(final BlockPos targetPosition)
+    public int[] getWorkingPosition(final int[] targetPosition)
     {
         return getWorkingPosition(2, targetPosition, 0);
     }
@@ -1034,3 +1039,9 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
         return InventoryUtils.hasItemInItemHandler(getInventory(), this::isStackLog);
     }
 }
+
+
+
+
+
+

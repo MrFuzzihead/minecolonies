@@ -1,21 +1,11 @@
 package com.minecolonies.api.advancements.place_structure;
-
 import com.minecolonies.api.advancements.CriterionListeners;
-import net.minecraft.server.PlayerAdvancements;
-
-/**
- * The listener instantiated for every advancement that listens to the associated criterion.
- * A basic class to trigger with the correct arguments
- */
+// [1.7.10 BACKPORT] Stubbed out — advancements do not exist in Minecraft 1.7.10.
+/** Stub listeners — no-op in 1.7.10. */
 public class PlaceStructureListeners extends CriterionListeners<PlaceStructureCriterionInstance>
 {
-    public PlaceStructureListeners(final PlayerAdvancements playerAdvancements)
+    public PlaceStructureListeners(final Object playerAdvancements)
     {
         super(playerAdvancements);
-    }
-
-    public void trigger(final String structureName)
-    {
-        trigger(instance -> instance.test(structureName));
     }
 }

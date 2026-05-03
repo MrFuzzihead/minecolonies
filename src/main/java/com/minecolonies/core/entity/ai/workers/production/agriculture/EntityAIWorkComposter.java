@@ -20,14 +20,14 @@ import com.minecolonies.core.colony.jobs.JobComposter;
 import com.minecolonies.core.entity.ai.workers.AbstractEntityAIInteract;
 import com.minecolonies.core.tileentities.TileEntityBarrel;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.ResourceLocation;
+import java.util.Random;
+// [1.7.10] int /* InteractionHand */ removed
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraft.init.Blocks;
+// [1.7.10] block.entity removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -51,7 +51,7 @@ public class EntityAIWorkComposter extends AbstractEntityAIInteract<JobComposter
     /**
      * The block pos to which the AI is going.
      */
-    private BlockPos currentTarget;
+    private int[] currentTarget;
 
     /**
      * The number of times the AI will check if the player has set any items on the list until messaging him
@@ -109,8 +109,8 @@ public class EntityAIWorkComposter extends AbstractEntityAIInteract<JobComposter
     private IAIState accelerateBarrels()
     {
         final int accelerationTicks = (worker.getCitizenData().getCitizenSkillHandler().getLevel(getModuleForJob().getPrimarySkill()) / 10) * 2;
-        final Level world = building.getColony().getWorld();
-        for (final BlockPos pos : building.getBarrels())
+        final World world = building.getColony().getWorld();
+        for (final int[] pos : building.getBarrels())
         {
             if (WorldUtil.isBlockLoaded(world, pos))
             {
@@ -165,11 +165,11 @@ public class EntityAIWorkComposter extends AbstractEntityAIInteract<JobComposter
         );
         if (slot >= 0)
         {
-            worker.setItemInHand(InteractionHand.MAIN_HAND, worker.getInventoryCitizen().getStackInSlot(slot));
+            worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, worker.getInventoryCitizen().getStackInSlot(slot));
             return START_WORKING;
         }
 
-        worker.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, ItemStack.EMPTY);
 
         if (!building.hasWorkerOpenRequests(worker.getCitizenData().getId()))
         {
@@ -212,7 +212,7 @@ public class EntityAIWorkComposter extends AbstractEntityAIInteract<JobComposter
 
         final BuildingComposter building = this.building;
 
-        for (final BlockPos barrel : building.getBarrels())
+        for (final int[] barrel : building.getBarrels())
         {
             final BlockEntity te = world.getBlockEntity(barrel);
             if (te instanceof TileEntityBarrel)
@@ -228,7 +228,7 @@ public class EntityAIWorkComposter extends AbstractEntityAIInteract<JobComposter
             }
         }
 
-        for (final BlockPos barrel : building.getBarrels())
+        for (final int[] barrel : building.getBarrels())
         {
             final BlockEntity te = world.getBlockEntity(barrel);
             if (te instanceof TileEntityBarrel && !((TileEntityBarrel) te).checkIfWorking())
@@ -251,7 +251,7 @@ public class EntityAIWorkComposter extends AbstractEntityAIInteract<JobComposter
      */
     private IAIState fillBarrels()
     {
-        if (worker.getItemInHand(InteractionHand.MAIN_HAND) == ItemStack.EMPTY)
+        if (worker.getItemInHand(0 /* InteractionHand.MAIN_HAND */) == ItemStack.EMPTY)
         {
             final int slot = InventoryUtils.findFirstSlotInItemHandlerWith(
               worker.getInventoryCitizen(),
@@ -259,7 +259,7 @@ public class EntityAIWorkComposter extends AbstractEntityAIInteract<JobComposter
 
             if (slot >= 0)
             {
-                worker.setItemInHand(InteractionHand.MAIN_HAND, worker.getInventoryCitizen().getStackInSlot(slot));
+                worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, worker.getInventoryCitizen().getStackInSlot(slot));
             }
             else
             {
@@ -278,16 +278,16 @@ public class EntityAIWorkComposter extends AbstractEntityAIInteract<JobComposter
 
             CitizenItemUtils.hitBlockWithToolInHand(worker, currentTarget);
 
-            String compostingItem =  worker.getItemInHand(InteractionHand.MAIN_HAND).getItem().getDescriptionId();
-            int countBefore = worker.getItemInHand(InteractionHand.MAIN_HAND).getCount();
+            String compostingItem =  worker.getItemInHand(0 /* InteractionHand.MAIN_HAND */).getItem().getDescriptionId();
+            int countBefore = worker.getItemInHand(0 /* InteractionHand.MAIN_HAND */).getCount();
 
-            barrel.addItem(worker.getItemInHand(InteractionHand.MAIN_HAND));
+            barrel.addItem(worker.getItemInHand(0 /* InteractionHand.MAIN_HAND */));
             worker.getCitizenExperienceHandler().addExperience(BASE_XP_GAIN);
-            
-            StatsUtil.trackStatByName(building, ITEMS_COMPOSTED, compostingItem, countBefore - worker.getItemInHand(InteractionHand.MAIN_HAND).getCount());
+
+            StatsUtil.trackStatByName(building, ITEMS_COMPOSTED, compostingItem, countBefore - worker.getItemInHand(0 /* InteractionHand.MAIN_HAND */).getCount());
 
             worker.decreaseSaturationForContinuousAction();
-            worker.setItemInHand(InteractionHand.MAIN_HAND, ItemStackUtils.EMPTY);
+            worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, ItemStackUtils.EMPTY);
         }
         setDelay(AFTER_TASK_DELAY);
         return START_WORKING;
@@ -351,12 +351,12 @@ public class EntityAIWorkComposter extends AbstractEntityAIInteract<JobComposter
     }
 
     /**
-     * Gives the loot multiplier based on the citizen level and a random number.
+     * Gives the loot multiplier based on the citizen World and a random number.
      *
      * @param random the random number to get the percentages
      * @return the multiplier for the amount of compost (base amount: 6)
      */
-    private double getLootMultiplier(final RandomSource random)
+    private double getLootMultiplier(final java.util.Random random)
     {
         final int citizenLevel = (int) (getSecondarySkillLevel() / 2.0);
         final int diceResult = random.nextInt(100);
@@ -407,3 +407,8 @@ public class EntityAIWorkComposter extends AbstractEntityAIInteract<JobComposter
         return BuildingComposter.class;
     }
 }
+
+
+
+
+

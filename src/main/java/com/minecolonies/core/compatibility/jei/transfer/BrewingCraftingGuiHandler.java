@@ -9,7 +9,7 @@ import com.minecolonies.core.compatibility.jei.JobBasedRecipeCategory;
 import com.minecolonies.core.network.messages.server.TransferRecipeCraftingTeachingMessage;
 import mezz.jei.api.gui.handlers.IGuiClickableArea;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -80,3 +80,4 @@ public class BrewingCraftingGuiHandler extends AbstractTeachingGuiHandler<Window
         Network.getNetwork().sendToServer(message);
     }
 }
+

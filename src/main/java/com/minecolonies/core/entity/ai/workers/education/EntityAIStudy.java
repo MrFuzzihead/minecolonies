@@ -12,10 +12,10 @@ import com.minecolonies.core.colony.jobs.JobStudent;
 import com.minecolonies.core.datalistener.StudyItemListener;
 import com.minecolonies.core.datalistener.StudyItemListener.StudyItem;
 import com.minecolonies.core.entity.ai.workers.AbstractEntityAISkill;
-import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] sounds removed
+// [1.7.10] int /* InteractionHand */ removed
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 
@@ -56,7 +56,7 @@ public class EntityAIStudy extends AbstractEntityAISkill<JobStudent, BuildingLib
     /**
      * The current pos to study at.
      */
-    private BlockPos studyPos = null;
+    private int[] studyPos = null;
 
     /**
      * How long they tried walking to a given study pos.
@@ -159,7 +159,7 @@ public class EntityAIStudy extends AbstractEntityAISkill<JobStudent, BuildingLib
 
             // Default levelup
             data.getCitizenSkillHandler().tryLevelUpIntelligence(data.getRandom(), ONE_IN_X_CHANCE, data);
-            worker.setItemInHand(InteractionHand.MAIN_HAND, ItemStackUtils.EMPTY);
+            worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, ItemStackUtils.EMPTY);
         }
         // Use random item
         else
@@ -167,7 +167,7 @@ public class EntityAIStudy extends AbstractEntityAISkill<JobStudent, BuildingLib
             final StudyItem chosenItem = availableItemKeys.get(world.random.nextInt(availableItems.size()));
             final int chosenSlot = availableItems.get(chosenItem);
 
-            worker.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(chosenItem.item(), 1));
+            worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, new ItemStack(chosenItem.item(), 1));
             if (data.getCitizenSkillHandler().tryLevelUpIntelligence(data.getRandom(), ONE_IN_X_CHANCE * (10D / chosenItem.skillIncreaseChance()), data))
             {
                 building.getModule(STATS_MODULE).increment(INT_LEVELED);
@@ -202,3 +202,8 @@ public class EntityAIStudy extends AbstractEntityAISkill<JobStudent, BuildingLib
         return STUDY;
     }
 }
+
+
+
+
+

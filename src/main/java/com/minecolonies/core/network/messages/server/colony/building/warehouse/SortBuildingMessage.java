@@ -7,9 +7,9 @@ import com.minecolonies.api.inventory.api.CombinedItemHandler;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingWareHouse;
 import com.minecolonies.core.network.messages.server.AbstractBuildingServerMessage;
 import com.minecolonies.core.util.SortingUtils;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+// [1.7.10] capabilities removed
 
 /**
  * Sort the specified building inventory if the building allows it.
@@ -30,13 +30,13 @@ public class SortBuildingMessage extends AbstractBuildingServerMessage<IBuilding
     }
 
     @Override
-    protected void toBytesOverride(final FriendlyByteBuf buf)
+    protected void toBytesOverride(final PacketBuffer buf)
     {
 
     }
 
     @Override
-    protected void fromBytesOverride(final FriendlyByteBuf buf)
+    protected void fromBytesOverride(final PacketBuffer buf)
     {
 
     }
@@ -44,14 +44,14 @@ public class SortBuildingMessage extends AbstractBuildingServerMessage<IBuilding
     /**
      * Sort the building's inventory if it can be sorted.
      * 
-     * @param ctxIn the context of the network event
+     * @param ctx the context of the network event
      * @param isLogicalServer whether or not this is the logical server
      * @param colony the colony which the building is in
      * @param building the building to sort
      */
     @Override
     protected void onExecute(
-      final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony, final IBuilding building)
+      final MessageContext ctx, final boolean isLogicalServer, final IColony colony, final IBuilding building)
     {
         if (building.canSort())
         {
@@ -59,3 +59,5 @@ public class SortBuildingMessage extends AbstractBuildingServerMessage<IBuilding
         }
     }
 }
+
+

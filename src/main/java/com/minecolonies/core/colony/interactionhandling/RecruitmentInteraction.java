@@ -1,11 +1,17 @@
 package com.minecolonies.core.colony.interactionhandling;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
-import com.ldtteam.blockui.PaneBuilders;
-import com.ldtteam.blockui.controls.ButtonImage;
-import com.ldtteam.blockui.controls.ItemIcon;
-import com.ldtteam.blockui.controls.Text;
-import com.ldtteam.blockui.views.BOWindow;
-import com.ldtteam.blockui.views.Box;
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.colony.*;
 import com.minecolonies.api.colony.buildings.IBuilding;
@@ -19,14 +25,14 @@ import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.api.util.StatsUtil;
 import com.minecolonies.api.util.Tuple;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.items.wrapper.InvWrapper;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+// [1.7.10] items shim in com.minecolonies.api.shim
 
 import java.util.Collections;
 import java.util.List;
@@ -44,7 +50,7 @@ import static com.minecolonies.core.client.gui.WindowInteraction.BUTTON_RESPONSE
 public class RecruitmentInteraction extends ServerCitizenInteraction
 {
     /**
-     * The icon NBT tag
+     * The icon NBT NBTBase
      */
     private static final String RECRUITMENT_ICON = "recruitIcon";
 
@@ -56,13 +62,13 @@ public class RecruitmentInteraction extends ServerCitizenInteraction
     /**
      * The recruit answer
      */
-    private static final Tuple<Component, Component> recruitAnswer = new Tuple<>(Component.translatable("com.minecolonies.coremod.gui.chat.recruit"), null);
+    private static final Tuple<String, String> recruitAnswer = new Tuple<>(String.translatable("com.minecolonies.coremod.gui.chat.recruit"), null);
 
     @SuppressWarnings("unchecked")
-    private static final Tuple<Component, Component>[] responses = (Tuple<Component, Component>[]) new Tuple[] {
-      new Tuple<>(Component.translatable("com.minecolonies.coremod.gui.chat.showstats"), null),
+    private static final Tuple<String, String>[] responses = (Tuple<String, String>[]) new Tuple[] {
+      new Tuple<>(String.translatable("com.minecolonies.coremod.gui.chat.showstats"), null),
       recruitAnswer,
-      new Tuple<>(Component.translatable("com.minecolonies.coremod.gui.chat.notnow"), null)};
+      new Tuple<>(String.translatable("com.minecolonies.coremod.gui.chat.notnow"), null)};
 
     /**
      * Chance for a bad visitor
@@ -75,7 +81,7 @@ public class RecruitmentInteraction extends ServerCitizenInteraction
     }
 
     public RecruitmentInteraction(
-      final Component inquiry,
+      final String inquiry,
       final IChatPriority priority)
     {
         super(inquiry, true, priority, d -> true, null, responses);
@@ -95,7 +101,7 @@ public class RecruitmentInteraction extends ServerCitizenInteraction
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void onWindowOpened(final BOWindow window, final ICitizenDataView dataView)
+    public void onWindowOpened(final Object /* BOWindow: todo ModularUI2 */ window, final ICitizenDataView dataView)
     {
         final ButtonImage recruitButton = window.findPaneOfTypeByID(BUTTON_RESPONSE_ID + 2, ButtonImage.class);
         final Box group = window.findPaneOfTypeByID(RESPONSE_BOX_ID, Box.class);
@@ -107,14 +113,14 @@ public class RecruitmentInteraction extends ServerCitizenInteraction
             final IColonyView colony = (IColonyView) dataView.getColony();
 
             window.findPaneOfTypeByID(CHAT_LABEL_ID, Text.class).setText(PaneBuilders.textBuilder()
-                .append(Component.literal(dataView.getName() + ": "))
+                .append(String.literal(dataView.getName() + ": "))
                 .append(this.getInquiry())
                 .emptyLines(1)
-                .appendNL(Component.translatable(
+                .appendNL(String.translatable(
                     colony.getCitizens().size() < colony.getCitizenCountLimit() ? "com.minecolonies.coremod.gui.chat.recruitcost"
                         : "com.minecolonies.coremod.gui.chat.nospacerecruit",
                     recruitCost.getCount() + " " + recruitCost.getHoverName().getString()))
-                .appendNL(Component.literal(""))
+                .appendNL(String.literal(""))
                 .getText());
 
             int iconPosX = recruitButton.getX() + recruitButton.getWidth() - 28;
@@ -131,9 +137,9 @@ public class RecruitmentInteraction extends ServerCitizenInteraction
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public boolean onClientResponseTriggered(final int responseId, final Player player, final ICitizenDataView data, final BOWindow window)
+    public boolean onClientResponseTriggered(final int responseId, final Player player, final ICitizenDataView data, final Object /* BOWindow: todo ModularUI2 */ window)
     {
-        final Component response = getPossibleResponses().get(responseId);
+        final String response = getPossibleResponses().get(responseId);
         // Validate recruitment before returning true
         if (response.equals(recruitAnswer.getA()) && data instanceof IVisitorViewData)
         {
@@ -153,7 +159,7 @@ public class RecruitmentInteraction extends ServerCitizenInteraction
     @Override
     public void onServerResponseTriggered(final int responseId, final Player player, final ICitizenData data)
     {
-        final Component response = getPossibleResponses().get(responseId);
+        final String response = getPossibleResponses().get(responseId);
         if (response.equals(recruitAnswer.getA()) && data instanceof IVisitorData)
         {
             IColony colony = data.getColony();
@@ -218,3 +224,6 @@ public class RecruitmentInteraction extends ServerCitizenInteraction
         return icon;
     }
 }
+
+
+

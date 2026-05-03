@@ -6,13 +6,12 @@ import com.minecolonies.api.network.IMessage;
 import com.minecolonies.core.colony.Colony;
 import com.minecolonies.core.colony.workorders.view.AbstractWorkOrderView;
 import io.netty.buffer.Unpooled;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] Registries removed
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,8 +23,8 @@ import java.util.List;
 public class ColonyViewWorkOrderMessage implements IMessage
 {
     private int                colonyId;
-    private ResourceKey<Level> dimension;
-    private FriendlyByteBuf       workOrderBuffer;
+    private int /* ResourceKey */ dimension;
+    private PacketBuffer       workOrderBuffer;
 
     /**
      * Empty constructor used when registering the
@@ -44,7 +43,7 @@ public class ColonyViewWorkOrderMessage implements IMessage
     public ColonyViewWorkOrderMessage(@NotNull final Colony colony, @NotNull final List<IServerWorkOrder> workOrderList)
     {
         this.colonyId = colony.getID();
-        this.workOrderBuffer = new FriendlyByteBuf(Unpooled.buffer());
+        this.workOrderBuffer = new PacketBuffer(Unpooled.buffer());
         this.dimension = colony.getDimension();
 
         workOrderBuffer.writeInt(workOrderList.size());
@@ -55,16 +54,16 @@ public class ColonyViewWorkOrderMessage implements IMessage
     }
 
     @Override
-    public void fromBytes(@NotNull final FriendlyByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
-        final FriendlyByteBuf newbuf = new FriendlyByteBuf(buf.retain());
+        final PacketBuffer newbuf = new PacketBuffer(buf.retain());
         colonyId = newbuf.readInt();
         dimension = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(newbuf.readUtf(32767)));
         workOrderBuffer = newbuf;
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
         workOrderBuffer.resetReaderIndex();
         buf.writeInt(colonyId);
@@ -74,17 +73,20 @@ public class ColonyViewWorkOrderMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.CLIENT;
+        return Boolean.FALSE;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
         IColonyManager.getInstance().handleColonyViewWorkOrderMessage(colonyId, workOrderBuffer, dimension);
         workOrderBuffer.release();
     }
 }
+
+
+
 
 

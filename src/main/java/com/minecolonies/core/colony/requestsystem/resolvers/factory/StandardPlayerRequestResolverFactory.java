@@ -10,9 +10,9 @@ import com.minecolonies.api.util.NBTUtils;
 import com.minecolonies.api.util.constant.SerializationIdentifierConstants;
 import com.minecolonies.api.util.constant.TypeConstants;
 import com.minecolonies.core.colony.requestsystem.resolvers.StandardPlayerRequestResolver;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.network.PacketBuffer;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -72,9 +72,9 @@ public class StandardPlayerRequestResolverFactory implements IFactory<IRequestMa
 
     @NotNull
     @Override
-    public CompoundTag serialize(@NotNull final IFactoryController controller, @NotNull final StandardPlayerRequestResolver playerRequestResolver)
+    public NBTTagCompound serialize(@NotNull final IFactoryController controller, @NotNull final StandardPlayerRequestResolver playerRequestResolver)
     {
-        final CompoundTag compound = new CompoundTag();
+        final NBTTagCompound compound = new NBTTagCompound();
         compound.put(NBT_TOKEN, controller.serialize(playerRequestResolver.getId()));
         compound.put(NBT_LOCATION, controller.serialize(playerRequestResolver.getLocation()));
         compound.put(NBT_ASSIGNED_REQUESTS, playerRequestResolver.getAllAssignedRequests().stream().map(controller::serialize).collect(NBTUtils.toListNBT()));
@@ -83,13 +83,13 @@ public class StandardPlayerRequestResolverFactory implements IFactory<IRequestMa
 
     @NotNull
     @Override
-    public StandardPlayerRequestResolver deserialize(@NotNull final IFactoryController controller, @NotNull final CompoundTag nbt)
+    public StandardPlayerRequestResolver deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound nbt)
     {
         final IToken<?> token = controller.deserialize(nbt.getCompound(NBT_TOKEN));
         final ILocation location = controller.deserialize(nbt.getCompound(NBT_LOCATION));
 
         final Set<IToken<?>> assignedRequests =
-          NBTUtils.streamCompound(nbt.getList(NBT_ASSIGNED_REQUESTS, Tag.TAG_COMPOUND)).map(c -> (IToken<?>) controller.deserialize(c)).collect(Collectors.toSet());
+          NBTUtils.streamCompound(nbt.getList(NBT_ASSIGNED_REQUESTS, NBTBase.TAG_COMPOUND)).map(c -> (IToken<?>) controller.deserialize(c)).collect(Collectors.toSet());
 
         final StandardPlayerRequestResolver resolver = new StandardPlayerRequestResolver(location, token);
         resolver.setAllAssignedRequests(assignedRequests);
@@ -98,7 +98,7 @@ public class StandardPlayerRequestResolverFactory implements IFactory<IRequestMa
     }
 
     @Override
-    public void serialize(IFactoryController controller, StandardPlayerRequestResolver input, FriendlyByteBuf packetBuffer)
+    public void serialize(IFactoryController controller, StandardPlayerRequestResolver input, PacketBuffer packetBuffer)
     {
         controller.serialize(packetBuffer, input.getId());
         controller.serialize(packetBuffer, input.getLocation());
@@ -107,7 +107,7 @@ public class StandardPlayerRequestResolverFactory implements IFactory<IRequestMa
     }
 
     @Override
-    public StandardPlayerRequestResolver deserialize(IFactoryController controller, FriendlyByteBuf buffer) throws Throwable
+    public StandardPlayerRequestResolver deserialize(IFactoryController controller, PacketBuffer buffer) throws Throwable
     {
         final IToken<?> token = controller.deserialize(buffer);
         final ILocation location = controller.deserialize(buffer);
@@ -131,3 +131,7 @@ public class StandardPlayerRequestResolverFactory implements IFactory<IRequestMa
         return SerializationIdentifierConstants.STANDARD_PLAYER_REQUEST_RESOLVER_ID;
     }
 }
+
+
+
+

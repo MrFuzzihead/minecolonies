@@ -1,29 +1,26 @@
 package com.minecolonies.api.blocks;
 
 import com.minecolonies.api.blocks.interfaces.IBlockMinecolonies;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.FallingBlock;
-import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockFalling;
+import net.minecraft.block.material.Material;
+import net.minecraft.item.ItemBlock;
+import cpw.mods.fml.common.registry.GameRegistry;
 
-public abstract class AbstractBlockMinecoloniesFalling<B extends AbstractBlockMinecoloniesFalling<B>> extends FallingBlock implements IBlockMinecolonies<B>
+// [1.7.10 BACKPORT] FallingBlock -> BlockFalling; Properties -> Material; IForgeRegistry -> GameRegistry
+
+public abstract class AbstractBlockMinecoloniesFalling<B extends AbstractBlockMinecoloniesFalling<B>> extends BlockFalling implements IBlockMinecolonies<B>
 {
-    public AbstractBlockMinecoloniesFalling(final Properties properties)
+    public AbstractBlockMinecoloniesFalling(final Material material)
     {
-        super(properties);
+        super(material);
     }
 
     @Override
-    public void registerBlockItem(final IForgeRegistry<Item> registry, final Item.Properties properties)
+    @SuppressWarnings("unchecked")
+    public B registerBlock(final Object registry)
     {
-        registry.register(getRegistryName(), new BlockItem(this, properties));
-    }
-
-    @Override
-    public B registerBlock(final IForgeRegistry<Block> registry)
-    {
-        registry.register(getRegistryName(), this);
+        // [1.7.10] registration handled via GameRegistry elsewhere
         return (B) this;
     }
 }

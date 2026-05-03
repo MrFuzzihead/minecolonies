@@ -2,8 +2,8 @@ package com.minecolonies.api.crafting;
 
 import com.google.common.collect.ImmutableList;
 import com.minecolonies.api.util.ItemStackUtils;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,3 +47,4 @@ public class ClassicRecipe extends AbstractRecipeType<IRecipeStorage>
     }
     
 }
+

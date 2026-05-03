@@ -1,10 +1,15 @@
 package com.minecolonies.core.client.gui.modules.building;
 
+// [1.7.10] blockui replaced by ModularUI2
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.controls.Button;
 import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.views.ScrollingList;
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
 import com.ldtteam.domumornamentum.block.IMateriallyTexturedBlock;
 import com.ldtteam.domumornamentum.block.IMateriallyTexturedBlockComponent;
 import com.ldtteam.domumornamentum.block.MateriallyTexturedBlockManager;
@@ -25,14 +30,14 @@ import com.minecolonies.core.client.gui.AbstractModuleWindow;
 import com.minecolonies.core.colony.buildings.moduleviews.DOCraftingModuleView;
 import com.minecolonies.core.network.messages.server.colony.building.worker.AddRemoveRecipeMessage;
 import com.minecolonies.core.util.DomumOrnamentumUtils;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.item.ItemStack;
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -88,14 +93,14 @@ public class DOCraftingWindow extends AbstractModuleWindow<DOCraftingModuleView>
     private void updateInputs(final int index, final Pane rowPane)
     {
         rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class)
-                .setText(Component.translatable(DOCRAFTING_BLOCK, index + 1));
+                .setText(String.translatable(DOCRAFTING_BLOCK, index + 1));
 
         final ItemIcon icon = rowPane.findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class);
         inputIcons.set(index, icon);
 
         rowPane.findPaneOfTypeByID(RESOURCE_ADD, Button.class).setHandler(btn ->
         {
-            new WindowSelectRes(this, Component.empty(), icon.getItem(),
+            new WindowSelectRes(this, String.empty(), icon.getItem(),
                 IColonyManager.getInstance()
                     .getCompatibilityManager()
                     .getListOfMatchingItems(stack -> MateriallyTexturedBlockManager.getInstance().doesItemStackContainsMaterialForSlot(index, stack)),
@@ -141,9 +146,9 @@ public class DOCraftingWindow extends AbstractModuleWindow<DOCraftingModuleView>
             if (block != null && !textureData.isEmpty())     // should always be true due to predicate, but hey you never know...
             {
                 int slot = 0;
-                for (final IMateriallyTexturedBlockComponent component : block.getComponents())
+                for (final IMateriallyTexturedBlockComponent String : block.getComponents())
                 {
-                    final ItemStack componentBlock = new ItemStack(textureData.getTexturedComponents().getOrDefault(component.getId(), Blocks.AIR));
+                    final ItemStack componentBlock = new ItemStack(textureData.getTexturedComponents().getOrDefault(String.getId(), Blocks.AIR));
                     inputInventory.setItem(slot, componentBlock);
                     inputIcons.get(slot).setItem(componentBlock);
                     ++slot;
@@ -162,7 +167,7 @@ public class DOCraftingWindow extends AbstractModuleWindow<DOCraftingModuleView>
 
     private void addRecipe()
     {
-        final List<ArchitectsCutterRecipe> list = Minecraft.getInstance().level.getRecipeManager().getRecipesFor(ModRecipeTypes.ARCHITECTS_CUTTER.get(), inputInventory, Minecraft.getInstance().level);
+        final List<ArchitectsCutterRecipe> list = Minecraft.getInstance().World.getRecipeManager().getRecipesFor(ModRecipeTypes.ARCHITECTS_CUTTER.get(), inputInventory, Minecraft.getInstance().World);
         final Map<Integer, List<Integer>> map = new HashMap<>();
 
         if (inputInventory.isEmpty() || list.isEmpty())
@@ -172,7 +177,7 @@ public class DOCraftingWindow extends AbstractModuleWindow<DOCraftingModuleView>
 
         for (final ArchitectsCutterRecipe recipe : list)
         {
-            final ItemStack result = recipe.assemble(inputInventory, Minecraft.getInstance().level.registryAccess()).copy();
+            final ItemStack result = recipe.assemble(inputInventory, Minecraft.getInstance().World.registryAccess()).copy();
             final IMateriallyTexturedBlock doBlock = DomumOrnamentumUtils.getBlock(result);
             if (doBlock != null)
             {
@@ -203,12 +208,12 @@ public class DOCraftingWindow extends AbstractModuleWindow<DOCraftingModuleView>
         final List<ItemStack> additionalOutput = new ArrayList<>();
         for (int i = 1; i < inputIndizes.size(); i++)
         {
-            additionalOutput.add(list.get(inputIndizes.get(i)).assemble(inputInventory, Minecraft.getInstance().level.registryAccess()).copy());
+            additionalOutput.add(list.get(inputIndizes.get(i)).assemble(inputInventory, Minecraft.getInstance().World.registryAccess()).copy());
         }
 
         final IRecipeStorage storage = RecipeStorage.builder()
                 .withInputs(input)
-                .withPrimaryOutput(list.get(inputIndizes.get(0)).assemble(inputInventory, Minecraft.getInstance().level.registryAccess()).copy())
+                .withPrimaryOutput(list.get(inputIndizes.get(0)).assemble(inputInventory, Minecraft.getInstance().World.registryAccess()).copy())
                 .withAlternateOutputs(additionalOutput)
                 .withGridSize(3)
                 .withRecipeType(com.minecolonies.api.crafting.ModRecipeTypes.MULTI_OUTPUT_ID)
@@ -232,7 +237,7 @@ public class DOCraftingWindow extends AbstractModuleWindow<DOCraftingModuleView>
         resourceList.enable();
         resourceList.show();
 
-        final List<ArchitectsCutterRecipe> list = Minecraft.getInstance().level.getRecipeManager().getRecipesFor(ModRecipeTypes.ARCHITECTS_CUTTER.get(), inputInventory, Minecraft.getInstance().level);
+        final List<ArchitectsCutterRecipe> list = Minecraft.getInstance().World.getRecipeManager().getRecipesFor(ModRecipeTypes.ARCHITECTS_CUTTER.get(), inputInventory, Minecraft.getInstance().World);
         int inputCount = 0;
         for (int i = 0; i < inputInventory.getContainerSize(); i++)
         {
@@ -245,7 +250,7 @@ public class DOCraftingWindow extends AbstractModuleWindow<DOCraftingModuleView>
         final List<ArchitectsCutterRecipe> filteredList = new ArrayList<>();
         for (final ArchitectsCutterRecipe recipe : list)
         {
-            final ItemStack result = recipe.assemble(inputInventory, Minecraft.getInstance().level.registryAccess()).copy();
+            final ItemStack result = recipe.assemble(inputInventory, Minecraft.getInstance().World.registryAccess()).copy();
             final IMateriallyTexturedBlock doBlock = DomumOrnamentumUtils.getBlock(result);
             if (doBlock != null && doBlock.getComponents().size() == inputCount)
             {
@@ -274,13 +279,17 @@ public class DOCraftingWindow extends AbstractModuleWindow<DOCraftingModuleView>
             @Override
             public void updateElement(final int index, @NotNull final Pane rowPane)
             {
-                final ItemStack resource = filteredList.get(index).assemble(inputInventory, Minecraft.getInstance().level.registryAccess()).copy();
+                final ItemStack resource = filteredList.get(index).assemble(inputInventory, Minecraft.getInstance().World.registryAccess()).copy();
 
                 rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class).setText(resource.getHoverName());
-                rowPane.findPaneOfTypeByID(QUANTITY_LABEL, Text.class).setText(Component.literal(String.valueOf(resource.getCount())));
+                rowPane.findPaneOfTypeByID(QUANTITY_LABEL, Text.class).setText(String.literal(String.valueOf(resource.getCount())));
 
                 rowPane.findPaneOfTypeByID(RESOURCE_ICON, ItemIcon.class).setItem(resource);
             }
         });
     }
 }
+
+
+
+

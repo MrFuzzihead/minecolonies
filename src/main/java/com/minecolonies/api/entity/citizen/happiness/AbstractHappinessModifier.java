@@ -1,7 +1,7 @@
 package com.minecolonies.api.entity.citizen.happiness;
 
 import com.minecolonies.api.colony.ICitizenData;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.Nullable;
 
 import static com.minecolonies.api.util.constant.NbtTagConstants.*;
@@ -60,11 +60,11 @@ public abstract class AbstractHappinessModifier implements IHappinessModifier
     }
 
     @Override
-    public void read(final CompoundTag compoundNBT, final boolean persist)
+    public void read(final NBTTagCompound compoundNBT, final boolean persist)
     {
         this.id = compoundNBT.getString(TAG_ID);
         this.weight = compoundNBT.getDouble(TAG_WEIGHT);
-        final CompoundTag supplierCompound = compoundNBT.getCompound(TAG_SUPPLIER);
+        final NBTTagCompound supplierCompound = compoundNBT.getCompound(TAG_SUPPLIER);
         if (supplierCompound.contains(TAG_ID))
         {
             supplier = new DynamicHappinessSupplier();
@@ -77,7 +77,7 @@ public abstract class AbstractHappinessModifier implements IHappinessModifier
     }
 
     @Override
-    public void write(final CompoundTag compoundNBT, final boolean persist)
+    public void write(final NBTTagCompound compoundNBT, final boolean persist)
     {
         compoundNBT.putString(TAG_ID, this.id);
         compoundNBT.putDouble(TAG_WEIGHT, this.weight);
@@ -90,3 +90,5 @@ public abstract class AbstractHappinessModifier implements IHappinessModifier
         return weight;
     }
 }
+
+

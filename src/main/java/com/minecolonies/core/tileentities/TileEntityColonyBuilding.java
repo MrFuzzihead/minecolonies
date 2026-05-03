@@ -1,11 +1,7 @@
 package com.minecolonies.core.tileentities;
 
-import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.storage.StructurePackMeta;
 import com.ldtteam.structurize.storage.StructurePacks;
-import com.ldtteam.structurize.util.BlockInfo;
-import com.ldtteam.structurize.util.RotationMirror;
-import com.minecolonies.api.blocks.AbstractColonyBlock;
 import com.minecolonies.api.blocks.AbstractBlockHut;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyManager;
@@ -14,59 +10,30 @@ import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.buildings.IBuildingContainer;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.colony.permissions.Action;
-import com.minecolonies.api.compatibility.newstruct.BlueprintMapping;
-import com.minecolonies.api.inventory.api.CombinedItemHandler;
-import com.minecolonies.api.inventory.container.ContainerBuildingInventory;
 import com.minecolonies.api.tileentities.AbstractTileEntityColonyBuilding;
 import com.minecolonies.api.tileentities.AbstractTileEntityRack;
 import com.minecolonies.api.tileentities.ITickable;
-import com.minecolonies.api.tileentities.MinecoloniesTileEntities;
-import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.WorldUtil;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.Connection;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
-import net.minecraft.network.chat.Style;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.entity.SignBlockEntity;
-import net.minecraft.world.level.block.entity.SignText;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Predicate;
 
 import static com.minecolonies.api.util.constant.BuildingConstants.DEACTIVATED;
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_BUILDING_TYPE;
-import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_NAME;
-import static com.minecolonies.api.util.constant.SchematicTagConstants.BUILDING_SIGN;
 
 /**
  * Class which handles the tileEntity of our colonyBuildings.
  */
-@SuppressWarnings("PMD.ExcessiveImports")
 public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding implements ITickable
 {
     /**
@@ -74,7 +41,6 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
      */
     private static final String TAG_COLONY = "colony";
     private static final String TAG_MIRROR = "mirror";
-    private static final String TAG_STYLE  = "style";
     private static final String TAG_PACK   = "pack";
     private static final String TAG_PATH   = "path";
 
@@ -99,7 +65,7 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
     private boolean mirror;
 
     /**
-     * The style of the building.
+     * The style pack name of the building.
      */
     private String packMeta = "";
 
@@ -114,31 +80,11 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
     public ResourceLocation registryName;
 
     /**
-     * Create the combined inv wrapper for the building.
+     * Default constructor.
      */
-    private LazyOptional<CombinedItemHandler> combinedInv;
-
-    /**
-     * Pending blueprint future.
-     */
-    private Future<Blueprint> pendingBlueprintFuture = null;
-
-    /**
-     * Default constructor used to create a new TileEntity via reflection. Do not use.
-     */
-    public TileEntityColonyBuilding(final BlockPos pos, final BlockState state)
+    public TileEntityColonyBuilding()
     {
-        this(MinecoloniesTileEntities.BUILDING.get(), pos, state);
-    }
-
-    /**
-     * Alternative overriden constructor.
-     *
-     * @param type the entity type.
-     */
-    public TileEntityColonyBuilding(final BlockEntityType<? extends AbstractTileEntityColonyBuilding> type, final BlockPos pos, final BlockState state)
-    {
-        super(type, pos, state);
+        super();
     }
 
     /**
@@ -172,32 +118,25 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
      */
     private void updateColonyReferences()
     {
-        if (colony == null && getLevel() != null)
+        if (colony == null && worldObj != null)
         {
             if (colonyId == 0)
             {
-                colony = IColonyManager.getInstance().getColonyByPosFromWorld(getLevel(), this.getBlockPos());
+                colony = IColonyManager.getInstance().getColonyByPosFromWorld(worldObj, xCoord, yCoord, zCoord);
             }
-            else if (level.isClientSide)
+            else if (worldObj.isRemote)
             {
-                colony = IColonyManager.getInstance().getColonyView(colonyId, getLevel().dimension());
+                colony = IColonyManager.getInstance().getColonyView(colonyId, worldObj.provider.dimensionId);
             }
             else
             {
-                colony = IColonyManager.getInstance().getColonyByWorld(colonyId, getLevel());
-            }
-
-            // It's most probably previewed building, please don't spam it here.
-            if (colony == null && !getLevel().isClientSide)
-            {
-                //log on the server
-                //Log.getLogger().info(String.format("TileEntityColonyBuilding at %s:[%d,%d,%d] had colony.",getWorld().getWorldInfo().getWorldName(), pos.getX(), pos.getY(), pos.getZ()));
+                colony = IColonyManager.getInstance().getColonyByWorld(colonyId, worldObj);
             }
         }
 
-        if (building == null && colony != null && !getLevel().isClientSide)
+        if (building == null && colony != null && !worldObj.isRemote)
         {
-            building = colony.getServerBuildingManager().getBuilding(getPosition());
+            building = colony.getServerBuildingManager().getBuilding(xCoord, yCoord, zCoord);
             if (building != null)
             {
                 registryName = building.getBuildingType().getRegistryName();
@@ -207,36 +146,36 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
     }
 
     /**
-     * Returns the position of the tile entity.
+     * Returns the position of the tile entity as [x, y, z].
      *
-     * @return Block Coordinates of the tile entity.
+     * @return position.
      */
     @Override
-    public BlockPos getPosition()
+    public int[] getPosition()
     {
-        return worldPosition;
+        return new int[]{xCoord, yCoord, zCoord};
     }
 
     /**
-     * Check for a certain item and return the position of the chest containing it.
+     * Check for a certain item and return the position of the chest containing it as [x, y, z].
      *
      * @param itemStackSelectionPredicate the stack to search for.
      * @return the position or null.
      */
     @Override
     @Nullable
-    public BlockPos getPositionOfChestWithItemStack(@NotNull final Predicate<ItemStack> itemStackSelectionPredicate)
+    public int[] getPositionOfChestWithItemStack(@NotNull final Predicate<ItemStack> itemStackSelectionPredicate)
     {
         final Predicate<ItemStack> notEmptyPredicate = itemStackSelectionPredicate.and(ItemStackUtils.NOT_EMPTY_PREDICATE);
         @Nullable final IBuildingContainer theBuilding = getBuilding();
 
         if (theBuilding != null)
         {
-            for (final BlockPos pos : theBuilding.getContainers())
+            for (final int[] pos : theBuilding.getContainers())
             {
-                if (WorldUtil.isBlockLoaded(level, pos))
+                if (WorldUtil.isBlockLoaded(worldObj, pos[0], pos[2]))
                 {
-                    final BlockEntity entity = getLevel().getBlockEntity(pos);
+                    final TileEntity entity = worldObj.getTileEntity(pos[0], pos[1], pos[2]);
                     if (entity instanceof AbstractTileEntityRack)
                     {
                         if (((AbstractTileEntityRack) entity).hasItemStack(notEmptyPredicate))
@@ -244,10 +183,7 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
                             return pos;
                         }
                     }
-                    else if (isInTileEntity(entity, notEmptyPredicate))
-                    {
-                        return pos;
-                    }
+                    // TODO: no ICapabilityProvider in 1.7.10; skip non-rack containers
                 }
             }
         }
@@ -264,59 +200,23 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
     {
         colony = c;
         colonyId = c.getID();
-        setChanged();
+        markDirty();
     }
 
     @Override
-    public void setChanged()
+    public void markDirty()
     {
-        super.setChanged();
+        super.markDirty();
         if (building != null)
         {
             building.markDirty();
         }
     }
 
-    @Override
-    public ClientboundBlockEntityDataPacket getUpdatePacket()
-    {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-    @NotNull
-    @Override
-    public CompoundTag getUpdateTag()
-    {
-        return saveWithId();
-    }
-
-    @Override
-    public void handleUpdateTag(final CompoundTag tag)
-    {
-        this.load(tag);
-    }
-
-    @Override
-    public void onDataPacket(final Connection net, final ClientboundBlockEntityDataPacket packet)
-    {
-        final CompoundTag compound = packet.getTag();
-        colonyId = compound.getInt(TAG_COLONY);
-        super.onDataPacket(net, packet);
-    }
-
-    @Override
-    public void onLoad()
-    {
-        if (building != null)
-        {
-            building.setTileEntity(null);
-        }
-    }
-
     /**
      * Returns the building associated with the tile entity.
      *
-     * @return {@link IBuildingContainer} associated with the tile entity.
+     * @return {@link IBuilding} associated with the tile entity.
      */
     @Override
     public IBuilding getBuilding()
@@ -339,13 +239,6 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
         building = b;
     }
 
-    @NotNull
-    @Override
-    public Component getDisplayName()
-    {
-        return getBlockState().getBlock().getName();
-    }
-
     /**
      * Returns the view of the building associated with the tile entity.
      *
@@ -354,148 +247,55 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
     @Override
     public IBuildingView getBuildingView()
     {
-        final IColonyView c = IColonyManager.getInstance().getColonyView(colonyId, level.dimension());
-        return c == null ? null : c.getClientBuildingManager().getBuilding(getPosition());
+        final IColonyView c = IColonyManager.getInstance().getColonyView(colonyId, worldObj.provider.dimensionId);
+        return c == null ? null : c.getClientBuildingManager().getBuilding(xCoord, yCoord, zCoord);
     }
 
     @Override
-    public void load(@NotNull final CompoundTag compound)
+    public void readFromNBT(@NotNull final NBTTagCompound compound)
     {
-        super.load(compound);
-        if (compound.contains(TAG_COLONY))
+        super.readFromNBT(compound);
+        if (compound.hasKey(TAG_COLONY))
         {
-            colonyId = compound.getInt(TAG_COLONY);
+            colonyId = compound.getInteger(TAG_COLONY);
         }
         mirror = compound.getBoolean(TAG_MIRROR);
+        packMeta = compound.getString(TAG_PACK);
+        path = compound.getString(TAG_PATH);
 
-        String packName;
-        String path;
-        if (compound.contains(TAG_STYLE) && !compound.getString(TAG_STYLE).isEmpty())
-        {
-            packName = BlueprintMapping.getStyleMapping(compound.getString(TAG_STYLE));
-
-            if (this.getSchematicName().isEmpty())
-            {
-                path = null;
-            }
-            else
-            {
-                final String level = this.getSchematicName().substring(this.getSchematicName().length() - 1);
-                path = BlueprintMapping.getPathMapping(compound.getString(TAG_STYLE), this.getSchematicName().substring(0, this.getSchematicName().length() - 1)) + level
-                         + ".blueprint";
-            }
-        }
-        else
-        {
-            packName = compound.getString(TAG_PACK);
-            path = compound.getString(TAG_PATH);
-        }
-
-        if (getBlockState().getBlock() instanceof AbstractBlockHut<?>)
-        {
-            if (packName == null || packName.isEmpty())
-            {
-                final List<String> tags = new ArrayList<>(getPositionedTags().getOrDefault(BlockPos.ZERO, new ArrayList<>()));
-                if (!tags.isEmpty())
-                {
-                    tags.remove(DEACTIVATED);
-                    if (!tags.isEmpty())
-                    {
-                        packName = BlueprintMapping.getStyleMapping(tags.get(0));
-                        if (path == null || path.isEmpty())
-                        {
-                            path = BlueprintMapping.getPathMapping(tags.get(0), ((AbstractBlockHut<?>) getBlockState().getBlock()).getBlueprintName()) + "1.blueprint";
-                        }
-                    }
-                }
-                else if (StructurePacks.selectedPack != null)
-                {
-                    packName = StructurePacks.selectedPack.getName();
-                }
-            }
-
-            if (path == null || path.isEmpty() || path.contains("null"))
-            {
-                path = BlueprintMapping.getPathMapping("", ((AbstractBlockHut<?>) getBlockState().getBlock()).getBlueprintName()) + "1.blueprint";
-            }
-
-            if (!path.endsWith(".blueprint"))
-            {
-                path += ".blueprint";
-            }
-        }
-
-        this.packMeta = packName;
-        this.path = path;
-
-        if (compound.contains(TAG_BUILDING_TYPE))
+        if (compound.hasKey(TAG_BUILDING_TYPE))
         {
             registryName = new ResourceLocation(compound.getString(TAG_BUILDING_TYPE));
         }
-        buildingPos = worldPosition;
+        // buildingPos in 1.7.10 is just the TE's own position
+        buildingPosX = xCoord;
+        buildingPosY = yCoord;
+        buildingPosZ = zCoord;
     }
 
     @Override
-    public void saveAdditional(@NotNull final CompoundTag compound)
+    public void writeToNBT(@NotNull final NBTTagCompound compound)
     {
-        super.saveAdditional(compound);
-        compound.putInt(TAG_COLONY, colonyId);
-        compound.putBoolean(TAG_MIRROR, mirror);
-        compound.putString(TAG_PACK, packMeta == null ? "" : packMeta);
-        compound.putString(TAG_PATH, path == null ? "" : path);
+        super.writeToNBT(compound);
+        compound.setInteger(TAG_COLONY, colonyId);
+        compound.setBoolean(TAG_MIRROR, mirror);
+        compound.setString(TAG_PACK, packMeta == null ? "" : packMeta);
+        compound.setString(TAG_PATH, path == null ? "" : path);
         if (registryName != null)
         {
-            compound.putString(TAG_BUILDING_TYPE, registryName.toString());
+            compound.setString(TAG_BUILDING_TYPE, registryName.toString());
         }
     }
 
     @Override
     public void tick()
     {
-        if (combinedInv != null)
+        if (!worldObj.isRemote && colonyId == 0)
         {
-            combinedInv.invalidate();
-            combinedInv = null;
-        }
-        if (!getLevel().isClientSide && colonyId == 0)
-        {
-            final IColony tempColony = IColonyManager.getInstance().getColonyByPosFromWorld(getLevel(), this.getPosition());
+            final IColony tempColony = IColonyManager.getInstance().getColonyByPosFromWorld(worldObj, xCoord, yCoord, zCoord);
             if (tempColony != null)
             {
                 colonyId = tempColony.getID();
-            }
-        }
-        else
-        {
-            if (colony instanceof IColonyView colonyView && level.getGameTime() % 20 == 0)
-            {
-                final IBuildingView buildingView = colonyView.getClientBuildingManager().getBuilding(buildingPos);
-                if (buildingView != null)
-                {
-                    for (final BlockPos buildingSignPos : getWorldTagNamePosMap().getOrDefault(BUILDING_SIGN, Collections.emptySet()))
-                    {
-                        if (WorldUtil.isBlockLoaded(colony.getWorld(), buildingSignPos))
-                        {
-                            final BlockEntity blockEntity = colony.getWorld().getBlockEntity(buildingSignPos);
-                            if (blockEntity instanceof SignBlockEntity signBlockEntity)
-                            {
-                                SignText signText = new SignText();
-                                final String nameText = Component.translatable(buildingView.getBuildingDisplayName()).getString();
-
-                                final List<FormattedText> lines = Minecraft.getInstance().font.getSplitter().splitLines(nameText, 60, Style.EMPTY);
-                                int i;
-                                for (i = 0; i < Math.min(lines.size(), 3); i++)
-                                {
-                                    signText = signText.setMessage(i,  Component.literal(lines.get(i).getString()));
-                                }
-
-                                signText = signText.setMessage(i, Component.literal(buildingView.getBuildingLevel() + ""));
-                                signBlockEntity.setText(signText, true);
-                                signBlockEntity.setText(signText, false);
-                            }
-                        }
-                    }
-                }
             }
         }
 
@@ -504,23 +304,15 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
             updateColonyReferences();
         }
 
-        if (pendingBlueprintFuture != null && pendingBlueprintFuture.isDone())
-        {
-            try
-            {
-                processBlueprint(pendingBlueprintFuture.get());
-                pendingBlueprintFuture = null;
-            }
-            catch (InterruptedException | ExecutionException e)
-            {
-                e.printStackTrace();
-            }
-        }
+        // TODO: Sign text update logic (SignBlockEntity/SignText) has no 1.7.10 equivalent
+        // TODO: pendingBlueprintFuture / processBlueprint — port if Structurize 1.7.10 has blueprint async loading
     }
 
-    public boolean isUsableByPlayer(@NotNull final Player player)
+    @Override
+    public void updateEntity()
     {
-        return this.hasAccessPermission(player);
+        // In 1.7.10, TEs tick via updateEntity() — delegate to tick()
+        tick();
     }
 
     /**
@@ -530,9 +322,8 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
      * @return True when player has access, or building doesn't exist, otherwise false.
      */
     @Override
-    public boolean hasAccessPermission(final Player player)
+    public boolean hasAccessPermission(final EntityPlayer player)
     {
-        // TODO This is called every tick the GUI is open. Is that bad?
         return building == null || building.getColony().getPermissions().hasPermission(player, Action.ACCESS_HUTS);
     }
 
@@ -561,7 +352,7 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
     /**
      * Getter for the style.
      *
-     * @return the string of it.
+     * @return the pack of it.
      */
     @Override
     public StructurePackMeta getStructurePack()
@@ -574,6 +365,7 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
      *
      * @param style the style to set.
      */
+    @Override
     public void setStructurePack(final StructurePackMeta style)
     {
         this.packMeta = style.getName();
@@ -586,18 +378,6 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
     }
 
     @Override
-    public void setPackName(final String packName)
-    {
-        this.packMeta = packName;
-    }
-
-    @Override
-    public String getPackName()
-    {
-        return packMeta;
-    }
-
-    @Override
     public String getBlueprintPath()
     {
         return path;
@@ -606,156 +386,61 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
     @Override
     public ResourceLocation getBuildingName()
     {
-        if (registryName != null && !registryName.getPath().isEmpty())
+        if (registryName != null && !registryName.getResourcePath().isEmpty())
         {
             return registryName;
         }
-        return getBlockState().getBlock() instanceof AbstractColonyBlock<?> ? ((AbstractColonyBlock<?>) getBlockState().getBlock()).getBuildingEntry().getRegistryName() : null;
+        final net.minecraft.block.Block block = worldObj.getBlock(xCoord, yCoord, zCoord);
+        if (block instanceof com.minecolonies.api.blocks.AbstractColonyBlock)
+        {
+            return ((com.minecolonies.api.blocks.AbstractColonyBlock<?>) block).getBuildingEntry().getRegistryName();
+        }
+        return null;
     }
 
     @Override
     public void updateBlockState()
     {
-        // Do nothing
+        // noop — block state updates handled via metadata in 1.7.10
     }
 
-    @NotNull
-    @Override
-    public <T> LazyOptional<T> getCapability(@NotNull final Capability<T> capability, @Nullable final Direction side)
+    /**
+     * Get the combined inventory handler for this building.
+     * In 1.7.10, we iterate containers directly rather than using LazyOptional capability.
+     *
+     * @return combined item handler.
+     */
+    public com.minecolonies.api.inventory.api.CombinedItemHandler getCombinedInventory()
     {
-        if (!remove && capability == ForgeCapabilities.ITEM_HANDLER && getBuilding() != null)
+        if (getBuilding() == null)
         {
-            if (combinedInv == null)
+            return new com.minecolonies.api.inventory.api.CombinedItemHandler(getSchematicName(), getInventory());
+        }
+
+        final java.util.Set<net.minecraftforge.items.IItemHandlerModifiable> handlers = new java.util.LinkedHashSet<>();
+        final net.minecraft.world.World world = colony.getWorld();
+        if (world != null)
+        {
+            for (final int[] pos : building.getContainers())
             {
-                //Add additional containers
-                final Set<IItemHandlerModifiable> handlers = new LinkedHashSet<>();
-                final Level world = colony.getWorld();
-                if (world != null)
+                if (WorldUtil.isBlockLoaded(world, pos[0], pos[2]) && !com.minecolonies.api.util.BlockPosUtil.equals(pos[0], pos[1], pos[2], xCoord, yCoord, zCoord))
                 {
-                    for (final BlockPos pos : building.getContainers())
+                    final TileEntity te = world.getTileEntity(pos[0], pos[1], pos[2]);
+                    if (te instanceof AbstractTileEntityRack)
                     {
-                        if (WorldUtil.isBlockLoaded(world, pos) && !pos.equals(this.worldPosition))
-                        {
-                            final BlockEntity te = world.getBlockEntity(pos);
-                            if (te != null)
-                            {
-                                if (te instanceof AbstractTileEntityRack)
-                                {
-                                    handlers.add(((AbstractTileEntityRack) te).getInventory());
-                                    ((AbstractTileEntityRack) te).setBuildingPos(this.getBlockPos());
-                                }
-                                else
-                                {
-                                    building.removeContainerPosition(pos);
-                                }
-                            }
-                        }
+                        handlers.add(((AbstractTileEntityRack) te).getInventory());
+                        ((AbstractTileEntityRack) te).setBuildingPos(xCoord, yCoord, zCoord);
+                    }
+                    else if (te != null)
+                    {
+                        building.removeContainerPosition(pos);
                     }
                 }
-                handlers.add(this.getInventory());
-
-                combinedInv = LazyOptional.of(() -> new CombinedItemHandler(building.getSchematicName(), handlers.toArray(new IItemHandlerModifiable[0])));
-            }
-            return (LazyOptional<T>) combinedInv;
-        }
-        return super.getCapability(capability, side);
-    }
-
-    @Nullable
-    @Override
-    public AbstractContainerMenu createMenu(final int id, @NotNull final Inventory inv, @NotNull final Player player)
-    {
-        return new ContainerBuildingInventory(id, inv, colonyId, getBlockPos());
-    }
-
-    /**
-     * Reactivate the hut of this tileEntity.
-     * Load the schematic data and set the style correctly.
-     */
-    public void reactivate()
-    {
-        final List<String> tags = new ArrayList<>(this.getPositionedTags().get(BlockPos.ZERO));
-        tags.remove(DEACTIVATED);
-        if (tags.isEmpty())
-        {
-            this.pendingBlueprintFuture = StructurePacks.getBlueprintFuture(this.packMeta, this.path);
-            return;
-        }
-
-        // First tag on those buildings always has to be the stylename.
-        String tagName = tags.get(0);
-        final String blueprintPath;
-        final String packName;
-        if (tagName.contains("/"))
-        {
-            final String[] split = tagName.split("/");
-            packName = split[0];
-            blueprintPath = tagName.replace(packName, "");
-        }
-        else
-        {
-            final String level = this.getSchematicName().substring(this.getSchematicName().length() - 1);
-            packName = BlueprintMapping.getStyleMapping(tagName);
-            blueprintPath = BlueprintMapping.getPathMapping(tagName, this.getSchematicName().substring(0, this.getSchematicName().length() - 1)) + level + ".blueprint";
-        }
-
-        if (!StructurePacks.hasPack(packName))
-        {
-            this.pendingBlueprintFuture = StructurePacks.getBlueprintFuture(this.packMeta, this.path);
-            return;
-        }
-
-        this.setStructurePack(StructurePacks.getStructurePack(packName));
-        this.pendingBlueprintFuture = StructurePacks.getBlueprintFuture(packName, blueprintPath);
-    }
-
-    /**
-     * Process the blueprint to read relevant data.
-     *
-     * @param blueprint the queried blueprint.
-     */
-    private void processBlueprint(final Blueprint blueprint)
-    {
-        if (blueprint == null)
-        {
-            Log.getLogger().error("Invalid building details for reactivation");
-            return;
-        }
-
-        final BlockState structureState = blueprint.getBlockState(blueprint.getPrimaryBlockOffset());
-        if (structureState != null)
-        {
-            if (!(structureState.getBlock() instanceof AbstractBlockHut) || !(level.getBlockState(this.getPosition()).getBlock() instanceof AbstractBlockHut))
-            {
-                Log.getLogger().error(String.format("Schematic %s doesn't have a correct Primary Offset", blueprint.getName()));
-                return;
-            }
-            final int structureRotation = structureState.getValue(AbstractBlockHut.FACING).get2DDataValue();
-            final int worldRotation = level.getBlockState(this.getPosition()).getValue(AbstractBlockHut.FACING).get2DDataValue();
-
-            final int rotation;
-            if (structureRotation <= worldRotation)
-            {
-                rotation = worldRotation - structureRotation;
-            }
-            else
-            {
-                rotation = 4 + worldRotation - structureRotation;
-            }
-
-            blueprint.setRotationMirror(RotationMirror.of(BlockPosUtil.getRotationFromRotations(rotation), this.isMirrored() ? Mirror.FRONT_BACK : Mirror.NONE), level);
-            final BlockInfo info = blueprint.getBlockInfoAsMap().getOrDefault(blueprint.getPrimaryBlockOffset(), null);
-
-            if (info.getTileEntityData() != null)
-            {
-                final CompoundTag teCompound = info.getTileEntityData().copy();
-                final CompoundTag tagData = teCompound.getCompound(TAG_BLUEPRINTDATA);
-
-                tagData.putString(TAG_PACK, blueprint.getPackName());
-                final String location = StructurePacks.getStructurePack(blueprint.getPackName()).getSubPath(blueprint.getFilePath().resolve(blueprint.getFileName()));
-                tagData.putString(TAG_NAME, location);
-                this.readSchematicDataFromNBT(teCompound);
             }
         }
+        handlers.add(this.getInventory());
+        return new com.minecolonies.api.inventory.api.CombinedItemHandler(building.getSchematicName(),
+          handlers.toArray(new net.minecraftforge.items.IItemHandlerModifiable[0]));
     }
 }
+

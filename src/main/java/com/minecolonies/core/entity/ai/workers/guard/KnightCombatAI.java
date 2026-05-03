@@ -24,20 +24,20 @@ import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.nbt.NBTTagCompound;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.WorldServer;
+// [1.7.10] sounds removed
+import net.minecraft.util.MathHelper;
+// [1.7.10] int /* InteractionHand */ removed
+// [1.7.10] net.minecraft.util.DamageSource removed
+import net.minecraft.entity.EntityLivingBase;
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -114,15 +114,15 @@ public class KnightCombatAI extends AttackMoveAI<EntityCitizen>
     protected IAIState attackProtect()
     {
         final int shieldSlot = InventoryUtils.findFirstSlotInItemHandlerWith(user.getInventoryCitizen(), Items.SHIELD);
-        if (shieldSlot != -1 && target != null && target.isAlive() && nextAttackTime - user.level.getGameTime() >= MIN_TIME_TO_ATTACK &&
+        if (shieldSlot != -1 && target != null && target.isAlive() && nextAttackTime - user.World.getGameTime() >= MIN_TIME_TO_ATTACK &&
               user.getCitizenColonyHandler().getColonyOrRegister().getResearchManager().getResearchEffects().getEffectStrength(SHIELD_USAGE) > 0)
         {
-            CitizenItemUtils.setHeldItem(user, InteractionHand.OFF_HAND, shieldSlot);
-            user.startUsingItem(InteractionHand.OFF_HAND);
+            CitizenItemUtils.setHeldItem(user, 1 /* InteractionHand.OFF_HAND */, shieldSlot);
+            user.startUsingItem(1 /* InteractionHand.OFF_HAND */);
 
             // Apply the colony Flag to the shield
-            ItemStack shieldStack = user.getInventoryCitizen().getHeldItem(InteractionHand.OFF_HAND);
-            CompoundTag nbt = shieldStack.getOrCreateTagElement("BlockEntityTag");
+            ItemStack shieldStack = user.getInventoryCitizen().getHeldItem(1 /* InteractionHand.OFF_HAND */);
+            NBTTagCompound nbt = shieldStack.getOrCreateTagElement("BlockEntityTag");
             if (!Objects.equals(nbt.get(TAG_BANNER_PATTERNS), user.getCitizenColonyHandler().getColonyOrRegister().getColonyFlag()))
             {
                 nbt.put(TAG_BANNER_PATTERNS, user.getCitizenColonyHandler().getColonyOrRegister().getColonyFlag());
@@ -145,7 +145,7 @@ public class KnightCombatAI extends AttackMoveAI<EntityCitizen>
 
         if (weaponSlot != -1)
         {
-            CitizenItemUtils.setHeldItem(user, InteractionHand.MAIN_HAND, weaponSlot);
+            CitizenItemUtils.setHeldItem(user, 0 /* InteractionHand.MAIN_HAND */, weaponSlot);
             return true;
         }
 
@@ -153,30 +153,30 @@ public class KnightCombatAI extends AttackMoveAI<EntityCitizen>
     }
 
     @Override
-    protected void doAttack(final LivingEntity target)
+    protected void doAttack(final EntityLivingBase target)
     {
         if (user.distanceTo(target) > 1)
         {
             moveInAttackPosition(target);
         }
 
-        user.swing(InteractionHand.MAIN_HAND);
+        user.swing(0 /* InteractionHand.MAIN_HAND */);
         user.playSound(SoundEvents.PLAYER_ATTACK_SWEEP, (float) BASIC_VOLUME, (float) SoundUtils.getRandomPitch(user.getRandom()));
 
         final double damageToBeDealt = getAttackDamage();
-        DamageSource source = target.level.damageSources().source(DamageSourceKeys.GUARD, user);
+        net.minecraft.util.DamageSource source = target.World.damageSources().source(DamageSourceKeys.GUARD, user);
         if (MineColonies.getConfig().getServer().pvp_mode.get() && target instanceof Player)
         {
-            source = target.level.damageSources().source(DamageSourceKeys.GUARD_PVP, user);
+            source = target.World.damageSources().source(DamageSourceKeys.GUARD_PVP, user);
         }
 
-        final int fireLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.FIRE_ASPECT, user.getItemInHand(InteractionHand.MAIN_HAND));
+        final int fireLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.FIRE_ASPECT, user.getItemInHand(0 /* InteractionHand.MAIN_HAND */));
         if (fireLevel > 0)
         {
             target.setSecondsOnFire(fireLevel * 4);
         }
 
-        if (user.level.getGameTime() - lastAoeUseTime > KNOCKBACK_COOLDOWN)
+        if (user.World.getGameTime() - lastAoeUseTime > KNOCKBACK_COOLDOWN)
         {
             doAoeAttack(source, damageToBeDealt);
         }
@@ -184,9 +184,9 @@ public class KnightCombatAI extends AttackMoveAI<EntityCitizen>
         target.hurt(source, (float) damageToBeDealt);
         target.setLastHurtByMob(user);
 
-        if (target instanceof Mob && user.getCitizenColonyHandler().getColonyOrRegister().getResearchManager().getResearchEffects().getEffectStrength(KNIGHT_TAUNT) > 0)
+        if (target instanceof EntityCreature && user.getCitizenColonyHandler().getColonyOrRegister().getResearchManager().getResearchEffects().getEffectStrength(KNIGHT_TAUNT) > 0)
         {
-            ((Mob) target).setTarget(user);
+            ((EntityCreature) target).setTarget(user);
             if (target instanceof IThreatTableEntity)
             {
                 ((IThreatTableEntity) target).getThreatTable().addThreat(user, 5);
@@ -195,7 +195,7 @@ public class KnightCombatAI extends AttackMoveAI<EntityCitizen>
 
         user.stopUsingItem();
         user.getCitizenData().setVisibleStatus(getCombatStatus());
-        CitizenItemUtils.damageItemInHand(user, InteractionHand.MAIN_HAND, 1);
+        CitizenItemUtils.damageItemInHand(user, 0 /* InteractionHand.MAIN_HAND */, 1);
     }
 
     protected VisibleCitizenStatus getCombatStatus()
@@ -209,25 +209,25 @@ public class KnightCombatAI extends AttackMoveAI<EntityCitizen>
      * @param source          normal attack damage source
      * @param damageToBeDealt normal attack damage to be distributed to targets
      */
-    private void doAoeAttack(final DamageSource source, final double damageToBeDealt)
+    private void doAoeAttack(final net.minecraft.util.DamageSource source, final double damageToBeDealt)
     {
         if (user.getCitizenColonyHandler().getColonyOrRegister().getResearchManager().getResearchEffects().getEffectStrength(KNIGHT_WHIRLWIND) > 0
               && user.getRandom().nextInt(KNOCKBACK_CHANCE) == 0)
         {
-            List<LivingEntity> entities = user.level.getEntitiesOfClass(LivingEntity.class, user.getBoundingBox().inflate(2.0D, 0.5D, 2.0D));
-            for (LivingEntity livingentity : entities)
+            List<EntityLivingBase> entities = user.World.getEntitiesOfClass(EntityLivingBase.class, user.getBoundingBox().inflate(2.0D, 0.5D, 2.0D));
+            for (EntityLivingBase EntityLivingBase : entities)
             {
-                if (livingentity != user && isEntityValidTarget(livingentity) && (!(livingentity instanceof ArmorStand)))
+                if (EntityLivingBase != user && isEntityValidTarget(EntityLivingBase) && (!(EntityLivingBase instanceof ArmorStand)))
                 {
-                    livingentity.knockback(
+                    EntityLivingBase.knockback(
                       2F,
-                      Mth.sin(livingentity.getYRot() * ((float) Math.PI)),
-                      (-Mth.cos(livingentity.getYRot() * ((float) Math.PI))));
-                    livingentity.hurt(source, (float) (damageToBeDealt / entities.size()));
+                      Mth.sin(EntityLivingBase.getYRot() * ((float) Math.PI)),
+                      (-Mth.cos(EntityLivingBase.getYRot() * ((float) Math.PI))));
+                    EntityLivingBase.hurt(source, (float) (damageToBeDealt / entities.size()));
                 }
             }
 
-            user.level.playSound(null,
+            user.World.playSound(null,
               user.getX(),
               user.getY(),
               user.getZ(),
@@ -238,9 +238,9 @@ public class KnightCombatAI extends AttackMoveAI<EntityCitizen>
 
             double d0 = (double) (-Mth.sin(user.getYRot() * ((float) Math.PI / 180)));
             double d1 = (double) Mth.cos(user.getYRot() * ((float) Math.PI / 180));
-            if (user.level instanceof ServerLevel)
+            if (user.World instanceof ServerLevel)
             {
-                ((ServerLevel) user.level).sendParticles(ParticleTypes.SWEEP_ATTACK,
+                ((ServerLevel) user.World).sendParticles(ParticleTypes.SWEEP_ATTACK,
                   user.getX() + d0,
                   user.getY(0.5D),
                   user.getZ() + d1,
@@ -251,7 +251,7 @@ public class KnightCombatAI extends AttackMoveAI<EntityCitizen>
                   0.0D);
             }
 
-            lastAoeUseTime = user.level.getGameTime();
+            lastAoeUseTime = user.World.getGameTime();
         }
     }
 
@@ -264,7 +264,7 @@ public class KnightCombatAI extends AttackMoveAI<EntityCitizen>
     {
         double addDmg = 0;
 
-        final ItemStack heldItem = user.getItemInHand(InteractionHand.MAIN_HAND);
+        final ItemStack heldItem = user.getItemInHand(0 /* InteractionHand.MAIN_HAND */);
 
         if (ItemStackUtils.doesItemServeAsWeapon(heldItem))
         {
@@ -290,7 +290,7 @@ public class KnightCombatAI extends AttackMoveAI<EntityCitizen>
         if (ColonyConstants.rand.nextDouble() > 1 / (1 + user.getCitizenColonyHandler().getColonyOrRegister().getResearchManager().getResearchEffects().getEffectStrength(GUARD_CRIT)))
         {
             addDmg *= 1.5;
-            ((ServerLevel) user.level).getChunkSource().broadcastAndSend(user, new ClientboundAnimatePacket(target, 4));
+            ((ServerLevel) user.World).getChunkSource().broadcastAndSend(user, new ClientboundAnimatePacket(target, 4));
         }
 
         return addDmg * MineColonies.getConfig().getServer().guardDamageMultiplier.get();
@@ -311,7 +311,7 @@ public class KnightCombatAI extends AttackMoveAI<EntityCitizen>
     }
 
     @Override
-    protected PathResult moveInAttackPosition(final LivingEntity target)
+    protected PathResult moveInAttackPosition(final EntityLivingBase target)
     {
         EntityNavigationUtils.walkToPos(user, target.blockPosition(), (int) getAttackDistance(), false, getCombatMovementSpeed());
         return user.getNavigation().getPathResult();
@@ -332,19 +332,19 @@ public class KnightCombatAI extends AttackMoveAI<EntityCitizen>
     }
 
     @Override
-    protected boolean isAttackableTarget(final LivingEntity entity)
+    protected boolean isAttackableTarget(final EntityLivingBase entity)
     {
         return AbstractEntityAIGuard.isAttackableTarget(user, entity);
     }
 
     @Override
-    protected boolean isWithinPersecutionDistance(final LivingEntity target)
+    protected boolean isWithinPersecutionDistance(final EntityLivingBase target)
     {
         return parentAI.isWithinPersecutionDistance(target.blockPosition(), getAttackDistance());
     }
 
     @Override
-    protected boolean skipSearch(final LivingEntity entity)
+    protected boolean skipSearch(final EntityLivingBase entity)
     {
         // Found a sleeping guard nearby
         if (entity instanceof EntityCitizen)
@@ -362,7 +362,7 @@ public class KnightCombatAI extends AttackMoveAI<EntityCitizen>
     }
 
     @Override
-    protected void onTargetChange(final LivingEntity newTarget)
+    protected void onTargetChange(final EntityLivingBase newTarget)
     {
         super.onTargetChange(newTarget);
         CombatUtils.notifyGuardsOfTarget(user, target, PATROL_DEVIATION_RAID_POINT);
@@ -375,7 +375,7 @@ public class KnightCombatAI extends AttackMoveAI<EntityCitizen>
     }
 
     @Override
-    protected void onTargetDied(final LivingEntity entity)
+    protected void onTargetDied(final EntityLivingBase entity)
     {
         parentAI.incrementActionsDone();
         user.getCitizenExperienceHandler().addExperience(EXP_PER_MOB_DEATH);
@@ -387,3 +387,9 @@ public class KnightCombatAI extends AttackMoveAI<EntityCitizen>
         user.decreaseSaturationForContinuousAction();
     }
 }
+
+
+
+
+
+

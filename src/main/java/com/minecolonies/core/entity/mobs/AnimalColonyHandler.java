@@ -7,8 +7,8 @@ import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.managers.interfaces.IManagedAnimal;
 import com.minecolonies.api.util.Log;
 
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.world.entity.Entity;
+// [1.7.10] broken import removed
+import net.minecraft.entity.Entity;
 
 /**
  * Handles all colony orchestration for this managed animal.
@@ -69,7 +69,7 @@ public class AnimalColonyHandler implements IAnimalColonyHandler
             return;
         }
 
-        final IColony colony = IColonyManager.getInstance().getColonyByWorld(colonyId, animal.getEntity().level());
+        final IColony colony = IColonyManager.getInstance().getColonyByWorld(colonyId, animal.getEntity().World());
 
         if (colony == null)
         {
@@ -115,7 +115,7 @@ public class AnimalColonyHandler implements IAnimalColonyHandler
     {
         if (colonyId != this.colonyId)
         {
-            colony = IColonyManager.getInstance().getColonyByWorld(colonyId, animal.getEntity().level());
+            colony = IColonyManager.getInstance().getColonyByWorld(colonyId, animal.getEntity().World());
         }
 
         this.colonyId = colonyId;
@@ -139,7 +139,7 @@ public class AnimalColonyHandler implements IAnimalColonyHandler
                 animal.getEntity().discard();
                 return;
             }
-            colony = IColonyManager.getInstance().getColonyView(colonyId, animal.getEntity().level().dimension());
+            colony = IColonyManager.getInstance().getColonyView(colonyId, animal.getEntity().World().dimension());
 
             if (animal.getManagedAnimalId() == 0)
             {
@@ -156,7 +156,7 @@ public class AnimalColonyHandler implements IAnimalColonyHandler
      * @param data The data accessor which contains the updated data.
      */
     @Override
-    public void onSyncedDataUpdated(final EntityDataAccessor<?> data)
+    public void onSyncedDataUpdated(final Object /* EntityDataAccessor<?> */ data)
     {
         if (data.equals(animal.getAnimalIdAccessor()) || data.equals(animal.getColonyIdAccessor()))
         {
@@ -165,3 +165,7 @@ public class AnimalColonyHandler implements IAnimalColonyHandler
     }
 
 }
+
+
+
+

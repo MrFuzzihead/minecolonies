@@ -9,8 +9,8 @@ import com.minecolonies.api.entity.mobs.AbstractEntityMinecoloniesMonster;
 import com.minecolonies.api.entity.pathfinding.IPathJob;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.Tuple;
+// [1.7.10] int[] -> int x,y,z
+import com.minecolonies.api.util.Tuple;
 
 import static com.minecolonies.api.util.constant.Constants.TICKS_SECOND;
 
@@ -32,7 +32,7 @@ public class CampWalkAI implements IStateAI
     /**
      * Spawn center box cache.
      */
-    private Tuple<BlockPos, BlockPos> spawnCenterBoxCache = null;
+    private Tuple<int[], int[]> spawnCenterBoxCache = null;
 
     public CampWalkAI(final AbstractEntityMinecoloniesMonster raider, final ITickRateStateMachine<IState> stateMachine)
     {
@@ -41,13 +41,13 @@ public class CampWalkAI implements IStateAI
     }
 
     /**
-     * Walk camp mob randomly
+     * Walk camp EntityCreature randomly
      */
     private boolean walk()
     {
         if (spawnCenterBoxCache == null)
         {
-            final BlockPos startPos = entity.getSpawnPos() == null ? entity.blockPosition() : entity.getSpawnPos();
+            final int[] startPos = entity.getSpawnPos() == null ? entity.blockPosition() : entity.getSpawnPos();
             spawnCenterBoxCache = new Tuple<>(startPos.offset(-10, -5, -10), startPos.offset(10, 5, 10));
         }
 
@@ -55,3 +55,5 @@ public class CampWalkAI implements IStateAI
         return false;
     }
 }
+
+

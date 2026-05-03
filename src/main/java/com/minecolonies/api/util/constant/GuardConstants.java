@@ -1,6 +1,6 @@
 package com.minecolonies.api.util.constant;
 
-import net.minecraft.util.Tuple;
+import com.minecolonies.api.util.Tuple;
 
 /**
  * Constants used by the Guard AIs.
@@ -33,7 +33,7 @@ public final class GuardConstants
     public static final int Y_VISION = 3;
 
     /**
-     * Experience to add when a mob is killed
+     * Experience to add when a EntityCreature is killed
      */
     public static final int EXP_PER_MOB_DEATH = 15;
 
@@ -184,3 +184,4 @@ public final class GuardConstants
          */
     }
 }
+

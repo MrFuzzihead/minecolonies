@@ -27,16 +27,16 @@ import com.minecolonies.core.entity.ai.workers.util.BuildingStructureHandler;
 import com.minecolonies.core.entity.ai.workers.util.LayerBlueprintIterator;
 import com.minecolonies.core.entity.ai.workers.util.WorkerLoadOnlyStructureHandler;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
+import net.minecraft.util.IChatComponent;
+// [1.7.10] int /* InteractionHand */ removed
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.AirBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.FluidState;
+import net.minecraft.block.Block;
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] World.material removed
 import net.minecraftforge.common.ToolActions;
 import org.jetbrains.annotations.NotNull;
 
@@ -64,12 +64,12 @@ public class EntityAIQuarrier extends AbstractEntityAIStructureWithWorkOrder<Job
     private static final String RENDER_META_STONE = "stone";
 
     /**
-     * Return to chest after 2x building level stacks.
+     * Return to chest after 2x building World stacks.
      */
     private static final int MAX_BLOCKS_MINED = 128;
 
     /**
-     * The current Y-level we're calculating the needed resources of
+     * The current Y-World we're calculating the needed resources of
      */
     private int requestLayer;
 
@@ -101,14 +101,14 @@ public class EntityAIQuarrier extends AbstractEntityAIStructureWithWorkOrder<Job
         if (quarry == null)
         {
             walkToBuilding();
-            worker.getCitizenData().triggerInteraction(new StandardInteraction(Component.translatable(QUARRY_MINER_NO_QUARRY), ChatPriority.BLOCKING));
+            worker.getCitizenData().triggerInteraction(new StandardInteraction(String.translatable(QUARRY_MINER_NO_QUARRY), ChatPriority.BLOCKING));
             return IDLE;
         }
 
         if (quarry.getFirstModuleOccurance(QuarryModule.class).isFinished())
         {
             walkToBuilding();
-            worker.getCitizenData().triggerInteraction(new StandardInteraction(Component.translatable(QUARRY_MINER_FINISHED_QUARRY), ChatPriority.BLOCKING));
+            worker.getCitizenData().triggerInteraction(new StandardInteraction(String.translatable(QUARRY_MINER_FINISHED_QUARRY), ChatPriority.BLOCKING));
             return IDLE;
         }
 
@@ -151,7 +151,7 @@ public class EntityAIQuarrier extends AbstractEntityAIStructureWithWorkOrder<Job
     /**
      * Get the path of the quarry shaft blueprint.
      * <p>
-     * The shaft path is either based on an explicit shaft= tag on the building, or based on the actual schematic used.
+     * The shaft path is either based on an explicit shaft= NBTBase on the building, or based on the actual schematic used.
      * The directory can be explicitly specified, or it will default to the same as the building.
      *
      * @param quarry the quarry building.
@@ -171,17 +171,17 @@ public class EntityAIQuarrier extends AbstractEntityAIStructureWithWorkOrder<Job
                 path = path.replace(".blueprint", "shaft.blueprint");
             }
 
-            for (final String tag : tileEntity.getPositionedTags().getOrDefault(BlockPos.ZERO, Collections.emptyList()))
+            for (final String NBTBase : tileEntity.getPositionedTags().getOrDefault(new int[]{0,0,0}, Collections.emptyList()))
             {
-                if (tag.startsWith("shaft="))
+                if (NBTBase.startsWith("shaft="))
                 {
-                    if (tag.contains("/"))
+                    if (NBTBase.contains("/"))
                     {
-                        path = tag.substring(6);
+                        path = NBTBase.substring(6);
                     }
                     else
                     {
-                        path = path.substring(0, path.lastIndexOf('/') + 1) + tag.substring(6);
+                        path = path.substring(0, path.lastIndexOf('/') + 1) + NBTBase.substring(6);
                     }
                 }
                 break;
@@ -210,7 +210,7 @@ public class EntityAIQuarrier extends AbstractEntityAIStructureWithWorkOrder<Job
     @Override
     public void loadStructure(
         @NotNull final IBuilderWorkOrder workOrder,
-      final BlockPos position,
+      final int[] position,
       final boolean removal)
     {
         this.loadingBlueprint = true;
@@ -260,9 +260,9 @@ public class EntityAIQuarrier extends AbstractEntityAIStructureWithWorkOrder<Job
     {
         if (structurePlacer != null && structurePlacer.getA() != null)
         {
-            // Make sure the iterator is at the right Y-level
+            // Make sure the iterator is at the right Y-World
             final LayerBlueprintIterator layerBlueprintIterator = (LayerBlueprintIterator) structurePlacer.getA().getIterator();
-            final BlockPos progressPos = getProgressPos() == null ? null : getProgressPos().getA();
+            final int[] progressPos = getProgressPos() == null ? null : getProgressPos().getA();
             if (progressPos != null && !progressPos.equals(NULL_POS))
             {
                 layerBlueprintIterator.setLayer(progressPos.getY());
@@ -273,9 +273,9 @@ public class EntityAIQuarrier extends AbstractEntityAIStructureWithWorkOrder<Job
     }
 
     @Override
-    protected BlockPos getPosToWorkAt()
+    protected int[] getPosToWorkAt()
     {
-        final BlockPos progressPos = getProgressPos() == null ? NULL_POS : getProgressPos().getA();
+        final int[] progressPos = getProgressPos() == null ? NULL_POS : getProgressPos().getA();
         if (progressPos.equals(NULL_POS))
         {
             return null;
@@ -301,16 +301,16 @@ public class EntityAIQuarrier extends AbstractEntityAIStructureWithWorkOrder<Job
             building.setTotalStages(3);
             structurePlacer.getB().setStage(BUILD_SOLID);
         }
-        else if (structurePlacer.getB().getStage() == CLEAR && result.getBlockResult().getWorldPos().getY() <= worker.level.getMinBuildHeight())
+        else if (structurePlacer.getB().getStage() == CLEAR && result.getBlockResult().getWorldPos().getY() <= worker.World.getMinBuildHeight())
         {
-            // At bedrock level, so we're done
+            // At bedrock World, so we're done
             return false;
         }
         else
         {
             final int newLayer = switch (structurePlacer.getB().getStage())
                                    {
-                                       // The quarrier decorates the level above the one they just placed solid blocks at (to support rails and torches standing on those blocks)
+                                       // The quarrier decorates the World above the one they just placed solid blocks at (to support rails and torches standing on those blocks)
                                        case DECORATE -> currentLayer + 1;
                                        // After decorating, we need to go a layer lower again
                                        case CLEAR -> currentLayer - 1;
@@ -318,7 +318,7 @@ public class EntityAIQuarrier extends AbstractEntityAIStructureWithWorkOrder<Job
                                    };
             if (newLayer >= iterator.getSize().getY())
             {
-                // This can happen at the first level when getting to the decoration stage. In that case, skip the decoration step and go to the CLEAR step immediately
+                // This can happen at the first World when getting to the decoration stage. In that case, skip the decoration step and go to the CLEAR step immediately
                 super.goToNextStage(result);
                 building.nextStage();
                 iterator.setLayer(currentLayer);
@@ -332,7 +332,7 @@ public class EntityAIQuarrier extends AbstractEntityAIStructureWithWorkOrder<Job
     }
 
     @Override
-    protected boolean skipBuilding(final BlueprintPositionInfo info, final BlockPos pos, final IStructureHandler handler)
+    protected boolean skipBuilding(final BlueprintPositionInfo info, final int[] pos, final IStructureHandler handler)
     {
         final BlockState blockInfoState = info.getBlockInfo().getState();
         return !BlockUtils.isAnySolid(blockInfoState)
@@ -341,7 +341,7 @@ public class EntityAIQuarrier extends AbstractEntityAIStructureWithWorkOrder<Job
     }
 
     @Override
-    protected boolean skipClearing(final BlueprintPositionInfo info, final BlockPos pos, final IStructureHandler handler)
+    protected boolean skipClearing(final BlueprintPositionInfo info, final int[] pos, final IStructureHandler handler)
     {
         if (super.skipClearing(info, pos, handler))
         {
@@ -382,7 +382,7 @@ public class EntityAIQuarrier extends AbstractEntityAIStructureWithWorkOrder<Job
         }
         iterator.setLayer(requestLayer);
 
-        final BlockPos worldPos = structure.getProgressPosInWorld(requestProgress);
+        final int[] worldPos = structure.getProgressPosInWorld(requestProgress);
         final RequestStage currState = requestState;
         switch (currState)
         {
@@ -462,12 +462,12 @@ public class EntityAIQuarrier extends AbstractEntityAIStructureWithWorkOrder<Job
         boolean isCanceled = false;
         if (job.findQuarry() == null)
         {
-            worker.getCitizenData().triggerInteraction(new StandardInteraction(Component.translatable(QUARRY_MINER_NO_QUARRY), ChatPriority.BLOCKING));
+            worker.getCitizenData().triggerInteraction(new StandardInteraction(String.translatable(QUARRY_MINER_NO_QUARRY), ChatPriority.BLOCKING));
             isCanceled = true;
         }
         else if (job.findQuarry().getFirstModuleOccurance(QuarryModule.class).isFinished())
         {
-            worker.getCitizenData().triggerInteraction(new StandardInteraction(Component.translatable(QUARRY_MINER_FINISHED_QUARRY), ChatPriority.BLOCKING));
+            worker.getCitizenData().triggerInteraction(new StandardInteraction(String.translatable(QUARRY_MINER_FINISHED_QUARRY), ChatPriority.BLOCKING));
             isCanceled = true;
         }
         else if (building.getWorkOrder() != null && !building.getWorkOrder().getLocation().equals(job.findQuarry().getPosition().below(2)))
@@ -556,7 +556,7 @@ public class EntityAIQuarrier extends AbstractEntityAIStructureWithWorkOrder<Job
 
         for (final Direction direction : Direction.values())
         {
-            final BlockPos pos = blockToMine.relative(direction);
+            final int[] pos = blockToMine.relative(direction);
             final FluidState fluid = world.getFluidState(pos);
             if (!fluid.isEmpty())
             {
@@ -577,7 +577,7 @@ public class EntityAIQuarrier extends AbstractEntityAIStructureWithWorkOrder<Job
 
         if (!mineBlock(blockToMine, getCurrentWorkingPosition()))
         {
-            worker.swing(InteractionHand.MAIN_HAND);
+            worker.swing(0 /* InteractionHand.MAIN_HAND */);
             return getState();
         }
 
@@ -621,7 +621,7 @@ public class EntityAIQuarrier extends AbstractEntityAIStructureWithWorkOrder<Job
      * @param location the place to place the block at.
      * @param block    the block.
      */
-    private void setBlockFromInventory(@NotNull final BlockPos location, final Block block)
+    private void setBlockFromInventory(@NotNull final int[] location, final Block block)
     {
         worker.swing(worker.getUsedItemHand());
 
@@ -652,7 +652,7 @@ public class EntityAIQuarrier extends AbstractEntityAIStructureWithWorkOrder<Job
     }
 
     @Override
-    public boolean walkToConstructionSite(final BlockPos currentBlock)
+    public boolean walkToConstructionSite(final int[] currentBlock)
     {
         if (workFrom == null)
         {
@@ -683,13 +683,13 @@ public class EntityAIQuarrier extends AbstractEntityAIStructureWithWorkOrder<Job
     }
 
     @Override
-    public BlockState getSolidSubstitution(final BlockPos ignored)
+    public BlockState getSolidSubstitution(final int[] ignored)
     {
         return getMainFillBlock().defaultBlockState();
     }
 
     @Override
-    protected void triggerMinedBlock(@NotNull final BlockPos position, @NotNull final BlockState blockToMine)
+    protected void triggerMinedBlock(@NotNull final int[] position, @NotNull final BlockState blockToMine)
     {
         super.triggerMinedBlock(position, blockToMine);
         if (IColonyManager.getInstance().getCompatibilityManager().isOre(blockToMine))
@@ -699,3 +699,8 @@ public class EntityAIQuarrier extends AbstractEntityAIStructureWithWorkOrder<Job
         building.getColony().getStatisticsManager().increment(BLOCKS_MINED, building.getColony().getDay());
     }
 }
+
+
+
+
+

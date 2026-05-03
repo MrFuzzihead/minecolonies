@@ -3,15 +3,14 @@ package com.minecolonies.api.compatibility;
 import com.google.common.collect.ImmutableSet;
 import com.minecolonies.api.crafting.CompostRecipe;
 import com.minecolonies.api.crafting.ItemStorage;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.*;
-import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.block.Block;
+import net.minecraft.world.World;
+// [1.7.10] RecipeManager, ClientLevel, BlockState, CreativeModeTab, DyeColor → stubs/replacements
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,10 +27,8 @@ public interface ICompatibilityManager
 {
     /**
      * Method called to instantiate internal data.
-     *
-     * @param recipeManager The vanilla recipe manager.
      */
-    void discover(@NotNull final RecipeManager recipeManager, final Level level);
+    void discover(final World world);
 
     /**
      * Transfer server-discovered item lists to client, to avoid double-handling (and
@@ -39,18 +36,14 @@ public interface ICompatibilityManager
      *
      * @param buf serialization buffer
      */
-    void serialize(@NotNull final FriendlyByteBuf buf);
+    void serialize(@NotNull final PacketBuffer buf);
 
     /**
      * Receive and update lists based on incoming server discovery data.
      *
-     * Note: anything based purely on the registries and configs can be safely recalculated here.
-     *       But anything based on tags or recipes must be updated purely via the packet,
-     *       because this can be called before the client has the latest tags/recipes.
-     *
      * @param buf deserialization buffer
      */
-    void deserialize(@NotNull final FriendlyByteBuf buf, final ClientLevel level);
+    void deserialize(@NotNull final PacketBuffer buf, final World world);
 
     /**
      * Gets the sapling matching a leaf.
@@ -151,7 +144,7 @@ public interface ICompatibilityManager
      * @param block the block to check.
      * @return boolean if so.
      */
-    boolean isOre(final BlockState block);
+    boolean isOre(final Block block);
 
     /**
      * Test if an itemStack is an ore.
@@ -185,16 +178,16 @@ public interface ICompatibilityManager
     /**
      * Write colonies to NBT data for saving.
      *
-     * @param compound NBT-Tag.
+     * @param compound NBT-NBTBase.
      */
-    void write(@NotNull final CompoundTag compound);
+    void write(@NotNull final NBTTagCompound compound);
 
     /**
      * Read Colonies from saved NBT data.
      *
-     * @param compound NBT Tag.
+     * @param compound NBT NBTBase.
      */
-    void read(@NotNull final CompoundTag compound);
+    void read(@NotNull final NBTTagCompound compound);
 
     /**
      * Connect a certain block as leave to an ItemStack as sapling.
@@ -221,12 +214,6 @@ public interface ICompatibilityManager
     boolean isLuckyBlock(final Block block);
 
     /**
-     * Get the creative tab for a stack.
-     * @param checkItem the storage wrapper.
-     */
-    CreativeModeTab getCreativeTab(ItemStorage checkItem);
-
-    /**
      * Get the creative tab key as int associated.
      * @param checkItem the item to check.
      * @return the number or default.
@@ -238,11 +225,4 @@ public interface ICompatibilityManager
      * @return the number of saplings.
      */
     int getNumberOfSaplings();
-
-    /**
-     * Try to work out what dye needs to be used to produce the given color.
-     * @param stack the already-dyed stack.
-     * @return      the dye color required, or empty if there is no such dye.
-     */
-    Optional<DyeColor> getDyeColor(ItemStack stack);
 }

@@ -3,9 +3,9 @@ package com.minecolonies.api.research;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] registries removed
 
 /**
  * Registry entries for item cost types.
@@ -16,9 +16,9 @@ public class ModResearchCosts
     public static final ResourceLocation LIST_ITEM_COST_ID   = new ResourceLocation(Constants.MOD_ID, "item_list");
     public static final ResourceLocation TAG_ITEM_COST_ID    = new ResourceLocation(Constants.MOD_ID, "item_tag");
 
-    public static RegistryObject<ResearchCostEntry> simpleItemCost;
-    public static RegistryObject<ResearchCostEntry> listItemCost;
-    public static RegistryObject<ResearchCostEntry> tagItemCost;
+    public static ResearchCostEntry simpleItemCost;
+    public static ResearchCostEntry listItemCost;
+    public static ResearchCostEntry tagItemCost;
 
     private ModResearchCosts()
     {
@@ -31,7 +31,7 @@ public class ModResearchCosts
     @FunctionalInterface
     public interface ReadFromNBTFunction
     {
-        IResearchCost read(final CompoundTag compound);
+        IResearchCost read(final NBTTagCompound compound);
     }
 
     /**
@@ -88,7 +88,7 @@ public class ModResearchCosts
         /**
          * Read a research cost instance from NBT.
          */
-        public IResearchCost readFromNBT(final CompoundTag nbt)
+        public IResearchCost readFromNBT(final NBTTagCompound nbt)
         {
             return readFromNBT.read(nbt);
         }
@@ -102,3 +102,7 @@ public class ModResearchCosts
         }
     }
 }
+
+
+
+

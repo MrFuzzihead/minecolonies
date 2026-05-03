@@ -10,9 +10,9 @@ import com.minecolonies.core.util.TeleportHelper;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 
 import static com.minecolonies.api.util.constant.translation.CommandTranslationConstants.COMMAND_DISABLED_IN_CONFIG;
 import static com.minecolonies.core.commands.CommandArgumentNames.COLONYID_ARG;
@@ -40,7 +40,7 @@ public class CommandTeleport implements IMCColonyOfficerCommand
 
         final IColony colony = ColonyIdArgument.getColony(context, COLONYID_ARG);
 
-        final ServerPlayer player = (ServerPlayer) sender;
+        final EntityPlayerMP player = (EntityPlayerMP) sender;
         TeleportHelper.colonyTeleport(player, colony);
         return 1;
     }
@@ -61,3 +61,5 @@ public class CommandTeleport implements IMCColonyOfficerCommand
                  .then(IMCCommand.newArgument(COLONYID_ARG, ColonyIdArgument.id()).executes(this::checkPreConditionAndExecute));
     }
 }
+
+

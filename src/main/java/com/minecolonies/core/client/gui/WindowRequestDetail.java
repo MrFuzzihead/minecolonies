@@ -1,8 +1,27 @@
 package com.minecolonies.core.client.gui;
 
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
+import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
-import com.ldtteam.blockui.controls.*;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
+import com.ldtteam.blockui.controls.DropDownList;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
+import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.controls.TextField;
 import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
+import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.colony.requestsystem.request.IRequest;
@@ -12,12 +31,12 @@ import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.modules.RequestTreeWindowModule;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.EnumChatFormatting;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +46,7 @@ import static com.minecolonies.api.util.constant.WindowConstants.*;
 import static com.minecolonies.core.colony.requestsystem.requests.AbstractRequest.MISSING;
 
 /**
- * BOWindow for the request detail.
+ * Object (BOWindow: todo ModularUI2 removed) for the request detail.
  */
 public class WindowRequestDetail extends AbstractWindowSkeleton implements ButtonHandler
 {
@@ -91,7 +110,7 @@ public class WindowRequestDetail extends AbstractWindowSkeleton implements Butto
      * @param colonyId                the colony id.
      * @param requestTreeWindowModule the request tree module.
      */
-    public WindowRequestDetail(@Nullable final BOWindow parent, final IRequest<?> request, final int colonyId, final RequestTreeWindowModule requestTreeWindowModule)
+    public WindowRequestDetail(@Nullable final Object /* BOWindow: todo ModularUI2 */ parent, final IRequest<?> request, final int colonyId, final RequestTreeWindowModule requestTreeWindowModule)
     {
         super(parent, WINDOW_ID);
         this.request = request;
@@ -117,7 +136,7 @@ public class WindowRequestDetail extends AbstractWindowSkeleton implements Butto
         else
         {
             findPaneOfTypeByID("detailIcon", ItemIcon.class).setVisible(false);
-            findPaneOfTypeByID(REQUEST_SHORT_DETAIL, Text.class).setText(Component.literal(request.getLongDisplayString().getString().replace("§f", ""))
+            findPaneOfTypeByID(REQUEST_SHORT_DETAIL, Text.class).setText(String.literal(request.getLongDisplayString().getString().replace("§f", ""))
                 .withStyle(ChatFormatting.BLACK));
         }
 
@@ -125,7 +144,7 @@ public class WindowRequestDetail extends AbstractWindowSkeleton implements Butto
 
         final ItemIcon exampleStackDisplay = findPaneOfTypeByID(LIST_ELEMENT_ID_REQUEST_STACK, ItemIcon.class);
         final List<ItemStack> displayStacks = request.getDisplayStacks();
-        final IColonyView colony = IColonyManager.getInstance().getColonyView(colonyId, Minecraft.getInstance().level.dimension());
+        final IColonyView colony = IColonyManager.getInstance().getColonyView(colonyId, Minecraft.getInstance().World.dimension());
 
         if (!displayStacks.isEmpty())
         {
@@ -139,7 +158,7 @@ public class WindowRequestDetail extends AbstractWindowSkeleton implements Butto
         }
 
         findPaneOfTypeByID(REQUESTER, Text.class).setText(request.getRequester().getRequesterDisplayName(colony.getRequestManager(), request));
-        findPaneOfTypeByID(LIST_ELEMENT_ID_REQUEST_LOCATION, Text.class).setText(Component.literal(request.getRequester().getLocation().toString()));
+        findPaneOfTypeByID(LIST_ELEMENT_ID_REQUEST_LOCATION, Text.class).setText(String.literal(request.getRequester().getLocation().toString()));
 
         try
         {
@@ -150,7 +169,7 @@ public class WindowRequestDetail extends AbstractWindowSkeleton implements Butto
                 return;
             }
 
-            findPaneOfTypeByID(RESOLVER, Text.class).setText(Component.literal("Resolver: " + resolver.getRequesterDisplayName(colony.getRequestManager(), request).getString()));
+            findPaneOfTypeByID(RESOLVER, Text.class).setText(String.literal("Resolver: " + resolver.getRequesterDisplayName(colony.getRequestManager(), request).getString()));
         }
         catch (final IllegalArgumentException e)
         {
@@ -206,3 +225,7 @@ public class WindowRequestDetail extends AbstractWindowSkeleton implements Butto
         }
     }
 }
+
+
+
+

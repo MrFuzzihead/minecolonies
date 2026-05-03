@@ -4,10 +4,10 @@ import com.minecolonies.api.colony.buildings.modules.AbstractBuildingModule;
 import com.minecolonies.api.colony.buildings.modules.IPersistentModule;
 import com.minecolonies.api.colony.requestsystem.StandardFactoryController;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -27,9 +27,9 @@ public class WarehouseRequestQueueModule extends AbstractBuildingModule implemen
     private final List<IToken<?>> requestList = new ArrayList<>();
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
-        final ListTag requestTagList = compound.getList(TAG_REQUEST, Tag.TAG_COMPOUND);
+        final NBTTagList requestTagList = compound.getList(TAG_REQUEST, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < requestTagList.size(); ++i)
         {
             requestList.add(StandardFactoryController.getInstance().deserialize(requestTagList.getCompound(i)));
@@ -37,11 +37,11 @@ public class WarehouseRequestQueueModule extends AbstractBuildingModule implemen
     }
 
     @Override
-    public void serializeNBT(final CompoundTag compound)
+    public void serializeNBT(final NBTTagCompound compound)
     {
         if (!requestList.isEmpty())
         {
-            @NotNull final ListTag requestTagList = new ListTag();
+            @NotNull final NBTTagList requestTagList = new NBTTagList();
             for (@NotNull final IToken<?> token : requestList)
             {
                 requestTagList.add(StandardFactoryController.getInstance().serialize(token));
@@ -51,7 +51,7 @@ public class WarehouseRequestQueueModule extends AbstractBuildingModule implemen
     }
 
     @Override
-    public void serializeToView(final FriendlyByteBuf buf)
+    public void serializeToView(final PacketBuffer buf)
     {
         super.serializeToView(buf);
         buf.writeInt(requestList.size());
@@ -80,3 +80,7 @@ public class WarehouseRequestQueueModule extends AbstractBuildingModule implemen
         return requestList;
     }
 }
+
+
+
+

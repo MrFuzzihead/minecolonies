@@ -1,25 +1,21 @@
 package com.minecolonies.api.blocks;
 
 import com.minecolonies.api.blocks.types.RackType;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.init.Blocks;
 
-public abstract class AbstractBlockMinecoloniesRack<B extends AbstractBlockMinecoloniesRack<B>> extends AbstractBlockMinecolonies<B> implements EntityBlock
+// [1.7.10 BACKPORT] Removed EntityBlock, HorizontalDirectionalBlock, DirectionProperty, EnumProperty
+// Block state properties handled via metadata in 1.7.10
+
+public abstract class AbstractBlockMinecoloniesRack<B extends AbstractBlockMinecoloniesRack<B>> extends AbstractBlockMinecolonies<B>
 {
-    public static final EnumProperty<RackType> VARIANT = EnumProperty.create("variant", RackType.class);
+    // [1.7.10] RackType variant stored via metadata
+    // [1.7.10] FACING stored via metadata bits
 
-    /**
-     * The position it faces.
-     */
-    public static final DirectionProperty      FACING       = HorizontalDirectionalBlock.FACING;
-
-    public AbstractBlockMinecoloniesRack(final Properties properties)
+    public AbstractBlockMinecoloniesRack(final Material material)
     {
-        super(properties.noOcclusion());
+        super(material);
     }
 
     /**
@@ -30,6 +26,6 @@ public abstract class AbstractBlockMinecoloniesRack<B extends AbstractBlockMinec
      */
     public static boolean shouldBlockBeReplacedWithRack(final Block block)
     {
-        return block == Blocks.CHEST || block instanceof AbstractBlockMinecoloniesRack;
+        return block == Blocks.chest || block instanceof AbstractBlockMinecoloniesRack;
     }
 }

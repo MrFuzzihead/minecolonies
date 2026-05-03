@@ -17,13 +17,13 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.block.Block;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
@@ -90,9 +90,9 @@ public class CropRecipeCategory implements IRecipeCategory<CropRecipeCategory.Cr
 
     @NotNull
     @Override
-    public Component getTitle()
+    public String getTitle()
     {
-        return Component.translatable(PARTIAL_JEI_INFO + "crops");
+        return String.translatable(PARTIAL_JEI_INFO + "crops");
     }
 
     @Override
@@ -112,7 +112,7 @@ public class CropRecipeCategory implements IRecipeCategory<CropRecipeCategory.Cr
         builder.addSlot(RecipeIngredientRole.INPUT, 0, 0)
                 .setSlotName("block")
                 .setBackground(this.slot, -1, -1)
-                .addItemStack(recipe.source().getCloneItemStack(Minecraft.getInstance().level, BlockPos.ZERO, recipe.source().defaultBlockState()));
+                .addItemStack(recipe.source().getCloneItemStack(Minecraft.getInstance().World, new int[]{0,0,0}, recipe.source().defaultBlockState()));
 
         final List<LootTableAnalyzer.LootDrop> drops = CustomRecipeManager.getInstance().getLootDrops(recipe.source().getLootTable());
         final int initialColumns = (WIDTH - 36) / this.slot.getWidth();
@@ -146,3 +146,7 @@ public class CropRecipeCategory implements IRecipeCategory<CropRecipeCategory.Cr
     {
     }
 }
+
+
+
+

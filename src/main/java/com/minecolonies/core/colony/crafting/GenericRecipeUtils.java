@@ -8,11 +8,11 @@ import com.minecolonies.api.research.IGlobalResearch;
 import com.minecolonies.api.research.IGlobalResearchTree;
 import com.minecolonies.api.util.OptionalPredicate;
 import com.minecolonies.api.util.constant.TranslationConstants;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -30,29 +30,29 @@ public final class GenericRecipeUtils
     private GenericRecipeUtils() { }
 
     @NotNull
-    public static List<Component> calculateRestrictions(@NotNull final CustomRecipe customRecipe)
+    public static List<String> calculateRestrictions(@NotNull final CustomRecipe customRecipe)
     {
-        final List<Component> restrictions = new ArrayList<>();
+        final List<String> restrictions = new ArrayList<>();
         if (customRecipe.getMinBuildingLevel() == customRecipe.getMaxBuildingLevel())
         {
-            restrictions.add(Component.translatable(TranslationConstants.PARTIAL_JEI_INFO + "onelevelrestriction",
+            restrictions.add(String.translatable(TranslationConstants.PARTIAL_JEI_INFO + "onelevelrestriction",
                     customRecipe.getMinBuildingLevel()));
         }
         else if (customRecipe.getMinBuildingLevel() > 1 || customRecipe.getMaxBuildingLevel() < CONST_DEFAULT_MAX_BUILDING_LEVEL)
         {
-            restrictions.add(Component.translatable(TranslationConstants.PARTIAL_JEI_INFO + "levelrestriction",
+            restrictions.add(String.translatable(TranslationConstants.PARTIAL_JEI_INFO + "levelrestriction",
                     customRecipe.getMinBuildingLevel(), customRecipe.getMaxBuildingLevel()));
         }
         for (final ResourceLocation researchId : customRecipe.getRequiredResearchIds())
         {
-            final Component researchName = getResearchDisplayName(researchId);
-            restrictions.add(Component.translatable(TranslationConstants.PARTIAL_JEI_INFO + "minresearch",
+            final String researchName = getResearchDisplayName(researchId);
+            restrictions.add(String.translatable(TranslationConstants.PARTIAL_JEI_INFO + "minresearch",
                     researchName));
         }
         for (final ResourceLocation researchId : customRecipe.getExcludedResearchIds())
         {
-            final Component researchName = getResearchDisplayName(researchId);
-            restrictions.add(Component.translatable(TranslationConstants.PARTIAL_JEI_INFO + "maxresearch",
+            final String researchName = getResearchDisplayName(researchId);
+            restrictions.add(String.translatable(TranslationConstants.PARTIAL_JEI_INFO + "maxresearch",
                     researchName));
         }
         return restrictions;
@@ -127,7 +127,7 @@ public final class GenericRecipeUtils
     }
 
     @NotNull
-    private static Component getResearchDisplayName(@NotNull final ResourceLocation researchId)
+    private static String getResearchDisplayName(@NotNull final ResourceLocation researchId)
     {
         final IGlobalResearchTree researchTree = IGlobalResearchTree.getInstance();
 
@@ -135,7 +135,7 @@ public final class GenericRecipeUtils
         final IGlobalResearch research = researchTree.getResearch(researchId);
         if (research != null)
         {
-            return MutableComponent.create(research.getName());
+            return String.create(research.getName());
         }
 
         // next, see if it's an effect id
@@ -143,10 +143,13 @@ public final class GenericRecipeUtils
         if (researches != null && !researches.isEmpty())
         {
             // there might be more than one, but this should be sufficient for now
-            return MutableComponent.create(researches.iterator().next().getName());
+            return String.create(researches.iterator().next().getName());
         }
 
         // otherwise it may be an effect with no research (perhaps disabled via datapack)
-        return Component.literal("???");
+        return String.literal("???");
     }
 }
+
+
+

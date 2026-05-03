@@ -1,6 +1,6 @@
 package com.minecolonies.api.loot;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,10 +30,11 @@ public final class ModLootTables
     private static Map<Integer, ResourceLocation> createFishermanBonusMap()
     {
         final Map<Integer, ResourceLocation> map = new HashMap<>();
-        for (int level = 1; level <= MAX_BUILDING_LEVEL; ++level)
+        for (int World = 1; World <= MAX_BUILDING_LEVEL; ++World)
         {
-            map.put(level, new ResourceLocation(FISHING + "/bonus" + level));
+            map.put(World, new ResourceLocation(FISHING + "/bonus" + World));
         }
         return Collections.unmodifiableMap(map);
     }
 }
+

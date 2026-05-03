@@ -1,27 +1,26 @@
 package com.minecolonies.api.advancements;
 
-import com.minecolonies.api.advancements.all_towers.AllTowersTrigger;
-import com.minecolonies.api.advancements.army_population.ArmyPopulationTrigger;
-import com.minecolonies.api.advancements.building_add_recipe.BuildingAddRecipeTrigger;
-import com.minecolonies.api.advancements.citizen_bury.CitizenBuryTrigger;
-import com.minecolonies.api.advancements.citizen_eat_food.CitizenEatFoodTrigger;
-import com.minecolonies.api.advancements.citizen_resurrect.CitizenResurrectTrigger;
-import com.minecolonies.api.advancements.click_gui_button.ClickGuiButtonTrigger;
-import com.minecolonies.api.advancements.colony_population.ColonyPopulationTrigger;
-import com.minecolonies.api.advancements.complete_build_request.CompleteBuildRequestTrigger;
-import com.minecolonies.api.advancements.create_build_request.CreateBuildRequestTrigger;
-import com.minecolonies.api.advancements.deep_mine.DeepMineTrigger;
-import com.minecolonies.api.advancements.max_fields.MaxFieldsTrigger;
-import com.minecolonies.api.advancements.open_gui_window.OpenGuiWindowTrigger;
-import com.minecolonies.api.advancements.place_structure.PlaceStructureTrigger;
-import com.minecolonies.api.advancements.place_supply.PlaceSupplyTrigger;
-import com.minecolonies.api.advancements.undertaker_totem.UndertakerTotemTrigger;
-import net.minecraft.advancements.CriteriaTriggers;
+import com.minecolonies.api.advancements.all_towers.*;
+import com.minecolonies.api.advancements.army_population.*;
+import com.minecolonies.api.advancements.building_add_recipe.*;
+import com.minecolonies.api.advancements.citizen_bury.*;
+import com.minecolonies.api.advancements.citizen_eat_food.*;
+import com.minecolonies.api.advancements.citizen_resurrect.*;
+import com.minecolonies.api.advancements.click_gui_button.*;
+import com.minecolonies.api.advancements.colony_population.*;
+import com.minecolonies.api.advancements.complete_build_request.*;
+import com.minecolonies.api.advancements.create_build_request.*;
+import com.minecolonies.api.advancements.deep_mine.*;
+import com.minecolonies.api.advancements.max_fields.*;
+import com.minecolonies.api.advancements.open_gui_window.*;
+import com.minecolonies.api.advancements.place_structure.*;
+import com.minecolonies.api.advancements.place_supply.*;
+import com.minecolonies.api.advancements.undertaker_totem.*;
 
-/**
- * The collection of advancement triggers for minecolonies.
- * Each trigger may correspond to multiple advancements.
- */
+// [1.7.10 BACKPORT] Advancements do not exist in Minecraft 1.7.10.
+// This class is stubbed out. All trigger instances are no-op stubs;
+// preInit() is a no-op (CriteriaTriggers.register() does not exist in 1.7.10).
+//
 public class AdvancementTriggers
 {
     public static final PlaceSupplyTrigger          PLACE_SUPPLY           = new PlaceSupplyTrigger();
@@ -42,25 +41,11 @@ public class AdvancementTriggers
     public static final UndertakerTotemTrigger      UNDERTAKER_TOTEM       = new UndertakerTotemTrigger();
 
     /**
-     * Registers all the triggers so they can be referenced in the advancement JSON
+     * No-op in 1.7.10 — CriteriaTriggers.register() does not exist.
      */
     public static void preInit()
     {
-        CriteriaTriggers.register(PLACE_SUPPLY);
-        CriteriaTriggers.register(PLACE_STRUCTURE);
-        CriteriaTriggers.register(CREATE_BUILD_REQUEST);
-        CriteriaTriggers.register(OPEN_GUI_WINDOW);
-        CriteriaTriggers.register(CLICK_GUI_BUTTON);
-        CriteriaTriggers.register(CITIZEN_EAT_FOOD);
-        CriteriaTriggers.register(BUILDING_ADD_RECIPE);
-        CriteriaTriggers.register(COMPLETE_BUILD_REQUEST);
-        CriteriaTriggers.register(COLONY_POPULATION);
-        CriteriaTriggers.register(ARMY_POPULATION);
-        CriteriaTriggers.register(MAX_FIELDS);
-        CriteriaTriggers.register(DEEP_MINE);
-        CriteriaTriggers.register(ALL_TOWERS);
-        CriteriaTriggers.register(CITIZEN_BURY);
-        CriteriaTriggers.register(CITIZEN_RESURRECT);
-        CriteriaTriggers.register(UNDERTAKER_TOTEM);
+        // [1.7.10 BACKPORT] In 1.21 this called CriteriaTriggers.register() for each trigger.
+        // Nothing to do here; advancements are not supported in 1.7.10.
     }
 }

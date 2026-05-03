@@ -1,5 +1,6 @@
 package com.minecolonies.api.sounds;
 
+// [1.7.10] sounds removed
 import net.minecraft.sounds.SoundEvent;
 
 /**
@@ -17,3 +18,4 @@ public class RaidSounds
     public static final SoundEvent DESERT_RAID         = ModSoundEvents.getSoundID("raid.desert.desert_raid");
     public static final SoundEvent AMAZON_RAID         = ModSoundEvents.getSoundID("raid.amazon.amazon_raid");
 }
+

@@ -1,9 +1,9 @@
 package com.minecolonies.api.quests;
 
 import com.minecolonies.api.colony.IColony;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayer;
 
 import java.util.List;
 
@@ -35,11 +35,11 @@ public interface IQuestTemplate
      * Unlock the quest rewards.
      *
      * @param colony          the colony.
-     * @param player          the player.
+     * @param EntityPlayer          the EntityPlayer.
      * @param colonyQuest     the quest.
      * @param unlockedRewards the applicable rewards.
      */
-    void unlockQuestRewards(IColony colony, Player player, final IQuestInstance colonyQuest, final List<Integer> unlockedRewards);
+    void unlockQuestRewards(IColony colony, EntityPlayer EntityPlayer, final IQuestInstance colonyQuest, final List<Integer> unlockedRewards);
 
     /**
      * Get the objective at a given index.
@@ -58,7 +58,7 @@ public interface IQuestTemplate
      * The name of the quest.
      * @return the name of the quest.
      */
-    Component getName();
+    String getName();
 
     /**
      * Get the list of parent quests.
@@ -66,3 +66,7 @@ public interface IQuestTemplate
      */
     List<ResourceLocation> getParents();
 }
+
+
+
+

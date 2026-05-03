@@ -4,12 +4,12 @@ import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.constant.NbtTagConstants;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
 import net.minecraft.world.level.block.WoolCarpetBlock;
 
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +32,7 @@ public class BuildingSchool extends AbstractBuilding
     private static final String SCHOOL = "school";
 
     /**
-     * Max building level of the hut.
+     * Max building World of the hut.
      */
     private static final int MAX_BUILDING_LEVEL = 5;
 
@@ -45,7 +45,7 @@ public class BuildingSchool extends AbstractBuilding
      * List of carpets to sit on.
      */
     @NotNull
-    private final List<BlockPos> carpet = new ArrayList<>();
+    private final List<int[]> carpet = new ArrayList<>();
 
     /**
      * Random obj for random calc.
@@ -58,7 +58,7 @@ public class BuildingSchool extends AbstractBuilding
      * @param c the colony.
      * @param l the location.
      */
-    public BuildingSchool(final IColony c, final BlockPos l)
+    public BuildingSchool(final IColony c, final int[] l)
     {
         super(c, l);
     }
@@ -77,7 +77,7 @@ public class BuildingSchool extends AbstractBuilding
     }
 
     @Override
-    public void registerBlockPosition(@NotNull final Block block, @NotNull final BlockPos pos, @NotNull final Level world)
+    public void registerBlockPosition(@NotNull final Block block, @NotNull final int[] pos, @NotNull final World world)
     {
         super.registerBlockPosition(block, pos, world);
         if (block instanceof WoolCarpetBlock)
@@ -87,14 +87,14 @@ public class BuildingSchool extends AbstractBuilding
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
-        final ListTag carpetTagList = compound.getList(TAG_CARPET, Tag.TAG_COMPOUND);
+        final NBTTagList carpetTagList = compound.getList(TAG_CARPET, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < carpetTagList.size(); ++i)
         {
-            final CompoundTag bedCompound = carpetTagList.getCompound(i);
-            final BlockPos pos = BlockPosUtil.read(bedCompound, TAG_POS);
+            final NBTTagCompound bedCompound = carpetTagList.getCompound(i);
+            final int[] pos = BlockPosUtil.read(bedCompound, TAG_POS);
             if (!carpet.contains(pos))
             {
                 carpet.add(pos);
@@ -103,15 +103,15 @@ public class BuildingSchool extends AbstractBuilding
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compound = super.serializeNBT();
+        final NBTTagCompound compound = super.serializeNBT();
         if (!carpet.isEmpty())
         {
-            @NotNull final ListTag carpetTagList = new ListTag();
-            for (@NotNull final BlockPos pos : carpet)
+            @NotNull final NBTTagList carpetTagList = new NBTTagList();
+            for (@NotNull final int[] pos : carpet)
             {
-                final CompoundTag carpetCompound = new CompoundTag();
+                final NBTTagCompound carpetCompound = new NBTTagCompound();
                 BlockPosUtil.write(carpetCompound, NbtTagConstants.TAG_POS, pos);
                 carpetTagList.add(carpetCompound);
             }
@@ -127,13 +127,13 @@ public class BuildingSchool extends AbstractBuilding
      * @return the place to sit.
      */
     @Nullable
-    public BlockPos getRandomPlaceToSit()
+    public int[] getRandomPlaceToSit()
     {
         if (carpet.isEmpty())
         {
             return null;
         }
-        final BlockPos returnPos = carpet.get(random.nextInt(carpet.size()));
+        final int[] returnPos = carpet.get(random.nextInt(carpet.size()));
         if (colony.getWorld().getBlockState(returnPos).getBlock() instanceof WoolCarpetBlock)
         {
             return returnPos;
@@ -142,3 +142,7 @@ public class BuildingSchool extends AbstractBuilding
         return null;
     }
 }
+
+
+
+

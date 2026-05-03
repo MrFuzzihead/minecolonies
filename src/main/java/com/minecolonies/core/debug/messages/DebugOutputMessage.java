@@ -2,10 +2,9 @@ package com.minecolonies.core.debug.messages;
 
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.core.debug.gui.DebugWindowCitizen;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.util.IChatComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,7 +16,7 @@ public class DebugOutputMessage implements IMessage
     /**
      * The debug information to be displayed in the output
      */
-    private Component debugInfo;
+    private String debugInfo;
 
     /**
      * Whether to clear the output first
@@ -29,21 +28,21 @@ public class DebugOutputMessage implements IMessage
         super();
     }
 
-    public DebugOutputMessage(final Component message, final boolean clear)
+    public DebugOutputMessage(final String message, final boolean clear)
     {
         this.debugInfo = message;
         this.clear = clear;
     }
 
     @Override
-    public void fromBytes(@NotNull final FriendlyByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
         debugInfo = buf.readComponent();
         clear = buf.readBoolean();
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
         buf.writeComponent(debugInfo);
         buf.writeBoolean(clear);
@@ -51,21 +50,23 @@ public class DebugOutputMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.CLIENT;
+        return Boolean.FALSE;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
         if (clear)
         {
-            DebugWindowCitizen.outputMessage = Component.literal("").append(debugInfo);
+            DebugWindowCitizen.outputMessage = String.literal("").append(debugInfo);
         }
         else
         {
-            DebugWindowCitizen.outputMessage.append(Component.literal("\n")).append(debugInfo);
+            DebugWindowCitizen.outputMessage.append(String.literal("\n")).append(debugInfo);
         }
     }
 }
+
+

@@ -1,13 +1,32 @@
 package com.minecolonies.core.client.gui;
 
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
 import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
 import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
+import com.ldtteam.blockui.controls.DropDownList;
+import com.ldtteam.blockui.controls.Image;
 import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.controls.TextField;
+import com.ldtteam.blockui.views.BOWindow;
 import com.ldtteam.blockui.views.Box;
 import com.ldtteam.blockui.views.ScrollingList;
-import com.ldtteam.blockui.views.ScrollingListContainer;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.ldtteam.structurize.client.gui.util.InputFilters;
 import com.minecolonies.api.colony.buildings.modules.IBuildingModuleView;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
@@ -20,13 +39,13 @@ import com.minecolonies.core.client.gui.modules.TabsWindowModule;
 import com.minecolonies.core.colony.buildings.workerbuildings.PostBox;
 import com.minecolonies.core.network.messages.server.colony.OpenInventoryMessage;
 import com.minecolonies.core.network.messages.server.colony.building.postbox.PostBoxRequestMessage;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvents;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] sounds removed
 import net.minecraft.world.item.EnchantedBookItem;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,7 +55,7 @@ import static com.minecolonies.api.util.constant.WindowConstants.*;
 import static com.minecolonies.api.util.constant.translation.GuiTranslationConstants.LABEL_MAIN_TAB_NAME;
 
 /**
- * BOWindow for the request PostBox GUI.
+ * Object (BOWindow: todo ModularUI2 removed) for the request PostBox GUI.
  */
 public class WindowPostBoxMain extends AbstractWindowSkeleton
 {
@@ -191,12 +210,12 @@ public class WindowPostBoxMain extends AbstractWindowSkeleton
     {
         if (button.getTextAsString().equals(RED_X))
         {
-            button.setText(Component.literal(APPROVE));
+            button.setText(String.literal(APPROVE));
             this.deliverAvailable = true;
         }
         else
         {
-            button.setText(Component.literal(RED_X));
+            button.setText(String.literal(RED_X));
             this.deliverAvailable = false;
         }
     }
@@ -214,7 +233,7 @@ public class WindowPostBoxMain extends AbstractWindowSkeleton
         tabsWindowModule.renderTabButton(nextTabIndex++,
             TabsWindowModule.TabImageSide.LEFT,
             new ResourceLocation(Constants.MOD_ID, "textures/gui/modules/main.png"),
-            Component.translatable(LABEL_MAIN_TAB_NAME),
+            String.translatable(LABEL_MAIN_TAB_NAME),
             button -> buildingView.getWindow().open());
 
         final List<IBuildingModuleView> allModuleViews = buildingView.getAllModuleViews();
@@ -228,7 +247,7 @@ public class WindowPostBoxMain extends AbstractWindowSkeleton
             tabsWindowModule.renderTabButton(nextTabIndex++,
                 TabsWindowModule.TabImageSide.LEFT,
                 view.getIconResourceLocation(),
-                Optional.ofNullable(view.getDesc()).map(Component::copy).orElse(null),
+                Optional.ofNullable(view.getDesc()).map(String::copy).orElse(null),
                 button -> {
                     Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.BOOK_PAGE_TURN, 1.0F));
                     view.getWindow().open();
@@ -240,7 +259,7 @@ public class WindowPostBoxMain extends AbstractWindowSkeleton
     public void onOpened()
     {
         super.onOpened();
-        findPaneOfTypeByID(TAG_BUTTON_DELIVER_AVAILABLE, Button.class).setText(Component.literal(RED_X));
+        findPaneOfTypeByID(TAG_BUTTON_DELIVER_AVAILABLE, Button.class).setText(String.literal(RED_X));
         updateResources();
     }
 
@@ -304,3 +323,7 @@ public class WindowPostBoxMain extends AbstractWindowSkeleton
         }
     }
 }
+
+
+
+

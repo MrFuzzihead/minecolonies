@@ -5,9 +5,9 @@ import com.minecolonies.api.colony.buildingextensions.IBuildingExtension;
 import com.minecolonies.api.colony.buildingextensions.registry.BuildingExtensionRegistries;
 import com.minecolonies.core.colony.buildingextensions.FarmField;
 import com.minecolonies.core.network.messages.server.AbstractColonyServerMessage;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 
 import java.util.Optional;
 
@@ -19,7 +19,7 @@ public class FarmFieldRegistrationMessage extends AbstractColonyServerMessage
     /**
      * The field position.
      */
-    private BlockPos position;
+    private int[] position;
 
     /**
      * Forge default constructor
@@ -32,16 +32,16 @@ public class FarmFieldRegistrationMessage extends AbstractColonyServerMessage
     /**
      * @param position the field position.
      */
-    public FarmFieldRegistrationMessage(IColony colony, BlockPos position)
+    public FarmFieldRegistrationMessage(IColony colony, int[] position)
     {
         super(colony);
         this.position = position;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony)
     {
-        if (!isLogicalServer || ctxIn.getSender() == null)
+        if (!isLogicalServer || ctx.getServerHandler().playerEntity == null)
         {
             return;
         }
@@ -53,19 +53,21 @@ public class FarmFieldRegistrationMessage extends AbstractColonyServerMessage
 
         if (field.isEmpty())
         {
-            colony.getServerBuildingManager().addBuildingExtension(FarmField.create(position, ctxIn.getSender().level));
+            colony.getServerBuildingManager().addBuildingExtension(FarmField.create(position, ctx.getServerHandler().playerEntity.World));
         }
     }
 
     @Override
-    public void toBytesOverride(final FriendlyByteBuf buf)
+    public void toBytesOverride(final PacketBuffer buf)
     {
         buf.writeBlockPos(position);
     }
 
     @Override
-    public void fromBytesOverride(final FriendlyByteBuf buf)
+    public void fromBytesOverride(final PacketBuffer buf)
     {
         position = buf.readBlockPos();
     }
 }
+
+

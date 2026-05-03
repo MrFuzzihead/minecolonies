@@ -20,18 +20,18 @@ import com.minecolonies.core.MineColonies;
 import com.minecolonies.core.colony.interactionhandling.ServerCitizenInteraction;
 import com.minecolonies.core.entity.citizen.citizenhandlers.CitizenHappinessHandler;
 import com.minecolonies.core.entity.citizen.citizenhandlers.CitizenSkillHandler;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] int /* InteractionHand */ removed
+import net.minecraft.entity.Entity;
+// [1.7.10] world.entity removed
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -97,7 +97,7 @@ public class CitizenDataView implements ICitizenDataView
     /**
      * The position of the guard.
      */
-    private BlockPos position;
+    private int[] position;
 
     /**
      * Job identifier.
@@ -108,16 +108,16 @@ public class CitizenDataView implements ICitizenDataView
      * Working and home position.
      */
     @Nullable
-    private BlockPos homeBuilding;
+    private int[] homeBuilding;
     @Nullable
-    private BlockPos workBuilding;
+    private int[] workBuilding;
 
     private InventoryCitizen inventory;
 
     /**
      * The citizen chat options on the server side.
      */
-    private final Map<Component, IInteractionResponseHandler> citizenChatOptions = new LinkedHashMap<>();
+    private final Map<String, IInteractionResponseHandler> citizenChatOptions = new LinkedHashMap<>();
 
     /**
      * List of primary interactions (sorted by priority).
@@ -142,7 +142,7 @@ public class CitizenDataView implements ICitizenDataView
     /**
      * The current location of interest.
      */
-    @Nullable private BlockPos statusPosition;
+    @Nullable private int[] statusPosition;
 
     /**
      * Parents of the citizen.
@@ -255,33 +255,33 @@ public class CitizenDataView implements ICitizenDataView
     }
 
     @Override
-    public MutableComponent getJobComponent()
+    public String getJobComponent()
     {
-        return job.isEmpty() ? Component.translatable(COM_MINECOLONIES_COREMOD_GUI_TOWNHALL_CITIZEN_UNEMPLOYED) : Component.translatable(job);
+        return job.isEmpty() ? String.translatable(COM_MINECOLONIES_COREMOD_GUI_TOWNHALL_CITIZEN_UNEMPLOYED) : String.translatable(job);
     }
 
     @Override
     @Nullable
-    public BlockPos getHomeBuilding()
+    public int[] getHomeBuilding()
     {
         return homeBuilding;
     }
 
     @Override
     @Nullable
-    public BlockPos getWorkBuilding()
+    public int[] getWorkBuilding()
     {
         return workBuilding;
     }
 
     @Override
-    public void setHomeBuilding(final BlockPos homeBuilding)
+    public void setHomeBuilding(final int[] homeBuilding)
     {
         this.homeBuilding = homeBuilding;
     }
 
     @Override
-    public void setWorkBuilding(@Nullable final BlockPos bp)
+    public void setWorkBuilding(@Nullable final int[] bp)
     {
         this.workBuilding = bp;
     }
@@ -309,9 +309,9 @@ public class CitizenDataView implements ICitizenDataView
     {
         final Entity entity = colonyView.getWorld().getEntity(entityId);
 
-        if (entity instanceof LivingEntity)
+        if (entity instanceof EntityLivingBase)
         {
-            return ((LivingEntity) entity).getHealth();
+            return ((EntityLivingBase) entity).getHealth();
         }
 
         return CitizenData.MAX_HEALTH;
@@ -322,22 +322,22 @@ public class CitizenDataView implements ICitizenDataView
     {
         final Entity entity = colonyView.getWorld().getEntity(entityId);
 
-        if (entity instanceof LivingEntity)
+        if (entity instanceof EntityLivingBase)
         {
-            return ((LivingEntity) entity).getMaxHealth();
+            return ((EntityLivingBase) entity).getMaxHealth();
         }
 
         return CitizenData.MAX_HEALTH;
     }
 
     @Override
-    public BlockPos getPosition()
+    public int[] getPosition()
     {
         return position;
     }
 
     @Override
-    public void deserialize(@NotNull final FriendlyByteBuf buf)
+    public void deserialize(@NotNull final PacketBuffer buf)
     {
         name = buf.readUtf(32767);
         female = buf.readBoolean();
@@ -357,11 +357,11 @@ public class CitizenDataView implements ICitizenDataView
 
         colonyId = buf.readInt();
 
-        final CompoundTag compound = buf.readNbt();
+        final NBTTagCompound compound = buf.readNbt();
         inventory = new InventoryCitizen(this.name, true);
         this.inventory.read(compound);
-        this.inventory.setHeldItem(InteractionHand.MAIN_HAND, compound.getInt(TAG_HELD_ITEM_SLOT));
-        this.inventory.setHeldItem(InteractionHand.OFF_HAND, compound.getInt(TAG_OFFHAND_HELD_ITEM_SLOT));
+        this.inventory.setHeldItem(0 /* InteractionHand.MAIN_HAND */, compound.getInt(TAG_HELD_ITEM_SLOT));
+        this.inventory.setHeldItem(1 /* InteractionHand.OFF_HAND */, compound.getInt(TAG_OFFHAND_HELD_ITEM_SLOT));
 
         position = buf.readBlockPos();
 
@@ -369,7 +369,7 @@ public class CitizenDataView implements ICitizenDataView
         final int size = buf.readInt();
         for (int i = 0; i < size; i++)
         {
-            final CompoundTag compoundNBT = buf.readNbt();
+            final NBTTagCompound compoundNBT = buf.readNbt();
             final ServerCitizenInteraction handler =
               (ServerCitizenInteraction) MinecoloniesAPIProxy.getInstance().getInteractionResponseHandlerDataManager().createFrom(this, compoundNBT);
             citizenChatOptions.put(handler.getInquiry(), handler);
@@ -386,7 +386,7 @@ public class CitizenDataView implements ICitizenDataView
 
         if (buf.readBoolean())
         {
-            final IColonyView colonyView = IColonyManager.getInstance().getColonyView(colonyId, Minecraft.getInstance().level.dimension());
+            final IColonyView colonyView = IColonyManager.getInstance().getColonyView(colonyId, Minecraft.getInstance().World.dimension());
             jobView = IJobDataManager.getInstance().createViewFrom(colonyView, this, buf);
         }
         else
@@ -456,9 +456,9 @@ public class CitizenDataView implements ICitizenDataView
 
     @Override
     @Nullable
-    public IInteractionResponseHandler getSpecificInteraction(@NotNull final Component component)
+    public IInteractionResponseHandler getSpecificInteraction(@NotNull final String String)
     {
-        return citizenChatOptions.getOrDefault(component, null);
+        return citizenChatOptions.getOrDefault(String, null);
     }
 
     @Override
@@ -570,7 +570,7 @@ public class CitizenDataView implements ICitizenDataView
     }
 
     @Override
-    public @Nullable BlockPos getStatusPosition()
+    public @Nullable int[] getStatusPosition()
     {
         return statusPosition;
     }
@@ -643,7 +643,7 @@ public class CitizenDataView implements ICitizenDataView
     }
 
     @Override
-    public ItemStack getDisplayArmor(final EquipmentSlot equipmentSlot)
+    public ItemStack getDisplayArmor(final int slot /* EquipmentSlot */)
     {
         if (cachedDisplaySantaHat == null)
         {
@@ -657,8 +657,9 @@ public class CitizenDataView implements ICitizenDataView
             }
         }
 
-        final ItemStack currentHat = getInventory().getArmorInSlot(equipmentSlot);
-        if (currentHat.isEmpty() && cachedDisplaySantaHat != null && cachedDisplaySantaHat != ItemStack.EMPTY && equipmentSlot == EquipmentSlot.HEAD)
+        final ItemStack currentHat = getInventory().getArmorInSlot(slot);
+        // [1.7.10] slot 3 == helmet slot; show santa hat if helmet slot is empty in December
+        if (currentHat.isEmpty() && cachedDisplaySantaHat != null && cachedDisplaySantaHat != ItemStack.EMPTY && slot == 3 /* HELMET */)
         {
             return cachedDisplaySantaHat;
         }
@@ -672,3 +673,10 @@ public class CitizenDataView implements ICitizenDataView
         return this.isSick;
     }
 }
+
+
+
+
+
+
+

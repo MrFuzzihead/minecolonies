@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.requestsystem.management.manager.wrapped;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.requestsystem.data.IDataStoreManager;
@@ -14,9 +20,9 @@ import com.minecolonies.api.colony.requestsystem.resolver.player.IPlayerRequestR
 import com.minecolonies.api.colony.requestsystem.resolver.retrying.IRetryingRequestResolver;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.core.colony.requestsystem.management.IStandardRequestManager;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -216,25 +222,25 @@ public abstract class AbstractWrappedRequestManager implements IRequestManager
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
         return wrappedManager.serializeNBT();
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag nbt)
+    public void deserializeNBT(final NBTTagCompound nbt)
     {
         wrappedManager.deserializeNBT(nbt);
     }
 
     @Override
-    public void serialize(IFactoryController controller, FriendlyByteBuf buffer)
+    public void serialize(IFactoryController controller, PacketBuffer buffer)
     {
         wrappedManager.serialize(controller, buffer);
     }
 
     @Override
-    public void deserialize(IFactoryController controller, FriendlyByteBuf buffer)
+    public void deserialize(IFactoryController controller, PacketBuffer buffer)
     {
         wrappedManager.deserialize(controller, buffer);
     }
@@ -288,3 +294,6 @@ public abstract class AbstractWrappedRequestManager implements IRequestManager
         wrappedManager.log(message);
     }
 }
+
+
+

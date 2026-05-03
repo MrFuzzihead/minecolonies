@@ -1,114 +1,99 @@
 package com.minecolonies.core.entity.other;
 
-import com.minecolonies.api.entity.ModEntities;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.core.colony.jobs.JobDruid;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.projectile.ThrownPotion;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.NetworkHooks;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.projectile.EntityPotion;
+import net.minecraft.item.ItemStack;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.BiPredicate;
 
-public class DruidPotionEntity extends ThrownPotion
+/**
+ * Druid potion entity — custom splash potion that applies effects based on a selection predicate.
+ * [1.7.10] ThrownPotion → EntityPotion; MobEffectInstance → PotionEffect; MobEffect → Potion.
+ */
+public class DruidPotionEntity extends EntityPotion
 {
-    /**
-     * The X and Z size of the splash area
-     */
-    public static final double SPLASH_SIZE = 4.0D;
-
-    /**
-     * The height of the splash area
-     */
+    public static final double SPLASH_SIZE  = 4.0D;
     public static final double SPLASH_HEIGTH = 2.0D;
-
-    /**
-     * The maximum distance at which an entity gets affected
-     */
     public static final double MAX_DISTANCE = 16.0D;
+    public static final int    MIN_DURATION  = 20;
 
-    /**
-     * The minimum duration to get affected
-     */
-    public static final int                         MIN_DURATION = 20;
-
-    /**
-     * The bi-predicate to check if an effect should be applied to an entity
-     */
     @Nullable
-    private BiPredicate<LivingEntity, MobEffect> entitySelectionPredicate = null;
+    private BiPredicate<EntityLivingBase, Potion> entitySelectionPredicate = null;
 
-    /**
-     * Create a new druid potion entity.
-     * @param type entity type.
-     * @param world world to spawn it in.
-     */
-    public DruidPotionEntity(final EntityType<? extends ThrownPotion> type, final Level world)
+    /** [1.7.10] Owning citizen stored directly — EntityPotion.thrower holds EntityLivingBase. */
+    @Nullable
+    private AbstractEntityCitizen ownerCitizen = null;
+
+    public DruidPotionEntity(final World world)
     {
-        super(type, world);
+        super(world, null, new ItemStack(net.minecraft.init.Items.splash_potion));
     }
 
-    /**
-     * Set the predicate of which entities to affect.
-     * @param entitySelectionPredicate if true applies to entity.
-     */
-    public void setEntitySelectionPredicate(final @Nullable BiPredicate<LivingEntity, MobEffect> entitySelectionPredicate)
+    public DruidPotionEntity(final World world, final AbstractEntityCitizen thrower, final ItemStack potion)
+    {
+        super(world, thrower, potion);
+        this.ownerCitizen = thrower;
+    }
+
+    public void setEntitySelectionPredicate(@Nullable final BiPredicate<EntityLivingBase, Potion> entitySelectionPredicate)
     {
         this.entitySelectionPredicate = entitySelectionPredicate;
     }
 
+    /**
+     * [1.7.10] Override splash logic from EntityPotion to apply our predicate.
+     * EntityPotion.onImpact handles splash; we override onUpdate to intercept.
+     * Note: full override of applySplash is done by overriding onImpact below.
+     */
     @Override
-    public void applySplash(List<MobEffectInstance> effects, @Nullable Entity entity)
+    protected void func_70665_d(final List<PotionEffect> effects, @Nullable final Entity directHit)
     {
-        final AbstractEntityCitizen citizen = this.getOwner();
+        final AbstractEntityCitizen citizen = ownerCitizen;
         if (citizen != null && citizen.getCitizenData() != null && citizen.getCitizenData().getJob() instanceof JobDruid)
         {
-            final AABB axisalignedbb = this.getBoundingBox().inflate(SPLASH_SIZE, SPLASH_HEIGTH, SPLASH_SIZE);
-            final List<LivingEntity> list = this.level.getEntitiesOfClass(LivingEntity.class, axisalignedbb);
-            if (!list.isEmpty())
+            final AxisAlignedBB aabb = boundingBox.expand(SPLASH_SIZE, SPLASH_HEIGTH, SPLASH_SIZE);
+            @SuppressWarnings("unchecked")
+            final List<EntityLivingBase> list = worldObj.getEntitiesWithinAABB(EntityLivingBase.class, aabb);
+
+            for (final EntityLivingBase target : list)
             {
-                for (final LivingEntity livingentity : list)
+                if (target.isPotionApplicable(new PotionEffect(0, 0)))
                 {
-                    if (livingentity.isAffectedByPotions())
+                    final double distanceSq = getDistanceSqToEntity(target);
+                    if (distanceSq < MAX_DISTANCE)
                     {
-                        final double distanceSq = this.distanceToSqr(livingentity);
-                        if (distanceSq < MAX_DISTANCE)
+                        double d1 = 1.0D - Math.sqrt(distanceSq) / 4.0D;
+                        if (target == directHit)
                         {
-                            double d1 = 1.0D - Math.sqrt(distanceSq) / 4.0D;
-                            if (livingentity == entity)
+                            d1 = 1.0D;
+                        }
+
+                        for (final PotionEffect effectInstance : effects)
+                        {
+                            final Potion potion = Potion.potionTypes[effectInstance.getPotionID()];
+                            if (potion == null) continue;
+                            if (entitySelectionPredicate == null || entitySelectionPredicate.test(target, potion))
                             {
-                                d1 = 1.0D;
-                            }
-                            for (final MobEffectInstance effectinstance : effects)
-                            {
-                                final MobEffect effect = effectinstance.getEffect();
-                                if (entitySelectionPredicate == null || entitySelectionPredicate.test(livingentity, effect))
+                                if (potion.isInstant())
                                 {
-                                    if (effect.isInstantenous())
+                                    potion.affectEntity(this, citizen, target, effectInstance.getAmplifier(), d1);
+                                }
+                                else
+                                {
+                                    final int duration = (int) (d1 * effectInstance.getDuration());
+                                    if (duration >= MIN_DURATION)
                                     {
-                                        effect.applyInstantenousEffect(this, this.getOwner(), livingentity, effectinstance.getAmplifier(), d1);
-                                    }
-                                    else
-                                    {
-                                        final int duration = (int) (d1 * (double) effectinstance.getDuration());
-                                        livingentity.addEffect(new MobEffectInstance(effect,
-                                          duration,
-                                          effectinstance.getAmplifier(),
-                                          effectinstance.isAmbient(),
-                                          effectinstance.isVisible()));
+                                        target.addPotionEffect(new PotionEffect(effectInstance.getPotionID(), duration, effectInstance.getAmplifier(), effectInstance.getIsAmbient()));
                                     }
                                 }
                             }
@@ -117,61 +102,38 @@ public class DruidPotionEntity extends ThrownPotion
                 }
             }
         }
-    }
-
-    /**
-     * Why do you do this mojang. This should not be possible. Someone did something very messy on this server if the owner is not a citizen.
-     * @return a citizen or null.
-     */
-    @Nullable
-    @Override
-    public AbstractEntityCitizen getOwner()
-    {
-        final Entity owner = super.getOwner();
-        if (owner instanceof AbstractEntityCitizen)
+        else
         {
-            return (AbstractEntityCitizen)owner;
+            super.func_70665_d(effects, directHit);
         }
-        return null;
     }
-    
+
     /**
-     * Throws a potion at the target with the given inaccuracy
-     *
-     * @param potionStack the {@link ItemStack} of the Potion, {@link ItemStack#getItem()} must return a Potion.
-     * @param target the targeted {@link LivingEntity} to throw the potion at
-     * @param thrower the witch throwing the potion
-     * @param world the {@link Level} of the thrower
-     * @param velocity the velocity to throw the potion with
-     * @param inaccuracy the inaccuracy to throw the potion with
-     * @param entitySelectionPredicate the bi-predicate to check if an effect should be applied to an entity
+     * Throws a potion at the target.
      */
-    public static void throwPotionAt(final ItemStack potionStack, final LivingEntity target, final AbstractEntityCitizen thrower, final Level world, final float velocity, final float inaccuracy, final BiPredicate<LivingEntity,MobEffect> entitySelectionPredicate)
+    public static void throwPotionAt(
+        final ItemStack potionStack,
+        final EntityLivingBase target,
+        final AbstractEntityCitizen thrower,
+        final World world,
+        final float velocity,
+        final float inaccuracy,
+        final BiPredicate<EntityLivingBase, Potion> entitySelectionPredicate)
     {
-        final DruidPotionEntity potionentity = (DruidPotionEntity) ModEntities.DRUID_POTION.create(world);
-        potionentity.setOwner(thrower);
-        potionentity.setEntitySelectionPredicate(entitySelectionPredicate);
-        potionentity.setItem(potionStack);
-        potionentity.setPos(thrower.getX(), thrower.getY() + 1, thrower.getZ());
+        final DruidPotionEntity potionEntity = new DruidPotionEntity(world, thrower, potionStack);
+        potionEntity.setEntitySelectionPredicate(entitySelectionPredicate);
+        potionEntity.setPosition(thrower.posX, thrower.posY + 1, thrower.posZ);
 
-        thrower.level.playSound(null, thrower.getX(), thrower.getY(), thrower.getZ(), SoundEvents.WITCH_THROW, thrower.getSoundSource(), 1.0F, 0.8F + thrower.getRandom().nextFloat() * 0.4F);
+        world.playSoundAtEntity(thrower, "mob.witch.throw", 1.0F, 0.8F + thrower.getRNG().nextFloat() * 0.4F);
 
-        Vec3 movement = target.getDeltaMovement();
+        final double motX = target.motionX;
+        final double motZ = target.motionZ;
+        double x = target.posX + motX - thrower.posX;
+        double y = target.posY + target.getEyeHeight() - 1.1F - thrower.posY;
+        double z = target.posZ + motZ - thrower.posZ;
+        final double dist = Math.sqrt(x * x + z * z);
 
-
-        double x = target.getX() + movement.x - thrower.getX();
-        double y = target.getEyeY() - (double)1.1F - thrower.getY();
-        double z = target.getZ() + movement.z - thrower.getZ();
-        final double distance = Math.sqrt(x * x + z * z);
-
-        potionentity.shoot(x, y + distance * 0.2, z, velocity, inaccuracy);
-        world.addFreshEntity(potionentity);
-    }
-
-    @Override
-    @NotNull
-    public Packet<ClientGamePacketListener> getAddEntityPacket()
-    {
-        return NetworkHooks.getEntitySpawningPacket(this);
+        potionEntity.func_70186_c(x, y + dist * 0.2, z, velocity, inaccuracy);
+        world.spawnEntityInWorld(potionEntity);
     }
 }

@@ -1,12 +1,12 @@
 package com.minecolonies.api.blocks.types;
 
 import com.minecolonies.api.blocks.AbstractBlockMinecoloniesGrave;
-import net.minecraft.util.StringRepresentable;
+// [1.7.10] StringRepresentable removed
 
 /**
  * Defines the types of Grave that the {@link AbstractBlockMinecoloniesGrave} supports.
  */
-public enum GraveType implements StringRepresentable
+public enum GraveType
 {
     DEFAULT(0, "blockgravedefault", "default"),
     DECAYED(1, "blockgravedecayed", "decayed");
@@ -61,10 +61,5 @@ public enum GraveType implements StringRepresentable
     {
         return this.unlocalizedName;
     }
-
-    @Override
-    public String getSerializedName()
-    {
-        return getName();
-    }
 }
+

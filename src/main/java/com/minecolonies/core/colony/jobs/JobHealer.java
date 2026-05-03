@@ -1,15 +1,15 @@
 package com.minecolonies.core.colony.jobs;
 
 import com.minecolonies.core.colony.buildings.modules.BuildingModules;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import com.minecolonies.api.client.render.modeltype.ModModelTypes;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.core.colony.buildings.modules.WorkerBuildingModule;
 import com.minecolonies.core.entity.ai.workers.service.EntityAIWorkHealer;
 import com.minecolonies.core.util.AttributeModifierUtils;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.CitizenConstants.SKILL_BONUS_ADD;
@@ -20,7 +20,7 @@ import static com.minecolonies.api.util.constant.CitizenConstants.SKILL_BONUS_AD
 public class JobHealer extends AbstractJob<EntityAIWorkHealer, JobHealer>
 {
     /**
-     * Walking speed bonus per level
+     * Walking speed bonus per World
      */
     public static final double BONUS_SPEED_PER_LEVEL = 0.003;
 
@@ -76,3 +76,6 @@ public class JobHealer extends AbstractJob<EntityAIWorkHealer, JobHealer>
         return 0;
     }
 }
+
+
+

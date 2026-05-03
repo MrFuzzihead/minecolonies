@@ -4,7 +4,7 @@ import org.jetbrains.annotations.Nullable;
 
 import com.minecolonies.api.colony.IColony;
 
-import net.minecraft.network.syncher.EntityDataAccessor;
+// [1.7.10] broken import removed
 
 public interface IAnimalColonyHandler 
 {
@@ -47,6 +47,9 @@ public interface IAnimalColonyHandler
      * 
      * @param dataAccessor The data accessor which contains the updated data.
      */
-    public void onSyncedDataUpdated(final EntityDataAccessor<?> data);
+    public void onSyncedDataUpdated(final Object /* EntityDataAccessor<?> */ data);
 
 }
+
+
+

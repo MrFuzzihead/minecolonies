@@ -1,19 +1,15 @@
 package com.minecolonies.api.util;
 
 import com.minecolonies.api.util.constant.ColonyConstants;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.BlockPos.MutableBlockPos;
-import net.minecraft.tags.FluidTags;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.FluidState;
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+import net.minecraft.world.IBlockAccess;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Utility class to search for fisher ponds.
+ * [1.7.10] Ported: removed MutableBlockPos/spiralAround/FluidTags/BlockState; uses simple int iteration and block checks.
  */
 public final class Pond
 {
@@ -37,39 +33,46 @@ public final class Pond
      * Checks if on position "water" really is water, if the water is connected to land and if the pond is big enough (bigger then 20).
      *
      * @param world The world the player is in.
-     * @param water The coordinate to check.
-     * @param problematicPosition Will contain position of problematic block (if not null && pond was not found).
-     * @return true if water.
+     * @param water The coordinate to check [x, y, z].
+     * @param problematicPosition Will contain position of problematic block (if not null && pond was not found) — unused in 1.7.10.
+     * @return the pond state.
      */
-    public static PondState checkPond(@NotNull final BlockGetter world, @NotNull final BlockPos water, @Nullable final MutableBlockPos problematicPosition)
+    public static PondState checkPond(@NotNull final IBlockAccess world, @NotNull final int[] water, @Nullable final int[] problematicPosition)
     {
         PondState worstPondState = PondState.VALID;
+        final int radius = (WATER_POOL_WIDTH_REQUIREMENT - 1) / 2;
 
-        for (final MutableBlockPos tempPos : BlockPos.spiralAround(water, (WATER_POOL_WIDTH_REQUIREMENT - 1) / 2, Direction.SOUTH, Direction.EAST))
+        for (int dx = -radius; dx <= radius; dx++)
         {
-            PondState pondState = PondState.VALID;
-
-            for (int y = 0; y < WATER_DEPTH_REQUIREMENT; y++)
+            for (int dz = -radius; dz <= radius; dz++)
             {
-                pondState = checkWaterForFishing(world, tempPos.setY(tempPos.getY() - y));
+                final int cx = water[0] + dx;
+                final int cz = water[2] + dz;
 
-                if (pondState == PondState.INVALID)
+                for (int y = 0; y < WATER_DEPTH_REQUIREMENT; y++)
                 {
-                    if (problematicPosition != null)
+                    final PondState pondState = checkWaterForFishing(world, new int[]{cx, water[1] - y, cz});
+
+                    if (pondState == PondState.INVALID)
                     {
-                        problematicPosition.set(tempPos);
+                        if (problematicPosition != null)
+                        {
+                            problematicPosition[0] = cx;
+                            problematicPosition[1] = water[1] - y;
+                            problematicPosition[2] = cz;
+                        }
+                        return PondState.INVALID;
                     }
-                    return PondState.INVALID;
-                }
-                else if (pondState == PondState.SUBOPTIMAL)
-                {
-                    worstPondState = PondState.SUBOPTIMAL;
-                }
+                    else if (pondState == PondState.SUBOPTIMAL)
+                    {
+                        worstPondState = PondState.SUBOPTIMAL;
+                    }
 
-                // 70% chance to check, to on avg prefer cleared areas
-                if (ColonyConstants.rand.nextInt(100) < 30)
-                {
-                    break;
+                    // 70% chance to check, to on avg prefer cleared areas
+                    if (ColonyConstants.rand.nextInt(100) < 30)
+                    {
+                        break;
+                    }
                 }
             }
         }
@@ -78,34 +81,26 @@ public final class Pond
     }
 
     /**
-     * Checks if the water is fine for fishing, see vanilla FishingHook checks
+     * Checks if the water is fine for fishing.
      *
-     * @param world
-     * @param pos
-     * @return
+     * @param world the block access
+     * @param pos   int[]{x, y, z}
+     * @return the pond state
      */
-    public static PondState checkWaterForFishing(final BlockGetter world, final BlockPos pos)
+    public static PondState checkWaterForFishing(final IBlockAccess world, final int[] pos)
     {
-        PondState pondState = PondState.INVALID;
+        final Block block = world.getBlock(pos[0], pos[1], pos[2]);
+        final int meta = world.getBlockMetadata(pos[0], pos[1], pos[2]);
 
-        final BlockState state = world.getBlockState(pos);
-        if (!state.isAir() && !state.is(Blocks.LILY_PAD))
+        if (block == Blocks.water)
         {
-            FluidState fluidstate = state.getFluidState();
-
-            if  (fluidstate.is(FluidTags.WATER) && state.getCollisionShape(world, pos).isEmpty()) 
-            {
-                if (fluidstate.isSource())
-                {
-                    pondState = PondState.VALID;
-                }
-                else
-                {
-                    pondState = PondState.SUBOPTIMAL;
-                }
-            };
+            // meta 0 = source block; meta > 0 = flowing
+            return (meta == 0) ? PondState.VALID : PondState.SUBOPTIMAL;
         }
-
-        return pondState;
+        if (block == Blocks.flowing_water)
+        {
+            return PondState.SUBOPTIMAL;
+        }
+        return PondState.INVALID;
     }
 }

@@ -6,8 +6,8 @@ import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.ItemListModule;
 import com.minecolonies.core.network.messages.server.AbstractBuildingServerMessage;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -55,7 +55,7 @@ public class AssignFilterableItemMessage extends AbstractBuildingServerMessage<A
     }
 
     @Override
-    public void fromBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void fromBytesOverride(@NotNull final PacketBuffer buf)
     {
 
         this.assign = buf.readBoolean();
@@ -64,7 +64,7 @@ public class AssignFilterableItemMessage extends AbstractBuildingServerMessage<A
     }
 
     @Override
-    public void toBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void toBytesOverride(@NotNull final PacketBuffer buf)
     {
 
         buf.writeBoolean(this.assign);
@@ -74,7 +74,7 @@ public class AssignFilterableItemMessage extends AbstractBuildingServerMessage<A
 
     @Override
     public void onExecute(
-      final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony, final AbstractBuilding building)
+      final MessageContext ctx, final boolean isLogicalServer, final IColony colony, final AbstractBuilding building)
     {
         if (building.getModule(id) instanceof ItemListModule module)
         {
@@ -89,4 +89,6 @@ public class AssignFilterableItemMessage extends AbstractBuildingServerMessage<A
         }
     }
 }
+
+
 

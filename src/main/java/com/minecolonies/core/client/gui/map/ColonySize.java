@@ -1,13 +1,33 @@
 package com.minecolonies.core.client.gui.map;
 
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
+import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
+import com.ldtteam.blockui.controls.DropDownList;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
+import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.controls.TextField;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
+import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.ldtteam.blockui.Loader;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.network.messages.client.colony.ColonyListMessage;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
 
 /**
  * Represents a colony by size, returns the used image corresponding for each size.
@@ -40,7 +60,7 @@ public enum ColonySize
         colonyPane.setSize(background.getWidth(), background.getHeight());
 
         final Text colonyName = colonyPane.findPaneOfTypeByID("textcontent", Text.class);
-        colonyName.setText(Component.literal(colony.getName()));
+        colonyName.setText(String.literal(colony.getName()));
 
         return colonyPane;
     }
@@ -57,3 +77,5 @@ public enum ColonySize
         return SMALL;
     }
 }
+
+

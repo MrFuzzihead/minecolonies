@@ -10,11 +10,11 @@ import com.minecolonies.api.util.OptionalPredicate;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.AbstractCraftingBuildingModule;
 import com.minecolonies.core.colony.buildings.modules.AbstractDOCraftingBuildingModule;
-import net.minecraft.core.BlockPos;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] tags removed
+// [1.7.10] tags removed
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -44,7 +44,7 @@ public class BuildingSawmill extends AbstractBuilding
      * @param c the colony.
      * @param l the location
      */
-    public BuildingSawmill(final IColony c, final BlockPos l)
+    public BuildingSawmill(final IColony c, final int[] l)
     {
         super(c, l);
     }
@@ -104,9 +104,9 @@ public class BuildingSawmill extends AbstractBuilding
                         amountOfValidBlocks += stack.getCount();
                         continue;
                     }
-                    for (final TagKey<Item> tag : stack.getTags().toList())
+                    for (final TagKey<Item> NBTBase : stack.getTags().toList())
                     {
-                        if (tag.location().getPath().contains("wood"))
+                        if (NBTBase.location().getPath().contains("wood"))
                         {
                             amountOfValidBlocks += stack.getCount();
                             break;
@@ -149,3 +149,6 @@ public class BuildingSawmill extends AbstractBuilding
         }
     }
 }
+
+
+

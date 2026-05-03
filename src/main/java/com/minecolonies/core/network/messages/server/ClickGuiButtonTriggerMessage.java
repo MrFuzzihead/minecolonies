@@ -2,11 +2,10 @@ package com.minecolonies.core.network.messages.server;
 
 import com.minecolonies.api.advancements.AdvancementTriggers;
 import com.minecolonies.api.network.IMessage;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import org.jetbrains.annotations.Nullable;
 
 public class ClickGuiButtonTriggerMessage implements IMessage
@@ -37,14 +36,14 @@ public class ClickGuiButtonTriggerMessage implements IMessage
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    public void toBytes(final PacketBuffer buf)
     {
         buf.writeResourceLocation(this.resource);
         buf.writeUtf(this.buttonId);
     }
 
     @Override
-    public void fromBytes(final FriendlyByteBuf buf)
+    public void fromBytes(final PacketBuffer buf)
     {
         this.resource = buf.readResourceLocation();
         this.buttonId = buf.readUtf(32767);
@@ -52,18 +51,21 @@ public class ClickGuiButtonTriggerMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.SERVER;
+        return Boolean.TRUE;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
-        final ServerPlayer player = ctxIn.getSender();
+        final EntityPlayerMP player = ctx.getServerHandler().playerEntity;
         if (player != null)
         {
             AdvancementTriggers.CLICK_GUI_BUTTON.trigger(player, this.buttonId, this.resource);
         }
     }
 }
+
+
+

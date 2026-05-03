@@ -7,8 +7,8 @@ import com.minecolonies.core.colony.eventhooks.buildingEvents.BuildingDeconstruc
 import com.minecolonies.core.colony.eventhooks.buildingEvents.BuildingRepairedEvent;
 import com.minecolonies.core.colony.eventhooks.buildingEvents.BuildingUpgradedEvent;
 import com.minecolonies.core.colony.eventhooks.citizenEvents.*;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.DeferredRegister;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] registries removed
 
 /**
  * Initializer for colony event types, register new event types here.
@@ -35,3 +35,5 @@ public final class ModColonyEventDescriptionTypeInitializer
         DEFERRED_REGISTER.register(BuildingDeconstructedEvent.BUILDING_DECONSTRUCTED_EVENT_ID.getPath(), () -> new ColonyEventDescriptionTypeRegistryEntry(BuildingDeconstructedEvent::loadFromNBT, BuildingDeconstructedEvent::loadFromFriendlyByteBuf, BuildingDeconstructedEvent.BUILDING_DECONSTRUCTED_EVENT_ID));
     }
 }
+
+

@@ -6,14 +6,14 @@ import com.ldtteam.structurize.util.BlockUtils;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.core.blocks.schematic.BlockWaypoint;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import com.minecolonies.api.util.Tuple;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraft.init.Blocks;
+// [1.7.10] block.entity removed
+// [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,17 +24,17 @@ import java.util.List;
 public class WayPointBlockPlacementHandler implements IPlacementHandler
 {
     @Override
-    public boolean canHandle(@NotNull final Level world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
+    public boolean canHandle(@NotNull final World world, @NotNull final int[] pos, @NotNull final BlockState blockState)
     {
         return blockState.getBlock() instanceof BlockWaypoint;
     }
 
     @Override
     public ActionProcessingResult handle(
-      @NotNull final Level world,
-      @NotNull final BlockPos pos,
+      @NotNull final World world,
+      @NotNull final int[] pos,
       @NotNull final BlockState blockState,
-      @Nullable final CompoundTag tileEntityData,
+      @Nullable final NBTTagCompound tileEntityData,
       @NotNull final IPlacementContext placementContext)
     {
         world.removeBlock(pos, false);
@@ -55,10 +55,10 @@ public class WayPointBlockPlacementHandler implements IPlacementHandler
 
     @Override
     public List<ItemStack> getRequiredItems(
-      @NotNull final Level world,
-      @NotNull final BlockPos pos,
+      @NotNull final World world,
+      @NotNull final int[] pos,
       @NotNull final BlockState blockState,
-      @Nullable final CompoundTag tileEntityData,
+      @Nullable final NBTTagCompound tileEntityData,
       @NotNull final IPlacementContext placementContext)
     {
         if (!placementContext.fancyPlacement())
@@ -72,9 +72,13 @@ public class WayPointBlockPlacementHandler implements IPlacementHandler
     public boolean doesWorldStateMatchBlueprintState(
         final BlockState worldState,
         final BlockState blueprintState,
-        final Tuple<BlockEntity, CompoundTag> blockEntityData,
+        final Tuple<BlockEntity, NBTTagCompound> blockEntityData,
         @NotNull final IPlacementContext placementContext)
     {
         return worldState.getBlock() == blueprintState.getBlock();
     }
 }
+
+
+
+

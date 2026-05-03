@@ -1,17 +1,8 @@
 package com.minecolonies.api.advancements.max_fields;
-
-import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.advancements.critereon.AbstractCriterionTriggerInstance;
-import net.minecraft.advancements.critereon.ContextAwarePredicate;
-import net.minecraft.resources.ResourceLocation;
-
-/**
- * All towers criterion instance.
- */
-public class MaxFieldsCriterionInstance extends AbstractCriterionTriggerInstance
+// [1.7.10 BACKPORT] Stubbed out — advancements do not exist in Minecraft 1.7.10.
+// Original 1.21 class extended AbstractCriterionTriggerInstance.
+/** Stub criterion instance — no-op in 1.7.10. */
+public class MaxFieldsCriterionInstance
 {
-    public MaxFieldsCriterionInstance()
-    {
-        super(new ResourceLocation(Constants.MOD_ID, Constants.CRITERION_MAX_FIELDS), ContextAwarePredicate.ANY);
-    }
+    public MaxFieldsCriterionInstance() { /* no-op */ }
 }

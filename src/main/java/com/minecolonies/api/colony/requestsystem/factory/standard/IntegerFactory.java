@@ -7,8 +7,8 @@ import com.minecolonies.api.colony.requestsystem.factory.IFactoryController;
 import com.minecolonies.api.util.constant.NbtTagConstants;
 import com.minecolonies.api.util.constant.SerializationIdentifierConstants;
 import com.minecolonies.api.util.constant.TypeConstants;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.NotNull;
 
 public class IntegerFactory implements IFactory<FactoryVoidInput, Integer>
@@ -37,9 +37,9 @@ public class IntegerFactory implements IFactory<FactoryVoidInput, Integer>
 
     @NotNull
     @Override
-    public CompoundTag serialize(@NotNull final IFactoryController controller, @NotNull final Integer integer)
+    public NBTTagCompound serialize(@NotNull final IFactoryController controller, @NotNull final Integer integer)
     {
-        CompoundTag compound = new CompoundTag();
+        NBTTagCompound compound = new NBTTagCompound();
 
         compound.putInt(NbtTagConstants.TAG_VALUE, integer);
 
@@ -48,19 +48,19 @@ public class IntegerFactory implements IFactory<FactoryVoidInput, Integer>
 
     @NotNull
     @Override
-    public Integer deserialize(@NotNull final IFactoryController controller, @NotNull final CompoundTag nbt)
+    public Integer deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound nbt)
     {
         return nbt.getInt(NbtTagConstants.TAG_VALUE);
     }
 
     @Override
-    public void serialize(IFactoryController controller, Integer input, FriendlyByteBuf packetBuffer)
+    public void serialize(IFactoryController controller, Integer input, PacketBuffer packetBuffer)
     {
         packetBuffer.writeInt(input);
     }
 
     @Override
-    public Integer deserialize(IFactoryController controller, FriendlyByteBuf buffer) throws Throwable
+    public Integer deserialize(IFactoryController controller, PacketBuffer buffer) throws Throwable
     {
         return buffer.readInt();
     }
@@ -71,3 +71,6 @@ public class IntegerFactory implements IFactory<FactoryVoidInput, Integer>
         return SerializationIdentifierConstants.INTEGER_FACTORY_ID;
     }
 }
+
+
+

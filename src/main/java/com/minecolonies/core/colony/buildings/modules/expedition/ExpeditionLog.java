@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.buildings.modules.expedition;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.google.common.base.Enums;
 import com.google.common.collect.ImmutableList;
@@ -6,14 +12,14 @@ import com.minecolonies.api.colony.requestsystem.StandardFactoryController;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.util.Tuple;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -62,7 +68,7 @@ public class ExpeditionLog
     private String name;
     private Map<StatType, Double> stats = new HashMap<>();
     private List<ItemStack> equipment = new ArrayList<>();
-    private Map<EntityType<?>, Integer> mobs = new HashMap<>();
+    private Map<Class<?>, Integer> mobs = new HashMap<>();
     private Map<ItemStorage, ItemStorage> loot = new HashMap<>();
 
     /**
@@ -185,19 +191,19 @@ public class ExpeditionLog
      * this expedition.
      * @return the list of mobs and counts, sorted highest-count-first
      */
-    public List<Tuple<EntityType<?>, Integer>> getMobs()
+    public List<Tuple<Class<?>, Integer>> getMobs()
     {
         return this.mobs.entrySet().stream()
-                .map(entry -> new Tuple<EntityType<?>, Integer>(entry.getKey(), entry.getValue()))
-                .sorted(Comparator.<Tuple<EntityType<?>, Integer>>comparingInt(Tuple::getB).reversed())
+                .map(entry -> new Tuple<Class<?>, Integer>(entry.getKey(), entry.getValue()))
+                .sorted(Comparator.<Tuple<Class<?>, Integer>>comparingInt(Tuple::getB).reversed())
                 .collect(ImmutableList.toImmutableList());
     }
 
     /**
-     * Adds a mob to the interaction list of this expedition.
-     * @param mobType the type of mob
+     * Adds a EntityCreature to the interaction list of this expedition.
+     * @param mobType the type of EntityCreature
      */
-    public void addMob(@NotNull final EntityType<?> mobType)
+    public void addMob(@NotNull final Class<?> mobType)
     {
         this.mobs.merge(mobType, 1, Integer::sum);
     }
@@ -234,37 +240,37 @@ public class ExpeditionLog
      * Save to NBT
      * @param compound target
      */
-    public void serializeNBT(@NotNull final CompoundTag compound)
+    public void serializeNBT(@NotNull final NBTTagCompound compound)
     {
         compound.putString(TAG_STATUS, this.status.name());
         compound.putInt(TAG_ID, this.id);
         compound.putString(TAG_NAME, this.name == null ? "" : this.name);
 
-        final CompoundTag stats = new CompoundTag();
+        final NBTTagCompound stats = new NBTTagCompound();
         for (final Map.Entry<StatType, Double> entry : this.stats.entrySet())
         {
             stats.putDouble(entry.getKey().name().toLowerCase(Locale.US), entry.getValue());
         }
         compound.put(TAG_STATS, stats);
 
-        final ListTag equipment = new ListTag();
+        final NBTTagList equipment = new NBTTagList();
         for (final ItemStack stack : this.equipment)
         {
             equipment.add(stack.serializeNBT());
         }
         compound.put(TAG_EQUIPMENT, equipment);
 
-        final ListTag mobs = new ListTag();
-        for (final Map.Entry<EntityType<?>, Integer> entry : this.mobs.entrySet())
+        final NBTTagList mobs = new NBTTagList();
+        for (final Map.Entry<Class<?>, Integer> entry : this.mobs.entrySet())
         {
-            final CompoundTag mob = new CompoundTag();
-            mob.putString(TAG_TYPE, ForgeRegistries.ENTITY_TYPES.getKey(entry.getKey()).toString());
-            mob.putInt(TAG_COUNT, entry.getValue());
-            mobs.add(mob);
+            final NBTTagCompound EntityCreature = new NBTTagCompound();
+            EntityCreature.putString(TAG_TYPE, ForgeRegistries.ENTITY_TYPES.getKey(entry.getKey()).toString());
+            EntityCreature.putInt(TAG_COUNT, entry.getValue());
+            mobs.add(EntityCreature);
         }
         compound.put(TAG_MOBS, mobs);
 
-        final ListTag loot = new ListTag();
+        final NBTTagList loot = new NBTTagList();
         for (final ItemStorage storage : this.loot.values())
         {
             loot.add(StandardFactoryController.getInstance().serialize(storage));
@@ -276,7 +282,7 @@ public class ExpeditionLog
      * Reload from NBT
      * @param compound source
      */
-    public void deserializeNBT(@NotNull final CompoundTag compound)
+    public void deserializeNBT(@NotNull final NBTTagCompound compound)
     {
         this.status = Enums.getIfPresent(Status.class, compound.getString(TAG_STATUS)).or(Status.NONE);
         this.id = compound.getInt(TAG_ID);
@@ -284,7 +290,7 @@ public class ExpeditionLog
         if (this.name.isEmpty()) this.name = null;
 
         this.stats.clear();
-        final CompoundTag stats = compound.getCompound(TAG_STATS);
+        final NBTTagCompound stats = compound.getCompound(TAG_STATS);
         for (final StatType stat : StatType.values())
         {
             final String key = stat.name().toLowerCase(Locale.US);
@@ -295,27 +301,27 @@ public class ExpeditionLog
         }
 
         this.equipment.clear();
-        final ListTag equipment = compound.getList(TAG_EQUIPMENT, Tag.TAG_COMPOUND);
+        final NBTTagList equipment = compound.getList(TAG_EQUIPMENT, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < equipment.size(); i++)
         {
             this.equipment.add(ItemStack.of(equipment.getCompound(i)));
         }
 
         this.mobs.clear();
-        final ListTag mobs = compound.getList(TAG_MOBS, Tag.TAG_COMPOUND);
+        final NBTTagList mobs = compound.getList(TAG_MOBS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < mobs.size(); ++i)
         {
-            final CompoundTag mob = mobs.getCompound(i);
-            final ResourceLocation type = new ResourceLocation(mob.getString(TAG_TYPE));
-            final EntityType<?> entityType = ForgeRegistries.ENTITY_TYPES.getValue(type);
+            final NBTTagCompound EntityCreature = mobs.getCompound(i);
+            final ResourceLocation type = new ResourceLocation(EntityCreature.getString(TAG_TYPE));
+            final Class<?> entityType = ForgeRegistries.ENTITY_TYPES.getValue(type);
             if (entityType != null)
             {
-                this.mobs.put(entityType, mob.getInt(TAG_COUNT));
+                this.mobs.put(entityType, EntityCreature.getInt(TAG_COUNT));
             }
         }
 
         this.loot.clear();
-        final ListTag loot = compound.getList(TAG_LOOT, Tag.TAG_COMPOUND);
+        final NBTTagList loot = compound.getList(TAG_LOOT, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < loot.size(); i++)
         {
             final ItemStorage storage = StandardFactoryController.getInstance().deserialize(loot.getCompound(i));
@@ -327,7 +333,7 @@ public class ExpeditionLog
      * Save to network
      * @param buf target
      */
-    public void serialize(@NotNull final FriendlyByteBuf buf)
+    public void serialize(@NotNull final PacketBuffer buf)
     {
         buf.writeVarInt(this.status.ordinal());
         buf.writeVarInt(this.id);
@@ -345,7 +351,7 @@ public class ExpeditionLog
         }
 
         buf.writeVarInt(this.mobs.size());
-        for (final Map.Entry<EntityType<?>, Integer> entry : this.mobs.entrySet())
+        for (final Map.Entry<Class<?>, Integer> entry : this.mobs.entrySet())
         {
             buf.writeRegistryIdUnsafe(ForgeRegistries.ENTITY_TYPES, entry.getKey());
             buf.writeVarInt(entry.getValue());
@@ -362,7 +368,7 @@ public class ExpeditionLog
      * Reload from network
      * @param buf source
      */
-    public void deserialize(@NotNull final FriendlyByteBuf buf)
+    public void deserialize(@NotNull final PacketBuffer buf)
     {
         this.status = Status.values()[buf.readVarInt()];
         this.id = buf.readVarInt();
@@ -384,7 +390,7 @@ public class ExpeditionLog
         this.mobs.clear();
         for (int size = buf.readVarInt(); size > 0; --size)
         {
-            final EntityType<?> entityType = buf.readRegistryIdUnsafe(ForgeRegistries.ENTITY_TYPES);
+            final Class<?> entityType = buf.readRegistryIdUnsafe(ForgeRegistries.ENTITY_TYPES);
             final int count = buf.readVarInt();
             if (entityType != null)
             {
@@ -400,3 +406,8 @@ public class ExpeditionLog
         }
     }
 }
+
+
+
+
+

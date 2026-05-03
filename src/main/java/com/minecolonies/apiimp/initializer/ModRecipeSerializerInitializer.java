@@ -4,22 +4,19 @@ import com.minecolonies.api.crafting.ZeroWasteRecipe;
 import com.minecolonies.api.crafting.CompostRecipe;
 import com.minecolonies.api.crafting.registry.ModRecipeSerializer;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
+// [1.7.10] RecipeSerializer/RecipeType from net.minecraft.world.item.crafting not available
+import net.minecraft.util.ResourceLocation;
 
 public final class ModRecipeSerializerInitializer
 {
-    public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZER = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, Constants.MOD_ID);
-    public static final DeferredRegister<RecipeType<?>>       RECIPE_TYPES      = DeferredRegister.create(Registries.RECIPE_TYPE, Constants.MOD_ID);
+    // [1.7.10] ForgeRegistries.RECIPE_SERIALIZERS / Registries.RECIPE_TYPE not available
+    public static final DeferredRegister<Object> RECIPE_SERIALIZER = DeferredRegister.create(new ResourceLocation(Constants.MOD_ID, "recipe_serializers"), Constants.MOD_ID);
+    public static final DeferredRegister<Object> RECIPE_TYPES      = DeferredRegister.create(new ResourceLocation(Constants.MOD_ID, "recipe_types"), Constants.MOD_ID);
 
     static
     {
         ModRecipeSerializer.CompostRecipeSerializer = RECIPE_SERIALIZER.register("composting", CompostRecipe.Serializer::new);
-        ModRecipeSerializer.CompostRecipeType = RECIPE_TYPES.register("composting", () -> RecipeType.simple(new ResourceLocation(Constants.MOD_ID, "composting")));
+        ModRecipeSerializer.CompostRecipeType = RECIPE_TYPES.register("composting", () -> null /* [1.7.10] RecipeType.simple not available */);
 
         ModRecipeSerializer.ZeroWasteRecipeSerializer = RECIPE_SERIALIZER.register("zero_waste", ZeroWasteRecipe.Serializer::new);
     }

@@ -6,13 +6,13 @@ import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.items.ModItems;
 import com.minecolonies.api.research.util.ResearchConstants;
 import com.minecolonies.core.generation.CustomRecipeProvider;
-import net.minecraft.data.PackOutput;
-import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] data removed
+// [1.7.10] data removed
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.init.Blocks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -262,3 +262,6 @@ public class DefaultBakerCraftingProvider extends CustomRecipeProvider
           .build(consumer);
     }
 }
+
+
+

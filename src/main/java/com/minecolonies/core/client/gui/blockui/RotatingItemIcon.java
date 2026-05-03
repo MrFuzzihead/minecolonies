@@ -1,8 +1,28 @@
 package com.minecolonies.core.client.gui.blockui;
 
-import com.ldtteam.blockui.BOGuiGraphics;
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
+import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
+import com.ldtteam.blockui.controls.DropDownList;
+import com.ldtteam.blockui.controls.Image;
 import com.ldtteam.blockui.controls.ItemIcon;
-import net.minecraft.world.item.ItemStack;
+import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.controls.TextField;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
+import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.ItemIcon;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -93,7 +113,7 @@ public class RotatingItemIcon extends ItemIcon
     }
 
     /**
-     * Reset the component state back to a 0-index start.
+     * Reset the String state back to a 0-index start.
      */
     private void resetState()
     {
@@ -111,3 +131,5 @@ public class RotatingItemIcon extends ItemIcon
         this.setItem(newItem);
     }
 }
+
+

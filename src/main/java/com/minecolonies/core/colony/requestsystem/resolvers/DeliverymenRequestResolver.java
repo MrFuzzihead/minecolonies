@@ -15,8 +15,8 @@ import com.minecolonies.core.colony.buildings.modules.BuildingModules;
 import com.minecolonies.core.colony.buildings.modules.WarehouseRequestQueueModule;
 import com.minecolonies.core.colony.jobs.JobDeliveryman;
 import com.minecolonies.core.colony.requestsystem.resolvers.core.AbstractRequestResolver;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Component;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.IChatComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -169,10 +169,10 @@ public abstract class DeliverymenRequestResolver<R extends IRequestable> extends
 
     @NotNull
     @Override
-    public MutableComponent getRequesterDisplayName(
+    public String getRequesterDisplayName(
       @NotNull final IRequestManager manager, @NotNull final IRequest<?> request)
     {
-        return Component.translatable(TranslationConstants.COM_MINECOLONIES_COREMOD_JOB_DELIVERYMAN);
+        return String.translatable(TranslationConstants.COM_MINECOLONIES_COREMOD_JOB_DELIVERYMAN);
     }
 
     @Override
@@ -182,3 +182,6 @@ public abstract class DeliverymenRequestResolver<R extends IRequestable> extends
         return true;
     }
 }
+
+
+

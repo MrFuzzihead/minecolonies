@@ -1,21 +1,27 @@
 package com.minecolonies.core.colony.buildings.workerbuildings.plantation.modules.specific;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
+import net.minecraft.world.level.chunk.LevelChunk;
 
 import com.minecolonies.api.colony.buildingextensions.IBuildingExtension;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.core.colony.buildings.workerbuildings.plantation.modules.generic.BoneMealedPlantModule;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.item.BoneMealItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Fluids;
+import net.minecraft.init.Blocks;
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] World.material removed
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.List;
@@ -37,8 +43,8 @@ public class SeagrassPlantModule extends BoneMealedPlantModule
      * Default constructor.
      *
      * @param field    the field instance this module is working on.
-     * @param fieldTag the tag of the field anchor block.
-     * @param workTag  the tag of the working positions.
+     * @param fieldTag the NBTBase of the field anchor block.
+     * @param workTag  the NBTBase of the working positions.
      * @param item     the item which is harvested.
      */
     public SeagrassPlantModule(final IBuildingExtension field, final String fieldTag, final String workTag, final Item item)
@@ -53,10 +59,10 @@ public class SeagrassPlantModule extends BoneMealedPlantModule
     }
 
     @Override
-    public void applyBonemeal(final AbstractEntityCitizen worker, final BlockPos workPosition, final ItemStack stackInSlot, final Player fakePlayer)
+    public void applyBonemeal(final AbstractEntityCitizen worker, final int[] workPosition, final ItemStack stackInSlot, final Player fakePlayer)
     {
-        BoneMealItem.growWaterPlant(stackInSlot, worker.level(), workPosition.above(), Direction.UP);
-        BoneMealItem.addGrowthParticles(worker.level(), workPosition.above(), 1);
+        BoneMealItem.growWaterPlant(stackInSlot, worker.World(), workPosition.above(), Direction.UP);
+        BoneMealItem.addGrowthParticles(worker.World(), workPosition.above(), 1);
     }
 
     @Override
@@ -85,3 +91,6 @@ public class SeagrassPlantModule extends BoneMealedPlantModule
         return List.of(Items.BONE_MEAL);
     }
 }
+
+
+

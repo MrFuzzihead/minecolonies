@@ -4,9 +4,9 @@ import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.core.entity.pathfinding.MNode;
 import com.minecolonies.core.entity.pathfinding.SurfaceType;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.level.Level;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] world.entity removed
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -17,7 +17,7 @@ public class PathJobMoveTowards extends AbstractPathJob implements IDestinationP
     /**
      * Position to run to, in order to
      */
-    protected final BlockPos target;
+    protected final int[] target;
     /**
      * Required avoidDistance.
      */
@@ -34,11 +34,11 @@ public class PathJobMoveTowards extends AbstractPathJob implements IDestinationP
      * @param entity      the entity.
      */
     public PathJobMoveTowards(
-      final Level world,
-      @NotNull final BlockPos start,
-      @NotNull final BlockPos direction,
+      final World world,
+      @NotNull final int[] start,
+      @NotNull final int[] direction,
       final int minDistance,
-      final Mob entity)
+      final EntityCreature entity)
     {
         super(world, start, minDistance * 2, new PathResult<PathJobMoveTowards>(), entity);
 
@@ -72,8 +72,11 @@ public class PathJobMoveTowards extends AbstractPathJob implements IDestinationP
     }
 
     @Override
-    public BlockPos getDestination()
+    public int[] getDestination()
     {
         return target;
     }
 }
+
+
+

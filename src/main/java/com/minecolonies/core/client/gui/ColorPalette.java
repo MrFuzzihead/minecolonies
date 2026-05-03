@@ -1,12 +1,17 @@
 package com.minecolonies.core.client.gui;
 
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.network.chat.Component;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.IChatComponent;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +81,7 @@ public class ColorPalette
 
         public PaletteButton(int posX, int posY, int sideLength, DyeColor color)
         {
-            super(posX, posY, sideLength, sideLength, Component.literal(""), pressed -> {}, DEFAULT_NARRATION);
+            super(posX, posY, sideLength, sideLength, String.literal(""), pressed -> {}, DEFAULT_NARRATION);
             this.color = color;
         }
 
@@ -154,3 +159,6 @@ public class ColorPalette
         }
     }
 }
+
+
+

@@ -19,11 +19,11 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.MineColonies;
 import com.minecolonies.core.colony.interactionhandling.RecruitmentInteraction;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.Component;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.IChatComponent;
 
 import java.util.Map;
 import java.util.Random;
@@ -234,7 +234,7 @@ public class CustomVisitorListener extends SimpleJsonResourceReloadListener
             if (name != null)
             {
                 visitorData.setName(name);
-                visitorData.getEntity().ifPresent(entity -> entity.setCustomName(Component.literal(name)));
+                visitorData.getEntity().ifPresent(entity -> entity.setCustomName(String.literal(name)));
             }
 
             if (citizenSuffix != null)
@@ -249,7 +249,7 @@ public class CustomVisitorListener extends SimpleJsonResourceReloadListener
 
             if (storykey != null)
             {
-                visitorData.triggerInteraction(new RecruitmentInteraction(Component.translatable(storykey, visitorData.getName().split(" ")[0]), ChatPriority.IMPORTANT));
+                visitorData.triggerInteraction(new RecruitmentInteraction(String.translatable(storykey, visitorData.getName().split(" ")[0]), ChatPriority.IMPORTANT));
             }
 
             if (primarySkill != null)
@@ -290,3 +290,5 @@ public class CustomVisitorListener extends SimpleJsonResourceReloadListener
         return false;
     }
 }
+
+

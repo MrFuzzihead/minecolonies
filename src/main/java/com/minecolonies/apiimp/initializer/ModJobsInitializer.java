@@ -7,9 +7,9 @@ import com.minecolonies.core.colony.jobs.*;
 import com.minecolonies.core.colony.jobs.views.CrafterJobView;
 import com.minecolonies.core.colony.jobs.views.DefaultJobView;
 import com.minecolonies.core.colony.jobs.views.DmanJobView;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] registries removed
+// [1.7.10] registries removed
 
 import java.util.function.Supplier;
 
@@ -314,9 +314,11 @@ public final class ModJobsInitializer
      * @param supplier the supplier of the entry.
      * @return the registry object.
      */
-    private static RegistryObject<JobEntry> register(final DeferredRegister<JobEntry> deferredRegister, final String path, final Supplier<JobEntry> supplier)
+    private static JobEntry register(final DeferredRegister<JobEntry> deferredRegister, final String path, final Supplier<JobEntry> supplier)
     {
         ModJobs.jobs.add(new ResourceLocation(Constants.MOD_ID, path));
         return deferredRegister.register(path, supplier);
     }
 }
+
+

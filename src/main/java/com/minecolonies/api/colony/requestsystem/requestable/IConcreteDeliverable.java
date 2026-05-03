@@ -1,6 +1,6 @@
 package com.minecolonies.api.colony.requestsystem.requestable;
 
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 
 import java.util.List;
 
@@ -15,3 +15,4 @@ public interface IConcreteDeliverable extends IDeliverable
      */
     List<ItemStack> getRequestedItems();
 }
+

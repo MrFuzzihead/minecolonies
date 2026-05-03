@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.blocks.AbstractBlockMinecoloniesNamedGrave;
 import com.minecolonies.api.blocks.ModBlocks;
@@ -10,15 +16,15 @@ import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.Tuple;
 import com.minecolonies.api.util.WorldUtil;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.World;
+// [1.7.10] block.entity removed
+// [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,7 +43,7 @@ public class BuildingGraveyard extends AbstractBuilding
     private static final String GRAVEYARD = "graveyard";
 
     /**
-     * The maximum building level of the hut.
+     * The maximum building World of the hut.
      */
     private static final int MAX_BUILDING_LEVEL = 5;
 
@@ -47,7 +53,7 @@ public class BuildingGraveyard extends AbstractBuilding
     private static final String TAG_VISUAL_GRAVES = "visualgraves";
 
     /**
-     * NBTTag to store the visual grave positions blockpos.
+     * NBTTag to store the visual grave positions int[].
      */
     private static final String TAG_VISUAL_GRAVES_BLOCKPOS = "visualgravesblockpos";
 
@@ -57,7 +63,7 @@ public class BuildingGraveyard extends AbstractBuilding
     private static final String TAG_VISUAL_GRAVES_FACING = "visualgravesfacing";
 
     /**
-     * The last field tag.
+     * The last field NBTBase.
      */
     private static final String TAG_CURRENT_GRAVE = "currentGRAVE";
 
@@ -65,12 +71,12 @@ public class BuildingGraveyard extends AbstractBuilding
      * The grave the undertaker is currently collecting.
      */
     @Nullable
-    private BlockPos currentGrave;
+    private int[] currentGrave;
 
     /**
      * Grave positions
      */
-    private Set<Tuple<BlockPos, Direction>> visualGravePositions = new HashSet<>();
+    private Set<Tuple<int[], Direction>> visualGravePositions = new HashSet<>();
 
     /**
      * Public constructor which instantiates the building.
@@ -78,7 +84,7 @@ public class BuildingGraveyard extends AbstractBuilding
      * @param c the colony the building is in.
      * @param l the position it has been placed (it's id).
      */
-    public BuildingGraveyard(final IColony c, final BlockPos l)
+    public BuildingGraveyard(final IColony c, final int[] l)
     {
         super(c, l);
         keepX.put(itemStack -> ItemStackUtils.hasEquipmentLevel(itemStack, ModEquipmentTypes.shovel.get(), TOOL_LEVEL_WOOD_OR_GOLD, getMaxEquipmentLevel()), new net.minecraft.util.Tuple<>(1, true));
@@ -99,7 +105,7 @@ public class BuildingGraveyard extends AbstractBuilding
      * @return a field to work on.
      */
     @Nullable
-    public BlockPos getGraveToWorkOn()
+    public int[] getGraveToWorkOn()
     {
         if(currentGrave != null)
         {
@@ -121,7 +127,7 @@ public class BuildingGraveyard extends AbstractBuilding
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
 
@@ -131,30 +137,30 @@ public class BuildingGraveyard extends AbstractBuilding
         }
 
         visualGravePositions.clear();
-        final ListTag visualGraveTagList = compound.getList(TAG_VISUAL_GRAVES, Tag.TAG_COMPOUND);
+        final NBTTagList visualGraveTagList = compound.getList(TAG_VISUAL_GRAVES, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < visualGraveTagList.size(); ++i)
         {
-            final CompoundTag graveCompound = visualGraveTagList.getCompound(i);
-            final BlockPos graveLocation = BlockPosUtil.read(graveCompound, TAG_VISUAL_GRAVES_BLOCKPOS);
+            final NBTTagCompound graveCompound = visualGraveTagList.getCompound(i);
+            final int[] graveLocation = BlockPosUtil.read(graveCompound, TAG_VISUAL_GRAVES_BLOCKPOS);
             final Direction graveFacing = Direction.byName(graveCompound.getString(TAG_VISUAL_GRAVES_FACING));
             visualGravePositions.add(new Tuple<>(graveLocation, graveFacing));
         }
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compound = super.serializeNBT();
+        final NBTTagCompound compound = super.serializeNBT();
 
         if (currentGrave != null)
         {
             BlockPosUtil.write(compound, TAG_CURRENT_GRAVE, currentGrave);
         }
 
-        @NotNull final ListTag visualGraveTagList = new ListTag();
-        for (@NotNull final Tuple<BlockPos, Direction> vgp : visualGravePositions)
+        @NotNull final NBTTagList visualGraveTagList = new NBTTagList();
+        for (@NotNull final Tuple<int[], Direction> vgp : visualGravePositions)
         {
-            @NotNull final CompoundTag graveCompound = new CompoundTag();
+            @NotNull final NBTTagCompound graveCompound = new NBTTagCompound();
             BlockPosUtil.write(graveCompound, TAG_VISUAL_GRAVES_BLOCKPOS, vgp.getA());
             graveCompound.putString(TAG_VISUAL_GRAVES_FACING, vgp.getB().getName());
             visualGraveTagList.add(graveCompound);
@@ -167,7 +173,7 @@ public class BuildingGraveyard extends AbstractBuilding
      * Get the set of grave positions.
      * @return the set of positions with their directions.
      */
-    public Set<Tuple<BlockPos, Direction>> getGravePositions()
+    public Set<Tuple<int[], Direction>> getGravePositions()
     {
         return visualGravePositions;
     }
@@ -186,7 +192,7 @@ public class BuildingGraveyard extends AbstractBuilding
     }
 
     @Override
-    public void registerBlockPosition(@NotNull final BlockState state, @NotNull final BlockPos pos, @NotNull final Level world)
+    public void registerBlockPosition(@NotNull final BlockState state, @NotNull final int[] pos, @NotNull final World world)
     {
         super.registerBlockPosition(state, pos, world);
         if (state.getBlock() == ModBlocks.blockNamedGrave)
@@ -198,15 +204,15 @@ public class BuildingGraveyard extends AbstractBuilding
     /**
      * Return a random free visual grave position
      */
-    public Tuple<BlockPos, Direction> getRandomFreeVisualGravePos()
+    public Tuple<int[], Direction> getRandomFreeVisualGravePos()
     {
         if (visualGravePositions.isEmpty())
         {
             return null;
         }
 
-        final List<Tuple<BlockPos, Direction>> availablePos = new ArrayList<Tuple<BlockPos, Direction>>();
-        for(final Tuple<BlockPos, Direction> tuple : visualGravePositions)
+        final List<Tuple<int[], Direction>> availablePos = new ArrayList<Tuple<int[], Direction>>();
+        for(final Tuple<int[], Direction> tuple : visualGravePositions)
         {
             if (getColony().getWorld().getBlockState(tuple.getA()).canBeReplaced())
             {
@@ -223,3 +229,8 @@ public class BuildingGraveyard extends AbstractBuilding
         return availablePos.get(0);
     }
 }
+
+
+
+
+

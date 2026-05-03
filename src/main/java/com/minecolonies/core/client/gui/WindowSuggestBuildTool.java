@@ -8,12 +8,13 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.Network;
 import com.minecolonies.core.network.messages.server.DirectPlaceMessage;
 import com.minecolonies.core.network.messages.server.SwitchBuildingWithToolMessage;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] BlockState -> int metadata
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.core.BlockPos;
-import net.minecraftforge.items.wrapper.InvWrapper;
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.GROUNDSTYLE_RELATIVE;
@@ -29,7 +30,7 @@ public class WindowSuggestBuildTool extends AbstractWindowSkeleton
      * Position the player is trying to place at.
      */
     @NotNull
-    private final BlockPos pos;
+    private final int[] pos;
 
     /**
      * Building the worker is trying to place.
@@ -50,7 +51,7 @@ public class WindowSuggestBuildTool extends AbstractWindowSkeleton
      * @param state the block they are trying to place.
      * @param stack the stack to suggest it for.
      */
-    public WindowSuggestBuildTool(@NotNull final BlockPos pos, @NotNull final BlockState state, @NotNull final ItemStack stack)
+    public WindowSuggestBuildTool(@NotNull final int[] pos, @NotNull final BlockState state, @NotNull final ItemStack stack)
     {
         super(new ResourceLocation(Constants.MOD_ID, "gui/windowsuggestbuildtool.xml"));
         this.pos = pos;
@@ -93,3 +94,7 @@ public class WindowSuggestBuildTool extends AbstractWindowSkeleton
         close();
     }
 }
+
+
+
+

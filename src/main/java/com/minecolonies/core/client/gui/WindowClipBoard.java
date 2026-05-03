@@ -2,8 +2,27 @@ package com.minecolonies.core.client.gui;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.TypeToken;
-import com.ldtteam.blockui.Color;
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
+import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
 import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
+import com.ldtteam.blockui.controls.DropDownList;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
+import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.controls.TextField;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
+import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.colony.ICitizenDataView;
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.colony.requestsystem.manager.IRequestManager;
@@ -18,10 +37,10 @@ import com.minecolonies.core.Network;
 import com.minecolonies.core.client.gui.modules.RequestTreeWindowModule;
 import com.minecolonies.core.items.ItemClipboard;
 import com.minecolonies.core.network.messages.server.ItemSettingMessage;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Vec3i removed - using int[]
+import net.minecraft.util.ResourceLocation;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -167,7 +186,7 @@ public class WindowClipBoard extends AbstractWindowSkeleton
                     requests.removeIf(req -> asyncRequest.contains(req.getId()));
                 }
 
-                final BlockPos playerPos = Minecraft.getInstance().player.blockPosition();
+                final int[] playerPos = Minecraft.getInstance().player.blockPosition();
                 requests.sort(Comparator.comparing((IRequest<?> request) -> request.getRequester()
                     .getLocation()
                     .getInDimensionLocation()
@@ -187,3 +206,6 @@ public class WindowClipBoard extends AbstractWindowSkeleton
             Supplier<Boolean> showImportant) {}
     }
 }
+
+
+

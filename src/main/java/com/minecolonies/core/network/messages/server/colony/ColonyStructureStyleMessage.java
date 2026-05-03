@@ -2,8 +2,8 @@ package com.minecolonies.core.network.messages.server.colony;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.core.network.messages.server.AbstractColonyServerMessage;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 
 /**
  * Message to set the colony default structure style.
@@ -36,21 +36,23 @@ public class ColonyStructureStyleMessage extends AbstractColonyServerMessage
     }
 
     @Override
-    protected void onExecute(NetworkEvent.Context ctxIn, boolean isLogicalServer, IColony colony)
+    protected void onExecute(MessageContext ctx, boolean isLogicalServer, IColony colony)
     {
         colony.setStructurePack(pack);
     }
 
     @Override
-    protected void toBytesOverride(FriendlyByteBuf buf)
+    protected void toBytesOverride(PacketBuffer buf)
     {
         buf.writeUtf(pack);
     }
 
     @Override
-    protected void fromBytesOverride(FriendlyByteBuf buf)
+    protected void fromBytesOverride(PacketBuffer buf)
     {
         this.pack = buf.readUtf(32767);
     }
 }
+
+
 

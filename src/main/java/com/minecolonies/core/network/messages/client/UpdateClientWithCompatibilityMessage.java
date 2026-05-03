@@ -4,11 +4,10 @@ import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.api.util.Log;
 import io.netty.buffer.Unpooled;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class UpdateClientWithCompatibilityMessage implements IMessage
 {
-    private FriendlyByteBuf buffer;
+    private PacketBuffer buffer;
 
     /**
      * Empty public constructor.
@@ -36,18 +35,18 @@ public class UpdateClientWithCompatibilityMessage implements IMessage
     {
         super();
 
-        this.buffer = new FriendlyByteBuf(Unpooled.buffer());
+        this.buffer = new PacketBuffer(Unpooled.buffer());
         IMinecoloniesAPI.getInstance().getColonyManager().getCompatibilityManager().serialize(this.buffer);
     }
 
     @Override
-    public void fromBytes(@NotNull final FriendlyByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
-        this.buffer = new FriendlyByteBuf(buf.retain());
+        this.buffer = new PacketBuffer(buf.retain());
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
         this.buffer.resetReaderIndex();
         buf.writeBytes(this.buffer);
@@ -55,15 +54,15 @@ public class UpdateClientWithCompatibilityMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.CLIENT;
+        return Boolean.FALSE;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
-        final ClientLevel world = Minecraft.getInstance().level;
+        final ClientLevel world = Minecraft.getInstance().World;
         try
         {
             IMinecoloniesAPI.getInstance().getColonyManager().getCompatibilityManager().deserialize(this.buffer, world);
@@ -75,3 +74,6 @@ public class UpdateClientWithCompatibilityMessage implements IMessage
         this.buffer.release();
     }
 }
+
+
+

@@ -8,19 +8,19 @@ import com.minecolonies.api.util.constant.TagConstants;
 import com.minecolonies.core.generation.CompostRecipeBuilder;
 import com.minecolonies.core.recipes.FoodIngredient;
 import com.minecolonies.core.recipes.PlantIngredient;
-import net.minecraft.advancements.critereon.InventoryChangeTrigger;
-import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.data.PackOutput;
-import net.minecraft.data.recipes.*;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
+// [1.7.10] advancements removed
+// [1.7.10] advancements removed
+// [1.7.10] data removed
+// [1.7.10] data removed
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] tags removed
+// [1.7.10] tags removed
+import net.minecraft.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.World.ItemLike;
 import net.minecraftforge.common.Tags;
-import net.minecraftforge.registries.ForgeRegistries;
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
@@ -296,10 +296,10 @@ public class DefaultRecipeProvider extends RecipeProvider
     }
 
     /**
-     * Standard hut block recipe pattern, using build tool and one unique tag surrounded by planks.
+     * Standard hut block recipe pattern, using build tool and one unique NBTBase surrounded by planks.
      * @param consumer the recipe consumer.
      * @param output   the resulting hut block.
-     * @param input    the unique input tag.
+     * @param input    the unique input NBTBase.
      */
     private static void registerHutRecipe1(@NotNull final Consumer<FinishedRecipe> consumer,
                                            @NotNull final ItemLike output,
@@ -1101,3 +1101,7 @@ public class DefaultRecipeProvider extends RecipeProvider
           .save(consumer, new ResourceLocation(MOD_ID, "fried_rice"));
     }
 }
+
+
+
+

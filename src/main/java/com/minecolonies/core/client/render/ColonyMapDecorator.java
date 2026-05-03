@@ -5,13 +5,16 @@ import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.util.Log;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.IItemDecorator;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.Minecraft;
 
 import static com.minecolonies.core.items.ItemColonyMap.TAG_COLONY;
 
@@ -24,7 +27,7 @@ public class ColonyMapDecorator implements IItemDecorator
     @Override
     public boolean render(GuiGraphics graphics, Font font, ItemStack stack, int xOffset, int yOffset)
     {
-        final long gametime = Minecraft.getInstance().level.getGameTime();
+        final long gametime = Minecraft.getInstance().World.getGameTime();
 
         if (lastChange != gametime && gametime % 40 == 0)
         {
@@ -34,11 +37,11 @@ public class ColonyMapDecorator implements IItemDecorator
 
         if (render)
         {
-            final CompoundTag compoundTag = stack.getTag();
-            if (compoundTag != null)
+            final NBTTagCompound NBTTagCompound = stack.getTag();
+            if (NBTTagCompound != null)
             {
-                final int colonyId = compoundTag.getInt(TAG_COLONY);
-                colonyView = IColonyManager.getInstance().getColonyView(colonyId, Minecraft.getInstance().level.dimension());
+                final int colonyId = NBTTagCompound.getInt(TAG_COLONY);
+                colonyView = IColonyManager.getInstance().getColonyView(colonyId, Minecraft.getInstance().World.dimension());
 
                 if (colonyView != null)
                 {
@@ -59,7 +62,7 @@ public class ColonyMapDecorator implements IItemDecorator
                             ps.pushPose();
                             ps.translate(0, 0, 500);
                             graphics.drawCenteredString(font,
-                              Component.literal(count + ""),
+                              String.literal(count + ""),
                               xOffset + 15,
                               yOffset - 2,
                               0xFF4500 | (255 << 24));
@@ -77,3 +80,6 @@ public class ColonyMapDecorator implements IItemDecorator
         return false;
     }
 }
+
+
+

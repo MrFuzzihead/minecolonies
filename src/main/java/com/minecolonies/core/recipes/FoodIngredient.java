@@ -3,15 +3,15 @@ package com.minecolonies.core.recipes;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] GsonHelper removed
+// [1.7.10] food removed
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.crafting.IIngredientSerializer;
-import net.minecraftforge.registries.ForgeRegistries;
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -155,7 +155,7 @@ public class FoodIngredient extends Ingredient
 
         @NotNull
         @Override
-        public FoodIngredient parse(@NotNull final FriendlyByteBuf buffer)
+        public FoodIngredient parse(@NotNull final PacketBuffer buffer)
         {
             final Builder builder = new Builder();
             final int flags = buffer.readVarInt();
@@ -169,7 +169,7 @@ public class FoodIngredient extends Ingredient
         }
 
         @Override
-        public void write(@NotNull final FriendlyByteBuf buffer, @NotNull final FoodIngredient ingredient)
+        public void write(@NotNull final PacketBuffer buffer, @NotNull final FoodIngredient ingredient)
         {
             buffer.writeVarInt((ingredient.minHealing.isPresent() ? 1 : 0) |
                     (ingredient.maxHealing.isPresent() ? 2 : 0) |
@@ -182,3 +182,7 @@ public class FoodIngredient extends Ingredient
         }
     }
 }
+
+
+
+

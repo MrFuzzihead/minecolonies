@@ -12,11 +12,11 @@ import com.minecolonies.api.tileentities.AbstractTileEntityColonyBuilding;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.core.client.gui.WindowBuildingBrowser;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.Block;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.block.Block;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_BUILDING_TYPE;
@@ -25,10 +25,10 @@ import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_LOCATION;
 public class BuildingDataManager implements IBuildingDataManager
 {
     @Override
-    public IBuilding createFrom(final IColony colony, final CompoundTag compound)
+    public IBuilding createFrom(final IColony colony, final NBTTagCompound compound)
     {
         final ResourceLocation type = new ResourceLocation(compound.getString(TAG_BUILDING_TYPE));
-        final BlockPos pos = BlockPosUtil.read(compound, TAG_LOCATION);
+        final int[] pos = BlockPosUtil.read(compound, TAG_LOCATION);
 
         IBuilding building = this.createFrom(colony, pos, type);
 
@@ -58,7 +58,7 @@ public class BuildingDataManager implements IBuildingDataManager
     }
 
     @Override
-    public IBuilding createFrom(final IColony colony, final BlockPos position, final ResourceLocation buildingName)
+    public IBuilding createFrom(final IColony colony, final int[] position, final ResourceLocation buildingName)
     {
         final BuildingEntry entry = IBuildingRegistry.getInstance().getValue(buildingName);
         if (entry == null)
@@ -74,7 +74,7 @@ public class BuildingDataManager implements IBuildingDataManager
     }
 
     @Override
-    public IBuildingView createViewFrom(final IColonyView colony, final BlockPos position, final FriendlyByteBuf networkBuffer)
+    public IBuildingView createViewFrom(final IColonyView colony, final int[] position, final PacketBuffer networkBuffer)
     {
         final ResourceLocation buildingName = new ResourceLocation(networkBuffer.readUtf(32767));
         final BuildingEntry entry = IBuildingRegistry.getInstance().getValue(buildingName);
@@ -100,3 +100,6 @@ public class BuildingDataManager implements IBuildingDataManager
         new WindowBuildingBrowser(block).open();
     }
 }
+
+
+

@@ -3,15 +3,15 @@ package com.minecolonies.core.placementhandlers;
 import com.ldtteam.structurize.placement.IPlacementContext;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
 import com.ldtteam.structurize.util.BlockUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import com.minecolonies.api.util.Tuple;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
 import net.minecraft.world.level.block.WeatheringCopper;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] block.entity removed
+// [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,7 +28,7 @@ public class WeatheredCopperPlacementHandler implements IPlacementHandler
     /**
      * Generates the correct block state for the placement.
      *
-     * @param world      the level.
+     * @param world      the World.
      * @param pos        the target position.
      * @param blockState the new block state.
      * @param complete   place it complete (with or without substitution blocks etc.).
@@ -36,8 +36,8 @@ public class WeatheredCopperPlacementHandler implements IPlacementHandler
      */
     @Nullable
     private static BlockState getExpectedBlockState(
-      final Level world,
-      final BlockPos pos,
+      final World world,
+      final int[] pos,
       final BlockState blockState,
       final boolean complete)
     {
@@ -49,7 +49,7 @@ public class WeatheredCopperPlacementHandler implements IPlacementHandler
             return blockState;
         }
 
-        // In case the block in the world is not currently any copper block at all, replace it with the minimum level of copper outlined by the schematic.
+        // In case the block in the world is not currently any copper block at all, replace it with the minimum World of copper outlined by the schematic.
         if (!(inWorldState.getBlock() instanceof WeatheringCopper inWorldCopper))
         {
             return blockState;
@@ -79,17 +79,17 @@ public class WeatheredCopperPlacementHandler implements IPlacementHandler
     }
 
     @Override
-    public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
+    public boolean canHandle(final World world, final int[] pos, final BlockState blockState)
     {
         return blockState.getBlock() instanceof WeatheringCopper;
     }
 
     @Override
     public ActionProcessingResult handle(
-      final Level world,
-      final BlockPos pos,
+      final World world,
+      final int[] pos,
       final BlockState blockState,
-      @Nullable final CompoundTag tileEntityData,
+      @Nullable final NBTTagCompound tileEntityData,
       @NotNull final IPlacementContext placementContext)
     {
         final BlockState expectedBlockState = getExpectedBlockState(world, pos, blockState, !placementContext.fancyPlacement());
@@ -107,10 +107,10 @@ public class WeatheredCopperPlacementHandler implements IPlacementHandler
     }
 
     @Override
-    public List<ItemStack> getRequiredItems(final Level world,
-        final BlockPos pos,
+    public List<ItemStack> getRequiredItems(final World world,
+        final int[] pos,
         final BlockState blockState,
-        @Nullable final CompoundTag tileEntityData,
+        @Nullable final NBTTagCompound tileEntityData,
         @NotNull final IPlacementContext placementContext)
     {
         final BlockState expectedBlockState = getExpectedBlockState(world, pos, blockState, !placementContext.fancyPlacement());
@@ -121,9 +121,13 @@ public class WeatheredCopperPlacementHandler implements IPlacementHandler
     public boolean doesWorldStateMatchBlueprintState(
         final BlockState worldState,
         final BlockState blueprintState,
-        final Tuple<BlockEntity, CompoundTag> blockEntityData,
+        final Tuple<BlockEntity, NBTTagCompound> blockEntityData,
         @NotNull final IPlacementContext placementContext)
     {
         return worldState.equals(blueprintState);
     }
 }
+
+
+
+

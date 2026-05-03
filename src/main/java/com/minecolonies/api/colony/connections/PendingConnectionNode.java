@@ -2,8 +2,8 @@ package com.minecolonies.api.colony.connections;
 
 import com.minecolonies.core.entity.pathfinding.pathjobs.PathJobMoveToLocation;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,7 +41,7 @@ public class PendingConnectionNode extends ColonyConnectionNode
      * @param connectionType the connection type.
      */
     public PendingConnectionNode(
-        final BlockPos pos,
+        final int[] pos,
         final PathResult<PathJobMoveToLocation> pathResult,
         final PendingConnectionType connectionType)
     {
@@ -53,18 +53,18 @@ public class PendingConnectionNode extends ColonyConnectionNode
     /**
      * Constructor for deserialization/serialization.
      */
-    public PendingConnectionNode(final BlockPos pos)
+    public PendingConnectionNode(final int[] pos)
     {
         super(pos);
     }
 
     /**
      * Write connections to NBT data for saving.
-     * @return compound NBT-Tag.
+     * @return compound NBT-NBTBase.
      */
-    public CompoundTag write()
+    public NBTTagCompound write()
     {
-        final CompoundTag compound = super.write();
+        final NBTTagCompound compound = super.write();
         compound.putInt(TAG_CONNECTION_TYPE, connectionType.ordinal());
         return compound;
     }
@@ -72,9 +72,9 @@ public class PendingConnectionNode extends ColonyConnectionNode
     /**
      * Read connections from saved NBT data.
      *
-     * @param compound NBT Tag.
+     * @param compound NBT NBTBase.
      */
-    public void read(@NotNull final CompoundTag compound)
+    public void read(@NotNull final NBTTagCompound compound)
     {
         super.read(compound);
         this.connectionType = PendingConnectionType.values()[compound.getInt(TAG_CONNECTION_TYPE)];
@@ -109,3 +109,6 @@ public class PendingConnectionNode extends ColonyConnectionNode
         return cachedPathResult;
     }
 }
+
+
+

@@ -1,13 +1,32 @@
 package com.minecolonies.core.client.gui;
 
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
+import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
+import com.ldtteam.blockui.controls.DropDownList;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.controls.TextField;
 import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
+import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.colony.buildings.modules.IBuildingModuleView;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.core.colony.buildings.views.AbstractBuildingView;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -42,12 +61,12 @@ public abstract class AbstractModuleWindow<T extends IBuildingModuleView> extend
      * @param moduleView {@link AbstractBuildingView}.
      * @param resource   window resource location.
      */
-    public AbstractModuleWindow(final BOWindow parent, final T moduleView, final ResourceLocation resource)
+    public AbstractModuleWindow(final Object /* BOWindow: todo ModularUI2 */ parent, final T moduleView, final ResourceLocation resource)
     {
         super(parent, moduleView.getBuildingView(), resource);
         this.moduleView = moduleView;
 
-        setHeader(Optional.ofNullable(moduleView.getDesc()).map(Component::copy).orElse(null));
+        setHeader(Optional.ofNullable(moduleView.getDesc()).map(String::copy).orElse(null));
     }
 
     /**
@@ -55,7 +74,7 @@ public abstract class AbstractModuleWindow<T extends IBuildingModuleView> extend
      *
      * @param header the header text.
      */
-    protected void setHeader(@Nullable final MutableComponent header)
+    protected void setHeader(@Nullable final String header)
     {
         final Text labelPane = window.findPaneOfTypeByID(DESC_LABEL, Text.class);
         if (labelPane != null && header != null)
@@ -64,3 +83,5 @@ public abstract class AbstractModuleWindow<T extends IBuildingModuleView> extend
         }
     }
 }
+
+

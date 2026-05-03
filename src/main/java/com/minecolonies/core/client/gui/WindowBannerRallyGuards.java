@@ -1,8 +1,16 @@
 package com.minecolonies.core.client.gui;
 
-import com.ldtteam.blockui.Color;
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
 import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
 import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.views.ScrollingList;
@@ -13,12 +21,13 @@ import com.minecolonies.core.Network;
 import com.minecolonies.core.colony.buildings.AbstractBuildingGuards;
 import com.minecolonies.core.network.messages.server.RemoveFromRallyingListMessage;
 import com.minecolonies.core.network.messages.server.ToggleBannerRallyGuardsMessage;
-import com.mojang.datafixers.util.Pair;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+import com.minecolonies.api.util.Tuple;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
+import com.minecolonies.api.util.Tuple;
 
 import java.util.List;
 
@@ -91,16 +100,16 @@ public class WindowBannerRallyGuards extends AbstractWindowSkeleton
 
         if (isActive(banner))
         {
-            findPaneOfTypeByID(BUTTON_RALLY, ButtonImage.class).setText(Component.translatable(COM_MINECOLONIES_BANNER_RALLY_GUARDS_GUI_DISMISS));
+            findPaneOfTypeByID(BUTTON_RALLY, ButtonImage.class).setText(String.translatable(COM_MINECOLONIES_BANNER_RALLY_GUARDS_GUI_DISMISS));
         }
         else
         {
-            findPaneOfTypeByID(BUTTON_RALLY, ButtonImage.class).setText(Component.translatable(COM_MINECOLONIES_BANNER_RALLY_GUARDS_GUI_RALLY));
+            findPaneOfTypeByID(BUTTON_RALLY, ButtonImage.class).setText(String.translatable(COM_MINECOLONIES_BANNER_RALLY_GUARDS_GUI_RALLY));
         }
 
-        guardTowerList.setDataProvider(() -> getGuardTowerViews(banner, mc.level).size(), (index, rowPane) ->
+        guardTowerList.setDataProvider(() -> getGuardTowerViews(banner, mc.World).size(), (index, rowPane) ->
         {
-            final List<Pair<ILocation, AbstractBuildingGuards.View>> guardTowers = getGuardTowerViews(banner, mc.level);
+            final List<Pair<ILocation, AbstractBuildingGuards.View>> guardTowers = getGuardTowerViews(banner, mc.World);
 
             if (index < 0 || index >= guardTowers.size())
             {
@@ -116,21 +125,21 @@ public class WindowBannerRallyGuards extends AbstractWindowSkeleton
             if (guardTowerView != null)
             {
                 exampleStackDisplay.setItem(new ItemStack(Items.IRON_SWORD));
-                rowPane.findPaneOfTypeByID(LABEL_GUARDTYPE, Text.class).setText(Component.translatable(ModGuardTypes.knight.get().getJobTranslationKey())
+                rowPane.findPaneOfTypeByID(LABEL_GUARDTYPE, Text.class).setText(String.translatable(ModGuardTypes.knight.get().getJobTranslationKey())
                   .append("|")
-                  .append(Component.translatable(ModGuardTypes.ranger.get().getJobTranslationKey()))
+                  .append(String.translatable(ModGuardTypes.ranger.get().getJobTranslationKey()))
                   .append(": ")
                   .append(String.valueOf(guardTowerView.getGuards().size())));
-                rowPane.findPaneOfTypeByID(LABEL_POSITION, Text.class).setText(Component.literal(guardTower.getFirst().toString()));
+                rowPane.findPaneOfTypeByID(LABEL_POSITION, Text.class).setText(String.literal(guardTower.getFirst().toString()));
             }
             else
             {
                 exampleStackDisplay.setItem(new ItemStack(Items.COOKIE));
 
                 rowPane.findPaneOfTypeByID(LABEL_GUARDTYPE, Text.class)
-                  .setText(Component.translatable(COM_MINECOLONIES_BANNER_RALLY_GUARDS_GUI_TOWERMISSING));
+                  .setText(String.translatable(COM_MINECOLONIES_BANNER_RALLY_GUARDS_GUI_TOWERMISSING));
                 rowPane.findPaneOfTypeByID(LABEL_GUARDTYPE, Text.class).setColors(Color.rgbaToInt(255, 0, 0, 1));
-                rowPane.findPaneOfTypeByID(LABEL_POSITION, Text.class).setText(Component.literal(guardTower.getFirst().toString()));
+                rowPane.findPaneOfTypeByID(LABEL_POSITION, Text.class).setText(String.literal(guardTower.getFirst().toString()));
             }
         });
     }
@@ -144,7 +153,7 @@ public class WindowBannerRallyGuards extends AbstractWindowSkeleton
     {
         final int row = guardTowerList.getListElementIndexByPane(button);
 
-        final List<Pair<ILocation, AbstractBuildingGuards.View>> guardTowers = getGuardTowerViews(banner, mc.level);
+        final List<Pair<ILocation, AbstractBuildingGuards.View>> guardTowers = getGuardTowerViews(banner, mc.World);
         if (guardTowers.size() > row && row >= 0)
         {
             final ILocation locationToRemove = guardTowers.get(row).getFirst();
@@ -167,3 +176,7 @@ public class WindowBannerRallyGuards extends AbstractWindowSkeleton
         this.close();
     }
 }
+
+
+
+

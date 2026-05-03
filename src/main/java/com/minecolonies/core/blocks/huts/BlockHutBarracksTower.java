@@ -3,7 +3,7 @@ package com.minecolonies.core.blocks.huts;
 import com.minecolonies.api.blocks.AbstractBlockHut;
 import com.minecolonies.api.colony.buildings.ModBuildings;
 import com.minecolonies.api.colony.buildings.registry.BuildingEntry;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,7 +22,7 @@ public class BlockHutBarracksTower extends AbstractBlockHut<BlockHutBarracksTowe
     }
 
     @Override
-    public boolean isVisible(@Nullable final CompoundTag beData)
+    public boolean isVisible(@Nullable final NBTTagCompound beData)
     {
         return false;
     }
@@ -40,3 +40,5 @@ public class BlockHutBarracksTower extends AbstractBlockHut<BlockHutBarracksTowe
         return ModBuildings.barracksTower.get();
     }
 }
+
+

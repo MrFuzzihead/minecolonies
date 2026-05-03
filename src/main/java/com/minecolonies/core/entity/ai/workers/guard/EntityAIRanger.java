@@ -8,9 +8,9 @@ import com.minecolonies.core.colony.jobs.JobRanger;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.pathfinding.navigation.MinecoloniesAdvancedPathNavigate;
 import com.minecolonies.core.entity.pathfinding.pathjobs.PathJobWalkRandomEdge;
-import net.minecraft.core.BlockPos;
+// [1.7.10] int[] -> int x,y,z
 import net.minecraft.world.item.ArrowItem;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 
@@ -77,7 +77,7 @@ public class EntityAIRanger extends AbstractEntityAIGuard<JobRanger, AbstractBui
             return;
         }
 
-        final BlockPos guardPos = buildingGuards.getGuardPos(worker);
+        final int[] guardPos = buildingGuards.getGuardPos(worker);
         if ((BlockPosUtil.dist(guardPos, worker.blockPosition()) <= 10 || walkToSafePos(guardPos)))
         {
             // Moves the ranger randomly to close edges, for better vision to mobs
@@ -86,3 +86,5 @@ public class EntityAIRanger extends AbstractEntityAIGuard<JobRanger, AbstractBui
         }
     }
 }
+
+

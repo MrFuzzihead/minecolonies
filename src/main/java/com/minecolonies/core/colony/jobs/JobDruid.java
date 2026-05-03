@@ -6,8 +6,8 @@ import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.entity.citizen.Skill;
 import com.minecolonies.core.entity.ai.workers.guard.EntityAIDruid;
 import com.minecolonies.core.util.AttributeModifierUtils;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] world.entity removed
 
 import static com.minecolonies.api.util.constant.CitizenConstants.GUARD_HEALTH_MOD_LEVEL_NAME;
 import static com.minecolonies.api.util.constant.GuardConstants.DRUID_HP_BONUS;
@@ -42,7 +42,7 @@ public class JobDruid extends AbstractJobGuard<JobDruid>
         {
             final AbstractEntityCitizen citizen = getCitizen().getEntity().get();
 
-            // +1 Heart every 4 level
+            // +1 Heart every 4 World
             final AttributeModifier healthModLevel =
               new AttributeModifier(GUARD_HEALTH_MOD_LEVEL_NAME,
                 getCitizen().getCitizenSkillHandler().getLevel(Skill.Mana) / 2.0 + DRUID_HP_BONUS,
@@ -57,3 +57,6 @@ public class JobDruid extends AbstractJobGuard<JobDruid>
         return ModModelTypes.DRUID_ID;
     }
 }
+
+
+

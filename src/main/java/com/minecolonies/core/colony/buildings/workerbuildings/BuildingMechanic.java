@@ -9,13 +9,13 @@ import com.minecolonies.api.util.OptionalPredicate;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.AbstractCraftingBuildingModule;
 import com.minecolonies.core.colony.buildings.modules.AbstractDOCraftingBuildingModule;
-import net.minecraft.core.BlockPos;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.MinecartItem;
-import net.minecraft.world.level.block.HopperBlock;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] tags removed
+import net.minecraft.item.ItemBlock;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+// [1.7.10] net.minecraft.item.ItemMinecart -> ItemMinecart
+import net.minecraft.block.BlockHopper;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -40,7 +40,7 @@ public class BuildingMechanic extends AbstractBuilding
      * @param c the colony.
      * @param l the location
      */
-    public BuildingMechanic(final IColony c, final BlockPos l)
+    public BuildingMechanic(final IColony c, final int[] l)
     {
         super(c, l);
     }
@@ -90,8 +90,8 @@ public class BuildingMechanic extends AbstractBuilding
             if (isRecipeAllowed.isPresent()) { return isRecipeAllowed.get(); }
 
             final Item item = recipe.getPrimaryOutput().getItem();
-            return item instanceof MinecartItem
-                     || (item instanceof BlockItem && ((BlockItem) item).getBlock() instanceof HopperBlock);
+            return item instanceof net.minecraft.item.ItemMinecart
+                     || (item instanceof ItemBlock && ((ItemBlock) item).getBlock() instanceof BlockHopper);
         }
     }
 
@@ -133,3 +133,6 @@ public class BuildingMechanic extends AbstractBuilding
         }
     }
 }
+
+
+

@@ -1,8 +1,8 @@
 package com.minecolonies.api.colony.requestsystem.factory;
 
 import com.google.common.reflect.TypeToken;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -55,7 +55,7 @@ public interface IFactory<Input, Output>
      * @return The serialized data of the given requets.
      */
     @NotNull
-    CompoundTag serialize(@NotNull IFactoryController controller, @NotNull Output output);
+    NBTTagCompound serialize(@NotNull IFactoryController controller, @NotNull Output output);
 
     /**
      * Method to deserialize a given constructable.
@@ -66,7 +66,7 @@ public interface IFactory<Input, Output>
      * @throws Exception if somethings goes wrong during the deserialization.
      */
     @NotNull
-    Output deserialize(@NotNull IFactoryController controller, @NotNull CompoundTag nbt) throws Throwable;
+    Output deserialize(@NotNull IFactoryController controller, @NotNull NBTTagCompound nbt) throws Throwable;
 
     /**
      * Method to serialize a given constructable.
@@ -76,7 +76,7 @@ public interface IFactory<Input, Output>
      * @param packetBuffer The buffer to serialize into.
      */
     @NotNull
-    void serialize(@NotNull IFactoryController controller, @NotNull Output output, FriendlyByteBuf packetBuffer);
+    void serialize(@NotNull IFactoryController controller, @NotNull Output output, PacketBuffer packetBuffer);
 
     /**
      * Method to deserialize a given constructable.
@@ -87,5 +87,8 @@ public interface IFactory<Input, Output>
      * @throws Exception if somethings goes wrong during the deserialization.
      */
     @NotNull
-    Output deserialize(@NotNull IFactoryController controller, @NotNull FriendlyByteBuf buffer) throws Throwable;
+    Output deserialize(@NotNull IFactoryController controller, @NotNull PacketBuffer buffer) throws Throwable;
 }
+
+
+

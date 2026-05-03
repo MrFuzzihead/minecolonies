@@ -2,24 +2,24 @@ package com.minecolonies.core.items;
 
 import com.minecolonies.api.items.ModItems;
 import com.minecolonies.api.util.InventoryUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.FluidTags;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] sounds removed
+// [1.7.10] sounds removed
+// [1.7.10] tags removed
+// [1.7.10] int /* InteractionHand */ removed
+// [1.7.10] InteractionResult -> boolean
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.Cow;
-import net.minecraft.world.entity.animal.goat.Goat;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
+import net.minecraft.entity.EntityLivingBase;
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World.ClipContext;
+import net.minecraft.world.World;
+// [1.7.10] world.phys removed
+// [1.7.10] world.phys removed
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.Constants.TICKS_SECOND;
@@ -44,8 +44,8 @@ public class ItemLargeBottle extends Item
     public InteractionResult interactLivingEntity(
         @NotNull final ItemStack stack,
         @NotNull final Player player,
-        @NotNull final LivingEntity entity,
-        @NotNull final InteractionHand hand)
+        @NotNull final EntityLivingBase entity,
+        @NotNull final int /* InteractionHand */ hand)
     {
         if (this != ModItems.large_empty_bottle)
         {
@@ -85,7 +85,7 @@ public class ItemLargeBottle extends Item
 
     @NotNull
     @Override
-    public InteractionResultHolder<ItemStack> use(@NotNull final Level level, final Player player, @NotNull final InteractionHand hand)
+    public InteractionResultHolder<ItemStack> use(@NotNull final World World, final Player player, @NotNull final int /* InteractionHand */ hand)
     {
         final ItemStack itemstack = player.getItemInHand(hand);
         if (this != ModItems.large_empty_bottle)
@@ -93,20 +93,20 @@ public class ItemLargeBottle extends Item
             return InteractionResultHolder.pass(itemstack);
         }
 
-        BlockHitResult blockhitresult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
+        BlockHitResult blockhitresult = getPlayerPOVHitResult(World, player, ClipContext.Fluid.SOURCE_ONLY);
         if (blockhitresult.getType() != HitResult.Type.MISS)
         {
             if (blockhitresult.getType() == HitResult.Type.BLOCK)
             {
-                BlockPos blockpos = blockhitresult.getBlockPos();
-                if (!level.mayInteract(player, blockpos))
+                int[] blockPos = blockhitresult.getBlockPos();
+                if (!World.mayInteract(player, blockPos))
                 {
                     return InteractionResultHolder.pass(itemstack);
                 }
 
-                if (level.getFluidState(blockpos).is(FluidTags.WATER))
+                if (World.getFluidState(blockPos).is(FluidTags.WATER))
                 {
-                    level.playSound(player, player.getX(), player.getY(), player.getZ(), SoundEvents.BOTTLE_FILL, SoundSource.NEUTRAL, 1.0F, 1.0F);
+                    World.playSound(player, player.getX(), player.getY(), player.getZ(), SoundEvents.BOTTLE_FILL, SoundSource.NEUTRAL, 1.0F, 1.0F);
                     if (!InventoryUtils.addItemStackToItemHandler(new PlayerMainInvWrapper(player.getInventory()), ModItems.large_water_bottle.getDefaultInstance()))
                     {
                         player.drop(ModItems.large_water_bottle.getDefaultInstance(), false);
@@ -120,3 +120,9 @@ public class ItemLargeBottle extends Item
         return InteractionResultHolder.pass(itemstack);
     }
 }
+
+
+
+
+
+

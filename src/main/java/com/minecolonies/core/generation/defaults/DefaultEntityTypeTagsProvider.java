@@ -2,12 +2,12 @@ package com.minecolonies.core.generation.defaults;
 
 import com.minecolonies.api.entity.ModEntities;
 import com.minecolonies.api.items.ModTags;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
-import net.minecraft.data.tags.EntityTypeTagsProvider;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagEntry;
-import net.minecraft.world.entity.EntityType;
+// [1.7.10] HolderLookup removed
+// [1.7.10] data removed
+// [1.7.10] data removed
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] tags removed
+// [1.7.10] world.entity removed
 import net.minecraftforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,11 +27,14 @@ public class DefaultEntityTypeTagsProvider extends EntityTypeTagsProvider
     @Override
     protected void addTags(final HolderLookup.Provider holder)
     {
-        tag(ModTags.hostile).add(EntityType.SLIME);
-        tag(ModTags.mobAttackBlacklist).add(EntityType.ENDERMAN, EntityType.LLAMA);
-        tag(ModTags.freeToInteractWith).addOptional(new ResourceLocation("corpse", "corpse"));
+        NBTBase(ModTags.hostile).add(EntityType.SLIME);
+        NBTBase(ModTags.mobAttackBlacklist).add(EntityType.ENDERMAN, EntityType.LLAMA);
+        NBTBase(ModTags.freeToInteractWith).addOptional(new ResourceLocation("corpse", "corpse"));
 
-        final TagAppender<EntityType<?>> raiderTagAppender = tag(ModTags.raiders);
+        final TagAppender<EntityType<?>> raiderTagAppender = NBTBase(ModTags.raiders);
         ModEntities.getRaiders().forEach(raiderType -> raiderTagAppender.add(TagEntry.element(EntityType.getKey(raiderType))));
     }
 }
+
+
+

@@ -1,6 +1,6 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
 
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildingextensions.IBuildingExtension;
@@ -21,16 +21,16 @@ import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.AbstractCraftingBuildingModule;
 import com.minecolonies.core.colony.buildings.modules.BuildingExtensionsModule;
 import com.minecolonies.core.colony.buildings.moduleviews.FieldsModuleView;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import com.minecolonies.api.util.Tuple;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -69,7 +69,7 @@ public class BuildingPlantation extends AbstractBuilding
      * @param c the colony.
      * @param l the location
      */
-    public BuildingPlantation(final IColony c, final BlockPos l)
+    public BuildingPlantation(final IColony c, final int[] l)
     {
         super(c, l);
         keepX.put(itemStack -> ItemStackUtils.hasEquipmentLevel(itemStack, ModEquipmentTypes.axe.get(), TOOL_LEVEL_WOOD_OR_GOLD, getMaxEquipmentLevel()), new Tuple<>(1, true));
@@ -98,7 +98,7 @@ public class BuildingPlantation extends AbstractBuilding
     private void updateField(BuildingExtensionEntry type)
     {
         final PlantationField plantationField = PlantationField.create(type, getPosition());
-        final List<BlockPos> workingPositions =
+        final List<int[]> workingPositions =
           plantationField.getModule().getValidWorkingPositions(colony.getWorld(), getLocationsFromTag(plantationField.getModule().getWorkTag()));
         if (workingPositions.isEmpty())
         {
@@ -129,7 +129,7 @@ public class BuildingPlantation extends AbstractBuilding
      * This will register the fields on colony load, only when the building still contains old NBT data.
      */
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
         if (compound.contains(TAG_PLANTGROUND))
@@ -226,7 +226,7 @@ public class BuildingPlantation extends AbstractBuilding
     public static class PlantationFieldsModule extends BuildingExtensionsModule
     {
         @Override
-        public void serializeToView(final @NotNull FriendlyByteBuf buf)
+        public void serializeToView(final @NotNull PacketBuffer buf)
         {
             super.serializeToView(buf);
             buf.writeInt(getMaxConcurrentPlants());
@@ -316,7 +316,7 @@ public class BuildingPlantation extends AbstractBuilding
         private int maxConcurrentPlants = 0;
 
         @Override
-        public void deserialize(final @NotNull FriendlyByteBuf buf)
+        public void deserialize(final @NotNull PacketBuffer buf)
         {
             super.deserialize(buf);
             maxConcurrentPlants = buf.readInt();
@@ -335,9 +335,9 @@ public class BuildingPlantation extends AbstractBuilding
         }
 
         @Override
-        public @Nullable MutableComponent getFieldWarningTooltip(final IBuildingExtension field)
+        public @Nullable String getFieldWarningTooltip(final IBuildingExtension field)
         {
-            MutableComponent result = super.getFieldWarningTooltip(field);
+            String result = super.getFieldWarningTooltip(field);
             if (result != null)
             {
                 return result;
@@ -345,12 +345,12 @@ public class BuildingPlantation extends AbstractBuilding
 
             if (getCurrentPlantsPlusField(field) > maxConcurrentPlants)
             {
-                return Component.translatable(FIELD_LIST_WARN_EXCEEDS_PLANT_COUNT);
+                return String.translatable(FIELD_LIST_WARN_EXCEEDS_PLANT_COUNT);
             }
 
             if (!hasRequiredResearchForField(field))
             {
-                return Component.translatable(FIELD_LIST_PLANTATION_RESEARCH_REQUIRED);
+                return String.translatable(FIELD_LIST_PLANTATION_RESEARCH_REQUIRED);
             }
             return null;
         }
@@ -405,7 +405,7 @@ public class BuildingPlantation extends AbstractBuilding
 
         @Override
         @OnlyIn(Dist.CLIENT)
-        public BOWindow getWindow()
+        public Object /* BOWindow: todo ModularUI2 */ getWindow()
         {
             return new PlantationFieldsModuleWindow(this);
         }
@@ -445,7 +445,7 @@ public class BuildingPlantation extends AbstractBuilding
         }
 
         @Override
-        public @NotNull List<IGenericRecipe> getAdditionalRecipesForDisplayPurposesOnly(@NotNull final Level world)
+        public @NotNull List<IGenericRecipe> getAdditionalRecipesForDisplayPurposesOnly(@NotNull final World world)
         {
             final List<IGenericRecipe> recipes = new ArrayList<>(super.getAdditionalRecipesForDisplayPurposesOnly(world));
 
@@ -474,3 +474,7 @@ public class BuildingPlantation extends AbstractBuilding
         }
     }
 }
+
+
+
+

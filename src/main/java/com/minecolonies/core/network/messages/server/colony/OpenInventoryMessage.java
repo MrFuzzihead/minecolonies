@@ -9,13 +9,13 @@ import com.minecolonies.core.tileentities.TileEntityRack;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.CompatibilityUtils;
 import com.minecolonies.core.network.messages.server.AbstractColonyServerMessage;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] block.entity removed
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,7 +43,7 @@ public class OpenInventoryMessage extends AbstractColonyServerMessage
     /**
      * The position of the inventory block/entity.
      */
-    private BlockPos tePos;
+    private int[] tePos;
 
     /**
      * Empty public constructor.
@@ -82,7 +82,7 @@ public class OpenInventoryMessage extends AbstractColonyServerMessage
     }
 
     @Override
-    public void fromBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void fromBytesOverride(@NotNull final PacketBuffer buf)
     {
 
         inventoryType = InventoryType.values()[buf.readInt()];
@@ -99,7 +99,7 @@ public class OpenInventoryMessage extends AbstractColonyServerMessage
     }
 
     @Override
-    public void toBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void toBytesOverride(@NotNull final PacketBuffer buf)
     {
 
         buf.writeInt(inventoryType.ordinal());
@@ -116,9 +116,9 @@ public class OpenInventoryMessage extends AbstractColonyServerMessage
     }
 
     @Override
-    protected void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony)
+    protected void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony)
     {
-        final ServerPlayer player = ctxIn.getSender();
+        final EntityPlayerMP player = ctx.getServerHandler().playerEntity;
         if (player == null)
         {
             return;
@@ -136,7 +136,7 @@ public class OpenInventoryMessage extends AbstractColonyServerMessage
         }
     }
 
-    private void doCitizenInventory(final ServerPlayer player)
+    private void doCitizenInventory(final EntityPlayerMP player)
     {
         @Nullable final AbstractEntityCitizen citizen = (AbstractEntityCitizen) CompatibilityUtils.getWorldFromEntity(player).getEntity(entityID);
         if (citizen != null)
@@ -150,9 +150,9 @@ public class OpenInventoryMessage extends AbstractColonyServerMessage
         }
     }
 
-    private void doHutInventory(final ServerPlayer player, final IColony colony)
+    private void doHutInventory(final EntityPlayerMP player, final IColony colony)
     {
-        final BlockEntity tileEntity = BlockPosUtil.getTileEntity(player.level, tePos);
+        final BlockEntity tileEntity = BlockPosUtil.getTileEntity(player.World, tePos);
 
         if(tileEntity instanceof TileEntityRack || tileEntity instanceof TileEntityGrave)
         {
@@ -169,3 +169,7 @@ public class OpenInventoryMessage extends AbstractColonyServerMessage
         INVENTORY_CHEST
     }
 }
+
+
+
+

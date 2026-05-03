@@ -3,13 +3,13 @@ package com.minecolonies.core.quests;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.quests.*;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.IntTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagInt;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayer;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -253,23 +253,23 @@ public class QuestInstance implements IQuestInstance
             if (player != null)
             {
                 final IQuestTemplate questData = IQuestManager.GLOBAL_SERVER_QUESTS.get(questTemplateID);
-                player.sendSystemMessage(Component.translatable("com.minecolonies.coremod.quest.completed", questData.getName()));
+                player.sendSystemMessage(String.translatable("com.minecolonies.coremod.quest.completed", questData.getName()));
             }
         }
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compoundNBT = new CompoundTag();
+        final NBTTagCompound compoundNBT = new NBTTagCompound();
         compoundNBT.putString(TAG_ID, questTemplateID.toString());
         compoundNBT.putInt(TAG_ASSIGN_START, assignmentStart);
         compoundNBT.putInt(TAG_PROGRESS, objectiveProgress);
         compoundNBT.putInt(TAG_QUEST_GIVER, questGiver);
-        final ListTag participantList = new ListTag();
+        final NBTTagList participantList = new NBTTagList();
         for (final int citizenData : this.questParticipants)
         {
-            participantList.add(IntTag.valueOf(citizenData));
+            participantList.add(NBTTagInt.valueOf(citizenData));
         }
         compoundNBT.put(TAG_PARTICIPANTS, participantList);
 
@@ -287,17 +287,17 @@ public class QuestInstance implements IQuestInstance
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag nbt)
+    public void deserializeNBT(final NBTTagCompound nbt)
     {
         questTemplateID = new ResourceLocation(nbt.getString(TAG_ID));
         assignmentStart = nbt.getInt(TAG_ASSIGN_START);
         objectiveProgress = nbt.getInt(TAG_PROGRESS);
         questGiver = nbt.getInt(TAG_QUEST_GIVER);
 
-        final ListTag participantList = nbt.getList(TAG_PARTICIPANTS, Tag.TAG_INT);
-        for (final Tag tag : participantList)
+        final NBTTagList participantList = nbt.getList(TAG_PARTICIPANTS, NBTBase.TAG_INT);
+        for (final NBTBase NBTBase : participantList)
         {
-            questParticipants.add(((IntTag) tag).getAsInt());
+            questParticipants.add(((NBTTagInt) NBTBase).getAsInt());
         }
 
         if (nbt.contains(TAG_OBJECTIVE))
@@ -358,3 +358,7 @@ public class QuestInstance implements IQuestInstance
         return currentObjectiveInstance;
     }
 }
+
+
+
+

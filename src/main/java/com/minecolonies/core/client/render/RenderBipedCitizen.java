@@ -1,4 +1,41 @@
 package com.minecolonies.core.client.render;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
+import com.mojang.math.Axis;
+import com.mojang.math.Pose;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.EntityModelSet;
+import net.minecraft.world.item.BannerItem;
+import net.minecraft.world.level.GameType;
+import net.minecraft.network.chat.FormattedCharSequence;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
+import net.minecraft.world.item.CrossbowItem;
+import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.client.renderer.blockentity.BlockEntityWithoutLevelRenderer;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.MobRenderer;
+import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
+import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
+import net.minecraft.client.renderer.entity.layers.RenderLayerParent;
+import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
 
 import com.minecolonies.api.client.render.modeltype.CitizenModel;
 import com.minecolonies.api.client.render.modeltype.IModelType;
@@ -10,15 +47,15 @@ import com.minecolonies.core.client.render.worldevent.RenderTypes;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.MobRenderer;
-import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionHand;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] int /* InteractionHand */ removed
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 
@@ -57,8 +94,8 @@ public class RenderBipedCitizen extends MobRenderer<AbstractEntityCitizen, Citiz
 
         final CitizenModel<AbstractEntityCitizen> citizenModel = model;
 
-        citizenModel.rightArmPose = RenderUtils.getArmPose(citizen, InteractionHand.MAIN_HAND);
-        citizenModel.leftArmPose = RenderUtils.getArmPose(citizen, InteractionHand.OFF_HAND);
+        citizenModel.rightArmPose = RenderUtils.getArmPose(citizen, 0 /* InteractionHand.MAIN_HAND */);
+        citizenModel.leftArmPose = RenderUtils.getArmPose(citizen, 1 /* InteractionHand.OFF_HAND */);
 
         if (isItGhostTime)
         {
@@ -100,7 +137,7 @@ public class RenderBipedCitizen extends MobRenderer<AbstractEntityCitizen, Citiz
     @Override
     protected void renderNameTag(
       @NotNull final AbstractEntityCitizen entityIn,
-      @NotNull final Component str,
+      @NotNull final String str,
       @NotNull final PoseStack matrixStack,
       @NotNull final MultiBufferSource buffer,
       final int packedLight)
@@ -143,3 +180,8 @@ public class RenderBipedCitizen extends MobRenderer<AbstractEntityCitizen, Citiz
         return entity.getTexture();
     }
 }
+
+
+
+
+

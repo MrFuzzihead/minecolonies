@@ -3,15 +3,16 @@ package com.minecolonies.api.inventory.container;
 import com.minecolonies.api.inventory.ModContainers;
 import com.minecolonies.api.tileentities.AbstractTileEntityGrave;
 import com.minecolonies.api.util.ItemStackUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.SlotItemHandler;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
+// [1.7.10] Inventory removed
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
+// [1.7.10] items shim in com.minecolonies.api.shim
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.InventoryConstants.*;
@@ -19,12 +20,12 @@ import static com.minecolonies.api.util.constant.InventoryConstants.*;
 /**
  * The container class for the grave.
  */
-public class ContainerGrave extends AbstractContainerMenu
+public class ContainerGrave extends Container
 {
     /**
      * The inventory.
      */
-    private final IItemHandler inventory;
+    private final net.minecraftforge.items.IItemHandler inventory;
 
     /**
      * The tileEntity.
@@ -40,11 +41,11 @@ public class ContainerGrave extends AbstractContainerMenu
      * Deserialize packet buffer to container instance.
      *
      * @param windowId     the id of the window.
-     * @param inv          the player inventory.
+     * @param inv          the EntityPlayer inventory.
      * @param packetBuffer network buffer
      * @return new instance
      */
-    public static ContainerGrave fromFriendlyByteBuf(final int windowId, final Inventory inv, final FriendlyByteBuf packetBuffer)
+    public static ContainerGrave fromPacketBuffer(final int windowId, final InventoryPlayer inv, final PacketBuffer packetBuffer)
     {
         return new ContainerGrave(windowId, inv, packetBuffer);
     }
@@ -56,12 +57,12 @@ public class ContainerGrave extends AbstractContainerMenu
      * @param inv      the inventory.
      * @param extra    some extra data.
      */
-    public ContainerGrave(final int windowId, final Inventory inv, final FriendlyByteBuf extra)
+    public ContainerGrave(final int windowId, final InventoryPlayer inv, final PacketBuffer extra)
     {
-        super(ModContainers.graveInv.get(), windowId);
-        final BlockPos grave = extra.readBlockPos();
+        super();
+        final int[] grave = extra.readBlockPos();
 
-        final AbstractTileEntityGrave abstractTileEntityGrave = (AbstractTileEntityGrave) inv.player.level().getBlockEntity(grave);
+        final AbstractTileEntityGrave abstractTileEntityGrave = (AbstractTileEntityGrave) inv.player.World().getBlockEntity(grave);
         this.inventory = abstractTileEntityGrave.getInventory();
 
         this.grave = abstractTileEntityGrave;
@@ -87,8 +88,8 @@ public class ContainerGrave extends AbstractContainerMenu
             }
         }
 
-        // Player inventory slots
-        // Note: The slot numbers are within the player inventory and may be the same as the field inventory.
+        // EntityPlayer inventory slots
+        // Note: The slot numbers are within the EntityPlayer inventory and may be the same as the field inventory.
         int i;
         for (i = 0; i < INVENTORY_ROWS; i++)
         {
@@ -117,16 +118,16 @@ public class ContainerGrave extends AbstractContainerMenu
 
     @NotNull
     @Override
-    public ItemStack quickMoveStack(final Player playerIn, final int index)
+    public ItemStack transferStackInSlot(final EntityPlayer playerIn, final int index)
     {
         final Slot slot = this.slots.get(index);
 
-        if (slot == null || !slot.hasItem())
+        if (slot == null || !slot.getHasStack())
         {
             return ItemStackUtils.EMPTY;
         }
 
-        final ItemStack stackCopy = slot.getItem().copy();
+        final ItemStack stackCopy = slot.getStack().copy();
 
         final int maxIndex = this.inventorySize * INVENTORY_COLUMNS;
 
@@ -164,8 +165,11 @@ public class ContainerGrave extends AbstractContainerMenu
     }
 
     @Override
-    public boolean stillValid(final Player playerIn)
+    public boolean canInteractWith(final EntityPlayer playerIn)
     {
         return true;
     }
 }
+
+
+

@@ -2,11 +2,11 @@ package com.minecolonies.api.crafting;
 
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.api.util.OptionalPredicate;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
+import net.minecraft.block.Block;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -135,7 +135,7 @@ public interface IGenericRecipe
      * @return The required creature.
      */
     @Nullable
-    EntityType<?> getRequiredEntity();
+    Class /* EntityType */<?> getRequiredEntity();
 
     /**
      * Gets some human-readable restrictions on when this recipe is valid.
@@ -143,11 +143,15 @@ public interface IGenericRecipe
      * @return A list of restrictions.
      */
     @NotNull
-    Supplier<List<Component>> getRestrictions();
+    Supplier<List<String>> getRestrictions();
 
     /**
-     * Returns an arbitrary integer that influences recipe sort order based on level.
+     * Returns an arbitrary integer that influences recipe sort order based on World.
      * @return a sorting number
      */
     int getLevelSort();
 }
+
+
+
+

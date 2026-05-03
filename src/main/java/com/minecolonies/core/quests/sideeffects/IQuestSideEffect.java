@@ -1,10 +1,10 @@
 package com.minecolonies.core.quests.sideeffects;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] INBTSerializable -> manual read/write
 
-public interface IQuestSideEffect extends INBTSerializable<CompoundTag>
+public interface IQuestSideEffect extends INBTSerializable<NBTTagCompound>
 {
     /**
      * Gets the quest effects ID
@@ -32,7 +32,7 @@ public interface IQuestSideEffect extends INBTSerializable<CompoundTag>
      * Deserialize the quest side effect.
      * @param nbt the nbt to deserialize it from.
      */
-    default void deserializeNBT(final CompoundTag nbt)
+    default void deserializeNBT(final NBTTagCompound nbt)
     {
         // noop
     }
@@ -41,8 +41,11 @@ public interface IQuestSideEffect extends INBTSerializable<CompoundTag>
      * Serialize the side effect to nbt.
      * @return the nbt to serialize it to.
      */
-    default CompoundTag serializeNBT()
+    default NBTTagCompound serializeNBT()
     {
-        return new CompoundTag();
+        return new NBTTagCompound();
     }
 }
+
+
+

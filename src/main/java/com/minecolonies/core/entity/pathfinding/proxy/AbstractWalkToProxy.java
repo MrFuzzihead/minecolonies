@@ -3,8 +3,8 @@ package com.minecolonies.core.entity.pathfinding.proxy;
 import com.minecolonies.api.entity.pathfinding.proxy.IWalkToProxy;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.EntityUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Mob;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] world.entity removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,29 +34,29 @@ public abstract class AbstractWalkToProxy implements IWalkToProxy
     /**
      * The entity entity associated with the proxy.
      */
-    private final Mob entity;
+    private final EntityCreature entity;
 
     /**
      * List of proxies the entity has to follow.
      */
-    private final List<BlockPos> proxyList = new ArrayList<>();
+    private final List<int[]> proxyList = new ArrayList<>();
 
     /**
      * The current proxy the citizen paths to.
      */
-    private BlockPos currentProxy;
+    private int[] currentProxy;
 
     /**
      * Current target the entity has.
      */
-    private BlockPos target;
+    private int[] target;
 
     /**
      * Creates a walkToProxy for a certain entity.
      *
      * @param entity the entity.
      */
-    protected AbstractWalkToProxy(final Mob entity)
+    protected AbstractWalkToProxy(final EntityCreature entity)
     {
         this.entity = entity;
     }
@@ -68,7 +68,7 @@ public abstract class AbstractWalkToProxy implements IWalkToProxy
      * @param range  the range.
      * @return true if arrived.
      */
-    public boolean walkToBlock(@NotNull final BlockPos target, final int range)
+    public boolean walkToBlock(@NotNull final int[] target, final int range)
     {
         return walkToBlock(target, range, true);
     }
@@ -81,7 +81,7 @@ public abstract class AbstractWalkToProxy implements IWalkToProxy
      * @param onMove entity on move or not?
      * @return true if arrived.
      */
-    public boolean walkToBlock(@NotNull final BlockPos target, final int range, final boolean onMove)
+    public boolean walkToBlock(@NotNull final int[] target, final int range, final boolean onMove)
     {
         if (!target.equals(this.target))
         {
@@ -89,7 +89,7 @@ public abstract class AbstractWalkToProxy implements IWalkToProxy
             this.target = target;
         }
 
-        final BlockPos pos = BlockPos.containing(entity.getX(), entity.getY(), entity.getZ());
+        final int[] pos = new int[]{(int)entity.getX(), (int)entity.getY(), (int)entity.getZ()};
         final double distanceToPath = careAboutY()
                                         ? BlockPosUtil.getDistanceSquared(pos, target) : BlockPosUtil.getDistanceSquared2D(pos, target);
 
@@ -145,7 +145,7 @@ public abstract class AbstractWalkToProxy implements IWalkToProxy
      *
      * @return a copy of the list
      */
-    public List<BlockPos> getProxyList()
+    public List<int[]> getProxyList()
     {
         return new ArrayList<>(proxyList);
     }
@@ -155,7 +155,7 @@ public abstract class AbstractWalkToProxy implements IWalkToProxy
      *
      * @param pos the position to add.
      */
-    public void addToProxyList(final BlockPos pos)
+    public void addToProxyList(final int[] pos)
     {
         proxyList.add(pos);
     }
@@ -170,7 +170,7 @@ public abstract class AbstractWalkToProxy implements IWalkToProxy
      * @param range  the range.
      * @return true if so.
      */
-    public boolean isLivingAtSiteWithMove(final Mob entity, final int x, final int y, final int z, final int range)
+    public boolean isLivingAtSiteWithMove(final EntityCreature entity, final int x, final int y, final int z, final int range)
     {
         if (!EntityUtils.isLivingAtSiteWithMove(entity, x, y, z, range))
         {
@@ -185,7 +185,7 @@ public abstract class AbstractWalkToProxy implements IWalkToProxy
      *
      * @return the entity.
      */
-    public Mob getEntity()
+    public EntityCreature getEntity()
     {
         return entity;
     }
@@ -198,10 +198,10 @@ public abstract class AbstractWalkToProxy implements IWalkToProxy
      * @param onMove entity on move or not?
      * @return true if arrived.
      */
-    private boolean takeTheDirectPath(@NotNull final BlockPos target, final int range, final boolean onMove)
+    private boolean takeTheDirectPath(@NotNull final int[] target, final int range, final boolean onMove)
     {
         final boolean arrived;
-        final BlockPos pos = BlockPos.containing(entity.getX(), entity.getY(), entity.getZ());
+        final int[] pos = new int[]{(int)entity.getX(), (int)entity.getY(), (int)entity.getZ()};
 
         if (onMove)
         {
@@ -229,10 +229,10 @@ public abstract class AbstractWalkToProxy implements IWalkToProxy
      * @return the first position to path to.
      */
     @NotNull
-    private BlockPos fillProxyList(@NotNull final BlockPos target, final double distanceToPath)
+    private int[] fillProxyList(@NotNull final int[] target, final double distanceToPath)
     {
-        @Nullable BlockPos proxyPoint = getSpecializedProxy(target, distanceToPath);
-        final BlockPos pos = BlockPos.containing(entity.getX(), entity.getY(), entity.getZ());
+        @Nullable int[] proxyPoint = getSpecializedProxy(target, distanceToPath);
+        final int[] pos = new int[]{(int)entity.getX(), (int)entity.getY(), (int)entity.getZ()};
 
         if (proxyPoint == null)
         {
@@ -265,13 +265,13 @@ public abstract class AbstractWalkToProxy implements IWalkToProxy
      * @return a proxy or, if not applicable null.
      */
     @NotNull
-    protected BlockPos getProxy(@NotNull final BlockPos target, @NotNull final BlockPos position, final double distanceToPath)
+    protected int[] getProxy(@NotNull final int[] target, @NotNull final int[] position, final double distanceToPath)
     {
         double weight = Double.MAX_VALUE;
-        BlockPos proxyPoint = null;
+        int[] proxyPoint = null;
         double distance = Double.MAX_VALUE;
 
-        for (final BlockPos wayPoint : getWayPoints())
+        for (final int[] wayPoint : getWayPoints())
         {
             final double simpleDistance = careAboutY() ? BlockPosUtil.getDistanceSquared(position, wayPoint) : BlockPosUtil.getDistanceSquared2D(position, wayPoint);
             final double targetDistance = careAboutY() ? BlockPosUtil.getDistanceSquared(wayPoint, target) : BlockPosUtil.getDistanceSquared2D(wayPoint, target);
@@ -307,7 +307,7 @@ public abstract class AbstractWalkToProxy implements IWalkToProxy
     }
 
     @Override
-    public BlockPos getCurrentProxy()
+    public int[] getCurrentProxy()
     {
         return currentProxy;
     }
@@ -318,3 +318,6 @@ public abstract class AbstractWalkToProxy implements IWalkToProxy
         this.target = null;
     }
 }
+
+
+

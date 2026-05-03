@@ -18,9 +18,9 @@ import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.coordinates.Coordinates;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.Entity;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+import net.minecraft.entity.Entity;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +37,7 @@ public class CommandCitizenTriggerWalkTo implements IMCColonyOfficerCommand
     /**
      * Tracks the current walking event
      */
-    static Map<UUID, BlockPos> walkingPosMap = new HashMap<>();
+    static Map<UUID, int[]> walkingPosMap = new HashMap<>();
 
     /**
      * What happens when the command is executed after preConditions are successful.
@@ -53,7 +53,7 @@ public class CommandCitizenTriggerWalkTo implements IMCColonyOfficerCommand
 
         if (citizenData == null)
         {
-            context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_CITIZEN_NOT_FOUND), true);
+            context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_CITIZEN_NOT_FOUND), true);
             return 0;
         }
 
@@ -61,28 +61,28 @@ public class CommandCitizenTriggerWalkTo implements IMCColonyOfficerCommand
 
         if (!optionalEntityCitizen.isPresent())
         {
-            context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_CITIZEN_NOT_LOADED), true);
+            context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_CITIZEN_NOT_LOADED), true);
             return 0;
         }
 
         final AbstractEntityCitizen entityCitizen = optionalEntityCitizen.get();
         final Coordinates targetLocation = Vec3Argument.getCoordinates(context, POS_ARG);
-        final BlockPos targetPos = targetLocation.getBlockPos(context.getSource());
+        final int[] targetPos = targetLocation.getBlockPos(context.getSource());
 
-        if (context.getSource().getLevel() == entityCitizen.level)
+        if (context.getSource().getLevel() == entityCitizen.World)
         {
             if (entityCitizen instanceof EntityCitizen && entityCitizen.getCitizenJobHandler().getColonyJob() != null)
             {
                 final UUID uuid = sender == null ? UUID.fromString("unknown") : sender.getUUID();
                 walkingPosMap.put(uuid, targetPos);
 
-                final long start = entityCitizen.level().getGameTime();
+                final long start = entityCitizen.World().getGameTime();
 
                 final AIOneTimeEventTarget<IState> currentTarget = new AIOneTimeEventTarget<IState>(() ->
                 {
                     if (targetPos.equals(walkingPosMap.get(uuid))
                         && !EntityNavigationUtils.walkToPos(entityCitizen, targetPos, 4, true)
-                        && entityCitizen.level().getGameTime() - start < 20 * 60 * 3)
+                        && entityCitizen.World().getGameTime() - start < 20 * 60 * 3)
                     {
                         return ((EntityCitizen) entityCitizen).getCitizenAI().getState();
                     }
@@ -143,3 +143,5 @@ public class CommandCitizenTriggerWalkTo implements IMCColonyOfficerCommand
         return 1;
     }
 }
+
+

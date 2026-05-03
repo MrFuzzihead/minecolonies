@@ -1,18 +1,24 @@
 package com.minecolonies.core.colony.requestsystem.locations;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.google.common.reflect.TypeToken;
 import com.minecolonies.api.colony.requestsystem.factory.IFactoryController;
 import com.minecolonies.api.colony.requestsystem.location.ILocation;
 import com.minecolonies.api.colony.requestsystem.location.ILocationFactory;
 import com.minecolonies.api.util.constant.SerializationIdentifierConstants;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 
@@ -69,13 +75,13 @@ public class EntityLocation implements ILocation
      */
     @NotNull
     @Override
-    public BlockPos getInDimensionLocation()
+    public int[] getInDimensionLocation()
     {
         checkEntity();
         final Entity entityRef = entity.get();
         if (entityRef == null)
         {
-            return BlockPos.ZERO;
+            return new int[]{0,0,0};
         }
         else
         {
@@ -90,13 +96,13 @@ public class EntityLocation implements ILocation
      */
     @NotNull
     @Override
-    public ResourceKey<Level> getDimension()
+    public int /* ResourceKey */ getDimension()
     {
         checkEntity();
         final Entity entityRef = entity.get();
         if (entityRef == null)
         {
-            return Level.OVERWORLD;
+            return World.OVERWORLD;
         }
         else
         {
@@ -171,9 +177,9 @@ public class EntityLocation implements ILocation
          */
         @NotNull
         @Override
-        public CompoundTag serialize(@NotNull final IFactoryController controller, @NotNull final EntityLocation request)
+        public NBTTagCompound serialize(@NotNull final IFactoryController controller, @NotNull final EntityLocation request)
         {
-            final CompoundTag compound = new CompoundTag();
+            final NBTTagCompound compound = new NBTTagCompound();
 
             compound.putLong(NBT_LSB, request.uuid.getLeastSignificantBits());
             compound.putLong(NBT_MSB, request.uuid.getMostSignificantBits());
@@ -190,7 +196,7 @@ public class EntityLocation implements ILocation
          */
         @NotNull
         @Override
-        public EntityLocation deserialize(@NotNull final IFactoryController controller, @NotNull final CompoundTag nbt)
+        public EntityLocation deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound nbt)
         {
             final UUID uuid = new UUID(nbt.getLong(NBT_MSB), nbt.getLong(NBT_LSB));
 
@@ -212,13 +218,13 @@ public class EntityLocation implements ILocation
         }
 
         @Override
-        public void serialize(IFactoryController controller, EntityLocation input, FriendlyByteBuf packetBuffer)
+        public void serialize(IFactoryController controller, EntityLocation input, PacketBuffer packetBuffer)
         {
             EntityLocation.serialize(packetBuffer, input);
         }
 
         @Override
-        public EntityLocation deserialize(IFactoryController controller, FriendlyByteBuf buffer) throws Throwable
+        public EntityLocation deserialize(IFactoryController controller, PacketBuffer buffer) throws Throwable
         {
             return EntityLocation.deserialize(buffer);
         }
@@ -231,25 +237,29 @@ public class EntityLocation implements ILocation
     }
 
     /**
-     * Serialize this location to the given {@link FriendlyByteBuf}.
+     * Serialize this location to the given {@link PacketBuffer}.
      *
      * @param buffer the buffer to serialize this location to.
      */
-    public static void serialize(FriendlyByteBuf buffer, EntityLocation location)
+    public static void serialize(PacketBuffer buffer, EntityLocation location)
     {
         buffer.writeUUID(location.uuid);
     }
 
     /**
-     * Deserialize the location from the given {@link FriendlyByteBuf}
+     * Deserialize the location from the given {@link PacketBuffer}
      *
      * @param buffer the buffer to read.
      * @return the deserialized location.
      */
-    public static EntityLocation deserialize(FriendlyByteBuf buffer)
+    public static EntityLocation deserialize(PacketBuffer buffer)
     {
         final UUID uuid = buffer.readUUID();
 
         return new EntityLocation(uuid);
     }
 }
+
+
+
+

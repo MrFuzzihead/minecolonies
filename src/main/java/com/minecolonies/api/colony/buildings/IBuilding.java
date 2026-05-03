@@ -22,14 +22,14 @@ import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.inventory.api.CombinedItemHandler;
 import com.minecolonies.core.util.SortingUtils;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraftforge.items.IItemHandler;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
+import com.minecolonies.api.util.Tuple;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,7 +43,7 @@ import static com.minecolonies.api.util.constant.Suppression.GENERIC_WILDCARD;
 public interface IBuilding extends IBuildingContainer, IBuildingModuleContainer, IRequestResolverProvider, IRequester, ICommonBuilding
 {
     /**
-     * Minimal level to ask for wood tools. (WOOD_HUT_LEVEL + 1 == stone)
+     * Minimal World to ask for wood tools. (WOOD_HUT_LEVEL + 1 == stone)
      */
     int WOOD_HUT_LEVEL = 0;
 
@@ -89,18 +89,18 @@ public interface IBuilding extends IBuildingContainer, IBuildingModuleContainer,
     void onPlacement();
 
     /**
-     * Called when a player comes close to the building.
+     * Called when a EntityPlayer comes close to the building.
      *
-     * @param player entering player
+     * @param EntityPlayer entering EntityPlayer
      */
-    default void onPlayerEnterNearby(final Player player) {}
+    default void onPlayerEnterNearby(final EntityPlayer EntityPlayer) {}
 
     /**
-     * Called when a player enters the building area
+     * Called when a EntityPlayer enters the building area
      *
-     * @param player entering player
+     * @param EntityPlayer entering EntityPlayer
      */
-    default void onPlayerEnterBuilding(final Player player) {}
+    default void onPlayerEnterBuilding(final EntityPlayer EntityPlayer) {}
 
     /**
      * Checks if a block matches the current object.
@@ -118,9 +118,9 @@ public interface IBuilding extends IBuildingContainer, IBuildingModuleContainer,
     void onDestroyed();
 
     /**
-     * Method to define if a builder can build this although the builder is not level 1 yet.
+     * Method to define if a builder can build this although the builder is not World 1 yet.
      *
-     * @param newLevel the new level of the building.
+     * @param newLevel the new World of the building.
      * @return true if so.
      */
     boolean canBeBuiltByBuilder(int newLevel);
@@ -143,9 +143,9 @@ public interface IBuilding extends IBuildingContainer, IBuildingModuleContainer,
     void removeWorkOrder();
 
     /**
-     * Method to calculate the radius to be claimed by this building depending on the level.
+     * Method to calculate the radius to be claimed by this building depending on the World.
      *
-     * @param buildingLevel the building level.
+     * @param buildingLevel the building World.
      * @return the radius.
      */
     int getClaimRadius(int buildingLevel);
@@ -153,10 +153,10 @@ public interface IBuilding extends IBuildingContainer, IBuildingModuleContainer,
     /**
      * Serializes to view.
      *
-     * @param buf      FriendlyByteBuf to write to.
+     * @param buf      PacketBuffer to write to.
      * @param fullSync Whether it's a full sync
      */
-    void serializeToView(@NotNull FriendlyByteBuf buf, final boolean fullSync);
+    void serializeToView(@NotNull PacketBuffer buf, final boolean fullSync);
 
     /**
      * Set the custom building name of the building.
@@ -175,25 +175,25 @@ public interface IBuilding extends IBuildingContainer, IBuildingModuleContainer,
     /**
      * Requests an upgrade for the current building.
      *
-     * @param player  the requesting player.
+     * @param EntityPlayer  the requesting EntityPlayer.
      * @param builder the assigned builder.
      */
-    void requestUpgrade(Player player, BlockPos builder);
+    void requestUpgrade(EntityPlayer EntityPlayer, int[] builder);
 
     /**
      * Requests a removal for the current building.
      *
-     * @param player  the requesting player.
+     * @param EntityPlayer  the requesting EntityPlayer.
      * @param builder the assigned builder.
      */
-    void requestRemoval(Player player, BlockPos builder);
+    void requestRemoval(EntityPlayer EntityPlayer, int[] builder);
 
     /**
      * Requests a repair for the current building.
      *
      * @param builder the assigned builder.
      */
-    void requestRepair(BlockPos builder);
+    void requestRepair(int[] builder);
 
     /**
      * Check if the building was built already.
@@ -210,7 +210,7 @@ public interface IBuilding extends IBuildingContainer, IBuildingModuleContainer,
     /**
      * Called upon completion of an upgrade process. We suppress this warning since this parameter will be used in child classes which override this method.
      *
-     * @param newLevel The new level.
+     * @param newLevel The new World.
      */
     void onUpgradeComplete(@Nullable final Blueprint blueprint, int newLevel);
 
@@ -268,7 +268,7 @@ public interface IBuilding extends IBuildingContainer, IBuildingModuleContainer,
      * @return the itemStack which has been replaced or the itemStack which could not be transfered
      */
     @Nullable
-    ItemStack forceTransferStack(ItemStack stack, Level world);
+    ItemStack forceTransferStack(ItemStack stack, World world);
 
     /**
      * Create a request for a citizen.
@@ -399,10 +399,10 @@ public interface IBuilding extends IBuildingContainer, IBuildingModuleContainer,
      * @param pos the pos to check.
      * @return true if so.
      */
-    boolean isInBuilding(@NotNull final BlockPos pos);
+    boolean isInBuilding(@NotNull final int[] pos);
 
     /**
-     * Upgrades the buildings level to fit its schematic data
+     * Upgrades the buildings World to fit its schematic data
      */
     void upgradeBuildingLevelToSchematicData();
 
@@ -413,10 +413,10 @@ public interface IBuilding extends IBuildingContainer, IBuildingModuleContainer,
     Map<TypeToken<?>, Collection<IToken<?>>> getOpenRequestsByRequestableType();
 
     /**
-     * Pickup the building including the level and put it in the players inv.
-     * @param player the player picking it up.
+     * Pickup the building including the World and put it in the players inv.
+     * @param EntityPlayer the EntityPlayer picking it up.
      */
-    void pickUp(final Player player);
+    void pickUp(final EntityPlayer EntityPlayer);
 
     /**
      * Set the building type
@@ -439,7 +439,7 @@ public interface IBuilding extends IBuildingContainer, IBuildingModuleContainer,
     boolean isItemStackInRequest(@Nullable ItemStack stack);
 
     /**
-     * Get the max equipment level useable by the worker.
+     * Get the max equipment World useable by the worker.
      *
      * @return the integer.
      */
@@ -476,7 +476,7 @@ public interface IBuilding extends IBuildingContainer, IBuildingModuleContainer,
      *
      * @return the handlers of the building + citizen.
      */
-    List<IItemHandler> getHandlers();
+    List<net.minecraftforge.items.IItemHandler> getHandlers();
 
     /**
      * Get setting for key. Utility function.
@@ -508,11 +508,11 @@ public interface IBuilding extends IBuildingContainer, IBuildingModuleContainer,
 
     /**
      * Gets the list of tags, and finds all locations registered there.
-     * @param tagName the name of the tag to query
-     * @return all the matching BlockPos, or an empty list if not found
+     * @param tagName the name of the NBTBase to query
+     * @return all the matching int[], or an empty list if not found
      */
     @NotNull
-    List<BlockPos> getLocationsFromTag(@NotNull final String tagName);
+    List<int[]> getLocationsFromTag(@NotNull final String tagName);
 
     /**
      * Checks if the building can be sorted.
@@ -544,3 +544,7 @@ public interface IBuilding extends IBuildingContainer, IBuildingModuleContainer,
      */
     void asyncPrestigeRecalc();
 }
+
+
+
+

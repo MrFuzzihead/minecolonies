@@ -1,35 +1,35 @@
 package com.minecolonies.core.entity.pathfinding.world;
 
 import com.minecolonies.api.util.WorldUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.server.level.ChunkHolder;
-import net.minecraft.server.level.ServerChunkCache;
-import net.minecraft.world.entity.Entity;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
+// [1.7.10] Holder removed
+// [1.7.10] RegistryAccess removed
+import net.minecraft.server.World.ChunkHolder;
+import net.minecraft.server.World.ServerChunkCache;
+import net.minecraft.entity.Entity;
 import net.minecraft.world.flag.FeatureFlagSet;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.BiomeManager;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.border.WorldBorder;
-import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkStatus;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.lighting.LevelLightEngine;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.world.World.ChunkPos;
+import net.minecraft.world.World;
+import net.minecraft.world.World.LevelReader;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.World.biome.BiomeManager;
+// [1.7.10] block import removed
+// [1.7.10] block.entity removed
+// [1.7.10] BlockState -> int metadata
+import net.minecraft.world.World.border.WorldBorder;
+import net.minecraft.world.World.chunk.ChunkAccess;
+import net.minecraft.world.World.chunk.ChunkStatus;
+import net.minecraft.world.chunk.Chunk;
+// [1.7.10] dimension removed
+// [1.7.10] levelgen removed
+import net.minecraft.world.World.lighting.LevelLightEngine;
+// [1.7.10] World.material removed
+// [1.7.10] World.material removed
+// [1.7.10] world.phys removed
+// [1.7.10] world.phys removed
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -51,7 +51,7 @@ public class ChunkCache implements LevelReader
     /**
      * Reference to the World object.
      */
-    protected     Level          world;
+    protected     World          world;
 
     /**
      * Dimension limits
@@ -59,7 +59,7 @@ public class ChunkCache implements LevelReader
     private final int minBuildHeight;
     private final int maxBuildHeight;
 
-    public ChunkCache(Level worldIn, BlockPos posFromIn, BlockPos posToIn)
+    public ChunkCache(World worldIn, int[] posFromIn, int[] posToIn)
     {
         this.world = worldIn;
         this.chunkX = posFromIn.getX() >> 4;
@@ -102,13 +102,13 @@ public class ChunkCache implements LevelReader
 
     @Nullable
     @Override
-    public BlockEntity getBlockEntity(@NotNull BlockPos pos)
+    public BlockEntity getBlockEntity(@NotNull int[] pos)
     {
         return this.getTileEntity(pos, LevelChunk.EntityCreationType.CHECK); // Forge: don't modify world from other threads
     }
 
     @Nullable
-    public BlockEntity getTileEntity(BlockPos pos, LevelChunk.EntityCreationType createType)
+    public BlockEntity getTileEntity(int[] pos, LevelChunk.EntityCreationType createType)
     {
         int i = (pos.getX() >> 4) - this.chunkX;
         int j = (pos.getZ() >> 4) - this.chunkZ;
@@ -133,7 +133,7 @@ public class ChunkCache implements LevelReader
 
     @NotNull
     @Override
-    public BlockState getBlockState(BlockPos pos)
+    public BlockState getBlockState(int[] pos)
     {
         if (pos.getY() >= getMinBuildHeight() && pos.getY() < getMaxBuildHeight())
         {
@@ -156,7 +156,7 @@ public class ChunkCache implements LevelReader
     }
 
     @Override
-    public FluidState getFluidState(final BlockPos pos)
+    public FluidState getFluidState(final int[] pos)
     {
         if (pos.getY() >= getMinBuildHeight() && pos.getY() < getMaxBuildHeight())
         {
@@ -188,7 +188,7 @@ public class ChunkCache implements LevelReader
      * blocks to still pass this check.
      */
     @Override
-    public boolean isEmptyBlock(BlockPos pos)
+    public boolean isEmptyBlock(int[] pos)
     {
         BlockState state = this.getBlockState(pos);
         return state.isAir();
@@ -215,7 +215,7 @@ public class ChunkCache implements LevelReader
     }
 
     @Override
-    public BlockPos getHeightmapPos(final Heightmap.Types heightmapType, final BlockPos pos)
+    public int[] getHeightmapPos(final Heightmap.Types heightmapType, final int[] pos)
     {
         return null;
     }
@@ -257,7 +257,7 @@ public class ChunkCache implements LevelReader
     }
 
     @Override
-    public int getDirectSignal(BlockPos pos, Direction direction)
+    public int getDirectSignal(int[] pos, Direction direction)
     {
         return this.getBlockState(pos).getDirectSignal(this, pos, direction);
     }
@@ -309,3 +309,7 @@ public class ChunkCache implements LevelReader
         return null;
     }
 }
+
+
+
+

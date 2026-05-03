@@ -8,7 +8,7 @@ import com.minecolonies.core.util.BackUpHelper;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
+import net.minecraft.util.IChatComponent;
 
 import static com.minecolonies.api.util.constant.translation.CommandTranslationConstants.COMMAND_COLONY_EXPORT_SUCCESS;
 import static com.minecolonies.core.commands.CommandArgumentNames.COLONYID_ARG;
@@ -25,7 +25,7 @@ public class CommandExportColony implements IMCOPCommand
         BackUpHelper.backupColonyData();
 
         final String filename = BackUpHelper.exportColony(colony);
-        context.getSource().sendSuccess(() -> Component.translatable(COMMAND_COLONY_EXPORT_SUCCESS, filename), true);
+        context.getSource().sendSuccess(() -> String.translatable(COMMAND_COLONY_EXPORT_SUCCESS, filename), true);
         return 1;
     }
 
@@ -45,3 +45,5 @@ public class CommandExportColony implements IMCOPCommand
                  .then(IMCCommand.newArgument(COLONYID_ARG, ColonyIdArgument.id()).executes(this::checkPreConditionAndExecute));
     }
 }
+
+

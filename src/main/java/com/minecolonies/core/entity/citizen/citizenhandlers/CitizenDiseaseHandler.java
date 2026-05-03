@@ -12,11 +12,11 @@ import com.minecolonies.core.colony.jobs.AbstractJobGuard;
 import com.minecolonies.core.colony.jobs.JobHealer;
 import com.minecolonies.core.datalistener.model.Disease;
 import com.minecolonies.core.datalistener.DiseasesListener;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.RandomSource;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.util.ResourceLocation;
+import java.util.Random;
 import org.jetbrains.annotations.Nullable;
 
 import static com.minecolonies.api.research.util.ResearchConstants.MASKS;
@@ -168,9 +168,9 @@ public class CitizenDiseaseHandler implements ICitizenDiseaseHandler
     }
 
     @Override
-    public void write(final CompoundTag compound)
+    public void write(final NBTTagCompound compound)
     {
-        CompoundTag diseaseTag = new CompoundTag();
+        NBTTagCompound diseaseTag = new NBTTagCompound();
         if (disease != null)
         {
             diseaseTag.putString(TAG_DISEASE_ID, disease.id().toString());
@@ -180,14 +180,14 @@ public class CitizenDiseaseHandler implements ICitizenDiseaseHandler
     }
 
     @Override
-    public void read(final CompoundTag compound)
+    public void read(final NBTTagCompound compound)
     {
-        if (!compound.contains(TAG_DISEASE, Tag.TAG_COMPOUND))
+        if (!compound.contains(TAG_DISEASE, NBTBase.TAG_COMPOUND))
         {
             return;
         }
 
-        CompoundTag diseaseTag = compound.getCompound(TAG_DISEASE);
+        NBTTagCompound diseaseTag = compound.getCompound(TAG_DISEASE);
         if (diseaseTag.contains(TAG_DISEASE_ID))
         {
             this.disease = DiseasesListener.getDisease(new ResourceLocation(diseaseTag.getString(TAG_DISEASE_ID)));
@@ -210,7 +210,7 @@ public class CitizenDiseaseHandler implements ICitizenDiseaseHandler
         if (citizenData.isAsleep() && citizenData.getEntity().isPresent())
         {
             citizenData.getEntity().get().stopSleeping();
-            final BlockPos hospitalPos = citizenData.getColony().getServerBuildingManager().getBestBuilding(citizenData.getEntity().get(), BuildingHospital.class);
+            final int[] hospitalPos = citizenData.getColony().getServerBuildingManager().getBestBuilding(citizenData.getEntity().get(), BuildingHospital.class);
             final IColony colony = citizenData.getColony();
             final IBuilding hospital = colony.getServerBuildingManager().getBuilding(hospitalPos);
             if (hospital != null)
@@ -249,3 +249,8 @@ public class CitizenDiseaseHandler implements ICitizenDiseaseHandler
         sleepsAtHospital = isAtHospital;
     }
 }
+
+
+
+
+

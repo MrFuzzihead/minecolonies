@@ -8,13 +8,13 @@ import com.minecolonies.api.util.StatsUtil;
 import com.minecolonies.api.util.Tuple;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingConcreteMixer;
 import com.minecolonies.core.colony.jobs.JobConcreteMixer;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.item.ItemStack;
+import net.minecraft.block.Block;
 import net.minecraft.world.level.block.ConcretePowderBlock;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Predicate;
@@ -63,7 +63,7 @@ public class EntityAIConcreteMixer extends AbstractEntityAICrafting<JobConcreteM
      */
     private IAIState placePowder()
     {
-        final BlockPos posToPlace = building.getBlockToPlace();
+        final int[] posToPlace = building.getBlockToPlace();
         if (posToPlace == null)
         {
             return START_WORKING;
@@ -103,7 +103,7 @@ public class EntityAIConcreteMixer extends AbstractEntityAICrafting<JobConcreteM
      */
     private IAIState harvestConcrete()
     {
-        final BlockPos posToMine = building.getBlockToMine();
+        final int[] posToMine = building.getBlockToMine();
         if (posToMine == null)
         {
             this.resetActionsDone();
@@ -192,7 +192,7 @@ public class EntityAIConcreteMixer extends AbstractEntityAICrafting<JobConcreteM
      */
     private IAIState performMixingWork()
     {
-        final BlockPos blockToMine = building.getBlockToMine();
+        final int[] blockToMine = building.getBlockToMine();
         if (blockToMine != null)
         {
             return CONCRETE_MIXER_HARVESTING;
@@ -201,3 +201,5 @@ public class EntityAIConcreteMixer extends AbstractEntityAICrafting<JobConcreteM
         return CONCRETE_MIXER_PLACING;
     }
 }
+
+

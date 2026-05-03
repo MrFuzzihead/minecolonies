@@ -1,6 +1,6 @@
 package com.minecolonies.api.util.constant;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.Size2i;
 
 import static com.minecolonies.api.util.constant.Constants.MOD_ID;
@@ -576,7 +576,7 @@ public final class WindowConstants
     /**
      * GuardControl GUI
      */
-    public static final String LEVEL_LABEL = "level";
+    public static final String LEVEL_LABEL = "World";
 
     /**
      * Id of the done button in the GUI.
@@ -1193,3 +1193,5 @@ public final class WindowConstants
          */
     }
 }
+
+

@@ -1,13 +1,13 @@
 package com.minecolonies.api.blocks.types;
 
 import com.minecolonies.api.blocks.AbstractBlockMinecoloniesRack;
-import net.minecraft.util.StringRepresentable;
+// [1.7.10] StringRepresentable removed
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Defines the types of Racks that the {@link AbstractBlockMinecoloniesRack} supports.
  */
-public enum RackType implements StringRepresentable
+public enum RackType
 {
     EMPTY("blockrackemptysingle", "emptysingle", false),
     FULL( "blockrackfullsingle", "fullsingle", false),
@@ -52,25 +52,16 @@ public enum RackType implements StringRepresentable
     {
         switch (this)
         {
-            case FULL, EMPTY ->
-            {
+            case FULL:
+            case EMPTY:
                 return empty ? EMPTY : FULL;
-            }
-            case EMPTY_DOUBLE, FULL_DOUBLE ->
-            {
+            case EMPTY_DOUBLE:
+            case FULL_DOUBLE:
                 return empty ? EMPTY_DOUBLE : FULL_DOUBLE;
-            }
-            default ->
-            {
+            default:
                 return NO_RENDER;
-            }
         }
     }
-
-    @NotNull
-    @Override
-    public String getSerializedName()
-    {
-        return getName();
-    }
 }
+
+

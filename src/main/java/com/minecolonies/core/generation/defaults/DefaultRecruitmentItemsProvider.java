@@ -4,12 +4,12 @@ import com.google.gson.JsonObject;
 import com.minecolonies.api.items.ModItems;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.datalistener.RecruitmentItemsListener;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.data.CachedOutput;
-import net.minecraft.data.DataProvider;
-import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
+// [1.7.10] BuiltInRegistries removed
+// [1.7.10] data removed
+// [1.7.10] data removed
+// [1.7.10] data removed
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.Item;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 
@@ -111,3 +111,5 @@ public class DefaultRecruitmentItemsProvider implements DataProvider
         return DataProvider.saveStable(cachedOutput, object, outputProvider.json(new ResourceLocation(Constants.MOD_ID, itemId.getPath())));
     }
 }
+
+

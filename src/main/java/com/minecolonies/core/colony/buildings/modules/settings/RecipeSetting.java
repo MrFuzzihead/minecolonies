@@ -1,9 +1,9 @@
 package com.minecolonies.core.colony.buildings.modules.settings;
 
-import com.ldtteam.blockui.Pane;
-import com.ldtteam.blockui.controls.ButtonImage;
-import com.ldtteam.blockui.controls.ItemIcon;
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.buildings.modules.ICommonSettingsModule;
@@ -17,11 +17,11 @@ import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.crafting.IRecipeStorage;
 import com.minecolonies.core.colony.buildings.moduleviews.CraftingModuleView;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -123,55 +123,26 @@ public class RecipeSetting implements ICraftingSetting
         return new ResourceLocation("minecolonies:gui/layouthuts/layoutcraftingsetting.xml");
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void setupHandler(
       final ISettingKey<?> key,
-      final Pane pane,
+      final Object pane,
       final ICommonSettingsModule settingsModuleView,
       final IBuildingView building,
-      final BOWindow window)
+      final Object /* BOWindow: todo ModularUI2 */ window)
     {
-        pane.findPaneOfTypeByID("trigger", ButtonImage.class).setHandler(input -> {
-            final List<IRecipeStorage> list = building.getModuleViewByType(CraftingModuleView.class).getRecipes();
-            int currentIntIndex = 0;
-
-            int index = 0;
-            for (final IRecipeStorage recipe : list)
-            {
-                if (recipe.getToken().equals(selectedRecipe))
-                {
-                    currentIntIndex = index;
-                    break;
-                }
-                index++;
-            }
-            int newIndex = currentIntIndex + 1;
-            if (newIndex >= list.size())
-            {
-                newIndex = 0;
-            }
-
-            selectedRecipe = list.get(newIndex).getToken();
-            settingsModuleView.trigger(key);
-        });
+        // [1.7.10] todo: ModularUI2 port
     }
 
     @Override
     public void render(
       final ISettingKey<?> key,
-      final Pane pane,
+      final Object pane,
       final ICommonSettingsModule settingsModuleView,
       final IBuildingView building,
-      final BOWindow window)
+      final Object /* BOWindow: todo ModularUI2 */ window)
     {
-        final IRecipeStorage stack = getValue(building);
-        ButtonImage triggerButton = pane.findPaneOfTypeByID("trigger", ButtonImage.class);
-        triggerButton.setEnabled(isActive((ISettingsModuleView) settingsModuleView));
-        triggerButton.setText(Component.translatable(stack.getPrimaryOutput().getDescriptionId()));
-        setHoverPane(key, triggerButton, settingsModuleView);
-        pane.findPaneOfTypeByID("iconto", ItemIcon.class).setItem(stack.getPrimaryOutput());
-        pane.findPaneOfTypeByID("iconfrom", ItemIcon.class).setItem(stack.getCleanedInput().get(0).getItemStack());
+        // [1.7.10] todo: ModularUI2 port
     }
 
     @Override
@@ -215,3 +186,6 @@ public class RecipeSetting implements ICraftingSetting
         }
     }
 }
+
+
+

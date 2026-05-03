@@ -4,16 +4,16 @@ import com.ldtteam.structurize.placement.IPlacementContext;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.minecolonies.api.util.WorldUtil;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
+import com.minecolonies.api.util.Tuple;
+// [1.7.10] block.entity removed
+// [1.7.10] BlockState -> int metadata
+import net.minecraft.init.Blocks;
 import net.minecraft.world.level.block.BubbleColumnBlock;
 import net.minecraft.world.level.block.LiquidBlock;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,17 +29,17 @@ import static com.ldtteam.structurize.api.util.constant.Constants.UPDATE_FLAG;
 public class DimensionFluidHandler implements IPlacementHandler
 {
     @Override
-    public boolean canHandle(@NotNull Level world, @NotNull BlockPos pos, @NotNull BlockState blockState)
+    public boolean canHandle(@NotNull World world, @NotNull int[] pos, @NotNull BlockState blockState)
     {
          return blockState.getBlock() instanceof LiquidBlock || blockState.getBlock() instanceof BubbleColumnBlock;
     }
 
     @Override
     public List<ItemStack> getRequiredItems(
-      @NotNull Level world,
-      @NotNull BlockPos pos,
+      @NotNull World world,
+      @NotNull int[] pos,
       @NotNull BlockState blockState,
-      @Nullable CompoundTag tileEntityData,
+      @Nullable NBTTagCompound tileEntityData,
       @NotNull final IPlacementContext placementContext)
     {
         final List<ItemStack> itemList = new ArrayList<>();
@@ -68,10 +68,10 @@ public class DimensionFluidHandler implements IPlacementHandler
 
     @Override
     public IPlacementHandler.ActionProcessingResult handle(
-      @NotNull Level world,
-      @NotNull BlockPos pos,
+      @NotNull World world,
+      @NotNull int[] pos,
       @NotNull BlockState blockState,
-      @Nullable CompoundTag tileEntityData,
+      @Nullable NBTTagCompound tileEntityData,
       @NotNull final IPlacementContext placementContext)
     {
         if (!blockState.getFluidState().isSource() && placementContext.fancyPlacement())
@@ -87,9 +87,13 @@ public class DimensionFluidHandler implements IPlacementHandler
     public boolean doesWorldStateMatchBlueprintState(
         final BlockState blueprintState,
         final BlockState worldState,
-        final Tuple<BlockEntity, CompoundTag> tuple,
+        final Tuple<BlockEntity, NBTTagCompound> tuple,
         @NotNull final IPlacementContext iPlacementContext)
     {
         return blueprintState.equals(worldState);
     }
 }
+
+
+
+

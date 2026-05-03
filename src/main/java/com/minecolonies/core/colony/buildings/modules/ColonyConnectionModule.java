@@ -1,7 +1,7 @@
 package com.minecolonies.core.colony.buildings.modules;
 
 import com.minecolonies.api.colony.buildings.modules.*;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -10,8 +10,10 @@ import org.jetbrains.annotations.NotNull;
 public class ColonyConnectionModule extends AbstractBuildingModule
 {
     @Override
-    public void serializeToView(@NotNull final FriendlyByteBuf buf)
+    public void serializeToView(@NotNull final PacketBuffer buf)
     {
         // Nothing needed.
     }
 }
+
+

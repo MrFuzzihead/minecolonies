@@ -8,13 +8,13 @@ import com.ldtteam.structurize.util.PlacementSettings;
 import com.minecolonies.api.blocks.ModBlocks;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.WorldUtil;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
+import com.minecolonies.api.util.Tuple;
+// [1.7.10] block.entity removed
+// [1.7.10] BlockState -> int metadata
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,17 +29,17 @@ import static com.ldtteam.structurize.placement.handlers.placement.PlacementHand
 public class BarracksTowerHandler implements IPlacementHandler
 {
     @Override
-    public boolean canHandle(@NotNull final Level world, @NotNull final BlockPos pos, @NotNull final BlockState blockState)
+    public boolean canHandle(@NotNull final World world, @NotNull final int[] pos, @NotNull final BlockState blockState)
     {
          return blockState.getBlock() == ModBlocks.blockHutBarracksTower;
     }
 
     @Override
     public List<ItemStack> getRequiredItems(
-      @NotNull final Level world,
-      @NotNull final BlockPos pos,
+      @NotNull final World world,
+      @NotNull final int[] pos,
       @NotNull final BlockState blockState,
-      @Nullable final CompoundTag tileEntityData,
+      @Nullable final NBTTagCompound tileEntityData,
       @NotNull final IPlacementContext placementContext)
     {
         return Collections.emptyList();
@@ -47,10 +47,10 @@ public class BarracksTowerHandler implements IPlacementHandler
 
     @Override
     public ActionProcessingResult handle(
-      @NotNull final Level world,
-      @NotNull final BlockPos pos,
+      @NotNull final World world,
+      @NotNull final int[] pos,
       @NotNull final BlockState blockState,
-      @Nullable final CompoundTag tileEntityData,
+      @Nullable final NBTTagCompound tileEntityData,
       @NotNull final IPlacementContext placementContext)
     {
         if (!WorldUtil.setBlockState(world, pos, blockState, Constants.UPDATE_FLAG))
@@ -78,9 +78,13 @@ public class BarracksTowerHandler implements IPlacementHandler
     public boolean doesWorldStateMatchBlueprintState(
         final BlockState blueprintState,
         final BlockState worldState,
-        final Tuple<BlockEntity, CompoundTag> tuple,
+        final Tuple<BlockEntity, NBTTagCompound> tuple,
         @NotNull final IPlacementContext iPlacementContext)
     {
         return blueprintState.equals(worldState);
     }
 }
+
+
+
+

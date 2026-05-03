@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.events.raid;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.colony.ColonyState;
 import com.minecolonies.api.colony.IColony;
@@ -17,24 +23,24 @@ import com.minecolonies.core.colony.events.raid.barbarianEvent.Horde;
 import com.minecolonies.core.colony.events.raid.pirateEvent.ShipBasedRaiderUtils;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
 import com.minecolonies.core.network.messages.client.PlayAudioMessage;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.server.level.ServerBossEvent;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundSource;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.server.World.ServerBossEvent;
+import net.minecraft.entity.player.EntityPlayerMP;
+// [1.7.10] sounds removed
 import net.minecraft.world.BossEvent;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.pathfinder.Path;
+// [1.7.10] effect removed
+// [1.7.10] effect removed
+import net.minecraft.entity.Entity;
+// [1.7.10] world.entity removed
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.world.World.pathfinder.Path;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -61,7 +67,7 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
     public static int MAX_SPAWN_DEVIATION = 300;
 
     /**
-     * The max distance to search for a loaded blockpos on a respawn try
+     * The max distance to search for a loaded int[] on a respawn try
      */
     public static int MAX_RESPAWN_DEVIATION = 10 * 16;
 
@@ -78,7 +84,7 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
     /**
      * The raids visual raidbar
      */
-    protected final ServerBossEvent raidBar = new ServerBossEvent(Component.literal("Colony Raid"), BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.NOTCHED_10);
+    protected final ServerBossEvent raidBar = new ServerBossEvent(String.literal("Colony Raid"), BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.NOTCHED_10);
 
     /**
      * The references to living raiders left
@@ -90,12 +96,12 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
     /**
      * List of respawns to do
      */
-    private List<Tuple<EntityType<?>, BlockPos>> respawns = new ArrayList<>();
+    private List<Tuple<EntityType<?>, int[]>> respawns = new ArrayList<>();
 
     /**
      * Currently active campfires
      */
-    private List<BlockPos> campFires = new ArrayList<>();
+    private List<int[]> campFires = new ArrayList<>();
 
     /**
      * The related colony
@@ -110,7 +116,7 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
     /**
      * The events starting spawnpoint
      */
-    private BlockPos spawnPoint;
+    private int[] spawnPoint;
 
     /**
      * Status of the event
@@ -135,7 +141,7 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
     /**
      * Waypoints helping raiders travel
      */
-    private List<BlockPos> wayPoints = new ArrayList<>();
+    private List<int[]> wayPoints = new ArrayList<>();
 
     public HordeRaidEvent(IColony colony)
     {
@@ -144,13 +150,13 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
     }
 
     @Override
-    public void setSpawnPoint(final BlockPos spawnPoint)
+    public void setSpawnPoint(final int[] spawnPoint)
     {
         this.spawnPoint = spawnPoint;
     }
 
     @Override
-    public BlockPos getSpawnPos()
+    public int[] getSpawnPos()
     {
         return spawnPoint;
     }
@@ -212,7 +218,7 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
     }
 
     @Override
-    public void onEntityDeath(final LivingEntity entity)
+    public void onEntityDeath(final EntityLivingBase entity)
     {
         if (entity instanceof AbstractEntityMinecoloniesRaider)
         {
@@ -230,7 +236,7 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
      * @param numberOfBosses  the bosses.
      * @param numberOfRaiders the normal raiders.
      */
-    protected void spawnHorde(final BlockPos spawnPos, final IColony colony, final int id, final int numberOfBosses, final int numberOfArchers, final int numberOfRaiders)
+    protected void spawnHorde(final int[] spawnPos, final IColony colony, final int id, final int numberOfBosses, final int numberOfArchers, final int numberOfRaiders)
     {
         RaiderMobUtils.spawn(getNormalRaiderType(), numberOfRaiders, spawnPos, colony.getWorld(), colony, id);
         RaiderMobUtils.spawn(getBossRaiderType(), numberOfBosses, spawnPos, colony.getWorld(), colony, id);
@@ -254,15 +260,15 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
      *
      * @param pos the pos to spawn it at.
      */
-    private void spawnCampFires(final BlockPos pos)
+    private void spawnCampFires(final int[] pos)
     {
         final int fireCount = Math.max(1, horde.hordeSize / 5);
         for (int i = 0; i < fireCount; i++)
         {
             for (int tries = 0; tries < 3; tries++)
             {
-                BlockPos spawn = BlockPosUtil.getRandomPosition(colony.getWorld(), pos, BlockPos.ZERO, 3, 7, true);
-                if (spawn != BlockPos.ZERO)
+                int[] spawn = BlockPosUtil.getRandomPosition(colony.getWorld(), pos, new int[]{0,0,0}, 3, 7, true);
+                if (spawn != new int[]{0,0,0})
                 {
                     colony.getWorld().setBlockAndUpdate(spawn, Blocks.CAMPFIRE.defaultBlockState());
                     campFires.add(spawn);
@@ -281,7 +287,7 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
             entity.remove(Entity.RemovalReason.DISCARDED);
         }
 
-        for (final BlockPos pos : campFires)
+        for (final int[] pos : campFires)
         {
             colony.getWorld().setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
         }
@@ -310,7 +316,7 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
      *
      * @return a random campfire.
      */
-    public BlockPos getRandomCampfire()
+    public int[] getRandomCampfire()
     {
         if (campFires.isEmpty())
         {
@@ -332,7 +338,7 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
             this.wayPoints = ShipBasedRaiderUtils.createWaypoints(colony.getWorld(), path, WAYPOINT_SPACING);
         }
 
-        final BlockPos spawnPos = ShipBasedRaiderUtils.getLoadedPositionTowardsCenter(spawnPoint, colony, MAX_SPAWN_DEVIATION, spawnPoint, MIN_CENTER_DISTANCE, 10);
+        final int[] spawnPos = ShipBasedRaiderUtils.getLoadedPositionTowardsCenter(spawnPoint, colony, MAX_SPAWN_DEVIATION, spawnPoint, MIN_CENTER_DISTANCE, 10);
         if (spawnPos == null)
         {
             status = EventStatus.CANCELED;
@@ -380,11 +386,11 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
      */
     protected void updateRaidBar()
     {
-        final Component directionName = BlockPosUtil.calcDirection(colony.getCenter(), spawnPoint).getLongText();
+        final String directionName = BlockPosUtil.calcDirection(colony.getCenter(), spawnPoint).getLongText();
         raidBar.setName(getDisplayName().append(" - ").append(directionName));
         for (final Player player : colony.getPackageManager().getCloseSubscribers())
         {
-            raidBar.addPlayer((ServerPlayer) player);
+            raidBar.addPlayer((EntityPlayerMP) player);
         }
         raidBar.setVisible(true);
     }
@@ -394,7 +400,7 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
      *
      * @return
      */
-    protected abstract MutableComponent getDisplayName();
+    protected abstract String getDisplayName();
 
     @Override
     public void onUpdate()
@@ -416,9 +422,9 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
 
         if (!respawns.isEmpty())
         {
-            for (final Tuple<EntityType<?>, BlockPos> entry : respawns)
+            for (final Tuple<EntityType<?>, int[]> entry : respawns)
             {
-                final BlockPos spawnPos = ShipBasedRaiderUtils.getLoadedPositionTowardsCenter(entry.getB(), colony, MAX_RESPAWN_DEVIATION, spawnPoint, MIN_CENTER_DISTANCE, 10);
+                final int[] spawnPos = ShipBasedRaiderUtils.getLoadedPositionTowardsCenter(entry.getB(), colony, MAX_RESPAWN_DEVIATION, spawnPoint, MIN_CENTER_DISTANCE, 10);
                 if (spawnPos != null)
                 {
                     RaiderMobUtils.spawn(entry.getA(), 1, spawnPos, colony.getWorld(), colony, id);
@@ -430,7 +436,7 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
 
         if (boss.size() + archers.size() + normal.size() < horde.numberOfBosses + horde.numberOfRaiders + horde.numberOfArchers)
         {
-            final BlockPos spawnPos = ShipBasedRaiderUtils.getLoadedPositionTowardsCenter(spawnPoint, colony, MAX_RESPAWN_DEVIATION, spawnPoint, MIN_CENTER_DISTANCE, 10);
+            final int[] spawnPos = ShipBasedRaiderUtils.getLoadedPositionTowardsCenter(spawnPoint, colony, MAX_RESPAWN_DEVIATION, spawnPoint, MIN_CENTER_DISTANCE, 10);
             if (spawnPos != null)
             {
                 spawnHorde(spawnPos, colony, id, horde.numberOfBosses - boss.size(), horde.numberOfArchers - archers.size(), horde.numberOfRaiders - normal.size());
@@ -454,7 +460,7 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
 
             if (colony.getRaiderManager().areSpiesEnabled() || horde.numberOfBosses + horde.numberOfRaiders + horde.numberOfArchers < Math.round(horde.initialSize * 0.15))
             {
-                ((LivingEntity) entity).addEffect(new MobEffectInstance(MobEffects.GLOWING, 550));
+                ((EntityLivingBase) entity).addEffect(new MobEffectInstance(MobEffects.GLOWING, 550));
             }
         }
     }
@@ -495,16 +501,16 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        CompoundTag compound = new CompoundTag();
+        NBTTagCompound compound = new NBTTagCompound();
         compound.putInt(TAG_EVENT_ID, id);
         BlockPosUtil.write(compound, TAG_SPAWN_POS, spawnPoint);
-        ListTag campFiresNBT = new ListTag();
+        NBTTagList campFiresNBT = new NBTTagList();
 
-        for (final BlockPos pos : campFires)
+        for (final int[] pos : campFires)
         {
-            campFiresNBT.add(BlockPosUtil.write(new CompoundTag(), NbtTagConstants.TAG_POS, pos));
+            campFiresNBT.add(BlockPosUtil.write(new NBTTagCompound(), NbtTagConstants.TAG_POS, pos));
         }
 
         compound.put(TAG_CAMPFIRE_LIST, campFiresNBT);
@@ -517,15 +523,15 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         id = compound.getInt(TAG_EVENT_ID);
         setHorde(Horde.loadFromNbt(compound));
         spawnPoint = BlockPosUtil.read(compound, TAG_SPAWN_POS);
 
-        for (final Tag posCompound : compound.getList(TAG_CAMPFIRE_LIST, TAG_COMPOUND))
+        for (final NBTBase posCompound : compound.getList(TAG_CAMPFIRE_LIST, TAG_COMPOUND))
         {
-            campFires.add(BlockPosUtil.read((CompoundTag) posCompound, NbtTagConstants.TAG_POS));
+            campFires.add(BlockPosUtil.read((NBTTagCompound) posCompound, NbtTagConstants.TAG_POS));
         }
 
         status = EventStatus.values()[compound.getInt(TAG_EVENT_STATUS)];
@@ -540,13 +546,13 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
     }
 
     @Override
-    public void addSpawner(final BlockPos pos)
+    public void addSpawner(final int[] pos)
     {
         // do noting
     }
 
     @Override
-    public List<BlockPos> getWayPoints()
+    public List<int[]> getWayPoints()
     {
         return wayPoints;
     }
@@ -561,3 +567,10 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
         this.spawnPathResult = result;
     }
 }
+
+
+
+
+
+
+

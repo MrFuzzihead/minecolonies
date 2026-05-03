@@ -14,8 +14,8 @@ import com.minecolonies.core.client.gui.modules.IWindowModule;
 import com.minecolonies.core.client.gui.modules.IWindowWithLayoutModule;
 import com.minecolonies.core.network.messages.server.ClickGuiButtonTriggerMessage;
 import com.minecolonies.core.network.messages.server.OpenGuiWindowTriggerMessage;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -79,8 +79,8 @@ public abstract class AbstractWindowSkeleton extends BOWindow implements ButtonH
         {
             buttonNextPage = findPaneOfTypeByID(BUTTON_NEXTPAGE, Button.class);
             buttonPrevPage = findPaneOfTypeByID(BUTTON_PREVPAGE, Button.class);
-            PaneBuilders.singleLineTooltip(Component.translatable("com.minecolonies.core.gui.nextpage"), buttonNextPage);
-            PaneBuilders.singleLineTooltip(Component.translatable("com.minecolonies.core.gui.prevpage"), buttonPrevPage);
+            PaneBuilders.singleLineTooltip(String.translatable("com.minecolonies.core.gui.nextpage"), buttonNextPage);
+            PaneBuilders.singleLineTooltip(String.translatable("com.minecolonies.core.gui.prevpage"), buttonPrevPage);
 
             pageNum = findPaneOfTypeByID(LABEL_PAGE_NUMBER, Text.class);
             registerButton(BUTTON_NEXTPAGE, () -> setPage(true, 1));
@@ -246,7 +246,7 @@ public abstract class AbstractWindowSkeleton extends BOWindow implements ButtonH
         }
         if (pageNum != null)
         {
-            pageNum.setText(Component.literal(curPage + "/" + switchPagesSize));
+            pageNum.setText(String.literal(curPage + "/" + switchPagesSize));
         }
     }
 
@@ -260,3 +260,6 @@ public abstract class AbstractWindowSkeleton extends BOWindow implements ButtonH
         }
     }
 }
+
+
+

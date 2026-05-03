@@ -33,20 +33,20 @@ import com.minecolonies.core.colony.crafting.CustomRecipeManager;
 import com.minecolonies.core.colony.jobs.AbstractJobCrafter;
 import com.minecolonies.core.colony.requestsystem.resolvers.PublicWorkerCraftingProductionResolver;
 import com.minecolonies.core.colony.requestsystem.resolvers.PublicWorkerCraftingRequestResolver;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.storage.loot.LootParams;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
-import net.minecraftforge.items.IItemHandler;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.WorldServer;
+import com.minecolonies.api.util.Tuple;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraft.init.Blocks;
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -212,14 +212,14 @@ public abstract class AbstractCraftingBuildingModule extends AbstractBuildingMod
     }
 
     @Override
-    public void serializeNBT(@NotNull final CompoundTag compound)
+    public void serializeNBT(@NotNull final NBTTagCompound compound)
     {
-        @NotNull final ListTag recipesTagList = recipes.stream()
+        @NotNull final NBTTagList recipesTagList = recipes.stream()
                                                   .map(iToken -> StandardFactoryController.getInstance().serialize(iToken))
                                                   .collect(NBTUtils.toListNBT());
         compound.put(TAG_RECIPES, recipesTagList);
 
-        @NotNull final ListTag disabledRecipesTag = new ListTag();
+        @NotNull final NBTTagList disabledRecipesTag = new NBTTagList();
         for (@NotNull final IToken<?> recipe : disabledRecipes)
         {
             if (disabledRecipes.contains(recipe))
@@ -231,17 +231,17 @@ public abstract class AbstractCraftingBuildingModule extends AbstractBuildingMod
     }
 
     @Override
-    public void deserializeNBT(CompoundTag compound)
+    public void deserializeNBT(NBTTagCompound compound)
     {
         if (compound.contains(getId()))
         {
             compound = compound.getCompound(getId());
         }
 
-        ListTag recipesTags = new ListTag();
+        NBTTagList recipesTags = new NBTTagList();
         if (compound.contains(TAG_RECIPES))
         {
-            recipesTags = compound.getList(TAG_RECIPES, Tag.TAG_COMPOUND);
+            recipesTags = compound.getList(TAG_RECIPES, NBTBase.TAG_COMPOUND);
         }
 
         for (int i = 0; i < recipesTags.size(); i++)
@@ -256,7 +256,7 @@ public abstract class AbstractCraftingBuildingModule extends AbstractBuildingMod
 
         if (compound.contains(TAG_DISABLED_RECIPES))
         {
-            final ListTag disabledRecipeTag = compound.getList(TAG_DISABLED_RECIPES, Tag.TAG_COMPOUND);
+            final NBTTagList disabledRecipeTag = compound.getList(TAG_DISABLED_RECIPES, NBTBase.TAG_COMPOUND);
             for (int i = 0; i < disabledRecipeTag.size(); i++)
             {
                 final IToken<?> token = StandardFactoryController.getInstance().deserialize(disabledRecipeTag.getCompound(i));
@@ -269,7 +269,7 @@ public abstract class AbstractCraftingBuildingModule extends AbstractBuildingMod
     }
 
     @Override
-    public void serializeToView(@NotNull final FriendlyByteBuf buf, final boolean fullSync)
+    public void serializeToView(@NotNull final PacketBuffer buf, final boolean fullSync)
     {
         if (jobEntry != null)
         {
@@ -644,7 +644,7 @@ public abstract class AbstractCraftingBuildingModule extends AbstractBuildingMod
                     replaceRecipe(recipe.getToken(), token);
 
                     // Expected parameters for RECIPE_IMPROVED are Job, Result, Ingredient, Citizen
-                    Component jobComponent = MessageUtils.format(citizen.getJob().getJobRegistryEntry().getTranslationKey()).create();
+                    String jobComponent = MessageUtils.format(citizen.getJob().getJobRegistryEntry().getTranslationKey()).create();
                     MessageUtils.format(RECIPE_IMPROVED + citizen.getRandom().nextInt(3),
                       jobComponent,
                       recipe.getPrimaryOutput().getHoverName(),
@@ -774,7 +774,7 @@ public abstract class AbstractCraftingBuildingModule extends AbstractBuildingMod
             final IRecipeStorage storage = IColonyManager.getInstance().getRecipeManager().getRecipes().get(token);
             if (storage != null && (stackPredicate.test(storage.getPrimaryOutput()) || storage.getAlternateOutputs().stream().anyMatch(i -> stackPredicate.test(i))))
             {
-                final Set<IItemHandler> handlers = new HashSet<>();
+                final Set<net.minecraftforge.items.IItemHandler> handlers = new HashSet<>();
                 for (final ICitizenData workerEntity : building.getAllAssignedCitizen())
                 {
                     handlers.add(workerEntity.getInventory());
@@ -792,7 +792,7 @@ public abstract class AbstractCraftingBuildingModule extends AbstractBuildingMod
     @Override
     public boolean fullFillRecipe(final IRecipeStorage storage)
     {
-        final List<IItemHandler> handlers = building.getHandlers();
+        final List<net.minecraftforge.items.IItemHandler> handlers = building.getHandlers();
         final ICitizenData data = building.getModuleMatching(WorkerBuildingModule.class, m -> m.getJobEntry() == jobEntry).getFirstCitizen();
 
         if (data == null || !data.getEntity().isPresent())
@@ -811,7 +811,7 @@ public abstract class AbstractCraftingBuildingModule extends AbstractBuildingMod
         return storage.fullfillRecipe(builder.create(RecipeStorage.recipeLootParameters), handlers);
     }
 
-    @Override 
+    @Override
     public ItemStack getCraftingTool(final AbstractEntityCitizen worker)
     {
         return worker != null ? worker.getMainHandItem() : ItemStack.EMPTY;
@@ -953,7 +953,7 @@ public abstract class AbstractCraftingBuildingModule extends AbstractBuildingMod
 
     @NotNull
     @Override
-    public List<IGenericRecipe> getAdditionalRecipesForDisplayPurposesOnly(@NotNull final Level world)
+    public List<IGenericRecipe> getAdditionalRecipesForDisplayPurposesOnly(@NotNull final World world)
     {
         return Collections.emptyList();
     }
@@ -1148,3 +1148,8 @@ public abstract class AbstractCraftingBuildingModule extends AbstractBuildingMod
         }
     }
 }
+
+
+
+
+

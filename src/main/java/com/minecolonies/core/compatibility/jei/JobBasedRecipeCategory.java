@@ -4,7 +4,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.ldtteam.blockui.UiRenderMacros;
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.MinecoloniesAPIProxy;
 import com.minecolonies.api.colony.buildings.registry.BuildingEntry;
 import com.minecolonies.api.colony.jobs.IJob;
@@ -33,22 +33,22 @@ import mezz.jei.api.helpers.IModIdHelper;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.Rect2i;
-import net.minecraft.client.resources.language.I18n;
+import net.minecraft.util.EnumChatFormatting;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
 import net.minecraft.locale.Language;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -143,15 +143,15 @@ public abstract class JobBasedRecipeCategory<T> implements IRecipeCategory<T>
 
     @NotNull
     @Override
-    public Component getTitle()
+    public String getTitle()
     {
         return getTitleAsTextComponent();
     }
 
     @NotNull
-    public Component getTitleAsTextComponent()
+    public String getTitleAsTextComponent()
     {
-        return Component.translatable(this.job.getJobRegistryEntry().getTranslationKey());
+        return String.translatable(this.job.getJobRegistryEntry().getTranslationKey());
     }
 
     @NotNull
@@ -170,7 +170,7 @@ public abstract class JobBasedRecipeCategory<T> implements IRecipeCategory<T>
 
     public List<T> findRecipes(@NotNull final Map<CraftingType, List<IGenericRecipe>> vanilla,
                                @NotNull final List<Animal> animals,
-                               @NotNull final Level world)
+                               @NotNull final World world)
     {
         return Collections.emptyList();
     }
@@ -243,11 +243,11 @@ public abstract class JobBasedRecipeCategory<T> implements IRecipeCategory<T>
 
     @NotNull
     @Override
-    public List<Component> getTooltipStrings(@NotNull final T recipe,
+    public List<String> getTooltipStrings(@NotNull final T recipe,
                                                       @NotNull final IRecipeSlotsView recipeSlotsView,
                                                       final double mouseX, final double mouseY)
     {
-        final List<Component> tooltips = new ArrayList<>();
+        final List<String> tooltips = new ArrayList<>();
 
         for (final InfoBlock block : this.infoBlocksCache.getUnchecked(recipe))
         {
@@ -264,23 +264,23 @@ public abstract class JobBasedRecipeCategory<T> implements IRecipeCategory<T>
     @NotNull
     private List<InfoBlock> calculateInfoBlocks(@NotNull T recipe)
     {
-        final List<Component> lines = generateInfoBlocks(recipe);
+        final List<String> lines = generateInfoBlocks(recipe);
 
         final Minecraft mc = Minecraft.getInstance();
         final List<InfoBlock> result = new ArrayList<>();
         int y = CITIZEN_Y;
-        for (final Component line : lines)
+        for (final String line : lines)
         {
             final int width = (int) mc.font.getSplitter().stringWidth(line.getString());
             final int height = mc.font.lineHeight;
             final int x = WIDTH - width;
-            Component tip = null;
+            String tip = null;
             if (line.getContents() instanceof TranslatableContents contents)
             {
                 final String key = contents.getKey() + ".tip";
                 if (I18n.exists(key))
                 {
-                    tip = Component.translatable(key, contents.getArgs());
+                    tip = String.translatable(key, contents.getArgs());
                 }
             }
             result.add(new InfoBlock(line, tip, new Rect2i(x, y, width, height)));
@@ -290,9 +290,9 @@ public abstract class JobBasedRecipeCategory<T> implements IRecipeCategory<T>
     }
 
     @NotNull
-    protected abstract List<Component> generateInfoBlocks(@NotNull T recipe);
+    protected abstract List<String> generateInfoBlocks(@NotNull T recipe);
 
-    private record InfoBlock(@NotNull Component text, @Nullable Component tip, @NotNull Rect2i bounds)
+    private record InfoBlock(@NotNull String text, @Nullable String tip, @NotNull Rect2i bounds)
     {
     }
 
@@ -321,17 +321,17 @@ public abstract class JobBasedRecipeCategory<T> implements IRecipeCategory<T>
     @NotNull
     private static List<FormattedText> translateDescription(@NotNull final String... keys)
     {
-        return Arrays.stream(keys).map(Component::translatable).collect(Collectors.toList());
+        return Arrays.stream(keys).map(String::translatable).collect(Collectors.toList());
     }
 
     @NotNull
     private static List<FormattedText> breakLines(@NotNull final List<FormattedText> input)
     {
         final List<FormattedText> lines = new ArrayList<>();
-        for (final FormattedText component : input)
+        for (final FormattedText String : input)
         {
-            final Optional<String[]> expanded = component.visit(line -> Optional.of(line.split("\\\\n")));
-            expanded.ifPresent(e -> lines.addAll(Arrays.stream(e).map(Component::literal).collect(Collectors.toList())));
+            final Optional<String[]> expanded = String.visit(line -> Optional.of(line.split("\\\\n")));
+            expanded.ifPresent(e -> lines.addAll(Arrays.stream(e).map(String::literal).collect(Collectors.toList())));
         }
         return lines;
     }
@@ -341,9 +341,9 @@ public abstract class JobBasedRecipeCategory<T> implements IRecipeCategory<T>
     {
         final Minecraft mc = Minecraft.getInstance();
         final List<FormattedText> lines = new ArrayList<>();
-        for (final FormattedText component : input)
+        for (final FormattedText String : input)
         {
-            lines.addAll(mc.font.getSplitter().splitLines(component, WIDTH, Style.EMPTY));
+            lines.addAll(mc.font.getSplitter().splitLines(String, WIDTH, Style.EMPTY));
         }
         return lines;
     }
@@ -361,7 +361,7 @@ public abstract class JobBasedRecipeCategory<T> implements IRecipeCategory<T>
 
         @Override
         public void onTooltip(@NotNull final IRecipeSlotView recipeSlotView,
-                              @NotNull final List<Component> tooltip)
+                              @NotNull final List<String> tooltip)
         {
             final ItemStack ingredient = recipeSlotView.getDisplayedIngredient().flatMap(d -> d.getIngredient(VanillaTypes.ITEM_STACK)).orElse(ItemStack.EMPTY);
 
@@ -372,7 +372,7 @@ public abstract class JobBasedRecipeCategory<T> implements IRecipeCategory<T>
                 if (!recipeModId.equals(ingredientModId))
                 {
                     final String modName = modIdHelper.getFormattedModNameForModId(recipeModId);
-                    final MutableComponent recipeBy = Component.translatable("jei.tooltip.recipe.by", modName);
+                    final String recipeBy = String.translatable("jei.tooltip.recipe.by", modName);
                     tooltip.add(recipeBy.withStyle(ChatFormatting.GRAY));
                 }
             }
@@ -380,7 +380,7 @@ public abstract class JobBasedRecipeCategory<T> implements IRecipeCategory<T>
             final boolean showAdvanced = Minecraft.getInstance().options.advancedItemTooltips || Screen.hasShiftDown();
             if (showAdvanced)
             {
-                final MutableComponent recipeId = Component.translatable("jei.tooltip.recipe.id", id.toString());
+                final String recipeId = String.translatable("jei.tooltip.recipe.id", id.toString());
                 tooltip.add(recipeId.withStyle(ChatFormatting.DARK_GRAY));
             }
         }
@@ -399,7 +399,7 @@ public abstract class JobBasedRecipeCategory<T> implements IRecipeCategory<T>
 
         @Override
         public void onTooltip(@NotNull final IRecipeSlotView recipeSlotView,
-                              @NotNull final List<Component> tooltip)
+                              @NotNull final List<String> tooltip)
         {
             final String key = TranslationConstants.PARTIAL_JEI_INFO +
                     (this.drop.getQuality() < 0 ? "chancenegskill.tip" : this.drop.getQuality() > 0 ? "chanceskill.tip" : "chance.tip");
@@ -407,26 +407,30 @@ public abstract class JobBasedRecipeCategory<T> implements IRecipeCategory<T>
 
             if (probability >= 1)
             {
-                    tooltip.add(Component.translatable(key,
+                    tooltip.add(String.translatable(key,
                         Math.round(probability)));
             }
             else
             {
-                    tooltip.add(Component.translatable(key,
+                    tooltip.add(String.translatable(key,
                         Math.round(probability * 100) / 100f));
             }
 
             if (this.drop.getConditional())
             {
-                tooltip.add(Component.translatable(TranslationConstants.PARTIAL_JEI_INFO + "conditions.tip"));
+                tooltip.add(String.translatable(TranslationConstants.PARTIAL_JEI_INFO + "conditions.tip"));
             }
 
             final boolean showAdvanced = Minecraft.getInstance().options.advancedItemTooltips || Screen.hasShiftDown();
             if (showAdvanced)
             {
-                final MutableComponent recipeId = Component.translatable("com.minecolonies.coremod.jei.loottableid", id.toString());
+                final String recipeId = String.translatable("com.minecolonies.coremod.jei.loottableid", id.toString());
                 tooltip.add(recipeId.withStyle(ChatFormatting.DARK_GRAY));
             }
         }
     }
 }
+
+
+
+

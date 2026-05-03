@@ -1,39 +1,26 @@
 package com.minecolonies.api.tileentities;
 
 import com.minecolonies.api.util.WorldUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.network.Connection;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
+import net.minecraft.tileentity.TileEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
-import static com.minecolonies.api.util.constant.Constants.TAG_STRING;
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_CONTENT;
 
-public class AbstractTileEntityNamedGrave extends BlockEntity
+public class AbstractTileEntityNamedGrave extends TileEntity
 {
-    /**
-     * The position it faces.
-     */
-    public static final DirectionProperty FACING       = HorizontalDirectionalBlock.FACING;
-
     /**
      * The text displayed on the name plate
      */
     private ArrayList<String> textLines = new ArrayList<>();
 
-    public AbstractTileEntityNamedGrave(BlockEntityType<?> tileEntityTypeIn, final BlockPos pos, final BlockState state)
+    public AbstractTileEntityNamedGrave()
     {
-        super(tileEntityTypeIn, pos, state);
+        super();
         textLines.add("Unknown Citizen");
     }
 
@@ -45,70 +32,45 @@ public class AbstractTileEntityNamedGrave extends BlockEntity
     public void setTextLines(final ArrayList<String> content)
     {
         this.textLines = content;
-        setChanged();
+        markDirty();
     }
 
     @Override
-    public void load(final CompoundTag compound)
+    public void readFromNBT(final NBTTagCompound compound)
     {
-        super.load(compound);
+        super.readFromNBT(compound);
 
         textLines.clear();
-        if (compound.contains(TAG_CONTENT))
+        if (compound.hasKey(TAG_CONTENT))
         {
-            final ListTag lines = compound.getList(TAG_CONTENT, TAG_STRING);
-            for (int i = 0; i < lines.size(); i++)
+            final NBTTagList lines = compound.getTagList(TAG_CONTENT, 8); // 8 = NBTTagString type
+            for (int i = 0; i < lines.tagCount(); i++)
             {
-                final String line = lines.getString(i);
+                final String line = lines.getStringTagAt(i);
                 textLines.add(line);
             }
         }
     }
 
     @Override
-    public void saveAdditional(final CompoundTag compound)
+    public void writeToNBT(final NBTTagCompound compound)
     {
-        super.saveAdditional(compound);
+        super.writeToNBT(compound);
 
-        @NotNull final ListTag lines = new ListTag();
+        @NotNull final NBTTagList lines = new NBTTagList();
         for (@NotNull final String line : textLines)
         {
-            lines.add(StringTag.valueOf(line));
+            lines.appendTag(new NBTTagString(line));
         }
-        compound.put(TAG_CONTENT, lines);
+        compound.setTag(TAG_CONTENT, lines);
     }
 
     @Override
-    public ClientboundBlockEntityDataPacket getUpdatePacket()
+    public void markDirty()
     {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-    @NotNull
-    @Override
-    public CompoundTag getUpdateTag()
-    {
-        return this.saveWithId();
-    }
-
-    @Override
-    public void onDataPacket(final Connection net, final ClientboundBlockEntityDataPacket packet)
-    {
-        this.load(packet.getTag());
-    }
-
-    @Override
-    public void handleUpdateTag(final CompoundTag tag)
-    {
-        this.load(tag);
-    }
-
-    @Override
-    public void setChanged()
-    {
-        if (level != null)
+        if (worldObj != null)
         {
-            WorldUtil.markChunkDirty(level, worldPosition);
+            WorldUtil.markChunkDirty(worldObj, xCoord, yCoord, zCoord);
         }
     }
 }

@@ -1,6 +1,6 @@
 package com.minecolonies.core.util;
 
-import com.ldtteam.domumornamentum.block.IMateriallyTexturedBlock;
+// [1.7.10] DomumOrnamentum removed
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.minecolonies.api.crafting.IRecipeStorage;
@@ -19,29 +19,29 @@ import com.minecolonies.core.colony.buildings.modules.SettingsModule;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingFlorist;
 import com.minecolonies.core.entity.ai.workers.util.MinerLevel;
 import com.minecolonies.core.tileentities.TileEntityCompostedDirt;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.item.DiggerItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.Tier;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.GlazedTerracottaBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.entity.SignBlockEntity;
-import net.minecraft.world.level.block.entity.SignText;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.IForgeShearable;
-import net.minecraftforge.common.TierSortingRegistry;
-import net.minecraftforge.registries.ForgeRegistries;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] tags removed
+// [1.7.10] world.entity removed
+// [1.7.10] DiggerItem removed
+import net.minecraft.item.ItemStack;
+import net.minecraft.init.Items;
+// [1.7.10] Tier removed
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
+// [1.7.10] GlazedTerracottaBlock not in 1.7.10
+// [1.7.10] block.entity removed
+// [1.7.10] block.entity removed
+// [1.7.10] block.entity removed
+// [1.7.10] block.entity removed
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] world.phys removed
+import net.minecraftforge.common.IShearable;
+// [1.7.10] TierSortingRegistry removed
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,7 +55,7 @@ import static com.minecolonies.api.util.constant.TranslationConstants.MINER_NODE
 import static com.minecolonies.core.colony.buildings.AbstractBuilding.USE_SHEARS;
 
 /**
- * Utility methods for BlockPos.
+ * Utility methods for int[].
  */
 public final class WorkerUtil
 {
@@ -65,7 +65,7 @@ public final class WorkerUtil
     private static final double MIDDLE_BLOCK_OFFSET = 0.5D;
 
     /**
-     * Placeholder text in a level sign.
+     * Placeholder text in a World sign.
      */
     private static final String LEVEL_SIGN_TEXT      = "level_placeholder";
 
@@ -89,10 +89,10 @@ public final class WorkerUtil
         if (tools == null)
         {
             tools = new ArrayList<>();
-            tools.add(new Tuple<>(ModEquipmentTypes.hoe.get(), new ItemStack(Items.NETHERITE_HOE)));
-            tools.add(new Tuple<>(ModEquipmentTypes.shovel.get(), new ItemStack(Items.NETHERITE_SHOVEL)));
-            tools.add(new Tuple<>(ModEquipmentTypes.axe.get(), new ItemStack(Items.NETHERITE_AXE)));
-            tools.add(new Tuple<>(ModEquipmentTypes.pickaxe.get(), new ItemStack(Items.NETHERITE_PICKAXE)));
+            tools.add(new Tuple<>(ModEquipmentTypes.hoe.get(), new ItemStack(Items.diamond_hoe)));
+            tools.add(new Tuple<>(ModEquipmentTypes.shovel.get(), new ItemStack(Items.diamond_shovel)));
+            tools.add(new Tuple<>(ModEquipmentTypes.axe.get(), new ItemStack(Items.diamond_axe)));
+            tools.add(new Tuple<>(ModEquipmentTypes.pickaxe.get(), new ItemStack(Items.diamond_pickaxe)));
         }
         return tools;
     }
@@ -115,7 +115,7 @@ public final class WorkerUtil
      * @param citizen    the citizen.
      * @return true if successful.
      */
-    public static boolean setSpawnPoint(@Nullable final BlockPos spawnPoint, @NotNull final AbstractEntityCitizen citizen)
+    public static boolean setSpawnPoint(@Nullable final int[] spawnPoint, @NotNull final AbstractEntityCitizen citizen)
     {
         if (spawnPoint == null)
         {
@@ -139,9 +139,9 @@ public final class WorkerUtil
      * @param blockHardness the hardness.
      * @return the toolType to use.
      */
-    public static EquipmentTypeEntry getBestToolForBlock(final BlockState state, float blockHardness, final AbstractBuilding building, final BlockGetter level, final BlockPos pos)
+    public static EquipmentTypeEntry getBestToolForBlock(final BlockState state, float blockHardness, final AbstractBuilding building, final IBlockAccess World, final int[] pos)
     {
-        if (state.getBlock() instanceof IForgeShearable && building.hasModule(SettingsModule.class) && building.getFirstModuleOccurance(SettingsModule.class).getSettingValueOrDefault(USE_SHEARS, true))
+        if (state.getBlock() instanceof IShearable && building.hasModule(SettingsModule.class) && building.getFirstModuleOccurance(SettingsModule.class).getSettingValueOrDefault(USE_SHEARS, true))
         {
             return ModEquipmentTypes.shears.get();
         }
@@ -150,15 +150,9 @@ public final class WorkerUtil
         {
             for (final Tuple<EquipmentTypeEntry, ItemStack> tool : getOrInitTestTools())
             {
-                if (tool.getB() != null && tool.getB().getItem() instanceof DiggerItem)
+                if (tool.getB() != null) // [1.7.10] DiggerItem check removed; all tool items treated as diggers
                 {
-                    if (state.getBlock() instanceof IMateriallyTexturedBlock materiallyTexturedBlock)
-                    {
-                        if (materiallyTexturedBlock.isCorrectToolForDrops(state, tool.getB(), level, pos))
-                        {
-                            return tool.getA();
-                        }
-                    }
+                    // [1.7.10] IMateriallyTexturedBlock not available
                     if (tool.getB().isCorrectToolForDrops(state))
                     {
                         return tool.getA();
@@ -178,19 +172,10 @@ public final class WorkerUtil
      */
     public static int getCorrectHarvestLevelForBlock(final BlockState target)
     {
-        int required = 0;
-        final List<Tier> tiers = TierSortingRegistry.getSortedTiers();
-        for (final Tier tier : tiers) {
-            TagKey<Block> tag = tier.getTag();
-            if (tag != null && target.is(tag))
-            {
-                required = tier.getLevel();
-                break;
-            }
-        }
-
-        if (required < 0
-              || target.getBlock() instanceof GlazedTerracottaBlock)
+        // [1.7.10] TierSortingRegistry not available; use Block.getHarvestLevel directly
+        final net.minecraft.block.Block block = target.getBlock();
+        int required = block.getHarvestLevel(0); // [1.7.10] meta 0 default
+        if (required < 0)
         {
             return 0;
         }
@@ -203,7 +188,7 @@ public final class WorkerUtil
      * @param block   the block he should look at.
      * @param citizen the citizen that shall face the block.
      */
-    public static void faceBlock(@Nullable final BlockPos block, final AbstractEntityCitizen citizen)
+    public static void faceBlock(@Nullable final int[] block, final AbstractEntityCitizen citizen)
     {
         if (block == null)
         {
@@ -228,13 +213,13 @@ public final class WorkerUtil
     }
 
     /**
-     * Find the first level in a structure and return it.
+     * Find the first World in a structure and return it.
      *
      * @param structure the structure to scan.
      * @return the position of the sign.
      */
     @Nullable
-    public static BlockPos findFirstLevelSign(final Blueprint structure, final BlockPos pos)
+    public static int[] findFirstLevelSign(final Blueprint structure, final int[] pos)
     {
         for (int j = 0; j < structure.getSizeY(); j++)
         {
@@ -242,11 +227,11 @@ public final class WorkerUtil
             {
                 for (int i = 0; i < structure.getSizeX(); i++)
                 {
-                    @NotNull final BlockPos localPos = new BlockPos(i, j, k);
+                    @NotNull final int[] localPos = new int[]{i, j, k};
                     final BlockInfo te = structure.getBlockInfoAsMap().get(localPos);
                     if (te != null)
                     {
-                        final CompoundTag teData = te.getTileEntityData();
+                        final NBTTagCompound teData = te.getTileEntityData();
                         final ResourceLocation teId = teData == null ? null : ResourceLocation.tryParse(teData.getString("id"));
                         final BlockEntityType<?> teType = teId == null ? null : ForgeRegistries.BLOCK_ENTITY_TYPES.getValue(teId);
                         if (teType == BlockEntityType.SIGN || teType == BlockEntityType.HANGING_SIGN)
@@ -269,15 +254,15 @@ public final class WorkerUtil
     }
 
     /**
-     * Updated the level sign of a certain level in the world.
+     * Updated the World sign of a certain World in the world.
      *
      * @param world   the world.
-     * @param level   the level to update.
-     * @param levelId the id of the level.
+     * @param World   the World to update.
+     * @param levelId the id of the World.
      */
-    public static void updateLevelSign(final Level world, final MinerLevel level, final int levelId)
+    public static void updateLevelSign(final World world, final MinerLevel World, final int levelId)
     {
-        @Nullable final BlockPos levelSignPos = level.getLevelSign();
+        @Nullable final int[] levelSignPos = World.getLevelSign();
 
         if (levelSignPos != null)
         {
@@ -286,10 +271,10 @@ public final class WorkerUtil
                 final BlockState blockState = world.getBlockState(levelSignPos);
 
                 final SignText text = new SignText()
-                    .setMessage(0, Component.translatable(MINER_MINE_NODE).append(": " + levelId))
-                    .setMessage(1, Component.literal("Y: " + (level.getDepth() + 1)))
-                    .setMessage(2, Component.translatable(MINER_NODES).append(": " + level.getNumberOfBuiltNodes()))
-                    .setMessage(3, Component.literal(""));
+                    .setMessage(0, String.translatable(MINER_MINE_NODE).append(": " + levelId))
+                    .setMessage(1, String.literal("Y: " + (World.getDepth() + 1)))
+                    .setMessage(2, String.translatable(MINER_NODES).append(": " + World.getNumberOfBuiltNodes()))
+                    .setMessage(3, String.literal(""));
 
                 teLevelSign.setText(text, true);
                 teLevelSign.setText(text, false);
@@ -307,9 +292,9 @@ public final class WorkerUtil
      * @param world           the world to check it for.
      * @return true if there is any.
      */
-    public static boolean isThereCompostedLand(final BuildingFlorist buildingFlorist, final Level world)
+    public static boolean isThereCompostedLand(final BuildingFlorist buildingFlorist, final World world)
     {
-        for (final BlockPos pos : buildingFlorist.getPlantGround())
+        for (final int[] pos : buildingFlorist.getPlantGround())
         {
             if (WorldUtil.isBlockLoaded(world, pos))
             {
@@ -337,7 +322,7 @@ public final class WorkerUtil
      * @param world the world.
      * @return the y of the last one.
      */
-    public static int getLastLadder(@NotNull final BlockPos pos, final Level world)
+    public static int getLastLadder(@NotNull final int[] pos, final World world)
     {
         if (world.getBlockState(pos).getBlock().isLadder(world.getBlockState(pos), world, pos, null))
         {
@@ -406,3 +391,9 @@ public final class WorkerUtil
         return false;
     }
 }
+
+
+
+
+
+

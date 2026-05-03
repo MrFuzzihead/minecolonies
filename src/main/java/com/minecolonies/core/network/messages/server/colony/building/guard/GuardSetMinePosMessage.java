@@ -5,9 +5,9 @@ import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.core.colony.buildings.AbstractBuildingGuards;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingMiner;
 import com.minecolonies.core.network.messages.server.AbstractBuildingServerMessage;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.core.BlockPos;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -18,7 +18,7 @@ public class GuardSetMinePosMessage extends AbstractBuildingServerMessage<Abstra
     /**
      * the position of the mine (can be null)
      */
-    private BlockPos minePos;
+    private int[] minePos;
     /**
      * Indicates whether minePos is a valid position
      */
@@ -37,7 +37,7 @@ public class GuardSetMinePosMessage extends AbstractBuildingServerMessage<Abstra
      * @param building the building to apply the position change to
      * @param minePos the position of the mine
      */
-    public GuardSetMinePosMessage(@NotNull AbstractBuildingGuards.View building, BlockPos minePos)
+    public GuardSetMinePosMessage(@NotNull AbstractBuildingGuards.View building, int[] minePos)
     {
         super(building);
         this.minePos = minePos;
@@ -54,7 +54,7 @@ public class GuardSetMinePosMessage extends AbstractBuildingServerMessage<Abstra
     }
 
     @Override
-    public void fromBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void fromBytesOverride(@NotNull final PacketBuffer buf)
     {
         this.hasMinePos = buf.readBoolean();
         if (this.hasMinePos)
@@ -64,7 +64,7 @@ public class GuardSetMinePosMessage extends AbstractBuildingServerMessage<Abstra
     }
 
     @Override
-    public void toBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void toBytesOverride(@NotNull final PacketBuffer buf)
     {
         buf.writeBoolean(this.hasMinePos);
         if (this.hasMinePos)
@@ -74,7 +74,7 @@ public class GuardSetMinePosMessage extends AbstractBuildingServerMessage<Abstra
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony, final AbstractBuildingGuards building)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony, final AbstractBuildingGuards building)
     {
         final IBuilding miner;
         if (this.minePos == null)
@@ -91,3 +91,5 @@ public class GuardSetMinePosMessage extends AbstractBuildingServerMessage<Abstra
         }
     }
 }
+
+

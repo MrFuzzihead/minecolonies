@@ -10,11 +10,11 @@ import com.minecolonies.core.colony.buildings.workerbuildings.BuildingShepherd;
 import com.minecolonies.core.colony.jobs.JobShepherd;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
 import com.minecolonies.core.network.messages.client.LocalizedParticleEffectMessage;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.animal.Sheep;
+// [1.7.10] sounds removed
+// [1.7.10] int /* InteractionHand */ removed
+// [1.7.10] world.entity removed
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantments;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -81,7 +81,7 @@ public class EntityAIWorkShepherd extends AbstractEntityAIHerder<JobShepherd, Bu
             return SHEPHERD_SHEAR;
         }
 
-        worker.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, ItemStack.EMPTY);
 
         return result;
     }
@@ -117,7 +117,7 @@ public class EntityAIWorkShepherd extends AbstractEntityAIHerder<JobShepherd, Bu
             return DECIDE;
         }
 
-        if (!equipTool(InteractionHand.MAIN_HAND, ModEquipmentTypes.shears.get()))
+        if (!equipTool(0 /* InteractionHand.MAIN_HAND */, ModEquipmentTypes.shears.get()))
         {
             return PREPARING;
         }
@@ -132,7 +132,7 @@ public class EntityAIWorkShepherd extends AbstractEntityAIHerder<JobShepherd, Bu
             int enchantmentLevel = worker.getMainHandItem().getEnchantmentLevel(Enchantments.BLOCK_FORTUNE);
             enchantmentLevel *= Math.max(1.0, (getPrimarySkillLevel() / 5.0));
 
-            worker.swing(InteractionHand.MAIN_HAND);
+            worker.swing(0 /* InteractionHand.MAIN_HAND */);
 
             final List<ItemStack> items = new ArrayList<>();
             if (!this.world.isClientSide)
@@ -150,7 +150,7 @@ public class EntityAIWorkShepherd extends AbstractEntityAIHerder<JobShepherd, Bu
             Network.getNetwork().sendToTrackingEntity(new LocalizedParticleEffectMessage(new ItemStack(ITEM_BY_DYE.get(sheep.getColor())), sheep.getOnPos().above()), worker);
             dyeSheepChance(sheep);
 
-            CitizenItemUtils.damageItemInHand(worker, InteractionHand.MAIN_HAND, 1);
+            CitizenItemUtils.damageItemInHand(worker, 0 /* InteractionHand.MAIN_HAND */, 1);
 
             worker.getCitizenExperienceHandler().addExperience(XP_PER_ACTION);
             incrementActionsDoneAndDecSaturation();
@@ -166,7 +166,7 @@ public class EntityAIWorkShepherd extends AbstractEntityAIHerder<JobShepherd, Bu
     }
 
     /**
-     * Possibly dyes a sheep based on their Worker Hut Level
+     * Possibly dyes a sheep based on their Worker Hut World
      *
      * @param sheep the {@link Sheep} to possibly dye.
      */
@@ -186,3 +186,8 @@ public class EntityAIWorkShepherd extends AbstractEntityAIHerder<JobShepherd, Bu
         }
     }
 }
+
+
+
+
+

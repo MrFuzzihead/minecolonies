@@ -1,7 +1,7 @@
 package com.minecolonies.api.entity.ai.statemachine.transitions;
 
 import com.minecolonies.api.entity.ai.statemachine.states.IState;
-import net.minecraft.network.chat.Component;
+import net.minecraft.util.IChatComponent;
 
 /**
  * Transition type for Statemachines
@@ -34,7 +34,9 @@ public interface IStateMachineTransition<S extends IState>
      *
      * @return name
      */
-    Component getName();
+    String getName();
 
     IStateMachineTransition withName(String name);
 }
+
+

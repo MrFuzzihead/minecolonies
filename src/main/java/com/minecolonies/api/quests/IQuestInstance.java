@@ -1,10 +1,10 @@
 package com.minecolonies.api.quests;
 
 import com.minecolonies.api.colony.IColony;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayer;
+// [1.7.10] INBTSerializable -> manual read/write
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -13,14 +13,18 @@ import java.util.UUID;
 /**
  * Quest instance
  */
-public interface IQuestInstance extends INBTSerializable<CompoundTag>
+public interface IQuestInstance
 {
+    // [1.7.10] INBTSerializable replaced by explicit methods
+    void readFromNBT(NBTTagCompound compound);
+    NBTTagCompound writeToNBT(NBTTagCompound compound);
+
     /**
      * Triggered when the quest is accepted
      *
-     * @param player player accepting
+     * @param EntityPlayer player accepting
      */
-    void onStart(final Player player, final IColony colony);
+    void onStart(final EntityPlayer player, final IColony colony);
 
     /**
      * Get the id of the quest giver.
@@ -56,11 +60,11 @@ public interface IQuestInstance extends INBTSerializable<CompoundTag>
 
     /**
      * Advance the quest objective to this id.
-     * @param player the player advancing this objective.
+     * @param EntityPlayer the EntityPlayer advancing this objective.
      * @param nextObjective the id to advance it to.
      * @return the next objective instance.
      */
-    IObjectiveInstance advanceObjective(final Player player, int nextObjective);
+    IObjectiveInstance advanceObjective(final EntityPlayer player, int nextObjective);
 
     /**
      * On question completion call.
@@ -106,16 +110,16 @@ public interface IQuestInstance extends INBTSerializable<CompoundTag>
     IColony getColony();
 
     /**
-     * Get the player UUID that accepted the quest.
-     * @return the player uuid.
+     * Get the EntityPlayer UUID that accepted the quest.
+     * @return the EntityPlayer uuid.
      */
     UUID getAssignedPlayer();
 
     /**
      * Simple advance objective by one.
-     * @param player the player involved.
+     * @param EntityPlayer the EntityPlayer involved.
      */
-    void advanceObjective(Player player);
+    void advanceObjective(EntityPlayer player);
 
     /**
      * On world load trigger.

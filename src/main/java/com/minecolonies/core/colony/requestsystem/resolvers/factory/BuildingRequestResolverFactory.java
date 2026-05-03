@@ -8,8 +8,8 @@ import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.util.constant.SerializationIdentifierConstants;
 import com.minecolonies.api.util.constant.TypeConstants;
 import com.minecolonies.core.colony.requestsystem.resolvers.BuildingRequestResolver;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -46,10 +46,10 @@ public class BuildingRequestResolverFactory implements IRequestResolverFactory<B
 
     @NotNull
     @Override
-    public CompoundTag serialize(
+    public NBTTagCompound serialize(
       @NotNull final IFactoryController controller, @NotNull final BuildingRequestResolver buildingRequestResolver)
     {
-        final CompoundTag compound = new CompoundTag();
+        final NBTTagCompound compound = new NBTTagCompound();
         compound.put(NBT_TOKEN, controller.serialize(buildingRequestResolver.getId()));
         compound.put(NBT_LOCATION, controller.serialize(buildingRequestResolver.getLocation()));
         return compound;
@@ -57,7 +57,7 @@ public class BuildingRequestResolverFactory implements IRequestResolverFactory<B
 
     @NotNull
     @Override
-    public BuildingRequestResolver deserialize(@NotNull final IFactoryController controller, @NotNull final CompoundTag nbt)
+    public BuildingRequestResolver deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound nbt)
     {
         final IToken<?> token = controller.deserialize(nbt.getCompound(NBT_TOKEN));
         final ILocation location = controller.deserialize(nbt.getCompound(NBT_LOCATION));
@@ -66,14 +66,14 @@ public class BuildingRequestResolverFactory implements IRequestResolverFactory<B
     }
 
     @Override
-    public void serialize(IFactoryController controller, BuildingRequestResolver input, FriendlyByteBuf packetBuffer)
+    public void serialize(IFactoryController controller, BuildingRequestResolver input, PacketBuffer packetBuffer)
     {
         controller.serialize(packetBuffer, input.getId());
         controller.serialize(packetBuffer, input.getLocation());
     }
 
     @Override
-    public BuildingRequestResolver deserialize(IFactoryController controller, FriendlyByteBuf buffer) throws Throwable
+    public BuildingRequestResolver deserialize(IFactoryController controller, PacketBuffer buffer) throws Throwable
     {
         final IToken<?> token = controller.deserialize(buffer);
         final ILocation location = controller.deserialize(buffer);
@@ -87,3 +87,6 @@ public class BuildingRequestResolverFactory implements IRequestResolverFactory<B
         return SerializationIdentifierConstants.BUILDER_BASED_RESOLVER_ID;
     }
 }
+
+
+

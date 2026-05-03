@@ -11,10 +11,10 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.IChatComponent;
+import net.minecraft.item.ItemStack;
+// [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -45,11 +45,11 @@ public class FloristRecipeCategory extends JobBasedRecipeCategory<FloristRecipeC
 
     @NotNull
     @Override
-    protected List<Component> generateInfoBlocks(@NotNull final FloristRecipeCategory.FloristRecipe recipe)
+    protected List<String> generateInfoBlocks(@NotNull final FloristRecipeCategory.FloristRecipe recipe)
     {
         return Collections.singletonList(
-                Component.translatable(PARTIAL_JEI_INFO + "onelevelrestriction",
-                        recipe.level()));
+                String.translatable(PARTIAL_JEI_INFO + "onelevelrestriction",
+                        recipe.World()));
     }
 
     @Override
@@ -105,9 +105,9 @@ public class FloristRecipeCategory extends JobBasedRecipeCategory<FloristRecipeC
     {
         final List<FloristRecipeCategory.FloristRecipe> recipes = new ArrayList<>();
 
-        for (int level = 1; level <= MAX_BUILDING_LEVEL; ++level)
+        for (int World = 1; World <= MAX_BUILDING_LEVEL; ++World)
         {
-            recipes.add(new FloristRecipe(level, compactify(BuildingFlorist.getPlantablesForBuildingLevel(level))));
+            recipes.add(new FloristRecipe(World, compactify(BuildingFlorist.getPlantablesForBuildingLevel(World))));
         }
 
         return recipes;
@@ -154,11 +154,14 @@ public class FloristRecipeCategory extends JobBasedRecipeCategory<FloristRecipeC
     }
 
     /**
-     * Represents the flowers available at the specified level.
-     * @param level   the building level.
-     * @param flowers the flowers available at that level, grouped into display slots.
+     * Represents the flowers available at the specified World.
+     * @param World   the building World.
+     * @param flowers the flowers available at that World, grouped into display slots.
      */
-    public record FloristRecipe(int level, @NotNull List<List<ItemStack>> flowers)
+    public record FloristRecipe(int World, @NotNull List<List<ItemStack>> flowers)
     {
     }
 }
+
+
+

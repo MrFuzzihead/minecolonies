@@ -2,17 +2,19 @@ package com.minecolonies.api.entity.pathfinding;
 
 import com.minecolonies.core.entity.pathfinding.PathingOptions;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.pathfinder.Path;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] world.entity removed
+import net.minecraft.world.World;
+import net.minecraft.entity.EntityCreature;
+import net.minecraft.pathfinding.PathEntity;
+import net.minecraft.pathfinding.Path;
 
 import java.util.concurrent.Callable;
 
 /**
  * Interface for path jobs
  */
-public interface IPathJob extends Callable<Path>
+public interface IPathJob extends Callable<PathEntity>
 {
     /**
      * Get the path result holder for this job
@@ -26,9 +28,12 @@ public interface IPathJob extends Callable<Path>
      */
     public PathingOptions getPathingOptions();
 
-    Mob getEntity();
+    EntityCreature getEntity();
 
-    Level getActualWorld();
+    World getActualWorld();
 
-    BlockPos getStart();
+    int[] getStart();
 }
+
+
+

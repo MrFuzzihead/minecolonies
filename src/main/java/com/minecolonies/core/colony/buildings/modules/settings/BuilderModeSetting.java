@@ -6,7 +6,7 @@ import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.buildings.modules.ISettingsModule;
 import com.minecolonies.api.colony.buildings.modules.settings.ISettingsModuleView;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingBuilder;
-import net.minecraft.network.chat.Component;
+import net.minecraft.util.IChatComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,15 +53,15 @@ public class BuilderModeSetting extends StringSetting
     }
 
     @Override
-    protected Component getDisplayText()
+    protected String getDisplayText()
     {
-        return Component.translatable("com.ldtteam.structurize.iterators." + getSettings().get(getCurrentIndex()));
+        return String.translatable("com.ldtteam.structurize.iterators." + getSettings().get(getCurrentIndex()));
     }
 
     @Override
-    public Component getToolTipText()
+    public String getToolTipText()
     {
-        return Component.translatable("com.ldtteam.structurize.iterators." + getSettings().get(getCurrentIndex()) + ".tooltip");
+        return String.translatable("com.ldtteam.structurize.iterators." + getSettings().get(getCurrentIndex()) + ".tooltip");
     }
 
     @Override
@@ -77,8 +77,10 @@ public class BuilderModeSetting extends StringSetting
     }
 
     @Override
-    public @Nullable Component getInactiveReason()
+    public @Nullable String getInactiveReason()
     {
-        return Component.translatable(NEEDS_RESEARCH_REASON, Component.translatable(BUILDER_MODES_RESEARCH));
+        return String.translatable(NEEDS_RESEARCH_REASON, String.translatable(BUILDER_MODES_RESEARCH));
     }
 }
+
+

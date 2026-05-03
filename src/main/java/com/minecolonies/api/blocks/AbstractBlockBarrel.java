@@ -3,39 +3,36 @@ package com.minecolonies.api.blocks;
 import com.minecolonies.api.blocks.interfaces.ITickableBlockMinecolonies;
 import com.minecolonies.api.blocks.types.BarrelType;
 import com.minecolonies.api.tileentities.AbstractTileEntityBarrel;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.block.material.Material;
 
+/**
+ * Abstract barrel block — ported to 1.7.10.
+ * There is no BlockState property system in 1.7.10.
+ * FACING is encoded in metadata bits 0-1 by the parent class.
+ * VARIANT (barrel fill World) is encoded in metadata bits 2-4.
+ */
 public abstract class AbstractBlockBarrel<B extends AbstractBlockBarrel<B>> extends AbstractBlockMinecoloniesHorizontal<B> implements ITickableBlockMinecolonies
 {
-    public static final EnumProperty<BarrelType> VARIANT = EnumProperty.create("variant", BarrelType.class);
-
     /**
-     * The position it faces.
+     * Constructor.
+     *
+     * @param material the block material.
      */
-    public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
-
-    public AbstractBlockBarrel(final Properties properties)
+    public AbstractBlockBarrel(final Material material)
     {
-        super(properties);
+        super(material);
     }
 
-    public static BlockState changeStateOverFullness(@NotNull final AbstractTileEntityBarrel te, @NotNull final BlockState blockState)
+    /**
+     * Compute the new metadata value based on the barrel fullness.
+     *
+     * @param te          the tile entity.
+     * @param currentMeta the current metadata.
+     * @return updated metadata.
+     */
+    public static int changeMetaOverFullness(final AbstractTileEntityBarrel te, final int currentMeta)
     {
-        /*
-         * 12.8 -> the number of items needed to go up on a state (having 6 filling states)
-         * So item/12.8 -> meta of the state we should get
-         */
         BarrelType type = BarrelType.byMetadata((int) Math.round(te.getItems() / 12.8));
-
-        /*
-         * We check if the barrel is marked as empty but it have items inside. If so, means that it
-         * does not have all the items needed to go on TWENTY state, but we need to mark it so the player
-         * knows it have some items inside
-         */
 
         if (type.equals(BarrelType.ZERO) && te.getItems() > 0)
         {
@@ -50,6 +47,19 @@ public abstract class AbstractBlockBarrel<B extends AbstractBlockBarrel<B>> exte
             type = BarrelType.DONE;
         }
 
-        return blockState.setValue(AbstractBlockBarrel.VARIANT, type).setValue(AbstractBlockBarrel.FACING, blockState.getValue(AbstractBlockBarrel.FACING));
+        // preserve facing in lower 2 bits, store variant in upper bits
+        return (currentMeta & 0x3) | (type.getMetadata() << 2);
+    }
+
+    /**
+     * Get the barrel type from metadata.
+     *
+     * @param meta the metadata.
+     * @return the barrel type.
+     */
+    public static BarrelType getVariantFromMeta(final int meta)
+    {
+        return BarrelType.byMetadata((meta >> 2) & 0xF);
     }
 }
+

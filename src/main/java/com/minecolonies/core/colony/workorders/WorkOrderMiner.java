@@ -8,9 +8,9 @@ import com.minecolonies.api.colony.workorders.WorkOrderType;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.ColonyUtils;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingMiner;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.Level;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
@@ -26,7 +26,7 @@ public class WorkOrderMiner extends AbstractWorkOrder
     /**
      * Position of the issuer of the order.
      */
-    private BlockPos minerBuilding;
+    private int[] minerBuilding;
 
     /**
      * Unused constructor for reflection.
@@ -52,16 +52,16 @@ public class WorkOrderMiner extends AbstractWorkOrder
       final String structureName,
       final String workOrderName,
       final int rotation,
-      final BlockPos location,
+      final int[] location,
       final boolean mirror,
-      final BlockPos minerBuilding)
+      final int[] minerBuilding)
     {
         super(packName, structureName, workOrderName, WorkOrderType.BUILD, location, rotation, mirror, 0, 1);
         this.minerBuilding = minerBuilding;
     }
 
     @Override
-    public void loadBlueprint(final Level world, final Consumer<Blueprint> afterLoad)
+    public void loadBlueprint(final World world, final Consumer<Blueprint> afterLoad)
     {
         if (blueprint != null)
         {
@@ -97,12 +97,12 @@ public class WorkOrderMiner extends AbstractWorkOrder
      * <p>
      * @param building    the assigned building.
      * @param position    the position of the citizen's work hut.
-     * @param level       the level of that work hut.
+     * @param World       the World of that work hut.
      * @return true if the citizen may accept this work order.
      */
     @SuppressWarnings(UNUSED_METHOD_PARAMETERS_SHOULD_BE_REMOVED)
     @Override
-    public boolean canBuildIgnoringDistance(@NotNull IBuilding building,final BlockPos position, final int level)
+    public boolean canBuildIgnoringDistance(@NotNull IBuilding building,final int[] position, final int World)
     {
         return canBuild(building);
     }
@@ -114,25 +114,25 @@ public class WorkOrderMiner extends AbstractWorkOrder
     }
 
     /**
-     * Read the WorkOrder data from the CompoundTag.
+     * Read the WorkOrder data from the NBTTagCompound.
      *
-     * @param compound NBT Tag compound.
+     * @param compound NBT NBTBase compound.
      * @param manager  the work manager.
      */
     @Override
-    public void read(@NotNull final CompoundTag compound, final IWorkManager manager)
+    public void read(@NotNull final NBTTagCompound compound, final IWorkManager manager)
     {
         super.read(compound, manager);
         minerBuilding = BlockPosUtil.read(compound, TAG_POS);
     }
 
     /**
-     * Save the Work Order to an CompoundTag.
+     * Save the Work Order to an NBTTagCompound.
      *
-     * @param compound NBT tag compound.
+     * @param compound NBT NBTBase compound.
      */
     @Override
-    public void write(@NotNull final CompoundTag compound)
+    public void write(@NotNull final NBTTagCompound compound)
     {
         super.write(compound);
         BlockPosUtil.write(compound, TAG_POS, minerBuilding);
@@ -141,10 +141,13 @@ public class WorkOrderMiner extends AbstractWorkOrder
     /**
      * Get the miner building position assigned to this request.
      *
-     * @return the BlockPos.
+     * @return the int[].
      */
-    public BlockPos getMinerBuilding()
+    public int[] getMinerBuilding()
     {
         return minerBuilding;
     }
 }
+
+
+

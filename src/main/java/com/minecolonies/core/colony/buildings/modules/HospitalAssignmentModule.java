@@ -8,7 +8,7 @@ import com.minecolonies.api.colony.jobs.registry.JobEntry;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.entity.citizen.Skill;
 import com.minecolonies.core.util.AttributeModifierUtils;
-import net.minecraft.world.entity.ai.attributes.Attributes;
+// [1.7.10] world.entity removed
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -37,3 +37,4 @@ public class HospitalAssignmentModule extends WorkerBuildingModule implements IB
         optCitizen.ifPresent(entityCitizen -> AttributeModifierUtils.removeModifier(entityCitizen, SKILL_BONUS_ADD, Attributes.MOVEMENT_SPEED));
     }
 }
+

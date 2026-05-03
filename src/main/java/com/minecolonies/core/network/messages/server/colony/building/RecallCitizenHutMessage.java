@@ -10,11 +10,11 @@ import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.core.colony.buildings.views.AbstractBuildingView;
 import com.minecolonies.core.network.messages.server.AbstractBuildingServerMessage;
 import com.minecolonies.core.util.TeleportHelper;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -45,10 +45,10 @@ public class RecallCitizenHutMessage extends AbstractBuildingServerMessage<IBuil
     }
 
     @Override
-    protected void onExecute(@NotNull final NetworkEvent.Context ctxIn, final boolean isLogicalServer, @NotNull final IColony colony, @NotNull final IBuilding building)
+    protected void onExecute(@NotNull final MessageContext ctx, final boolean isLogicalServer, @NotNull final IColony colony, @NotNull final IBuilding building)
     {
-        final BlockPos location = building.getPosition();
-        final Level world = colony.getWorld();
+        final int[] location = building.getPosition();
+        final World world = colony.getWorld();
         for (final ICitizenData citizenData : building.getAllAssignedCitizen())
         {
             Optional<AbstractEntityCitizen> optionalEntityCitizen = citizenData.getEntity();
@@ -62,7 +62,7 @@ public class RecallCitizenHutMessage extends AbstractBuildingServerMessage<IBuil
 
             if (optionalEntityCitizen.isPresent() && !TeleportHelper.teleportCitizen(optionalEntityCitizen.get(), world, location))
             {
-                final Player player = ctxIn.getSender();
+                final Player player = ctx.getServerHandler().playerEntity;
                 if (player == null)
                 {
                     return;
@@ -74,14 +74,16 @@ public class RecallCitizenHutMessage extends AbstractBuildingServerMessage<IBuil
     }
 
     @Override
-    protected void toBytesOverride(final FriendlyByteBuf buf)
+    protected void toBytesOverride(final PacketBuffer buf)
     {
 
     }
 
     @Override
-    protected void fromBytesOverride(final FriendlyByteBuf buf)
+    protected void fromBytesOverride(final PacketBuffer buf)
     {
 
     }
 }
+
+

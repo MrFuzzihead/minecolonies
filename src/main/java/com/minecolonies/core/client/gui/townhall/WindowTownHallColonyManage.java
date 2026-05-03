@@ -1,7 +1,26 @@
 package com.minecolonies.core.client.gui.townhall;
 
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
+import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
+import com.ldtteam.blockui.controls.DropDownList;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.controls.TextField;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
+import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.ldtteam.structurize.storage.StructurePacks;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.tileentities.TileEntityColonyBuilding;
@@ -9,16 +28,16 @@ import com.minecolonies.core.Network;
 import com.minecolonies.core.client.gui.AbstractWindowSkeleton;
 import com.minecolonies.core.network.messages.server.CreateColonyMessage;
 import com.minecolonies.core.network.messages.client.VanillaParticleMessage;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.core.BlockPos;
+import net.minecraft.util.EnumChatFormatting;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] sounds removed
+// [1.7.10] sounds removed
+// [1.7.10] block.entity removed
 
 import static com.minecolonies.api.util.constant.Constants.TICKS_SECOND;
 import static com.minecolonies.api.util.constant.TranslationConstants.*;
@@ -34,14 +53,14 @@ public class WindowTownHallColonyManage extends AbstractWindowSkeleton
     /**
      * Townhall position
      */
-    private final BlockPos pos;
+    private final int[] pos;
 
     /**
      * If it is a reactivated colony.
      */
     private final boolean reactivate;
 
-    public WindowTownHallColonyManage(final BlockPos pos, final String closestName, final int closestDistance, final String preName, final boolean reactivate)
+    public WindowTownHallColonyManage(final int[] pos, final String closestName, final int closestDistance, final String preName, final boolean reactivate)
     {
         super(new ResourceLocation(Constants.MOD_ID, "gui/townhall/windowcolonymanagement.xml"));
         this.pos = pos;
@@ -51,15 +70,15 @@ public class WindowTownHallColonyManage extends AbstractWindowSkeleton
         registerButton(BUTTON_CANCEL, this::close);
         registerButton(BUTTON_CREATE, this::onCreate);
 
-        this.findPaneOfTypeByID("colonyname", TextField.class).setText(preName.isEmpty() ? Component.translatable(DEFAULT_COLONY_NAME, mc.player.getName()).getString() : preName);
-        this.findPaneOfTypeByID("text1", Text.class).setText(Component.translatable("com.minecolonies.core.settlementcovenant1", Math.max(13, Minecraft.getInstance().level.getGameTime() / TICKS_SECOND / 60 / 100)));
+        this.findPaneOfTypeByID("colonyname", TextField.class).setText(preName.isEmpty() ? String.translatable(DEFAULT_COLONY_NAME, mc.player.getName()).getString() : preName);
+        this.findPaneOfTypeByID("text1", Text.class).setText(String.translatable("com.minecolonies.core.settlementcovenant1", Math.max(13, Minecraft.getInstance().World.getGameTime() / TICKS_SECOND / 60 / 100)));
         if (closestDistance < 1000)
         {
-            this.findPaneOfTypeByID("text3", Text.class).setText(Component.translatable("com.minecolonies.core.settlementcovenant3.hasclose", Component.literal(closestName).withStyle(ChatFormatting.RED) , Component.literal(String.valueOf(closestDistance)).withStyle(ChatFormatting.RED)));
+            this.findPaneOfTypeByID("text3", Text.class).setText(String.translatable("com.minecolonies.core.settlementcovenant3.hasclose", String.literal(closestName).withStyle(ChatFormatting.RED) , String.literal(String.valueOf(closestDistance)).withStyle(ChatFormatting.RED)));
         }
         else
         {
-            this.findPaneOfTypeByID("text3", Text.class).setText(Component.translatable("com.minecolonies.core.settlementcovenant3.noclose"));
+            this.findPaneOfTypeByID("text3", Text.class).setText(String.translatable("com.minecolonies.core.settlementcovenant3.noclose"));
         }
     }
 
@@ -71,9 +90,9 @@ public class WindowTownHallColonyManage extends AbstractWindowSkeleton
         final String colonyName = this.findPaneOfTypeByID("colonyname", TextField.class).getText();
 
         new VanillaParticleMessage(pos.getX(), pos.getY(), pos.getZ(), ParticleTypes.DRAGON_BREATH).onExecute(null, false);
-        Minecraft.getInstance().level.playSound(Minecraft.getInstance().player, Minecraft.getInstance().player.blockPosition(),
+        Minecraft.getInstance().World.playSound(Minecraft.getInstance().player, Minecraft.getInstance().player.blockPosition(),
           SoundEvents.CAMPFIRE_CRACKLE, SoundSource.AMBIENT, 2.5f, 0.8f);
-        final BlockEntity entity = Minecraft.getInstance().level.getBlockEntity(pos);
+        final BlockEntity entity = Minecraft.getInstance().World.getBlockEntity(pos);
 
         Network.getNetwork()
               .sendToServer(new CreateColonyMessage(pos,
@@ -85,3 +104,6 @@ public class WindowTownHallColonyManage extends AbstractWindowSkeleton
         close();
     }
 }
+
+
+

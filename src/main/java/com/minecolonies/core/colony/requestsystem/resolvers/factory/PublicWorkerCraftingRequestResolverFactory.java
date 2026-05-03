@@ -11,9 +11,9 @@ import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.util.constant.SerializationIdentifierConstants;
 import com.minecolonies.api.util.constant.TypeConstants;
 import com.minecolonies.core.colony.requestsystem.resolvers.PublicWorkerCraftingRequestResolver;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.NotNull;
 
 public class PublicWorkerCraftingRequestResolverFactory implements IRequestResolverFactory<PublicWorkerCraftingRequestResolver>
@@ -51,9 +51,9 @@ public class PublicWorkerCraftingRequestResolverFactory implements IRequestResol
 
     @NotNull
     @Override
-    public CompoundTag serialize(@NotNull final IFactoryController controller, @NotNull final PublicWorkerCraftingRequestResolver publicWorkerCraftingRequestResolverFactory)
+    public NBTTagCompound serialize(@NotNull final IFactoryController controller, @NotNull final PublicWorkerCraftingRequestResolver publicWorkerCraftingRequestResolverFactory)
     {
-        final CompoundTag compound = new CompoundTag();
+        final NBTTagCompound compound = new NBTTagCompound();
         compound.put(NBT_TOKEN, controller.serialize(publicWorkerCraftingRequestResolverFactory.getId()));
         compound.put(NBT_LOCATION, controller.serialize(publicWorkerCraftingRequestResolverFactory.getLocation()));
         compound.putString(NBT_JOB, IJobRegistry.getInstance().getKey(publicWorkerCraftingRequestResolverFactory.getJobEntry()).toString());
@@ -63,7 +63,7 @@ public class PublicWorkerCraftingRequestResolverFactory implements IRequestResol
 
     @NotNull
     @Override
-    public PublicWorkerCraftingRequestResolver deserialize(@NotNull final IFactoryController controller, @NotNull final CompoundTag nbt)
+    public PublicWorkerCraftingRequestResolver deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound nbt)
     {
         final IToken<?> token = controller.deserialize(nbt.getCompound(NBT_TOKEN));
         final ILocation location = controller.deserialize(nbt.getCompound(NBT_LOCATION));
@@ -73,7 +73,7 @@ public class PublicWorkerCraftingRequestResolverFactory implements IRequestResol
     }
 
     @Override
-    public void serialize(IFactoryController controller, PublicWorkerCraftingRequestResolver input, FriendlyByteBuf packetBuffer)
+    public void serialize(IFactoryController controller, PublicWorkerCraftingRequestResolver input, PacketBuffer packetBuffer)
     {
         controller.serialize(packetBuffer, input.getId());
         controller.serialize(packetBuffer, input.getLocation());
@@ -81,7 +81,7 @@ public class PublicWorkerCraftingRequestResolverFactory implements IRequestResol
     }
 
     @Override
-    public PublicWorkerCraftingRequestResolver deserialize(IFactoryController controller, FriendlyByteBuf buffer) throws Throwable
+    public PublicWorkerCraftingRequestResolver deserialize(IFactoryController controller, PacketBuffer buffer) throws Throwable
     {
         final IToken<?> token = controller.deserialize(buffer);
         final ILocation location = controller.deserialize(buffer);
@@ -95,3 +95,6 @@ public class PublicWorkerCraftingRequestResolverFactory implements IRequestResol
         return SerializationIdentifierConstants.PUBLIC_WORKER_CRAFTING_REQUEST_RESOLVER_ID;
     }
 }
+
+
+

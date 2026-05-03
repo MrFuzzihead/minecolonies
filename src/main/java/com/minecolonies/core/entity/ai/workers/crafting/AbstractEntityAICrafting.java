@@ -28,15 +28,15 @@ import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
 import com.minecolonies.core.network.messages.client.BlockParticleEffectMessage;
 import com.minecolonies.core.network.messages.client.LocalizedParticleEffectMessage;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.loot.LootParams;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
+import net.minecraft.world.WorldServer;
+// [1.7.10] int /* InteractionHand */ removed
+// [1.7.10] net.minecraft.util.DamageSource removed
+import net.minecraft.item.ItemStack;
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
 import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -78,7 +78,7 @@ public abstract class AbstractEntityAICrafting<J extends AbstractJobCrafter<?, J
     public static final int PROGRESS_MULTIPLIER = 10;
 
     /**
-     * Max level which should have an effect on the speed of the worker.
+     * Max World which should have an effect on the speed of the worker.
      */
     protected static final int MAX_LEVEL = 50;
 
@@ -100,7 +100,7 @@ public abstract class AbstractEntityAICrafting<J extends AbstractJobCrafter<?, J
     /**
      * Player damage source.
      */
-    private DamageSource playerDamageSource;
+    private net.minecraft.util.DamageSource playerDamageSource;
 
     /**
      * Already dumped during this iteration.
@@ -110,7 +110,7 @@ public abstract class AbstractEntityAICrafting<J extends AbstractJobCrafter<?, J
     /**
      * Idle pos.
      */
-    public BlockPos idlePos = null;
+    public int[] idlePos = null;
 
     /**
      * The number of actions a crafting "success" is worth. By default, that's 1 action for 1 crafting success. Override this in your subclass to make crafting recipes worth more
@@ -140,7 +140,7 @@ public abstract class AbstractEntityAICrafting<J extends AbstractJobCrafter<?, J
      */
     protected void recordCraftingBuildingStats(IRequest<?> request, IRecipeStorage recipe)
     {
-        if (recipe == null) 
+        if (recipe == null)
         {
             return;
         }
@@ -207,9 +207,9 @@ public abstract class AbstractEntityAICrafting<J extends AbstractJobCrafter<?, J
 
         if (MathUtils.RANDOM.nextBoolean())
         {
-            final List<BlockPos> sitPositions = new ArrayList<>(building.getLocationsFromTag(TAG_SITTING));
+            final List<int[]> sitPositions = new ArrayList<>(building.getLocationsFromTag(TAG_SITTING));
             sitPositions.addAll(building.getLocationsFromTag(TAG_SIT_IN));
-            if (worker.level.isRaining())
+            if (worker.World.isRaining())
             {
                 if (!sitPositions.isEmpty())
                 {
@@ -230,8 +230,8 @@ public abstract class AbstractEntityAICrafting<J extends AbstractJobCrafter<?, J
 
         if (MathUtils.RANDOM.nextBoolean())
         {
-            final List<BlockPos> standPositions = new ArrayList<>(building.getLocationsFromTag(TAG_STAND_IN));
-            if (worker.level.isRaining())
+            final List<int[]> standPositions = new ArrayList<>(building.getLocationsFromTag(TAG_STAND_IN));
+            if (worker.World.isRaining())
             {
                 if (!standPositions.isEmpty())
                 {
@@ -534,16 +534,16 @@ public abstract class AbstractEntityAICrafting<J extends AbstractJobCrafter<?, J
         }
         if (toolSlot >= 0)
         {
-            worker.getInventoryCitizen().setHeldItem(InteractionHand.MAIN_HAND, toolSlot);
-            worker.setItemInHand(InteractionHand.MAIN_HAND, worker.getInventoryCitizen().getStackInSlot(toolSlot));
-            worker.setItemInHand(InteractionHand.OFF_HAND,
+            worker.getInventoryCitizen().setHeldItem(0 /* InteractionHand.MAIN_HAND */, toolSlot);
+            worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, worker.getInventoryCitizen().getStackInSlot(toolSlot));
+            worker.setItemInHand(1 /* InteractionHand.OFF_HAND */,
               currentRecipeStorage.getCleanedInput().get(worker.getRandom().nextInt(currentRecipeStorage.getCleanedInput().size())).getItemStack().copy());
         }
         else
         {
-            worker.setItemInHand(InteractionHand.MAIN_HAND,
+            worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */,
               currentRecipeStorage.getCleanedInput().get(worker.getRandom().nextInt(currentRecipeStorage.getCleanedInput().size())).getItemStack().copy());
-            worker.setItemInHand(InteractionHand.OFF_HAND, currentRecipeStorage.getPrimaryOutput().copy());
+            worker.setItemInHand(1 /* InteractionHand.OFF_HAND */, currentRecipeStorage.getPrimaryOutput().copy());
         }
         hitBlockWithToolInHand(building.getPosition());
         Network.getNetwork().sendToTrackingEntity(new LocalizedParticleEffectMessage(worker.getMainHandItem(), building.getPosition().above()), worker);
@@ -610,7 +610,7 @@ public abstract class AbstractEntityAICrafting<J extends AbstractJobCrafter<?, J
         job.setCraftCounter(job.getCraftCounter() + 1);
         if (toolSlot != -1)
         {
-            CitizenItemUtils.damageItemInHand(worker, InteractionHand.MAIN_HAND, 1);
+            CitizenItemUtils.damageItemInHand(worker, 0 /* InteractionHand.MAIN_HAND */, 1);
         }
 
         if (job.getCraftCounter() >= job.getMaxCraftingCount())
@@ -624,7 +624,7 @@ public abstract class AbstractEntityAICrafting<J extends AbstractJobCrafter<?, J
 
             return finalizeCraftingTask();
         }
-        else if (toolSlot >= 0 && worker.getInventoryCitizen().getHeldItem(InteractionHand.MAIN_HAND).isEmpty())
+        else if (toolSlot >= 0 && worker.getInventoryCitizen().getHeldItem(0 /* InteractionHand.MAIN_HAND */).isEmpty())
         {
             // tool broke, abort crafting
             currentRequest = null;
@@ -652,19 +652,19 @@ public abstract class AbstractEntityAICrafting<J extends AbstractJobCrafter<?, J
         return INVENTORY_FULL;
     }
 
-    public void hitBlockWithToolInHand(@Nullable final BlockPos blockPos)
+    public void hitBlockWithToolInHand(@Nullable final int[] blockPos)
     {
-        worker.getLookControl().setLookAt(blockPos.getX(), blockPos.getY(), blockPos.getZ(), FACING_DELTA_YAW, worker.getMaxHeadXRot());
+        worker.getLookControl().setLookAt(blockPos[0], blockPos[1], blockPos[2], FACING_DELTA_YAW, worker.getMaxHeadXRot());
 
         worker.swing(worker.getUsedItemHand());
 
-        final BlockState blockState = worker.level().getBlockState(blockPos);
-        final BlockPos vector = blockPos.subtract(worker.blockPosition());
-        final Direction facing = BlockPosUtil.directionFromDelta(vector.getX(), vector.getY(), vector.getZ()).getOpposite();
+        final BlockState blockState = worker.worldObj.getBlockState(blockPos);
+        final int[] vector = new int[]{blockPos[0] - (int)worker.posX, blockPos[1] - (int)worker.posY, blockPos[2] - (int)worker.posZ};
+        final Direction facing = BlockPosUtil.directionFromDelta(vector[0], vector[1], vector[2]).getOpposite();
 
         Network.getNetwork().sendToPosition(
           new BlockParticleEffectMessage(blockPos, blockState, facing.ordinal()),
-          new PacketDistributor.TargetPoint(blockPos.getX(), blockPos.getY(), blockPos.getZ(), BLOCK_BREAK_PARTICLE_RANGE, worker.level().dimension()));
+          new PacketDistributor.TargetPoint(blockPos[0], blockPos[1], blockPos[2], BLOCK_BREAK_PARTICLE_RANGE, worker.worldObj.provider.dimensionId));
 
         job.playSound(blockPos, (EntityCitizen) worker);
     }
@@ -677,8 +677,8 @@ public abstract class AbstractEntityAICrafting<J extends AbstractJobCrafter<?, J
         job.setMaxCraftingCount(0);
         job.setProgress(0);
         job.setCraftCounter(0);
-        worker.setItemInHand(InteractionHand.MAIN_HAND, ItemStackUtils.EMPTY);
-        worker.setItemInHand(InteractionHand.OFF_HAND, ItemStackUtils.EMPTY);
+        worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, ItemStackUtils.EMPTY);
+        worker.setItemInHand(1 /* InteractionHand.OFF_HAND */, ItemStackUtils.EMPTY);
         dumped = false;
     }
 
@@ -703,7 +703,7 @@ public abstract class AbstractEntityAICrafting<J extends AbstractJobCrafter<?, J
 
         if (!job.getSecondaryOutputs().isEmpty())
         {
-            final BlockPos closestWarehouse = job.getColony().getServerBuildingManager().getBestBuilding(worker, BuildingWareHouse.class);
+            final int[] closestWarehouse = job.getColony().getServerBuildingManager().getBestBuilding(worker, BuildingWareHouse.class);
             if (closestWarehouse != null)
             {
                 final IBuilding warehouse = job.getColony().getServerBuildingManager().getBuilding(closestWarehouse);
@@ -749,38 +749,26 @@ public abstract class AbstractEntityAICrafting<J extends AbstractJobCrafter<?, J
      *
      * @return the LootContext to use for crafting
      */
-    protected LootParams getLootContext()
+    protected Object getLootContext()
     {
-        return getLootContext(false);
+        // [1.7.10] LootParams not available
+        return null;
     }
 
     /**
-     * get the LootContextBuilder for
-     *
-     * @param includeKiller true for killer-based parameters
-     * @return the LootContext to use for crafting
+     * [1.7.10] LootParams not available - stubbed
      */
-    protected LootParams getLootContext(boolean includeKiller)
+    protected Object getLootContext(boolean includeKiller)
     {
-        if (playerDamageSource == null)
-        {
-            playerDamageSource = world.damageSources().playerAttack(getFakePlayer());
-        }
-
-        LootParams.Builder builder = (new LootParams.Builder((ServerLevel) this.world))
-                                       .withParameter(LootContextParams.ORIGIN, worker.position())
-                                       .withParameter(LootContextParams.THIS_ENTITY, worker)
-                                       .withParameter(LootContextParams.TOOL, worker.getMainHandItem())
-                                       .withLuck((float) getEffectiveSkillLevel(getPrimarySkillLevel()));
-
-        if (includeKiller)
-        {
-            builder = builder
-                        .withParameter(LootContextParams.DAMAGE_SOURCE, playerDamageSource)
-                        .withParameter(LootContextParams.KILLER_ENTITY, playerDamageSource.getEntity())
-                        .withParameter(LootContextParams.DIRECT_KILLER_ENTITY, playerDamageSource.getDirectEntity());
-        }
-
-        return builder.create(RecipeStorage.recipeLootParameters);
+        // [1.7.10] LootParams not available
+        return null;
     }
 }
+
+
+
+
+
+
+
+

@@ -2,9 +2,10 @@ package com.minecolonies.core.research;
 
 import com.minecolonies.api.research.ModResearchEffects;
 import com.minecolonies.api.research.IResearchEffect;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -15,27 +16,27 @@ import java.util.List;
 public class GlobalResearchEffect implements IResearchEffect
 {
     /**
-     * The NBT tag for an individual effect's identifier, as a ResourceLocation.
+     * The NBT NBTBase for an individual effect's identifier, as a ResourceLocation.
      */
     private static final String TAG_ID = "id";
 
     /**
-     * The NBT tag for an individual effect's description, as a human-readable string or TranslationText key.
+     * The NBT NBTBase for an individual effect's description, as a human-readable string or TranslationText key.
      */
     private static final String TAG_DESC = "desc";
 
     /**
-     * The NBT tag for an individual effect's subtitle, as a human-readable string or TranslationText key.
+     * The NBT NBTBase for an individual effect's subtitle, as a human-readable string or TranslationText key.
      */
     private static final String TAG_SUBTITLE = "subtitle";
 
     /**
-     * The NBT tag for an individual effect's strength, in magnitude.
+     * The NBT NBTBase for an individual effect's strength, in magnitude.
      */
     private static final String TAG_EFFECT = "effect";
 
     /**
-     * The NBT tag for an individual effect's display value, usually the difference between its strength and the previous level.
+     * The NBT NBTBase for an individual effect's display value, usually the difference between its strength and the previous World.
      */
     private static final String TAG_DISPLAY_EFFECT = "display";
 
@@ -87,7 +88,7 @@ public class GlobalResearchEffect implements IResearchEffect
      *
      * @param nbt the nbt containing the traits for the global research.
      */
-    public GlobalResearchEffect(final CompoundTag nbt)
+    public GlobalResearchEffect(final NBTTagCompound nbt)
     {
         this.id = new ResourceLocation(nbt.getString(TAG_ID));
         this.effect = nbt.getDouble(TAG_EFFECT);
@@ -133,14 +134,18 @@ public class GlobalResearchEffect implements IResearchEffect
     }
 
     @Override
-    public CompoundTag writeToNBT()
+    public NBTTagCompound writeToNBT()
     {
-        final CompoundTag nbt = new CompoundTag();
-        nbt.putString(TAG_ID, id.toString());
-        nbt.putString(TAG_DESC, name.getKey());
-        nbt.putString(TAG_SUBTITLE, subtitle.getKey());
-        nbt.putDouble(TAG_EFFECT, effect);
-        nbt.putDouble(TAG_DISPLAY_EFFECT, displayEffect);
+        final NBTTagCompound nbt = new NBTTagCompound();
+        nbt.setString(TAG_ID, id.toString());
+        nbt.setString(TAG_DESC, name.getKey());
+        nbt.setString(TAG_SUBTITLE, subtitle.getKey());
+        nbt.setDouble(TAG_EFFECT, effect);
+        nbt.setDouble(TAG_DISPLAY_EFFECT, displayEffect);
         return nbt;
     }
 }
+
+
+
+

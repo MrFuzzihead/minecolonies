@@ -1,6 +1,6 @@
 package com.minecolonies.api.entity.ai.combat.threat;
 
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.entity.EntityLivingBase;
 
 import java.util.Objects;
 
@@ -17,17 +17,17 @@ public class ThreatTableEntry
     /**
      * Entity which caused the threat
      */
-    private final LivingEntity entity;
+    private final EntityLivingBase entity;
 
     /**
      * Time at which it was last seen
      */
     private long lastSeen;
 
-    public ThreatTableEntry(final LivingEntity entity)
+    public ThreatTableEntry(final EntityLivingBase entity)
     {
         this.entity = Objects.requireNonNull(entity);
-        this.lastSeen = entity.level().getGameTime();
+        this.lastSeen = entity.World().getGameTime();
     }
 
     /**
@@ -41,7 +41,7 @@ public class ThreatTableEntry
         }
 
         this.threat = Math.max(0, this.threat + threat);
-        lastSeen = entity.level().getGameTime();
+        lastSeen = entity.World().getGameTime();
     }
 
     /**
@@ -69,7 +69,7 @@ public class ThreatTableEntry
      *
      * @return target
      */
-    public LivingEntity getEntity()
+    public EntityLivingBase getEntity()
     {
         return entity;
     }
@@ -94,3 +94,5 @@ public class ThreatTableEntry
         this.lastSeen = gameTime;
     }
 }
+
+

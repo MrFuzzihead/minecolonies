@@ -1,6 +1,6 @@
 package com.minecolonies.core.entity.ai.workers.util;
 
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NBTTagCompound;
 
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_ID;
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_STATUS;
@@ -45,7 +45,7 @@ public class Patient
      *
      * @param patientCompound the nbt to load it from.
      */
-    public Patient(final CompoundTag patientCompound)
+    public Patient(final NBTTagCompound patientCompound)
     {
         this.id = patientCompound.getInt(TAG_ID);
         this.state = PatientState.values()[patientCompound.getInt(TAG_STATUS)];
@@ -86,9 +86,11 @@ public class Patient
      *
      * @param compoundNBT the compound to write it to.
      */
-    public void write(final CompoundTag compoundNBT)
+    public void write(final NBTTagCompound compoundNBT)
     {
         compoundNBT.putInt(TAG_ID, id);
         compoundNBT.putInt(TAG_STATUS, state.ordinal());
     }
 }
+
+

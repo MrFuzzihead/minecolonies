@@ -18,17 +18,18 @@ import com.minecolonies.core.colony.jobs.JobFlorist;
 import com.minecolonies.core.entity.ai.workers.AbstractEntityAIInteract;
 import com.minecolonies.core.tileentities.TileEntityCompostedDirt;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.WorldServer;
+// [1.7.10] tags removed
+// [1.7.10] int /* InteractionHand */ removed
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] block.entity removed
+// [1.7.10] BlockState -> int metadata
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -55,7 +56,7 @@ public class EntityAIWorkFlorist extends AbstractEntityAIInteract<JobFlorist, Bu
     private static final long MAX_DISTANCE = 50;
 
     /**
-     * Harvest actions to actually dump per building level.
+     * Harvest actions to actually dump per building World.
      */
     private static final int HARVEST_ACTIONS_TO_DUMP = 10;
 
@@ -80,12 +81,12 @@ public class EntityAIWorkFlorist extends AbstractEntityAIInteract<JobFlorist, Bu
     private static final int BASE_BLOCK_MINING_DELAY = 10;
 
     /**
-     * The per level mining delay bonus.
+     * The per World mining delay bonus.
      */
     private static final double PER_LEVEL_BONUS = 0.1;
 
     /**
-     * Max level bonus is this x 10.
+     * Max World bonus is this x 10.
      */
     private static final double MAX_BONUS = 5;
 
@@ -108,18 +109,18 @@ public class EntityAIWorkFlorist extends AbstractEntityAIInteract<JobFlorist, Bu
     /**
      * Position the florist should harvest a flower at now.
      */
-    private BlockPos harvestPosition;
+    private int[] harvestPosition;
 
     /**
      * Position the florist should compost the tileEntity at.
      */
-    private BlockPos compostPosition;
+    private int[] compostPosition;
 
     /*
        Florist uses compost on them if not composted yet
        Block which is composted produces flowers in an interval for a certain time (For 1 minute it produces 1 flower randomly between 1-60s),
         so it might make 10 flowers but average it's 2 flowers per minute.                                                                                                                                                                       - Flourist checks if on top of block is flower and harvests it.
-       Depending on the florists level he has smaller delays so he harvests faster
+       Depending on the florists World he has smaller delays so he harvests faster
      */
 
     /**
@@ -158,7 +159,7 @@ public class EntityAIWorkFlorist extends AbstractEntityAIInteract<JobFlorist, Bu
         worker.getCitizenData().setVisibleStatus(VisibleCitizenStatus.WORKING);
         if (building.getPlantGround().isEmpty())
         {
-            worker.getCitizenData().triggerInteraction(new StandardInteraction(Component.translatable(NO_PLANT_GROUND_FLORIST), ChatPriority.BLOCKING));
+            worker.getCitizenData().triggerInteraction(new StandardInteraction(String.translatable(NO_PLANT_GROUND_FLORIST), ChatPriority.BLOCKING));
             return IDLE;
         }
 
@@ -167,7 +168,7 @@ public class EntityAIWorkFlorist extends AbstractEntityAIInteract<JobFlorist, Bu
             return IDLE;
         }
 
-        worker.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, ItemStack.EMPTY);
         final long distance = BlockPosUtil.getDistance2D(worker.blockPosition(), building.getPosition());
         if (distance > MAX_DISTANCE && !walkToBuilding())
         {
@@ -199,7 +200,7 @@ public class EntityAIWorkFlorist extends AbstractEntityAIInteract<JobFlorist, Bu
         {
             if (!isThereCompostedLand(building, world))
             {
-                worker.getCitizenData().triggerInteraction(new StandardInteraction(Component.translatable(NO_COMPOST), ChatPriority.BLOCKING));
+                worker.getCitizenData().triggerInteraction(new StandardInteraction(String.translatable(NO_COMPOST), ChatPriority.BLOCKING));
                 return START_WORKING;
             }
             return DECIDE;
@@ -243,7 +244,7 @@ public class EntityAIWorkFlorist extends AbstractEntityAIInteract<JobFlorist, Bu
             }
             else
             {
-                worker.getCitizenData().triggerInteraction(new StandardInteraction(Component.translatable(NO_FLOWERS_IN_CONFIG), ChatPriority.BLOCKING));
+                worker.getCitizenData().triggerInteraction(new StandardInteraction(String.translatable(NO_FLOWERS_IN_CONFIG), ChatPriority.BLOCKING));
             }
         }
 
@@ -293,7 +294,7 @@ public class EntityAIWorkFlorist extends AbstractEntityAIInteract<JobFlorist, Bu
     }
 
     @Override
-    public boolean holdEfficientTool(@NotNull final BlockState target, final BlockPos pos)
+    public boolean holdEfficientTool(@NotNull final BlockState target, final int[] pos)
     {
         final int bestSlot = getMostEfficientTool(target, pos);
         if (bestSlot == NO_TOOL)
@@ -319,7 +320,7 @@ public class EntityAIWorkFlorist extends AbstractEntityAIInteract<JobFlorist, Bu
         final int shearSlot = InventoryUtils.getFirstSlotOfItemHandlerContainingEquipment(worker.getInventoryCitizen(), ModEquipmentTypes.shears.get(), 0, building.getMaxEquipmentLevel());
         if (shearSlot >= 0)
         {
-            CitizenItemUtils.setHeldItem(worker, InteractionHand.MAIN_HAND, shearSlot);
+            CitizenItemUtils.setHeldItem(worker, 0 /* InteractionHand.MAIN_HAND */, shearSlot);
             return true;
         }
         return false;
@@ -339,7 +340,7 @@ public class EntityAIWorkFlorist extends AbstractEntityAIInteract<JobFlorist, Bu
      * @return the delay in ticks
      */
     @Override
-    public int getBlockMiningTime(@NotNull final BlockState state, @NotNull final BlockPos pos)
+    public int getBlockMiningTime(@NotNull final BlockState state, @NotNull final int[] pos)
     {
         return BASE_BLOCK_MINING_DELAY * (int) (1 + Math.max(0, MAX_BONUS - PER_LEVEL_BONUS * (getSecondarySkillLevel() / 2.0)));
     }
@@ -350,9 +351,9 @@ public class EntityAIWorkFlorist extends AbstractEntityAIInteract<JobFlorist, Bu
      * @return if so, return the position it is at.
      */
     @Nullable
-    private BlockPos areThereFlowersToGather()
+    private int[] areThereFlowersToGather()
     {
-        for (final BlockPos pos : building.getPlantGround())
+        for (final int[] pos : building.getPlantGround())
         {
             if (!world.isEmptyBlock(pos.above()))
             {
@@ -367,9 +368,9 @@ public class EntityAIWorkFlorist extends AbstractEntityAIInteract<JobFlorist, Bu
      *
      * @return the land to compost.
      */
-    private BlockPos getFirstNotCompostedLand()
+    private int[] getFirstNotCompostedLand()
     {
-        for (final BlockPos pos : building.getPlantGround())
+        for (final int[] pos : building.getPlantGround())
         {
             if (WorldUtil.isEntityBlockLoaded(world, pos))
             {
@@ -403,7 +404,7 @@ public class EntityAIWorkFlorist extends AbstractEntityAIInteract<JobFlorist, Bu
      * @param pos the position to check for flower drops.
      * @return an Optional containing the registry name of the flower drop, or an empty Optional if no flower is found.
      */
-    protected static List<String> getFlowerDropAtPos(Level world, BlockPos pos) 
+    protected static List<String> getFlowerDropAtPos(World world, int[] pos) 
     {
         List<String> flowerDrops = new ArrayList<>();
         BlockState state = world.getBlockState(pos);
@@ -419,3 +420,8 @@ public class EntityAIWorkFlorist extends AbstractEntityAIInteract<JobFlorist, Bu
         return flowerDrops;
     }
 }
+
+
+
+
+

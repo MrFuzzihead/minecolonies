@@ -1,11 +1,11 @@
 package com.minecolonies.core.client.gui.modules.building;
 
+// [1.7.10] blockui replaced by ModularUI2
 import com.ldtteam.blockui.Pane;
-import com.ldtteam.blockui.PaneBuilders;
 import com.ldtteam.blockui.controls.Button;
-import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.views.ScrollingList;
+import net.minecraft.world.item.Items;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.colony.connections.ColonyConnection;
 import com.minecolonies.api.colony.connections.DiplomacyStatus;
@@ -18,13 +18,13 @@ import com.minecolonies.core.client.gui.AbstractBuildingWindow;
 import com.minecolonies.core.client.gui.WindowConfirm;
 import com.minecolonies.core.commands.ClickEventWithExecutable;
 import com.minecolonies.core.network.messages.server.colony.TeleportToColonyMessage;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.items.wrapper.InvWrapper;
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -113,10 +113,10 @@ public class ConnectionModuleWindow extends AbstractBuildingWindow<IBuildingView
         new WindowConfirm(this,
             () ->
             {
-                Network.getNetwork().sendToServer(new TeleportToColonyMessage(mc.level.dimension(), connectedColonyData.id, connectedColonyData.pos, buildingView.getColony().getID(), itemCount));
+                Network.getNetwork().sendToServer(new TeleportToColonyMessage(mc.World.dimension(), connectedColonyData.id, connectedColonyData.pos, buildingView.getColony().getID(), itemCount));
                 close();
             },
-        Component.translatable("com.minecolonies.coremod.gui.townhall.tp", connectedColonyData.name).getString(), "").open();
+        String.translatable("com.minecolonies.coremod.gui.townhall.tp", connectedColonyData.name).getString(), "").open();
     }
 
     /**
@@ -145,9 +145,9 @@ public class ConnectionModuleWindow extends AbstractBuildingWindow<IBuildingView
             public void updateElement(final int index, @NotNull final Pane rowPane)
             {
                 final ColonyConnection colonyData = connectionData.get(index);
-                rowPane.findPaneOfTypeByID("name", Text.class).setText(Component.literal(colonyData.name));
-                rowPane.findPaneOfTypeByID("distance", Text.class).setText(Component.translatable("com.minecolonies.coremod.dist.blocks", (int) BlockPosUtil.dist(colonyData.pos, buildingView.getColony().getCenter())));
-                rowPane.findPaneOfTypeByID("state", Text.class).setText(Component.translatable(colonyData.diplomacyStatus.translationKey()));
+                rowPane.findPaneOfTypeByID("name", Text.class).setText(String.literal(colonyData.name));
+                rowPane.findPaneOfTypeByID("distance", Text.class).setText(String.translatable("com.minecolonies.coremod.dist.blocks", (int) BlockPosUtil.dist(colonyData.pos, buildingView.getColony().getCenter())));
+                rowPane.findPaneOfTypeByID("state", Text.class).setText(String.translatable(colonyData.diplomacyStatus.translationKey()));
 
                 final int dist = (int) BlockPosUtil.dist(colonyData.pos, buildingView.getPosition());
                 final int itemCount = dist/125;
@@ -166,13 +166,18 @@ public class ConnectionModuleWindow extends AbstractBuildingWindow<IBuildingView
                 if (externalPlayer && InventoryUtils.getItemCountInItemHandler(new InvWrapper(Minecraft.getInstance().player.getInventory()), Items.GOLD_NUGGET) <= itemCount)
                 {
                     button.setEnabled(false);
-                    PaneBuilders.tooltipBuilder().hoverPane(button).build().setText(Component.translatable("com.ldtteam.gatehouse.travel.cost"));
+                    PaneBuilders.tooltipBuilder().hoverPane(button).build().setText(String.translatable("com.ldtteam.gatehouse.travel.cost"));
                 }
                 else
                 {
-                    button.setEnabled(colonyData.diplomacyStatus == DiplomacyStatus.ALLIES && !colonyData.pos.equals(BlockPos.ZERO));
+                    button.setEnabled(colonyData.diplomacyStatus == DiplomacyStatus.ALLIES && !colonyData.pos.equals(new int[]{0,0,0}));
                 }
             }
         });
     }
 }
+
+
+
+
+

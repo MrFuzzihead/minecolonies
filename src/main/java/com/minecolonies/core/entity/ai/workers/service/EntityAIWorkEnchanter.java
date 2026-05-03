@@ -22,18 +22,18 @@ import com.minecolonies.core.entity.ai.workers.crafting.AbstractEntityAICrafting
 import com.minecolonies.core.network.messages.client.CircleParticleEffectMessage;
 import com.minecolonies.core.network.messages.client.StreamParticleEffectMessage;
 import com.minecolonies.core.util.WorkerUtil;
-import net.minecraft.core.BlockPos;
+// [1.7.10] int[] -> int x,y,z
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentUtils;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.InteractionHand;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] sounds removed
+// [1.7.10] int /* InteractionHand */ removed
 import net.minecraft.world.item.EnchantedBookItem;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.phys.Vec3;
+// [1.7.10] world.phys removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -68,17 +68,17 @@ public class EntityAIWorkEnchanter extends AbstractEntityAICrafting<JobEnchanter
     private static final long MIN_DISTANCE_TO_DRAIN = 10;
 
     /**
-     * Max progress ticks until drainage is complete (per Level).
+     * Max progress ticks until drainage is complete (per World).
      */
     private static final int MAX_PROGRESS_TICKS = 60;
 
     /**
-     * Max progress ticks until drainage is complete (per Level).
+     * Max progress ticks until drainage is complete (per World).
      */
     private static final int MAX_ENCHANTMENT_TICKS = 60 * 5;
 
     /**
-     * Minimum mana requirement per level.
+     * Minimum mana requirement per World.
      */
     private static final int MANA_REQ_PER_LEVEL = 10;
 
@@ -120,7 +120,7 @@ public class EntityAIWorkEnchanter extends AbstractEntityAICrafting<JobEnchanter
     @Override
     protected IAIState decide()
     {
-        worker.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, ItemStack.EMPTY);
         if (!walkToBuilding())
         {
             return START_WORKING;
@@ -147,7 +147,7 @@ public class EntityAIWorkEnchanter extends AbstractEntityAICrafting<JobEnchanter
                 if (worker.getCitizenData() != null)
                 {
                     worker.getCitizenData()
-                      .triggerInteraction(new StandardInteraction(Component.translatable(NO_WORKERS_TO_DRAIN_SET), ChatPriority.BLOCKING));
+                      .triggerInteraction(new StandardInteraction(String.translatable(NO_WORKERS_TO_DRAIN_SET), ChatPriority.BLOCKING));
                 }
                 return IDLE;
             }
@@ -165,7 +165,7 @@ public class EntityAIWorkEnchanter extends AbstractEntityAICrafting<JobEnchanter
                 return IDLE;
             }
 
-            final BlockPos posToDrainFrom = module.getRandomBuildingToDrainFrom();
+            final int[] posToDrainFrom = module.getRandomBuildingToDrainFrom();
             if (posToDrainFrom == null)
             {
                 return IDLE;
@@ -256,11 +256,11 @@ public class EntityAIWorkEnchanter extends AbstractEntityAICrafting<JobEnchanter
 
             if (worker.getRandom().nextBoolean())
             {
-                worker.swing(InteractionHand.MAIN_HAND);
+                worker.swing(0 /* InteractionHand.MAIN_HAND */);
             }
             else
             {
-                worker.swing(InteractionHand.OFF_HAND);
+                worker.swing(1 /* InteractionHand.OFF_HAND */);
             }
             return getState();
         }
@@ -292,7 +292,7 @@ public class EntityAIWorkEnchanter extends AbstractEntityAICrafting<JobEnchanter
         if (stack.getItem().equals(Items.ENCHANTED_BOOK))
         {
             return EnchantedBookItem.getEnchantments(stack).stream()
-                     .mapToInt(nbt -> ((CompoundTag) nbt).getShort("lvl"))
+                     .mapToInt(nbt -> ((NBTTagCompound) nbt).getShort("lvl"))
                      .max().orElse(0);
         }
         return 0;
@@ -391,15 +391,15 @@ public class EntityAIWorkEnchanter extends AbstractEntityAICrafting<JobEnchanter
                 ParticleTypes.HAPPY_VILLAGER,
                 progressTicks), worker);
 
-            WorkerUtil.faceBlock(BlockPos.containing(goal), worker);
+            WorkerUtil.faceBlock(new int[]{(int)(goal).x, (int)(goal).y, (int)(goal).z}, worker);
 
             if (worker.getRandom().nextBoolean())
             {
-                worker.swing(InteractionHand.MAIN_HAND);
+                worker.swing(0 /* InteractionHand.MAIN_HAND */);
             }
             else
             {
-                worker.swing(InteractionHand.OFF_HAND);
+                worker.swing(1 /* InteractionHand.OFF_HAND */);
             }
 
             return getState();
@@ -460,7 +460,7 @@ public class EntityAIWorkEnchanter extends AbstractEntityAICrafting<JobEnchanter
     {
         for (ItemStack stack : loot)
         {
-            Component name = stack.getHoverName();
+            String name = stack.getHoverName();
 
             if (stack.is(Items.ENCHANTED_BOOK))
             {
@@ -477,7 +477,7 @@ public class EntityAIWorkEnchanter extends AbstractEntityAICrafting<JobEnchanter
                     {
                         name = ComponentUtils.formatList(
                             enchants.entrySet().stream().map(e -> e.getKey().getFullname(e.getValue())).toList(),
-                            Component.literal(", "));
+                            String.literal(", "));
                     }
                 }
             }
@@ -496,3 +496,9 @@ public class EntityAIWorkEnchanter extends AbstractEntityAICrafting<JobEnchanter
         return ITEMS_ENCHANTED;
     }
 }
+
+
+
+
+
+

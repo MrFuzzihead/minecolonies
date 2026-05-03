@@ -6,13 +6,13 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientSuggestionProvider;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.selector.EntitySelectorParser;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.fml.loading.FMLLoader;
+import net.minecraft.world.World;
+// [1.7.10] fml.loading removed
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -159,7 +159,7 @@ public abstract class MultipleOptionsArgument<TValue> implements ArgumentType<Mu
          * @param suggestionProvider the suggestion provider, allowing access to excess suggestion data.
          * @param builder            the suggestion builder.
          */
-        void createSuggestions(final Level world, final SharedSuggestionProvider suggestionProvider, final SuggestionsBuilder builder);
+        void createSuggestions(final World world, final SharedSuggestionProvider suggestionProvider, final SuggestionsBuilder builder);
     }
 
     /**
@@ -184,9 +184,13 @@ public abstract class MultipleOptionsArgument<TValue> implements ArgumentType<Mu
             {
                 for (final ArgumentOption<TValue> allowedOption : allowedOptions)
                 {
-                    allowedOption.createSuggestions(Minecraft.getInstance().level, clientSuggestionProvider, builder);
+                    allowedOption.createSuggestions(Minecraft.getInstance().World, clientSuggestionProvider, builder);
                 }
             }
         }
     }
 }
+
+
+
+

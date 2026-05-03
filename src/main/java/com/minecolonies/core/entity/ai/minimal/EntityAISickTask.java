@@ -20,16 +20,16 @@ import com.minecolonies.core.datalistener.model.Disease;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
 import com.minecolonies.core.network.messages.client.CircleParticleEffectMessage;
-import net.minecraft.core.BlockPos;
+// [1.7.10] int[] -> int x,y,z
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] sounds removed
+// [1.7.10] tags removed
+// [1.7.10] int /* InteractionHand */ removed
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 import net.minecraft.world.level.block.BedBlock;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] BlockState -> int metadata
 import net.minecraft.world.level.block.state.properties.BedPart;
 
 import java.util.List;
@@ -83,7 +83,7 @@ public class EntityAISickTask implements IStateAI
     /**
      * The bed the citizen is sleeping in.
      */
-    private BlockPos usedBed;
+    private int[] usedBed;
 
     /**
      * The different types of AIStates related to being sick.
@@ -108,7 +108,7 @@ public class EntityAISickTask implements IStateAI
     /**
      * Restaurant to which the citizen should path.
      */
-    private BlockPos bestHospital;
+    private int[] bestHospital;
 
     /**
      * Instantiates this task.
@@ -168,13 +168,13 @@ public class EntityAISickTask implements IStateAI
         if (usedBed == null && citizen.getCitizenData() != null)
         {
             this.usedBed = citizen.getCitizenData().getBedPos();
-            if (citizen.getCitizenData().getBedPos().equals(BlockPos.ZERO))
+            if (citizen.getCitizenData().getBedPos().equals(new int[]{0,0,0}))
             {
                 this.usedBed = null;
             }
         }
 
-        final BlockPos hospitalPos = citizen.getCitizenColonyHandler().getColonyOrRegister().getServerBuildingManager().getBestBuilding(citizen, BuildingHospital.class);
+        final int[] hospitalPos = citizen.getCitizenColonyHandler().getColonyOrRegister().getServerBuildingManager().getBestBuilding(citizen, BuildingHospital.class);
         final IColony colony = citizen.getCitizenColonyHandler().getColonyOrRegister();
         final IBuilding hospital = colony.getServerBuildingManager().getBuilding(hospitalPos);
 
@@ -187,9 +187,9 @@ public class EntityAISickTask implements IStateAI
 
             if (usedBed == null)
             {
-                for (final BlockPos pos : ((BuildingHospital) hospital).getBedList())
+                for (final int[] pos : ((BuildingHospital) hospital).getBedList())
                 {
-                    final Level world = citizen.level;
+                    final World world = citizen.World;
                     BlockState state = world.getBlockState(pos);
                     if (state.is(BlockTags.BEDS)
                           && !state.getValue(BedBlock.OCCUPIED)
@@ -215,7 +215,7 @@ public class EntityAISickTask implements IStateAI
                 if (!citizen.getCitizenSleepHandler().trySleep(usedBed))
                 {
                     ((BuildingHospital) hospital).registerPatient(usedBed, 0);
-                    citizen.getCitizenData().setBedPos(BlockPos.ZERO);
+                    citizen.getCitizenData().setBedPos(new int[]{0,0,0});
                     usedBed = null;
                 }
             }
@@ -250,10 +250,10 @@ public class EntityAISickTask implements IStateAI
         final List<ItemStorage> list = disease.cureItems();
         if (!list.isEmpty())
         {
-            citizen.setItemInHand(InteractionHand.MAIN_HAND, list.get(citizen.getRandom().nextInt(list.size())).getItemStack());
+            citizen.setItemInHand(0 /* InteractionHand.MAIN_HAND */, list.get(citizen.getRandom().nextInt(list.size())).getItemStack());
         }
 
-        citizen.swing(InteractionHand.MAIN_HAND);
+        citizen.swing(0 /* InteractionHand.MAIN_HAND */);
         citizen.playSound(SoundEvents.NOTE_BLOCK_HARP.get(), (float) BASIC_VOLUME, (float) SoundUtils.getRandomPentatonic(citizen.getRandom()));
         Network.getNetwork().sendToTrackingEntity(
           new CircleParticleEffectMessage(
@@ -292,14 +292,14 @@ public class EntityAISickTask implements IStateAI
 
         if (usedBed != null)
         {
-            final BlockPos hospitalPos = citizen.getCitizenColonyHandler().getColonyOrRegister().getServerBuildingManager().getBestBuilding(citizen, BuildingHospital.class);
+            final int[] hospitalPos = citizen.getCitizenColonyHandler().getColonyOrRegister().getServerBuildingManager().getBestBuilding(citizen, BuildingHospital.class);
             final IColony colony = citizen.getCitizenColonyHandler().getColonyOrRegister();
             final IBuilding hospital = colony.getServerBuildingManager().getBuilding(hospitalPos);
             ((BuildingHospital) hospital).registerPatient(usedBed, 0);
             usedBed = null;
-            citizen.getCitizenData().setBedPos(BlockPos.ZERO);
+            citizen.getCitizenData().setBedPos(new int[]{0,0,0});
         }
-        citizen.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        citizen.setItemInHand(0 /* InteractionHand.MAIN_HAND */, ItemStack.EMPTY);
         citizen.getCitizenData().getCitizenDiseaseHandler().cure();
         citizen.setHealth(citizen.getMaxHealth());
         reset();
@@ -339,7 +339,7 @@ public class EntityAISickTask implements IStateAI
 
         if (citizen.getCitizenSleepHandler().isAsleep())
         {
-            final BlockPos hospital = colony.getServerBuildingManager().getBestBuilding(citizen, BuildingHospital.class);
+            final int[] hospital = colony.getServerBuildingManager().getBestBuilding(citizen, BuildingHospital.class);
             if (hospital != null)
             {
                 final IBuilding building = colony.getServerBuildingManager().getBuilding(hospital);
@@ -422,15 +422,15 @@ public class EntityAISickTask implements IStateAI
             {
                 return CitizenAIState.IDLE;
             }
-            citizenData.triggerInteraction(new StandardInteraction(Component.translatable(NO_HOSPITAL, disease.name(), disease.getCureString()),
-              Component.translatable(NO_HOSPITAL),
+            citizenData.triggerInteraction(new StandardInteraction(String.translatable(NO_HOSPITAL, disease.name(), disease.getCureString()),
+              String.translatable(NO_HOSPITAL),
               ChatPriority.BLOCKING));
             return WANDER;
         }
         else if (disease != null)
         {
-            citizenData.triggerInteraction(new StandardInteraction(Component.translatable(WAITING_FOR_CURE, disease.name(), disease.getCureString()),
-              Component.translatable(WAITING_FOR_CURE),
+            citizenData.triggerInteraction(new StandardInteraction(String.translatable(WAITING_FOR_CURE, disease.name(), disease.getCureString()),
+              String.translatable(WAITING_FOR_CURE),
               ChatPriority.BLOCKING));
         }
 
@@ -479,7 +479,7 @@ public class EntityAISickTask implements IStateAI
         waitingTicks = 0;
         citizen.releaseUsingItem();
         citizen.stopUsingItem();
-        citizen.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        citizen.setItemInHand(0 /* InteractionHand.MAIN_HAND */, ItemStack.EMPTY);
         bestHospital = null;
         citizen.getCitizenData().getCitizenDiseaseHandler().setSleepsAtHospital(false);
     }
@@ -490,3 +490,9 @@ public class EntityAISickTask implements IStateAI
         citizen.getCitizenData().setVisibleStatus(VisibleCitizenStatus.SICK);
     }
 }
+
+
+
+
+
+

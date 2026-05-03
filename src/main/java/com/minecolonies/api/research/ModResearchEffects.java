@@ -1,9 +1,9 @@
 package com.minecolonies.api.research;
 
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] registries removed
 
 /**
  * Contains a list of research effects by type. Currently only supports absolute modifiers through Global Research Effect.
@@ -12,7 +12,7 @@ public class ModResearchEffects
 {
     public static final ResourceLocation GLOBAL_EFFECT_ID = new ResourceLocation(Constants.MOD_ID, "global");
 
-    public static RegistryObject<ResearchEffectEntry> globalResearchEffect;
+    public static ResearchEffectEntry globalResearchEffect;
 
     public ModResearchEffects() {throw new IllegalStateException("Tried to initialize: ModResearchEffects, but this is a Utility class.");}
 
@@ -22,7 +22,7 @@ public class ModResearchEffects
     @FunctionalInterface
     public interface ReadFromNBTFunction
     {
-        IResearchEffect read(final CompoundTag compound);
+        IResearchEffect read(final NBTTagCompound compound);
     }
 
     /**
@@ -65,9 +65,13 @@ public class ModResearchEffects
         /**
          * Read a research cost instance from NBT.
          */
-        public IResearchEffect readFromNBT(final CompoundTag nbt)
+        public IResearchEffect readFromNBT(final NBTTagCompound nbt)
         {
             return readFromNBT.read(nbt);
         }
     }
 }
+
+
+
+

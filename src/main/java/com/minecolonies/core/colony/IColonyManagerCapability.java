@@ -6,12 +6,14 @@ import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.core.util.BackUpHelper;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.common.capabilities.Capability;
+// [1.7.10 BACKPORT] Removed:
+//   net.minecraftforge.common.capabilities.Capability — no capabilities in 1.7.10
+// Capability<> param removed from Storage methods; call-sites pass null.
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -21,7 +23,7 @@ import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_COLONIES;
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_COLONY_MANAGER;
 
 /**
- * Capability for the colony tag for chunks
+ * Capability for the colony NBTBase for chunks
  */
 public interface IColonyManagerCapability
 {
@@ -32,7 +34,7 @@ public interface IColonyManagerCapability
      * @param pos the position of the colony.
      * @return the created colony.
      */
-    IColony createColony(@NotNull final Level w, @NotNull final BlockPos pos);
+    IColony createColony(@NotNull final World w, @NotNull final int[] pos);
 
     /**
      * Delete a colony with a certain id.
@@ -83,7 +85,7 @@ public interface IColonyManagerCapability
         private final ColonyList<IColony> colonies = new ColonyList<>();
 
         @Override
-        public IColony createColony(@NotNull final Level w, @NotNull final BlockPos pos)
+        public IColony createColony(@NotNull final World w, @NotNull final int[] pos)
         {
             return colonies.create(w, pos);
         }
@@ -121,15 +123,20 @@ public interface IColonyManagerCapability
 
     /**
      * The storage class of the capability.
+     *
+     * <p><b>1.7.10 Backport:</b> {@code Capability&lt;&gt;} param removed from both methods.</p>
      */
     class Storage
     {
 
-        public static Tag writeNBT(@NotNull final Capability<IColonyManagerCapability> capability, @NotNull final IColonyManagerCapability instance, final boolean overworld)
+        /** @param capability ignored (was Capability&lt;IColonyManagerCapability&gt;) */
+        public static NBTBase writeNBT(@SuppressWarnings("unused") final Object capability,
+            @NotNull final IColonyManagerCapability instance,
+            final boolean overworld)
         {
-            final CompoundTag compound = new CompoundTag();
+            final NBTTagCompound compound = new NBTTagCompound();
 
-            final ListTag colonies = new ListTag();
+            final NBTTagList colonies = new NBTTagList();
             for (final IColony colony : instance.getColonies())
             {
                 try
@@ -147,21 +154,25 @@ public interface IColonyManagerCapability
 
             if (overworld)
             {
-                final CompoundTag managerCompound = new CompoundTag();
+                final NBTTagCompound managerCompound = new NBTTagCompound();
                 IColonyManager.getInstance().write(managerCompound);
                 compound.put(TAG_COLONY_MANAGER, managerCompound);
             }
             return compound;
         }
 
+        /** @param capability ignored (was Capability&lt;IColonyManagerCapability&gt;) */
         public static void readNBT(
-          @NotNull final Capability<IColonyManagerCapability> capability, @NotNull final IColonyManagerCapability instance, final boolean overworld, @NotNull final Tag nbt)
+            @SuppressWarnings("unused") final Object capability,
+            @NotNull final IColonyManagerCapability instance,
+            final boolean overworld,
+            @NotNull final NBTBase nbt)
         {
             // Notify that we did load the cap for this world
             IColonyManager.getInstance().setCapLoaded();
-            if (nbt instanceof CompoundTag)
+            if (nbt instanceof NBTTagCompound)
             {
-                final CompoundTag compound = (CompoundTag) nbt;
+                final NBTTagCompound compound = (NBTTagCompound) nbt;
 
                 if (!compound.contains(TAG_COLONIES))
                 {
@@ -175,10 +186,10 @@ public interface IColonyManagerCapability
                 }
 
                 // Load all colonies from Nbt
-                Multimap<BlockPos, IColony> tempColonies = ArrayListMultimap.create();
-                for (final Tag tag : compound.getList(TAG_COLONIES, Tag.TAG_COMPOUND))
+                Multimap<int[], IColony> tempColonies = ArrayListMultimap.create();
+                for (final NBTBase NBTBase : compound.getList(TAG_COLONIES, NBTBase.TAG_COMPOUND))
                 {
-                    final IColony colony = Colony.loadColony((CompoundTag) tag, null);
+                    final IColony colony = Colony.loadColony((NBTTagCompound) NBTBase, null);
                     if (colony != null)
                     {
                         tempColonies.put(colony.getCenter(), colony);
@@ -187,7 +198,7 @@ public interface IColonyManagerCapability
                 }
 
                 // Check colonies for duplicates causing issues.
-                for (final BlockPos pos : tempColonies.keySet())
+                for (final int[] pos : tempColonies.keySet())
                 {
                     // Check if any position has more than one colony
                     if (tempColonies.get(pos).size() > 1)
@@ -218,3 +229,7 @@ public interface IColonyManagerCapability
         }
     }
 }
+
+
+
+

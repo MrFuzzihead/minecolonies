@@ -2,10 +2,10 @@ package com.minecolonies.api.colony.requestsystem.factory;
 
 import com.google.common.reflect.TypeToken;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -154,22 +154,22 @@ public interface IFactoryController
      * @return An NBTTag containing a serialized version of the given object.
      * @throws IllegalArgumentException is thrown when the output type is unknown to this controller.
      */
-    <Output> CompoundTag serialize(@NotNull final Output object) throws IllegalArgumentException;
+    <Output> NBTTagCompound serialize(@NotNull final Output object) throws IllegalArgumentException;
 
     /**
      * Serialize a collection to nbt util.
      * @param list the collection to serialize.
-     * @return an nbt tag.
+     * @return an nbt NBTBase.
      * @param <Output> the thing being serialized.
      */
-    default <Output> Tag serializeList(Collection<Output> list)
+    default <Output> NBTBase serializeList(Collection<Output> list)
     {
-        final ListTag tag = new ListTag();
+        final NBTTagList NBTBase = new NBTTagList();
         for (final Output value : list)
         {
-            tag.add(this.serialize(value));
+            NBTBase.add(this.serialize(value));
         }
-        return tag;
+        return NBTBase;
     }
 
     /**
@@ -180,20 +180,20 @@ public interface IFactoryController
      * @return The deserialized version of the given data.
      * @throws IllegalArgumentException is thrown when the type stored in the data is unknown to this controller.
      */
-    <Output> Output deserialize(@NotNull final CompoundTag compound) throws IllegalArgumentException;
+    <Output> Output deserialize(@NotNull final NBTTagCompound compound) throws IllegalArgumentException;
 
     /**
      * Deserialize a collection from nbt util.
-     * @param listTag the nbt tag to deserialize from.
+     * @param NBTTagList the nbt NBTBase to deserialize from.
      * @return a collection.
      * @param <Output> the thing being serialized.
      */
-    default <Output> Collection<Output> deserializeList(ListTag listTag)
+    default <Output> Collection<Output> deserializeList(NBTTagList NBTTagList)
     {
         final Collection<Output> values = new ArrayList<>();
-        for (final Tag subCompound : listTag)
+        for (final NBTBase subCompound : NBTTagList)
         {
-            values.add(this.deserialize(((CompoundTag) subCompound)));
+            values.add(this.deserialize(((NBTTagCompound) subCompound)));
         }
         return values;
     }
@@ -206,7 +206,7 @@ public interface IFactoryController
      * @param <Output> The type of the object to write.
      * @throws IllegalArgumentException is thrown when the given output type is unknown to this controller.
      */
-    <Output extends Object> void serialize(@NotNull final FriendlyByteBuf buffer, @NotNull final Output object) throws IllegalArgumentException;
+    <Output extends Object> void serialize(@NotNull final PacketBuffer buffer, @NotNull final Output object) throws IllegalArgumentException;
 
     /**
      * Method used to quickly read an object from a given {@link ByteBuf}
@@ -216,7 +216,7 @@ public interface IFactoryController
      * @return An instance of the given output type, with its stored data from the buffer.
      * @throws IllegalArgumentException is thrown when the requested type is unknown to this controller.
      */
-    <Output> Output deserialize(@NotNull final FriendlyByteBuf buffer) throws IllegalArgumentException;
+    <Output> Output deserialize(@NotNull final PacketBuffer buffer) throws IllegalArgumentException;
 
     /**
      * Method used to create a new instance of the given input.
@@ -252,3 +252,8 @@ public interface IFactoryController
      */
     <Output> void registerNewTypeOverrideHandler(@NotNull final ITypeOverrideHandler<Output> overrideHandler);
 }
+
+
+
+
+

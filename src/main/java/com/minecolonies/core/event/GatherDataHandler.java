@@ -5,7 +5,7 @@ import com.minecolonies.core.generation.ItemNbtCalculator;
 import com.minecolonies.core.generation.defaults.*;
 import com.minecolonies.core.generation.defaults.workers.*;
 import com.minecolonies.core.util.SchemFixerUtil;
-import net.minecraft.data.DataGenerator;
+// [1.7.10] data removed
 import net.minecraftforge.common.data.BlockTagsProvider;
 import net.minecraftforge.data.event.GatherDataEvent;
 
@@ -71,3 +71,4 @@ public class GatherDataHandler
         generator.addProvider(event.includeClient() && event.includeServer(), new ItemNbtCalculator(generator.getPackOutput(), event.getLookupProvider()));
     }
 }
+

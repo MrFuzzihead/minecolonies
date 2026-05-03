@@ -6,8 +6,8 @@ import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.core.colony.buildings.AbstractBuildingGuards;
 import com.minecolonies.core.colony.jobs.JobKnight;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,7 +35,7 @@ public class EntityAIKnight extends AbstractEntityAIGuard<JobKnight, AbstractBui
         for (final List<GuardGear> list : itemsNeeded)
         {
             list.add(new GuardGear(ModEquipmentTypes.shield.get(),
-              EquipmentSlot.OFFHAND,
+              null /* EquipmentSlot. */,
               TOOL_LEVEL_WOOD_OR_GOLD,
               TOOL_LEVEL_MAXIMUM,
               SHIELD_LEVEL_RANGE,
@@ -57,3 +57,7 @@ public class EntityAIKnight extends AbstractEntityAIGuard<JobKnight, AbstractBui
         return list;
     }
 }
+
+
+
+

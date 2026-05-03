@@ -2,8 +2,8 @@ package com.minecolonies.api.colony.interactionhandling;
 
 import com.minecolonies.api.colony.interactionhandling.registry.InteractionResponseHandlerEntry;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] registries removed
 
 /**
  * List of mod interaction handlers.
@@ -24,16 +24,18 @@ public final class ModInteractionResponseHandlers
     /**
      * List of entries.
      */
-    public static RegistryObject<InteractionResponseHandlerEntry> standard;
-    public static RegistryObject<InteractionResponseHandlerEntry> simpleNotification;
-    public static RegistryObject<InteractionResponseHandlerEntry> pos;
-    public static RegistryObject<InteractionResponseHandlerEntry> request;
-    public static RegistryObject<InteractionResponseHandlerEntry> recruitment;
-    public static RegistryObject<InteractionResponseHandlerEntry> quest;
-    public static RegistryObject<InteractionResponseHandlerEntry> questAction;
+    public static InteractionResponseHandlerEntry standard;
+    public static InteractionResponseHandlerEntry simpleNotification;
+    public static InteractionResponseHandlerEntry pos;
+    public static InteractionResponseHandlerEntry request;
+    public static InteractionResponseHandlerEntry recruitment;
+    public static InteractionResponseHandlerEntry quest;
+    public static InteractionResponseHandlerEntry questAction;
 
     private ModInteractionResponseHandlers()
     {
         throw new IllegalStateException("Tried to initialize: ModJobs but this is a Utility class.");
     }
 }
+
+

@@ -1,17 +1,17 @@
 package com.minecolonies.core.colony.buildings.moduleviews;
 
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.buildings.modules.AbstractBuildingModuleView;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.modules.building.GraveyardManagementWindow;
 import com.minecolonies.core.tileentities.TileEntityGrave;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] block.entity removed
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class GraveyardManagementModuleView extends AbstractBuildingModuleView
      * Contains a view object of all the graves in the colony.
      */
     @NotNull
-    private List<BlockPos> graves = new ArrayList<>();
+    private List<int[]> graves = new ArrayList<>();
 
     /**
      * Contains a view object of all the restingCitizen in the colony.
@@ -33,13 +33,13 @@ public class GraveyardManagementModuleView extends AbstractBuildingModuleView
     private List<String> restingCitizen = new ArrayList<>();
 
     @Override
-    public void deserialize(@NotNull final FriendlyByteBuf buf)
+    public void deserialize(@NotNull final PacketBuffer buf)
     {
         graves = new ArrayList<>();
         final int size = buf.readInt();
         for (int i = 1; i <= size; i++)
         {
-            @NotNull final BlockPos pos = buf.readBlockPos();
+            @NotNull final int[] pos = buf.readBlockPos();
             graves.add(pos);
         }
 
@@ -53,7 +53,7 @@ public class GraveyardManagementModuleView extends AbstractBuildingModuleView
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public BOWindow getWindow()
+    public Object /* BOWindow: todo ModularUI2 */ getWindow()
     {
         return new GraveyardManagementWindow(this);
     }
@@ -65,9 +65,9 @@ public class GraveyardManagementModuleView extends AbstractBuildingModuleView
     }
 
     @Override
-    public Component getDesc()
+    public String getDesc()
     {
-        return Component.translatable("com.minecolonies.gui.workerhuts.enchanter.workers");
+        return String.translatable("com.minecolonies.gui.workerhuts.enchanter.workers");
     }
 
     /**
@@ -76,7 +76,7 @@ public class GraveyardManagementModuleView extends AbstractBuildingModuleView
      * @return an unmodifiable List.
      */
     @NotNull
-    public List<BlockPos> getGraves()
+    public List<int[]> getGraves()
     {
         return graves;
     }
@@ -86,7 +86,7 @@ public class GraveyardManagementModuleView extends AbstractBuildingModuleView
      */
     public void cleanGraves()
     {
-        for (final BlockPos grave : new ArrayList<>(graves))
+        for (final int[] grave : new ArrayList<>(graves))
         {
             final BlockEntity entity = buildingView.getColony().getWorld().getBlockEntity(grave);
             if (!(entity instanceof TileEntityGrave))
@@ -107,3 +107,7 @@ public class GraveyardManagementModuleView extends AbstractBuildingModuleView
         return Collections.unmodifiableList(restingCitizen);
     }
 }
+
+
+
+

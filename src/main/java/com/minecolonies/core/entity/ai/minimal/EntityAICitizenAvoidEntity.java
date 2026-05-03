@@ -9,9 +9,9 @@ import com.minecolonies.api.util.CompatibilityUtils;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,7 +28,7 @@ import static com.minecolonies.core.entity.ai.minimal.EntityAICitizenAvoidEntity
 public class EntityAICitizenAvoidEntity implements IStateAI
 {
     /**
-     * Defines how close the entity has to be to the mob to run away.
+     * Defines how close the entity has to be to the EntityCreature to run away.
      */
     private static final double TOO_CLOSE_TO_MOB = 4D;
 
@@ -72,9 +72,9 @@ public class EntityAICitizenAvoidEntity implements IStateAI
     }
 
     /**
-     * The blockpos from where the citizen started fleeing.
+     * The int[] from where the citizen started fleeing.
      */
-    private BlockPos startingPos;
+    private int[] startingPos;
 
     /**
      * Random which is used for running into a random direction.
@@ -258,3 +258,5 @@ public class EntityAICitizenAvoidEntity implements IStateAI
         startingPos = null;
     }
 }
+
+

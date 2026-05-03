@@ -9,11 +9,11 @@ import com.minecolonies.api.research.IResearchRequirement;
 import com.minecolonies.api.research.ModResearchRequirements;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.util.GsonHelper;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -27,17 +27,17 @@ import static com.minecolonies.api.research.requirements.BuildingResearchRequire
 public class BuildingAlternatesResearchRequirement implements IResearchRequirement
 {
     /**
-     * The NBT tag for the list of alternate buildings.
+     * The NBT NBTBase for the list of alternate buildings.
      */
     private static final String TAG_BUILDINGS_LIST = "building-list";
 
     /**
-     * The NBT tag for an individual building's name.
+     * The NBT NBTBase for an individual building's name.
      */
     private static final String TAG_BUILDING_NAME = "building-name";
 
     /**
-     * The NBT tag for an individual building's required level.
+     * The NBT NBTBase for an individual building's required World.
      */
     private static final String TAG_BUILDING_LVL = "building-lvl";
 
@@ -47,17 +47,17 @@ public class BuildingAlternatesResearchRequirement implements IResearchRequireme
     private static final String RESEARCH_REQUIREMENT_ALTERNATE_BUILDINGS_PROP = "alternate-buildings";
 
     /**
-     * The property name for a numeric level.
+     * The property name for a numeric World.
      */
-    private static final String RESEARCH_REQUIREMENT_BUILDING_LEVEL_PROP = "level";
+    private static final String RESEARCH_REQUIREMENT_BUILDING_LEVEL_PROP = "World";
 
     /**
-     * The list of buildings, by level.
+     * The list of buildings, by World.
      */
     private final Set<ResourceLocation> buildings;
 
     /**
-     * The building level.
+     * The building World.
      */
     private final int buildingLevel;
 
@@ -66,14 +66,14 @@ public class BuildingAlternatesResearchRequirement implements IResearchRequireme
      *
      * @param nbt the nbt containing the relevant data.
      */
-    public BuildingAlternatesResearchRequirement(final CompoundTag nbt)
+    public BuildingAlternatesResearchRequirement(final NBTTagCompound nbt)
     {
         buildings = new HashSet<>();
         buildingLevel = nbt.getInt(TAG_BUILDING_LVL);
-        final ListTag buildingsNBT = nbt.getList(TAG_BUILDINGS_LIST, Constants.TAG_COMPOUND);
+        final NBTTagList buildingsNBT = nbt.getList(TAG_BUILDINGS_LIST, Constants.TAG_COMPOUND);
         for (int i = 0; i < buildingsNBT.size(); i++)
         {
-            final CompoundTag buildingNBT = buildingsNBT.getCompound(i);
+            final NBTTagCompound buildingNBT = buildingsNBT.getCompound(i);
             buildings.add(parseFallbackBuildingKey(buildingNBT.getString(TAG_BUILDING_NAME)));
         }
     }
@@ -105,7 +105,7 @@ public class BuildingAlternatesResearchRequirement implements IResearchRequireme
     }
 
     /**
-     * @return the building level
+     * @return the building World
      */
     public int getBuildingLevel()
     {
@@ -119,22 +119,22 @@ public class BuildingAlternatesResearchRequirement implements IResearchRequireme
     }
 
     @Override
-    public MutableComponent getDesc()
+    public String getDesc()
     {
-        final MutableComponent requirementList = Component.literal("");
+        final String requirementList = String.literal("");
         final Iterator<ResourceLocation> iterator = buildings.iterator();
         while (iterator.hasNext())
         {
             final ResourceLocation building = iterator.next();
 
             final BuildingEntry buildingEntry = IBuildingRegistry.getInstance().getValue(building);
-            final MutableComponent buildingName = buildingEntry != null ? Component.translatable(buildingEntry.getTranslationKey()) : Component.empty();
+            final String buildingName = buildingEntry != null ? String.translatable(buildingEntry.getTranslationKey()) : String.empty();
 
-            requirementList.append(Component.translatable("com.minecolonies.coremod.research.requirement.building.level", buildingName, buildingLevel));
+            requirementList.append(String.translatable("com.minecolonies.coremod.research.requirement.building.World", buildingName, buildingLevel));
 
             if (iterator.hasNext())
             {
-                requirementList.append(Component.translatable("com.minecolonies.coremod.research.requirement.building.or"));
+                requirementList.append(String.translatable("com.minecolonies.coremod.research.requirement.building.or"));
             }
         }
         return requirementList;
@@ -154,14 +154,14 @@ public class BuildingAlternatesResearchRequirement implements IResearchRequireme
     }
 
     @Override
-    public CompoundTag writeToNBT()
+    public NBTTagCompound writeToNBT()
     {
-        final CompoundTag nbt = new CompoundTag();
+        final NBTTagCompound nbt = new NBTTagCompound();
         nbt.putInt(TAG_BUILDING_LVL, buildingLevel);
-        final ListTag buildingsNBT = new ListTag();
+        final NBTTagList buildingsNBT = new NBTTagList();
         for (final ResourceLocation building : buildings)
         {
-            CompoundTag indNBT = new CompoundTag();
+            NBTTagCompound indNBT = new NBTTagCompound();
             indNBT.putString(TAG_BUILDING_NAME, building.toString());
             buildingsNBT.add(indNBT);
         }
@@ -169,3 +169,7 @@ public class BuildingAlternatesResearchRequirement implements IResearchRequireme
         return nbt;
     }
 }
+
+
+
+

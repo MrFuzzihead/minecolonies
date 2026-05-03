@@ -1,14 +1,14 @@
 package com.minecolonies.core.colony.buildings.moduleviews;
 
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.buildings.modules.AbstractBuildingModuleView;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.modules.building.WindowMineGuardModule;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -17,14 +17,14 @@ import org.jetbrains.annotations.NotNull;
 public class MinerGuardAssignModuleView extends AbstractBuildingModuleView
 {
     @Override
-    public void deserialize(@NotNull final FriendlyByteBuf buf)
+    public void deserialize(@NotNull final PacketBuffer buf)
     {
 
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public BOWindow getWindow()
+    public Object /* BOWindow: todo ModularUI2 */ getWindow()
     {
         return new WindowMineGuardModule(this);
     }
@@ -36,8 +36,11 @@ public class MinerGuardAssignModuleView extends AbstractBuildingModuleView
     }
     
     @Override
-    public Component getDesc()
+    public String getDesc()
     {
-        return Component.translatable("com.minecolonies.coremod.gui.miner.guardassign");
+        return String.translatable("com.minecolonies.coremod.gui.miner.guardassign");
     }
 }
+
+
+

@@ -3,7 +3,7 @@ package com.minecolonies.core.quests.sideeffects;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.quests.IQuestInstance;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 /**
  * Quest effect which sets the worker idle
@@ -68,3 +68,4 @@ public class WorkerIdleSideEffect implements IQuestSideEffect, ICitizenQuestSide
         data.setIdleDays(idleDays);
     }
 }
+

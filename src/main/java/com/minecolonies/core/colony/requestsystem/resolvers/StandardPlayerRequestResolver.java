@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.requestsystem.resolvers;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
@@ -22,9 +28,9 @@ import com.minecolonies.core.colony.Colony;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.requestsystem.management.IStandardRequestManager;
 import com.minecolonies.core.colony.requestsystem.requesters.BuildingBasedRequester;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.item.ItemStack;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -95,9 +101,9 @@ public class StandardPlayerRequestResolver implements IPlayerRequestResolver
 
     @NotNull
     @Override
-    public MutableComponent getRequesterDisplayName(@NotNull final IRequestManager manager, @NotNull final IRequest<?> request)
+    public String getRequesterDisplayName(@NotNull final IRequestManager manager, @NotNull final IRequest<?> request)
     {
-        return Component.literal("Player");
+        return String.literal("Player");
     }
 
     @Override
@@ -235,3 +241,6 @@ public class StandardPlayerRequestResolver implements IPlayerRequestResolver
         return true;
     }
 }
+
+
+

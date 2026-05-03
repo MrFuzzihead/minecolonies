@@ -6,14 +6,10 @@ import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.requestsystem.requestable.IDeliverable;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.util.ItemStackUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.items.ItemStackHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -21,17 +17,20 @@ import java.util.function.Predicate;
 
 import static com.minecolonies.api.util.constant.Constants.DEFAULT_SIZE;
 
-public abstract class AbstractTileEntityRack extends BlockEntity implements MenuProvider
+public abstract class AbstractTileEntityRack extends TileEntity
 {
     /**
-     * whether this rack is in a warehouse or not. defaults to not set by the warehouse building upon being built
+     * Whether this rack is in a warehouse or not.
      */
     protected boolean inWarehouse = false;
 
     /**
-     * Pos of the owning building.
+     * Pos of the owning building (encoded as x<<16|y<<8|z).
+     * Stored as 3 separate ints to replace int[].
      */
-    protected BlockPos buildingPos = BlockPos.ZERO;
+    protected int buildingPosX = 0;
+    protected int buildingPosY = 0;
+    protected int buildingPosZ = 0;
 
     /**
      * The inventory of the tileEntity.
@@ -40,26 +39,21 @@ public abstract class AbstractTileEntityRack extends BlockEntity implements Menu
 
     /**
      * Create a new rack.
-     * @param tileEntityTypeIn the specific block entity type.
-     * @param pos the position.
-     * @param state its state.
      */
-    public AbstractTileEntityRack(final BlockEntityType<?> tileEntityTypeIn, final BlockPos pos, final BlockState state)
+    public AbstractTileEntityRack()
     {
-        super(tileEntityTypeIn, pos, state);
+        super();
         inventory = createInventory(DEFAULT_SIZE);
     }
 
     /**
      * Create a rack with a specific inventory size.
-     * @param tileEntityTypeIn the specific block entity type.
-     * @param pos the position.
-     * @param state its state.
-     * @param size the ack size.
+     *
+     * @param size the rack size.
      */
-    public AbstractTileEntityRack(final BlockEntityType<?> tileEntityTypeIn, final BlockPos pos, final BlockState state, final int size)
+    public AbstractTileEntityRack(final int size)
     {
-        super(tileEntityTypeIn, pos, state);
+        super();
         inventory = createInventory(size);
     }
 
@@ -84,8 +78,9 @@ public abstract class AbstractTileEntityRack extends BlockEntity implements Menu
         public void setStackInSlot(final int slot, final @Nonnull ItemStack stack)
         {
             validateSlotIndex(slot);
-            final boolean changed = !ItemStack.matches(stack, this.stacks.get(slot));
-            this.stacks.set(slot, stack);
+            final ItemStack existing = stacks.get(slot);
+            final boolean changed = !ItemStack.areItemStacksEqual(stack, existing);
+            stacks.set(slot, stack);
             if (changed)
             {
                 onContentsChanged(slot);
@@ -98,7 +93,7 @@ public abstract class AbstractTileEntityRack extends BlockEntity implements Menu
         public ItemStack insertItem(final int slot, @Nonnull final ItemStack stack, final boolean simulate)
         {
             final ItemStack result = super.insertItem(slot, stack, simulate);
-            if ((result.isEmpty() || result.getCount() < stack.getCount()) && !simulate)
+            if ((result == null || result.stackSize < stack.stackSize) && !simulate)
             {
                 updateWarehouseIfAvailable(stack);
             }
@@ -110,7 +105,7 @@ public abstract class AbstractTileEntityRack extends BlockEntity implements Menu
      * Create the inventory that belongs to the rack.
      *
      * @param slots the number of slots.
-     * @return the created inventory,
+     * @return the created inventory.
      */
     public abstract ItemStackHandler createInventory(final int slots);
 
@@ -121,13 +116,13 @@ public abstract class AbstractTileEntityRack extends BlockEntity implements Menu
      */
     public void updateWarehouseIfAvailable(final ItemStack stack)
     {
-        if (!ItemStackUtils.isEmpty(stack) && level != null && !level.isClientSide)
+        if (!ItemStackUtils.isEmpty(stack) && worldObj != null && !worldObj.isRemote)
         {
-            if (inWarehouse || !buildingPos.equals(BlockPos.ZERO))
+            if (inWarehouse || (buildingPosX != 0 || buildingPosY != 0 || buildingPosZ != 0))
             {
-                if (IColonyManager.getInstance().isCoordinateInAnyColony(level, worldPosition))
+                if (IColonyManager.getInstance().isCoordinateInAnyColony(worldObj, xCoord, yCoord, zCoord))
                 {
-                    final IColony colony = IColonyManager.getInstance().getClosestColony(level, worldPosition);
+                    final IColony colony = IColonyManager.getInstance().getClosestColony(worldObj, xCoord, yCoord, zCoord);
                     if (colony == null)
                     {
                         return;
@@ -136,11 +131,11 @@ public abstract class AbstractTileEntityRack extends BlockEntity implements Menu
                     if (inWarehouse)
                     {
                         colony.getRequestManager().onColonyUpdate(request ->
-                                                                    request.getRequest() instanceof IDeliverable && ((IDeliverable) request.getRequest()).matches(stack));
+                          request.getRequest() instanceof IDeliverable && ((IDeliverable) request.getRequest()).matches(stack));
                     }
                     else
                     {
-                        final IBuilding building = colony.getServerBuildingManager().getBuilding(buildingPos);
+                        final IBuilding building = colony.getServerBuildingManager().getBuilding(buildingPosX, buildingPosY, buildingPosZ);
                         if (building != null)
                         {
                             building.overruleNextOpenRequestWithStack(stack);
@@ -153,21 +148,21 @@ public abstract class AbstractTileEntityRack extends BlockEntity implements Menu
     }
 
     /**
-     * Set the value for inWarehouse
+     * Set the value for inWarehouse.
      *
      * @param isInWarehouse is this rack in a warehouse?
      */
     public abstract void setInWarehouse(Boolean isInWarehouse);
 
     /**
-     * Get the amount of free slots in the inventory. This method checks the content list, it is therefore extremely fast.
+     * Get the amount of free slots in the inventory.
      *
-     * @return the amount of free slots (an integer).
+     * @return the amount of free slots.
      */
     public abstract int getFreeSlots();
 
     /**
-     * Check if a similar/same item as the stack is in the inventory. This method checks the content list, it is therefore extremely fast.
+     * Check if a similar/same item as the stack is in the inventory.
      *
      * @param stack             the stack to check.
      * @param count             the min count it should have.
@@ -177,16 +172,16 @@ public abstract class AbstractTileEntityRack extends BlockEntity implements Menu
     public abstract boolean hasItemStack(ItemStack stack, final int count, boolean ignoreDamageValue);
 
     /**
-     * Check if the itemStorage exists in the inventory. This method checks the content list, it is therefore extremely fast.
+     * Check if the itemStorage exists in the inventory.
      *
-     * @param storage           the storage to check.
-     * @param count             the min count it should have.
+     * @param storage the storage to check.
+     * @param count   the min count it should have.
      * @return true if so.
      */
     public abstract boolean hasItemStorage(final ItemStorage storage, final int count);
 
     /**
-     * Check if a similar/same item as the stack is in the inventory. And return the count if so.
+     * Check if a similar/same item as the stack is in the inventory and return the count.
      *
      * @param stack             the stack to check.
      * @param ignoreDamageValue ignore the damage value.
@@ -196,7 +191,7 @@ public abstract class AbstractTileEntityRack extends BlockEntity implements Menu
     public abstract int getCount(ItemStack stack, boolean ignoreDamageValue, final boolean ignoreNBT);
 
     /**
-     * Check if a similar/same item as the stack is in the inventory. And return the count if so.
+     * Check if a similar/same item as the storage is in the inventory and return the count.
      *
      * @param storage the storage to match.
      * @return the quantity or 0.
@@ -204,7 +199,7 @@ public abstract class AbstractTileEntityRack extends BlockEntity implements Menu
     public abstract int getCount(ItemStorage storage);
 
     /**
-     * Check if a similar/same item as the stack is in the inventory. This method checks the content list, it is therefore extremely fast.
+     * Check if a similar/same item as the stack is in the inventory.
      *
      * @param itemStackSelectionPredicate the predicate to test the stack against.
      * @return true if so.
@@ -227,15 +222,19 @@ public abstract class AbstractTileEntityRack extends BlockEntity implements Menu
     /**
      * Set the building pos it belongs to.
      *
-     * @param pos the pos of the building.
+     * @param posX building x.
+     * @param posY building y.
+     * @param posZ building z.
      */
-    public void setBuildingPos(final BlockPos pos)
+    public void setBuildingPos(final int posX, final int posY, final int posZ)
     {
-        if (level != null && (buildingPos == null || !buildingPos.equals(pos)))
+        if (worldObj != null && (buildingPosX != posX || buildingPosY != posY || buildingPosZ != posZ))
         {
-            setChanged();
+            markDirty();
         }
-        this.buildingPos = pos;
+        this.buildingPosX = posX;
+        this.buildingPosY = posY;
+        this.buildingPosZ = posZ;
     }
 
     /**
@@ -245,7 +244,9 @@ public abstract class AbstractTileEntityRack extends BlockEntity implements Menu
      */
     public abstract int getUpgradeSize();
 
-    /* Get the amount of items matching a predicate in the inventory.
+    /**
+     * Get the amount of items matching a predicate in the inventory.
+     *
      * @param predicate the predicate.
      * @return the total count.
      */
@@ -257,7 +258,7 @@ public abstract class AbstractTileEntityRack extends BlockEntity implements Menu
     public abstract void updateItemStorage();
 
     /**
-     * Update the blockState of the rack. Switch between connected, single, full and empty texture.
+     * Update the blockState of the rack.
      */
     protected abstract void updateBlockState();
 
@@ -269,7 +270,7 @@ public abstract class AbstractTileEntityRack extends BlockEntity implements Menu
     public abstract AbstractTileEntityRack getOtherChest();
 
     /**
-     * Checks if the chest is empty. This method checks the content list, it is therefore extremely fast.
+     * Checks if the chest is empty.
      *
      * @return true if so.
      */
@@ -280,3 +281,6 @@ public abstract class AbstractTileEntityRack extends BlockEntity implements Menu
         return inventory;
     }
 }
+
+
+

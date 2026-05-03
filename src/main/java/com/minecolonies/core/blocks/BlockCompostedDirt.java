@@ -4,38 +4,33 @@ import com.minecolonies.api.blocks.AbstractBlockMinecolonies;
 import com.minecolonies.api.blocks.interfaces.ITickableBlockMinecolonies;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.tileentities.TileEntityCompostedDirt;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.material.MapColor;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.level.BlockGetter;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 import net.minecraftforge.common.IPlantable;
+import net.minecraftforge.common.util.ForgeDirection;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
-
 /**
- * Block that if activated with BoneMeal or Compost by an AI will produce flowers by intervals until it deactivates
+ * Block that if activated with BoneMeal or Compost by an AI will produce flowers by intervals until it deactivates.
+ * [1.7.10] Ported: Material replaces Properties; createTileEntity/hasTileEntity replaces newBlockEntity;
+ * canSustainPlant signature updated for 1.7.10.
  */
 public class BlockCompostedDirt extends AbstractBlockMinecolonies<BlockCompostedDirt> implements ITickableBlockMinecolonies
 {
-    private static final String     BLOCK_NAME     = "composted_dirt";
-    private static final float      BLOCK_HARDNESS = 5f;
-    private static final float      RESISTANCE     = 1f;
-    private final static VoxelShape SHAPE          = Shapes.box(0, 0, 0, 1, 1, 1);
+    private static final String BLOCK_NAME     = "composted_dirt";
+    private static final float  BLOCK_HARDNESS = 5f;
+    private static final float  RESISTANCE     = 1f;
 
-    /**
-     * The constructor of the block.
-     */
     public BlockCompostedDirt()
     {
-        super(Properties.of().mapColor(MapColor.DIRT).sound(SoundType.ROOTED_DIRT).strength(BLOCK_HARDNESS, RESISTANCE).sound(SoundType.GRAVEL));
+        super(Material.ground);
+        setHardness(BLOCK_HARDNESS);
+        setResistance(RESISTANCE);
+        setStepSound(Block.soundTypeGravel);
     }
 
     @Override
@@ -44,26 +39,25 @@ public class BlockCompostedDirt extends AbstractBlockMinecolonies<BlockComposted
         return new ResourceLocation(Constants.MOD_ID, BLOCK_NAME);
     }
 
-    @Nullable
     @Override
-    public BlockEntity newBlockEntity(@NotNull final BlockPos blockPos, @NotNull final BlockState blockState)
+    public boolean hasTileEntity(final int metadata)
     {
-        return new TileEntityCompostedDirt(blockPos, blockState);
+        return true;
     }
 
-    @NotNull
     @Override
-    public VoxelShape getShape(final BlockState state, final BlockGetter worldIn, final BlockPos pos, final CollisionContext context)
+    public TileEntity createTileEntity(final World world, final int metadata)
     {
-        return SHAPE;
+        return new TileEntityCompostedDirt();
     }
 
     @Override
     public boolean canSustainPlant(
-      @NotNull final BlockState state,
-      @NotNull final BlockGetter world,
-      final BlockPos pos,
-      @NotNull final Direction facing,
+      @NotNull final IBlockAccess world,
+      final int x,
+      final int y,
+      final int z,
+      @NotNull final ForgeDirection direction,
       final IPlantable plantable)
     {
         return true;

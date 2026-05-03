@@ -1,9 +1,26 @@
 package com.minecolonies.core.client.gui.modules.building;
 
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
 import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.PaneParams;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
 import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
 import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.colony.ICitizenDataView;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.util.constant.Constants;
@@ -14,15 +31,15 @@ import com.minecolonies.core.colony.buildings.modules.settings.GuardTaskSetting;
 import com.minecolonies.core.colony.buildings.moduleviews.MinerGuardAssignModuleView;
 import com.minecolonies.core.colony.buildings.moduleviews.SettingsModuleView;
 import com.minecolonies.core.network.messages.server.colony.building.guard.GuardSetMinePosMessage;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * BOWindow for the miner hut.
+ * Object (BOWindow: todo ModularUI2 removed) for the miner hut.
  */
 public class WindowMineGuardModule  extends AbstractModuleWindow<MinerGuardAssignModuleView>
 {
@@ -60,7 +77,7 @@ public class WindowMineGuardModule  extends AbstractModuleWindow<MinerGuardAssig
                 if (assignedGuards < getMaxGuards())
                 {
                     Network.getNetwork().sendToServer(new GuardSetMinePosMessage(guardbuilding, buildingView.getPosition()));
-                    button.setText(Component.translatable("com.minecolonies.coremod.gui.hiring.buttonunassign"));
+                    button.setText(String.translatable("com.minecolonies.coremod.gui.hiring.buttonunassign"));
                     guardbuilding.setMinePos(buildingView.getPosition());
                     assignedGuards++;
                 }
@@ -68,7 +85,7 @@ public class WindowMineGuardModule  extends AbstractModuleWindow<MinerGuardAssig
             else if (guardbuilding.getMinePos().equals(buildingView.getPosition()))
             {
                 Network.getNetwork().sendToServer(new GuardSetMinePosMessage(guardbuilding));
-                button.setText(Component.translatable("com.minecolonies.coremod.gui.hiring.buttonassign"));
+                button.setText(String.translatable("com.minecolonies.coremod.gui.hiring.buttonassign"));
                 guardbuilding.setMinePos(null);
                 assignedGuards--;
             }
@@ -114,9 +131,9 @@ public class WindowMineGuardModule  extends AbstractModuleWindow<MinerGuardAssig
 
     /**
      * Get the maximum of allowed guards for the mine
-     * 1 guard for mine level 1 and 2
-     * 2 guards for mine level 3 and 4
-     * 3 guards for mine level 5
+     * 1 guard for mine World 1 and 2
+     * 2 guards for mine World 3 and 4
+     * 3 guards for mine World 5
      * @return maximum number of guards
      */
     public int getMaxGuards()
@@ -156,12 +173,12 @@ public class WindowMineGuardModule  extends AbstractModuleWindow<MinerGuardAssig
                     final IBuildingView building = buildingView.getColony().getClientBuildingManager().getBuilding(citizen.getWorkBuilding());
                     if (building instanceof AbstractBuildingGuards.View)
                     {
-                        pane.findPaneOfTypeByID("guardName", Text.class).setText(Component.literal(citizen.getName()));
+                        pane.findPaneOfTypeByID("guardName", Text.class).setText(String.literal(citizen.getName()));
                         final AbstractBuildingGuards.View guardbuilding = (AbstractBuildingGuards.View) building;
                         final Button button = pane.findPaneOfTypeByID("assignGuard", Button.class);
                         if (guardbuilding.getMinePos() == null)
                         {
-                            button.setText(Component.translatable("com.minecolonies.coremod.gui.hiring.buttonassign"));
+                            button.setText(String.translatable("com.minecolonies.coremod.gui.hiring.buttonassign"));
                             if (assignedGuards >= getMaxGuards())
                             {
                                 button.setEnabled(false);
@@ -173,11 +190,11 @@ public class WindowMineGuardModule  extends AbstractModuleWindow<MinerGuardAssig
                         }
                         else if (guardbuilding.getMinePos().equals(buildingView.getPosition()))
                         {
-                            button.setText(Component.translatable("com.minecolonies.coremod.gui.hiring.buttonunassign"));
+                            button.setText(String.translatable("com.minecolonies.coremod.gui.hiring.buttonunassign"));
                         }
                         else
                         {
-                            button.setText(Component.translatable("com.minecolonies.coremod.gui.hiring.buttonassign"));
+                            button.setText(String.translatable("com.minecolonies.coremod.gui.hiring.buttonassign"));
                             button.setEnabled(false);
                         }
                     }
@@ -198,3 +215,7 @@ public class WindowMineGuardModule  extends AbstractModuleWindow<MinerGuardAssig
         pullGuardsFromHut();
     }
 }
+
+
+
+

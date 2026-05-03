@@ -1,6 +1,6 @@
 package com.minecolonies.api.entity.citizen.citizenhandlers;
 
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.Set;
 
@@ -14,14 +14,14 @@ public interface ICitizenMournHandler
      *
      * @param compound the compound to read it from.
      */
-    void read(CompoundTag compound);
+    void read(NBTTagCompound compound);
 
     /**
      * Write the handler to NBT.
      *
      * @param compound the compound to write it to.
      */
-    void write(CompoundTag compound);
+    void write(NBTTagCompound compound);
 
     /**
      * Add a deceased citizen to the handler.
@@ -64,3 +64,5 @@ public interface ICitizenMournHandler
      */
     void setMourning(boolean mourn);
 }
+
+

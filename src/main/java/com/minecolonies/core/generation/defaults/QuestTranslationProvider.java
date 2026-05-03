@@ -4,13 +4,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.minecolonies.api.util.Log;
 import net.minecraft.Util;
-import net.minecraft.data.CachedOutput;
-import net.minecraft.data.DataProvider;
-import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] data removed
+// [1.7.10] data removed
+// [1.7.10] data removed
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.util.GsonHelper;
+// [1.7.10] GsonHelper removed
 import net.minecraftforge.resource.PathPackResources;
 import org.jetbrains.annotations.NotNull;
 
@@ -162,3 +162,5 @@ public class QuestTranslationProvider implements DataProvider
     }
 
 }
+
+

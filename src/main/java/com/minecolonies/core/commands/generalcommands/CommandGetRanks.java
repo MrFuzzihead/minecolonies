@@ -11,13 +11,13 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.ChatFormatting;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.GameProfileArgument;
-import net.minecraft.network.chat.ClickEvent;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +70,7 @@ public class CommandGetRanks implements IMCOPCommand
         if (context.getSource().getServer().getPlayerList().getPlayer(profile.getId()) == null)
         {
             // could not find player with given name.
-            context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_PLAYER_NOT_FOUND, profile.getName()), true);
+            context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_PLAYER_NOT_FOUND, profile.getName()), true);
             return 0;
         }
 
@@ -105,24 +105,24 @@ public class CommandGetRanks implements IMCOPCommand
             coloniesPage = colonies.subList(pageStartIndex, pageStopIndex);
         }
 
-        final Component headerLine = Component.literal(PAGE_TOP_LEFT + page + PAGE_TOP_MIDDLE + pageCount + PAGE_TOP_RIGHT);
+        final String headerLine = String.literal(PAGE_TOP_LEFT + page + PAGE_TOP_MIDDLE + pageCount + PAGE_TOP_RIGHT);
         context.getSource().sendSuccess(() -> headerLine, true);
 
         for (final IColony colony : coloniesPage)
         {
             final Rank rank = colony.getPermissions().getRank(profile.getId());
-            context.getSource().sendSuccess(() -> Component.literal(String.format(COLONY_INFO_TEXT, colony.getID(), colony.getName(), rank.getName())), true);
+            context.getSource().sendSuccess(() -> String.literal(String.format(COLONY_INFO_TEXT, colony.getID(), colony.getName(), rank.getName())), true);
         }
 
-        final Component prevButton = Component.literal(PREV_PAGE)
+        final String prevButton = String.literal(PREV_PAGE)
             .setStyle(Style.EMPTY.withBold(true).withColor(ChatFormatting.GOLD).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, RANKS_COMMAND_SUGGESTED + prevPage)));
 
-        final Component nextButton = Component.literal(NEXT_PAGE)
+        final String nextButton = String.literal(NEXT_PAGE)
             .setStyle(Style.EMPTY.withBold(true).withColor(ChatFormatting.GOLD).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, RANKS_COMMAND_SUGGESTED + nextPage)));
 
-        final MutableComponent beginLine = Component.literal(PAGE_LINE);
-        final MutableComponent endLine = Component.literal(PAGE_LINE);
-        context.getSource().sendSuccess(() -> beginLine.append(prevButton).append(Component.literal(PAGE_LINE_DIVIDER)).append(nextButton).append(endLine), true);
+        final String beginLine = String.literal(PAGE_LINE);
+        final String endLine = String.literal(PAGE_LINE);
+        context.getSource().sendSuccess(() -> beginLine.append(prevButton).append(String.literal(PAGE_LINE_DIVIDER)).append(nextButton).append(endLine), true);
         return 1;
     }
 
@@ -141,3 +141,6 @@ public class CommandGetRanks implements IMCOPCommand
                 .executes(this::checkPreConditionAndExecute));
     }
 }
+
+
+

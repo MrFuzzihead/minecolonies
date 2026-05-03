@@ -10,7 +10,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
+import net.minecraft.util.IChatComponent;
 
 import static com.minecolonies.core.commands.CommandArgumentNames.CITIZENID_ARG;
 import static com.minecolonies.core.commands.CommandArgumentNames.COLONYID_ARG;
@@ -33,12 +33,12 @@ public class CommandCitizenReload implements IMCColonyOfficerCommand
 
         if (citizenData == null)
         {
-            context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_CITIZEN_NOT_FOUND), true);
+            context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_CITIZEN_NOT_FOUND), true);
             return 0;
         }
 
         citizenData.updateEntityIfNecessary();
-        context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_CITIZEN_RELOAD_SUCCESS, citizenData.getId()), true);
+        context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_CITIZEN_RELOAD_SUCCESS, citizenData.getId()), true);
         return 1;
     }
 
@@ -59,3 +59,5 @@ public class CommandCitizenReload implements IMCColonyOfficerCommand
                          .then(IMCCommand.newArgument(CITIZENID_ARG, IntegerArgumentType.integer(1)).executes(this::checkPreConditionAndExecute)));
     }
 }
+
+

@@ -1,6 +1,7 @@
 package com.minecolonies.core.items;
 
-import net.minecraft.world.item.Item;
+import net.minecraft.item.Item;
+import net.minecraft.world.item.Properties;
 
 /**
  * Handles simple things that all items need.
@@ -18,9 +19,9 @@ public abstract class AbstractItemMinecolonies extends Item
      * @param name       The name of this item
      * @param properties the properties.
      */
-    public AbstractItemMinecolonies(final String name, final Item.Properties properties)
+    public AbstractItemMinecolonies(final String name, final Properties properties)
     {
-        super(properties);
+        super();
         this.name = name;
     }
 }

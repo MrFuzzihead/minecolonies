@@ -3,9 +3,9 @@ package com.minecolonies.core.colony.buildings.modules;
 import com.minecolonies.api.colony.buildings.modules.AbstractBuildingModule;
 import com.minecolonies.api.colony.buildings.modules.IPersistentModule;
 import com.minecolonies.core.colony.buildings.modules.expedition.ExpeditionLog;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,20 +31,20 @@ public class ExpeditionLogModule extends AbstractBuildingModule implements IPers
     }
 
     @Override
-    public void serializeNBT(@NotNull final CompoundTag compound)
+    public void serializeNBT(@NotNull final NBTTagCompound compound)
     {
         this.log.serializeNBT(compound);
     }
 
     @Override
-    public void deserializeNBT(@NotNull final CompoundTag compound)
+    public void deserializeNBT(@NotNull final NBTTagCompound compound)
     {
-        final CompoundTag log = compound.contains(TAG_LOG) ? compound.getCompound(TAG_LOG) : compound;
+        final NBTTagCompound log = compound.contains(TAG_LOG) ? compound.getCompound(TAG_LOG) : compound;
         this.log.deserializeNBT(log);
     }
 
     @Override
-    public void serializeToView(@NotNull final FriendlyByteBuf buf)
+    public void serializeToView(@NotNull final PacketBuffer buf)
     {
         final boolean unlocked = research == null || getBuilding().getColony().getResearchManager().getResearchEffects().getEffectStrength(research) > 0;
 
@@ -56,3 +56,6 @@ public class ExpeditionLogModule extends AbstractBuildingModule implements IPers
     }
 
 }
+
+
+

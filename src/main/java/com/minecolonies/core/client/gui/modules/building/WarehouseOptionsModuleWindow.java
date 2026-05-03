@@ -1,10 +1,27 @@
 package com.minecolonies.core.client.gui.modules.building;
 
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
+import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.PaneParams;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
 import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
 import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Image;
 import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
+import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.api.util.constant.Constants;
@@ -16,15 +33,15 @@ import com.minecolonies.core.colony.buildings.workerbuildings.BuildingWareHouse;
 import com.minecolonies.core.network.messages.server.colony.building.MarkBuildingDirtyMessage;
 import com.minecolonies.core.network.messages.server.colony.building.warehouse.SortBuildingMessage;
 import com.minecolonies.core.network.messages.server.colony.building.warehouse.UpgradeWarehouseMessage;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.items.wrapper.InvWrapper;
+import net.minecraft.util.EnumChatFormatting;
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
+import net.minecraft.init.Blocks;
+// [1.7.10] items shim in com.minecolonies.api.shim
 
 import static com.minecolonies.api.util.constant.TranslationConstants.LABEL_X_OF_Z;
 import static com.minecolonies.api.util.constant.TranslationConstants.WAREHOUSE_SORTED;
@@ -32,12 +49,12 @@ import static com.minecolonies.api.util.constant.WindowConstants.*;
 import static com.minecolonies.core.client.gui.modules.building.WindowBuilderResModule.*;
 
 /**
- * BOWindow for the warehouse options.
+ * Object (BOWindow: todo ModularUI2 removed) for the warehouse options.
  */
 public class WarehouseOptionsModuleWindow extends AbstractModuleWindow<WarehouseOptionsModuleView>
 {
     /**
-     * Required building level for sorting.
+     * Required building World for sorting.
      */
     private static final int BUILDING_LEVEL_FOR_SORTING = 3;
 
@@ -69,8 +86,8 @@ public class WarehouseOptionsModuleWindow extends AbstractModuleWindow<Warehouse
         {
             final ButtonImage sortButton = findPaneOfTypeByID(SORT_WAREHOUSE_BUTTON, ButtonImage.class);
             PaneBuilders.tooltipBuilder()
-                .append(Component.translatable("com.minecolonies.coremod.gui.warehouse.sort.disabled.1", BUILDING_LEVEL_FOR_SORTING))
-                .appendNL(Component.translatable("com.minecolonies.coremod.gui.warehouse.sort.disabled.2", BUILDING_LEVEL_FOR_SORTING))
+                .append(String.translatable("com.minecolonies.coremod.gui.warehouse.sort.disabled.1", BUILDING_LEVEL_FOR_SORTING))
+                .appendNL(String.translatable("com.minecolonies.coremod.gui.warehouse.sort.disabled.2", BUILDING_LEVEL_FOR_SORTING))
                 .hoverPane(sortButton)
                 .build();
             sortButton.disable();
@@ -115,7 +132,7 @@ public class WarehouseOptionsModuleWindow extends AbstractModuleWindow<Warehouse
             availability = BuildingBuilderResource.RessourceAvailability.NOT_NEEDED;
         }
 
-        findPaneOfTypeByID(UPGRADE_PROGRESS_LABEL, Text.class).setText(Component.translatable(LABEL_X_OF_Z,
+        findPaneOfTypeByID(UPGRADE_PROGRESS_LABEL, Text.class).setText(String.translatable(LABEL_X_OF_Z,
             moduleView.getStorageUpgradeLevel(),
             BuildingWareHouse.MAX_STORAGE_UPGRADE));
 
@@ -150,29 +167,29 @@ public class WarehouseOptionsModuleWindow extends AbstractModuleWindow<Warehouse
                     resourceLabel.hide();
                     resourceMissingLabel.hide();
                     neededLabel.hide();
-                    addButton.setText(Component.literal("X").setStyle(Style.EMPTY.withColor(ChatFormatting.DARK_RED)));
+                    addButton.setText(String.literal("X").setStyle(Style.EMPTY.withColor(ChatFormatting.DARK_RED)));
                     PaneBuilders.tooltipBuilder()
-                        .append(Component.translatable("com.minecolonies.coremod.gui.warehouse.upgrade.disabled.1", buildingView.getBuildingMaxLevel()))
-                        .appendNL(Component.translatable("com.minecolonies.coremod.gui.warehouse.upgrade.disabled.2", buildingView.getBuildingMaxLevel()))
+                        .append(String.translatable("com.minecolonies.coremod.gui.warehouse.upgrade.disabled.1", buildingView.getBuildingMaxLevel()))
+                        .appendNL(String.translatable("com.minecolonies.coremod.gui.warehouse.upgrade.disabled.2", buildingView.getBuildingMaxLevel()))
                         .hoverPane(addButton)
                         .build();
                 }
                 break;
         }
 
-        resourceLabel.setText(Component.literal(resource.getName()));
+        resourceLabel.setText(String.literal(resource.getName()));
         final int missing = resource.getMissingFromPlayer();
         if (missing < 0)
         {
-            resourceMissingLabel.setText(Component.literal(Integer.toString(missing)));
+            resourceMissingLabel.setText(String.literal(Integer.toString(missing)));
         }
         else
         {
             resourceMissingLabel.clearText();
         }
 
-        neededLabel.setText(Component.literal(resource.getAvailable() + " / " + resource.getAmount()));
-        findPaneOfTypeByID(RESOURCE_QUANTITY_MISSING, Text.class).setText(Component.literal(Integer.toString(resource.getAmount() - resource.getAvailable())));
+        neededLabel.setText(String.literal(resource.getAvailable() + " / " + resource.getAmount()));
+        findPaneOfTypeByID(RESOURCE_QUANTITY_MISSING, Text.class).setText(String.literal(Integer.toString(resource.getAmount() - resource.getAvailable())));
 
         if(buildingView.getBuildingLevel() >= buildingView.getBuildingMaxLevel())
         {
@@ -205,3 +222,8 @@ public class WarehouseOptionsModuleWindow extends AbstractModuleWindow<Warehouse
         }
     }
 }
+
+
+
+
+

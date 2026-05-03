@@ -9,14 +9,14 @@ import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.core.util.BuildingUtils;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.InvWrapper;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraftforge.items.InvWrapper;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The implementation of the IGlobalResearch interface which represents the research on the global level.
+ * The implementation of the IGlobalResearch interface which represents the research on the global World.
  */
 public class GlobalResearch implements IGlobalResearch
 {
@@ -66,7 +66,7 @@ public class GlobalResearch implements IGlobalResearch
     private final List<IResearchEffect> effects = new ArrayList<>();
 
     /**
-     * The depth level in the tree.
+     * The depth World in the tree.
      */
     private final int depth;
 
@@ -174,7 +174,7 @@ public class GlobalResearch implements IGlobalResearch
     }
 
     /**
-     * Checks if there are enough resources between the player inventory 
+     * Checks if there are enough resources between the player inventory
      * and the university's inventory to start this research.
      *
      * @param player the player to check.
@@ -182,16 +182,16 @@ public class GlobalResearch implements IGlobalResearch
      * @return true if the player has enough resources.
      */
     @Override
-    public boolean hasEnoughResources(final @NotNull Player player, final @NotNull BlockPos universityPos)
+    public boolean hasEnoughResources(final @NotNull EntityPlayer player, final @NotNull int[] universityPos)
     {
         if (costList.isEmpty())
         {
             return true;
         }
 
-        final IItemHandler playerInventory = new InvWrapper(player.getInventory());
+        final net.minecraftforge.items.IItemHandler playerInventory = new InvWrapper(player.inventory);
 
-        ICommonBuilding buildingInv = BuildingUtils.commonBuildingFromPosition(player.level(), universityPos);
+        ICommonBuilding buildingInv = BuildingUtils.commonBuildingFromPosition(player.worldObj, universityPos);
 
         for (final IResearchCost ingredient : costList)
         {
@@ -372,3 +372,7 @@ public class GlobalResearch implements IGlobalResearch
         return this.effects;
     }
 }
+
+
+
+

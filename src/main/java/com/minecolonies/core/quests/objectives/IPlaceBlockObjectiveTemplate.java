@@ -2,7 +2,7 @@ package com.minecolonies.core.quests.objectives;
 
 import com.minecolonies.api.quests.IObjectiveInstance;
 import com.minecolonies.api.quests.IQuestInstance;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.player.EntityPlayer;
 
 /**
  * Specific objective for block placing.
@@ -17,3 +17,4 @@ public interface IPlaceBlockObjectiveTemplate
      */
     void onBlockPlace(IObjectiveInstance blockPlacementProgressData, final IQuestInstance colonyQuest, final Player player);
 }
+

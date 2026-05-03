@@ -5,11 +5,11 @@ import com.minecolonies.api.items.CheckedNbtKey;
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.core.generation.ItemNbtCalculator;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraftforge.registries.ForgeRegistries;
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -79,3 +79,5 @@ public class ItemNbtListener extends SimpleJsonResourceReloadListener
         Log.getLogger().warn("Read " + ItemStackUtils.CHECKED_NBT_KEYS.size() + " items with their nbt keys for compatibility.");
     }
 }
+
+

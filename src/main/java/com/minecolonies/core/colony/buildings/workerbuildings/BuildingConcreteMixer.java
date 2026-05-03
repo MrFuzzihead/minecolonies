@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.jobs.registry.JobEntry;
@@ -7,18 +13,18 @@ import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.AbstractCraftingBuildingModule;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.Tag;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Fluids;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+// [1.7.10] NbtUtils removed
+import net.minecraft.nbt.NBTBase;
+import com.minecolonies.api.util.Tuple;
+import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraft.init.Blocks;
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] World.material removed
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -48,7 +54,7 @@ public class BuildingConcreteMixer extends AbstractBuilding
     /**
      * Water position list.
      */
-    private final Map<Integer, List<BlockPos>> waterPos = new HashMap<>();
+    private final Map<Integer, List<int[]>> waterPos = new HashMap<>();
 
     /**
      * Instantiates a new concrete mason building.
@@ -56,20 +62,20 @@ public class BuildingConcreteMixer extends AbstractBuilding
      * @param c the colony.
      * @param l the location
      */
-    public BuildingConcreteMixer(final IColony c, final BlockPos l)
+    public BuildingConcreteMixer(final IColony c, final int[] l)
     {
         super(c, l);
         keepX.put(itemStack -> ItemStackUtils.hasEquipmentLevel(itemStack, ModEquipmentTypes.pickaxe.get(), TOOL_LEVEL_WOOD_OR_GOLD, getMaxEquipmentLevel()), new Tuple<>(1, true));
     }
 
     @Override
-    public void registerBlockPosition(@NotNull final BlockState blockState, @NotNull final BlockPos pos, @NotNull final Level world)
+    public void registerBlockPosition(@NotNull final BlockState blockState, @NotNull final int[] pos, @NotNull final World world)
     {
-        if (!blockState.getFluidState().isEmpty() && (blockState.isAir() || blockState.getBlock() == Blocks.WATER))
+        if (!blockState.getFluidState().isEmpty() && (blockState.isAir() || blockState.getBlock() == Blocks.water))
         {
             if (blockState.getFluidState().getType() == Fluids.FLOWING_WATER && blockState.getFluidState().getAmount() <= WATER_DEPTH_SUPPORT)
             {
-                final List<BlockPos> fluidPos = waterPos.getOrDefault(blockState.getFluidState().getAmount(), new ArrayList<>());
+                final List<int[]> fluidPos = waterPos.getOrDefault(blockState.getFluidState().getAmount(), new ArrayList<>());
                 if (!fluidPos.contains(pos))
                 {
                     fluidPos.add(pos);
@@ -82,19 +88,19 @@ public class BuildingConcreteMixer extends AbstractBuilding
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compound = super.serializeNBT();
+        final NBTTagCompound compound = super.serializeNBT();
 
-        @NotNull final ListTag waterMap = new ListTag();
-        for (@NotNull final Map.Entry<Integer, List<BlockPos>> entry : waterPos.entrySet())
+        @NotNull final NBTTagList waterMap = new NBTTagList();
+        for (@NotNull final Map.Entry<Integer, List<int[]>> entry : waterPos.entrySet())
         {
-            final CompoundTag waterCompound = new CompoundTag();
+            final NBTTagCompound waterCompound = new NBTTagCompound();
 
             waterCompound.putInt(TAG_LEVEL, entry.getKey());
 
-            @NotNull final ListTag waterList = new ListTag();
-            for (@NotNull final BlockPos pos : entry.getValue())
+            @NotNull final NBTTagList waterList = new NBTTagList();
+            for (@NotNull final int[] pos : entry.getValue())
             {
                 waterList.add(NbtUtils.writeBlockPos(pos));
             }
@@ -106,30 +112,30 @@ public class BuildingConcreteMixer extends AbstractBuilding
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
 
         waterPos.clear();
-        final ListTag waterMapList = compound.getList(TAG_WATER, Tag.TAG_COMPOUND);
+        final NBTTagList waterMapList = compound.getList(TAG_WATER, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < waterMapList.size(); ++i)
         {
-            final CompoundTag waterCompound = waterMapList.getCompound(i);
-            final int level = waterCompound.getInt(TAG_LEVEL);
+            final NBTTagCompound waterCompound = waterMapList.getCompound(i);
+            final int World = waterCompound.getInt(TAG_LEVEL);
 
-            final ListTag waterTagList = waterCompound.getList(TAG_WATER, Tag.TAG_COMPOUND);
-            final List<BlockPos> water = new ArrayList<>();
+            final NBTTagList waterTagList = waterCompound.getList(TAG_WATER, NBTBase.TAG_COMPOUND);
+            final List<int[]> water = new ArrayList<>();
             for (int j = 0; j < waterTagList.size(); ++j)
             {
-                final CompoundTag waterSubCompound = waterTagList.getCompound(j);
+                final NBTTagCompound waterSubCompound = waterTagList.getCompound(j);
 
-                final BlockPos waterPos = NbtUtils.readBlockPos(waterSubCompound);
+                final int[] waterPos = NbtUtils.readBlockPos(waterSubCompound);
                 if (!water.contains(waterPos))
                 {
                     water.add(waterPos);
                 }
             }
-            waterPos.put(level, water);
+            waterPos.put(World, water);
         }
     }
 
@@ -154,7 +160,7 @@ public class BuildingConcreteMixer extends AbstractBuilding
     public int getMaxConcretePlaced()
     {
         int size = 0;
-        for (List<BlockPos> positions : waterPos.values())
+        for (List<int[]> positions : waterPos.values())
         {
             size += positions.size();
         }
@@ -167,14 +173,14 @@ public class BuildingConcreteMixer extends AbstractBuilding
      * @return the open position if so.
      */
     @Nullable
-    public BlockPos getBlockToMine()
+    public int[] getBlockToMine()
     {
         for (int i = 1; i <= WATER_DEPTH_SUPPORT; i++)
         {
-            for (final BlockPos pos : waterPos.getOrDefault(i, Collections.emptyList()))
+            for (final int[] pos : waterPos.getOrDefault(i, Collections.emptyList()))
             {
                 final BlockState state = colony.getWorld().getBlockState(pos);
-                if (!state.isAir() && !state.is(Blocks.WATER))
+                if (!state.isAir() && !state.is(Blocks.water))
                 {
                     return pos;
                 }
@@ -190,14 +196,14 @@ public class BuildingConcreteMixer extends AbstractBuilding
      * @return the open position if so.
      */
     @Nullable
-    public BlockPos getBlockToPlace()
+    public int[] getBlockToPlace()
     {
         for (int i = 1; i <= WATER_DEPTH_SUPPORT; i++)
         {
-            for (final BlockPos pos : waterPos.getOrDefault(i, Collections.emptyList()))
+            for (final int[] pos : waterPos.getOrDefault(i, Collections.emptyList()))
             {
                 final BlockState state = colony.getWorld().getBlockState(pos);
-                if (state.is(Blocks.WATER))
+                if (state.is(Blocks.water))
                 {
                     return pos;
                 }
@@ -216,13 +222,13 @@ public class BuildingConcreteMixer extends AbstractBuilding
     public int outputBlockCountInWorld(final ItemStack primaryOutput)
     {
         int count = 0;
-        if (primaryOutput.getItem() instanceof BlockItem)
+        if (primaryOutput.getItem() instanceof ItemBlock)
         {
             for (int i = 1; i <= WATER_DEPTH_SUPPORT; i++)
             {
-                for (final BlockPos pos : waterPos.getOrDefault(i, Collections.emptyList()))
+                for (final int[] pos : waterPos.getOrDefault(i, Collections.emptyList()))
                 {
-                    if (((BlockItem) primaryOutput.getItem()).getBlock() == colony.getWorld().getBlockState(pos).getBlock())
+                    if (((ItemBlock) primaryOutput.getItem()).getBlock() == colony.getWorld().getBlockState(pos).getBlock())
                     {
                         count++;
                     }
@@ -252,3 +258,8 @@ public class BuildingConcreteMixer extends AbstractBuilding
         }
     }
 }
+
+
+
+
+

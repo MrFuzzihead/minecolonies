@@ -1,6 +1,6 @@
 package com.minecolonies.api.compatibility;
 
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 
 import java.util.Collection;
 
@@ -28,3 +28,4 @@ public interface IJeiProxy
         return false;
     }
 }
+

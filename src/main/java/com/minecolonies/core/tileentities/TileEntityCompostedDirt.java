@@ -1,20 +1,10 @@
 package com.minecolonies.core.tileentities;
 
-import com.ldtteam.structurize.util.BlockUtils;
 import com.minecolonies.api.tileentities.ITickable;
-import com.minecolonies.api.tileentities.MinecoloniesTileEntities;
 import com.minecolonies.api.util.WorldUtil;
-import net.minecraft.world.level.block.AirBlock;
-import net.minecraft.world.level.block.DoublePlantBlock;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 
 import java.util.Random;
 
@@ -22,149 +12,127 @@ import static com.minecolonies.api.util.constant.Constants.TICKS_SECOND;
 import static com.minecolonies.api.util.constant.Constants.UPDATE_FLAG;
 
 /**
- * The composted dirty tileEntity to grow all kinds of flowers.
+ * The composted dirt tileEntity to grow all kinds of flowers.
  */
-public class TileEntityCompostedDirt extends BlockEntity implements ITickable
+public class TileEntityCompostedDirt extends TileEntity implements ITickable
 {
-    /**
-     * If currently composted.
-     */
+    /** If currently composted. */
     private boolean composted = false;
 
-    /**
-     * The current tick timer.
-     */
+    /** The current tick timer. */
     private int ticker = 0;
 
-    /**
-     * Chance to grow something (per second).
-     */
+    /** Chance to grow something (per second). */
     private double percentage = 1.0D;
 
-    /**
-     * Max tick limit.
-     */
-    private final static int TICKER_LIMIT = 300;
+    /** Max tick limit. */
+    private static final int TICKER_LIMIT = 300;
 
-    /**
-     * Random tick.
-     */
+    /** Random tick. */
     private final Random random = new Random();
 
-    /**
-     * The flower to grow.
-     */
+    /** The flower to grow. */
     private ItemStack flower;
 
-    /**
-     * Constructor to create an instance of this tileEntity.
-     */
-    public TileEntityCompostedDirt(final BlockPos pos, final BlockState state)
+    public TileEntityCompostedDirt()
     {
-        super(MinecoloniesTileEntities.COMPOSTED_DIRT.get(), pos, state);
+        super();
     }
 
     @Override
     public void tick()
     {
-        final Level world = this.getLevel();
-        if (!world.isClientSide && this.composted && ticker % TICKS_SECOND == 0)
+        if (worldObj == null || worldObj.isRemote)
         {
-            this.updateTick(world);
-        }
-        ticker++;
-    }
-
-    /**
-     * Update tick running on the server world.
-     *
-     * @param worldIn the server world.
-     */
-    private void updateTick(@NotNull final Level worldIn)
-    {
-        if (flower == null || flower.isEmpty())
-        {
-            this.composted = false;
             return;
         }
 
-        if (this.composted)
+        if (!composted)
         {
-            ((ServerLevel) worldIn).sendParticles(
-              ParticleTypes.HAPPY_VILLAGER, this.getBlockPos().getX() + 0.5,
-              this.getBlockPos().getY() + 1, this.getBlockPos().getZ() + 0.5,
-              1, 0.2, 0, 0.2, 0);
+            return;
         }
 
-        if (random.nextDouble() * 100 <= this.percentage)
+        ticker++;
+        if (ticker >= TICKER_LIMIT)
         {
-            final BlockPos position = worldPosition.above();
-            if (worldIn.getBlockState(position).getBlock() instanceof AirBlock)
+            ticker = 0;
+            if (random.nextDouble() < percentage / TICKS_SECOND)
             {
-                if (flower.getItem() instanceof BlockItem)
-                {
-                    if (((BlockItem) flower.getItem()).getBlock() instanceof DoublePlantBlock)
-                    {
-                        ((DoublePlantBlock) ((BlockItem) flower.getItem()).getBlock()).placeAt(worldIn, ((BlockItem) flower.getItem()).getBlock().defaultBlockState(), position, UPDATE_FLAG);
-                    }
-                    else
-                    {
-                        worldIn.setBlockAndUpdate(position, ((BlockItem) flower.getItem()).getBlock().defaultBlockState());
-                    }
-                }
-                else
-                {
-                    worldIn.setBlockAndUpdate(position, BlockUtils.getBlockStateFromStack(flower));
-                }
+                tryGrowFlower();
             }
-        }
-
-        if (this.ticker >= TICKER_LIMIT * TICKS_SECOND)
-        {
-            this.ticker = 0;
-            this.composted = false;
         }
     }
 
     @Override
-    public void setChanged()
+    public void updateEntity()
     {
-        if (level != null)
-        {
-            WorldUtil.markChunkDirty(level, worldPosition);
-        }
+        tick();
     }
 
     /**
-     * Method for the composter to call to start producing flowers.
-     *
-     * @param percentage the chance for this block to appear per second.
-     * @param flower     the flower to grow.
+     * Attempt to grow the flower above this block.
      */
-    public void compost(final double percentage, @NotNull final ItemStack flower)
+    private void tryGrowFlower()
     {
-        if (percentage >= 0 && percentage <= 100)
+        if (flower == null)
         {
-            this.percentage = percentage;
-            try
-            {
-                this.flower = flower;
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
+            return;
         }
-        this.composted = true;
+        // TODO: port flower growing logic to 1.7.10 (no DoublePlantBlock equivalent)
+        // In 1.7.10: worldObj.setBlock(xCoord, yCoord + 1, zCoord, block, meta, UPDATE_FLAG)
     }
 
     /**
-     * Check if the current compost tile entity is running.
+     * Set the flower to grow and percentage chance.
      *
-     * @return true if so.
+     * @param flower     the flower ItemStack.
+     * @param percentage grow chance.
      */
-    public boolean isComposted()
+    public void setFlower(final ItemStack flower, final double percentage)
     {
-        return this.composted;
+        this.flower = flower;
+        this.percentage = percentage;
+        this.composted = flower != null;
+        markDirty();
     }
+
+    @Override
+    public void writeToNBT(final NBTTagCompound compound)
+    {
+        super.writeToNBT(compound);
+        compound.setBoolean("composted", composted);
+        compound.setInteger("ticker", ticker);
+        compound.setDouble("percentage", percentage);
+        if (flower != null)
+        {
+            final NBTTagCompound flowerTag = new NBTTagCompound();
+            flower.writeToNBT(flowerTag);
+            compound.setTag("flower", flowerTag);
+        }
+    }
+
+    @Override
+    public void readFromNBT(final NBTTagCompound compound)
+    {
+        super.readFromNBT(compound);
+        composted = compound.getBoolean("composted");
+        ticker = compound.getInteger("ticker");
+        percentage = compound.getDouble("percentage");
+        if (compound.hasKey("flower"))
+        {
+            flower = ItemStack.loadItemStackFromNBT(compound.getCompoundTag("flower"));
+        }
+    }
+
+    @Override
+    public void markDirty()
+    {
+        if (worldObj != null)
+        {
+            WorldUtil.markChunkDirty(worldObj, xCoord, yCoord, zCoord);
+        }
+    }
+
+    public boolean isComposted() { return composted; }
+    public ItemStack getFlower() { return flower; }
 }

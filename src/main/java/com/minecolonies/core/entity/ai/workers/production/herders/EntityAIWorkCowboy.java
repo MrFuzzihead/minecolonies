@@ -11,17 +11,17 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingCowboy;
 import com.minecolonies.core.colony.jobs.JobCowboy;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.Cow;
-import net.minecraft.world.entity.animal.MushroomCow;
-import net.minecraft.world.entity.animal.goat.Goat;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.WorldServer;
+// [1.7.10] sounds removed
+// [1.7.10] sounds removed
+// [1.7.10] int /* InteractionHand */ removed
+// [1.7.10] InteractionResult -> boolean
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.FakePlayerFactory;
@@ -168,12 +168,12 @@ public class EntityAIWorkCowboy extends AbstractEntityAIHerder<JobCowboy, Buildi
             return DECIDE;
         }
 
-        if (equipItem(InteractionHand.MAIN_HAND, Collections.singletonList(new ItemStorage(building.getMilkInputItem().getItem(), building.getMilkInputItem().getCount()))) && !walkingToAnimal(animal))
+        if (equipItem(0 /* InteractionHand.MAIN_HAND */, Collections.singletonList(new ItemStorage(building.getMilkInputItem().getItem(), building.getMilkInputItem().getCount()))) && !walkingToAnimal(animal))
         {
             if (InventoryUtils.addItemStackToItemHandler(worker.getInventoryCitizen(), building.getMilkOutputItem()))
             {
                 building.getFirstModuleOccurance(BuildingCowboy.HerdingModule.class).onMilked();
-                CitizenItemUtils.setHeldItem(worker, InteractionHand.MAIN_HAND, getItemSlot(building.getMilkOutputItem().getItem()));
+                CitizenItemUtils.setHeldItem(worker, 0 /* InteractionHand.MAIN_HAND */, getItemSlot(building.getMilkOutputItem().getItem()));
                 InventoryUtils.tryRemoveStackFromItemHandler(worker.getInventoryCitizen(), building.getMilkInputItem());
 
                 final SoundEvent sound = animal instanceof Goat goat ? goat.getMilkingSound() : SoundEvents.COW_MILK;
@@ -222,20 +222,20 @@ public class EntityAIWorkCowboy extends AbstractEntityAIHerder<JobCowboy, Buildi
             return DECIDE;
         }
 
-        if (equipItem(InteractionHand.MAIN_HAND, Collections.singletonList(new ItemStorage(Items.BOWL))) && !walkingToAnimal(mooshroom))
+        if (equipItem(0 /* InteractionHand.MAIN_HAND */, Collections.singletonList(new ItemStorage(Items.BOWL))) && !walkingToAnimal(mooshroom))
         {
-            final FakePlayer fakePlayer = FakePlayerFactory.getMinecraft((ServerLevel) worker.level);
-            fakePlayer.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BOWL));
-            if (mooshroom.mobInteract(fakePlayer, InteractionHand.MAIN_HAND).equals(InteractionResult.CONSUME))
+            final FakePlayer fakePlayer = FakePlayerFactory.getMinecraft((ServerLevel) worker.World);
+            fakePlayer.setItemInHand(0 /* InteractionHand.MAIN_HAND */, new ItemStack(Items.BOWL));
+            if (mooshroom.mobInteract(fakePlayer, 0 /* InteractionHand.MAIN_HAND */).equals(InteractionResult.CONSUME))
             {
                 if (InventoryUtils.addItemStackToItemHandler(worker.getInventoryCitizen(), fakePlayer.getMainHandItem()))
                 {
                     building.getFirstModuleOccurance(BuildingCowboy.HerdingModule.class).onStewed();
-                    CitizenItemUtils.setHeldItem(worker, InteractionHand.MAIN_HAND, getItemSlot(fakePlayer.getMainHandItem().getItem()));
+                    CitizenItemUtils.setHeldItem(worker, 0 /* InteractionHand.MAIN_HAND */, getItemSlot(fakePlayer.getMainHandItem().getItem()));
                     InventoryUtils.tryRemoveStackFromItemHandler(worker.getInventoryCitizen(), new ItemStack(Items.BOWL));
                     worker.queueSound(SoundEvents.MOOSHROOM_MILK, mooshroom.blockPosition(), 10, 0, 0.9f, worker.getRandom().nextFloat());
                 }
-                fakePlayer.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                fakePlayer.setItemInHand(0 /* InteractionHand.MAIN_HAND */, ItemStack.EMPTY);
             }
 
             this.incrementActionsDone();
@@ -268,3 +268,8 @@ public class EntityAIWorkCowboy extends AbstractEntityAIHerder<JobCowboy, Buildi
         return super.butcherAnimals();
     }
 }
+
+
+
+
+

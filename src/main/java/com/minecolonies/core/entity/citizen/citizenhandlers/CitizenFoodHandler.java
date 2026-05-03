@@ -7,13 +7,13 @@ import com.minecolonies.api.colony.interactionhandling.ChatPriority;
 import com.minecolonies.api.entity.citizen.citizenhandlers.ICitizenFoodHandler;
 import com.minecolonies.api.items.IMinecoloniesFoodItem;
 import com.minecolonies.core.colony.interactionhandling.StandardInteraction;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
+// [1.7.10] BuiltInRegistries removed
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.Item;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 
@@ -73,10 +73,10 @@ public class CitizenFoodHandler implements ICitizenFoodHandler
         dirty = true;
         if (lastEatenFoods.size() >= FOOD_QUEUE_SIZE)
         {
-            citizenData.triggerInteraction(new StandardInteraction(Component.translatable(NO + FOOD_DIVERSITY), ChatPriority.CHITCHAT));
-            citizenData.triggerInteraction(new StandardInteraction(Component.translatable(NO + FOOD_QUALITY), ChatPriority.CHITCHAT));
-            citizenData.triggerInteraction(new StandardInteraction(Component.translatable(NO + FOOD_DIVERSITY + URGENT), ChatPriority.IMPORTANT));
-            citizenData.triggerInteraction(new StandardInteraction(Component.translatable(NO + FOOD_QUALITY + URGENT), ChatPriority.IMPORTANT));
+            citizenData.triggerInteraction(new StandardInteraction(String.translatable(NO + FOOD_DIVERSITY), ChatPriority.CHITCHAT));
+            citizenData.triggerInteraction(new StandardInteraction(String.translatable(NO + FOOD_QUALITY), ChatPriority.CHITCHAT));
+            citizenData.triggerInteraction(new StandardInteraction(String.translatable(NO + FOOD_DIVERSITY + URGENT), ChatPriority.IMPORTANT));
+            citizenData.triggerInteraction(new StandardInteraction(String.translatable(NO + FOOD_QUALITY + URGENT), ChatPriority.IMPORTANT));
         }
     }
 
@@ -130,9 +130,9 @@ public class CitizenFoodHandler implements ICitizenFoodHandler
     }
 
     @Override
-    public void read(final CompoundTag compound)
+    public void read(final NBTTagCompound compound)
     {
-        @NotNull final ListTag lastFoodNbt = compound.getList(TAG_LAST_FOODS, TAG_STRING);
+        @NotNull final NBTTagList lastFoodNbt = compound.getList(TAG_LAST_FOODS, TAG_STRING);
         for (int i = 0; i < lastFoodNbt.size(); i++)
         {
             final Item lastFood = BuiltInRegistries.ITEM.get(new ResourceLocation(lastFoodNbt.getString(i)));
@@ -144,12 +144,12 @@ public class CitizenFoodHandler implements ICitizenFoodHandler
     }
 
     @Override
-    public void write(final CompoundTag compound)
+    public void write(final NBTTagCompound compound)
     {
-        @NotNull final ListTag lastEatenFoodsNBT = new ListTag();
+        @NotNull final NBTTagList lastEatenFoodsNBT = new NBTTagList();
         for (final Item foodItem : lastEatenFoods)
         {
-            lastEatenFoodsNBT.add(StringTag.valueOf(BuiltInRegistries.ITEM.getKey(foodItem).toString()));
+            lastEatenFoodsNBT.add(NBTTagString.valueOf(BuiltInRegistries.ITEM.getKey(foodItem).toString()));
         }
         compound.put(TAG_LAST_FOODS, lastEatenFoodsNBT);
     }
@@ -170,3 +170,8 @@ public class CitizenFoodHandler implements ICitizenFoodHandler
         return ImmutableList.copyOf(lastEatenFoods);
     }
 }
+
+
+
+
+

@@ -1,8 +1,8 @@
 package com.minecolonies.api.research;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.NBTTagCompound;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -29,14 +29,14 @@ public interface IResearchEffect
      *
      * @return the desc.
      */
-    TranslatableContents getName();
+    String /* TranslatableContents */ getName();
 
     /**
      * Human-readable effect subtitle description, or a translation key.
      *
      * @return the Subtitle desc.
      */
-    TranslatableContents getSubtitle();
+    String /* TranslatableContents */ getSubtitle();
 
     /**
      * Get the absolute effect of the research.
@@ -58,5 +58,10 @@ public interface IResearchEffect
      *
      * @return an NBT file containing at least the necessary traits to reassemble user-visible traits of the effect.
      */
-    CompoundTag writeToNBT();
+    NBTTagCompound writeToNBT();
 }
+
+
+
+
+

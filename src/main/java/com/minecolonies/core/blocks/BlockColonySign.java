@@ -8,26 +8,16 @@ import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.items.ItemColonySign;
 import com.minecolonies.core.tileentities.TileEntityColonySign;
-import com.minecolonies.core.tileentities.TileEntityGrave;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.material.MapColor;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -37,41 +27,29 @@ import static com.minecolonies.core.items.ItemColonySign.TAG_COLONY;
 
 /**
  * Creates a colony sign block.
+ * [1.7.10] Ported: Material; metadata bit 0 = CONNECTED; createTileEntity; onBlockPlacedBy; breakBlock.
  */
 public class BlockColonySign extends AbstractBlockMinecolonies<BlockColonySign> implements ITickableBlockMinecolonies
 {
     /**
-     * Property if it's a sign of two connected colonies or not.
+     * Metadata bit indicating two connected colonies.
      */
-    public static final BooleanProperty CONNECTED = BooleanProperty.create("connected");
+    public static final int META_CONNECTED = 1;
+    /** [1.7.10] BooleanProperty alias stub for renderer compat */
+    public static final Object CONNECTED = null;
 
-    /**
-     * The hardness this block has.
-     */
-    private static final float BLOCK_HARDNESS = 5F;
+    private static final float  BLOCK_HARDNESS = 5F;
+    private static final String BLOCK_NAME     = "colonysign";
+    private static final float  RESISTANCE     = 1F;
 
-    /**
-     * This blocks name.
-     */
-    private static final String BLOCK_NAME = "colonysign";
-
-    /**
-     * The resistance this block has.
-     */
-    private static final float RESISTANCE = 1F;
-
-    /**
-     * Smaller shape.
-     */
-    private static final VoxelShape SHAPE = Shapes.box(0.1, 0.1, 0.1, 0.9, 0.9, 0.9);
-
-    /**
-     * Constructor for the colony sign.
-     */
     public BlockColonySign()
     {
-        super(Properties.of().mapColor(MapColor.WOOD).sound(SoundType.WOOD).strength(BLOCK_HARDNESS, RESISTANCE).noCollission());
-        this.registerDefaultState(this.defaultBlockState().setValue(CONNECTED, false));
+        super(Material.wood);
+        setHardness(BLOCK_HARDNESS);
+        setResistance(RESISTANCE);
+        setStepSound(Block.soundTypeWood);
+        setLightOpacity(0);
+        setBlockBounds(0.1f, 0.1f, 0.1f, 0.9f, 0.9f, 0.9f);
     }
 
     @Override
@@ -80,77 +58,93 @@ public class BlockColonySign extends AbstractBlockMinecolonies<BlockColonySign> 
         return new ResourceLocation(Constants.MOD_ID, BLOCK_NAME);
     }
 
-    @NotNull
     @Override
-    public VoxelShape getShape(final BlockState state, final BlockGetter worldIn, final BlockPos pos, final CollisionContext context)
+    public boolean hasTileEntity(final int metadata)
     {
-        return SHAPE;
+        return true;
     }
 
     @Override
-    public void setPlacedBy(@NotNull final Level worldIn, @NotNull final BlockPos pos, final BlockState state, final LivingEntity placer, final ItemStack stack)
+    public TileEntity createTileEntity(final World world, final int metadata)
     {
-        if (worldIn.isClientSide)
+        return new TileEntityColonySign();
+    }
+
+    @Override
+    protected Class<? extends net.minecraft.item.ItemBlock> getItemClass()
+    {
+        return ItemColonySign.class;
+    }
+
+    @Override
+    public void setBlockBoundsBasedOnState(final IBlockAccess access, final int x, final int y, final int z)
+    {
+        setBlockBounds(0.1f, 0.1f, 0.1f, 0.9f, 0.9f, 0.9f);
+    }
+
+    @Override
+    public void onBlockPlacedBy(
+      @NotNull final World worldIn,
+      final int x,
+      final int y,
+      final int z,
+      @NotNull final EntityLivingBase placer,
+      final ItemStack stack)
+    {
+        if (worldIn.isRemote)
         {
-            super.setPlacedBy(worldIn, pos, state, placer, stack);
+            super.onBlockPlacedBy(worldIn, x, y, z, placer, stack);
             return;
         }
 
-        final TileEntityColonySign tileEntityColonySign = (TileEntityColonySign) worldIn.getBlockEntity(pos);
-        final CompoundTag stackCompound = stack.getOrCreateTag();
-        if (!stackCompound.contains(TAG_COLONY))
+        final TileEntityColonySign tileEntityColonySign = (TileEntityColonySign) worldIn.getTileEntity(x, y, z);
+        if (tileEntityColonySign == null)
         {
             return;
         }
-        final int colonyId = stackCompound.getInt(TAG_COLONY);
-        final IColony colony = IColonyManager.getInstance().getColonyByDimension(colonyId, worldIn.dimension());
-        tileEntityColonySign.setColonyAndAnchor(colony, stackCompound.contains(TAG_POS) ? BlockPosUtil.read(stackCompound, TAG_POS) : null);
-        super.setPlacedBy(worldIn, pos, state, placer, stack);
-    }
 
-    @Override
-    public void destroy(final LevelAccessor level, final BlockPos pos, final BlockState state)
-    {
-        super.destroy(level, pos, state);
-    }
-
-    @Override
-    public void onRemove(final BlockState currentState, final Level level, final BlockPos pos, final BlockState p_60518_, final boolean p_60519_)
-    {
-        BlockEntity tileEntity = level.getBlockEntity(pos);
-        if (!level.isClientSide && tileEntity instanceof TileEntityColonySign tileEntityColonySign)
+        final NBTTagCompound stackCompound = stack.getTagCompound();
+        if (stackCompound == null || !stackCompound.hasKey(TAG_COLONY))
         {
-            final IColony colony = IColonyManager.getInstance().getColonyByDimension(tileEntityColonySign.getColonyId(), level.dimension());
+            return;
+        }
+        final int colonyId = stackCompound.getInteger(TAG_COLONY);
+        final IColony colony = IColonyManager.getInstance().getColonyByDimension(colonyId, worldIn.provider.dimensionId);
+        final int[] anchor = stackCompound.hasKey(TAG_POS) ? BlockPosUtil.read(stackCompound, TAG_POS) : null;
+        tileEntityColonySign.setColonyAndAnchor(colony, anchor);
+        super.onBlockPlacedBy(worldIn, x, y, z, placer, stack);
+    }
+
+    @Override
+    public void breakBlock(
+      final World world,
+      final int x,
+      final int y,
+      final int z,
+      final Block block,
+      final int meta)
+    {
+        final TileEntityColonySign tileEntity = (TileEntityColonySign) world.getTileEntity(x, y, z);
+        if (!world.isRemote && tileEntity != null)
+        {
+            final IColony colony = IColonyManager.getInstance().getColonyByDimension(tileEntity.getColonyId(), world.provider.dimensionId);
             if (colony != null)
             {
-                colony.getConnectionManager().removeConnectionNode(pos);
+                colony.getConnectionManager().removeConnectionNode(new int[]{x, y, z});
             }
         }
-        super.onRemove(currentState, level, pos, p_60518_, p_60519_);
+        super.breakBlock(world, x, y, z, block, meta);
     }
 
     @Override
-    public RenderShape getRenderShape(final BlockState p_60550_)
+    public boolean isOpaqueCube()
     {
-        return RenderShape.ENTITYBLOCK_ANIMATED;
+        return false;
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder)
+    public boolean renderAsNormalBlock()
     {
-        builder.add(HorizontalDirectionalBlock.FACING, CONNECTED);
-    }
-
-    @Nullable
-    @Override
-    public BlockEntity newBlockEntity(final BlockPos blockPos, final BlockState blockState)
-    {
-        return new TileEntityColonySign(blockPos, blockState);
-    }
-
-    @Override
-    public void registerBlockItem(final IForgeRegistry<Item> registry, final Item.Properties properties)
-    {
-        registry.register(getRegistryName(), new ItemColonySign(properties));
+        return false;
     }
 }

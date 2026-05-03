@@ -6,10 +6,12 @@ import com.minecolonies.core.entity.pathfinding.PathfindingUtils;
 import com.minecolonies.core.entity.pathfinding.PathingOptions;
 import com.minecolonies.core.entity.pathfinding.SurfaceType;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] world.entity removed
+import net.minecraft.world.World;
+import net.minecraft.entity.EntityCreature;
+import net.minecraft.util.AxisAlignedBB;
+// [1.7.10] world.phys removed
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -21,7 +23,7 @@ public class PathJobRandomPos extends AbstractPathJob implements IDestinationPat
      * Direction to walk to.
      */
     @NotNull
-    protected final BlockPos destination;
+    protected final int[] destination;
 
     /**
      * Required avoidDistance.
@@ -41,13 +43,13 @@ public class PathJobRandomPos extends AbstractPathJob implements IDestinationPat
     /**
      * Box restriction area
      */
-    private AABB     restrictionBox = null;
-    private BlockPos restrictionBoxCenter = null;
+    private AxisAlignedBB  restrictionBox = null;
+    private int[] restrictionBoxCenter = null;
 
     /**
-     * Mutable blockpos to use where necessary.
+     * Mutable int[] to use where necessary.
      */
-    private final BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
+    private final int[] mutablePos = new int[]{0,0,0};
 
     /**
      * Prepares the PathJob for the path finding system.
@@ -59,11 +61,11 @@ public class PathJobRandomPos extends AbstractPathJob implements IDestinationPat
      * @param entity           the entity.
      */
     public PathJobRandomPos(
-      final Level world,
-      @NotNull final BlockPos start,
+      final World world,
+      @NotNull final int[] start,
       final int minDistFromStart,
       final int range,
-      final Mob entity)
+      final EntityCreature entity)
     {
         super(world, start, range, new PathResult<PathJobRandomPos>(), entity);
         this.minDistFromStart = minDistFromStart;
@@ -82,13 +84,13 @@ public class PathJobRandomPos extends AbstractPathJob implements IDestinationPat
      * @param entity           the entity.
      */
     public PathJobRandomPos(
-      final Level world,
-      @NotNull final BlockPos start,
+      final World world,
+      @NotNull final int[] start,
       final int minDistFromStart,
       final int searchRange,
       final int maxDistToDest,
-      final Mob entity,
-      @NotNull final BlockPos dest)
+      final EntityCreature entity,
+      @NotNull final int[] dest)
     {
         super(world, start, searchRange, new PathResult<PathJobRandomPos>(), entity);
         this.minDistFromStart = minDistFromStart;
@@ -106,23 +108,23 @@ public class PathJobRandomPos extends AbstractPathJob implements IDestinationPat
      * @param entity           the entity.
      */
     public PathJobRandomPos(
-      final Level world,
-      @NotNull final BlockPos start,
+      final World world,
+      @NotNull final int[] start,
       final int minDistFromStart,
       final int range,
-      final Mob entity,
-      final BlockPos startRestriction,
-      final BlockPos endRestriction)
+      final EntityCreature entity,
+      final int[] startRestriction,
+      final int[] endRestriction)
     {
         super(world, start, range, new PathResult<PathJobRandomPos>(), entity);
 
-        restrictionBox = new AABB(Math.min(startRestriction.getX(), endRestriction.getX()),
-          Math.min(startRestriction.getY(), endRestriction.getY()),
-          Math.min(startRestriction.getZ(), endRestriction.getZ()),
-          Math.max(startRestriction.getX(), endRestriction.getX()),
-          Math.max(startRestriction.getY(), endRestriction.getY()),
-          Math.max(startRestriction.getZ(), endRestriction.getZ()));
-        restrictionBoxCenter = BlockPos.containing(restrictionBox.getCenter());
+        restrictionBox = AxisAlignedBB.getBoundingBox(Math.min(startRestriction[0], endRestriction[0]),
+          Math.min(startRestriction[1], endRestriction[1]),
+          Math.min(startRestriction[2], endRestriction[2]),
+          Math.max(startRestriction[0], endRestriction[0]),
+          Math.max(startRestriction[1], endRestriction[1]),
+          Math.max(startRestriction[2], endRestriction[2]));
+        restrictionBoxCenter = new int[]{(int)((restrictionBox.minX + restrictionBox.maxX) / 2), (int)((restrictionBox.minY + restrictionBox.maxY) / 2), (int)((restrictionBox.minZ + restrictionBox.maxZ) / 2)};
         this.minDistFromStart = minDistFromStart;
         this.maxDistToDest = -1;
 
@@ -140,24 +142,24 @@ public class PathJobRandomPos extends AbstractPathJob implements IDestinationPat
      * @param preferInside        if the entity should try to stay inside.
      */
     public PathJobRandomPos(
-        final Level world,
-        @NotNull final BlockPos start,
+        final World world,
+        @NotNull final int[] start,
         final int minDistFromStart,
         final int range,
-        final Mob entity,
-        final BlockPos startRestriction,
-        final BlockPos endRestriction,
+        final EntityCreature entity,
+        final int[] startRestriction,
+        final int[] endRestriction,
         final boolean preferInside)
     {
         super(world, start, range, new PathResult<PathJobRandomPos>(), entity);
 
-        restrictionBox = new AABB(Math.min(startRestriction.getX(), endRestriction.getX()),
-            Math.min(startRestriction.getY(), endRestriction.getY()),
-            Math.min(startRestriction.getZ(), endRestriction.getZ()),
-            Math.max(startRestriction.getX(), endRestriction.getX()),
-            Math.max(startRestriction.getY(), endRestriction.getY()),
-            Math.max(startRestriction.getZ(), endRestriction.getZ()));
-        restrictionBoxCenter = BlockPos.containing(restrictionBox.getCenter());
+        restrictionBox = AxisAlignedBB.getBoundingBox(Math.min(startRestriction[0], endRestriction[0]),
+            Math.min(startRestriction[1], endRestriction[1]),
+            Math.min(startRestriction[2], endRestriction[2]),
+            Math.max(startRestriction[0], endRestriction[0]),
+            Math.max(startRestriction[1], endRestriction[1]),
+            Math.max(startRestriction[2], endRestriction[2]));
+        restrictionBoxCenter = new int[]{(int)((restrictionBox.minX + restrictionBox.maxX) / 2), (int)((restrictionBox.minY + restrictionBox.maxY) / 2), (int)((restrictionBox.minZ + restrictionBox.maxZ) / 2)};
         this.minDistFromStart = minDistFromStart;
         this.maxDistToDest = -1;
         this.preferInside = preferInside;
@@ -198,7 +200,7 @@ public class PathJobRandomPos extends AbstractPathJob implements IDestinationPat
     @Override
     protected boolean isAtDestination(@NotNull final MNode n)
     {
-        if ((restrictionBox == null || restrictionBox.contains(n.x, n.y, n.z))
+        if ((restrictionBox == null || (n.x >= restrictionBox.minX && n.x <= restrictionBox.maxX && n.y >= restrictionBox.minY && n.y <= restrictionBox.maxY && n.z >= restrictionBox.minZ && n.z <= restrictionBox.maxZ))
               && BlockPosUtil.distSqr(start, n.x, n.y, n.z) > minDistFromStart * minDistFromStart
               && (maxDistToDest == -1 || BlockPosUtil.distSqr(destination, n.x, n.y, n.z) < this.maxDistToDest * this.maxDistToDest)
               && (getPathingOptions().canWalkUnderWater() || !PathfindingUtils.isWater(cachedBlockLookup, tempWorldPos.set(n.x, n.y - 1, n.z)))
@@ -229,7 +231,7 @@ public class PathJobRandomPos extends AbstractPathJob implements IDestinationPat
     }
 
     @Override
-    public BlockPos getDestination()
+    public int[] getDestination()
     {
         return destination;
     }
@@ -239,7 +241,7 @@ public class PathJobRandomPos extends AbstractPathJob implements IDestinationPat
      *
      * @return true if the given job is the same
      */
-    public static boolean isJobFor(final AbstractPathJob job, final BlockPos center, final int range)
+    public static boolean isJobFor(final AbstractPathJob job, final int[] center, final int range)
     {
         if (job instanceof PathJobRandomPos pathJob)
         {
@@ -249,3 +251,6 @@ public class PathJobRandomPos extends AbstractPathJob implements IDestinationPat
         return false;
     }
 }
+
+
+

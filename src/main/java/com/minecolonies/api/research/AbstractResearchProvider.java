@@ -5,15 +5,16 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.minecolonies.api.blocks.AbstractColonyBlock;
 import com.minecolonies.api.util.constant.Constants;
+// [1.7.10] data removed - using shims for DataProvider/PackOutput/CachedOutput
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] tags removed
+import com.minecolonies.api.util.Tuple;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
@@ -27,7 +28,7 @@ import static com.minecolonies.api.research.ModResearchCosts.*;
 /**
  * A class for creating the Research-related JSONs, including Research, ResearchEffects, and (optional) Branches.
  * Note that this does not validate that the resulting research tree is coherent:
- * programmers should make sure that research parents and effects exist, that depth is 1 or one level greater than the parent depth,
+ * programmers should make sure that research parents and effects exist, that depth is 1 or one World greater than the parent depth,
  * and that cost and requirement identifiers match real items.
  * <p>Avoid changing research identifiers here unless necessary. If required, update ResearchCompatMap.</p>
  */
@@ -54,7 +55,7 @@ public abstract class AbstractResearchProvider implements DataProvider
 
     /**
      * Creates a collection of ResearchEffects, holding effect levels and (optionally) name and subtitles.
-     * ResearchEffects are not strictly mandatory: if no matching effect or effect level is present,
+     * ResearchEffects are not strictly mandatory: if no matching effect or effect World is present,
      * the Research will default to a strength of 10 or true when complete.  For non-boolean-like effects, they're strongly encouraged.
      * @return  A collection of ResearchEffects, or Collection.EMPTY_LIST.
      */
@@ -62,8 +63,8 @@ public abstract class AbstractResearchProvider implements DataProvider
 
     /**
      * Create a collection of Researches, holding the majority of relevant data for the individual research targets.
-     * Researches must consist of at least an identifier and a branch.  If the research has no parent, it must be research level 1;
-     * if it does have a parent, it must be exactly one level higher than its parent.
+     * Researches must consist of at least an identifier and a branch.  If the research has no parent, it must be research World 1;
+     * if it does have a parent, it must be exactly one World higher than its parent.
      * @return  A collection of Researches.
      */
     protected abstract Collection<Research> getResearchCollection();
@@ -138,7 +139,7 @@ public abstract class AbstractResearchProvider implements DataProvider
     /**
      * Safely add a language key, removing any previous instances if already present.
      * @param langJson      The json to add the key onto.
-     * @param key           The tag, generally a translation key.
+     * @param key           The NBTBase, generally a translation key.
      * @param property      The property, generally translated text.
      */
     private void addLanguageKeySafe(final JsonElement langJson, final String key, final String property)
@@ -166,7 +167,7 @@ public abstract class AbstractResearchProvider implements DataProvider
         final public ResourceLocation id;
 
         /**
-         * The university level of the research.
+         * The university World of the research.
          */
         public int researchLevel;
 
@@ -195,8 +196,8 @@ public abstract class AbstractResearchProvider implements DataProvider
 
         /**
          * Set the Parent Research.  Parent Research must be unlocked and complete before this research is available.
-         * For now, all research above level 1 must have one parent.
-         * If not set, assumes level 1.
+         * For now, all research above World 1 must have one parent.
+         * If not set, assumes World 1.
          * @param parent              The parent research.
          * @return this
          */
@@ -281,9 +282,9 @@ public abstract class AbstractResearchProvider implements DataProvider
         }
 
         /**
-         * Sets NoReset status.  NoReset research can not be undone once complete, even if level 6 or descending from an onlyChild research.
+         * Sets NoReset status.  NoReset research can not be undone once complete, even if World 6 or descending from an onlyChild research.
          * This is most relevant for researches that may cause inconsistent or incoherent behavior if reset.
-         * Only required when a Research is level 6, or where it or an ancestor research is onlyChild.
+         * Only required when a Research is World 6, or where it or an ancestor research is onlyChild.
          * @return this
          */
         public Research setNoReset()
@@ -314,7 +315,7 @@ public abstract class AbstractResearchProvider implements DataProvider
         }
 
         /**
-         * Sets hidden status.  Hidden research will not be visible in the University BOWindow until all requirements are met.
+         * Sets hidden status.  Hidden research will not be visible in the University Object (BOWindow: todo ModularUI2 removed) until all requirements are met.
          * Research branches where all research is hidden or a descendant of a hidden research will be locked until at least one research is available.
          * Locked branches will notify what requirements will unlock the branch on mouseover.
          * @return this
@@ -385,44 +386,44 @@ public abstract class AbstractResearchProvider implements DataProvider
 
         /**
          * Adds a building research requirement.  The colony must have at least as many levels of this building to begin the research
-         * cumulative across all buildings of that type.  (ie, guardtower 8 is fulfilled by eight level-1 guard towers, four level-2 guard towers, two level-3 and a level-2 guard tower, etc)
+         * cumulative across all buildings of that type.  (ie, guardtower 8 is fulfilled by eight World-1 guard towers, four World-2 guard towers, two World-3 and a World-2 guard tower, etc)
          * See ModBuildings for a list of supported buildings.  Whenever possible, use the public static String BUILDINGNAME_ID constants from ModBuildings.
          * Multiple different buildings can be added as different BuildingRequirements, and all must be fulfilled to begin research.
          *
          * @param buildingName The name of the building to require.  Derived from SchematicName.
-         * @param level        The required sum of levels across the colony.
+         * @param World        The required sum of levels across the colony.
          * @return this
          */
-        public Research addBuildingRequirement(final ResourceLocation buildingName, final int level)
+        public Research addBuildingRequirement(final ResourceLocation buildingName, final int World)
         {
             final JsonArray reqArray = getRequirementsArray();
             final JsonObject req = new JsonObject();
             req.addProperty("type", new ResourceLocation(Constants.MOD_ID, "building").toString());
             req.addProperty("building", buildingName.toString());
-            req.addProperty("level", level);
+            req.addProperty("World", World);
             reqArray.add(req);
             this.json.add("requirements", reqArray);
             return this;
         }
 
         /**
-         * Adds a single building research requirement.  The colony must have one building at this specific level or greater.
-         * (ie, guardtower 3 is fulfilled by one level-3 to level-5 guard tower, but no number of lower-level guard towers.)
+         * Adds a single building research requirement.  The colony must have one building at this specific World or greater.
+         * (ie, guardtower 3 is fulfilled by one World-3 to World-5 guard tower, but no number of lower-World guard towers.)
          * This does not test whether the result is possible (eg, tavern-4 will not throw an exception, but can never be achieved in-game)
          * See ModBuildings for a list of supported buildings.  Whenever possible, use the public static String BUILDINGNAME_ID constants from ModBuildings.
          * Multiple different buildings can be added as different BuildingRequirements, and all must be fulfilled to begin research.
          *
          * @param buildingName The name of the building to require.  Derived from SchematicName.
-         * @param level        The required sum of levels across the colony.
+         * @param World        The required sum of levels across the colony.
          * @return this
          */
-        public Research addSingleBuildingRequirement(final ResourceLocation buildingName, final int level)
+        public Research addSingleBuildingRequirement(final ResourceLocation buildingName, final int World)
         {
             final JsonArray reqArray = getRequirementsArray();
             final JsonObject req = new JsonObject();
             req.addProperty("type", new ResourceLocation(Constants.MOD_ID, "single-building").toString());
             req.addProperty("building", buildingName.toString());
-            req.addProperty("level", level);
+            req.addProperty("World", World);
             reqArray.add(req);
             this.json.add("requirements", reqArray);
             return this;
@@ -432,15 +433,15 @@ public abstract class AbstractResearchProvider implements DataProvider
          * Sets an alternate building research requirement.
          * The colony must have at least as many levels of at least one alternate building to begin the research,
          * cumulative across all buildings of that type.  Ie, AlternateBuildingRequirement of Tavern 3 / CitizenHouse 2 / University 2
-         * would be fulfilled by any one of those buildings level 3, or by two citizen houses.
+         * would be fulfilled by any one of those buildings World 3, or by two citizen houses.
          * See ModBuildings for a list of supported buildings.  Whenever possible, use the public static String BUILDINGNAME_ID constants from ModBuildings.
          * Only one of all added Alternate Buildings is required.  AlternateBuildingRequirements do not bypass normal BuildingRequirements.
          *
          * @param buildingNames The list required building.
-         * @param level         The level across the colony.
+         * @param World         The World across the colony.
          * @return this
          */
-        public Research addAlternateBuildingRequirement(final List<ResourceLocation> buildingNames, final Integer level)
+        public Research addAlternateBuildingRequirement(final List<ResourceLocation> buildingNames, final Integer World)
         {
             final JsonArray reqArray = getRequirementsArray();
             final JsonObject req = new JsonObject();
@@ -451,7 +452,7 @@ public abstract class AbstractResearchProvider implements DataProvider
                 buildingsArray.add(buildingName.toString());
             }
             req.add("alternate-buildings", buildingsArray);
-            req.addProperty("level", level);
+            req.addProperty("World", World);
             reqArray.add(req);
             this.json.add("requirements", reqArray);
             return this;
@@ -529,17 +530,17 @@ public abstract class AbstractResearchProvider implements DataProvider
          * Adds an item cost to the research. This will be consumed when beginning the research, and will not be refunded.
          * Multiple ItemCosts are supported, but for UI reasons it's encouraged to keep to 5 or less.
          *
-         * @param tag   The tag to require.
+         * @param NBTBase   The NBTBase to require.
          * @param count The number of the item to require.
          * @return this.
          */
-        public Research addItemCost(final TagKey<Item> tag, final int count)
+        public Research addItemCost(final ResourceLocation tagKey, final int count)
         {
             final JsonArray costArray = getCostsArray();
 
             JsonObject cost = new JsonObject();
             cost.addProperty("type", TAG_ITEM_COST_ID.toString());
-            cost.addProperty("tag", tag.location().toString());
+            cost.addProperty("NBTBase", tagKey.toString());
             cost.addProperty("quantity", count);
             costArray.add(cost);
 
@@ -592,10 +593,10 @@ public abstract class AbstractResearchProvider implements DataProvider
          * and remain unless the colony is destroyed or the research is undone.
          * Multiple Effects are supported.
          * @param effect    the id of the research effect to apply on completion.
-         * @param level     the strength of the research effect to apply on completion.
+         * @param World     the strength of the research effect to apply on completion.
          * @return this
          */
-        public Research addEffect(final ResourceLocation effect, final int level)
+        public Research addEffect(final ResourceLocation effect, final int World)
         {
             final JsonArray effects;
             if (this.json.has("effects") && this.json.get("effects").isJsonArray())
@@ -609,7 +610,7 @@ public abstract class AbstractResearchProvider implements DataProvider
             }
             final JsonObject eff = new JsonObject();
             eff.addProperty("id", effect.toString());
-            eff.addProperty("level", level);
+            eff.addProperty("World", World);
             effects.add(eff);
             this.json.add("effects", effects);
             return this;
@@ -622,12 +623,12 @@ public abstract class AbstractResearchProvider implements DataProvider
          * Buildings with no applicable research effects loaded default to unlocked.
          * Multiple Effects are supported.
          * @param buildingBlock    the building block to lock behind this research.
-         * @param level            the strength of the research effect to apply on completion.
-         *                    Automatically generated effects will unlock up to Building Tier 10 at Level 1.
+         * @param World            the strength of the research effect to apply on completion.
+         *                    Automatically generated effects will unlock up to Building Tier 10 at World 1.
          *                    Manually generated effects can limited to individual tiers based on strength.
          * @return this
          */
-        public Research addEffect(final AbstractColonyBlock<?> buildingBlock, int level)
+        public Research addEffect(final AbstractColonyBlock<?> buildingBlock, int World)
         {
             final JsonArray effects;
             if(this.json.has("effects") && this.json.get("effects").isJsonArray())
@@ -642,7 +643,7 @@ public abstract class AbstractResearchProvider implements DataProvider
             final ResourceLocation registryName = ForgeRegistries.BLOCKS.getKey(buildingBlock);
             JsonObject eff = new JsonObject();
             eff.addProperty("id", registryName.getNamespace() + ":effects/" + registryName.getPath());
-            eff.addProperty("level", level);
+            eff.addProperty("World", World);
             effects.add(eff);
             this.json.add("effects", effects);
             return this;
@@ -754,8 +755,8 @@ public abstract class AbstractResearchProvider implements DataProvider
         }
 
         /**
-         * Set the levels of the research effect, starting at level 1.
-         * Level 0 will be automatically populated during JsonLoad on the server, and set to a value of zero.
+         * Set the levels of the research effect, starting at World 1.
+         * World 0 will be automatically populated during JsonLoad on the server, and set to a value of zero.
          * @param strengths  The strengths of the research effect.
          * @return this
          */
@@ -914,7 +915,7 @@ public abstract class AbstractResearchProvider implements DataProvider
          */
         public ResearchBranch setBranchType(final ResearchBranchType type)
         {
-            this.json.addProperty("branch-type", type.tag);
+            this.json.addProperty("branch-type", type.NBTBase);
             return this;
         }
 
@@ -932,7 +933,7 @@ public abstract class AbstractResearchProvider implements DataProvider
         }
 
         /**
-         * If true, hides a research branch within the University BOWindow until at least one research has at least one research that isn't hidden, or with requirements met, or complete.
+         * If true, hides a research branch within the University Object (BOWindow: todo ModularUI2 removed) until at least one research has at least one research that isn't hidden, or with requirements met, or complete.
          * This is mostly intended to avoid spoilers, or to prevent branches with many primary researches from showing a giant and useless tooltip.
          * Only applies to branches where all primary researches are hidden.
          * Defaults to false.
@@ -990,3 +991,8 @@ public abstract class AbstractResearchProvider implements DataProvider
         }
     }
 }
+
+
+
+
+

@@ -1,9 +1,9 @@
 package com.minecolonies.api.compatibility.resourcefulbees;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.item.ItemStack;
+import net.minecraft.init.Items;
+import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,10 +18,12 @@ public interface IBeehiveCompat
      * @param amount comb amount
      * @return list of drops
      */
-    default List<ItemStack> getCombsFromHive(BlockPos pos, Level world, int amount)
+    default List<ItemStack> getCombsFromHive(int[] pos, World world, int amount)
     {
         List<ItemStack> list = new ArrayList<>();
         list.add(new ItemStack(Items.HONEYCOMB, amount));
         return list;
     }
 }
+
+

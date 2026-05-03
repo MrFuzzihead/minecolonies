@@ -3,12 +3,12 @@ package com.minecolonies.core.generation.defaults;
 import com.minecolonies.api.entity.ModEntities;
 import com.minecolonies.api.util.DamageSourceKeys;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] data removed
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.world.damagesource.DamageScaling;
-import net.minecraft.world.damagesource.DamageType;
-import net.minecraft.world.entity.EntityType;
+// [1.7.10] net.minecraft.util.DamageSource removed
+// [1.7.10] net.minecraft.util.DamageSource removed
+// [1.7.10] world.entity removed
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.common.data.JsonCodecProvider;
 import org.jetbrains.annotations.NotNull;
@@ -96,3 +96,6 @@ public class DefaultDamageTypeProvider extends JsonCodecProvider<DamageType>
         return new DamageType(msgId, DamageScaling.NEVER, 0.1F);
     }
 }
+
+
+

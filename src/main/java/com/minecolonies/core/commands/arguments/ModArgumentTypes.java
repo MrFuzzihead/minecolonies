@@ -1,26 +1,13 @@
 package com.minecolonies.core.commands.arguments;
 
-import net.minecraft.commands.synchronization.ArgumentTypeInfo;
-import net.minecraft.commands.synchronization.ArgumentTypeInfos;
-import net.minecraft.commands.synchronization.SingletonArgumentInfo;
-import net.minecraft.core.registries.Registries;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
+// [1.7.10 BACKPORT] ArgumentTypeInfo / command argument types do not exist in 1.7.10. Class stubbed.
+// TODO: no 1.7.10 equivalent — commands use ICommandHandler in 1.7.10, no custom argument type registry.
 
-import static com.minecolonies.api.util.constant.Constants.MOD_ID;
-
-/**
- * This class handles registration for custom argument types.
- */
-public class ModArgumentTypes
+/** Stub — custom command argument types are not supported in 1.7.10. */
+public final class ModArgumentTypes
 {
-    public static final DeferredRegister<ArgumentTypeInfo<?, ?>> ARGUMENT_TYPES = DeferredRegister.create(Registries.COMMAND_ARGUMENT_TYPE, MOD_ID);
+    private ModArgumentTypes() {}
 
-    public static final RegistryObject<SingletonArgumentInfo<ColonyIdArgument>> COLONY_ID =
-        ARGUMENT_TYPES.register("colony_id", () -> ArgumentTypeInfos.registerByClass(ColonyIdArgument.class,
-            SingletonArgumentInfo.contextFree(ColonyIdArgument::id)));
-
-    public static final RegistryObject<SingletonArgumentInfo<MultiColonyIdArgument>> MULTI_COLONY_ID =
-        ARGUMENT_TYPES.register("multi_colony_id", () -> ArgumentTypeInfos.registerByClass(MultiColonyIdArgument.class,
-            SingletonArgumentInfo.contextFree(MultiColonyIdArgument::id)));
+    /** No-op in 1.7.10. */
+    public static void init() { /* no-op */ }
 }

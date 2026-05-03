@@ -1,7 +1,7 @@
 package com.minecolonies.core.client.render.modeltype.registry;
 
 import com.minecolonies.api.client.render.modeltype.IModelType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import com.minecolonies.api.client.render.modeltype.registry.IModelTypeRegistry;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,3 +28,4 @@ public class ModelTypeRegistry implements IModelTypeRegistry
         return modelMap.get(name);
     }
 }
+

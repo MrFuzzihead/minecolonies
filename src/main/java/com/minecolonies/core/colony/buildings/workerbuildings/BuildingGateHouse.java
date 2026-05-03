@@ -9,7 +9,7 @@ import com.minecolonies.api.util.Log;
 import com.minecolonies.core.colony.buildings.AbstractBuildingGuards;
 import com.minecolonies.core.colony.buildings.modules.GuardBuildingModule;
 import com.minecolonies.core.colony.buildings.modules.settings.GuardTaskSetting;
-import net.minecraft.core.BlockPos;
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,7 +39,7 @@ public class BuildingGateHouse extends AbstractBuildingGuards
      * @param c the colony
      * @param l the position
      */
-    public BuildingGateHouse(@NotNull final IColony c, final BlockPos l)
+    public BuildingGateHouse(@NotNull final IColony c, final int[] l)
     {
         super(c, l);
     }
@@ -113,11 +113,11 @@ public class BuildingGateHouse extends AbstractBuildingGuards
     }
 
     @Override
-    public BlockPos getGuardPos(final @NotNull AbstractEntityCitizen worker)
+    public int[] getGuardPos(final @NotNull AbstractEntityCitizen worker)
     {
         if (getLocationsFromTag(TAG_KNIGHT).size() < 2 || getLocationsFromTag(TAG_ARCHER).size() < 2)
         {
-            Log.getLogger().error("GateHouse at " + getID().toShortString() + " missing 'knight' or 'archer' tag for guards of: " + getStructurePack() + " : " + getBlueprintPath());
+            Log.getLogger().error("GateHouse at " + getID().toShortString() + " missing 'knight' or 'archer' NBTBase for guards of: " + getStructurePack() + " : " + getBlueprintPath());
             return getID();
         }
 
@@ -172,10 +172,10 @@ public class BuildingGateHouse extends AbstractBuildingGuards
     }
 
     @Override
-    public void setBuildingLevel(final int level)
+    public void setBuildingLevel(final int World)
     {
-        super.setBuildingLevel(level);
-        if (level >= 1)
+        super.setBuildingLevel(World);
+        if (World >= 1)
         {
             colony.getConnectionManager().addNewGateHouse(getPosition());
         }
@@ -199,9 +199,11 @@ public class BuildingGateHouse extends AbstractBuildingGuards
          * @param c the colony.
          * @param l the location.
          */
-        public View(final IColonyView c, @NotNull final BlockPos l)
+        public View(final IColonyView c, @NotNull final int[] l)
         {
             super(c, l);
         }
     }
 }
+
+

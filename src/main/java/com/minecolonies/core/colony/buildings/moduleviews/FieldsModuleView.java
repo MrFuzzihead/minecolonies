@@ -7,10 +7,10 @@ import com.minecolonies.api.colony.buildingextensions.IBuildingExtension;
 import com.minecolonies.core.Network;
 import com.minecolonies.core.network.messages.server.colony.building.fields.AssignFieldMessage;
 import com.minecolonies.core.network.messages.server.colony.building.fields.AssignmentModeMessage;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -37,7 +37,7 @@ public abstract class FieldsModuleView extends AbstractBuildingModuleView
     private int maxFieldCount;
 
     @Override
-    public void deserialize(@NotNull final FriendlyByteBuf buf)
+    public void deserialize(@NotNull final PacketBuffer buf)
     {
         shouldAssignFieldManually = buf.readBoolean();
         maxFieldCount = buf.readInt();
@@ -50,9 +50,9 @@ public abstract class FieldsModuleView extends AbstractBuildingModuleView
     }
 
     @Override
-    public Component getDesc()
+    public String getDesc()
     {
-        return Component.translatable(BUILDING_TAB_FIELDS);
+        return String.translatable(BUILDING_TAB_FIELDS);
     }
 
     /**
@@ -171,17 +171,17 @@ public abstract class FieldsModuleView extends AbstractBuildingModuleView
     }
 
     /**
-     * Get a warning text component for the specific field whenever this field cannot be assigned for any reason.
+     * Get a warning text String for the specific field whenever this field cannot be assigned for any reason.
      *
      * @param field the field in question.
-     * @return a text component that should be shown if there is a problem for the specific field, else null.
+     * @return a text String that should be shown if there is a problem for the specific field, else null.
      */
     @Nullable
-    public MutableComponent getFieldWarningTooltip(IBuildingExtension field)
+    public String getFieldWarningTooltip(IBuildingExtension field)
     {
         if (getOwnedFields().size() >= maxFieldCount)
         {
-            return Component.translatable(FIELD_LIST_WARN_EXCEEDS_FIELD_COUNT);
+            return String.translatable(FIELD_LIST_WARN_EXCEEDS_FIELD_COUNT);
         }
         return null;
     }
@@ -236,3 +236,6 @@ public abstract class FieldsModuleView extends AbstractBuildingModuleView
         }
     }
 }
+
+
+

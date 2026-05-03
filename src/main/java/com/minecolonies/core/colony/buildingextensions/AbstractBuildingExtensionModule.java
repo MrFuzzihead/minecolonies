@@ -6,9 +6,9 @@ import com.minecolonies.api.colony.buildingextensions.registry.BuildingExtension
 import com.minecolonies.api.colony.buildingextensions.registry.BuildingExtensionRegistries.BuildingExtensionEntry;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.util.BlockPosUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,13 +36,13 @@ public abstract class AbstractBuildingExtensionModule implements IBuildingExtens
     /**
      * The position of the building extension.
      */
-    private final BlockPos position;
+    private final int[] position;
 
     /**
      * Building id of the building owning the building extension.
      */
     @Nullable
-    private BlockPos buildingId = null;
+    private int[] buildingId = null;
 
     /**
      * Unique extension id.
@@ -55,7 +55,7 @@ public abstract class AbstractBuildingExtensionModule implements IBuildingExtens
      * @param buildingExtensionEntry the type of building extension.
      * @param position  the position of the building extension.
      */
-    protected AbstractBuildingExtensionModule(final @NotNull BuildingExtensionRegistries.BuildingExtensionEntry buildingExtensionEntry, final @NotNull BlockPos position)
+    protected AbstractBuildingExtensionModule(final @NotNull BuildingExtensionRegistries.BuildingExtensionEntry buildingExtensionEntry, final @NotNull int[] position)
     {
         this.buildingExtensionEntry = buildingExtensionEntry;
         this.position = position;
@@ -91,20 +91,20 @@ public abstract class AbstractBuildingExtensionModule implements IBuildingExtens
 
     @Override
     @NotNull
-    public final BlockPos getPosition()
+    public final int[] getPosition()
     {
         return position;
     }
 
     @Override
     @Nullable
-    public final BlockPos getBuildingId()
+    public final int[] getBuildingId()
     {
         return buildingId;
     }
 
     @Override
-    public final void setBuilding(final BlockPos buildingId)
+    public final void setBuilding(final int[] buildingId)
     {
         this.buildingId = buildingId;
     }
@@ -128,9 +128,9 @@ public abstract class AbstractBuildingExtensionModule implements IBuildingExtens
     }
 
     @Override
-    public @NotNull CompoundTag serializeNBT()
+    public @NotNull NBTTagCompound serializeNBT()
     {
-        CompoundTag compound = new CompoundTag();
+        NBTTagCompound compound = new NBTTagCompound();
         if (buildingId != null)
         {
             BlockPosUtil.write(compound, TAG_OWNER, buildingId);
@@ -139,7 +139,7 @@ public abstract class AbstractBuildingExtensionModule implements IBuildingExtens
     }
 
     @Override
-    public void deserializeNBT(final @NotNull CompoundTag compound)
+    public void deserializeNBT(final @NotNull NBTTagCompound compound)
     {
         if (compound.contains(TAG_OWNER))
         {
@@ -148,7 +148,7 @@ public abstract class AbstractBuildingExtensionModule implements IBuildingExtens
     }
 
     @Override
-    public void serialize(final @NotNull FriendlyByteBuf buf)
+    public void serialize(final @NotNull PacketBuffer buf)
     {
         buf.writeBoolean(buildingId != null);
         if (buildingId != null)
@@ -158,7 +158,7 @@ public abstract class AbstractBuildingExtensionModule implements IBuildingExtens
     }
 
     @Override
-    public void deserialize(final @NotNull FriendlyByteBuf buf)
+    public void deserialize(final @NotNull PacketBuffer buf)
     {
         if (buf.readBoolean())
         {
@@ -201,3 +201,6 @@ public abstract class AbstractBuildingExtensionModule implements IBuildingExtens
         return extensionId;
     }
 }
+
+
+

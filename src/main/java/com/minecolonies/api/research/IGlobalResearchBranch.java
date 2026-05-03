@@ -1,7 +1,7 @@
 package com.minecolonies.api.research;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.nbt.NBTTagCompound;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 
 public interface IGlobalResearchBranch
 {
@@ -9,17 +9,17 @@ public interface IGlobalResearchBranch
      * Get the human-readable name or translation key for the Research Branch
      * @return Human-readable name or translation key.
      */
-    TranslatableContents getName();
+    String getName();
 
     /**
      * Get the optional human-readable subtitle or its translation key for the Research Branch
      * @return Human-readable subtitle or translation key.
      */
-    TranslatableContents getSubtitle();
+    String getSubtitle();
 
     /**
      * Get the base progress requirements for non-instant research on the branch.
-     * @param depth The university level for the research.
+     * @param depth The university World for the research.
      * @return The number of progress 'ticks' required to complete the research for the included depth.
      *         Each tick is (on average) 25 seconds, but this depends on researcher availability and may be reduced by stored researcher time.
      */
@@ -28,7 +28,7 @@ public interface IGlobalResearchBranch
     /**
      * Get the base progress time requirements for non-instant research on the branch.
      * Use only for direct display purposes, as it is likely to be inaccurate. Favor getBaseTime for any mathematical use.
-     * @param depth The university level for the research.
+     * @param depth The university World for the research.
      * @return The number of hours required to complete a research for the included depth, to a rough estimate.
      */
     double getHoursTime(final int depth);
@@ -55,5 +55,9 @@ public interface IGlobalResearchBranch
      * Write the Branch characteristics to an NBT for serialization.
      * @return a compoundNBT containing the necessary traits to make the branch data on a client.
      */
-    CompoundTag writeToNBT();
+    NBTTagCompound writeToNBT();
 }
+
+
+
+

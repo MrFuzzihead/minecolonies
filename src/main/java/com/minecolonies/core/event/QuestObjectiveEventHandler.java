@@ -8,15 +8,15 @@ import com.minecolonies.api.quests.IQuestManager;
 import com.minecolonies.api.quests.IQuestObjectiveTemplate;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.quests.objectives.*;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Block;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.level.BlockEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] world.entity removed
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.block.Block;
+// [1.7.10] forge event removed
+// [1.7.10] forge event removed
+// [1.7.10] eventbus removed
+// [1.7.10] eventbus removed
 import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 
@@ -252,9 +252,9 @@ public class QuestObjectiveEventHandler
     /**
      * Building upgrade handling.
      * @param building the building being upgraded.
-     * @param level its level.
+     * @param World its World.
      */
-    public static void onBuildingUpgradeComplete(final IBuilding building, final int level)
+    public static void onBuildingUpgradeComplete(final IBuilding building, final int World)
     {
         if (buildBuildingObjectives.containsKey(building.getBuildingType()))
         {
@@ -263,7 +263,7 @@ public class QuestObjectiveEventHandler
                 final IQuestObjectiveTemplate objective = IQuestManager.GLOBAL_SERVER_QUESTS.get(instance.getId()).getObjective(instance.getObjectiveIndex());
                 if (objective instanceof IBuildingUpgradeObjectiveTemplate buildingTemplate)
                 {
-                    buildingTemplate.onBuildingUpgrade(instance.getCurrentObjectiveInstance(), instance, level);
+                    buildingTemplate.onBuildingUpgrade(instance.getCurrentObjectiveInstance(), instance, World);
                 }
             }
         }
@@ -317,3 +317,7 @@ public class QuestObjectiveEventHandler
         researchObjectives.getOrDefault(researchId, new HashMap<>()).getOrDefault(colonyQuest.getColony(), new ArrayList<>()).remove(colonyQuest);
     }
 }
+
+
+
+

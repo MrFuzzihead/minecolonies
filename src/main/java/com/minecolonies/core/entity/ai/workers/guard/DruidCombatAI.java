@@ -25,14 +25,14 @@ import com.minecolonies.core.entity.pathfinding.pathjobs.PathJobCanSee;
 import com.minecolonies.core.entity.pathfinding.pathjobs.PathJobMoveAwayFromLocation;
 import com.minecolonies.core.entity.pathfinding.pathjobs.PathJobMoveToLocation;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int /* InteractionHand */ removed
+// [1.7.10] effect removed
+// [1.7.10] effect removed
+// [1.7.10] effect removed
+import net.minecraft.entity.EntityLivingBase;
+// [1.7.10] world.entity removed
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionUtils;
 
@@ -117,7 +117,7 @@ public class DruidCombatAI extends AttackMoveAI<EntityCitizen>
     }
 
     @Override
-    protected void doAttack(final LivingEntity target)
+    protected void doAttack(final EntityLivingBase target)
     {
         if (user.distanceToSqr(target) < RANGED_FLEE_SQDIST)
         {
@@ -132,16 +132,16 @@ public class DruidCombatAI extends AttackMoveAI<EntityCitizen>
             user.getNavigation().stop();
         }
 
-        user.swing(InteractionHand.MAIN_HAND);
+        user.swing(0 /* InteractionHand.MAIN_HAND */);
 
-        final int level = user.getCitizenData().getCitizenSkillHandler().getLevel(ModGuardTypes.druid.get().getSecondarySkill());
+        final int World = user.getCitizenData().getCitizenSkillHandler().getLevel(ModGuardTypes.druid.get().getSecondarySkill());
         final int time = user.getCitizenData().getCitizenSkillHandler().getLevel(ModGuardTypes.druid.get().getPrimarySkill()) * 20;
 
-        final float inaccuracy = 99f / level;
+        final float inaccuracy = 99f / World;
         final MobEffect effect;
         final ItemStack stack = new ItemStack(Items.SPLASH_POTION);
         boolean gotMaterial = false;
-        BiPredicate<LivingEntity, MobEffect> predicate;
+        BiPredicate<EntityLivingBase, MobEffect> predicate;
         if (user.getCitizenColonyHandler().getColonyOrRegister().getResearchManager().getResearchEffects().getEffectStrength(DRUID_USE_POTIONS) > 0
               && InventoryUtils.hasItemInItemHandler(user.getInventoryCitizen(), item -> item.getItem() == ModItems.magicpotion))
         {
@@ -168,7 +168,7 @@ public class DruidCombatAI extends AttackMoveAI<EntityCitizen>
 
         this.instantEffect = effect.isInstantenous();
 
-        user.setItemInHand(InteractionHand.MAIN_HAND, stack);
+        user.setItemInHand(0 /* InteractionHand.MAIN_HAND */, stack);
 
         user.getThreatTable().removeCurrentTarget();
 
@@ -185,7 +185,7 @@ public class DruidCombatAI extends AttackMoveAI<EntityCitizen>
     protected double getAttackDistance()
     {
         int attackDist = BASE_DISTANCE_FOR_POTION_ATTACK;
-        // + 1 Blockrange per building level for a total of +5 from building level
+        // + 1 Blockrange per building World for a total of +5 from building World
         if (user.getCitizenData().getWorkBuilding() != null)
         {
             attackDist += user.getCitizenData().getWorkBuilding().getBuildingLevelEquivalent();
@@ -200,11 +200,11 @@ public class DruidCombatAI extends AttackMoveAI<EntityCitizen>
     }
 
     @Override
-    protected PathResult moveInAttackPosition(final LivingEntity target)
+    protected PathResult moveInAttackPosition(final EntityLivingBase target)
     {
         if (BlockPosUtil.getDistanceSquared(target.blockPosition(), user.blockPosition()) <= 4.0)
         {
-            final PathJobMoveAwayFromLocation job = new PathJobMoveAwayFromLocation(user.level,
+            final PathJobMoveAwayFromLocation job = new PathJobMoveAwayFromLocation(user.World,
               PathfindingUtils.prepareStart(target),
               target.blockPosition(),
               12,
@@ -216,12 +216,12 @@ public class DruidCombatAI extends AttackMoveAI<EntityCitizen>
         }
         else if (BlockPosUtil.getDistance2D(target.blockPosition(), user.blockPosition()) >= 20)
         {
-            final PathJobMoveToLocation job = new PathJobMoveToLocation(user.level, PathfindingUtils.prepareStart(user), target.blockPosition(), 200, user);
+            final PathJobMoveToLocation job = new PathJobMoveToLocation(user.World, PathfindingUtils.prepareStart(user), target.blockPosition(), 200, user);
             final PathResult pathResult = ((MinecoloniesAdvancedPathNavigate) user.getNavigation()).setPathJob(job, null, getCombatMovementSpeed(), true);
             job.setPathingOptions(combatPathingOptions);
             return pathResult;
         }
-        final PathJobCanSee job = new PathJobCanSee(user, target, user.level, ((AbstractBuildingGuards) user.getCitizenData().getWorkBuilding()).getGuardPos(user), 40);
+        final PathJobCanSee job = new PathJobCanSee(user, target, user.World, ((AbstractBuildingGuards) user.getCitizenData().getWorkBuilding()).getGuardPos(user), 40);
         final PathResult pathResult = ((MinecoloniesAdvancedPathNavigate) user.getNavigation()).setPathJob(job, null, getCombatMovementSpeed(), true);
         job.setPathingOptions(combatPathingOptions);
         return pathResult;
@@ -242,7 +242,7 @@ public class DruidCombatAI extends AttackMoveAI<EntityCitizen>
     }
 
     @Override
-    protected boolean isAttackableTarget(final LivingEntity entity)
+    protected boolean isAttackableTarget(final EntityLivingBase entity)
     {
         return (AbstractEntityAIGuard.isAttackableTarget(user, entity)
                   || (entity instanceof IThreatTableEntity && ((IThreatTableEntity) entity).getThreatTable().getTarget() != null)
@@ -259,7 +259,7 @@ public class DruidCombatAI extends AttackMoveAI<EntityCitizen>
             return true;
         }
 
-        final List<LivingEntity> entities = user.level.getEntitiesOfClass(LivingEntity.class, getSearchArea());
+        final List<EntityLivingBase> entities = user.World.getEntitiesOfClass(EntityLivingBase.class, getSearchArea());
 
         if (entities.isEmpty())
         {
@@ -268,7 +268,7 @@ public class DruidCombatAI extends AttackMoveAI<EntityCitizen>
 
         int targetsUnderEffect = 0;
         boolean foundTarget = false;
-        for (final LivingEntity entity : entities)
+        for (final EntityLivingBase entity : entities)
         {
             if (!entity.isAlive())
             {
@@ -303,20 +303,20 @@ public class DruidCombatAI extends AttackMoveAI<EntityCitizen>
      * @param entity the entity to check for.
      * @return true if so.
      */
-    private boolean wasAffectedByDruid(final LivingEntity entity)
+    private boolean wasAffectedByDruid(final EntityLivingBase entity)
     {
         return entity.hasEffect(MobEffects.MOVEMENT_SLOWDOWN) || entity.hasEffect(MobEffects.SATURATION) || entity.hasEffect(MobEffects.DAMAGE_BOOST)
                  || entity.hasEffect(MobEffects.WEAKNESS) || entity.hasEffect(MobEffects.DAMAGE_RESISTANCE) || entity.hasEffect(MobEffects.HEAL);
     }
 
     @Override
-    protected boolean isWithinPersecutionDistance(final LivingEntity target)
+    protected boolean isWithinPersecutionDistance(final EntityLivingBase target)
     {
         return parentAI.isWithinPersecutionDistance(target.blockPosition(), getAttackDistance());
     }
 
     @Override
-    protected boolean skipSearch(final LivingEntity entity)
+    protected boolean skipSearch(final EntityLivingBase entity)
     {
         // Found a sleeping guard nearby
         if (entity instanceof EntityCitizen && user.getRandom().nextInt(10) < 1)
@@ -345,10 +345,15 @@ public class DruidCombatAI extends AttackMoveAI<EntityCitizen>
     }
 
     @Override
-    protected void onTargetDied(final LivingEntity entity)
+    protected void onTargetDied(final EntityLivingBase entity)
     {
         parentAI.incrementActionsDone();
         user.getCitizenExperienceHandler().addExperience(EXP_PER_MOB_DEATH);
         user.decreaseSaturationForContinuousAction();
     }
 }
+
+
+
+
+

@@ -1,12 +1,12 @@
 package com.minecolonies.core.generation.defaults;
 
 import com.minecolonies.core.generation.SimpleLootTableProvider;
-import net.minecraft.data.PackOutput;
+// [1.7.10] data removed
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.LootPool.Builder;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.core.entity.ai.workers.production.EntityAIStructureMiner.LUCKY_ORE_LOOT_TABLE;
@@ -66,3 +66,6 @@ public class DefaultLuckyOreLootProvider extends SimpleLootTableProvider
         registrar.register(LUCKY_ORE_LOOT_TABLE.withSuffix(String.valueOf(5)), LUCKY_ORE_PARAM_SET, LootTable.lootTable().withPool(luckyOres4));
     }
 }
+
+
+

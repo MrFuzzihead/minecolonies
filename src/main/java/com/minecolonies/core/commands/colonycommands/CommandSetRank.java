@@ -13,7 +13,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.GameProfileArgument;
-import net.minecraft.network.chat.Component;
+import net.minecraft.util.IChatComponent;
 
 import java.util.Locale;
 
@@ -45,7 +45,7 @@ public class CommandSetRank implements IMCOPCommand
         if (context.getSource().getServer().getPlayerList().getPlayer(profile.getId()) == null)
         {
             // could not find player with given name.
-            context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_PLAYER_NOT_FOUND, profile.getName()), true);
+            context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_PLAYER_NOT_FOUND, profile.getName()), true);
             return 0;
         }
 
@@ -67,13 +67,13 @@ public class CommandSetRank implements IMCOPCommand
 
         if (rankFound == null)
         {
-            context.getSource().sendSuccess(() -> Component.literal("Rank does not exist"), true);
+            context.getSource().sendSuccess(() -> String.literal("Rank does not exist"), true);
             return 0;
         }
 
         colony.getPermissions().setPlayerRank(profile.getId(), rankFound, colony.getWorld());
         final String finalRankName = rankName;
-        context.getSource().sendSuccess(() -> Component.literal("Set player: " + profile.getName() + " to rank:" + finalRankName), true);
+        context.getSource().sendSuccess(() -> String.literal("Set player: " + profile.getName() + " to rank:" + finalRankName), true);
         return 1;
     }
 
@@ -106,3 +106,5 @@ public class CommandSetRank implements IMCOPCommand
                 .executes(this::checkPreConditionAndExecute))));
     }
 }
+
+

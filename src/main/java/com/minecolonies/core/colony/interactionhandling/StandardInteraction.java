@@ -6,7 +6,7 @@ import com.minecolonies.api.colony.interactionhandling.IInteractionResponseHandl
 import com.minecolonies.api.colony.interactionhandling.InteractionValidatorRegistry;
 import com.minecolonies.api.colony.interactionhandling.ModInteractionResponseHandlers;
 import com.minecolonies.api.util.Tuple;
-import net.minecraft.network.chat.Component;
+import net.minecraft.util.IChatComponent;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,11 +25,11 @@ public class StandardInteraction extends ServerCitizenInteraction
     public static final String INTERACTION_R_SKIP   = "com.minecolonies.coremod.gui.chat.skipchitchat";
 
     @SuppressWarnings("unchecked")
-    private static final Tuple<Component, Component>[] tuples = (Tuple<Component, Component>[]) new Tuple[] {
-      new Tuple<>(Component.translatable(INTERACTION_R_OKAY), null),
-      new Tuple<>(Component.translatable(INTERACTION_R_IGNORE), null),
-      new Tuple<>(Component.translatable(INTERACTION_R_REMIND), null),
-      new Tuple<>(Component.translatable(INTERACTION_R_SKIP), null)};
+    private static final Tuple<String, String>[] tuples = (Tuple<String, String>[]) new Tuple[] {
+      new Tuple<>(String.translatable(INTERACTION_R_OKAY), null),
+      new Tuple<>(String.translatable(INTERACTION_R_IGNORE), null),
+      new Tuple<>(String.translatable(INTERACTION_R_REMIND), null),
+      new Tuple<>(String.translatable(INTERACTION_R_SKIP), null)};
 
     /**
      * The server interaction response handler with custom validator.
@@ -39,8 +39,8 @@ public class StandardInteraction extends ServerCitizenInteraction
      * @param priority  the interaction priority.
      */
     public StandardInteraction(
-      final Component inquiry,
-      final Component validator,
+      final String inquiry,
+      final String validator,
       final IChatPriority priority)
     {
         super(inquiry, true, priority, InteractionValidatorRegistry.getStandardInteractionValidatorPredicate(validator), validator, tuples);
@@ -53,7 +53,7 @@ public class StandardInteraction extends ServerCitizenInteraction
      * @param priority the interaction priority.
      */
     public StandardInteraction(
-      final Component inquiry,
+      final String inquiry,
       final IChatPriority priority)
     {
         super(inquiry, true, priority, InteractionValidatorRegistry.getStandardInteractionValidatorPredicate(inquiry), inquiry, tuples);
@@ -81,3 +81,5 @@ public class StandardInteraction extends ServerCitizenInteraction
         return ModInteractionResponseHandlers.STANDARD.getPath();
     }
 }
+
+

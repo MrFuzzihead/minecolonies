@@ -7,10 +7,10 @@ import com.minecolonies.core.entity.pathfinding.PathfindingUtils;
 import com.minecolonies.core.entity.pathfinding.PathingOptions;
 import com.minecolonies.core.entity.pathfinding.SurfaceType;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.level.Level;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
+// [1.7.10] world.entity removed
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -26,11 +26,11 @@ public class PathJobWalkRandomEdge extends AbstractPathJob implements ISearchPat
     /**
      * The position we want to search around from, usually guarding pos, so guide the heuristic there from the current entity position
      */
-    private final BlockPos searchAroundPos;
+    private final int[] searchAroundPos;
 
     public PathJobWalkRandomEdge(
-      final Level world,
-      @NotNull final BlockPos searchAroundPos, final int range, final Mob entity)
+      final World world,
+      @NotNull final int[] searchAroundPos, final int range, final EntityCreature entity)
     {
         super(world, PathfindingUtils.prepareStart(entity), range, new PathResult<PathJobWalkRandomEdge>(), entity);
         this.searchAroundPos = searchAroundPos;
@@ -76,3 +76,6 @@ public class PathJobWalkRandomEdge extends AbstractPathJob implements ISearchPat
         return -BlockPosUtil.distManhattan(searchAroundPos, n.x, n.y, n.z);
     }
 }
+
+
+

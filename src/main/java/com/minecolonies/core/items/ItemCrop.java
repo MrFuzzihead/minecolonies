@@ -5,23 +5,23 @@ import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.api.util.constant.TranslationConstants;
 import com.minecolonies.core.blocks.MinecoloniesCropBlock;
 import com.minecolonies.core.blocks.MinecoloniesFarmland;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
-import net.minecraft.network.chat.Component;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.food.FoodProperties;
+import net.minecraft.util.EnumChatFormatting;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Holder removed
+import net.minecraft.util.IChatComponent;
+// [1.7.10] tags removed
+import net.minecraft.entity.player.EntityPlayer;
+// [1.7.10] food removed
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.level.block.FarmBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.shapes.CollisionContext;
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] world.phys removed
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -56,11 +56,11 @@ public class ItemCrop extends BlockItem
         Player player = ctx.getPlayer();
         if (!player.isCreative())
         {
-            final BlockPos clickedPos = ctx.getClickedPos().below();
+            final int[] clickedPos = ctx.getClickedPos().below();
             final BlockState worldState = ctx.getLevel().getBlockState(clickedPos);
             if (ctx.getLevel().isClientSide && (worldState.getBlock() instanceof MinecoloniesFarmland || worldState.getBlock() instanceof FarmBlock))
             {
-                MessageUtils.format(Component.translatable("com.minecolonies.core.crop.cantplant")).sendTo(player);
+                MessageUtils.format(String.translatable("com.minecolonies.core.crop.cantplant")).sendTo(player);
             }
             return false;
         }
@@ -69,22 +69,22 @@ public class ItemCrop extends BlockItem
     }
 
     @Override
-    public void appendHoverText(@NotNull final ItemStack stack, @Nullable final Level worldIn, @NotNull final List<Component> tooltip, @NotNull final TooltipFlag flagIn)
+    public void appendHoverText(@NotNull final ItemStack stack, @Nullable final World worldIn, @NotNull final List<String> tooltip, @NotNull final TooltipFlag flagIn)
     {
-        tooltip.add(Component.translatable(TranslationConstants.CROP_TOOLTIP).withStyle(ChatFormatting.GRAY));
+        tooltip.add(String.translatable(TranslationConstants.CROP_TOOLTIP).withStyle(ChatFormatting.GRAY));
         if (preferredBiome != null && worldIn != null)
         {
-            tooltip.add(Component.translatable(TranslationConstants.BIOME_TOOLTIP + "." + preferredBiome.location().getPath()));
+            tooltip.add(String.translatable(TranslationConstants.BIOME_TOOLTIP + "." + preferredBiome.location().getPath()));
             if (worldIn.getBiome(Minecraft.getInstance().player.blockPosition()).is(preferredBiome))
             {
-                tooltip.add(Component.translatable("com.minecolonies.core.item.crop.tooltip.biome.match").withStyle(ChatFormatting.GREEN));
+                tooltip.add(String.translatable("com.minecolonies.core.item.crop.tooltip.biome.match").withStyle(ChatFormatting.GREEN));
             }
             else
             {
-                tooltip.add(Component.translatable("com.minecolonies.core.item.crop.tooltip.biome.nomatch").withStyle(ChatFormatting.RED));
+                tooltip.add(String.translatable("com.minecolonies.core.item.crop.tooltip.biome.nomatch").withStyle(ChatFormatting.RED));
             }
         }
-        tooltip.add(Component.translatable(TranslationConstants.CROP_TOOLTIP_HOE).withStyle(ChatFormatting.DARK_AQUA).withStyle(ChatFormatting.ITALIC));
+        tooltip.add(String.translatable(TranslationConstants.CROP_TOOLTIP_HOE).withStyle(ChatFormatting.DARK_AQUA).withStyle(ChatFormatting.ITALIC));
     }
 
     /**
@@ -97,3 +97,7 @@ public class ItemCrop extends BlockItem
         return preferredBiome == null ||  biome.is(preferredBiome);
     }
 }
+
+
+
+

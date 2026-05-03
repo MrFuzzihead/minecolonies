@@ -1,11 +1,10 @@
 package com.minecolonies.api.util;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.Mth;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.MathHelper;
 
 /**
- * Helper class for storing a mutable vector
+ * Helper class for storing a mutable vector.
+ * [1.7.10] Ported: removed Vec3/Mth; uses MathHelper.floor_double; asVec3() replaced with double[].
  */
 public class Vec3Mutable
 {
@@ -34,14 +33,15 @@ public class Vec3Mutable
         return empty;
     }
 
-    public BlockPos asBlockPos()
+    public int[] asBlockPos()
     {
-        return new BlockPos(Mth.floor(x), Mth.floor(y), Mth.floor(z));
+        return new int[]{MathHelper.floor_double(x), MathHelper.floor_double(y), MathHelper.floor_double(z)};
     }
 
-    public Vec3 asVec3()
+    /** [1.7.10] Returns [x, y, z] as double array (Vec3 removed) */
+    public double[] asVec3()
     {
-        return new Vec3(x, y, z);
+        return new double[]{x, y, z};
     }
 
     public boolean empty()
@@ -73,17 +73,17 @@ public class Vec3Mutable
 
     public int getXi()
     {
-        return Mth.floor(x);
+        return MathHelper.floor_double(x);
     }
 
     public int getYi()
     {
-        return Mth.floor(y);
+        return MathHelper.floor_double(y);
     }
 
     public int getZi()
     {
-        return Mth.floor(z);
+        return MathHelper.floor_double(z);
     }
 
     public String toString()

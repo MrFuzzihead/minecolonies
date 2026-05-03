@@ -1,22 +1,11 @@
 package com.minecolonies.api.advancements.open_gui_window;
-
 import com.minecolonies.api.advancements.CriterionListeners;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.PlayerAdvancements;
-
-/**
- * The listener instantiated for every advancement that listens to the associated criterion.
- * A basic class to trigger with the correct arguments
- */
+// [1.7.10 BACKPORT] Stubbed out — advancements do not exist in Minecraft 1.7.10.
+/** Stub listeners — no-op in 1.7.10. */
 public class OpenGuiWindowListeners extends CriterionListeners<OpenGuiWindowCriterionInstance>
 {
-    public OpenGuiWindowListeners(final PlayerAdvancements playerAdvancements)
+    public OpenGuiWindowListeners(final Object playerAdvancements)
     {
         super(playerAdvancements);
-    }
-
-    public void trigger(final ResourceLocation windowResource)
-    {
-        trigger(instance -> instance.test(windowResource));
     }
 }

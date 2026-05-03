@@ -6,13 +6,13 @@ import com.minecolonies.api.entity.citizen.VisibleCitizenStatus;
 import com.minecolonies.api.entity.citizen.citizenhandlers.ICitizenHappinessHandler;
 import com.minecolonies.api.entity.citizen.citizenhandlers.ICitizenSkillHandler;
 import com.minecolonies.api.util.Tuple;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,10 +36,10 @@ public interface ICitizenDataView extends ICitizen
     String getJob();
 
     /**
-     * Get the job as mutable component.
+     * Get the job as mutable String.
      * @return the job desc.
      */
-    MutableComponent getJobComponent();
+    String getJobComponent();
 
     /**
      * Get the entities home building.
@@ -47,7 +47,7 @@ public interface ICitizenDataView extends ICitizen
      * @return the home coordinates.
      */
     @Nullable
-    BlockPos getHomeBuilding();
+    int[] getHomeBuilding();
 
     /**
      * Get the entities work building.
@@ -55,14 +55,14 @@ public interface ICitizenDataView extends ICitizen
      * @return the work coordinates.
      */
     @Nullable
-    BlockPos getWorkBuilding();
+    int[] getWorkBuilding();
 
     /**
      * DEPRECATED
      *
      * @param bp the position.
      */
-    void setWorkBuilding(BlockPos bp);
+    void setWorkBuilding(int[] bp);
 
     /**
      * Get the colony id of the citizen.
@@ -81,16 +81,16 @@ public interface ICitizenDataView extends ICitizen
     /**
      * Get the last registered position of the citizen.
      *
-     * @return the BlockPos.
+     * @return the int[].
      */
-    BlockPos getPosition();
+    int[] getPosition();
 
     /**
      * Deserialize the attributes and variables from transition.
      *
      * @param buf Byte buffer to deserialize.
      */
-    void deserialize(@NotNull FriendlyByteBuf buf);
+    void deserialize(@NotNull PacketBuffer buf);
 
     /**
      * @return current health.
@@ -112,11 +112,11 @@ public interface ICitizenDataView extends ICitizen
     /**
      * Get a specific interaction by key.
      *
-     * @param component the key.
+     * @param String the key.
      * @return the interaction or null.
      */
     @Nullable
-    IInteractionResponseHandler getSpecificInteraction(@NotNull Component component);
+    IInteractionResponseHandler getSpecificInteraction(@NotNull String String);
 
     /**
      * Check if the citizen has important interactions.
@@ -172,7 +172,7 @@ public interface ICitizenDataView extends ICitizen
      *
      * @return the location, or null if nowhere is particularly interesting right now.
      */
-    @Nullable BlockPos getStatusPosition();
+    @Nullable int[] getStatusPosition();
 
     /**
      * Get the job view that belongs to this citizen (or null).
@@ -222,7 +222,7 @@ public interface ICitizenDataView extends ICitizen
      * Set the home building on the client side.
      * @param position the pos of the home building.
      */
-    void setHomeBuilding(BlockPos position);
+    void setHomeBuilding(int[] position);
 
     /**
      * Get UUID of the custom texture.
@@ -232,10 +232,10 @@ public interface ICitizenDataView extends ICitizen
 
     /**
      * Get Armor in slot of citizen data view.
-     * @param equipmentSlot the equipment slot to get it from.
+     * @param slot the equipment slot to get it from.
      * @return the armor in the slot.
      */
-    ItemStack getDisplayArmor(EquipmentSlot equipmentSlot);
+    ItemStack getDisplayArmor(int slot /* EquipmentSlot */);
 
     /**
      * Check if sick.
@@ -246,3 +246,8 @@ public interface ICitizenDataView extends ICitizen
     @Override
     IColonyView getColony();
 }
+
+
+
+
+

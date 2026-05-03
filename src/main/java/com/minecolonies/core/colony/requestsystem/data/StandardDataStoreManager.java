@@ -13,10 +13,10 @@ import com.minecolonies.api.util.NBTUtils;
 import com.minecolonies.api.util.constant.NbtTagConstants;
 import com.minecolonies.api.util.constant.SerializationIdentifierConstants;
 import com.minecolonies.api.util.constant.TypeConstants;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.network.PacketBuffer;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -94,12 +94,12 @@ public class StandardDataStoreManager implements IDataStoreManager
 
         @NotNull
         @Override
-        public CompoundTag serialize(@NotNull final IFactoryController controller, @NotNull final StandardDataStoreManager standardDataStoreManager)
+        public NBTTagCompound serialize(@NotNull final IFactoryController controller, @NotNull final StandardDataStoreManager standardDataStoreManager)
         {
-            final CompoundTag compound = new CompoundTag();
+            final NBTTagCompound compound = new NBTTagCompound();
 
             compound.put(NbtTagConstants.TAG_LIST, standardDataStoreManager.storeMap.keySet().stream().map(iToken -> {
-                final CompoundTag entryCompound = new CompoundTag();
+                final NBTTagCompound entryCompound = new NBTTagCompound();
 
                 entryCompound.put(NbtTagConstants.TAG_TOKEN, controller.serialize(iToken));
                 entryCompound.put(NbtTagConstants.TAG_VALUE, controller.serialize(standardDataStoreManager.storeMap.get(iToken)));
@@ -112,17 +112,17 @@ public class StandardDataStoreManager implements IDataStoreManager
 
         @NotNull
         @Override
-        public StandardDataStoreManager deserialize(@NotNull final IFactoryController controller, @NotNull final CompoundTag nbt) throws Throwable
+        public StandardDataStoreManager deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound nbt) throws Throwable
         {
             final Map<IToken<?>, IDataStore> storeMap = new HashMap<>();
-            final ListTag list = nbt.getList(NbtTagConstants.TAG_LIST, Tag.TAG_COMPOUND);
+            final NBTTagList list = nbt.getList(NbtTagConstants.TAG_LIST, NBTBase.TAG_COMPOUND);
             for (int i = 0; i < list.size(); i++)
             {
-                final CompoundTag tag = list.getCompound(i);
+                final NBTTagCompound NBTBase = list.getCompound(i);
                 try
                 {
-                    final IToken<?> token = controller.deserialize(tag.getCompound(NbtTagConstants.TAG_TOKEN));
-                    final IDataStore store = controller.deserialize(tag.getCompound(NbtTagConstants.TAG_VALUE));
+                    final IToken<?> token = controller.deserialize(NBTBase.getCompound(NbtTagConstants.TAG_TOKEN));
+                    final IDataStore store = controller.deserialize(NBTBase.getCompound(NbtTagConstants.TAG_VALUE));
                     storeMap.put(token, store);
                 }
                 catch (final Exception ex)
@@ -135,7 +135,7 @@ public class StandardDataStoreManager implements IDataStoreManager
         }
 
         @Override
-        public void serialize(IFactoryController controller, StandardDataStoreManager input, FriendlyByteBuf packetBuffer)
+        public void serialize(IFactoryController controller, StandardDataStoreManager input, PacketBuffer packetBuffer)
         {
             packetBuffer.writeInt(input.storeMap.size());
             input.storeMap.forEach((key, value) -> {
@@ -145,7 +145,7 @@ public class StandardDataStoreManager implements IDataStoreManager
         }
 
         @Override
-        public StandardDataStoreManager deserialize(IFactoryController controller, FriendlyByteBuf buffer)
+        public StandardDataStoreManager deserialize(IFactoryController controller, PacketBuffer buffer)
         {
             final Map<IToken<?>, IDataStore> storeMap = new HashMap<>();
             final int storeSize = buffer.readInt();
@@ -171,3 +171,7 @@ public class StandardDataStoreManager implements IDataStoreManager
         }
     }
 }
+
+
+
+

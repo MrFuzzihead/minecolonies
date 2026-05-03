@@ -18,7 +18,7 @@ import com.minecolonies.api.util.CraftingUtils;
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.requestsystem.requesters.IBuildingBasedRequester;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -264,3 +264,4 @@ public abstract class AbstractCraftingProductionResolver<C extends AbstractCraft
         return jobEntry != null;
     }
 }
+

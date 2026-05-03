@@ -1,10 +1,10 @@
 package com.minecolonies.core.colony.eventhooks.buildingEvents;
 
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -31,9 +31,9 @@ public class BuildingDeconstructedEvent extends AbstractBuildingEvent
      * 
      * @param eventPos      the position of the hut block of the building.
      * @param buildingName  the name of the building.
-     * @param buildingLevel the level of the building before this event.
+     * @param buildingLevel the World of the building before this event.
      */
-    public BuildingDeconstructedEvent(final BlockPos eventPos, final String buildingName, final int buildingLevel)
+    public BuildingDeconstructedEvent(final int[] eventPos, final String buildingName, final int buildingLevel)
     {
         super(false, eventPos, buildingName, buildingLevel);
     }
@@ -56,7 +56,7 @@ public class BuildingDeconstructedEvent extends AbstractBuildingEvent
      * @param compound the NBT compound
      * @return the colony to load.
      */
-    public static BuildingDeconstructedEvent loadFromNBT(@NotNull final CompoundTag compound)
+    public static BuildingDeconstructedEvent loadFromNBT(@NotNull final NBTTagCompound compound)
     {
         final BuildingDeconstructedEvent deconstructionEvent = new BuildingDeconstructedEvent();
         deconstructionEvent.deserializeNBT(compound);
@@ -69,10 +69,13 @@ public class BuildingDeconstructedEvent extends AbstractBuildingEvent
      * @param buf the packet buffer.
      * @return the colony to load.
      */
-    public static BuildingDeconstructedEvent loadFromFriendlyByteBuf(@NotNull final FriendlyByteBuf buf)
+    public static BuildingDeconstructedEvent loadFromFriendlyByteBuf(@NotNull final PacketBuffer buf)
     {
         final BuildingDeconstructedEvent deconstructionEvent = new BuildingDeconstructedEvent();
         deconstructionEvent.deserialize(buf);
         return deconstructionEvent;
     }
 }
+
+
+

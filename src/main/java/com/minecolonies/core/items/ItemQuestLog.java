@@ -6,17 +6,17 @@ import com.minecolonies.core.tileentities.TileEntityColonyBuilding;
 import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.api.util.constant.TranslationConstants;
 import com.minecolonies.core.client.gui.questlog.WindowQuestLog;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] int /* InteractionHand */ removed
+// [1.7.10] InteractionResult -> boolean
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.World;
+// [1.7.10] block.entity removed
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.Constants.STACKSIZE;
@@ -28,7 +28,7 @@ import static com.minecolonies.api.util.constant.TranslationConstants.COM_MINECO
 public class ItemQuestLog extends AbstractItemMinecolonies
 {
     /**
-     * Tag of the colony.
+     * NBTBase of the colony.
      */
     public static final String TAG_COLONY = "colony";
 
@@ -48,7 +48,7 @@ public class ItemQuestLog extends AbstractItemMinecolonies
     {
         final ItemStack questLog = ctx.getPlayer().getItemInHand(ctx.getHand());
 
-        final CompoundTag compound = checkForCompound(questLog);
+        final NBTTagCompound compound = checkForCompound(questLog);
         final BlockEntity entity = ctx.getLevel().getBlockEntity(ctx.getClickedPos());
 
         if (entity instanceof TileEntityColonyBuilding buildingEntity)
@@ -78,9 +78,9 @@ public class ItemQuestLog extends AbstractItemMinecolonies
     @Override
     @NotNull
     public InteractionResultHolder<ItemStack> use(
-      final Level worldIn,
+      final World worldIn,
       final Player playerIn,
-      final InteractionHand hand)
+      final int /* InteractionHand */ hand)
     {
         final ItemStack questLog = playerIn.getItemInHand(hand);
 
@@ -100,11 +100,11 @@ public class ItemQuestLog extends AbstractItemMinecolonies
      * @param questLog the quest log item to check for.
      * @return the compound of the quest log.
      */
-    private static CompoundTag checkForCompound(final ItemStack questLog)
+    private static NBTTagCompound checkForCompound(final ItemStack questLog)
     {
         if (!questLog.hasTag())
         {
-            questLog.setTag(new CompoundTag());
+            questLog.setTag(new NBTTagCompound());
         }
         return questLog.getTag();
     }
@@ -115,7 +115,7 @@ public class ItemQuestLog extends AbstractItemMinecolonies
      * @param compound the item compound
      * @param player   the player entity opening the window
      */
-    private static void openWindow(CompoundTag compound, Level world, Player player)
+    private static void openWindow(NBTTagCompound compound, World world, Player player)
     {
         if (compound.contains(TAG_COLONY))
         {
@@ -127,8 +127,13 @@ public class ItemQuestLog extends AbstractItemMinecolonies
         }
         else
         {
-            player.displayClientMessage(Component.translatable(TranslationConstants.COM_MINECOLONIES_QUEST_LOG_NEED_COLONY), true);
+            player.displayClientMessage(String.translatable(TranslationConstants.COM_MINECOLONIES_QUEST_LOG_NEED_COLONY), true);
         }
     }
 }
+
+
+
+
+
 

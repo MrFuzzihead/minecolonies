@@ -9,13 +9,13 @@ import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.entity.ai.ITickingStateAI;
 import com.minecolonies.api.entity.ai.JobStatus;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.INBTSerializable;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] net.minecraft.util.DamageSource removed
+import net.minecraft.item.ItemStack;
+// [1.7.10] INBTSerializable -> manual read/write
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
@@ -23,7 +23,7 @@ import java.util.Set;
 import static com.minecolonies.api.util.constant.HappinessConstants.IDLE_AT_JOB_COMPLAINS_DAYS;
 import static com.minecolonies.api.util.constant.HappinessConstants.IDLE_AT_JOB_DEMANDS_DAYS;
 
-public interface IJob<AI extends ITickingStateAI> extends INBTSerializable<CompoundTag>
+public interface IJob<AI extends ITickingStateAI> 
 {
     /**
      * The {@link JobEntry} for this job.
@@ -84,14 +84,14 @@ public interface IJob<AI extends ITickingStateAI> extends INBTSerializable<Compo
     /**
      * This method can be used to display the current status. That a citizen is having.
      *
-     * @return Small string to display info in name tag
+     * @return Small string to display info in name NBTBase
      */
     String getNameTagDescription();
 
     /**
      * Used by the AI skeleton to change a citizens name. Mostly used to update debugging information.
      *
-     * @param nameTag The name tag to display.
+     * @param nameTag The name NBTBase to display.
      */
     void setNameTag(String nameTag);
 
@@ -101,7 +101,7 @@ public interface IJob<AI extends ITickingStateAI> extends INBTSerializable<Compo
      * @param source  of the death
      * @param citizen which just died
      */
-    void triggerDeathAchievement(DamageSource source, AbstractEntityCitizen citizen);
+    void triggerDeathAchievement(net.minecraft.util.DamageSource source, AbstractEntityCitizen citizen);
 
     /**
      * Method called when a stack is pickup by the entity.
@@ -209,10 +209,10 @@ public interface IJob<AI extends ITickingStateAI> extends INBTSerializable<Compo
     /**
      * Check if the particular job ignores a particular damage type.
      *
-     * @param damageSource the damage source to check.
+     * @param net.minecraft.util.DamageSource the damage source to check.
      * @return true if so.
      */
-    boolean ignoresDamage(@NotNull final DamageSource damageSource);
+    boolean ignoresDamage(@NotNull final net.minecraft.util.DamageSource source);
 
     /**
      * Mark a request as a synchronous (blocking request).
@@ -238,7 +238,7 @@ public interface IJob<AI extends ITickingStateAI> extends INBTSerializable<Compo
      * Serialize the job to a buffer.
      * @param buffer the buffer to serialize it to.
      */
-    void serializeToView(final FriendlyByteBuf buffer);
+    void serializeToView(final PacketBuffer buffer);
 
     /**
      * Get the time limit in seconds after which the job considers itself inactive.
@@ -296,7 +296,7 @@ public interface IJob<AI extends ITickingStateAI> extends INBTSerializable<Compo
      * Gets the position of the building the job is assigned to
      * @return
      */
-    public BlockPos getBuildingPos();
+    public int[] getBuildingPos();
 
     /**
      * Gets the work building
@@ -325,3 +325,9 @@ public interface IJob<AI extends ITickingStateAI> extends INBTSerializable<Compo
         return 1.0;
     }
 }
+
+
+
+
+
+

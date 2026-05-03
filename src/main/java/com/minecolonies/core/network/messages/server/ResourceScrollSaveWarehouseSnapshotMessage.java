@@ -3,11 +3,10 @@ package com.minecolonies.core.network.messages.server;
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.core.items.ItemResourceScroll;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,7 +24,7 @@ public class ResourceScrollSaveWarehouseSnapshotMessage implements IMessage
     /**
      * The position of the builder.
      */
-    private BlockPos builderPos;
+    private int[] builderPos;
 
     /**
      * The warehouse snapshot mapping.
@@ -50,7 +49,7 @@ public class ResourceScrollSaveWarehouseSnapshotMessage implements IMessage
     /**
      * Empty constructor used when registering the message.
      */
-    public ResourceScrollSaveWarehouseSnapshotMessage(BlockPos builderPos)
+    public ResourceScrollSaveWarehouseSnapshotMessage(int[] builderPos)
     {
         this(builderPos, Map.of(), "");
     }
@@ -58,7 +57,7 @@ public class ResourceScrollSaveWarehouseSnapshotMessage implements IMessage
     /**
      * Empty constructor used when registering the message.
      */
-    public ResourceScrollSaveWarehouseSnapshotMessage(BlockPos builderPos, @NotNull Map<String, Integer> snapshot, @NotNull String workOrderHash)
+    public ResourceScrollSaveWarehouseSnapshotMessage(int[] builderPos, @NotNull Map<String, Integer> snapshot, @NotNull String workOrderHash)
     {
         super();
         this.builderPos = builderPos;
@@ -67,7 +66,7 @@ public class ResourceScrollSaveWarehouseSnapshotMessage implements IMessage
     }
 
     @Override
-    public void fromBytes(@NotNull final FriendlyByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
         if (buf.readBoolean())
         {
@@ -85,7 +84,7 @@ public class ResourceScrollSaveWarehouseSnapshotMessage implements IMessage
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
         buf.writeBoolean(builderPos != null);
         if (builderPos != null)
@@ -102,24 +101,26 @@ public class ResourceScrollSaveWarehouseSnapshotMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.SERVER;
+        return Boolean.TRUE;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
-        Objects.requireNonNull(ctxIn.getSender()).getInventory().items.stream()
+        Objects.requireNonNull(ctx.getServerHandler().playerEntity).getInventory().items.stream()
           .filter(stack -> stack.getItem() instanceof ItemResourceScroll)
           .filter(stack -> stack.getTag() != null)
           .filter(stack -> Objects.equals(builderPos, BlockPosUtil.read(stack.getTag(), TAG_BUILDER)))
           .forEach(stack -> {
-              CompoundTag data = stack.getTag();
-              CompoundTag newData = new CompoundTag();
+              NBTTagCompound data = stack.getTag();
+              NBTTagCompound newData = new NBTTagCompound();
               snapshot.keySet().forEach(f -> newData.putInt(f, snapshot.getOrDefault(f, 0)));
               data.put(TAG_WAREHOUSE_SNAPSHOT, newData);
               data.putString(TAG_WAREHOUSE_SNAPSHOT_WO_HASH, workOrderHash);
           });
     }
 }
+
+

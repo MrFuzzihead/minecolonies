@@ -2,14 +2,14 @@ package com.minecolonies.core.generation.defaults.workers;
 
 import com.minecolonies.api.items.ModItems;
 import com.minecolonies.core.generation.SimpleLootTableProvider;
-import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] data removed
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.Constants.MOD_ID;
@@ -55,3 +55,7 @@ public class DefaultRecipeLootProvider extends SimpleLootTableProvider
                         .add(LootItem.lootTableItem(Items.FLINT).setWeight(10))));
     }
 }
+
+
+
+

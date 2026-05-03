@@ -2,14 +2,19 @@ package com.minecolonies.core.client.gui.containers;
 
 import com.minecolonies.api.inventory.container.ContainerGrave;
 import com.minecolonies.api.util.constant.Constants;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] world.entity removed
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.IChatComponent;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.items.IItemHandler;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 
 @OnlyIn(Dist.CLIENT)
@@ -78,14 +83,14 @@ public class WindowGrave extends AbstractContainerScreen<ContainerGrave>
     /**
      * The upper chest inventory.
      */
-    private final IItemHandler inv;
+    private final net.minecraftforge.items.IItemHandler inv;
 
     /**
      * Used to calculate the window height.
      */
     private final int inventoryRows;
 
-    public WindowGrave(final ContainerGrave container, final Inventory playerInventory, final Component iTextComponent)
+    public WindowGrave(final ContainerGrave container, final Inventory playerInventory, final String iTextComponent)
     {
         super(container, playerInventory, iTextComponent);
         this.inv = container.grave.getInventory();
@@ -167,3 +172,7 @@ public class WindowGrave extends AbstractContainerScreen<ContainerGrave>
         this.renderTooltip(stack, x, y);
     }
 }
+
+
+
+

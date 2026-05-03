@@ -7,13 +7,13 @@ import com.minecolonies.api.quests.IQuestInstance;
 import com.minecolonies.api.quests.IQuestObjectiveTemplate;
 import com.minecolonies.core.colony.Colony;
 import com.minecolonies.core.event.QuestObjectiveEventHandler;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] world.entity removed
+import net.minecraft.entity.player.EntityPlayer;
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,10 +59,10 @@ public class KillEntityObjectiveTemplateTemplate extends DialogueObjectiveTempla
     @NotNull
     private static DialogueElement buildDialogueTree(final EntityType<?> entityToKill)
     {
-        final Component text = Component.translatable("com.minecolonies.coremod.questobjectives.kill", entityToKill.getDescription());
-        final AnswerElement answer1 = new AnswerElement(Component.translatable("com.minecolonies.coremod.questobjectives.answer.later"),
+        final String text = String.translatable("com.minecolonies.coremod.questobjectives.kill", entityToKill.getDescription());
+        final AnswerElement answer1 = new AnswerElement(String.translatable("com.minecolonies.coremod.questobjectives.answer.later"),
                 new IQuestDialogueAnswer.CloseUIDialogueAnswer());
-        final AnswerElement answer2 = new AnswerElement(Component.translatable("com.minecolonies.coremod.questobjectives.answer.cancel"),
+        final AnswerElement answer2 = new AnswerElement(String.translatable("com.minecolonies.coremod.questobjectives.answer.cancel"),
                 new IQuestDialogueAnswer.QuestCancellationDialogueAnswer());
         return new DialogueElement(text, List.of(answer1, answer2));
     }
@@ -96,16 +96,16 @@ public class KillEntityObjectiveTemplateTemplate extends DialogueObjectiveTempla
     }
 
     @Override
-    public Component getProgressText(final IQuestInstance quest, final Style style)
+    public String getProgressText(final IQuestInstance quest, final Style style)
     {
         if (quest.getCurrentObjectiveInstance() instanceof EntityKillProgressInstance progress)
         {
-            return Component.translatable("com.minecolonies.coremod.questobjectives.kill.progress",
+            return String.translatable("com.minecolonies.coremod.questobjectives.kill.progress",
               progress.currentProgress,
               entitiesToKill,
               entityToKill.getDescription().plainCopy().setStyle(style));
         }
-        return Component.empty();
+        return String.empty();
     }
 
     @Override
@@ -184,11 +184,11 @@ public class KillEntityObjectiveTemplateTemplate extends DialogueObjectiveTempla
         }
 
         @Override
-        public CompoundTag serializeNBT()
+        public NBTTagCompound serializeNBT()
         {
-            final CompoundTag compoundTag = new CompoundTag();
-            compoundTag.putInt(TAG_QUANTITY, currentProgress);
-            return compoundTag;
+            final NBTTagCompound NBTTagCompound = new NBTTagCompound();
+            NBTTagCompound.putInt(TAG_QUANTITY, currentProgress);
+            return NBTTagCompound;
         }
 
         @Override
@@ -198,9 +198,13 @@ public class KillEntityObjectiveTemplateTemplate extends DialogueObjectiveTempla
         }
 
         @Override
-        public void deserializeNBT(final CompoundTag nbt)
+        public void deserializeNBT(final NBTTagCompound nbt)
         {
             this.currentProgress = nbt.getInt(TAG_QUANTITY);
         }
     }
 }
+
+
+
+

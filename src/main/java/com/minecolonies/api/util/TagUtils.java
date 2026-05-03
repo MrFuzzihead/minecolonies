@@ -1,14 +1,15 @@
 package com.minecolonies.api.util;
 
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] tags removed
+// [1.7.10] tags removed
+// [1.7.10] tags removed
+import net.minecraft.item.Item;
+import net.minecraft.block.Block;
 
 /**
- * Class for specific minecraft tag utilities.
+ * Class for specific minecraft NBTBase utilities.
+ * [1.7.10] Tags don't exist; methods return null.
  */
 public final class TagUtils
 {
@@ -18,22 +19,22 @@ public final class TagUtils
     }
 
     /**
-     * Get a tag for items.
-     * @param resourceLocation the unique id.
-     * @return the tag or an empty placeholder if not existant.
+     * Get a tag key for items.
+     * [1.7.10] Tags not available; returns null.
      */
-    public static TagKey<Item> getItem(final ResourceLocation resourceLocation)
+    public static Object getItem(final ResourceLocation resourceLocation)
     {
-        return ItemTags.create(resourceLocation);
+        // [1.7.10] TagKey<Item> not available
+        return null;
     }
 
     /**
-     * Get a tag for items.
-     * @param resourceLocation the unique id.
-     * @return the tag or an empty placeholder if not existant.
+     * Get a tag key for blocks.
+     * [1.7.10] Tags not available; returns null.
      */
-    public static TagKey<Block> getBlock(final ResourceLocation resourceLocation)
+    public static Object getBlock(final ResourceLocation resourceLocation)
     {
-        return BlockTags.create(resourceLocation);
+        // [1.7.10] TagKey<Block> not available
+        return null;
     }
 }

@@ -1,11 +1,11 @@
 package com.minecolonies.core.colony.jobs;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import com.minecolonies.api.client.render.modeltype.ModModelTypes;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.entity.citizen.Skill;
 import com.minecolonies.core.entity.ai.workers.education.EntityAIWorkResearcher;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.entity.ai.statemachine.tickratestatemachine.TickRateConstants.MAX_TICKRATE;
@@ -18,7 +18,7 @@ import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_CURR_MANA;
 public class JobResearch extends AbstractJob<EntityAIWorkResearcher, JobResearch>
 {
     /**
-     * Max mana at level 99 in seconds.
+     * Max mana at World 99 in seconds.
      */
     private static final int MANA_PER_SECOND = (4 * 60 * 60) / 100;
 
@@ -29,11 +29,11 @@ public class JobResearch extends AbstractJob<EntityAIWorkResearcher, JobResearch
 
     /**
      * The amount of Mana the researcher stored additionally.
-     * Up to Mana Level.
+     * Up to Mana World.
      */
     private int currentMana = 0;
 
-    //when the colony was offline and goes into online state, we compare how long the colony was offline, then we take the speed in which they level (level 99 = almost realtime) and fill up mana up to mana level (max 99 = 4h).
+    //when the colony was offline and goes into online state, we compare how long the colony was offline, then we take the speed in which they World (World 99 = almost realtime) and fill up mana up to mana World (max 99 = 4h).
     // then with this AI we tick randomly the research additionally (up to twice the rate until currentMana is depleted.
     /**
      * Public constructor of the researcher job.
@@ -89,15 +89,15 @@ public class JobResearch extends AbstractJob<EntityAIWorkResearcher, JobResearch
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compoundNBT = super.serializeNBT();
+        final NBTTagCompound compoundNBT = super.serializeNBT();
         compoundNBT.putInt(TAG_CURR_MANA, this.currentMana);
         return compoundNBT;
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
         this.currentMana = compound.getInt(TAG_CURR_MANA);
@@ -111,3 +111,6 @@ public class JobResearch extends AbstractJob<EntityAIWorkResearcher, JobResearch
         this.currentMana--;
     }
 }
+
+
+

@@ -3,13 +3,13 @@ package com.minecolonies.api.colony.buildingextensions.plantation;
 import com.minecolonies.api.colony.buildingextensions.modules.IBuildingExtensionModule;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
-import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+// [1.7.10] int /*BlockState*/ -> int metadata
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,16 +21,16 @@ import java.util.List;
 public interface IPlantationModule extends IBuildingExtensionModule
 {
     /**
-     * Get the field tag property.
+     * Get the field NBTBase property.
      *
-     * @return the field tag.
+     * @return the field NBTBase.
      */
     String getFieldTag();
 
     /**
-     * Get the work tag property.
+     * Get the work NBTBase property.
      *
-     * @return the work tag.
+     * @return the work NBTBase.
      */
     String getWorkTag();
 
@@ -64,7 +64,7 @@ public interface IPlantationModule extends IBuildingExtensionModule
      * @param workingPosition the position that has been chosen for work.
      * @return a basic enum state telling the planter AI what the AI should be doing next.
      */
-    PlantationModuleResult.Builder decideFieldWork(Level world, @NotNull BlockPos workingPosition);
+    PlantationModuleResult.Builder decideFieldWork(World world, @NotNull int[] workingPosition);
 
     /**
      * Obtains the next working position for the given field, if any.
@@ -72,16 +72,16 @@ public interface IPlantationModule extends IBuildingExtensionModule
      * @param world the world reference that can be used for block state lookups.
      * @return the next position to work on, or null.
      */
-    @Nullable BlockPos getNextWorkingPosition(Level world);
+    @Nullable int[] getNextWorkingPosition(World world);
 
     /**
      * Get a list of actual valid working positions, based on the tags read from the plantation field.
      *
-     * @param world            the level the tags were read from.
-     * @param workingPositions the list of initially parsed working positions, based on work tag.
+     * @param world            the World the tags were read from.
+     * @param workingPositions the list of initially parsed working positions, based on work NBTBase.
      * @return the list of actually valid parsed working positions.
      */
-    List<BlockPos> getValidWorkingPositions(final @NotNull Level world, final List<BlockPos> workingPositions);
+    List<int[]> getValidWorkingPositions(final @NotNull World world, final List<int[]> workingPositions);
 
     /**
      * Returns the maximum amount of actions that can be performed on a field, before the planter must forcefully switch to a new field.
@@ -104,16 +104,16 @@ public interface IPlantationModule extends IBuildingExtensionModule
      * @param workingPosition the original working position.
      * @return the position for the planter to walk to.
      */
-    BlockPos getPositionToWalkTo(Level world, BlockPos workingPosition);
+    int[] getPositionToWalkTo(World world, int[] workingPosition);
 
     /**
      * Generate a block state for a new plant.
      *
      * @param world        the world reference that can be used for block state lookups.
      * @param workPosition the position that has been chosen for work.
-     * @param blockState   the default block state for the block.
+     * @param blockMeta   the default block meta for the block.
      */
-    BlockState getPlantingBlockState(Level world, BlockPos workPosition, BlockState blockState);
+    int getPlantingBlockMeta(World world, int[] workPosition, int blockMeta);
 
     /**
      * Logic for applying bonemeal to the working position.
@@ -123,7 +123,7 @@ public interface IPlantationModule extends IBuildingExtensionModule
      * @param stackInSlot  the item stack to use for the planting.
      * @param fakePlayer   a fake player class to use.
      */
-    void applyBonemeal(final AbstractEntityCitizen worker, final BlockPos workPosition, final ItemStack stackInSlot, final Player fakePlayer);
+    void applyBonemeal(final AbstractEntityCitizen worker, final int[] workPosition, final ItemStack stackInSlot, final EntityPlayer fakePlayer);
 
     /**
      * Returns a list of items that are mandatory for this module to function.
@@ -221,7 +221,7 @@ public interface IPlantationModule extends IBuildingExtensionModule
         /**
          * The working position where the planter was told to perform work.
          */
-        private final BlockPos workingPosition;
+        private final int[] workingPosition;
 
         /**
          * The action for the planter to perform.
@@ -232,7 +232,7 @@ public interface IPlantationModule extends IBuildingExtensionModule
          * The position to actually perform the action on.
          */
         @Nullable
-        private final BlockPos actionPosition;
+        private final int[] actionPosition;
 
         /**
          * The reset state of the result.
@@ -250,9 +250,9 @@ public interface IPlantationModule extends IBuildingExtensionModule
          */
         private PlantationModuleResult(
           final IPlantationModule module,
-          final BlockPos workingPosition,
+          final int[] workingPosition,
           final ActionToPerform action,
-          final @Nullable BlockPos actionPosition,
+          final @Nullable int[] actionPosition,
           final PlanterAIModuleResultResetState resetState)
         {
             this.module = module;
@@ -277,7 +277,7 @@ public interface IPlantationModule extends IBuildingExtensionModule
          *
          * @return the working position.
          */
-        public BlockPos getWorkingPosition()
+        public int[] getWorkingPosition()
         {
             return workingPosition;
         }
@@ -297,7 +297,7 @@ public interface IPlantationModule extends IBuildingExtensionModule
          *
          * @return the position to actually perform the action on.
          */
-        public @Nullable BlockPos getActionPosition()
+        public @Nullable int[] getActionPosition()
         {
             return actionPosition;
         }
@@ -336,7 +336,7 @@ public interface IPlantationModule extends IBuildingExtensionModule
              * The position to work perform the action on.
              */
             @Nullable
-            private BlockPos actionPosition;
+            private int[] actionPosition;
 
             /**
              * The reset state of the result.
@@ -380,7 +380,7 @@ public interface IPlantationModule extends IBuildingExtensionModule
              * @param position the position where to plant on.
              * @return the builder instance for chaining.
              */
-            public Builder plant(BlockPos position)
+            public Builder plant(int[] position)
             {
                 action = ActionToPerform.PLANT;
                 actionPosition = position;
@@ -393,7 +393,7 @@ public interface IPlantationModule extends IBuildingExtensionModule
              * @param position the position where to use bonemeal on.
              * @return the builder instance for chaining.
              */
-            public Builder bonemeal(BlockPos position)
+            public Builder bonemeal(int[] position)
             {
                 action = ActionToPerform.BONEMEAL;
                 actionPosition = position;
@@ -406,7 +406,7 @@ public interface IPlantationModule extends IBuildingExtensionModule
              * @param position the position where to harvest the plant from.
              * @return the builder instance for chaining.
              */
-            public Builder harvest(BlockPos position)
+            public Builder harvest(int[] position)
             {
                 action = ActionToPerform.HARVEST;
                 actionPosition = position;
@@ -419,7 +419,7 @@ public interface IPlantationModule extends IBuildingExtensionModule
              * @param position the position to clear.
              * @return the builder instance for chaining.
              */
-            public Builder clear(BlockPos position)
+            public Builder clear(int[] position)
             {
                 action = ActionToPerform.CLEAR;
                 actionPosition = position;
@@ -431,10 +431,12 @@ public interface IPlantationModule extends IBuildingExtensionModule
              *
              * @return the result instance.
              */
-            public PlantationModuleResult build(IPlantationModule module, BlockPos workingPosition)
+            public PlantationModuleResult build(IPlantationModule module, int[] workingPosition)
             {
                 return new PlantationModuleResult(module, workingPosition, action, actionPosition, resetState);
             }
         }
     }
 }
+
+

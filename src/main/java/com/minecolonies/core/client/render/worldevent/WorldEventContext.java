@@ -1,17 +1,46 @@
 package com.minecolonies.core.client.render.worldevent;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
+import com.mojang.math.Axis;
+import com.mojang.math.Pose;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.EntityModelSet;
+import net.minecraft.world.item.BannerItem;
+import net.minecraft.world.level.GameType;
+import net.minecraft.network.chat.FormattedCharSequence;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
+import net.minecraft.world.item.CrossbowItem;
+import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.client.renderer.blockentity.BlockEntityWithoutLevelRenderer;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.MobRenderer;
 
 import com.ldtteam.structurize.client.rendertask.util.WorldRenderMacros;
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.core.client.render.TileEntityColonySignRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.item.ItemStack;
+import net.minecraft.client.renderer.MultiBufferSource;
+import static net.minecraft.client.renderer.MultiBufferSource.BufferSource;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.World;
+// [1.7.10] world.phys removed
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,7 +58,7 @@ public class WorldEventContext
     }
 
     public RenderLevelStageEvent stageEvent;
-    public BufferSource bufferSource;
+    public MultiBufferSource.BufferSource bufferSource;
     public PoseStack poseStack;
     public float partialTicks;
     public ClientLevel clientLevel;
@@ -49,7 +78,7 @@ public class WorldEventContext
         bufferSource = WorldRenderMacros.getBufferSource();
         poseStack = event.getPoseStack();
         partialTicks = event.getPartialTick();
-        clientLevel = Minecraft.getInstance().level;
+        clientLevel = Minecraft.getInstance().World;
         clientPlayer = Minecraft.getInstance().player;
         mainHandItem = clientPlayer.getMainHandItem();
         clientRenderDist = Minecraft.getInstance().options.renderDistance().get();
@@ -90,13 +119,17 @@ public class WorldEventContext
     /**
      * Checks for a nearby colony
      *
-     * @param level
+     * @param World
      */
-    public void checkNearbyColony(final Level level)
+    public void checkNearbyColony(final World World)
     {
         if (clientPlayer != null)
         {
-            nearestColony = IColonyManager.getInstance().getClosestColonyView(level, clientPlayer.blockPosition());
+            nearestColony = IColonyManager.getInstance().getClosestColonyView(World, clientPlayer.blockPosition());
         }
     }
 }
+
+
+
+

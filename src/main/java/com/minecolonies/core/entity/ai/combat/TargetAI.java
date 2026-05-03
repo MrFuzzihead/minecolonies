@@ -6,12 +6,12 @@ import com.minecolonies.api.entity.ai.combat.threat.IThreatTableEntity;
 import com.minecolonies.api.entity.ai.combat.threat.ThreatTableEntry;
 import com.minecolonies.api.entity.ai.statemachine.tickratestatemachine.ITickRateStateMachine;
 import com.minecolonies.api.entity.ai.statemachine.tickratestatemachine.TickingTransition;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.monster.Enemy;
-import net.minecraft.world.phys.AABB;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
+import net.minecraft.entity.EntityLivingBase;
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+// [1.7.10] world.phys removed
 import net.minecraftforge.common.util.FakePlayer;
 
 import java.util.List;
@@ -22,7 +22,7 @@ import static com.minecolonies.api.util.constant.GuardConstants.Y_VISION;
 /**
  * Target search AI
  */
-public class TargetAI<T extends Mob & IThreatTableEntity> implements IStateAI
+public class TargetAI<T extends EntityCreature & IThreatTableEntity> implements IStateAI
 {
     /**
      * The entity this AI runs for
@@ -32,7 +32,7 @@ public class TargetAI<T extends Mob & IThreatTableEntity> implements IStateAI
     /**
      * Current target reference
      */
-    protected LivingEntity target;
+    protected EntityLivingBase target;
 
     /**
      * Constructor method for AI
@@ -88,7 +88,7 @@ public class TargetAI<T extends Mob & IThreatTableEntity> implements IStateAI
      * @param target Entity to check
      * @return true if should attack
      */
-    public boolean isEntityValidTarget(final LivingEntity target)
+    public boolean isEntityValidTarget(final EntityLivingBase target)
     {
         if (target == user || target == null || !target.isAlive() || !isWithinPersecutionDistance(target) || target instanceof FakePlayer)
         {
@@ -139,7 +139,7 @@ public class TargetAI<T extends Mob & IThreatTableEntity> implements IStateAI
             return true;
         }
 
-        final List<LivingEntity> entities = user.level.getEntitiesOfClass(LivingEntity.class, getSearchArea());
+        final List<EntityLivingBase> entities = user.World.getEntitiesOfClass(EntityLivingBase.class, getSearchArea());
 
         if (entities.isEmpty())
         {
@@ -147,7 +147,7 @@ public class TargetAI<T extends Mob & IThreatTableEntity> implements IStateAI
         }
 
         boolean foundTarget = false;
-        for (final LivingEntity entity : entities)
+        for (final EntityLivingBase entity : entities)
         {
             if (!entity.isAlive())
             {
@@ -175,7 +175,7 @@ public class TargetAI<T extends Mob & IThreatTableEntity> implements IStateAI
      * @param entity checked entity
      * @return true if skip
      */
-    protected boolean skipSearch(final LivingEntity entity)
+    protected boolean skipSearch(final EntityLivingBase entity)
     {
         return false;
     }
@@ -187,7 +187,7 @@ public class TargetAI<T extends Mob & IThreatTableEntity> implements IStateAI
      */
     protected AABB getSearchArea()
     {
-        final BlockPos raiderPos = user.blockPosition();
+        final int[] raiderPos = user.blockPosition();
         final Direction randomDirection = Direction.from3DDataValue(user.getRandom().nextInt(4) + 2);
         final int searchRange = getSearchRange();
         final double x1 = raiderPos.getX() + (Math.max(searchRange * randomDirection.getStepX() + DEFAULT_VISION, DEFAULT_VISION));
@@ -226,7 +226,7 @@ public class TargetAI<T extends Mob & IThreatTableEntity> implements IStateAI
      * @param target
      * @return
      */
-    protected boolean isAttackableTarget(final LivingEntity target)
+    protected boolean isAttackableTarget(final EntityLivingBase target)
     {
         return target instanceof Enemy && !user.getClass().isInstance(target);
     }
@@ -237,7 +237,7 @@ public class TargetAI<T extends Mob & IThreatTableEntity> implements IStateAI
      * @param target
      * @return
      */
-    protected boolean isWithinPersecutionDistance(final LivingEntity target)
+    protected boolean isWithinPersecutionDistance(final EntityLivingBase target)
     {
         return true;
     }
@@ -247,7 +247,7 @@ public class TargetAI<T extends Mob & IThreatTableEntity> implements IStateAI
      *
      * @param target
      */
-    protected void onTargetDied(final LivingEntity target)
+    protected void onTargetDied(final EntityLivingBase target)
     {
 
     }
@@ -255,9 +255,12 @@ public class TargetAI<T extends Mob & IThreatTableEntity> implements IStateAI
     /**
      * Actions on changing to a new target entity
      */
-    protected void onTargetChange(final LivingEntity newTarget)
+    protected void onTargetChange(final EntityLivingBase newTarget)
     {
         // Fill vanilla target info in, though we disregard the result
         user.setTarget(newTarget);
     }
 }
+
+
+

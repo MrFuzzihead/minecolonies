@@ -1,10 +1,10 @@
 package com.minecolonies.core.colony.eventhooks.buildingEvents;
 
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.NBTTagCompound;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -31,11 +31,11 @@ public class BuildingRepairedEvent extends AbstractBuildingEvent
      *
      * @param eventPos      the position of the hut block of the building.
      * @param buildingName  the name of the building.
-     * @param level         the level of the repaired building
+     * @param World         the World of the repaired building
      */
-    public BuildingRepairedEvent(final BlockPos eventPos, final String buildingName, final int level)
+    public BuildingRepairedEvent(final int[] eventPos, final String buildingName, final int World)
     {
-        super(false, eventPos, buildingName, level);
+        super(false, eventPos, buildingName, World);
     }
 
     @Override
@@ -56,7 +56,7 @@ public class BuildingRepairedEvent extends AbstractBuildingEvent
      * @param compound the NBT compound
      * @return the colony to load.
      */
-    public static BuildingRepairedEvent loadFromNBT(@NotNull final CompoundTag compound)
+    public static BuildingRepairedEvent loadFromNBT(@NotNull final NBTTagCompound compound)
     {
         final BuildingRepairedEvent buildEvent = new BuildingRepairedEvent();
         buildEvent.deserializeNBT(compound);
@@ -69,10 +69,13 @@ public class BuildingRepairedEvent extends AbstractBuildingEvent
      * @param buf the packet buffer.
      * @return the colony to load.
      */
-    public static BuildingRepairedEvent loadFromFriendlyByteBuf(@NotNull final FriendlyByteBuf buf)
+    public static BuildingRepairedEvent loadFromFriendlyByteBuf(@NotNull final PacketBuffer buf)
     {
         final BuildingRepairedEvent buildEvent = new BuildingRepairedEvent();
         buildEvent.deserialize(buf);
         return buildEvent;
     }
 }
+
+
+

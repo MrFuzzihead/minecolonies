@@ -16,11 +16,11 @@ import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.crafting.RecipeStorage;
 import com.minecolonies.api.util.*;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.item.ItemStack;
 import org.apache.logging.log4j.util.TriConsumer;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,12 +40,12 @@ import static com.minecolonies.api.util.constant.Constants.STACKSIZE;
 public class RestaurantMenuModule extends AbstractBuildingModule implements IPersistentModule, ITickingModule, IAltersRequiredItems
 {
     /**
-     * Minimum stock it can hold per level.
+     * Minimum stock it can hold per World.
      */
     public static final int STOCK_PER_LEVEL = 5;
 
     /**
-     * The minimum stock tag.
+     * The minimum stock NBTBase.
      */
     private static final String TAG_MENU = "menu";
 
@@ -215,10 +215,10 @@ public class RestaurantMenuModule extends AbstractBuildingModule implements IPer
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         menu.clear();
-        final ListTag minimumStockTagList = compound.getList(TAG_MENU, Tag.TAG_COMPOUND);
+        final NBTTagList minimumStockTagList = compound.getList(TAG_MENU, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < minimumStockTagList.size(); i++)
         {
             final ItemStack itemStack = ItemStack.of(minimumStockTagList.getCompound(i));
@@ -230,18 +230,18 @@ public class RestaurantMenuModule extends AbstractBuildingModule implements IPer
     }
 
     @Override
-    public void serializeNBT(final CompoundTag compound)
+    public void serializeNBT(final NBTTagCompound compound)
     {
-        @NotNull final ListTag minimumStockTagList = new ListTag();
+        @NotNull final NBTTagList minimumStockTagList = new NBTTagList();
         for (final ItemStorage menuItem : menu)
         {
-            minimumStockTagList.add(menuItem.getItemStack().save(new CompoundTag()));
+            minimumStockTagList.add(menuItem.getItemStack().save(new NBTTagCompound()));
         }
         compound.put(TAG_MENU, minimumStockTagList);
     }
 
     @Override
-    public void serializeToView(@NotNull final FriendlyByteBuf buf)
+    public void serializeToView(@NotNull final PacketBuffer buf)
     {
         buf.writeInt(menu.size());
         for (final ItemStorage menuItem : menu)
@@ -250,3 +250,7 @@ public class RestaurantMenuModule extends AbstractBuildingModule implements IPer
         }
     }
 }
+
+
+
+

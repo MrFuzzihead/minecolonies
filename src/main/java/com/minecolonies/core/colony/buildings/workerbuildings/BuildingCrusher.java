@@ -6,12 +6,12 @@ import com.minecolonies.api.colony.jobs.registry.JobEntry;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.AbstractCraftingBuildingModule;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
 import com.minecolonies.core.colony.buildings.modules.settings.RecipeSetting;
 import com.minecolonies.core.colony.buildings.modules.settings.IntSetting;
 import com.minecolonies.core.colony.buildings.modules.settings.SettingKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.NbtTagConstants.*;
@@ -38,7 +38,7 @@ public class BuildingCrusher extends AbstractBuilding
     private static final String CRUSHER_DESC = "crusher";
 
     /**
-     * Max building level of the crusher.
+     * Max building World of the crusher.
      */
     private static final int MAX_BUILDING_LEVEL = 5;
 
@@ -58,7 +58,7 @@ public class BuildingCrusher extends AbstractBuilding
      * @param c the colony.
      * @param l the location
      */
-    public BuildingCrusher(final IColony c, final BlockPos l)
+    public BuildingCrusher(final IColony c, final int[] l)
     {
         super(c, l);
     }
@@ -113,7 +113,7 @@ public class BuildingCrusher extends AbstractBuilding
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
         this.currentDailyQuantity = compound.getInt(TAG_CURRENT_DAILY);
@@ -121,9 +121,9 @@ public class BuildingCrusher extends AbstractBuilding
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compound = super.serializeNBT();
+        final NBTTagCompound compound = super.serializeNBT();
         compound.putInt(TAG_CURRENT_DAILY, currentDailyQuantity);
         compound.putBoolean(TAG_CRUSHER_RATIO, oneByOne);
         return compound;
@@ -143,3 +143,6 @@ public class BuildingCrusher extends AbstractBuilding
         }
     }
 }
+
+
+

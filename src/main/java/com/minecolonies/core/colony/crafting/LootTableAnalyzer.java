@@ -1,26 +1,32 @@
 package com.minecolonies.core.colony.crafting;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
+import net.minecraft.world.level.chunk.LevelChunk;
 
 import com.google.gson.*;
 import com.minecolonies.api.items.ModItems;
 import com.minecolonies.api.util.Log;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.nbt.TagParser;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] GsonHelper removed
+import net.minecraft.util.MathHelper;
+import java.util.Random;
+import com.minecolonies.api.util.Tuple;
+// [1.7.10] world.entity removed
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.level.storage.loot.Deserializers;
-import net.minecraft.world.level.storage.loot.LootDataManager;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraftforge.registries.ForgeRegistries;
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] world.World.storage removed
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -109,7 +115,7 @@ public final class LootTableAnalyzer
                     .filter(entry ->
                     {
                         final String type = GsonHelper.getAsString(entry.getAsJsonObject(), "type");
-                        return type.equals("minecraft:empty") || type.equals("minecraft:item") || type.equals("minecraft:tag") || type.equals("minecraft:loot_table") || type.equals("minecraft:alternatives");
+                        return type.equals("minecraft:empty") || type.equals("minecraft:item") || type.equals("minecraft:NBTBase") || type.equals("minecraft:loot_table") || type.equals("minecraft:alternatives");
                     })
                     .mapToInt(entry -> GsonHelper.getAsInt(entry.getAsJsonObject(), "weight", 1))
                     .sum();
@@ -267,10 +273,10 @@ public final class LootTableAnalyzer
             final String entityType = token.getTag().getString(TAG_ENTITY_TYPE);
             if (!entityType.isEmpty())
             {
-                final EntityType<?> mob = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(entityType));
-                if (mob != null)
+                final EntityType<?> EntityCreature = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(entityType));
+                if (EntityCreature != null)
                 {
-                    return toDrops(lootTableManager, mob.getDefaultLootTable());
+                    return toDrops(lootTableManager, EntityCreature.getDefaultLootTable());
                 }
             }
         }
@@ -340,7 +346,7 @@ public final class LootTableAnalyzer
                 case "minecraft:set_nbt":
                     try
                     {
-                        stack.setTag(TagParser.parseTag(GsonHelper.getAsString(function, "tag")));
+                        stack.setTag(TagParser.parseTag(GsonHelper.getAsString(function, "NBTBase")));
                     }
                     catch (CommandSyntaxException e)
                     {
@@ -505,7 +511,7 @@ public final class LootTableAnalyzer
         }
 
         /** Copy a LootDrop to a packet buffer */
-        public void serialize(@NotNull final FriendlyByteBuf buffer)
+        public void serialize(@NotNull final PacketBuffer buffer)
         {
             buffer.writeVarInt(stacks.size());
             for (final ItemStack stack : stacks)
@@ -518,7 +524,7 @@ public final class LootTableAnalyzer
         }
 
         /** Recover a LootDrop from a packet buffer */
-        public static LootDrop deserialize(@NotNull final FriendlyByteBuf buffer)
+        public static LootDrop deserialize(@NotNull final PacketBuffer buffer)
         {
             final int size = buffer.readVarInt();
             final List<ItemStack> stacks = new ArrayList<>(size);
@@ -533,3 +539,7 @@ public final class LootTableAnalyzer
         }
     }
 }
+
+
+
+

@@ -3,16 +3,15 @@ package com.minecolonies.core.network.messages.client.colony;
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.core.colony.Colony;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] Registries removed
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,12 +33,12 @@ public class ColonyViewMessage implements IMessage
     /**
      * The buffer with the data.
      */
-    private FriendlyByteBuf colonyBuffer;
+    private PacketBuffer colonyBuffer;
 
     /**
      * The dimension of the colony.
      */
-    private ResourceKey<Level> dim;
+    private int /* ResourceKey */ dim;
 
     /**
      * Empty constructor used when registering the
@@ -55,18 +54,18 @@ public class ColonyViewMessage implements IMessage
      * @param colony Colony of the view to update.
      * @param buf    the bytebuffer.
      */
-    public ColonyViewMessage(@NotNull final Colony colony, final FriendlyByteBuf buf, boolean newSubscription)
+    public ColonyViewMessage(@NotNull final Colony colony, final PacketBuffer buf, boolean newSubscription)
     {
         this.colonyId = colony.getID();
         this.dim = colony.getDimension();
-        this.colonyBuffer = new FriendlyByteBuf(buf.copy());
+        this.colonyBuffer = new PacketBuffer(buf.copy());
         isNewSubscription = newSubscription;
     }
 
     @Override
-    public void fromBytes(@NotNull final FriendlyByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
-        final FriendlyByteBuf newBuf = new FriendlyByteBuf(buf.retain());
+        final PacketBuffer newBuf = new PacketBuffer(buf.retain());
         colonyId = newBuf.readInt();
         isNewSubscription = newBuf.readBoolean();
         dim = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(newBuf.readUtf(32767)));
@@ -74,7 +73,7 @@ public class ColonyViewMessage implements IMessage
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
         colonyBuffer.resetReaderIndex();
         buf.writeInt(colonyId);
@@ -85,19 +84,22 @@ public class ColonyViewMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.CLIENT;
+        return Boolean.FALSE;
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
-        if (Minecraft.getInstance().level != null)
+        if (Minecraft.getInstance().World != null)
         {
-            IColonyManager.getInstance().handleColonyViewMessage(colonyId, colonyBuffer, Minecraft.getInstance().level, isNewSubscription, dim);
+            IColonyManager.getInstance().handleColonyViewMessage(colonyId, colonyBuffer, Minecraft.getInstance().World, isNewSubscription, dim);
         }
         colonyBuffer.release();
     }
 }
+
+
+

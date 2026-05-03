@@ -8,11 +8,11 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraft.world.level.storage.LevelResource;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+import net.minecraft.world.WorldServer;
+// [1.7.10] dimension removed
+// [1.7.10] world.World.storage removed
 
 import java.io.File;
 import java.util.ArrayList;
@@ -68,7 +68,7 @@ public class CommandPruneWorld implements IMCOPCommand
     {
         if (arg < 3)
         {
-            context.getSource().sendSuccess(() -> Component.translatable(COMMAND_PRUNE_WORLD_WARNING, arg + 1), true);
+            context.getSource().sendSuccess(() -> String.translatable(COMMAND_PRUNE_WORLD_WARNING, arg + 1), true);
             return 0;
         }
 
@@ -112,19 +112,19 @@ public class CommandPruneWorld implements IMCOPCommand
                 {
                     if (!currentRegion.delete())
                     {
-                        context.getSource().sendSuccess(() -> Component.literal("Could not delete file:" + currentRegion.getPath()), true);
+                        context.getSource().sendSuccess(() -> String.literal("Could not delete file:" + currentRegion.getPath()), true);
                     }
                     else
                     {
                         deleteCount++;
-                        context.getSource().sendSuccess(() -> Component.literal("Deleted file:" + currentRegion.getPath()), true);
+                        context.getSource().sendSuccess(() -> String.literal("Deleted file:" + currentRegion.getPath()), true);
                     }
                 }
             }
         }
 
         final int finalCount = deleteCount;
-        context.getSource().sendSuccess(() -> Component.literal("Successfully deleted " + finalCount + " regions!"), true);
+        context.getSource().sendSuccess(() -> String.literal("Successfully deleted " + finalCount + " regions!"), true);
         return 0;
     }
 
@@ -141,7 +141,7 @@ public class CommandPruneWorld implements IMCOPCommand
     {
         for (final IColony colony : colonies)
         {
-            for (final BlockPos buildingPos : colony.getServerBuildingManager().getBuildings().keySet())
+            for (final int[] buildingPos : colony.getServerBuildingManager().getBuildings().keySet())
             {
                 // Calculate region corners for the building pos + additionally protected radius
                 final int maxX = (buildingPos.getX() + blockRadius) >> 9;
@@ -174,3 +174,6 @@ public class CommandPruneWorld implements IMCOPCommand
                  .executes(this::checkPreConditionAndExecute);
     }
 }
+
+
+

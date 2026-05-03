@@ -4,31 +4,18 @@ import com.minecolonies.api.blocks.AbstractBlockMinecoloniesGrave;
 import com.minecolonies.api.blocks.types.GraveType;
 import com.minecolonies.api.colony.GraveData;
 import com.minecolonies.api.crafting.ItemStorage;
-import com.minecolonies.api.inventory.container.ContainerGrave;
 import com.minecolonies.api.tileentities.AbstractTileEntityGrave;
 import com.minecolonies.api.tileentities.AbstractTileEntityRack;
-import com.minecolonies.api.tileentities.MinecoloniesTileEntities;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.WorldUtil;
-import io.netty.buffer.Unpooled;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.Connection;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+// [1.7.10] items shim in com.minecolonies.api.shim
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,7 +28,7 @@ import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_DECAY_TIMER
 public class TileEntityGrave extends AbstractTileEntityGrave
 {
     /**
-     * The content of the chest.
+     * The content of the grave.
      */
     private final Map<ItemStorage, Integer> content = new HashMap<>();
 
@@ -50,18 +37,13 @@ public class TileEntityGrave extends AbstractTileEntityGrave
      */
     private static final String TAG_GRAVE_DATA = "gravedata";
 
-    public TileEntityGrave(final BlockEntityType<? extends TileEntityGrave> type, final BlockPos pos, final BlockState state)
+    public TileEntityGrave()
     {
-        super(type, pos, state);
-    }
-
-    public TileEntityGrave(final BlockPos pos, final BlockState state)
-    {
-        super(MinecoloniesTileEntities.GRAVE.get(), pos, state);
+        super();
     }
 
     /**
-     * Gets the content of the gave
+     * Gets the content of the grave.
      *
      * @return the map of content.
      */
@@ -73,16 +55,16 @@ public class TileEntityGrave extends AbstractTileEntityGrave
     @Override
     public void updateItemStorage()
     {
-        if (level != null && !level.isClientSide)
+        if (worldObj != null && !worldObj.isRemote)
         {
             final boolean empty = content.isEmpty();
             updateContent();
 
-            if ((empty && !content.isEmpty()) || !empty && content.isEmpty())
+            if ((empty && !content.isEmpty()) || (!empty && content.isEmpty()))
             {
                 updateBlockState();
             }
-            setChanged();
+            markDirty();
         }
     }
 
@@ -114,13 +96,10 @@ public class TileEntityGrave extends AbstractTileEntityGrave
     @Override
     public void updateBlockState()
     {
-        if (level != null && level.getBlockState(worldPosition).getBlock() instanceof AbstractBlockMinecoloniesGrave)
+        if (worldObj != null && worldObj.getBlock(xCoord, yCoord, zCoord) instanceof AbstractBlockMinecoloniesGrave)
         {
-            final BlockState state = level.getBlockState(worldPosition).setValue(AbstractBlockMinecoloniesGrave.VARIANT, decayed ? GraveType.DECAYED : GraveType.DEFAULT);
-            if (!level.getBlockState(worldPosition).equals(state))
-            {
-                level.setBlockAndUpdate(worldPosition, state);
-            }
+            // TODO: Update block metadata for decayed/default state in 1.7.10
+            worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
         }
     }
 
@@ -138,96 +117,54 @@ public class TileEntityGrave extends AbstractTileEntityGrave
     }
 
     @Override
-    public void load(final CompoundTag compound)
+    public void readFromNBT(final NBTTagCompound compound)
     {
-        super.load(compound);
+        super.readFromNBT(compound);
+        decay_timer = compound.hasKey(TAG_DECAY_TIMER) ? compound.getInteger(TAG_DECAY_TIMER) : DEFAULT_DECAY_TIMER;
+        decayed     = compound.hasKey(TAG_DECAYED) && compound.getBoolean(TAG_DECAYED);
 
-        decay_timer         = compound.contains(TAG_DECAY_TIMER) ? compound.getInt(TAG_DECAY_TIMER) : DEFAULT_DECAY_TIMER;
-        decayed             = compound.contains(TAG_DECAYED) ? compound.getBoolean(TAG_DECAYED) :false;
-
-        if (compound.contains(TAG_GRAVE_DATA))
+        if (compound.hasKey(TAG_GRAVE_DATA))
         {
             graveData = new GraveData();
-            graveData.read(compound.getCompound(TAG_GRAVE_DATA));
+            graveData.read(compound.getCompoundTag(TAG_GRAVE_DATA));
         }
-        else graveData = null;
-    }
-
-    @Override
-    public void saveAdditional(final CompoundTag compound)
-    {
-        super.saveAdditional(compound);
-
-        compound.putInt(TAG_DECAY_TIMER, decay_timer);
-        compound.putBoolean(TAG_DECAYED, decayed);
-
-        if(graveData != null)
+        else
         {
-            compound.put(TAG_GRAVE_DATA, graveData.write());
+            graveData = null;
         }
     }
 
     @Override
-    public ClientboundBlockEntityDataPacket getUpdatePacket()
+    public void writeToNBT(final NBTTagCompound compound)
     {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
+        super.writeToNBT(compound);
+        compound.setInteger(TAG_DECAY_TIMER, decay_timer);
+        compound.setBoolean(TAG_DECAYED, decayed);
 
-    @NotNull
-    @Override
-    public CompoundTag getUpdateTag()
-    {
-        return this.saveWithId();
-    }
-
-    @Override
-    public void onDataPacket(final Connection net, final ClientboundBlockEntityDataPacket packet)
-    {
-        this.load(packet.getTag());
-    }
-
-    @Override
-    public void handleUpdateTag(final CompoundTag tag)
-    {
-        this.load(tag);
-    }
-
-    @Override
-    public void setChanged()
-    {
-        if (level != null)
+        if (graveData != null)
         {
-            WorldUtil.markChunkDirty(level, worldPosition);
+            compound.setTag(TAG_GRAVE_DATA, graveData.write());
         }
     }
 
-    @Nullable
     @Override
-    public AbstractContainerMenu createMenu(final int id, @NotNull final Inventory inv, @NotNull final Player player)
+    public void markDirty()
     {
-        final FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
-        buffer.writeBlockPos(this.getBlockPos());
-
-        return new ContainerGrave(id, inv, buffer);
-    }
-
-    @NotNull
-    @Override
-    public Component getDisplayName()
-    {
-        return Component.literal("Grave");
+        if (worldObj != null)
+        {
+            WorldUtil.markChunkDirty(worldObj, xCoord, yCoord, zCoord);
+        }
     }
 
     /**
-     * Update the decay of this grave onColonyTick
-     * When the timer elapses, decay the grave and reset the timer, if the grave is already decayed - remove the tile entity from the world
+     * Update the decay of this grave on colony tick.
      *
-     * @param delay number of tick between each call
-     * @return true if the grave still exist, false otherwise
-     **/
+     * @param delay number of ticks between each call.
+     * @return true if the grave still exists, false otherwise.
+     */
     public boolean onColonyTick(final double delay)
     {
-        if (this.hasLevel() && !level.isClientSide && decay_timer != -1)
+        if (worldObj != null && !worldObj.isRemote && decay_timer != -1)
         {
             decay_timer -= delay;
             if (decay_timer <= 0)
@@ -240,13 +177,13 @@ public class TileEntityGrave extends AbstractTileEntityGrave
                 }
                 else
                 {
-                    InventoryUtils.dropItemHandler(inventory, level, this.worldPosition.getX(), this.worldPosition.getY(), this.worldPosition.getZ());
-                    level.setBlockAndUpdate(this.worldPosition, Blocks.AIR.defaultBlockState());
+                    InventoryUtils.dropItemHandler(inventory, worldObj, xCoord, yCoord, zCoord);
+                    worldObj.setBlock(xCoord, yCoord, zCoord, Blocks.air, 0, 3);
                     return false;
                 }
             }
         }
-
         return true;
     }
 }
+

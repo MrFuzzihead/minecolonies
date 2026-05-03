@@ -1,16 +1,23 @@
 package com.minecolonies.core.colony.buildings.modules;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.colony.buildings.modules.*;
 import com.minecolonies.api.util.WorldUtil;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.level.block.BedBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.world.level.block.state.properties.BedPart;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
+import net.minecraft.nbt.NBTBase;
+// [1.7.10] BedBlock -> Blocks.bed; BedPart not available (check meta)
+import net.minecraft.init.Blocks;
+// [1.7.10] BlockState -> int metadata
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+// [1.7.10] NbtUtils removed
+// [1.7.10] BedPart -> check block metadata; no BedPart enum
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.world.World;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -27,27 +34,27 @@ public class BedHandlingModule extends AbstractBuildingModule implements IModule
      * List of all beds.
      */
     @NotNull
-    private final Set<BlockPos> bedList = new HashSet<>();
+    private final Set<int[]> bedList = new HashSet<>();
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
-        final ListTag bedTagList = compound.getList(TAG_BEDS, Tag.TAG_COMPOUND);
+        final NBTTagList bedTagList = compound.getList(TAG_BEDS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < bedTagList.size(); ++i)
         {
-            final CompoundTag bedCompound = bedTagList.getCompound(i);
-            final BlockPos bedPos = NbtUtils.readBlockPos(bedCompound);
+            final NBTTagCompound bedCompound = bedTagList.getCompound(i);
+            final int[] bedPos = NbtUtils.readBlockPos(bedCompound);
             bedList.add(bedPos);
         }
     }
 
     @Override
-    public void serializeNBT(final CompoundTag compound)
+    public void serializeNBT(final NBTTagCompound compound)
     {
         if (!bedList.isEmpty())
         {
-            @NotNull final ListTag bedTagList = new ListTag();
-            for (@NotNull final BlockPos pos : bedList)
+            @NotNull final NBTTagList bedTagList = new NBTTagList();
+            for (@NotNull final int[] pos : bedList)
             {
                 bedTagList.add(NbtUtils.writeBlockPos(pos));
             }
@@ -56,9 +63,9 @@ public class BedHandlingModule extends AbstractBuildingModule implements IModule
     }
 
     @Override
-    public void onBlockPlacedInBuilding(@NotNull final BlockState blockState, @NotNull final BlockPos pos, @NotNull final Level world)
+    public void onBlockPlacedInBuilding(@NotNull final BlockState blockState, @NotNull final int[] pos, @NotNull final World world)
     {
-        BlockPos registrationPosition = pos;
+        int[] registrationPosition = pos;
         if (blockState.getBlock() instanceof BedBlock)
         {
             if (blockState.getValue(BedBlock.PART) == BedPart.FOOT)
@@ -71,7 +78,7 @@ public class BedHandlingModule extends AbstractBuildingModule implements IModule
     }
 
     @Override
-    public List<BlockPos> getRegisteredBlocks()
+    public List<int[]> getRegisteredBlocks()
     {
         return new ArrayList<>(bedList);
     }
@@ -79,13 +86,13 @@ public class BedHandlingModule extends AbstractBuildingModule implements IModule
     @Override
     public void onWakeUp()
     {
-        final Level world = building.getColony().getWorld();
+        final World world = building.getColony().getWorld();
         if (world == null)
         {
             return;
         }
 
-        for (final BlockPos pos : bedList)
+        for (final int[] pos : bedList)
         {
             if (WorldUtil.isBlockLoaded(world, pos))
             {
@@ -104,8 +111,12 @@ public class BedHandlingModule extends AbstractBuildingModule implements IModule
      * Remove a bed from a pos.
      * @param pos the pos to remove.
      */
-    public void removeBed(final BlockPos pos)
+    public void removeBed(final int[] pos)
     {
         bedList.remove(pos);
     }
 }
+
+
+
+

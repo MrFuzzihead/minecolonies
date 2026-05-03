@@ -1,4 +1,4 @@
 /**
  * Classes describing the pirate entities.
  */
-package com.minecolonies.core.entity.mobs.raider.pirates;
+package com.minecolonies.core.entity.mobs.camp.pirates;

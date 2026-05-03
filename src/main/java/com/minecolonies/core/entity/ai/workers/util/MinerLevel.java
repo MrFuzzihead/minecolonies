@@ -4,11 +4,11 @@ import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.Vec2i;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingMiner;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.level.Level;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.world.World;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,14 +18,14 @@ import java.util.*;
 import static com.minecolonies.core.entity.ai.workers.util.MineNode.NodeType.*;
 
 /**
- * Miner Level Data StructureIterator.
+ * Miner World Data StructureIterator.
  * <p>
- * A Level contains all the nodes for one level of the mine.
+ * A World contains all the nodes for one World of the mine.
  */
 public class MinerLevel
 {
     /**
-     * Tags used to store and retrieve level data from NBT.
+     * Tags used to store and retrieve World data from NBT.
      */
     private static final String TAG_DEPTH      = "Depth";
     private static final String TAG_NODES      = "Nodes";
@@ -65,7 +65,7 @@ public class MinerLevel
     private final        Queue<MineNode>      openNodes                = new ArrayDeque<>(11);
 
     /**
-     * The depth of the level stored as the y coordinate.
+     * The depth of the World stored as the y coordinate.
      */
     private final int depth;
 
@@ -78,7 +78,7 @@ public class MinerLevel
      * The node of the ladder.
      */
     @Nullable
-    private BlockPos levelSign;
+    private int[] levelSign;
 
     /**
      * Offset number to make build nodes count proper
@@ -86,13 +86,13 @@ public class MinerLevel
     private static final int BUILT_NODES_OFFSET = -2;
 
     /**
-     * Create a new level model.
+     * Create a new World model.
      *
      * @param buildingMiner reference to the miner building.
-     * @param depth         the depth of this level.
-     * @param levelSign     the position of the level sign.
+     * @param depth         the depth of this World.
+     * @param levelSign     the position of the World sign.
      */
-    public MinerLevel(@NotNull final BuildingMiner buildingMiner, final int depth, final BlockPos levelSign)
+    public MinerLevel(@NotNull final BuildingMiner buildingMiner, final int depth, final int[] levelSign)
     {
         this.depth = depth;
         this.levelSign = levelSign;
@@ -100,7 +100,7 @@ public class MinerLevel
         final int cobbleX = buildingMiner.getCobbleLocation().getX();
         final int cobbleZ = buildingMiner.getCobbleLocation().getZ();
 
-        final BlockPos vector = buildingMiner.getLadderLocation().subtract(buildingMiner.getCobbleLocation());
+        final int[] vector = buildingMiner.getLadderLocation().subtract(buildingMiner.getCobbleLocation());
 
         //check for orientation
         @NotNull final Vec2i cobbleCenter = new Vec2i(cobbleX - (vector.getX() * 3), cobbleZ - (vector.getZ() * 3));
@@ -126,7 +126,7 @@ public class MinerLevel
 
         for (final Vec2i pos : nodeCenterList)
         {
-            if (cobbleCenter.equals(pos) || ladderCenter.equals(pos))
+            if (pos == null || nodes.containsKey(pos))
             {
                 continue;
             }
@@ -138,11 +138,11 @@ public class MinerLevel
     }
 
     /**
-     * Create a level from nbt.
+     * Create a World from nbt.
      *
      * @param compound compound to use.
      */
-    public MinerLevel(@NotNull final CompoundTag compound)
+    public MinerLevel(@NotNull final NBTTagCompound compound)
     {
 
         this.depth = compound.getInt(TAG_DEPTH);
@@ -155,7 +155,7 @@ public class MinerLevel
             this.levelSign = null;
         }
 
-        final ListTag nodeTagList = compound.getList(TAG_NODES, Tag.TAG_COMPOUND);
+        final NBTTagList nodeTagList = compound.getList(TAG_NODES, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < nodeTagList.size(); i++)
         {
             @NotNull final MineNode node = MineNode.createFromNBT(nodeTagList.getCompound(i));
@@ -180,7 +180,7 @@ public class MinerLevel
         this.ladderNode = this.nodes.get(new Vec2i(ladderX, ladderZ));
 
 
-        final ListTag openNodeTagList = compound.getList(TAG_OPEN_NODES, Tag.TAG_COMPOUND);
+        final NBTTagList openNodeTagList = compound.getList(TAG_OPEN_NODES, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < openNodeTagList.size(); i++)
         {
             @NotNull final MineNode node = MineNode.createFromNBT(openNodeTagList.getCompound(i));
@@ -189,7 +189,7 @@ public class MinerLevel
     }
 
     /**
-     * Getter for a random Node in the level.
+     * Getter for a random Node in the World.
      *
      * @param node the last node.
      * @return any random node.
@@ -209,7 +209,7 @@ public class MinerLevel
         return nextNode == null ? openNodes.peek() : nextNode;
     }
 
-    public BlockPos getRandomCompletedNode(BuildingMiner buildingMiner)
+    public int[] getRandomCompletedNode(BuildingMiner buildingMiner)
     {
         Object[] nodeSet = nodes.keySet().toArray();
         MineNode nextNode = nodes.get(nodeSet[rand.nextInt(nodeSet.length)]);
@@ -219,13 +219,13 @@ public class MinerLevel
         }
         if (nextNode == null || nextNode.getStyle() == SHAFT)
         {
-            final BlockPos vector = buildingMiner.getLadderLocation().subtract(buildingMiner.getCobbleLocation());
+            final int[] vector = buildingMiner.getLadderLocation().subtract(buildingMiner.getCobbleLocation());
 
-            return new BlockPos(ladderNode.getX() + 3 * vector.getX(), getDepth() + 1, ladderNode.getZ() + 3 * vector.getZ());
+            return new int[]{ladderNode.getX() + 3 * vector[0], getDepth() + 1, ladderNode.getZ() + 3 * vector[2]};
         }
         else
         {
-            return new BlockPos(nextNode.getX(), getDepth() + 1, nextNode.getZ());
+            return new int[]{nextNode.getX(), getDepth() + 1, nextNode.getZ()};
         }
     }
 
@@ -235,7 +235,7 @@ public class MinerLevel
      * @param rotation the rotation of the node.
      * @param node     the node to close.
      */
-    public void closeNextNode(final int rotation, final MineNode node, final Level world)
+    public void closeNextNode(final int rotation, final MineNode node, final World world)
     {
         final MineNode tempNode = node == null ? openNodes.peek() : node;
         final List<Vec2i> nodeCenterList = new ArrayList<>(3);
@@ -287,7 +287,9 @@ public class MinerLevel
                 continue;
             }
 
-            if (!world.getFluidState(new BlockPos(pos.getX(), getDepth() + 2, pos.getZ())).isEmpty())
+            // [1.7.10] check for liquid block instead of FluidState
+            if (world.getBlock(pos.getX(), getDepth() + 2, pos.getZ()).getMaterial() == net.minecraft.block.material.Material.water
+                || world.getBlock(pos.getX(), getDepth() + 2, pos.getZ()).getMaterial() == net.minecraft.block.material.Material.lava)
             {
                 continue;
             }
@@ -298,7 +300,7 @@ public class MinerLevel
             openNodes.add(tempNodeToAdd);
         }
         MineNode I = nodes.get(new Vec2i(tempNode.getX(), tempNode.getZ()));
-        if (!tempNode.equals(I))
+        if (!I.equals(node))
         {
             Log.getLogger().warn("Minecolonies node: " + node.getX() + ":" + node.getZ() + " not equal to storage during close, Please tell the mod authors about this");
         }
@@ -334,15 +336,15 @@ public class MinerLevel
     @Override
     public String toString()
     {
-        return "Level{" + "depth=" + depth + ", nodes=" + nodes + ", ladderNode=" + ladderNode + '}';
+        return "World{" + "depth=" + depth + ", nodes=" + nodes + ", ladderNode=" + ladderNode + '}';
     }
 
     /**
-     * Store the level to nbt.
+     * Store the World to nbt.
      *
      * @param compound compound to use.
      */
-    public void write(@NotNull final CompoundTag compound)
+    public void write(@NotNull final NBTTagCompound compound)
     {
         compound.putInt(TAG_DEPTH, depth);
         if (levelSign != null)
@@ -350,10 +352,10 @@ public class MinerLevel
             BlockPosUtil.write(compound, TAG_LEVEL_SIGN, levelSign);
         }
 
-        @NotNull final ListTag nodeTagList = new ListTag();
+        @NotNull final NBTTagList nodeTagList = new NBTTagList();
         for (@NotNull final MineNode node : nodes.values())
         {
-            @NotNull final CompoundTag nodeCompound = new CompoundTag();
+            @NotNull final NBTTagCompound nodeCompound = new NBTTagCompound();
             node.write(nodeCompound);
             nodeTagList.add(nodeCompound);
         }
@@ -362,10 +364,10 @@ public class MinerLevel
         compound.putInt(TAG_LADDERX, ladderNode.getX());
         compound.putInt(TAG_LADDERZ, ladderNode.getZ());
 
-        @NotNull final ListTag openNodeTagList = new ListTag();
+        @NotNull final NBTTagList openNodeTagList = new NBTTagList();
         for (@NotNull final MineNode node : openNodes)
         {
-            @NotNull final CompoundTag nodeCompound = new CompoundTag();
+            @NotNull final NBTTagCompound nodeCompound = new NBTTagCompound();
             node.write(nodeCompound);
             openNodeTagList.add(nodeCompound);
         }
@@ -400,7 +402,7 @@ public class MinerLevel
     }
 
     /**
-     * Add a new node to the level.
+     * Add a new node to the World.
      *
      * @param newNode the node to add.
      */
@@ -434,12 +436,17 @@ public class MinerLevel
     }
 
     /**
-     * Returns position of level's levelSign
+     * Returns position of World's levelSign
      *
      * @return levelSign
      */
-    public BlockPos getLevelSign()
+    public int[] getLevelSign()
     {
         return levelSign;
     }
 }
+
+
+
+
+

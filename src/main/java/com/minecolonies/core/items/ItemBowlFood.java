@@ -3,14 +3,14 @@ package com.minecolonies.core.items;
 import com.minecolonies.api.items.IMinecoloniesFoodItem;
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.constant.TranslationConstants;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -40,14 +40,14 @@ public class ItemBowlFood extends Item implements IMinecoloniesFoodItem
 
     @NotNull
     @Override
-    public ItemStack finishUsingItem(@NotNull final ItemStack stack, @NotNull final Level level, @NotNull final LivingEntity entity)
+    public ItemStack finishUsingItem(@NotNull final ItemStack stack, @NotNull final World World, @NotNull final EntityLivingBase entity)
     {
         // implementation of this is deliberately similar to HoneyBottleItem; in particular it only
         // gives extra drops to Players because citizens eating food are dealt with by the caller.
 
         final ItemStack bowl = new ItemStack(Items.BOWL);
 
-        final ItemStack remainder = super.finishUsingItem(stack, level, entity);
+        final ItemStack remainder = super.finishUsingItem(stack, World, entity);
         if (ItemStackUtils.isEmpty(remainder))
         {
             return bowl;
@@ -65,9 +65,9 @@ public class ItemBowlFood extends Item implements IMinecoloniesFoodItem
     }
 
     @Override
-    public void appendHoverText(@NotNull final ItemStack stack, @Nullable final Level worldIn, @NotNull final List<Component> tooltip, @NotNull final TooltipFlag flagIn)
+    public void appendHoverText(@NotNull final ItemStack stack, @Nullable final World worldIn, @NotNull final List<String> tooltip, @NotNull final TooltipFlag flagIn)
     {
-        tooltip.add(Component.translatable(TranslationConstants.TIER_TOOLTIP + this.tier));
+        tooltip.add(String.translatable(TranslationConstants.TIER_TOOLTIP + this.tier));
     }
 
     @Override
@@ -76,3 +76,5 @@ public class ItemBowlFood extends Item implements IMinecoloniesFoodItem
         return tier;
     }
 }
+
+

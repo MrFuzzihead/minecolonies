@@ -1,18 +1,18 @@
 package com.minecolonies.api.inventory.container;
 
 import com.minecolonies.api.inventory.ModContainers;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.*;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingRecipe;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.GameRules;
-import net.minecraft.world.level.Level;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.InventoryCrafting;
+// [1.7.10] Inventory removed
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.*;
+import net.minecraft.item.ItemStack;
+// [1.7.10] recipe API simplified
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -24,17 +24,17 @@ import static com.minecolonies.api.util.constant.InventoryConstants.*;
 /**
  * Crafting container for the recipe teaching of normal crafting recipes.
  */
-public class ContainerCrafting extends AbstractContainerMenu
+public class ContainerCrafting extends Container
 {
     /**
      * The crafting matrix inventory (2x2).
      */
-    public final CraftingContainer craftMatrix;
+    public final InventoryCrafting craftMatrix;
 
     /**
      * The crafting matrix inventory (2x2 or 3x3).
      */
-    public final ResultContainer craftResult = new ResultContainer();
+    public final InventoryCraftResult craftResult = new InventoryCraftResult();
 
     /**
      * The crafting result slot.
@@ -44,12 +44,12 @@ public class ContainerCrafting extends AbstractContainerMenu
     /**
      * Whether there are multiple recipe possibilities.
      */
-    private final DataSlot switchableSlot;
+    private final int switchableSlot;
 
     /**
      * Which recipe to use out of multiple possibilities.
      */
-    private final DataSlot recipeIndexSlot;
+    private final int recipeIndexSlot;
 
     /**
      * The secondary outputs
@@ -64,17 +64,17 @@ public class ContainerCrafting extends AbstractContainerMenu
     /**
      * World world
      */
-    private final Level world;
+    private final World world;
 
     /**
-     * The player inventory.
+     * The EntityPlayer inventory.
      */
-    private final Inventory inv;
+    private final InventoryPlayer inv;
 
     /**
      * Position of container.
      */
-    private final BlockPos pos;
+    private final int[] pos;
 
     /**
      * The module id of the container.
@@ -85,14 +85,14 @@ public class ContainerCrafting extends AbstractContainerMenu
      * Deserialize packet buffer to container instance.
      *
      * @param windowId     the id of the window.
-     * @param inv          the player inventory.
+     * @param inv          the EntityPlayer inventory.
      * @param packetBuffer network buffer
      * @return new instance
      */
-    public static ContainerCrafting fromFriendlyByteBuf(final int windowId, final Inventory inv, final FriendlyByteBuf packetBuffer)
+    public static ContainerCrafting fromFriendlyByteBuf(final int windowId, final InventoryPlayer inv, final PacketBuffer packetBuffer)
     {
         final boolean complete = packetBuffer.readBoolean();
-        final BlockPos tePos = packetBuffer.readBlockPos();
+        final int[] tePos = packetBuffer.readBlockPos();
         final int moduleId = packetBuffer.readInt();
         return new ContainerCrafting(windowId, inv, complete, tePos, moduleId);
     }
@@ -104,11 +104,11 @@ public class ContainerCrafting extends AbstractContainerMenu
      * @param inv      the inventory.
      * @param moduleId the module id.
      */
-    public ContainerCrafting(final int windowId, final Inventory inv, final boolean complete, final BlockPos pos, final int moduleId)
+    public ContainerCrafting(final int windowId, final InventoryPlayer inv, final boolean complete, final int[] pos, final int moduleId)
     {
         super(ModContainers.craftingGrid.get(), windowId);
         this.moduleId = moduleId;
-        this.world = inv.player.level();
+        this.world = inv.player.World();
         this.inv = inv;
         this.complete = complete;
         this.pos = pos;
@@ -121,10 +121,10 @@ public class ContainerCrafting extends AbstractContainerMenu
             craftMatrix = new TransientCraftingContainer(this, 2, 2);
         }
 
-        this.craftResultSlot = this.addSlot(new ResultSlot(inv.player, this.craftMatrix, craftResult, 0, X_CRAFT_RESULT, Y_CRAFT_RESULT)
+        this.craftResultSlot = this.addSlot(new SlotCrafting(inv.player, this.craftMatrix, craftResult, 0, X_CRAFT_RESULT, Y_CRAFT_RESULT)
         {
             @Override
-            public boolean mayPickup(final Player playerIn)
+            public boolean canTakeStack(final EntityPlayer playerIn)
             {
                 return false;
             }
@@ -144,19 +144,19 @@ public class ContainerCrafting extends AbstractContainerMenu
 
                     @NotNull
                     @Override
-                    public ItemStack remove(final int par1)
+                    public ItemStack decrStackSize(final int par1)
                     {
                         return ItemStack.EMPTY;
                     }
 
                     @Override
-                    public boolean mayPlace(final ItemStack par1ItemStack)
+                    public boolean isItemValid(final ItemStack par1ItemStack)
                     {
                         return true;
                     }
 
                     @Override
-                    public boolean mayPickup(final Player par1PlayerEntity)
+                    public boolean canTakeStack(final EntityPlayer par1PlayerEntity)
                     {
                         return false;
                     }
@@ -164,8 +164,8 @@ public class ContainerCrafting extends AbstractContainerMenu
             }
         }
 
-        // Player inventory slots
-        // Note: The slot numbers are within the player inventory and may be the same as the field inventory.
+        // EntityPlayer inventory slots
+        // Note: The slot numbers are within the EntityPlayer inventory and may be the same as the field inventory.
         int i;
         for (i = 0; i < INVENTORY_ROWS; i++)
         {
@@ -189,10 +189,10 @@ public class ContainerCrafting extends AbstractContainerMenu
             ));
         }
 
-        this.switchableSlot = DataSlot.standalone();
-        this.recipeIndexSlot = DataSlot.standalone();
-        addDataSlot(this.switchableSlot);
-        addDataSlot(this.recipeIndexSlot);
+        this.switchableSlot = 0;
+        this.recipeIndexSlot = 0;
+        // no addDataSlot in 1.7.10
+        // no addDataSlot in 1.7.10
 
         remainingItems = new ArrayList<>();
 
@@ -203,33 +203,16 @@ public class ContainerCrafting extends AbstractContainerMenu
      * Callback for when the crafting matrix is changed.
      */
     @Override
-    public void slotsChanged(final Container inventoryIn)
+    public void onCraftMatrixChanged(final net.minecraft.inventory.IInventory inventoryIn)
     {
-        if (!world.isClientSide)
+        if (!world.isRemote)
         {
-            final ServerPlayer player = (ServerPlayer) inv.player;
-            final List<CraftingRecipe> recipes = player.server.getRecipeManager().getRecipesFor(RecipeType.CRAFTING, craftMatrix, world)
-                    .stream().filter(recipe -> recipe.isSpecial()
-                            || !world.getGameRules().getBoolean(GameRules.RULE_LIMITED_CRAFTING)
-                            || player.getRecipeBook().contains(recipe)
-                            || player.isCreative())
-                    .toList();
-            if (recipes.isEmpty())
-            {
-                this.switchableSlot.set(0);
-                this.craftResultSlot.set(ItemStack.EMPTY);
-            }
-            else
-            {
-                this.switchableSlot.set(recipes.size());
-                this.recipeIndexSlot.set(this.recipeIndexSlot.get() % recipes.size());
-                final ItemStack stack = recipes.get(this.recipeIndexSlot.get())
-                        .assemble(this.craftMatrix, this.world.registryAccess());
-                this.craftResultSlot.set(stack);
-            }
+            // [1.7.10] Use CraftingManager to find matching recipe
+            final ItemStack result = net.minecraft.item.crafting.CraftingManager.getInstance().findMatchingRecipe(craftMatrix, world);
+            this.switchableSlot = (result != null && !ItemStackUtils.isEmpty(result)) ? 1 : 0;
+            craftResult.setInventorySlotContents(0, result != null ? result : ItemStackUtils.EMPTY);
         }
-
-        super.slotsChanged(inventoryIn);
+        super.onCraftMatrixChanged(inventoryIn);
     }
 
     /**
@@ -237,7 +220,7 @@ public class ContainerCrafting extends AbstractContainerMenu
      */
     public boolean canSwitchRecipes()
     {
-        return this.switchableSlot.get() > 1;
+        return this.switchableSlot > 1;
     }
 
     /**
@@ -245,40 +228,46 @@ public class ContainerCrafting extends AbstractContainerMenu
      */
     public void switchRecipes()
     {
-        this.recipeIndexSlot.set(this.recipeIndexSlot.get() + 1);
-        this.slotsChanged(this.craftMatrix);
+        this.recipeIndexSlot = this.recipeIndexSlot + 1;
+        this.onCraftMatrixChanged(this.craftMatrix);
     }
 
     @Override
-    public boolean stillValid(@NotNull final Player playerIn)
+    public boolean canInteractWith(@NotNull final EntityPlayer playerIn)
     {
         return true;
     }
 
     @Override
-    public void clicked(final int slotId, final int clickedButton, final @NotNull ClickType mode, final @NotNull Player playerIn)
+    public void onContainerClosed(final EntityPlayer playerIn)
+    {
+        super.onContainerClosed(playerIn);
+    }
+
+        // [1.7.10] clicked is not an override in 1.7.10 Container
+        // public void clicked(final int slotId, final int clickedButton, final @NotNull int mode, final @NotNull EntityPlayer playerIn)
     {
         if (slotId >= 1 && slotId < CRAFTING_SLOTS + (complete ? ADDITIONAL_SLOTS : 0))
         {
             // 1 is shift-click
-            if (mode == ClickType.PICKUP
-                  || mode == ClickType.PICKUP_ALL
-                  || mode == ClickType.SWAP)
+            if (mode == 0
+                  || mode == 1
+                  || mode == 2)
             {
                 final Slot slot = this.slots.get(slotId);
-                handleSlotClick(slot, this.getCarried());
+                handleSlotClick(slot, null);
                 return;
             }
 
             return;
         }
 
-        if (mode == ClickType.QUICK_MOVE)
+        if (mode == 3)
         {
             return;
         }
 
-        super.clicked(slotId, clickedButton, mode, playerIn);
+        // super.clicked not available in 1.7.10
     }
 
     /**
@@ -294,19 +283,19 @@ public class ContainerCrafting extends AbstractContainerMenu
         {
             final ItemStack copy = stack.copy();
             copy.setCount(1);
-            slot.set(copy);
+            slot.putStack(copy);
         }
-        else if (slot.getItem().getCount() > 0)
+        else if (slot.getStack().getCount() > 0)
         {
-            slot.set(ItemStack.EMPTY);
+            slot.putStack(ItemStack.EMPTY);
         }
 
-        return slot.getItem().copy();
+        return slot.getStack().copy();
     }
 
     @NotNull
     @Override
-    public ItemStack quickMoveStack(final Player playerIn, final int index)
+    public ItemStack quickMoveStack(final EntityPlayer playerIn, final int index)
     {
         final int total_crafting_slots = CRAFTING_SLOTS + (complete ? ADDITIONAL_SLOTS : 0);
         if (index <= total_crafting_slots)
@@ -318,9 +307,9 @@ public class ContainerCrafting extends AbstractContainerMenu
 
         ItemStack itemstack = ItemStack.EMPTY;
         final Slot slot = this.slots.get(index);
-        if (slot != null && slot.hasItem())
+        if (slot != null && slot.getHasStack())
         {
-            final ItemStack itemstack1 = slot.getItem();
+            final ItemStack itemstack1 = slot.getStack();
             itemstack = itemstack1.copy();
             if (index == 0)
             {
@@ -328,7 +317,7 @@ public class ContainerCrafting extends AbstractContainerMenu
                 {
                     return ItemStack.EMPTY;
                 }
-                slot.onQuickCraft(itemstack1, itemstack);
+                slot.onCrafting(itemstack1, itemstack);
             }
             else if (index < HOTBAR_START)
             {
@@ -345,11 +334,11 @@ public class ContainerCrafting extends AbstractContainerMenu
             }
             if (itemstack1.getCount() == 0)
             {
-                slot.set(ItemStack.EMPTY);
+                slot.putStack(ItemStack.EMPTY);
             }
             else
             {
-                slot.setChanged();
+                slot.onSlotChanged();
             }
             if (itemstack1.getCount() == itemstack.getCount())
             {
@@ -359,8 +348,8 @@ public class ContainerCrafting extends AbstractContainerMenu
         return itemstack;
     }
 
-    @Override
-    public boolean canTakeItemForPickAll(final ItemStack stack, final Slot slotIn)
+    // [1.7.10] canTakeItemForPickAll not in 1.7.10
+    // public boolean canTakeItemForPickAll(final ItemStack stack, final Slot slotIn)
     {
         return slotIn != this.craftResultSlot && super.canTakeItemForPickAll(stack, slotIn);
     }
@@ -370,7 +359,7 @@ public class ContainerCrafting extends AbstractContainerMenu
      *
      * @return the world obj.
      */
-    public Level getWorldObj()
+    public World getWorldObj()
     {
         return world;
     }
@@ -380,7 +369,7 @@ public class ContainerCrafting extends AbstractContainerMenu
      *
      * @return the player.
      */
-    public Player getPlayer()
+    public EntityPlayer getPlayer()
     {
         return inv.player;
     }
@@ -400,7 +389,7 @@ public class ContainerCrafting extends AbstractContainerMenu
      *
      * @return the inv.
      */
-    public CraftingContainer getInv()
+    public InventoryCrafting getInv()
     {
         return craftMatrix;
     }
@@ -410,7 +399,7 @@ public class ContainerCrafting extends AbstractContainerMenu
      *
      * @return the position.
      */
-    public BlockPos getPos()
+    public int[] getPos()
     {
         return pos;
     }
@@ -421,19 +410,7 @@ public class ContainerCrafting extends AbstractContainerMenu
      */
     public List<ItemStack> getRemainingItems()
     {
-        final Optional<CraftingRecipe> iRecipe = this.world.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, craftMatrix, world);
-        if (iRecipe.isPresent())
-        {
-            List<ItemStack> ri = iRecipe.get().getRemainingItems(this.craftMatrix);
-            remainingItems.clear();
-            for(int i = 0; i< ri.size(); i++)
-            {
-                if(!ri.get(i).isEmpty())
-                {
-                    remainingItems.add(ri.get(i));
-                }
-            }
-        }
+        // [1.7.10] Recipe manager API not available
         return remainingItems;
     }
 
@@ -446,3 +423,8 @@ public class ContainerCrafting extends AbstractContainerMenu
         return this.moduleId;
     }
 }
+
+
+
+
+

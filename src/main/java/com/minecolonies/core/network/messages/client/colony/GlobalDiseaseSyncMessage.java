@@ -2,12 +2,11 @@ package com.minecolonies.core.network.messages.client.colony;
 
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.core.datalistener.DiseasesListener;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,7 +18,7 @@ public class GlobalDiseaseSyncMessage implements IMessage
     /**
      * The buffer with the data.
      */
-    private FriendlyByteBuf buffer;
+    private PacketBuffer buffer;
 
     /**
      * Empty constructor used when registering the message
@@ -34,39 +33,42 @@ public class GlobalDiseaseSyncMessage implements IMessage
      *
      * @param buf the bytebuffer.
      */
-    public GlobalDiseaseSyncMessage(final FriendlyByteBuf buf)
+    public GlobalDiseaseSyncMessage(final PacketBuffer buf)
     {
-        this.buffer = new FriendlyByteBuf(buf.copy());
+        this.buffer = new PacketBuffer(buf.copy());
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
         buffer.resetReaderIndex();
         buf.writeBytes(buffer);
     }
 
     @Override
-    public void fromBytes(@NotNull final FriendlyByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
-        buffer = new FriendlyByteBuf(buf.retain());
+        buffer = new PacketBuffer(buf.retain());
     }
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.CLIENT;
+        return Boolean.FALSE;
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
-        if (Minecraft.getInstance().level != null)
+        if (Minecraft.getInstance().World != null)
         {
             DiseasesListener.readGlobalDiseasesPackets(buffer);
         }
         buffer.release();
     }
 }
+
+
+

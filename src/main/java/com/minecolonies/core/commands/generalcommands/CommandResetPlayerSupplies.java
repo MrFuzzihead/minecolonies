@@ -8,8 +8,8 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.stats.Stats;
 
 import static com.minecolonies.api.util.constant.translation.CommandTranslationConstants.COMMAND_PLAYER_NOT_FOUND;
@@ -37,13 +37,13 @@ public class CommandResetPlayerSupplies implements IMCOPCommand
             }
             else
             {
-                context.getSource().sendSuccess(() -> Component.translatable(COMMAND_PLAYER_NOT_FOUND, username), true);
+                context.getSource().sendSuccess(() -> String.translatable(COMMAND_PLAYER_NOT_FOUND, username), true);
             }
             return 0;
         }
 
         player.awardStat(Stats.ITEM_USED.get(ModItems.supplyChest), -1);
-        context.getSource().sendSuccess(() -> Component.translatable(COMMAND_RESET_SUPPLY_SUCCESS), true);
+        context.getSource().sendSuccess(() -> String.translatable(COMMAND_RESET_SUPPLY_SUCCESS), true);
         MessageUtils.format(COMMAND_RESET_SUPPLY_SUCCESS).sendTo(player);
         return 1;
     }
@@ -63,3 +63,5 @@ public class CommandResetPlayerSupplies implements IMCOPCommand
         return "resetsupplies";
     }
 }
+
+

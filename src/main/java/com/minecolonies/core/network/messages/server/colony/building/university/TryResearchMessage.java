@@ -6,10 +6,10 @@ import com.minecolonies.api.research.IGlobalResearch;
 import com.minecolonies.api.research.IGlobalResearchTree;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingUniversity;
 import com.minecolonies.core.network.messages.server.AbstractBuildingServerMessage;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -53,7 +53,7 @@ public class TryResearchMessage extends AbstractBuildingServerMessage<BuildingUn
     }
 
     @Override
-    public void fromBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void fromBytesOverride(@NotNull final PacketBuffer buf)
     {
         researchId = buf.readResourceLocation();
         branch = buf.readResourceLocation();
@@ -61,7 +61,7 @@ public class TryResearchMessage extends AbstractBuildingServerMessage<BuildingUn
     }
 
     @Override
-    public void toBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void toBytesOverride(@NotNull final PacketBuffer buf)
     {
         buf.writeResourceLocation(researchId);
         buf.writeResourceLocation(branch);
@@ -70,9 +70,9 @@ public class TryResearchMessage extends AbstractBuildingServerMessage<BuildingUn
 
     @Override
     protected void onExecute(
-      final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony, final BuildingUniversity building)
+      final MessageContext ctx, final boolean isLogicalServer, final IColony colony, final BuildingUniversity building)
     {
-        final Player player = ctxIn.getSender();
+        final Player player = ctx.getServerHandler().playerEntity;
         if (player == null)
         {
             return;
@@ -96,3 +96,5 @@ public class TryResearchMessage extends AbstractBuildingServerMessage<BuildingUn
         }
     }
 }
+
+

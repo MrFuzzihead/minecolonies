@@ -1,5 +1,6 @@
 package com.minecolonies.core.client.gui.modules;
 
+// [1.7.10] blockui replaced by ModularUI2
 import com.ldtteam.blockui.controls.Button;
 
 /**
@@ -29,3 +30,4 @@ public interface IWindowModule
      */
     default void onButtonClicked(final Button button) {}
 }
+

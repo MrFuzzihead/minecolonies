@@ -8,13 +8,13 @@ import com.minecolonies.api.colony.requestsystem.manager.IRequestManager;
 import com.minecolonies.api.colony.requestsystem.requester.IRequester;
 import com.minecolonies.api.colony.workorders.IWorkOrderView;
 import com.minecolonies.api.network.IMessage;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +27,7 @@ public interface IColonyView extends IColony
      *
      * @return the list of free to interact positions.
      */
-    List<BlockPos> getFreePositions();
+    List<int[]> getFreePositions();
 
     /**
      * Get a copy of the freeBlocks list.
@@ -41,7 +41,7 @@ public interface IColonyView extends IColony
      *
      * @param pos position to add.
      */
-    void addFreePosition(@NotNull BlockPos pos);
+    void addFreePosition(@NotNull int[] pos);
 
     /**
      * Add a new free to interact block.
@@ -55,7 +55,7 @@ public interface IColonyView extends IColony
      *
      * @param pos position to remove.
      */
-    void removeFreePosition(@NotNull BlockPos pos);
+    void removeFreePosition(@NotNull int[] pos);
 
     /**
      * Remove a free to interact block.
@@ -69,7 +69,7 @@ public interface IColonyView extends IColony
      *
      * @return dimension ID of the view.
      */
-    ResourceKey<Level> getDimension();
+    int /* ResourceKey */ getDimension();
 
     /**
      * Returns a map of players in the colony. Key is the UUID, value is {@link Player}
@@ -126,13 +126,13 @@ public interface IColonyView extends IColony
     /**
      * Populate a ColonyView from the network data.
      *
-     * @param buf               {@link FriendlyByteBuf} to read from.
+     * @param buf               {@link PacketBuffer} to read from.
      * @param isNewSubscription Whether this is a new subscription of not.
      * @param world             the world it is in.
      * @return null == no response.
      */
     @Nullable
-    IMessage handleColonyViewMessage(@NotNull FriendlyByteBuf buf, @NotNull Level world, boolean isNewSubscription);
+    IMessage handleColonyViewMessage(@NotNull PacketBuffer buf, @NotNull World world, boolean isNewSubscription);
 
     /**
      * Update permissions.
@@ -141,7 +141,7 @@ public interface IColonyView extends IColony
      * @return null == no response
      */
     @Nullable
-    IMessage handlePermissionsViewMessage(@NotNull FriendlyByteBuf buf);
+    IMessage handlePermissionsViewMessage(@NotNull PacketBuffer buf);
 
     /**
      * Update a ColonyView's workOrders given a network data ColonyView update packet. This uses a full-replacement - workOrders do not get updated and are instead overwritten.
@@ -150,7 +150,7 @@ public interface IColonyView extends IColony
      * @return null == no response.
      */
     @Nullable
-    IMessage handleColonyViewWorkOrderMessage(FriendlyByteBuf buf);
+    IMessage handleColonyViewWorkOrderMessage(PacketBuffer buf);
 
     /**
      * Update a ColonyView's citizens given a network data ColonyView update packet. This uses a full-replacement - citizens do not get updated and are instead overwritten.
@@ -160,21 +160,21 @@ public interface IColonyView extends IColony
      * @return null == no response.
      */
     @Nullable
-    IMessage handleColonyViewCitizensMessage(int id, FriendlyByteBuf buf);
+    IMessage handleColonyViewCitizensMessage(int id, PacketBuffer buf);
 
     /**
      * Handles visitor view messages
      * @param refresh if all need to be refreshed.
      * @param visitorViewData the new data to set
      */
-    void handleColonyViewVisitorMessage(final FriendlyByteBuf visitorViewData, final boolean refresh);
+    void handleColonyViewVisitorMessage(final PacketBuffer visitorViewData, final boolean refresh);
 
     /**
      * Handles animal view messages
      * @param refresh if all need to be refreshed.
      * @param animalViewData the new data to set
      */
-    void handleColonyViewAnimalMessage(final FriendlyByteBuf animalViewData, final boolean refresh);
+    void handleColonyViewAnimalMessage(final PacketBuffer animalViewData, final boolean refresh);
 
     /**
      * Remove a citizen from the ColonyView.
@@ -196,9 +196,9 @@ public interface IColonyView extends IColony
 
     /**
      * Handle the colony view research manager updating.
-     * @param compoundTag the tag to update the research manager with.
+     * @param NBTTagCompound the NBTBase to update the research manager with.
      */
-    void handleColonyViewResearchManagerUpdate(CompoundTag compoundTag);
+    void handleColonyViewResearchManagerUpdate(NBTTagCompound NBTTagCompound);
 
     /**
      * Update a players permissions.
@@ -222,7 +222,7 @@ public interface IColonyView extends IColony
     double getOverallHappiness();
 
     @Override
-    BlockPos getCenter();
+    int[] getCenter();
 
     @Override
     String getName();
@@ -239,10 +239,10 @@ public interface IColonyView extends IColony
     IPermissions getPermissions();
 
     @Override
-    boolean isCoordInColony(@NotNull Level w, @NotNull BlockPos pos);
+    boolean isCoordInColony(@NotNull World w, @NotNull int[] pos);
 
     @Override
-    long getDistanceSquared(@NotNull BlockPos pos);
+    long getDistanceSquared(@NotNull int[] pos);
 
     /**
      * Returns the ID of the view.
@@ -256,7 +256,7 @@ public interface IColonyView extends IColony
     int getLastContactInHours();
 
     @Override
-    Level getWorld();
+    World getWorld();
 
     @NotNull
     @Override
@@ -270,20 +270,20 @@ public interface IColonyView extends IColony
 
     @Nullable
     @Override
-    IRequester getRequesterBuildingForPosition(@NotNull BlockPos pos);
+    IRequester getRequesterBuildingForPosition(@NotNull int[] pos);
 
     @Override
-    void removeVisitingPlayer(Player player);
+    void removeVisitingPlayer(EntityPlayer player);
 
     @Override
-    void addVisitingPlayer(Player player);
+    void addVisitingPlayer(EntityPlayer player);
 
     /**
      * Get a list of all barb spawn positions in the colony view.
      *
      * @return a copy of the list.
      */
-    List<BlockPos> getLastSpawnPoints();
+    List<int[]> getLastSpawnPoints();
 
     @Override
     boolean isRemote();
@@ -332,3 +332,6 @@ public interface IColonyView extends IColony
      */
     IRegisteredStructureManagerView getClientBuildingManager();
 }
+
+
+

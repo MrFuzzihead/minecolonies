@@ -14,11 +14,11 @@ import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.NBTUtils;
 import com.minecolonies.api.util.constant.SerializationIdentifierConstants;
 import com.minecolonies.api.util.constant.TypeConstants;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.Tuple;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.network.PacketBuffer;
+import com.minecolonies.api.util.Tuple;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -96,20 +96,20 @@ public class StandardRequestIdentitiesDataStore implements IRequestIdentitiesDat
 
         @NotNull
         @Override
-        public CompoundTag serialize(@NotNull final IFactoryController controller, @NotNull final StandardRequestIdentitiesDataStore standardRequestIdentitiesDataStore)
+        public NBTTagCompound serialize(@NotNull final IFactoryController controller, @NotNull final StandardRequestIdentitiesDataStore standardRequestIdentitiesDataStore)
         {
-            final CompoundTag systemCompound = new CompoundTag();
+            final NBTTagCompound systemCompound = new NBTTagCompound();
 
             systemCompound.put(TAG_TOKEN, controller.serialize(standardRequestIdentitiesDataStore.getId()));
-            final ListTag listTag = new ListTag();
+            final NBTTagList NBTTagList = new NBTTagList();
             for (final Map.Entry<IToken<?>, IRequest<?>> entry : new HashSet<>(standardRequestIdentitiesDataStore.getIdentities().entrySet()))
             {
                 try
                 {
-                    CompoundTag mapCompound = new CompoundTag();
+                    NBTTagCompound mapCompound = new NBTTagCompound();
                     mapCompound.put(TAG_TOKEN, controller.serialize(entry.getKey()));
                     mapCompound.put(TAG_REQUEST, controller.serialize(entry.getValue()));
-                    listTag.add(mapCompound);
+                    NBTTagList.add(mapCompound);
                 }
                 catch (final Exception e)
                 {
@@ -117,25 +117,25 @@ public class StandardRequestIdentitiesDataStore implements IRequestIdentitiesDat
                     Log.getLogger().error(e);
                 }
             }
-            systemCompound.put(TAG_LIST, listTag);
+            systemCompound.put(TAG_LIST, NBTTagList);
             return systemCompound;
         }
 
         @NotNull
         @Override
-        public StandardRequestIdentitiesDataStore deserialize(@NotNull final IFactoryController controller, @NotNull final CompoundTag nbt)
+        public StandardRequestIdentitiesDataStore deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound nbt)
         {
             final IToken<?> token = controller.deserialize(nbt.getCompound(TAG_TOKEN));
-            final ListTag list = nbt.getList(TAG_LIST, Tag.TAG_COMPOUND);
+            final NBTTagList list = nbt.getList(TAG_LIST, NBTBase.TAG_COMPOUND);
 
             final BiMap<IToken<?>, IRequest<?>> map = HashBiMap.create();
             for (int i = 0; i < list.size(); i++)
             {
-                final CompoundTag tag = list.getCompound(i);
+                final NBTTagCompound NBTBase = list.getCompound(i);
                 try
                 {
-                    final IToken<?> id = controller.deserialize(tag.getCompound(TAG_TOKEN));
-                    final IRequest<?> request = controller.deserialize(tag.getCompound(TAG_REQUEST));
+                    final IToken<?> id = controller.deserialize(NBTBase.getCompound(TAG_TOKEN));
+                    final IRequest<?> request = controller.deserialize(NBTBase.getCompound(TAG_REQUEST));
                     map.put(id, request);
                 }
                 catch (final Exception ex)
@@ -148,7 +148,7 @@ public class StandardRequestIdentitiesDataStore implements IRequestIdentitiesDat
         }
 
         @Override
-        public void serialize(IFactoryController controller, StandardRequestIdentitiesDataStore input, FriendlyByteBuf packetBuffer)
+        public void serialize(IFactoryController controller, StandardRequestIdentitiesDataStore input, PacketBuffer packetBuffer)
         {
             controller.serialize(packetBuffer, input.id);
             packetBuffer.writeInt(input.getIdentities().size());
@@ -159,7 +159,7 @@ public class StandardRequestIdentitiesDataStore implements IRequestIdentitiesDat
         }
 
         @Override
-        public StandardRequestIdentitiesDataStore deserialize(IFactoryController controller, FriendlyByteBuf buffer)
+        public StandardRequestIdentitiesDataStore deserialize(IFactoryController controller, PacketBuffer buffer)
           throws Throwable
         {
             final IToken<?> token = controller.deserialize(buffer);
@@ -190,3 +190,7 @@ public class StandardRequestIdentitiesDataStore implements IRequestIdentitiesDat
         }
     }
 }
+
+
+
+

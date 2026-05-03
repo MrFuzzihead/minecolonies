@@ -4,11 +4,11 @@ import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IVisitorData;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.WorldUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.entity.Entity;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ import static com.minecolonies.api.util.constant.SchematicTagConstants.TAG_SITTI
 public class VisitorData extends CitizenData implements IVisitorData
 {
     /**
-     * Recruit nbt tag
+     * Recruit nbt NBTBase
      */
     private static final String TAG_RECRUIT_COST = "rcost";
     private static final String TAG_RECRUIT_COST_QTY = "rcostqty";
@@ -31,10 +31,10 @@ public class VisitorData extends CitizenData implements IVisitorData
     /**
      * The position the citizen is sitting at
      */
-    private BlockPos sittingPosition = BlockPos.ZERO;
+    private int[] sittingPosition = new int[]{0,0,0};
 
     /**
-     * The recruitment level, used for stats/equipment and costs
+     * The recruitment World, used for stats/equipment and costs
      */
     private ItemStack recruitCost = ItemStack.EMPTY;
 
@@ -50,10 +50,10 @@ public class VisitorData extends CitizenData implements IVisitorData
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        CompoundTag compoundNBT = super.serializeNBT();
-        CompoundTag item = new CompoundTag();
+        NBTTagCompound compoundNBT = super.serializeNBT();
+        NBTTagCompound item = new NBTTagCompound();
         recruitCost.save(item);
         compoundNBT.put(TAG_RECRUIT_COST, item);
         compoundNBT.putInt(TAG_RECRUIT_COST_QTY, recruitCost.getCount());
@@ -62,7 +62,7 @@ public class VisitorData extends CitizenData implements IVisitorData
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag nbtTagCompound)
+    public void deserializeNBT(final NBTTagCompound nbtTagCompound)
     {
         super.deserializeNBT(nbtTagCompound);
         sittingPosition = BlockPosUtil.read(nbtTagCompound, TAG_SITTING);
@@ -89,7 +89,7 @@ public class VisitorData extends CitizenData implements IVisitorData
      * @param nbt    nbt compound to read from
      * @return new CitizenData
      */
-    public static IVisitorData loadVisitorFromNBT(final IColony colony, final CompoundTag nbt)
+    public static IVisitorData loadVisitorFromNBT(final IColony colony, final NBTTagCompound nbt)
     {
         final IVisitorData data = new VisitorData(nbt.getInt(TAG_ID), colony);
         data.deserializeNBT(nbt);
@@ -97,7 +97,7 @@ public class VisitorData extends CitizenData implements IVisitorData
     }
 
     @Override
-    public void serializeViewNetworkData(@NotNull final FriendlyByteBuf buf)
+    public void serializeViewNetworkData(@NotNull final PacketBuffer buf)
     {
         super.serializeViewNetworkData(buf);
         buf.writeItem(recruitCost);
@@ -105,13 +105,13 @@ public class VisitorData extends CitizenData implements IVisitorData
     }
 
     @Override
-    public BlockPos getSittingPosition()
+    public int[] getSittingPosition()
     {
         return sittingPosition;
     }
 
     @Override
-    public void setSittingPosition(final BlockPos pos)
+    public void setSittingPosition(final int[] pos)
     {
         this.sittingPosition = pos;
     }
@@ -122,7 +122,7 @@ public class VisitorData extends CitizenData implements IVisitorData
         if (getEntity().isPresent())
         {
             final Entity entity = getEntity().get();
-            if (entity.isAlive() && WorldUtil.isEntityBlockLoaded(entity.level, entity.blockPosition()))
+            if (entity.isAlive() && WorldUtil.isEntityBlockLoaded(entity.World, entity.blockPosition()))
             {
                 return;
             }
@@ -130,8 +130,8 @@ public class VisitorData extends CitizenData implements IVisitorData
             setEntity(null);
         }
 
-        List<BlockPos> spawnPositions = new ArrayList<>();
-        if (getLastPosition() != BlockPos.ZERO && (getLastPosition().getX() != 0 && getLastPosition().getZ() != 0))
+        List<int[]> spawnPositions = new ArrayList<>();
+        if (getLastPosition() != new int[]{0,0,0} && (getLastPosition().getX() != 0 && getLastPosition().getZ() != 0))
         {
             spawnPositions.add(getLastPosition());
 
@@ -151,3 +151,7 @@ public class VisitorData extends CitizenData implements IVisitorData
         // no research effects for now
     }
 }
+
+
+
+

@@ -3,10 +3,10 @@ package com.minecolonies.core.client.gui;
 import com.minecolonies.api.colony.buildings.modules.IMinimumStockModuleView;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.modules.building.MinimumStockModuleWindow;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 /**
- * BOWindow for the request PostBox GUI.
+ * Object (BOWindow: todo ModularUI2 removed) for the request PostBox GUI.
  */
 public class WindowPostBoxMinStock extends MinimumStockModuleWindow
 {
@@ -27,3 +27,6 @@ public class WindowPostBoxMinStock extends MinimumStockModuleWindow
         return false;
     }
 }
+
+
+

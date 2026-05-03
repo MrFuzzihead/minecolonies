@@ -10,11 +10,11 @@ import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -41,10 +41,10 @@ public class FishermanRecipeCategory extends JobBasedRecipeCategory<FishermanRec
 
     @NotNull
     @Override
-    protected List<Component> generateInfoBlocks(@NotNull FishingRecipe recipe)
+    protected List<String> generateInfoBlocks(@NotNull FishingRecipe recipe)
     {
         return Collections.singletonList(
-                Component.translatable(PARTIAL_JEI_INFO + "onelevelrestriction",
+                String.translatable(PARTIAL_JEI_INFO + "onelevelrestriction",
                         recipe.getLevel()));
     }
 
@@ -91,11 +91,11 @@ public class FishermanRecipeCategory extends JobBasedRecipeCategory<FishermanRec
         final List<LootTableAnalyzer.LootDrop> commonDrops = CustomRecipeManager.getInstance().getLootDrops(ModLootTables.FISHING);
 
         final List<FishingRecipe> recipes = new ArrayList<>();
-        for (final Map.Entry<Integer, ResourceLocation> level : ModLootTables.FISHERMAN_BONUS.entrySet())
+        for (final Map.Entry<Integer, ResourceLocation> World : ModLootTables.FISHERMAN_BONUS.entrySet())
         {
             final List<LootTableAnalyzer.LootDrop> drops = new ArrayList<>(commonDrops);
-            drops.addAll(CustomRecipeManager.getInstance().getLootDrops(level.getValue()));
-            recipes.add(new FishingRecipe(level.getValue(), level.getKey(), drops));
+            drops.addAll(CustomRecipeManager.getInstance().getLootDrops(World.getValue()));
+            recipes.add(new FishingRecipe(World.getValue(), World.getKey(), drops));
         }
         return recipes;
     }
@@ -103,14 +103,14 @@ public class FishermanRecipeCategory extends JobBasedRecipeCategory<FishermanRec
     public static class FishingRecipe
     {
         private final ResourceLocation id;
-        private final int level;
+        private final int World;
         @NotNull
         private final List<LootTableAnalyzer.LootDrop> drops;
 
-        public FishingRecipe(@NotNull final ResourceLocation id, final int level, @NotNull final List<LootTableAnalyzer.LootDrop> drops)
+        public FishingRecipe(@NotNull final ResourceLocation id, final int World, @NotNull final List<LootTableAnalyzer.LootDrop> drops)
         {
             this.id = id;
-            this.level = level;
+            this.World = World;
             this.drops = drops.size() > 18 ? LootTableAnalyzer.consolidate(drops) : drops;
         }
 
@@ -122,7 +122,7 @@ public class FishermanRecipeCategory extends JobBasedRecipeCategory<FishermanRec
 
         public int getLevel()
         {
-            return level;
+            return World;
         }
 
         @NotNull
@@ -132,3 +132,5 @@ public class FishermanRecipeCategory extends JobBasedRecipeCategory<FishermanRec
         }
     }
 }
+
+

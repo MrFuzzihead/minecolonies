@@ -1,17 +1,17 @@
 package com.minecolonies.api.crafting.registry;
 
-import com.minecolonies.api.crafting.ZeroWasteRecipe;
+// [1.7.10 BACKPORT STUB] RecipeSerializer/RecipeType do not exist in 1.7.10.
+// CompostRecipeSerializer and ZeroWasteRecipeSerializer are lazily initialized during mod setup.
 import com.minecolonies.api.crafting.CompostRecipe;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraftforge.registries.RegistryObject;
+import com.minecolonies.api.crafting.ZeroWasteRecipe;
+import com.minecolonies.api.registry.RegistryObject;
 
 /**
- * Holds ref to the mod recipe serializers and recipe types.
+ * [1.7.10 BACKPORT STUB] Holds refs to mod recipe serializers and recipe types.
+ * In 1.7.10 there is no recipe serializer registry.
  */
 public class ModRecipeSerializer
 {
-    public static RegistryObject<CompostRecipe.Serializer> CompostRecipeSerializer;
-    public static RegistryObject<RecipeType<CompostRecipe>>   CompostRecipeType;
-
-    public static RegistryObject<ZeroWasteRecipe.Serializer> ZeroWasteRecipeSerializer;
+    public static RegistryObject<CompostRecipe.Serializer> CompostRecipeSerializer = RegistryObject.of(new CompostRecipe.Serializer());
+    public static RegistryObject<ZeroWasteRecipe.Serializer> ZeroWasteRecipeSerializer = RegistryObject.of(ZeroWasteRecipe.Serializer.get());
 }

@@ -11,16 +11,16 @@ import com.minecolonies.core.colony.buildings.modules.SettingsModule;
 import com.minecolonies.core.colony.buildings.modules.settings.SettingKey;
 import com.minecolonies.core.network.messages.server.AbstractBuildingServerMessage;
 import com.minecolonies.core.network.messages.server.AbstractColonyServerMessage;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Message handling setting triggering.
  */
-//todo make this non building based, and give it an optional blockpos which if zero means colony level setting.
+//todo make this non building based, and give it an optional int[] which if zero means colony World setting.
 public class TriggerSettingMessage extends AbstractColonyServerMessage
 {
     /**
@@ -39,9 +39,9 @@ public class TriggerSettingMessage extends AbstractColonyServerMessage
     private int moduleID;
 
     /**
-     * The building position that the setting was triggered for or zero for colony level.
+     * The building position that the setting was triggered for or zero for colony World.
      */
-    private BlockPos buildingPos;
+    private int[] buildingPos;
 
     /**
      * Empty standard constructor.
@@ -57,7 +57,7 @@ public class TriggerSettingMessage extends AbstractColonyServerMessage
      * @param key the unique key of it.
      * @param value the value of the setting.
      */
-    public TriggerSettingMessage(final IColony colony, final ISettingKey<?> key, final ISetting value, final int moduleID, final BlockPos pos)
+    public TriggerSettingMessage(final IColony colony, final ISettingKey<?> key, final ISetting value, final int moduleID, final int[] pos)
     {
         super(colony);
         this.key = key.getUniqueId();
@@ -67,7 +67,7 @@ public class TriggerSettingMessage extends AbstractColonyServerMessage
     }
 
     @Override
-    public void fromBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void fromBytesOverride(@NotNull final PacketBuffer buf)
     {
         this.moduleID = buf.readInt();
         this.key = buf.readResourceLocation();
@@ -76,7 +76,7 @@ public class TriggerSettingMessage extends AbstractColonyServerMessage
     }
 
     @Override
-    public void toBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void toBytesOverride(@NotNull final PacketBuffer buf)
     {
         buf.writeInt(moduleID);
         buf.writeResourceLocation(this.key);
@@ -85,20 +85,23 @@ public class TriggerSettingMessage extends AbstractColonyServerMessage
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony)
     {
         final ISettingKey settingKey = new SettingKey<>(this.value.getClass(), this.key);
-        if (buildingPos.equals(BlockPos.ZERO))
+        if (buildingPos.equals(new int[]{0,0,0}))
         {
-            colony.getSettings().updateSetting(settingKey, this.value, ctxIn.getSender());
+            colony.getSettings().updateSetting(settingKey, this.value, ctx.getServerHandler().playerEntity);
         }
         else
         {
             final IBuilding building = colony.getServerBuildingManager().getBuilding(buildingPos);
             if (building != null && building.getModule(moduleID) instanceof SettingsModule module)
             {
-                module.updateSetting(settingKey, this.value, ctxIn.getSender());
+                module.updateSetting(settingKey, this.value, ctx.getServerHandler().playerEntity);
             }
         }
     }
 }
+
+
+

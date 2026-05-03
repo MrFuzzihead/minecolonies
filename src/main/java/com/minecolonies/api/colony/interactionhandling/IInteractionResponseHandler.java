@@ -1,16 +1,16 @@
 package com.minecolonies.api.colony.interactionhandling;
 
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.ICitizenDataView;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.World;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+// [1.7.10] INBTSerializable -> manual read/write
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -18,21 +18,21 @@ import java.util.List;
 /**
  * Response handler for all kind of GUI interactions.
  */
-public interface IInteractionResponseHandler extends INBTSerializable<CompoundTag>
+public interface IInteractionResponseHandler
 {
     /**
      * The inquiry of the GUI to the player. This is the key for the interaction, functions as id.
      *
      * @return the text inquiry.
      */
-    Component getInquiry();
+    String getInquiry();
 
     /**
      * The inquiry of the GUI to the player. This is the key for the interaction, functions as id.
      *
      * @return the text inquiry.
      */
-    default Component getInquiry(final Player player)
+    default String getInquiry(final EntityPlayer player)
     {
         return getInquiry();
     }
@@ -42,7 +42,7 @@ public interface IInteractionResponseHandler extends INBTSerializable<CompoundTa
      *
      * @return a list of the possible responses the player can give..
      */
-    List<Component> getPossibleResponses();
+    List<String> getPossibleResponses();
 
     /**
      * Get possible further interaction from the GUI on response.
@@ -51,7 +51,7 @@ public interface IInteractionResponseHandler extends INBTSerializable<CompoundTa
      * @return an instance of ICitizenInquiry if existent, else null.
      */
     @Nullable
-    Component getResponseResult(final Component response);
+    String getResponseResult(final String response);
 
     /**
      * Check if this interaction is a primary interaction or secondary interaction.
@@ -73,7 +73,7 @@ public interface IInteractionResponseHandler extends INBTSerializable<CompoundTa
      * @param world the world this citizen is in.
      * @return true if so.
      */
-    boolean isVisible(final Level world);
+    boolean isVisible(final World world);
 
     /**
      * Check if this response handler is still valid.
@@ -90,7 +90,7 @@ public interface IInteractionResponseHandler extends INBTSerializable<CompoundTa
      * @param player   the world it was triggered in.
      * @param data     the citizen related to it.
      */
-    void onServerResponseTriggered(final int responseId, final Player player, final ICitizenData data);
+    void onServerResponseTriggered(final int responseId, final EntityPlayer player, final ICitizenData data);
 
     /**
      * Client side action triggered on a possible response.
@@ -102,14 +102,14 @@ public interface IInteractionResponseHandler extends INBTSerializable<CompoundTa
      * @return if wishing to continue interacting.
      */
     @OnlyIn(Dist.CLIENT)
-    boolean onClientResponseTriggered(final int responseId, final Player player, final ICitizenDataView data, final BOWindow window);
+    boolean onClientResponseTriggered(final int responseId, final EntityPlayer player, final ICitizenDataView data, final Object /* BOWindow: todo ModularUI2 */ window);
 
     /**
      * Remove a certain parent.
      *
      * @param inquiry the parent inquiry.
      */
-    void removeParent(Component inquiry);
+    void removeParent(String inquiry);
 
     /**
      * Gen all child interactions related to this.
@@ -128,7 +128,7 @@ public interface IInteractionResponseHandler extends INBTSerializable<CompoundTa
     /**
      * Callback for showing the interaction, to set interaction specific stuff
      */
-    default void onWindowOpened(final BOWindow window, final ICitizenDataView dataView) {}
+    default void onWindowOpened(final Object /* BOWindow: todo ModularUI2 */ window, final ICitizenDataView dataView) {}
 
     /**
      * Gets the icon to render for this interaction
@@ -148,11 +148,17 @@ public interface IInteractionResponseHandler extends INBTSerializable<CompoundTa
     /**
      * Trigger on opening the interaction.
      */
-    default void onOpened(final Player player) {}
+    default void onOpened(final EntityPlayer player) {}
 
     /**
      * Get the id.
      * @return the id.
      */
-    Component getId();
+    String getId();
 }
+
+
+
+
+
+

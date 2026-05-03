@@ -23,12 +23,12 @@ import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.other.SittingEntity;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
 import com.minecolonies.core.network.messages.client.ItemParticleEffectMessage;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+// [1.7.10] sounds removed
+// [1.7.10] int /* InteractionHand */ removed
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -112,12 +112,12 @@ public class EntityAIEatTask implements IStateAI
     /**
      * The eating position to go to
      */
-    private BlockPos eatPos = null;
+    private int[] eatPos = null;
 
     /**
      * Restaurant to which the citizen should path.
      */
-    private BlockPos restaurantPos;
+    private int[] restaurantPos;
 
     /**
      * The actual restaurant.
@@ -194,9 +194,9 @@ public class EntityAIEatTask implements IStateAI
             return CHECK_FOR_FOOD;
         }
 
-        citizen.setItemInHand(InteractionHand.MAIN_HAND, foodStack);
+        citizen.setItemInHand(0 /* InteractionHand.MAIN_HAND */, foodStack);
 
-        citizen.swing(InteractionHand.MAIN_HAND);
+        citizen.swing(0 /* InteractionHand.MAIN_HAND */);
         citizen.playSound(SoundEvents.GENERIC_EAT, (float) BASIC_VOLUME, (float) SoundUtils.getRandomPitch(citizen.getRandom()));
         Network.getNetwork()
           .sendToTrackingEntity(new ItemParticleEffectMessage(citizen.getMainHandItem(),
@@ -221,7 +221,7 @@ public class EntityAIEatTask implements IStateAI
         eatenFood.add(foodStack.getItem());
 
         ItemStackUtils.consumeFood(foodStack, citizen, null);
-        citizen.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        citizen.setItemInHand(0 /* InteractionHand.MAIN_HAND */, ItemStack.EMPTY);
 
         if (citizenData.getSaturation() < FULL_SATURATION && !citizenData.getInventory().getStackInSlot(foodSlot).isEmpty())
         {
@@ -293,7 +293,7 @@ public class EntityAIEatTask implements IStateAI
             {
                 waitingTicks++;
                 if (waitingTicks > SECONDS_A_MINUTE * MINUTES_WAITING_TIME || (citizen.getCitizenData().getJob() instanceof AbstractJobGuard<?>
-                                                                                 && !WorldUtil.isDayTime(citizen.level)))
+                                                                                 && !WorldUtil.isDayTime(citizen.World)))
                 {
                     waitingTicks = 0;
                     return GET_FOOD_YOURSELF;
@@ -326,7 +326,7 @@ public class EntityAIEatTask implements IStateAI
      *
      * @return the next state to go to.
      */
-    private BlockPos findPlaceToEat()
+    private int[] findPlaceToEat()
     {
         if (restaurantPos != null)
         {
@@ -473,7 +473,7 @@ public class EntityAIEatTask implements IStateAI
     {
         final ICitizenData citizenData = citizen.getCitizenData();
         final IColony colony = citizenData.getColony();
-        final BlockPos searchFrom = citizenData.getWorkBuilding() != null
+        final int[] searchFrom = citizenData.getWorkBuilding() != null
             ? citizenData.getWorkBuilding().getPosition()
             : citizenData.getHomeBuilding() != null ? citizenData.getHomeBuilding().getPosition() : citizen.blockPosition();
 
@@ -497,7 +497,7 @@ public class EntityAIEatTask implements IStateAI
                 citizenData.setJustAte(true);
                 return DONE;
             }
-            citizenData.triggerInteraction(new StandardInteraction(Component.translatable(NO_RESTAURANT), ChatPriority.BLOCKING));
+            citizenData.triggerInteraction(new StandardInteraction(String.translatable(NO_RESTAURANT), ChatPriority.BLOCKING));
             return CHECK_FOR_FOOD;
         }
         return GO_TO_RESTAURANT;
@@ -523,16 +523,16 @@ public class EntityAIEatTask implements IStateAI
         {
             if (citizenData.isChild())
             {
-                citizenData.triggerInteraction(new StandardInteraction(Component.translatable(BETTER_FOOD_CHILDREN), ChatPriority.IMPORTANT));
+                citizenData.triggerInteraction(new StandardInteraction(String.translatable(BETTER_FOOD_CHILDREN), ChatPriority.IMPORTANT));
             }
             else
             {
-                citizenData.triggerInteraction(new StandardInteraction(Component.translatable(BETTER_FOOD), ChatPriority.IMPORTANT));
+                citizenData.triggerInteraction(new StandardInteraction(String.translatable(BETTER_FOOD), ChatPriority.IMPORTANT));
             }
         }
         else if (InventoryUtils.hasItemInItemHandler(citizen.getInventoryCitizen(), ISCOOKABLE))
         {
-            citizenData.triggerInteraction(new StandardInteraction(Component.translatable(RAW_FOOD), ChatPriority.PENDING));
+            citizenData.triggerInteraction(new StandardInteraction(String.translatable(RAW_FOOD), ChatPriority.PENDING));
         }
         return false;
     }
@@ -546,10 +546,15 @@ public class EntityAIEatTask implements IStateAI
         foodSlot = -1;
         citizen.releaseUsingItem();
         citizen.stopUsingItem();
-        citizen.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        citizen.setItemInHand(0 /* InteractionHand.MAIN_HAND */, ItemStack.EMPTY);
         restaurantPos = null;
         eatPos = null;
         eatenFood.clear();
         restaurant = null;
     }
 }
+
+
+
+
+

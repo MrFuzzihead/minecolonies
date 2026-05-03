@@ -9,236 +9,200 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.containers.WindowField;
 import com.minecolonies.core.colony.buildingextensions.FarmField;
 import com.minecolonies.core.tileentities.TileEntityScarecrow;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Explosion;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.material.MapColor;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.MathHelper;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The net.minecraft.core.Directions, placement and activation.
+ * The scarecrow block — a 2-tall block marking a farm field.
+ * [1.7.10] Ported: Material; metadata bit 2 = upper half, bits 0-1 = facing;
+ * createTileEntity (lower half only); onBlockActivated; onBlockPlacedBy (place upper);
+ * onBlockPreDestroy/breakBlock (remove partner half).
  */
 @SuppressWarnings("PMD.ExcessiveImports")
-public class BlockScarecrow extends AbstractBlockMinecoloniesDefault<BlockScarecrow> implements EntityBlock, IBuildingBrowsableBlock
+public class BlockScarecrow extends AbstractBlockMinecoloniesDefault<BlockScarecrow> implements IBuildingBrowsableBlock
 {
-    public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
+    /** Metadata bit 2 marks the upper half of the scarecrow. */
+    public static final int META_UPPER_HALF = 0x4;
 
-    /**
-     * Constructor called on block placement.
-     */
+    private static final String BLOCK_NAME = "blockhutfield";
+
     public BlockScarecrow()
     {
-        super(Properties.of().mapColor(MapColor.WOOD).sound(SoundType.WOOD).strength(HARDNESS, RESISTANCE));
-        this.registerDefaultState(this.defaultBlockState().setValue(FACING, Direction.NORTH).setValue(HALF, DoubleBlockHalf.LOWER));
+        super(Material.wood);
+        setLightOpacity(0);
     }
 
     @Override
     public ResourceLocation getRegistryName()
     {
-        return new ResourceLocation(Constants.MOD_ID, REGISTRY_NAME);
+        return new ResourceLocation(Constants.MOD_ID, BLOCK_NAME);
     }
 
-    @Nullable
     @Override
-    public BlockEntity newBlockEntity(@NotNull final BlockPos blockPos, @NotNull final BlockState blockState)
+    public boolean hasTileEntity(final int metadata)
     {
-        if (blockState.getValue(HALF) == DoubleBlockHalf.UPPER)
+        // Only the lower half has a TileEntity
+        return (metadata & META_UPPER_HALF) == 0;
+    }
+
+    @Override
+    public TileEntity createTileEntity(final World world, final int metadata)
+    {
+        if ((metadata & META_UPPER_HALF) != 0)
         {
             return null;
         }
-        return new TileEntityScarecrow(blockPos, blockState);
+        return new TileEntityScarecrow();
     }
 
     @Override
-    public InteractionResult use(
-      final BlockState state,
-      final Level worldIn,
-      final BlockPos pos,
-      final Player player,
-      final InteractionHand hand,
-      final BlockHitResult ray)
+    public void setBlockBoundsBasedOnState(final IBlockAccess access, final int x, final int y, final int z)
     {
-        // If the world is client, open the inventory of the field.
-        if (worldIn.isClientSide)
-        {
-            // Get the entity of the bottom half
-            DoubleBlockHalf half = state.getValue(HALF);
-            final BlockEntity entity = worldIn.getBlockEntity(half == DoubleBlockHalf.UPPER ? pos.below() : pos);
-
-            if (entity instanceof TileEntityScarecrow scarecrow)
-            {
-                new WindowField(scarecrow).open();
-                return InteractionResult.SUCCESS;
-            }
-            else
-            {
-                return InteractionResult.FAIL;
-            }
-        }
-
-        final IColony iColony = IColonyManager.getInstance().getIColony(worldIn, pos);
-        if (iColony != null)
-        {
-            iColony.getServerBuildingManager().addBuildingExtensionIfMissing(BuildingExtensionRegistries.farmField.get(), getFieldBasePos(state, pos), player);
-        }
-        // This must succeed in Remote to stop more right click interactions like placing blocks
-        return InteractionResult.SUCCESS;
-    }
-
-    @NotNull
-    @Override
-    public RenderShape getRenderShape(final BlockState state)
-    {
-        return RenderShape.INVISIBLE;
-    }
-
-    @Override
-    public boolean canSurvive(BlockState state, LevelReader worldIn, BlockPos pos)
-    {
-        BlockPos blockpos = pos.below();
-        BlockState blockstate = worldIn.getBlockState(blockpos);
-        if (state.getValue(HALF) == DoubleBlockHalf.LOWER)
-        {
-            return blockstate.isFaceSturdy(worldIn, blockpos, Direction.UP);
-        }
-        else
-        {
-            return blockstate.getBlock() == this;
-        }
-    }
-
-    @Override
-    public VoxelShape getShape(
-      final BlockState state, final BlockGetter worldIn, final BlockPos pos, final CollisionContext context)
-    {
-        // Force the different halves to share the same collision space;
-        // the user will think it is one big block
-        return Shapes.box(
-          (float) START_COLLISION,
-          (float) (BOTTOM_COLLISION - (state.getValue(HALF) == DoubleBlockHalf.UPPER ? 1 : 0)),
-          (float) START_COLLISION,
-          (float) END_COLLISION,
-          (float) (HEIGHT_COLLISION - (state.getValue(HALF) == DoubleBlockHalf.UPPER ? 1 : 0)),
-          (float) END_COLLISION
+        final int meta = access.getBlockMetadata(x, y, z);
+        final boolean isUpper = (meta & META_UPPER_HALF) != 0;
+        setBlockBounds(
+            (float) AbstractBlockMinecoloniesDefault.START_COLLISION,
+            (float) (AbstractBlockMinecoloniesDefault.BOTTOM_COLLISION - (isUpper ? 1 : 0)),
+            (float) AbstractBlockMinecoloniesDefault.START_COLLISION,
+            (float) AbstractBlockMinecoloniesDefault.END_COLLISION,
+            (float) (AbstractBlockMinecoloniesDefault.HEIGHT_COLLISION - (isUpper ? 1 : 0)),
+            (float) AbstractBlockMinecoloniesDefault.END_COLLISION
         );
     }
 
     @Override
-    public void wasExploded(final Level worldIn, final BlockPos pos, final Explosion explosionIn)
+    public boolean onBlockActivated(
+      final World worldIn,
+      final int x,
+      final int y,
+      final int z,
+      final EntityPlayer player,
+      final int side,
+      final float hitX,
+      final float hitY,
+      final float hitZ)
     {
-        notifyColonyAboutDestruction(worldIn, pos);
-        super.wasExploded(worldIn, pos, explosionIn);
+        final int meta = worldIn.getBlockMetadata(x, y, z);
+        final boolean isUpper = (meta & META_UPPER_HALF) != 0;
+
+        // Resolve to the lower half
+        final int lowerX = x;
+        final int lowerY = isUpper ? y - 1 : y;
+        final int lowerZ = z;
+
+        if (worldIn.isRemote)
+        {
+            final TileEntity entity = worldIn.getTileEntity(lowerX, lowerY, lowerZ);
+            if (entity instanceof TileEntityScarecrow scarecrow)
+            {
+                new WindowField(scarecrow).open();
+                return true;
+            }
+            return false;
+        }
+
+        // Server side: register farm field
+        final IColony iColony = IColonyManager.getInstance().getIColony(worldIn, lowerX, lowerY, lowerZ);
+        if (iColony != null)
+        {
+            iColony.getServerBuildingManager().addBuildingExtensionIfMissing(
+                BuildingExtensionRegistries.farmField.get(),
+                new int[]{lowerX, lowerY, lowerZ},
+                player);
+        }
+        return true;
     }
 
-    @Nullable
     @Override
-    public BlockState getStateForPlacement(final BlockPlaceContext context)
+    public void onBlockPlacedBy(
+      final World worldIn,
+      final int x,
+      final int y,
+      final int z,
+      final EntityLivingBase placer,
+      final ItemStack stack)
     {
-        @NotNull final Direction dir = (context.getPlayer() == null) ? Direction.NORTH : Direction.fromYRot(context.getPlayer().getYRot() + 180);
+        super.onBlockPlacedBy(worldIn, x, y, z, placer, stack);
 
-        if (context.getClickedPos().getY() < context.getLevel().getMaxBuildHeight() && context.getLevel().getBlockState(context.getClickedPos().above()).canBeReplaced(context))
-        {
-            return this.defaultBlockState().setValue(FACING, dir).setValue(HALF, DoubleBlockHalf.LOWER);
-        }
-        else
-        {
-            return null;
-        }
-    }
+        // Calculate lower-half facing metadata and place upper half
+        final int facingMeta = MathHelper.floor_double(placer.rotationYaw * 4.0F / 360.0F + 0.5D) & 3;
+        worldIn.setBlockMetadataWithNotify(x, y, z, facingMeta, 2);
+        worldIn.setBlock(x, y + 1, this, facingMeta | META_UPPER_HALF, 3);
 
-    @Override
-    public void setPlacedBy(Level worldIn, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack)
-    {
-        super.setPlacedBy(worldIn, pos, state, placer, stack);
-        worldIn.setBlock(pos.above(), state.setValue(HALF, DoubleBlockHalf.UPPER), 3);
-
-        if (worldIn.isClientSide)
+        if (worldIn.isRemote)
         {
             return;
         }
 
-        final IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(worldIn, pos);
+        final IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(worldIn, x, y, z);
         if (colony != null)
         {
-            colony.getServerBuildingManager().addBuildingExtension(FarmField.create(pos, worldIn));
+            colony.getServerBuildingManager().addBuildingExtension(FarmField.create(new int[]{x, y, z}, worldIn));
         }
     }
 
     @Override
-    public void playerWillDestroy(final Level worldIn, @NotNull final BlockPos pos, final BlockState state, @NotNull final Player player)
+    public void onBlockHarvested(final World worldIn, final int x, final int y, final int z, final int meta, final EntityPlayer player)
     {
-        DoubleBlockHalf half = state.getValue(HALF);
-        BlockPos otherpos = half == DoubleBlockHalf.LOWER ? pos.above() : pos.below();
-        BlockState otherstate = worldIn.getBlockState(otherpos);
+        final boolean isUpper = (meta & META_UPPER_HALF) != 0;
+        final int otherY = isUpper ? y - 1 : y + 1;
+        final int otherMeta = worldIn.getBlockMetadata(x, otherY, z);
 
-        // just double-check the other block is also the scarecrow and not the same half,
-        // then destroy it (make it air)
-        if (otherstate.getBlock() == this && otherstate.getValue(HALF) != half)
+        if (worldIn.getBlock(x, otherY, z) == this && ((otherMeta & META_UPPER_HALF) != 0) != isUpper)
         {
-            worldIn.setBlock(otherpos, Blocks.AIR.defaultBlockState(), 35);
+            worldIn.setBlockToAir(x, otherY, z);
         }
 
-        notifyColonyAboutDestruction(worldIn, pos);
-        super.playerWillDestroy(worldIn, pos, state, player);
+        notifyColonyAboutDestruction(worldIn, x, y, z, meta);
+        super.onBlockHarvested(worldIn, x, y, z, meta, player);
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder)
+    public void breakBlock(final World worldIn, final int x, final int y, final int z, final Block block, final int meta)
     {
-        builder.add(HALF, FACING);
+        // Handled in onBlockHarvested for player break; explosion/other causes handled here
+        super.breakBlock(worldIn, x, y, z, block, meta);
     }
 
-    /**
-     * Notify the colony about the destruction of the field.
-     *
-     * @param worldIn the world.
-     * @param pos     the position of the block.
-     */
-    private void notifyColonyAboutDestruction(final Level worldIn, final BlockPos pos)
+    private void notifyColonyAboutDestruction(final World worldIn, final int x, final int y, final int z, final int meta)
     {
-        if (!worldIn.isClientSide())
+        if (!worldIn.isRemote)
         {
-            final BlockPos fieldBasePos = getFieldBasePos(worldIn.getBlockState(pos), pos);
-            final IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(worldIn, fieldBasePos);
-
+            final boolean isUpper = (meta & META_UPPER_HALF) != 0;
+            final int lowerY = isUpper ? y - 1 : y;
+            final IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(worldIn, x, lowerY, z);
             if (colony != null)
             {
-                colony.getServerBuildingManager().removeBuildingExtension(field -> field.getBuildingExtensionType().equals(BuildingExtensionRegistries.farmField.get()) && field.getPosition().equals(fieldBasePos));
+                final int[] fieldPos = {x, lowerY, z};
+                colony.getServerBuildingManager().removeBuildingExtension(
+                    field -> field.getBuildingExtensionType().equals(BuildingExtensionRegistries.farmField.get())
+                                 && field.getPosition()[0] == fieldPos[0]
+                                 && field.getPosition()[1] == fieldPos[1]
+                                 && field.getPosition()[2] == fieldPos[2]);
             }
         }
     }
 
-    /**
-     * Resolve a scarecrow block position to the lower-half block that owns the field data.
-     *
-     * @param state the currently interacted scarecrow state.
-     * @param pos the currently interacted block position.
-     * @return the lower-half block position.
-     */
-    private static BlockPos getFieldBasePos(final BlockState state, final BlockPos pos)
+    @Override
+    public boolean isOpaqueCube()
     {
-        return state.getValue(HALF) == DoubleBlockHalf.UPPER ? pos.below() : pos;
+        return false;
+    }
+
+    @Override
+    public boolean renderAsNormalBlock()
+    {
+        return false;
     }
 }

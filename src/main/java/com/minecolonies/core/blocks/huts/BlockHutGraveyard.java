@@ -3,41 +3,32 @@ package com.minecolonies.core.blocks.huts;
 import com.minecolonies.api.blocks.AbstractBlockHut;
 import com.minecolonies.api.colony.buildings.ModBuildings;
 import com.minecolonies.api.colony.buildings.registry.BuildingEntry;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.IBlockAccess;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Hut for the graveyard. No different from {@link AbstractBlockHut}
+ * Hut for the graveyard.
+ * [1.7.10] Ported: VoxelShape removed; setBlockBoundsBasedOnState used instead.
  */
-
 public class BlockHutGraveyard extends AbstractBlockHut<BlockHutGraveyard>
 {
-    /**
-     * tall shape.
-     */
-    private static final VoxelShape SHAPE = Shapes.box(0.1, 0.1, 0.1, 0.9, 1.9, 0.9);
-
     public BlockHutGraveyard()
     {
-        //No different from Abstract parent
         super();
     }
 
-    @NotNull
     @Override
-    public VoxelShape getShape(final BlockState state, final BlockGetter worldIn, final BlockPos pos, final CollisionContext context)
+    public void setBlockBoundsBasedOnState(final IBlockAccess access, final int x, final int y, final int z)
     {
-        return SHAPE;
+        setBlockBounds(0.1f, 0.1f, 0.1f, 0.9f, 1.0f, 0.9f);
     }
 
     @NotNull
     @Override
-    public String getHutName() { return "blockhutgraveyard"; }
+    public String getHutName()
+    {
+        return "blockhutgraveyard";
+    }
 
     @Override
     public BuildingEntry getBuildingEntry()

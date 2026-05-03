@@ -1,6 +1,6 @@
 package com.minecolonies.core.entity.pathfinding.pathjobs;
 
-import net.minecraft.core.BlockPos;
+// [1.7.10] int[] -> int x,y,z
 
 /**
  * Interface for path jobs with a destination/desired direction
@@ -12,5 +12,7 @@ public interface IDestinationPathJob
      *
      * @return destination
      */
-    public BlockPos getDestination();
+    public int[] getDestination();
 }
+
+

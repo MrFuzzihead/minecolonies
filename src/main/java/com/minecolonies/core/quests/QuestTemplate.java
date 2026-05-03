@@ -3,9 +3,9 @@ package com.minecolonies.core.quests;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.quests.*;
 import com.minecolonies.api.quests.IQuestTemplate;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayer;
 
 import java.util.List;
 import java.util.function.Function;
@@ -37,7 +37,7 @@ public class QuestTemplate implements IQuestTemplate
 
     private final int maxOccurrence;
 
-    private final Component name;
+    private final String name;
 
     /**
      * How long the quest stays active/available.
@@ -55,7 +55,7 @@ public class QuestTemplate implements IQuestTemplate
      * @param questTimeout the time until it times out.
      * @param questRewards its rewards
      */
-    public QuestTemplate(final ResourceLocation questID, final Component name,
+    public QuestTemplate(final ResourceLocation questID, final String name,
       final List<ResourceLocation> parents,
       final int maxOccurrence, final Function<IColony, List<ITriggerReturnData<?>>> questTriggerList, final List<IQuestObjectiveTemplate> questObjectives, final int questTimeout, final List<IQuestRewardTemplate> questRewards)
     {
@@ -115,7 +115,7 @@ public class QuestTemplate implements IQuestTemplate
     }
 
     @Override
-    public Component getName()
+    public String getName()
     {
         return this.name;
     }
@@ -126,3 +126,5 @@ public class QuestTemplate implements IQuestTemplate
         return this.parents;
     }
 }
+
+

@@ -1,17 +1,8 @@
 package com.minecolonies.api.advancements.place_supply;
-
-import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.advancements.critereon.AbstractCriterionTriggerInstance;
-import net.minecraft.advancements.critereon.ContextAwarePredicate;
-import net.minecraft.resources.ResourceLocation;
-
-/**
- * A default instance for the "place_supply" trigger, as the conditions are handled in events
- */
-public class PlaceSupplyCriterionInstance extends AbstractCriterionTriggerInstance
+// [1.7.10 BACKPORT] Stubbed out — advancements do not exist in Minecraft 1.7.10.
+// Original 1.21 class extended AbstractCriterionTriggerInstance.
+/** Stub criterion instance — no-op in 1.7.10. */
+public class PlaceSupplyCriterionInstance
 {
-    public PlaceSupplyCriterionInstance()
-    {
-        super(new ResourceLocation(Constants.MOD_ID, Constants.CRITERION_SUPPLY_PLACED), ContextAwarePredicate.ANY);
-    }
+    public PlaceSupplyCriterionInstance() { /* no-op */ }
 }

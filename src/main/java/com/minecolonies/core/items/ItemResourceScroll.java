@@ -16,24 +16,24 @@ import com.minecolonies.core.colony.buildings.workerbuildings.BuildingWareHouse;
 import com.minecolonies.core.network.messages.server.ResourceScrollSaveWarehouseSnapshotMessage;
 import com.minecolonies.core.tileentities.TileEntityRack;
 import com.minecolonies.core.tileentities.TileEntityWareHouse;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.util.EnumChatFormatting;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] int /* InteractionHand */ removed
+// [1.7.10] InteractionResult -> boolean
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.world.World;
+// [1.7.10] block.entity removed
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,12 +65,12 @@ public class ItemResourceScroll extends AbstractItemMinecolonies
      * @param compound the item compound
      * @param player   the player entity opening the window
      */
-    private static void openWindow(final CompoundTag compound, final Player player)
+    private static void openWindow(final NBTTagCompound compound, final Player player)
     {
         final int colonyId = compound.getInt(TAG_COLONY_ID);
-        final BlockPos builderPos = compound.contains(TAG_BUILDER) ? BlockPosUtil.read(compound, TAG_BUILDER) : null;
+        final int[] builderPos = compound.contains(TAG_BUILDER) ? BlockPosUtil.read(compound, TAG_BUILDER) : null;
 
-        final IColonyView colonyView = IColonyManager.getInstance().getColonyView(colonyId, Minecraft.getInstance().level.dimension());
+        final IColonyView colonyView = IColonyManager.getInstance().getColonyView(colonyId, Minecraft.getInstance().World.dimension());
         if (colonyView != null)
         {
             final IBuildingView buildingView = colonyView.getClientBuildingManager().getBuilding(builderPos);
@@ -91,7 +91,7 @@ public class ItemResourceScroll extends AbstractItemMinecolonies
                     // If the hashes are still up-to-date, load the old snapshot data from the NBT, if any exists.
                     if (compound.contains(TAG_WAREHOUSE_SNAPSHOT))
                     {
-                        final CompoundTag warehouseSnapshotCompound = compound.getCompound(TAG_WAREHOUSE_SNAPSHOT);
+                        final NBTTagCompound warehouseSnapshotCompound = compound.getCompound(TAG_WAREHOUSE_SNAPSHOT);
                         warehouseSnapshot = warehouseSnapshotCompound.getAllKeys().stream()
                                               .collect(Collectors.toMap(k -> k, warehouseSnapshotCompound::getInt));
                     }
@@ -101,12 +101,12 @@ public class ItemResourceScroll extends AbstractItemMinecolonies
             }
             else
             {
-                MessageUtils.format(Component.translatable(TranslationConstants.COM_MINECOLONIES_SCROLL_NO_COLONY)).sendTo(player);
+                MessageUtils.format(String.translatable(TranslationConstants.COM_MINECOLONIES_SCROLL_NO_COLONY)).sendTo(player);
             }
         }
         else
         {
-            MessageUtils.format(Component.translatable(TranslationConstants.COM_MINECOLONIES_SCROLL_NO_COLONY)).sendTo(player);
+            MessageUtils.format(String.translatable(TranslationConstants.COM_MINECOLONIES_SCROLL_NO_COLONY)).sendTo(player);
         }
     }
 
@@ -140,7 +140,7 @@ public class ItemResourceScroll extends AbstractItemMinecolonies
      * @param compound     the compound data.
      * @param player       the player entity who clicked the warehouse.
      */
-    private static void updateWarehouseSnapshot(final BlockPos warehousePos, final CompoundTag compound, final Player player)
+    private static void updateWarehouseSnapshot(final int[] warehousePos, final NBTTagCompound compound, final Player player)
     {
         if (!compound.contains(TAG_COLONY_ID) || !compound.contains(TAG_BUILDER))
         {
@@ -148,10 +148,10 @@ public class ItemResourceScroll extends AbstractItemMinecolonies
             return;
         }
 
-        final IColonyView colonyView = IColonyManager.getInstance().getColonyView(compound.getInt(TAG_COLONY_ID), Minecraft.getInstance().level.dimension());
+        final IColonyView colonyView = IColonyManager.getInstance().getColonyView(compound.getInt(TAG_COLONY_ID), Minecraft.getInstance().World.dimension());
         if (colonyView != null)
         {
-            final BlockPos builderPos = BlockPosUtil.read(compound, TAG_BUILDER);
+            final int[] builderPos = BlockPosUtil.read(compound, TAG_BUILDER);
             final IBuildingView buildingView = colonyView.getClientBuildingManager().getBuilding(builderPos);
             if (buildingView instanceof BuildingBuilder.View)
             {
@@ -182,7 +182,7 @@ public class ItemResourceScroll extends AbstractItemMinecolonies
     @Nullable
     private static ItemResourceScroll.WarehouseSnapshot gatherWarehouseSnapshot(
       final IBuildingView buildingView,
-      final BlockPos warehouseBlockPos,
+      final int[] warehouseBlockPos,
       final String hash,
       final Player player)
     {
@@ -202,7 +202,7 @@ public class ItemResourceScroll extends AbstractItemMinecolonies
         final BuildingResourcesModuleView resourcesModule = buildingView.getModuleViewByType(BuildingResourcesModuleView.class);
 
         final Map<String, Integer> items = new HashMap<>();
-        for (final BlockPos container : warehouse.getContainers())
+        for (final int[] container : warehouse.getContainers())
         {
             final BlockEntity blockEntity = warehouse.getColony().getWorld().getBlockEntity(container);
             if (blockEntity instanceof TileEntityRack rack)
@@ -236,7 +236,7 @@ public class ItemResourceScroll extends AbstractItemMinecolonies
     {
         final ItemStack scroll = ctx.getPlayer().getItemInHand(ctx.getHand());
 
-        final CompoundTag compound = scroll.getOrCreateTag();
+        final NBTTagCompound compound = scroll.getOrCreateTag();
         final BlockEntity entity = ctx.getLevel().getBlockEntity(ctx.getClickedPos());
 
         if (ctx.getLevel().isClientSide)
@@ -268,7 +268,7 @@ public class ItemResourceScroll extends AbstractItemMinecolonies
             }
             else if (buildingEntity.getBuilding() != null)
             {
-                final MutableComponent buildingTypeComponent = MessageUtils.format(buildingEntity.getBuilding().getBuildingType().getTranslationKey()).create();
+                final String buildingTypeComponent = MessageUtils.format(buildingEntity.getBuilding().getBuildingType().getTranslationKey()).create();
                 MessageUtils.format(COM_MINECOLONIES_SCROLL_WRONG_BUILDING, buildingTypeComponent, buildingEntity.getColony().getName()).sendTo(ctx.getPlayer());
             }
         }
@@ -287,9 +287,9 @@ public class ItemResourceScroll extends AbstractItemMinecolonies
     @Override
     @NotNull
     public InteractionResultHolder<ItemStack> use(
-      final Level worldIn,
+      final World worldIn,
       final Player playerIn,
-      final InteractionHand hand)
+      final int /* InteractionHand */ hand)
     {
         final ItemStack clipboard = playerIn.getItemInHand(hand);
 
@@ -305,7 +305,7 @@ public class ItemResourceScroll extends AbstractItemMinecolonies
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn)
+    public void appendHoverText(ItemStack stack, @Nullable World worldIn, List<String> tooltip, TooltipFlag flagIn)
     {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
 
@@ -314,9 +314,9 @@ public class ItemResourceScroll extends AbstractItemMinecolonies
             return;
         }
 
-        final CompoundTag compound = stack.getOrCreateTag();
+        final NBTTagCompound compound = stack.getOrCreateTag();
         final int colonyId = compound.getInt(TAG_COLONY_ID);
-        final BlockPos builderPos = BlockPosUtil.read(compound, TAG_BUILDER);
+        final int[] builderPos = BlockPosUtil.read(compound, TAG_BUILDER);
 
         final IColonyView colonyView = IColonyManager.getInstance().getColonyView(colonyId, worldIn.dimension());
         if (colonyView != null)
@@ -326,8 +326,8 @@ public class ItemResourceScroll extends AbstractItemMinecolonies
             {
                 String name = builderBuildingView.getWorkerName();
                 tooltip.add(name != null && !name.trim().isEmpty()
-                              ? Component.literal(ChatFormatting.DARK_PURPLE + name)
-                              : Component.translatable(COM_MINECOLONIES_SCROLL_BUILDING_NO_WORKER));
+                              ? String.literal(ChatFormatting.DARK_PURPLE + name)
+                              : String.translatable(COM_MINECOLONIES_SCROLL_BUILDING_NO_WORKER));
             }
         }
     }
@@ -342,3 +342,8 @@ public class ItemResourceScroll extends AbstractItemMinecolonies
     {
     }
 }
+
+
+
+
+

@@ -1,17 +1,34 @@
 package com.minecolonies.core.client.gui.modules.building;
 
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
 import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.PaneParams;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
 import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Image;
 import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
-import com.ldtteam.blockui.controls.TextField;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
 import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.colony.buildings.modules.IItemListModuleView;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.core.client.gui.AbstractModuleWindow;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -23,7 +40,7 @@ import static com.minecolonies.api.util.constant.WindowConstants.*;
 import static org.jline.utils.AttributedStyle.WHITE;
 
 /**
- * BOWindow for all the filterable lists.
+ * Object (BOWindow: todo ModularUI2 removed) for all the filterable lists.
  */
 public class ItemListModuleWindow extends AbstractModuleWindow<IItemListModuleView>
 {
@@ -108,7 +125,7 @@ public class ItemListModuleWindow extends AbstractModuleWindow<IItemListModuleVi
     {
         final int row = resourceList.getListElementIndexByPane(button);
         final ItemStorage item = currentDisplayedList.get(row);
-        final boolean on = button.getText().equals(Component.translatable(ON));
+        final boolean on = button.getText().equals(String.translatable(ON));
         final boolean add = (on && isInverted) || (!on && !isInverted);
 
         if (add)
@@ -214,14 +231,18 @@ public class ItemListModuleWindow extends AbstractModuleWindow<IItemListModuleVi
 
                 if ((isInverted && !isAllowedItem) || (!isInverted && isAllowedItem))
                 {
-                    switchButton.setText(Component.translatable(ON));
+                    switchButton.setText(String.translatable(ON));
                 }
                 else
                 {
-                    switchButton.setText(Component.translatable(OFF));
+                    switchButton.setText(String.translatable(OFF));
                 }
             }
         });
     }
 }
+
+
+
+
 

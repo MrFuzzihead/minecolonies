@@ -17,11 +17,11 @@ import com.minecolonies.core.colony.requestsystem.resolvers.BuildingRequestResol
 import com.minecolonies.core.colony.requestsystem.resolvers.PrivateWorkerCraftingProductionResolver;
 import com.minecolonies.core.colony.requestsystem.resolvers.PrivateWorkerCraftingRequestResolver;
 import com.minecolonies.core.util.BuildingUtils;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.IChatComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -95,12 +95,12 @@ public class WorkerBuildingModule extends AbstractAssignedCitizenModule
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
         if (compound.contains(TAG_WORKER))
         {
-            final ListTag workersTagList = compound.getList(TAG_WORKER, Tag.TAG_COMPOUND);
+            final NBTTagList workersTagList = compound.getList(TAG_WORKER, NBTBase.TAG_COMPOUND);
             for (int i = 0; i < workersTagList.size(); ++i)
             {
                 final ICitizenData data = building.getColony().getCitizenManager().getCivilian(workersTagList.getCompound(i).getInt(TAG_WORKER_ID));
@@ -112,7 +112,7 @@ public class WorkerBuildingModule extends AbstractAssignedCitizenModule
         }
         else if (compound.contains(getModuleSerializationIdentifier()))
         {
-            final CompoundTag jobCompound = compound.getCompound(jobEntry.getKey().toString());
+            final NBTTagCompound jobCompound = compound.getCompound(jobEntry.getKey().toString());
             final int[] residentIds = jobCompound.getIntArray(TAG_WORKING_RESIDENTS);
             for (final int citizenId : residentIds)
             {
@@ -152,7 +152,7 @@ public class WorkerBuildingModule extends AbstractAssignedCitizenModule
     }
 
     @Override
-    public void serializeNBT(final CompoundTag compound)
+    public void serializeNBT(final NBTTagCompound compound)
     {
         super.serializeNBT(compound);
         if (!assignedCitizen.isEmpty())
@@ -167,7 +167,7 @@ public class WorkerBuildingModule extends AbstractAssignedCitizenModule
     }
 
     @Override
-    public void serializeToView(@NotNull final FriendlyByteBuf buf)
+    public void serializeToView(@NotNull final PacketBuffer buf)
     {
         super.serializeToView(buf);
         buf.writeRegistryId(IMinecoloniesAPI.getInstance().getJobRegistry(), jobEntry);
@@ -221,7 +221,7 @@ public class WorkerBuildingModule extends AbstractAssignedCitizenModule
      */
     public String getJobDisplayName()
     {
-        return Component.translatable(jobEntry.getTranslationKey()).getString();
+        return String.translatable(jobEntry.getTranslationKey()).getString();
     }
 
     @NotNull
@@ -277,3 +277,7 @@ public class WorkerBuildingModule extends AbstractAssignedCitizenModule
         return jobEntry.getKey().toString();
     }
 }
+
+
+
+

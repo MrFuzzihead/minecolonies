@@ -3,8 +3,8 @@ package com.minecolonies.core.colony.jobs;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.core.entity.ai.workers.crafting.EntityAIWorkStoneSmeltery;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
-import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundEvents;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] sounds removed
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -35,7 +35,7 @@ public class JobStoneSmeltery extends AbstractJobCrafter<EntityAIWorkStoneSmelte
     }
 
     @Override
-    public void playSound(final BlockPos blockPos, final EntityCitizen worker)
+    public void playSound(final int[] blockPos, final EntityCitizen worker)
     {
         if (worker.getRandom().nextInt(10) < 1)
         {
@@ -48,3 +48,8 @@ public class JobStoneSmeltery extends AbstractJobCrafter<EntityAIWorkStoneSmelte
         }
     }
 }
+
+
+
+
+

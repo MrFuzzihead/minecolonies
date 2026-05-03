@@ -13,8 +13,8 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
 
 import java.util.Optional;
 
@@ -38,7 +38,7 @@ public class CommandCitizenKill implements IMCColonyOfficerCommand
 
         if (!context.getSource().hasPermission(OP_PERM_LEVEL) && !MineColonies.getConfig().getServer().canPlayerUseKillCitizensCommand.get())
         {
-            context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_DISABLED_IN_CONFIG), true);
+            context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_DISABLED_IN_CONFIG), true);
             return 0;
         }
 
@@ -46,7 +46,7 @@ public class CommandCitizenKill implements IMCColonyOfficerCommand
 
         if (citizenData == null)
         {
-            context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_CITIZEN_NOT_FOUND), true);
+            context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_CITIZEN_NOT_FOUND), true);
             return 0;
         }
 
@@ -54,15 +54,15 @@ public class CommandCitizenKill implements IMCColonyOfficerCommand
 
         if (!optionalEntityCitizen.isPresent())
         {
-            context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_CITIZEN_NOT_LOADED), true);
+            context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_CITIZEN_NOT_LOADED), true);
             return 0;
         }
 
-        context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_CITIZEN_INFO, citizenData.getId(), citizenData.getName()), true);
-        final BlockPos position = optionalEntityCitizen.get().blockPosition();
-        context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_CITIZEN_INFO_POSITION, position.getX(), position.getY(), position.getZ()), true);
+        context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_CITIZEN_INFO, citizenData.getId(), citizenData.getName()), true);
+        final int[] position = optionalEntityCitizen.get().blockPosition();
+        context.getSource().sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_CITIZEN_INFO_POSITION, position.getX(), position.getY(), position.getZ()), true);
         context.getSource()
-          .sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_CITIZEN_KILL_SUCCESS, position.getX(), position.getY(), position.getZ()), true);
+          .sendSuccess(() -> String.translatable(CommandTranslationConstants.COMMAND_CITIZEN_KILL_SUCCESS, position.getX(), position.getY(), position.getZ()), true);
 
         optionalEntityCitizen.get().die(context.getSource().getLevel().damageSources().source(DamageSourceKeys.CONSOLE));
 
@@ -86,3 +86,5 @@ public class CommandCitizenKill implements IMCColonyOfficerCommand
                          .then(IMCCommand.newArgument(CITIZENID_ARG, IntegerArgumentType.integer(1)).executes(this::checkPreConditionAndExecute)));
     }
 }
+
+

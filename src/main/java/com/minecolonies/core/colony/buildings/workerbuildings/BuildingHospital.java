@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.google.common.collect.ImmutableList;
 import com.minecolonies.api.colony.ICitizenData;
@@ -10,16 +16,16 @@ import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.datalistener.model.Disease;
 import com.minecolonies.core.datalistener.DiseasesListener;
 import com.minecolonies.core.entity.ai.workers.util.Patient;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+// [1.7.10] tags removed
+import com.minecolonies.api.util.Tuple;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 import net.minecraft.world.level.block.BedBlock;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] BlockState -> int metadata
 import net.minecraft.world.level.block.state.properties.BedPart;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,7 +50,7 @@ public class BuildingHospital extends AbstractBuilding
     private static final String HOSPITAL_DESC = "hospital";
 
     /**
-     * Max building level of the hospital.
+     * Max building World of the hospital.
      */
     private static final int MAX_BUILDING_LEVEL = 5;
 
@@ -52,7 +58,7 @@ public class BuildingHospital extends AbstractBuilding
      * Map from beds to patients, 0 is empty.
      */
     @NotNull
-    private final Map<BlockPos, Integer> bedMap = new HashMap<>();
+    private final Map<int[], Integer> bedMap = new HashMap<>();
 
     /**
      * Map of patients of this hospital.
@@ -65,7 +71,7 @@ public class BuildingHospital extends AbstractBuilding
      * @param c the colony.
      * @param l the location
      */
-    public BuildingHospital(final IColony c, final BlockPos l)
+    public BuildingHospital(final IColony c, final int[] l)
     {
         super(c, l);
     }
@@ -84,24 +90,24 @@ public class BuildingHospital extends AbstractBuilding
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
-        final ListTag bedTagList = compound.getList(TAG_BEDS, Tag.TAG_COMPOUND);
+        final NBTTagList bedTagList = compound.getList(TAG_BEDS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < bedTagList.size(); ++i)
         {
-            final CompoundTag bedCompound = bedTagList.getCompound(i);
-            final BlockPos bedPos = BlockPosUtil.read(bedCompound, TAG_POS);
+            final NBTTagCompound bedCompound = bedTagList.getCompound(i);
+            final int[] bedPos = BlockPosUtil.read(bedCompound, TAG_POS);
             if (!bedMap.containsKey(bedPos))
             {
                 bedMap.put(bedPos, bedCompound.getInt(TAG_ID));
             }
         }
 
-        final ListTag patientTagList = compound.getList(TAG_PATIENTS, Tag.TAG_COMPOUND);
+        final NBTTagList patientTagList = compound.getList(TAG_PATIENTS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < patientTagList.size(); ++i)
         {
-            final CompoundTag patientCompound = patientTagList.getCompound(i);
+            final NBTTagCompound patientCompound = patientTagList.getCompound(i);
             final int patientId = patientCompound.getInt(TAG_ID);
             if (!patients.containsKey(patientId))
             {
@@ -111,15 +117,15 @@ public class BuildingHospital extends AbstractBuilding
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compound = super.serializeNBT();
+        final NBTTagCompound compound = super.serializeNBT();
         if (!bedMap.isEmpty())
         {
-            @NotNull final ListTag bedTagList = new ListTag();
-            for (@NotNull final Map.Entry<BlockPos, Integer> entry : bedMap.entrySet())
+            @NotNull final NBTTagList bedTagList = new NBTTagList();
+            for (@NotNull final Map.Entry<int[], Integer> entry : bedMap.entrySet())
             {
-                final CompoundTag bedCompound = new CompoundTag();
+                final NBTTagCompound bedCompound = new NBTTagCompound();
                 BlockPosUtil.write(bedCompound, NbtTagConstants.TAG_POS, entry.getKey());
                 bedCompound.putInt(TAG_ID, entry.getValue());
                 bedTagList.add(bedCompound);
@@ -129,10 +135,10 @@ public class BuildingHospital extends AbstractBuilding
 
         if (!patients.isEmpty())
         {
-            @NotNull final ListTag patientTagList = new ListTag();
+            @NotNull final NBTTagList patientTagList = new NBTTagList();
             for (@NotNull final Patient patient : patients.values())
             {
-                final CompoundTag patientCompound = new CompoundTag();
+                final NBTTagCompound patientCompound = new NBTTagCompound();
                 patient.write(patientCompound);
                 patientTagList.add(patientCompound);
             }
@@ -143,11 +149,11 @@ public class BuildingHospital extends AbstractBuilding
     }
 
     @Override
-    public void registerBlockPosition(@NotNull final BlockState blockState, @NotNull final BlockPos pos, @NotNull final Level world)
+    public void registerBlockPosition(@NotNull final BlockState blockState, @NotNull final int[] pos, @NotNull final World world)
     {
         super.registerBlockPosition(blockState, pos, world);
 
-        BlockPos registrationPosition = pos;
+        int[] registrationPosition = pos;
         if (blockState.getBlock() instanceof BedBlock)
         {
             if (blockState.getValue(BedBlock.PART) == BedPart.FOOT)
@@ -168,7 +174,7 @@ public class BuildingHospital extends AbstractBuilding
      * @return immutable copy
      */
     @NotNull
-    public List<BlockPos> getBedList()
+    public List<int[]> getBedList()
     {
         return ImmutableList.copyOf(bedMap.keySet());
     }
@@ -241,7 +247,7 @@ public class BuildingHospital extends AbstractBuilding
      * @param bedPos    the pos.
      * @param citizenId the citizen id.
      */
-    public void registerPatient(final BlockPos bedPos, final int citizenId)
+    public void registerPatient(final int[] bedPos, final int citizenId)
     {
         bedMap.put(bedPos, citizenId);
         setBedOccupation(bedPos, citizenId != 0);
@@ -253,14 +259,14 @@ public class BuildingHospital extends AbstractBuilding
      * @param bedPos   the position of the bed.
      * @param occupied if occupied.
      */
-    private void setBedOccupation(final BlockPos bedPos, final boolean occupied)
+    private void setBedOccupation(final int[] bedPos, final boolean occupied)
     {
         final BlockState state = colony.getWorld().getBlockState(bedPos);
         if (state.is(BlockTags.BEDS))
         {
             colony.getWorld().setBlock(bedPos, state.setValue(BedBlock.OCCUPIED, occupied), 0x03);
 
-            final BlockPos feetPos = bedPos.relative(state.getValue(BedBlock.FACING).getOpposite());
+            final int[] feetPos = bedPos.relative(state.getValue(BedBlock.FACING).getOpposite());
             final BlockState feetState = colony.getWorld().getBlockState(feetPos);
 
             if (feetState.is(BlockTags.BEDS))
@@ -273,7 +279,7 @@ public class BuildingHospital extends AbstractBuilding
     @Override
     public void onWakeUp()
     {
-        for (final Map.Entry<BlockPos, Integer> entry : new ArrayList<>(bedMap.entrySet()))
+        for (final Map.Entry<int[], Integer> entry : new ArrayList<>(bedMap.entrySet()))
         {
             final BlockState state = colony.getWorld().getBlockState(entry.getKey());
             if (state.getBlock() instanceof BedBlock)
@@ -327,3 +333,8 @@ public class BuildingHospital extends AbstractBuilding
         return super.canEat(stack);
     }
 }
+
+
+
+
+

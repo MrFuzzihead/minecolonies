@@ -1,12 +1,18 @@
 package com.minecolonies.core.client.render.worldevent.highlightmanager;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.ldtteam.structurize.client.rendertask.util.WorldRenderMacros;
 import com.minecolonies.core.client.render.worldevent.ColonyWorldRenderMacros;
 import com.minecolonies.core.client.render.worldevent.WorldEventContext;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.AABB;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] world.phys removed
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -25,7 +31,7 @@ public class TimedBoxRenderData implements IHighlightRenderData
     /**
      * Position where to render the box.
      */
-    private final BlockPos pos;
+    private final int[] pos;
 
     /**
      * How long the box should stay.
@@ -40,7 +46,7 @@ public class TimedBoxRenderData implements IHighlightRenderData
     /**
      * Default constructor.
      */
-    public TimedBoxRenderData(final BlockPos pos)
+    public TimedBoxRenderData(final int[] pos)
     {
         this.pos = pos;
     }
@@ -91,3 +97,7 @@ public class TimedBoxRenderData implements IHighlightRenderData
         return this;
     }
 }
+
+
+
+

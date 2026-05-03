@@ -10,15 +10,15 @@ import com.minecolonies.api.util.Tuple;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingLumberjack;
 import com.minecolonies.core.entity.ai.workers.production.EntityAIWorkLumberjack;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+// [1.7.10] InteractionResult -> boolean
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
+import net.minecraft.world.World;
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] world.phys removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -67,7 +67,7 @@ public class ItemScepterLumberjack extends AbstractItemMinecolonies implements I
     }
 
     @Override
-    public boolean canAttackBlock(@NotNull final BlockState state, @NotNull final Level world, @NotNull final BlockPos pos, @NotNull final Player player)
+    public boolean canAttackBlock(@NotNull final BlockState state, @NotNull final World world, @NotNull final int[] pos, @NotNull final Player player)
     {
         if (!world.isClientSide)
         {
@@ -84,7 +84,7 @@ public class ItemScepterLumberjack extends AbstractItemMinecolonies implements I
         return 3.4028235E38F;
     }
 
-    private void storeRestrictedArea(final Player player, final CompoundTag compound, final Level worldIn)
+    private void storeRestrictedArea(final Player player, final NBTTagCompound compound, final World worldIn)
     {
         final Box box = getBox(worldIn, compound);
 
@@ -128,7 +128,7 @@ public class ItemScepterLumberjack extends AbstractItemMinecolonies implements I
 
     @NotNull
     @Override
-    public List<OverlayBox> getOverlayBoxes(@NotNull final Level world, @NotNull final Player player, @NotNull ItemStack stack)
+    public List<OverlayBox> getOverlayBoxes(@NotNull final World world, @NotNull final Player player, @NotNull ItemStack stack)
     {
         final Box box = getBox(world, stack.getOrCreateTag());
 
@@ -151,15 +151,15 @@ public class ItemScepterLumberjack extends AbstractItemMinecolonies implements I
         return Collections.emptyList();
     }
 
-    private record Box(@Nullable BlockPos anchor, @Nullable Tuple<BlockPos, BlockPos> corners) { }
+    private record Box(@Nullable int[] anchor, @Nullable Tuple<int[], int[]> corners) { }
 
     @NotNull
-    private Box getBox(@NotNull final Level world, final CompoundTag compound)
+    private Box getBox(@NotNull final World world, final NBTTagCompound compound)
     {
         final int colonyId = compound.getInt(TAG_ID);
-        final BlockPos pos = BlockPosUtil.read(compound, TAG_POS);
-        final BlockPos start = compound.contains(NBT_START_POS) ? BlockPosUtil.read(compound, NBT_START_POS) : null;
-        final BlockPos end = compound.contains(NBT_END_POS) ? BlockPosUtil.read(compound, NBT_END_POS) : null;
+        final int[] pos = BlockPosUtil.read(compound, TAG_POS);
+        final int[] start = compound.contains(NBT_START_POS) ? BlockPosUtil.read(compound, NBT_START_POS) : null;
+        final int[] end = compound.contains(NBT_END_POS) ? BlockPosUtil.read(compound, NBT_END_POS) : null;
 
         if (world.isClientSide())
         {
@@ -169,9 +169,9 @@ public class ItemScepterLumberjack extends AbstractItemMinecolonies implements I
         final IColony colony = IColonyManager.getInstance().getColonyByWorld(colonyId, world);
         if (colony != null && colony.getServerBuildingManager().getBuilding(pos) instanceof final BuildingLumberjack hut)
         {
-            final BlockPos startRestriction = start != null ? start : Objects.requireNonNullElse(hut.getStartRestriction(), BlockPos.ZERO);
-            final BlockPos endRestriction = end != null ? end : Objects.requireNonNullElse(hut.getEndRestriction(), BlockPos.ZERO);
-            if (!startRestriction.equals(BlockPos.ZERO) && !endRestriction.equals(BlockPos.ZERO))
+            final int[] startRestriction = start != null ? start : Objects.requireNonNullElse(hut.getStartRestriction(), new int[]{0,0,0});
+            final int[] endRestriction = end != null ? end : Objects.requireNonNullElse(hut.getEndRestriction(), new int[]{0,0,0});
+            if (!startRestriction.equals(new int[]{0,0,0}) && !endRestriction.equals(new int[]{0,0,0}))
             {
                 return new Box(pos, new Tuple<>(startRestriction, endRestriction));
             }
@@ -182,16 +182,16 @@ public class ItemScepterLumberjack extends AbstractItemMinecolonies implements I
     }
 
     @NotNull
-    private Box getBox(@NotNull final Level world, final int colonyId, @NotNull final BlockPos pos,
-                       @Nullable final BlockPos start, @Nullable final BlockPos end)
+    private Box getBox(@NotNull final World world, final int colonyId, @NotNull final int[] pos,
+                       @Nullable final int[] start, @Nullable final int[] end)
     {
         final IColonyView colony = IColonyManager.getInstance().getColonyView(colonyId, world.dimension());
 
         if (colony != null && colony.getClientBuildingManager().getBuilding(pos) instanceof final BuildingLumberjack.View hut)
         {
-            final BlockPos startRestriction = start != null ? start : hut.getStartRestriction();
-            final BlockPos endRestriction = end != null ? end : hut.getEndRestriction();
-            if (!startRestriction.equals(BlockPos.ZERO) && !endRestriction.equals(BlockPos.ZERO))
+            final int[] startRestriction = start != null ? start : hut.getStartRestriction();
+            final int[] endRestriction = end != null ? end : hut.getEndRestriction();
+            if (!startRestriction.equals(new int[]{0,0,0}) && !endRestriction.equals(new int[]{0,0,0}))
             {
                 return new Box(pos, new Tuple<>(startRestriction, endRestriction));
             }
@@ -201,3 +201,8 @@ public class ItemScepterLumberjack extends AbstractItemMinecolonies implements I
         return new Box(null, null);
     }
 }
+
+
+
+
+

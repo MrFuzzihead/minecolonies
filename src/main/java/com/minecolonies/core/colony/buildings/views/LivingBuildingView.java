@@ -10,7 +10,7 @@ import com.minecolonies.core.Network;
 import com.minecolonies.core.colony.buildings.modules.BuildingModules;
 import com.minecolonies.core.colony.buildings.moduleviews.LivingBuildingModuleView;
 import com.minecolonies.core.network.messages.server.colony.building.worker.BuildingHiringModeMessage;
-import net.minecraft.core.BlockPos;
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -26,7 +26,7 @@ public abstract class LivingBuildingView extends AbstractBuildingView
      * @param c the colonyView.
      * @param l the position the hut is at.
      */
-    public LivingBuildingView(final IColonyView c, final BlockPos l)
+    public LivingBuildingView(final IColonyView c, final int[] l)
     {
         super(c, l);
     }
@@ -153,3 +153,5 @@ public abstract class LivingBuildingView extends AbstractBuildingView
         return false;
     }
 }
+
+

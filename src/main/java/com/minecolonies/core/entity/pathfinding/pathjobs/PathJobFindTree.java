@@ -9,12 +9,12 @@ import com.minecolonies.core.entity.ai.workers.util.Tree;
 import com.minecolonies.core.entity.pathfinding.MNode;
 import com.minecolonies.core.entity.pathfinding.SurfaceType;
 import com.minecolonies.core.entity.pathfinding.pathresults.TreePathResult;
-import net.minecraft.core.BlockPos;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] tags removed
+// [1.7.10] world.entity removed
+import net.minecraft.world.World;
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] world.phys removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -39,7 +39,7 @@ public class PathJobFindTree extends AbstractPathJob implements ISearchPathJob
     /**
      * Position we want to search towards
      */
-    private final BlockPos searchTowards;
+    private final int[] searchTowards;
     private final int      dyntreesize;
 
     /**
@@ -60,14 +60,14 @@ public class PathJobFindTree extends AbstractPathJob implements ISearchPathJob
      * @param colony      the colony.
      */
     public PathJobFindTree(
-      final Level world,
-      @NotNull final BlockPos start,
-      final BlockPos home,
+      final World world,
+      @NotNull final int[] start,
+      final int[] home,
       final int range,
       final List<ItemStorage> treesToCut,
       final int dyntreesize,
       final IColony colony,
-      final Mob entity)
+      final EntityCreature entity)
     {
         super(world, start, range, new TreePathResult(), entity);
         this.excludedTrees = treesToCut;
@@ -89,15 +89,15 @@ public class PathJobFindTree extends AbstractPathJob implements ISearchPathJob
      * @param colony           the colony.
      */
     public PathJobFindTree(
-      final Level world,
-      @NotNull final BlockPos start,
-      final BlockPos startRestriction,
-      final BlockPos endRestriction,
-      final BlockPos furthestRestriction,
+      final World world,
+      @NotNull final int[] start,
+      final int[] startRestriction,
+      final int[] endRestriction,
+      final int[] furthestRestriction,
       final List<ItemStorage> excludedTrees,
       final int dyntreesize,
       final IColony colony,
-      final Mob entity)
+      final EntityCreature entity)
     {
         super(world,
           start,
@@ -119,7 +119,7 @@ public class PathJobFindTree extends AbstractPathJob implements ISearchPathJob
         this.colony = colony;
         this.dyntreesize = dyntreesize;
 
-        this.searchTowards = BlockPos.containing(restrictionBox.getCenter());
+        this.searchTowards = new int[]{(int)restrictionBox.getCenter().x, (int)restrictionBox.getCenter().y, (int)restrictionBox.getCenter().z};
     }
 
     @NotNull
@@ -168,7 +168,7 @@ public class PathJobFindTree extends AbstractPathJob implements ISearchPathJob
         }
     }
 
-    private boolean isTree(final BlockPos pos)
+    private boolean isTree(final int[] pos)
     {
         if (Tree.checkTree(world, pos, excludedTrees, dyntreesize) && Tree.checkIfInColony(pos, colony, world, restrictionBox != null))
         {
@@ -229,3 +229,7 @@ public class PathJobFindTree extends AbstractPathJob implements ISearchPathJob
         return block.is(BlockTags.LEAVES) || Compatibility.isDynamicTrunkShell(block.getBlock()) || block.is(ModTags.hugeMushroomBlocks);
     }
 }
+
+
+
+

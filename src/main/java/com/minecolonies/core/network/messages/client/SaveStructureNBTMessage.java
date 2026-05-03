@@ -6,13 +6,12 @@ import com.minecolonies.api.network.IMessage;
 import com.minecolonies.api.util.Log;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
-import net.minecraft.client.Minecraft;
-import net.minecraft.nbt.CompoundTag;
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.util.IChatComponent;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -29,7 +28,7 @@ public class SaveStructureNBTMessage implements IMessage
     private static final String TAG_MILLIS    = "millies";
     public static final  String TAG_SCHEMATIC = "schematic";
 
-    private CompoundTag compoundNBT;
+    private NBTTagCompound compoundNBT;
     private String      fileName;
 
     /**
@@ -46,19 +45,19 @@ public class SaveStructureNBTMessage implements IMessage
      * @param CompoundNBT the stream.
      * @param fileName  String with the name of the file.
      */
-    public SaveStructureNBTMessage(final CompoundTag CompoundNBT, final String fileName)
+    public SaveStructureNBTMessage(final NBTTagCompound CompoundNBT, final String fileName)
     {
         this.fileName = fileName;
         this.compoundNBT = CompoundNBT;
     }
 
     @Override
-    public void fromBytes(final FriendlyByteBuf buf)
+    public void fromBytes(final PacketBuffer buf)
     {
-        final FriendlyByteBuf buffer = new FriendlyByteBuf(buf);
+        final PacketBuffer buffer = new PacketBuffer(buf);
         try (ByteBufInputStream stream = new ByteBufInputStream(buffer))
         {
-            final CompoundTag wrapperCompound = NbtIo.readCompressed(stream);
+            final NBTTagCompound wrapperCompound = NbtIo.readCompressed(stream);
             this.compoundNBT = wrapperCompound.getCompound(TAG_SCHEMATIC);
             this.fileName = wrapperCompound.getString(TAG_MILLIS);
         }
@@ -73,13 +72,13 @@ public class SaveStructureNBTMessage implements IMessage
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    public void toBytes(final PacketBuffer buf)
     {
-        final CompoundTag wrapperCompound = new CompoundTag();
+        final NBTTagCompound wrapperCompound = new NBTTagCompound();
         wrapperCompound.putString(TAG_MILLIS, fileName);
         wrapperCompound.put(TAG_SCHEMATIC, compoundNBT);
 
-        final FriendlyByteBuf buffer = new FriendlyByteBuf(buf);
+        final PacketBuffer buffer = new PacketBuffer(buf);
         try (ByteBufOutputStream stream = new ByteBufOutputStream(buffer))
         {
             NbtIo.writeCompressed(wrapperCompound, stream);
@@ -92,13 +91,13 @@ public class SaveStructureNBTMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.CLIENT;
+        return Boolean.FALSE;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
         if (compoundNBT != null)
         {
@@ -108,7 +107,11 @@ public class SaveStructureNBTMessage implements IMessage
                                                                   .resolve(BLUEPRINT_FOLDER)
                                                                   .resolve(Minecraft.getInstance().getUser().getName().toLowerCase(Locale.US))
                                                                   .resolve(SCANS_FOLDER).resolve(fileName)));
-            Minecraft.getInstance().player.displayClientMessage(Component.translatable("Scan successfully saved as %s", fileName), false);
+            Minecraft.getInstance().player.displayClientMessage(String.translatable("Scan successfully saved as %s", fileName), false);
         }
     }
 }
+
+
+
+

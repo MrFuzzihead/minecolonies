@@ -1,7 +1,7 @@
 package com.minecolonies.api.compatibility.tinkers;
 
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.Block;
+// [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.NotNull;
 /*import slimeknights.tconstruct.common.TinkerTags;
 import slimeknights.tconstruct.world.block.SlimeDirtBlock;
@@ -122,8 +122,9 @@ public final class SlimeTreeCheck extends SlimeTreeProxy
      * @param leaf the leaf.
      * @return the variant.
      */
-    public static int getLeafVariant(@NotNull final BlockState leaf)
+    public static int getLeafVariant(final int blockMeta)
     {
         return new SlimeTreeCheck().getTinkersLeafVariant(leaf);
     }
 }
+

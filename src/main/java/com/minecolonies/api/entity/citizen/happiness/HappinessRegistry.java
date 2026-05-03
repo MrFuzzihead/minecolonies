@@ -5,10 +5,11 @@ import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.api.util.constant.NbtTagConstants;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] registries removed
+// [1.7.10] registries removed
+import com.minecolonies.api.registry.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
@@ -24,7 +25,7 @@ public class HappinessRegistry
      *
      * @return the reward registry.
      */
-    static IForgeRegistry<HappinessFactorTypeEntry> getHappinessTypeRegistry()
+    static com.minecolonies.api.registry.SimpleRegistry<HappinessFactorTypeEntry> getHappinessTypeRegistry()
     {
         return IMinecoloniesAPI.getInstance().getHappinessTypeRegistry();
     }
@@ -34,7 +35,7 @@ public class HappinessRegistry
      *
      * @return the reward registry.
      */
-    static IForgeRegistry<HappinessFunctionEntry> getHappinessFunctionRegistry()
+    static com.minecolonies.api.registry.SimpleRegistry<HappinessFunctionEntry> getHappinessFunctionRegistry()
     {
         return IMinecoloniesAPI.getInstance().getHappinessFunctionRegistry();
     }
@@ -69,7 +70,7 @@ public class HappinessRegistry
      * @param persist  whether we're reading from persisted data or from networking.
      * @return the modifier instance.
      */
-    public static IHappinessModifier loadFrom(@NotNull final CompoundTag compound, final boolean persist)
+    public static IHappinessModifier loadFrom(@NotNull final NBTTagCompound compound, final boolean persist)
     {
         final ResourceLocation modifierType = compound.contains(NbtTagConstants.TAG_MODIFIER_TYPE)
                                                 ? new ResourceLocation(compound.getString(NbtTagConstants.TAG_MODIFIER_TYPE))
@@ -160,3 +161,6 @@ public class HappinessRegistry
     public static RegistryObject<HappinessFunctionEntry> greatFoodFunction;
 
 }
+
+
+

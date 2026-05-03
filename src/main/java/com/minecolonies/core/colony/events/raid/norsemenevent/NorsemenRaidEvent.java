@@ -8,13 +8,13 @@ import com.minecolonies.core.colony.events.raid.HordeRaidEvent;
 import com.minecolonies.core.entity.mobs.raider.norsemen.EntityNorsemenArcherRaider;
 import com.minecolonies.core.entity.mobs.raider.norsemen.EntityNorsemenChiefRaider;
 import com.minecolonies.core.entity.mobs.raider.norsemen.EntityShieldmaidenRaider;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.Entity;
+// [1.7.10] world.entity removed
+import net.minecraft.entity.EntityLivingBase;
 
 import static com.minecolonies.api.entity.ModEntities.*;
 import static com.minecolonies.api.util.constant.TranslationConstants.RAID_NORSEMEN;
@@ -78,7 +78,7 @@ public class NorsemenRaidEvent extends HordeRaidEvent
     }
 
     @Override
-    public void onEntityDeath(final LivingEntity entity)
+    public void onEntityDeath(final EntityLivingBase entity)
     {
         super.onEntityDeath(entity);
         if (!(entity instanceof AbstractEntityMinecoloniesRaider))
@@ -121,7 +121,7 @@ public class NorsemenRaidEvent extends HordeRaidEvent
      * @param compound NBTcompound with saved values
      * @return the raid event.
      */
-    public static NorsemenRaidEvent loadFromNBT(final IColony colony, final CompoundTag compound)
+    public static NorsemenRaidEvent loadFromNBT(final IColony colony, final NBTTagCompound compound)
     {
         NorsemenRaidEvent
           event = new NorsemenRaidEvent(colony);
@@ -148,8 +148,12 @@ public class NorsemenRaidEvent extends HordeRaidEvent
     }
 
     @Override
-    protected MutableComponent getDisplayName()
+    protected String getDisplayName()
     {
-        return Component.translatable(RAID_NORSEMEN);
+        return String.translatable(RAID_NORSEMEN);
     }
 }
+
+
+
+

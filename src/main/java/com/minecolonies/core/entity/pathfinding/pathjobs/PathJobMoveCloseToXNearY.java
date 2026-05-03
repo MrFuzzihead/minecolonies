@@ -5,10 +5,11 @@ import com.minecolonies.core.entity.pathfinding.MNode;
 import com.minecolonies.core.entity.pathfinding.PathfindingUtils;
 import com.minecolonies.core.entity.pathfinding.SurfaceType;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] world.entity removed
+import net.minecraft.world.World;
+import net.minecraft.entity.EntityCreature;
+// [1.7.10] block import removed
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -19,12 +20,12 @@ public class PathJobMoveCloseToXNearY extends AbstractPathJob implements IDestin
     /**
      * Position to go close to
      */
-    public final BlockPos desiredPosition;
+    public final int[] desiredPosition;
 
     /**
      * Position to stay nearby
      */
-    public final BlockPos nearbyPosition;
+    public final int[] nearbyPosition;
 
     /**
      * Required distance to reach
@@ -32,11 +33,11 @@ public class PathJobMoveCloseToXNearY extends AbstractPathJob implements IDestin
     public final int distToDesired;
 
     public PathJobMoveCloseToXNearY(
-      final Level world,
-      final BlockPos desiredPosition,
-      final BlockPos nearbyPosition,
+      final World world,
+      final int[] desiredPosition,
+      final int[] nearbyPosition,
       final int distToDesired,
-      final Mob entity)
+      final EntityCreature entity)
     {
         super(world, PathfindingUtils.prepareStart(entity), desiredPosition, new PathResult<PathJobMoveCloseToXNearY>(), entity);
 
@@ -101,7 +102,7 @@ public class PathJobMoveCloseToXNearY extends AbstractPathJob implements IDestin
     }
 
     @Override
-    public BlockPos getDestination()
+    public int[] getDestination()
     {
         return desiredPosition;
     }
@@ -111,7 +112,7 @@ public class PathJobMoveCloseToXNearY extends AbstractPathJob implements IDestin
      *
      * @return true if the given job is the same
      */
-    public static boolean isJobFor(final AbstractPathJob job, final BlockPos desiredPosition, final BlockPos nearbyPosition, final int distance)
+    public static boolean isJobFor(final AbstractPathJob job, final int[] desiredPosition, final int[] nearbyPosition, final int distance)
     {
         if (job instanceof PathJobMoveCloseToXNearY pathJob)
         {
@@ -121,3 +122,6 @@ public class PathJobMoveCloseToXNearY extends AbstractPathJob implements IDestin
         return false;
     }
 }
+
+
+

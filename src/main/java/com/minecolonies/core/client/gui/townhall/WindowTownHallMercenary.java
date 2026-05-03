@@ -1,8 +1,11 @@
 package com.minecolonies.core.client.gui.townhall;
 
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
 import com.ldtteam.blockui.controls.Button;
 import com.ldtteam.blockui.controls.ButtonHandler;
-import com.ldtteam.blockui.controls.Image;
 import com.ldtteam.blockui.views.BOWindow;
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.util.constant.ColonyConstants;
@@ -11,9 +14,9 @@ import com.minecolonies.core.Network;
 import com.minecolonies.core.colony.CitizenData;
 import com.minecolonies.core.colony.ColonyView;
 import com.minecolonies.core.network.messages.server.colony.HireMercenaryMessage;
-import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvents;
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] sounds removed
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.WindowConstants.BUTTON_DONE;
@@ -71,3 +74,7 @@ public class WindowTownHallMercenary extends BOWindow implements ButtonHandler
         this.close();
     }
 }
+
+
+
+

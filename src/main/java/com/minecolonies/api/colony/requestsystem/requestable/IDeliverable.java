@@ -1,6 +1,6 @@
 package com.minecolonies.api.colony.requestsystem.requestable;
 
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -62,3 +62,4 @@ public interface IDeliverable extends IRetryable
         return true;
     }
 }
+

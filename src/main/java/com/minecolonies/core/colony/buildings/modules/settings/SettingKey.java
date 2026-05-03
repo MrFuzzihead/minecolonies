@@ -2,7 +2,7 @@ package com.minecolonies.core.colony.buildings.modules.settings;
 
 import com.minecolonies.api.colony.buildings.modules.settings.ISetting;
 import com.minecolonies.api.colony.buildings.modules.settings.ISettingKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 import java.util.Objects;
 
@@ -65,3 +65,4 @@ public class SettingKey<T extends ISetting> implements ISettingKey<T>
         return Objects.hash(type, id);
     }
 }
+

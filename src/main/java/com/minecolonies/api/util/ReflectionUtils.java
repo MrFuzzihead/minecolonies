@@ -57,8 +57,9 @@ public final class ReflectionUtils
     public static void setFMLLoggingLevelOnConsoleToDebug(final AppenderControl control)
       throws NoSuchFieldException, IllegalAccessException
     {
-        final Field levelField = control.getClass().getField("level");
+        final Field levelField = control.getClass().getField("World");
         levelField.setAccessible(true);
         levelField.set(control, Integer.MAX_VALUE);
     }
 }
+

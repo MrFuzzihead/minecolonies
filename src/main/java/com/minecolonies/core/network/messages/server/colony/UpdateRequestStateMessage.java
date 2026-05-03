@@ -6,9 +6,9 @@ import com.minecolonies.api.colony.requestsystem.request.RequestState;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.core.network.messages.server.AbstractColonyServerMessage;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -56,7 +56,7 @@ public class UpdateRequestStateMessage extends AbstractColonyServerMessage
     }
 
     @Override
-    public void fromBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void fromBytesOverride(@NotNull final PacketBuffer buf)
     {
         token = StandardFactoryController.getInstance().deserialize(buf.readNbt());
         state = RequestState.values()[buf.readInt()];
@@ -67,7 +67,7 @@ public class UpdateRequestStateMessage extends AbstractColonyServerMessage
     }
 
     @Override
-    public void toBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void toBytesOverride(@NotNull final PacketBuffer buf)
     {
         buf.writeNbt(StandardFactoryController.getInstance().serialize(token));
         buf.writeInt(state.ordinal());
@@ -78,7 +78,7 @@ public class UpdateRequestStateMessage extends AbstractColonyServerMessage
     }
 
     @Override
-    protected void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony)
+    protected void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony)
     {
         if (state == RequestState.OVERRULED)
         {
@@ -88,3 +88,5 @@ public class UpdateRequestStateMessage extends AbstractColonyServerMessage
         colony.getRequestManager().updateRequestState(token, state);
     }
 }
+
+

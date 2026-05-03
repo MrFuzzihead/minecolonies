@@ -1,6 +1,8 @@
 package com.minecolonies.core.client.gui.huts;
 
+// [1.7.10] blockui replaced by ModularUI2
 import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.controls.Button;
 import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.views.ScrollingList;
 import com.minecolonies.api.colony.ICitizenDataView;
@@ -11,9 +13,9 @@ import com.minecolonies.core.client.gui.AbstractBuildingMainWindow;
 import com.minecolonies.core.client.gui.WindowAssignCitizen;
 import com.minecolonies.core.colony.buildings.views.LivingBuildingView;
 import com.minecolonies.core.network.messages.server.colony.building.RecallCitizenHutMessage;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.TranslationConstants.COM_MINECOLONIES_COREMOD_GUI_WORKERHUTS_LEVEL_0;
@@ -21,7 +23,7 @@ import static com.minecolonies.api.util.constant.TranslationConstants.LABEL_HOUS
 import static com.minecolonies.api.util.constant.WindowConstants.BUTTON_RECALL;
 
 /**
- * BOWindow for the tavern
+ * Object (BOWindow: todo ModularUI2 removed) for the tavern
  */
 public class WindowHutLiving extends AbstractBuildingMainWindow<LivingBuildingView>
 {
@@ -51,7 +53,7 @@ public class WindowHutLiving extends AbstractBuildingMainWindow<LivingBuildingVi
     private ScrollingList citizen;
 
     /**
-     * Creates the BOWindow object.
+     * Creates the Object (BOWindow: todo ModularUI2 removed) object.
      *
      * @param building View of the home building.
      */
@@ -92,7 +94,7 @@ public class WindowHutLiving extends AbstractBuildingMainWindow<LivingBuildingVi
                 final ICitizenDataView citizenDataView = home.getColony().getCitizen(home.getResidents().get(index));
                 if (citizenDataView != null)
                 {
-                    rowPane.findPaneOfTypeByID("name", Text.class).setText(Component.literal((citizenDataView.getJob().isEmpty() ? "" : (Component.translatable(citizenDataView.getJob()).getString() + ": ")) + citizenDataView.getName()));
+                    rowPane.findPaneOfTypeByID("name", Text.class).setText(String.literal((citizenDataView.getJob().isEmpty() ? "" : (String.translatable(citizenDataView.getJob()).getString() + ": ")) + citizenDataView.getName()));
                 }
             }
         });
@@ -105,7 +107,7 @@ public class WindowHutLiving extends AbstractBuildingMainWindow<LivingBuildingVi
      */
     private void refreshView()
     {
-        findPaneOfTypeByID(ASSIGNED_LABEL, Text.class).setText(Component.translatable(LABEL_HOUSE_ASSIGNED_CITIZENS, buildingView.getResidents().size(), buildingView.getMax()));
+        findPaneOfTypeByID(ASSIGNED_LABEL, Text.class).setText(String.translatable(LABEL_HOUSE_ASSIGNED_CITIZENS, buildingView.getResidents().size(), buildingView.getMax()));
         citizen.refreshElementPanes();
     }
 
@@ -123,3 +125,8 @@ public class WindowHutLiving extends AbstractBuildingMainWindow<LivingBuildingVi
         new WindowAssignCitizen(buildingView.getColony(), buildingView).open();
     }
 }
+
+
+
+
+

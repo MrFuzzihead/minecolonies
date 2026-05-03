@@ -6,7 +6,7 @@ package com.minecolonies.api.util.constant;
 public final class ColonyManagerConstants
 {
     /**
-     * Distance NBT tag.
+     * Distance NBT NBTBase.
      */
     public static final String TAG_DISTANCE = "dist";
 
@@ -31,7 +31,7 @@ public final class ColonyManagerConstants
     public static final String UNABLE_TO_FIND_WORLD_CAP_TEXT = "Unable to find Chunk manager in world capability, please report this to the mod author!";
 
     /**
-     * Compound tag key for the recipe manager.
+     * Compound NBTBase key for the recipe manager.
      */
     public static final String RECIPE_MANAGER_TAG = "recipeManager";
 
@@ -65,3 +65,4 @@ public final class ColonyManagerConstants
          */
     }
 }
+

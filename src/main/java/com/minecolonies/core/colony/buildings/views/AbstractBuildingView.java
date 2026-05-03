@@ -1,8 +1,14 @@
 package com.minecolonies.core.colony.buildings.views;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.ICitizenDataView;
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.colony.buildings.modules.IBuildingModule;
@@ -24,11 +30,11 @@ import com.minecolonies.core.colony.buildings.moduleviews.WorkerBuildingModuleVi
 import com.minecolonies.core.network.messages.server.colony.OpenInventoryMessage;
 import com.minecolonies.core.network.messages.server.colony.building.HutRenameMessage;
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,21 +62,21 @@ public abstract class AbstractBuildingView implements IBuildingView
      * It's location.
      */
     @NotNull
-    private final BlockPos location;
+    private final int[] location;
 
     /**
      * Parent building location.
      */
     @NotNull
-    private BlockPos parent = BlockPos.ZERO;
+    private int[] parent = new int[]{0,0,0};
 
     /**
-     * The building level.
+     * The building World.
      */
     private int buildingLevel = 0;
 
     /**
-     * The max building level.
+     * The max building World.
      */
     private int buildingMaxLevel = 0;
 
@@ -130,10 +136,10 @@ public abstract class AbstractBuildingView implements IBuildingView
     private int claimRadius = 0;
 
     /**
-     * The BlockPos list of all Containers
+     * The int[] list of all Containers
      */
 
-    private List<BlockPos> containerlist = new ArrayList<>();
+    private List<int[]> containerlist = new ArrayList<>();
 
     /**
      * If building is deconstructed.
@@ -166,20 +172,20 @@ public abstract class AbstractBuildingView implements IBuildingView
      * @param c ColonyView the building is in.
      * @param l The location of the building.
      */
-    protected AbstractBuildingView(final IColonyView c, @NotNull final BlockPos l)
+    protected AbstractBuildingView(final IColonyView c, @NotNull final int[] l)
     {
         colony = c;
-        location = new BlockPos(l);
+        location = new int[]{l};
     }
 
     /**
      * Gets the id for this building.
      *
-     * @return A BlockPos because the building ID is its location.
+     * @return A int[] because the building ID is its location.
      */
     @Override
     @NotNull
-    public BlockPos getID()
+    public int[] getID()
     {
         // Location doubles as ID
         return location;
@@ -188,26 +194,26 @@ public abstract class AbstractBuildingView implements IBuildingView
     /**
      * Gets the location of this building.
      *
-     * @return A BlockPos, where this building is.
+     * @return A int[], where this building is.
      */
     @Override
     @NotNull
-    public BlockPos getPosition()
+    public int[] getPosition()
     {
         return location;
     }
 
     @Override
     @NotNull
-    public BlockPos getParent()
+    public int[] getParent()
     {
         return parent;
     }
 
     /**
-     * Get the current level of the building.
+     * Get the current World of the building.
      *
-     * @return AbstractBuilding current level.
+     * @return AbstractBuilding current World.
      */
     @Override
     public int getBuildingLevel()
@@ -216,9 +222,9 @@ public abstract class AbstractBuildingView implements IBuildingView
     }
 
     /**
-     * Get the max level of the building.
+     * Get the max World of the building.
      *
-     * @return AbstractBuilding max level.
+     * @return AbstractBuilding max World.
      */
     @Override
     public int getBuildingMaxLevel()
@@ -227,9 +233,9 @@ public abstract class AbstractBuildingView implements IBuildingView
     }
 
     /**
-     * Checks if this building is at its max level.
+     * Checks if this building is at its max World.
      *
-     * @return true if the building is at its max level.
+     * @return true if the building is at its max World.
      */
     @Override
     public boolean isBuildingMaxLevel()
@@ -238,9 +244,9 @@ public abstract class AbstractBuildingView implements IBuildingView
     }
 
     /**
-     * Get the current work order level.
+     * Get the current work order World.
      *
-     * @return 0 if none, othewise the current level worked on
+     * @return 0 if none, othewise the current World worked on
      */
     @Override
     public int getCurrentWorkOrderLevel()
@@ -304,9 +310,9 @@ public abstract class AbstractBuildingView implements IBuildingView
     }
 
     /**
-     * Get the current work order level.
+     * Get the current work order World.
      *
-     * @return 0 if none, othewise the current level worked on
+     * @return 0 if none, othewise the current World worked on
      */
     @Override
     public boolean hasWorkOrder()
@@ -347,7 +353,7 @@ public abstract class AbstractBuildingView implements IBuildingView
      * Returns the Container List
      */
     @Override
-    public List<BlockPos> getContainers()
+    public List<int[]> getContainers()
     {
         return new ArrayList<>(containerlist);
     }
@@ -366,7 +372,7 @@ public abstract class AbstractBuildingView implements IBuildingView
         }
         else
         {
-            @Nullable final BOWindow window = getWindow();
+            @Nullable final Object /* BOWindow: todo ModularUI2 */ window = getWindow();
             if (window != null)
             {
                 window.open();
@@ -381,7 +387,7 @@ public abstract class AbstractBuildingView implements IBuildingView
      */
     @Override
     @NotNull
-    public BOWindow getWindow()
+    public Object /* BOWindow: todo ModularUI2 */ getWindow()
     {
         if (!getModuleViews(WorkerBuildingModuleView.class).isEmpty())
         {
@@ -391,12 +397,12 @@ public abstract class AbstractBuildingView implements IBuildingView
     }
 
     /**
-     * Read this view from a {@link FriendlyByteBuf}.
+     * Read this view from a {@link PacketBuffer}.
      *
      * @param buf The buffer to read this view from.
      */
     @Override
-    public void deserialize(@NotNull final FriendlyByteBuf buf)
+    public void deserialize(@NotNull final PacketBuffer buf)
     {
         buildingLevel = buf.readInt();
         buildingMaxLevel = buf.readInt();
@@ -416,7 +422,7 @@ public abstract class AbstractBuildingView implements IBuildingView
         final int resolverSize = buf.readInt();
         for (int i = 0; i < resolverSize; i++)
         {
-            final CompoundTag compound = buf.readNbt();
+            final NBTTagCompound compound = buf.readNbt();
             if (compound != null)
             {
                 list.add(StandardFactoryController.getInstance().deserialize(compound));
@@ -424,7 +430,7 @@ public abstract class AbstractBuildingView implements IBuildingView
         }
 
         resolvers = ImmutableList.copyOf(list);
-        final CompoundTag compound = buf.readNbt();
+        final NBTTagCompound compound = buf.readNbt();
         if (compound != null)
         {
             requesterId = StandardFactoryController.getInstance().deserialize(compound);
@@ -461,7 +467,7 @@ public abstract class AbstractBuildingView implements IBuildingView
         return prestige;
     }
 
-    private void loadRequestSystemFromNBT(final CompoundTag compound)
+    private void loadRequestSystemFromNBT(final NBTTagCompound compound)
     {
         this.rsDataStoreToken = StandardFactoryController.getInstance().deserialize(compound.getCompound(TAG_RS_BUILDING_DATASTORE));
     }
@@ -577,15 +583,15 @@ public abstract class AbstractBuildingView implements IBuildingView
 
     @NotNull
     @Override
-    public MutableComponent getRequesterDisplayName(@NotNull final IRequestManager manager, @NotNull final IRequest<?> request)
+    public String getRequesterDisplayName(@NotNull final IRequestManager manager, @NotNull final IRequest<?> request)
     {
         try
         {
-            final MutableComponent component = Component.literal("");
-            component.append(Component.translatable(this.getCustomName().isEmpty() ? this.getBuildingType().getTranslationKey() : this.getCustomName()));
+            final String String = String.literal("");
+            String.append(String.translatable(this.getCustomName().isEmpty() ? this.getBuildingType().getTranslationKey() : this.getCustomName()));
             if (getColony() == null || !getCitizensByRequest().containsKey(request.getId()))
             {
-                return component;
+                return String;
             }
 
             int citizenId = getCitizensByRequest().get(request.getId());
@@ -596,17 +602,17 @@ public abstract class AbstractBuildingView implements IBuildingView
 
             if (citizenId == -1 || getColony().getCitizen(citizenId) == null)
             {
-                return component;
+                return String;
             }
 
-            component.append(Component.literal(": "));
-            component.append(Component.literal(getColony().getCitizen(citizenId).getName()));
-            return component;
+            String.append(String.literal(": "));
+            String.append(String.literal(getColony().getCitizen(citizenId).getName()));
+            return String;
         }
         catch (final Exception ex)
         {
             Log.getLogger().warn(ex);
-            return Component.literal("");
+            return String.literal("");
         }
     }
 
@@ -739,3 +745,9 @@ public abstract class AbstractBuildingView implements IBuildingView
         return isAssignmentAllowed;
     }
 }
+
+
+
+
+
+

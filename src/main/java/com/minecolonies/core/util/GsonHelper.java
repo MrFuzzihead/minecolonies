@@ -2,7 +2,7 @@ package com.minecolonies.core.util;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -43,3 +43,4 @@ public class GsonHelper extends net.minecraft.util.GsonHelper
         return object.has(key) ? convertToJsonArray(object.get(key), key) : defaultValue.get();
     }
 }
+

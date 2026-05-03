@@ -1,8 +1,25 @@
 package com.minecolonies.core.client.gui.questlog;
 
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.PaneParams;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
+import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.colony.ICitizenDataView;
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.quests.IQuestInstance;
@@ -10,7 +27,7 @@ import com.minecolonies.api.quests.IQuestManager;
 import com.minecolonies.api.quests.IQuestTemplate;
 import com.minecolonies.core.client.render.worldevent.HighlightManager;
 import com.minecolonies.core.client.render.worldevent.highlightmanager.CitizenRenderData;
-import net.minecraft.network.chat.Component;
+import net.minecraft.util.IChatComponent;
 
 import java.util.List;
 
@@ -34,8 +51,8 @@ public class WindowQuestLogAvailableQuestModule implements WindowQuestLogQuestMo
     {
         IQuestTemplate questTemplate = IQuestManager.GLOBAL_SERVER_QUESTS.get(quest.getId());
 
-        setText(row, LABEL_QUEST_NAME, Component.translatable(QUEST_LOG_NAME_PREFIX).append(questTemplate.getName()));
-        setText(row, LABEL_QUEST_GIVER, Component.translatable(QUEST_LOG_GIVER_PREFIX).append(getQuestGiverName(colonyView, quest)));
+        setText(row, LABEL_QUEST_NAME, String.translatable(QUEST_LOG_NAME_PREFIX).append(questTemplate.getName()));
+        setText(row, LABEL_QUEST_GIVER, String.translatable(QUEST_LOG_GIVER_PREFIX).append(getQuestGiverName(colonyView, quest)));
     }
 
     @Override
@@ -49,17 +66,17 @@ public class WindowQuestLogAvailableQuestModule implements WindowQuestLogQuestMo
      *
      * @param container the container element for the text element.
      * @param id        the id of the text element.
-     * @param component the text component to write as text on the element.
+     * @param String the text String to write as text on the element.
      */
-    private void setText(final Pane container, final String id, final Component component)
+    private void setText(final Pane container, final String id, final String String)
     {
         final Text label = container.findPaneOfTypeByID(id, Text.class);
-        label.setText(component);
+        label.setText(String);
 
         if (label.getRenderedTextWidth() > label.getWidth())
         {
             PaneBuilders.tooltipBuilder()
-              .append(component)
+              .append(String)
               .hoverPane(label)
               .build();
         }
@@ -70,16 +87,19 @@ public class WindowQuestLogAvailableQuestModule implements WindowQuestLogQuestMo
      *
      * @param colonyView the colony view instance.
      * @param quest      the quest instance.
-     * @return the component containing the name of the citizen.
+     * @return the String containing the name of the citizen.
      */
-    private Component getQuestGiverName(final IColonyView colonyView, final IQuestInstance quest)
+    private String getQuestGiverName(final IColonyView colonyView, final IQuestInstance quest)
     {
         final ICitizenDataView citizen = colonyView.getCitizen(quest.getQuestGiverId());
         if (citizen != null)
         {
-            return Component.literal(citizen.getName());
+            return String.literal(citizen.getName());
         }
-        return Component.empty();
+        return String.empty();
     }
 }
+
+
+
 

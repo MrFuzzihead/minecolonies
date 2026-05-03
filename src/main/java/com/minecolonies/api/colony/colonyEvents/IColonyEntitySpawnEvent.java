@@ -1,7 +1,7 @@
 package com.minecolonies.api.colony.colonyEvents;
 
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,5 +40,7 @@ public interface IColonyEntitySpawnEvent extends IColonySpawnEvent
      *
      * @param entity the killed entity.
      */
-    default void onEntityDeath(final LivingEntity entity) {}
+    default void onEntityDeath(final EntityLivingBase entity) {}
 }
+
+

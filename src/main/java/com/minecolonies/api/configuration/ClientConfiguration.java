@@ -1,38 +1,38 @@
 package com.minecolonies.api.configuration;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.common.config.Configuration;
 
 /**
  * Mod client configuration. Loaded clientside, not synced.
  */
 public class ClientConfiguration extends AbstractConfiguration
 {
-    public final ForgeConfigSpec.BooleanValue citizenVoices;
-    public final ForgeConfigSpec.BooleanValue neighborbuildingrendering;
-    public final ForgeConfigSpec.IntValue neighborbuildingrange;
-    public final ForgeConfigSpec.IntValue buildgogglerange;
-    public final ForgeConfigSpec.BooleanValue colonyteamborders;
-    public final ForgeConfigSpec.BooleanValue holidayFeatures;
-    public final ForgeConfigSpec.BooleanValue showdyetooltips;
+    public final BooleanValue citizenVoices;
+    public final BooleanValue neighborbuildingrendering;
+    public final IntValue     neighborbuildingrange;
+    public final IntValue     buildgogglerange;
+    public final BooleanValue colonyteamborders;
+    public final BooleanValue holidayFeatures;
+    public final BooleanValue showdyetooltips;
 
     /**
      * Builds client configuration.
      *
-     * @param builder config builder
+     * @param config config
      */
-    protected ClientConfiguration(final ForgeConfigSpec.Builder builder)
+    protected ClientConfiguration(final Configuration config)
     {
-        createCategory(builder, "gameplay");
-        citizenVoices = defineBoolean(builder, "enablecitizenvoices", true);
-        neighborbuildingrendering = defineBoolean(builder, "neighborbuildingrendering", true);
-        neighborbuildingrange = defineInteger(builder, "neighborbuildingrange", 4, -2, 16);
-        buildgogglerange = defineInteger(builder, "buildgogglerange", 50, 1, 250);
-        colonyteamborders = defineBoolean(builder, "colonyteamborders", true);
-        holidayFeatures = defineBoolean(builder, "holidayfeatures", true);
-        showdyetooltips = defineBoolean(builder, "showdyetooltips", true);
+        createCategory(config, "gameplay");
+        citizenVoices            = defineBoolean(config, "enablecitizenvoices", true);
+        neighborbuildingrendering = defineBoolean(config, "neighborbuildingrendering", true);
+        neighborbuildingrange    = defineInteger(config, "neighborbuildingrange", 4, -2, 16);
+        buildgogglerange         = defineInteger(config, "buildgogglerange", 50, 1, 250);
+        colonyteamborders        = defineBoolean(config, "colonyteamborders", true);
+        holidayFeatures          = defineBoolean(config, "holidayfeatures", true);
+        showdyetooltips          = defineBoolean(config, "showdyetooltips", true);
 
-        swapToCategory(builder, "pathfinding");
+        swapToCategory(config, "pathfinding");
 
-        finishCategory(builder);
+        finishCategory(config);
     }
 }

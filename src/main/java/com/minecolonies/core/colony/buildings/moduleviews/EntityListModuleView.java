@@ -1,18 +1,18 @@
 package com.minecolonies.core.colony.buildings.moduleviews;
 
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.buildings.modules.AbstractBuildingModuleView;
 import com.minecolonies.api.colony.buildings.modules.IEntityListModuleView;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.Network;
 import com.minecolonies.core.client.gui.modules.building.EntityListModuleWindow;
 import com.minecolonies.core.network.messages.server.colony.building.AssignFilterableEntityMessage;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public class EntityListModuleView extends AbstractBuildingModuleView implements 
     /**
      * Lang string for description.
      */
-    private final Component desc;
+    private final String desc;
 
     /**
      * Create a nw grouped entity list view for the client side.
@@ -49,7 +49,7 @@ public class EntityListModuleView extends AbstractBuildingModuleView implements 
      * @param desc desc lang string.
      * @param inverted enabling or disabling.
      */
-    public EntityListModuleView(final String id, final Component desc, final boolean inverted)
+    public EntityListModuleView(final String id, final String desc, final boolean inverted)
     {
         super();
         this.id = id;
@@ -99,13 +99,13 @@ public class EntityListModuleView extends AbstractBuildingModuleView implements 
     public void clearEntities() { listOfEntities.clear(); }
 
     @Override
-    public Component getDesc()
+    public String getDesc()
     {
         return desc;
     }
 
     @Override
-    public void deserialize(@NotNull final FriendlyByteBuf buf)
+    public void deserialize(@NotNull final PacketBuffer buf)
     {
         listOfEntities.clear();
         final int size = buf.readInt();
@@ -118,7 +118,7 @@ public class EntityListModuleView extends AbstractBuildingModuleView implements 
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public BOWindow getWindow()
+    public Object /* BOWindow: todo ModularUI2 */ getWindow()
     {
         return new EntityListModuleWindow(this);
     }
@@ -129,3 +129,6 @@ public class EntityListModuleView extends AbstractBuildingModuleView implements 
         return new ResourceLocation(Constants.MOD_ID, "textures/gui/modules/workers.png");
     }
 }
+
+
+

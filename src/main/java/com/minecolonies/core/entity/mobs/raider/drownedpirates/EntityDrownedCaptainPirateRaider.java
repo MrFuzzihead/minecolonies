@@ -3,40 +3,26 @@ package com.minecolonies.core.entity.mobs.raider.drownedpirates;
 import com.minecolonies.api.entity.mobs.drownedpirate.AbstractDrownedEntityPirateRaider;
 import com.minecolonies.api.entity.mobs.pirates.ICaptainPirateEntity;
 import com.minecolonies.api.util.MathUtils;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.level.Level;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.world.World;
 
-import static com.minecolonies.api.entity.mobs.RaiderMobUtils.MOB_ATTACK_DAMAGE;
-
-/**
- * Class for the Chief Pirate entity.
- */
 public class EntityDrownedCaptainPirateRaider extends AbstractDrownedEntityPirateRaider implements ICaptainPirateEntity
 {
-    /**
-     * Constructor of the entity.
-     *
-     * @param type    the entity type.
-     * @param worldIn world to construct it in.
-     */
-    public EntityDrownedCaptainPirateRaider(final EntityType<? extends EntityDrownedCaptainPirateRaider> type, final Level worldIn)
+    public EntityDrownedCaptainPirateRaider(final World worldIn)
     {
-        super(type, worldIn);
+        super(worldIn);
     }
 
     @Override
     public void initStatsFor(final double baseHealth, final double difficulty, final double baseDamage)
     {
         super.initStatsFor(baseHealth, difficulty, baseDamage);
-        this.getAttribute(Attributes.ARMOR).setBaseValue(-1);
-        this.getAttribute(MOB_ATTACK_DAMAGE.get()).setBaseValue(baseDamage);
-        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(baseHealth * 2.0);
+        this.getEntityAttribute(SharedMonsterAttributes.attackDamage).setBaseValue(baseDamage);
+        this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(baseHealth * 2.0);
         this.setHealth(this.getMaxHealth());
         if (MathUtils.RANDOM.nextInt(100) < 2)
         {
-            setCustomName(Component.literal("Davy Jones"));
+            setCustomNameTag("Davy Jones");
         }
     }
 }

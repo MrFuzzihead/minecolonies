@@ -7,11 +7,11 @@ import com.minecolonies.api.quests.IQuestRewardTemplate;
 import com.minecolonies.api.util.Log;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.nbt.TagParser;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] GsonHelper removed
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+// [1.7.10] registries removed
 
 import static com.minecolonies.api.quests.QuestParseConstant.*;
 
@@ -65,3 +65,6 @@ public class ItemRewardTemplate implements IQuestRewardTemplate
         player.getInventory().add(item);
     }
 }
+
+
+

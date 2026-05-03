@@ -8,13 +8,13 @@ import com.minecolonies.core.colony.events.raid.HordeRaidEvent;
 import com.minecolonies.core.entity.mobs.raider.barbarians.EntityArcherBarbarianRaider;
 import com.minecolonies.core.entity.mobs.raider.barbarians.EntityBarbarianRaider;
 import com.minecolonies.core.entity.mobs.raider.barbarians.EntityChiefBarbarianRaider;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.Entity;
+// [1.7.10] world.entity removed
+import net.minecraft.entity.EntityLivingBase;
 
 import static com.minecolonies.api.entity.ModEntities.*;
 import static com.minecolonies.api.util.constant.TranslationConstants.RAID_BARBARIAN;
@@ -71,7 +71,7 @@ public class BarbarianRaidEvent extends HordeRaidEvent
     }
 
     @Override
-    public void onEntityDeath(final LivingEntity entity)
+    public void onEntityDeath(final EntityLivingBase entity)
     {
         super.onEntityDeath(entity);
         if (!(entity instanceof AbstractEntityMinecoloniesRaider))
@@ -114,7 +114,7 @@ public class BarbarianRaidEvent extends HordeRaidEvent
      * @param compound NBTcompound with saved values
      * @return the raid event.
      */
-    public static BarbarianRaidEvent loadFromNBT(final IColony colony, final CompoundTag compound)
+    public static BarbarianRaidEvent loadFromNBT(final IColony colony, final NBTTagCompound compound)
     {
         BarbarianRaidEvent event = new BarbarianRaidEvent(colony);
         event.deserializeNBT(compound);
@@ -140,8 +140,12 @@ public class BarbarianRaidEvent extends HordeRaidEvent
     }
 
     @Override
-    protected MutableComponent getDisplayName()
+    protected String getDisplayName()
     {
-        return Component.translatable(RAID_BARBARIAN);
+        return String.translatable(RAID_BARBARIAN);
     }
 }
+
+
+
+

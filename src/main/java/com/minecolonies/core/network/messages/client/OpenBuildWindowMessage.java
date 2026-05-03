@@ -2,12 +2,11 @@ package com.minecolonies.core.network.messages.client;
 
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.core.client.gui.WindowBuildDecoration;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.world.Mirror;
+import net.minecraft.world.Rotation;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -18,7 +17,7 @@ public abstract class OpenBuildWindowMessage implements IMessage
     /**
      * Town hall position to create building on.
      */
-    protected BlockPos pos;
+    protected int[] pos;
 
     /**
      * The colony name.
@@ -52,7 +51,7 @@ public abstract class OpenBuildWindowMessage implements IMessage
      * @param packName the pack of the deco.
      * @param path     the path in the pack.
      */
-    protected OpenBuildWindowMessage(final BlockPos pos, final String packName, final String path, final Rotation rotation, final Mirror mirror)
+    protected OpenBuildWindowMessage(final int[] pos, final String packName, final String path, final Rotation rotation, final Mirror mirror)
     {
         this.pos = pos;
         this.path = path;
@@ -62,7 +61,7 @@ public abstract class OpenBuildWindowMessage implements IMessage
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    public void toBytes(final PacketBuffer buf)
     {
         buf.writeBlockPos(this.pos);
         buf.writeUtf(this.path);
@@ -72,7 +71,7 @@ public abstract class OpenBuildWindowMessage implements IMessage
     }
 
     @Override
-    public void fromBytes(final FriendlyByteBuf buf)
+    public void fromBytes(final PacketBuffer buf)
     {
         this.pos = buf.readBlockPos();
         this.path = buf.readUtf(32767);
@@ -82,16 +81,18 @@ public abstract class OpenBuildWindowMessage implements IMessage
     }
 
     @Override
-    public final @NotNull LogicalSide getExecutionSide()
+    public final @NotNull Boolean getExecutionSide()
     {
-        return LogicalSide.CLIENT;
+        return Boolean.FALSE;
     }
 
     @Override
-    public final void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public final void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
         new WindowBuildDecoration(this.pos, this.packName, this.path, this.rotation, this.mirror, this::createWorkOrderMessage).open();
     }
 
-    protected abstract IMessage createWorkOrderMessage(BlockPos builder);
+    protected abstract IMessage createWorkOrderMessage(int[] builder);
 }
+
+

@@ -1,12 +1,12 @@
 package com.minecolonies.core.colony.jobs;
 
 import com.minecolonies.core.entity.citizen.EntityCitizen;
-import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.ResourceLocation;
 import com.minecolonies.api.client.render.modeltype.ModModelTypes;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.core.entity.ai.workers.crafting.EntityAIWorkMechanic;
-import net.minecraft.sounds.SoundEvents;
+// [1.7.10] sounds removed
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -44,10 +44,15 @@ public class JobMechanic extends AbstractJobCrafter<EntityAIWorkMechanic, JobMec
     }
 
     @Override
-    public void playSound(final BlockPos blockPos, final EntityCitizen worker)
+    public void playSound(final int[] blockPos, final EntityCitizen worker)
     {
         worker.queueSound(SoundEvents.ARMOR_EQUIP_IRON, blockPos, 1, 0);
         worker.queueSound(SoundEvents.METAL_PRESSURE_PLATE_CLICK_ON, blockPos, 1, 0);
         worker.queueSound(SoundEvents.IRON_DOOR_OPEN, blockPos, 1, 0);
     }
 }
+
+
+
+
+

@@ -7,9 +7,9 @@ import com.minecolonies.api.util.DamageSourceKeys;
 import com.minecolonies.core.commands.commandTypes.IMCOPCommand;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.entity.Entity;
+import net.minecraft.world.World.entity.EntityTypeTest;
 
 public class CommandKillRaider implements IMCOPCommand
 {
@@ -29,11 +29,11 @@ public class CommandKillRaider implements IMCOPCommand
         {
             if (entity != null)
             {
-                final AbstractEntityMinecoloniesRaider mob = (AbstractEntityMinecoloniesRaider) entity;
-                mob.die(context.getSource().getLevel().damageSources().source(DamageSourceKeys.CONSOLE));
-                mob.remove(Entity.RemovalReason.DISCARDED);
+                final AbstractEntityMinecoloniesRaider EntityCreature = (AbstractEntityMinecoloniesRaider) entity;
+                EntityCreature.die(context.getSource().getLevel().damageSources().source(DamageSourceKeys.CONSOLE));
+                EntityCreature.remove(Entity.RemovalReason.DISCARDED);
 
-                final IColonyEvent event = mob.getColony().getEventManager().getEventByID(mob.getEventID());
+                final IColonyEvent event = EntityCreature.getColony().getEventManager().getEventByID(EntityCreature.getEventID());
 
                 if (event != null)
                 {
@@ -43,7 +43,7 @@ public class CommandKillRaider implements IMCOPCommand
                 entitiesKilled++;
             }
         });
-        context.getSource().sendSuccess(() -> Component.literal(entitiesKilled + " entities killed"), true);
+        context.getSource().sendSuccess(() -> String.literal(entitiesKilled + " entities killed"), true);
         return 1;
     }
 
@@ -56,3 +56,5 @@ public class CommandKillRaider implements IMCOPCommand
         return "raider";
     }
 }
+
+

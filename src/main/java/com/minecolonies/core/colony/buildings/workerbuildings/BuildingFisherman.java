@@ -4,8 +4,8 @@ import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.Tuple;
+// [1.7.10] int[] -> int x,y,z
+import com.minecolonies.api.util.Tuple;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.EquipmentLevelConstants.TOOL_LEVEL_WOOD_OR_GOLD;
@@ -30,7 +30,7 @@ public class BuildingFisherman extends AbstractBuilding
      * @param c the colony.
      * @param l the position.
      */
-    public BuildingFisherman(final IColony c, final BlockPos l)
+    public BuildingFisherman(final IColony c, final int[] l)
     {
         super(c, l);
         keepX.put(itemStack -> ItemStackUtils.hasEquipmentLevel(itemStack, ModEquipmentTypes.fishing_rod.get(), TOOL_LEVEL_WOOD_OR_GOLD, getMaxEquipmentLevel()), new Tuple<>(1, true));
@@ -49,7 +49,7 @@ public class BuildingFisherman extends AbstractBuilding
     }
 
     /**
-     * Getter of the max building level.
+     * Getter of the max building World.
      *
      * @return the integer.
      */
@@ -59,3 +59,5 @@ public class BuildingFisherman extends AbstractBuilding
         return MAX_BUILDING_LEVEL;
     }
 }
+
+

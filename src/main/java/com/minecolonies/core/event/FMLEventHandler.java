@@ -4,14 +4,14 @@ import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.core.datalistener.*;
 import com.minecolonies.core.entity.pathfinding.Pathfinding;
 import com.minecolonies.core.util.BackUpHelper;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.server.ServerAboutToStartEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.event.server.ServerStoppingEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraft.entity.player.EntityPlayerMP;
+// [1.7.10] forge event removed
+import cpw.mods.fml.common.gameevent.TickEvent;
+// [1.7.10] forge event removed
+// [1.7.10] forge event removed
+// [1.7.10] forge event removed
+// [1.7.10] forge event removed
+// [1.7.10] eventbus removed
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -34,10 +34,10 @@ public class FMLEventHandler
     @SubscribeEvent
     public static void onPlayerLogin(@NotNull final PlayerEvent.PlayerLoggedInEvent event)
     {
-        if (event.getEntity() instanceof ServerPlayer)
+        if (event.getEntity() instanceof EntityPlayerMP)
         {
             // This automatically reloads the owner of the colony if failed.
-            IColonyManager.getInstance().getIColonyByOwner(event.getEntity().level, event.getEntity());
+            IColonyManager.getInstance().getIColonyByOwner(event.getEntity().World, event.getEntity());
             //ColonyManager.syncAllColoniesAchievements();
         }
     }
@@ -80,3 +80,7 @@ public class FMLEventHandler
         BackUpHelper.loadMissingColonies();
     }
 }
+
+
+
+

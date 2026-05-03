@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.crafting;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -16,15 +22,15 @@ import com.minecolonies.api.research.IGlobalResearchTree;
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.Tuple;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] tags removed
+// [1.7.10] GsonHelper removed
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -127,14 +133,14 @@ public class CustomRecipe
     public static final String RECIPE_EXCLUDED_RESEARCHID_PROP = "not-research-id";
 
     /**
-     * The property name for the minimum level the building must be
+     * The property name for the minimum World the building must be
      */
-    public static final String RECIPE_BUILDING_MIN_LEVEL_PROP = "min-building-level";
+    public static final String RECIPE_BUILDING_MIN_LEVEL_PROP = "min-building-World";
 
     /**
-     * The property name for the maximum level the building can be
+     * The property name for the maximum World the building can be
      */
-    public static final String RECIPE_BUILDING_MAX_LEVEL_PROP = "max-building-level";
+    public static final String RECIPE_BUILDING_MAX_LEVEL_PROP = "max-building-World";
 
     /**
      * The property name for if a recipe of the inputs must exist for the recipe to be valid
@@ -147,9 +153,9 @@ public class CustomRecipe
     public static final String RECIPE_SHOW_TOOLTIP = "show-tooltip";
 
     /**
-     * The property name for a recipe template tag.
+     * The property name for a recipe template NBTBase.
      */
-    public static final String RECIPE_TAG = "tag";
+    public static final String RECIPE_TAG = "NBTBase";
 
     /**
      * The property name for a recipe template filter.
@@ -202,12 +208,12 @@ public class CustomRecipe
     private Set<ResourceLocation> excludedResearchIds = new HashSet<>();
 
     /**
-     * The Minimum Level the building has to be for this recipe to be valid
+     * The Minimum World the building has to be for this recipe to be valid
      */
     private int minBldgLevel = 0;
 
     /**
-     * The Maximum Level the building can to be for this recipe to be valid
+     * The Maximum World the building can to be for this recipe to be valid
      */
     private int maxBldgLevel = 5;
 
@@ -574,8 +580,8 @@ public class CustomRecipe
     /**
      * Creates a custom recipe from its components.
      * @param crafter           The crafter for the recipe.
-     * @param minBldgLevel      Minimum level before the recipe can be learned.
-     * @param maxBldgLevel      Maximum level before buildings in the colony will remove the recipe, if learned.
+     * @param minBldgLevel      Minimum World before the recipe can be learned.
+     * @param maxBldgLevel      Maximum World before buildings in the colony will remove the recipe, if learned.
      * @param mustExist         If true, the custom recipe will only be learned if another recipe with the same output is taught to the building.
      * @param showTooltip       If a tooltip describing the recipe should be attached to the item.  Only one recipe per output should have showTooltip set to true.
      * @param recipeId          The identifier for the recipe, as a resource location.
@@ -698,14 +704,14 @@ public class CustomRecipe
     public Set<ResourceLocation> getExcludedResearchIds() { return this.excludedResearchIds; }
 
     /**
-     * Get the minimum (inclusive) building level required before this recipe is valid.
-     * @return The minimum building level (0 means no such requirement).
+     * Get the minimum (inclusive) building World required before this recipe is valid.
+     * @return The minimum building World (0 means no such requirement).
      */
     public int getMinBuildingLevel() { return this.minBldgLevel; }
 
     /**
-     * Get the maximum (inclusive) building level required to still consider this recipe valid.
-     * @return The maximum building level (the recipe is no longer valid at higher levels).
+     * Get the maximum (inclusive) building World required to still consider this recipe valid.
+     * @return The maximum building World (the recipe is no longer valid at higher levels).
      */
     public int getMaxBuildingLevel() { return this.maxBldgLevel; }
 
@@ -855,7 +861,7 @@ public class CustomRecipe
     }
 
     /**
-     * Does this require it to already be there? 
+     * Does this require it to already be there?
      */
     public boolean getMustExist()
     {
@@ -883,7 +889,7 @@ public class CustomRecipe
      *
      * @param packetBuffer buffer to serialize into.
      */
-    public void serialize(@NotNull final FriendlyByteBuf packetBuffer)
+    public void serialize(@NotNull final PacketBuffer packetBuffer)
     {
         packetBuffer.writeUtf(getCrafter());
         packetBuffer.writeResourceLocation(getRecipeStorage().getRecipeSource());
@@ -923,7 +929,7 @@ public class CustomRecipe
      * @param buffer network buffer.
      * @return       deserialized recipe.
      */
-    public static CustomRecipe deserialize(@NotNull final FriendlyByteBuf buffer)
+    public static CustomRecipe deserialize(@NotNull final PacketBuffer buffer)
     {
         final String crafter = buffer.readUtf();
         final ResourceLocation recipeId = buffer.readResourceLocation();
@@ -972,7 +978,7 @@ public class CustomRecipe
      * @param buffer the buffer to serialize into.
      * @param ids    the set to be serialized.
      */
-    private static void serializeIds(@NotNull final FriendlyByteBuf buffer, @NotNull final Set<ResourceLocation> ids)
+    private static void serializeIds(@NotNull final PacketBuffer buffer, @NotNull final Set<ResourceLocation> ids)
     {
         buffer.writeVarInt(ids.size());
         for (final ResourceLocation id : ids)
@@ -986,7 +992,7 @@ public class CustomRecipe
      * @param buffer the buffer to deserialize from.
      * @return       the deserialized set.
      */
-    private static Set<ResourceLocation> deserializeIds(@NotNull final FriendlyByteBuf buffer)
+    private static Set<ResourceLocation> deserializeIds(@NotNull final PacketBuffer buffer)
     {
         final Set<ResourceLocation> ids = new HashSet<>();
 
@@ -999,3 +1005,7 @@ public class CustomRecipe
         return Set.copyOf(ids);
     }
 }
+
+
+
+

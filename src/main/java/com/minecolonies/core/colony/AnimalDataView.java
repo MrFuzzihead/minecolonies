@@ -5,8 +5,8 @@ import org.jetbrains.annotations.Nullable;
 
 import com.minecolonies.api.colony.managers.interfaces.IAnimalDataView;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
 
 public class AnimalDataView implements IAnimalDataView
 {
@@ -24,7 +24,7 @@ public class AnimalDataView implements IAnimalDataView
      * The home building of the animal.
      */
     @Nullable
-    private BlockPos homeBuilding;
+    private int[] homeBuilding;
 
     /**
      * The combat cooldown of the animal.
@@ -49,7 +49,7 @@ public class AnimalDataView implements IAnimalDataView
      * @param buf the buffer to deserialize from
      */
     @Override
-    public void deserialize(@NotNull FriendlyByteBuf buf)
+    public void deserialize(@NotNull PacketBuffer buf)
     {
         homeBuilding = buf.readBoolean() ? buf.readBlockPos() : null;
         combatCooldown = buf.readFloat();
@@ -73,7 +73,7 @@ public class AnimalDataView implements IAnimalDataView
      */
     @Override
     @Nullable
-    public BlockPos getHomeBuilding()
+    public int[] getHomeBuilding()
     {
         return homeBuilding;
     }
@@ -89,3 +89,5 @@ public class AnimalDataView implements IAnimalDataView
         return combatCooldown;
     }
 }
+
+

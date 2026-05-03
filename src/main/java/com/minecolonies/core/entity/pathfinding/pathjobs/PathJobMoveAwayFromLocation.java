@@ -7,10 +7,11 @@ import com.minecolonies.core.entity.pathfinding.MNode;
 import com.minecolonies.core.entity.pathfinding.PathingOptions;
 import com.minecolonies.core.entity.pathfinding.SurfaceType;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] world.entity removed
+import net.minecraft.world.World;
+import net.minecraft.entity.EntityCreature;
+// [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -22,7 +23,7 @@ public class PathJobMoveAwayFromLocation extends AbstractPathJob implements IDes
      * Position to run to, in order to avoid something.
      */
     @NotNull
-    protected final BlockPos avoid;
+    protected final int[] avoid;
     /**
      * Required avoidDistance.
      */
@@ -31,7 +32,7 @@ public class PathJobMoveAwayFromLocation extends AbstractPathJob implements IDes
     /**
      * The blockposition we're trying to move away to
      */
-    private BlockPos preferredDirection;
+    private int[] preferredDirection;
 
     /**
      * Prepares the PathJob for the path finding system.
@@ -44,19 +45,26 @@ public class PathJobMoveAwayFromLocation extends AbstractPathJob implements IDes
      * @param entity        the entity.
      */
     public PathJobMoveAwayFromLocation(
-      final Level world,
-      @NotNull final BlockPos start,
-      @NotNull final BlockPos avoid,
+      final World world,
+      @NotNull final int[] start,
+      @NotNull final int[] avoid,
       final int avoidDistance,
       final int range,
-      final Mob entity)
+      final EntityCreature entity)
     {
         super(world, start, range, new PathResult<PathJobMoveAwayFromLocation>(), entity);
 
-        this.avoid = new BlockPos(avoid);
+        this.avoid = new int[]{avoid[0], avoid[1], avoid[2]};
         this.avoidDistance = avoidDistance;
 
-        preferredDirection = entity.blockPosition().offset(entity.blockPosition().subtract(avoid).multiply(range));
+        // [1.7.10] Use entity position components directly instead of blockPosition()/subtract()/multiply()
+        final int ex = (int) entity.posX;
+        final int ey = (int) entity.posY;
+        final int ez = (int) entity.posZ;
+        final int dx = ex - avoid[0];
+        final int dy = ey - avoid[1];
+        final int dz = ez - avoid[2];
+        preferredDirection = new int[]{ex + dx * range, ey + dy * range, ez + dz * range};
         if (entity instanceof AbstractEntityCitizen)
         {
             final IColony colony = ((AbstractEntityCitizen) entity).getCitizenColonyHandler().getColonyOrRegister();
@@ -131,7 +139,7 @@ public class PathJobMoveAwayFromLocation extends AbstractPathJob implements IDes
     }
 
     @Override
-    public BlockPos getDestination()
+    public int[] getDestination()
     {
         return preferredDirection;
     }
@@ -141,7 +149,7 @@ public class PathJobMoveAwayFromLocation extends AbstractPathJob implements IDes
      *
      * @return true if the given job is the same
      */
-    public static boolean isJobFor(final AbstractPathJob job, final int avoidDistance, final BlockPos toAvoid)
+    public static boolean isJobFor(final AbstractPathJob job, final int avoidDistance, final int[] toAvoid)
     {
         if (job instanceof PathJobMoveAwayFromLocation pathJob)
         {
@@ -151,3 +159,7 @@ public class PathJobMoveAwayFromLocation extends AbstractPathJob implements IDes
         return false;
     }
 }
+
+
+
+

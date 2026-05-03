@@ -2,10 +2,11 @@ package com.minecolonies.api.colony.managers.interfaces;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.colonyEvents.IColonyEvent;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+// [1.7.10] block.entity removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -51,7 +52,7 @@ public interface IEventManager
      * @param entity  entity that died
      * @param eventID eventID to forward the Death to
      */
-    void onEntityDeath(LivingEntity entity, int eventID);
+    void onEntityDeath(EntityLivingBase entity, int eventID);
 
     /**
      * Allows events to react to nightfall, which is always calculated by the colony itself
@@ -64,7 +65,7 @@ public interface IEventManager
      * @param eventID ID of the related event
      * @param te      tileentity to use
      */
-    void onTileEntityBreak(int eventID, BlockEntity te);
+    void onTileEntityBreak(int eventID, TileEntity te);
 
     /**
      * Update function, which is called from the colony every 500 ticks. Used to update event states/remove them if needed. Forwarded to events aswell to allow them tick based
@@ -94,14 +95,14 @@ public interface IEventManager
      *
      * @param compound the compound to read from.
      */
-    void readFromNBT(@NotNull CompoundTag compound);
+    void readFromNBT(@NotNull NBTTagCompound compound);
 
     /**
      * Write the eventmanager and all events to NBT
      *
      * @param compound the compound to write to.
      */
-    void writeToNBT(@NotNull CompoundTag compound);
+    void writeToNBT(@NotNull NBTTagCompound compound);
 
     /**
      * Returns the associated structure manager, which manages structure spawn/despawn for events.
@@ -110,3 +111,9 @@ public interface IEventManager
      */
     IEventStructureManager getStructureManager();
 }
+
+
+
+
+
+

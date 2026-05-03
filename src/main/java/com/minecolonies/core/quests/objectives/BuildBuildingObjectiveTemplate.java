@@ -10,10 +10,10 @@ import com.minecolonies.api.quests.IQuestInstance;
 import com.minecolonies.api.quests.IQuestObjectiveTemplate;
 import com.minecolonies.core.colony.Colony;
 import com.minecolonies.core.event.QuestObjectiveEventHandler;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -27,7 +27,7 @@ import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_QUANTITY;
 public class BuildBuildingObjectiveTemplate extends DialogueObjectiveTemplateTemplate implements IBuildingUpgradeObjectiveTemplate
 {
     /**
-     * The building to level.
+     * The building to World.
      */
     private final BuildingEntry buildingEntry;
 
@@ -42,12 +42,12 @@ public class BuildBuildingObjectiveTemplate extends DialogueObjectiveTemplateTem
     private final boolean countExisting;
 
     /**
-     * Whether to consider existing buildings. The building level to reach.
+     * Whether to consider existing buildings. The building World to reach.
      */
     private final int lvl;
 
     /**
-     * The number of buildings to reach a level for. If 0, count cumulative.
+     * The number of buildings to reach a World for. If 0, count cumulative.
      */
     private final int qty;
 
@@ -56,7 +56,7 @@ public class BuildBuildingObjectiveTemplate extends DialogueObjectiveTemplateTem
      *
      * @param target        the target citizen.
      * @param qty           the number of levels.
-     * @param buildingEntry the building to level.
+     * @param buildingEntry the building to World.
      * @param rewards       the rewards this unlocks.
      */
     public BuildBuildingObjectiveTemplate(
@@ -79,36 +79,36 @@ public class BuildBuildingObjectiveTemplate extends DialogueObjectiveTemplateTem
     @NotNull
     private static DialogueElement buildDialogueTree(final BuildingEntry buildingEntry, final int qty, final int lvl, final boolean countExisting)
     {
-        final Component text;
+        final String text;
         if (countExisting)
         {
             if (qty > 0)
             {
                 text =
-                  Component.translatable("com.minecolonies.coremod.questobjectives.buildbuilding.existing", lvl, qty, Component.translatable(buildingEntry.getTranslationKey()));
+                  String.translatable("com.minecolonies.coremod.questobjectives.buildbuilding.existing", lvl, qty, String.translatable(buildingEntry.getTranslationKey()));
             }
             else
             {
-                text = Component.translatable("com.minecolonies.coremod.questobjectives.buildbuilding.cumulative.existing",
+                text = String.translatable("com.minecolonies.coremod.questobjectives.buildbuilding.cumulative.existing",
                   lvl,
-                  Component.translatable(buildingEntry.getTranslationKey()));
+                  String.translatable(buildingEntry.getTranslationKey()));
             }
         }
         else
         {
             if (qty > 0)
             {
-                text = Component.translatable("com.minecolonies.coremod.questobjectives.buildbuilding", qty, lvl, Component.translatable(buildingEntry.getTranslationKey()));
+                text = String.translatable("com.minecolonies.coremod.questobjectives.buildbuilding", qty, lvl, String.translatable(buildingEntry.getTranslationKey()));
             }
             else
             {
-                text = Component.translatable("com.minecolonies.coremod.questobjectives.buildbuilding.cumulative", lvl, Component.translatable(buildingEntry.getTranslationKey()));
+                text = String.translatable("com.minecolonies.coremod.questobjectives.buildbuilding.cumulative", lvl, String.translatable(buildingEntry.getTranslationKey()));
             }
         }
 
-        final AnswerElement answer1 = new AnswerElement(Component.translatable("com.minecolonies.coremod.questobjectives.answer.later"),
+        final AnswerElement answer1 = new AnswerElement(String.translatable("com.minecolonies.coremod.questobjectives.answer.later"),
           new IQuestDialogueAnswer.CloseUIDialogueAnswer());
-        final AnswerElement answer2 = new AnswerElement(Component.translatable("com.minecolonies.coremod.questobjectives.answer.cancel"),
+        final AnswerElement answer2 = new AnswerElement(String.translatable("com.minecolonies.coremod.questobjectives.answer.cancel"),
           new IQuestDialogueAnswer.QuestCancellationDialogueAnswer());
         return new DialogueElement(text, List.of(answer1, answer2));
     }
@@ -126,13 +126,13 @@ public class BuildBuildingObjectiveTemplate extends DialogueObjectiveTemplateTem
         final int target = details.get(TARGET_KEY).getAsInt();
         final BuildingEntry buildingEntry = IMinecoloniesAPI.getInstance().getBuildingRegistry().getValue(new ResourceLocation(details.get(BUILDING_KEY).getAsString()));
 
-        final int level = details.get(LEVEL_KEY).getAsInt();
+        final int World = details.get(LEVEL_KEY).getAsInt();
         final int quantity = details.get(QUANTITY_KEY).getAsInt();
         final boolean countExisting = details.get(COUNT_EXIST_KEY).getAsBoolean();
 
         final int nextObj = details.has(NEXT_OBJ_KEY) ? details.get(NEXT_OBJ_KEY).getAsInt() : -1;
 
-        return new BuildBuildingObjectiveTemplate(target, buildingEntry, level, quantity, countExisting, nextObj, parseRewards(jsonObject));
+        return new BuildBuildingObjectiveTemplate(target, buildingEntry, World, quantity, countExisting, nextObj, parseRewards(jsonObject));
     }
 
     @Override
@@ -223,26 +223,26 @@ public class BuildBuildingObjectiveTemplate extends DialogueObjectiveTemplateTem
     }
 
     @Override
-    public Component getProgressText(final IQuestInstance quest, final Style style)
+    public String getProgressText(final IQuestInstance quest, final Style style)
     {
         if (quest.getCurrentObjectiveInstance() instanceof BuildingProgressInstance progress)
         {
             if (qty > 0)
             {
-                return Component.translatable("com.minecolonies.coremod.questobjectives.buildbuilding.progress",
+                return String.translatable("com.minecolonies.coremod.questobjectives.buildbuilding.progress",
                   Math.min(progress.currentProgress, qty),
                   qty,
-                  Component.translatable(buildingEntry.getTranslationKey()).setStyle(style));
+                  String.translatable(buildingEntry.getTranslationKey()).setStyle(style));
             }
             else
             {
-                return Component.translatable("com.minecolonies.coremod.questobjectives.buildbuilding.progress.cumulative",
+                return String.translatable("com.minecolonies.coremod.questobjectives.buildbuilding.progress.cumulative",
                   Math.min(progress.currentProgress, lvl),
                   lvl,
-                  Component.translatable(buildingEntry.getTranslationKey()).setStyle(style));
+                  String.translatable(buildingEntry.getTranslationKey()).setStyle(style));
             }
         }
-        return Component.empty();
+        return String.empty();
     }
 
     @Override
@@ -268,7 +268,7 @@ public class BuildBuildingObjectiveTemplate extends DialogueObjectiveTemplateTem
     }
 
     @Override
-    public void onBuildingUpgrade(final IObjectiveInstance progressData, final IQuestInstance colonyQuest, final int level)
+    public void onBuildingUpgrade(final IObjectiveInstance progressData, final IQuestInstance colonyQuest, final int World)
     {
         if (progressData.isFulfilled())
         {
@@ -282,7 +282,7 @@ public class BuildBuildingObjectiveTemplate extends DialogueObjectiveTemplateTem
 
         if (qty > 0)
         {
-            if (level >= lvl)
+            if (World >= lvl)
             {
                 buildingProgressInstance.currentProgress++;
             }
@@ -329,17 +329,21 @@ public class BuildBuildingObjectiveTemplate extends DialogueObjectiveTemplateTem
         }
 
         @Override
-        public CompoundTag serializeNBT()
+        public NBTTagCompound serializeNBT()
         {
-            final CompoundTag compoundTag = new CompoundTag();
-            compoundTag.putInt(TAG_QUANTITY, currentProgress);
-            return compoundTag;
+            final NBTTagCompound NBTTagCompound = new NBTTagCompound();
+            NBTTagCompound.putInt(TAG_QUANTITY, currentProgress);
+            return NBTTagCompound;
         }
 
         @Override
-        public void deserializeNBT(final CompoundTag nbt)
+        public void deserializeNBT(final NBTTagCompound nbt)
         {
             this.currentProgress = nbt.getInt(TAG_QUANTITY);
         }
     }
 }
+
+
+
+

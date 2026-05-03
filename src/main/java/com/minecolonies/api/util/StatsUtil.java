@@ -6,17 +6,17 @@ import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.core.colony.buildings.modules.BuildingStatisticsModule;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.item.ItemStack;
+// [1.7.10] block.entity removed
 
 /**
  * A variety of helper functions to facilitate statistics collection by buildings.
  */
-public class StatsUtil 
+public class StatsUtil
 {
 
-    
+
     /**
      * Tracks a statistic for a given building based on the items in a furnace slot.
      * Retrieves the item from the specified slot in the furnace, and if an item is present,
@@ -27,21 +27,15 @@ public class StatsUtil
      * @param furnace the furnace block entity to retrieve the item from.
      * @param slot the slot number in the furnace to check for items.
      */
-    public static void trackStatFromFurnace(IBuilding building, final String statName, final FurnaceBlockEntity furnace, final int slot)
+    public static void trackStatFromFurnace(final IBuilding building, final String statName, final Object furnace, final int slot)
     {
-        if (furnace != null) 
-        {
-            ItemStack item = furnace.getItem(slot);
-            if (item != null) 
-            {
-                trackStatByName(building, statName, item.getHoverName(), item.getCount());
-            }
-        }
+        // [1.7.10] FurnaceBlockEntity -> TileEntityFurnace - use IInventory.getStackInSlot instead
+        // TODO: port to 1.7.10 TileEntityFurnace
     }
 
     /**
      * Track a stat for a given building using the standard STATS_MODULE, with some null safety built in.
-     * Takes a map of ItemStacks and the total amounts of those stacks to be added to the stats and calls 
+     * Takes a map of ItemStacks and the total amounts of those stacks to be added to the stats and calls
      * overridden individual trackStat methods on each of them.
      * @param building the building to track the stat for.
      * @param statName the identifier for the stat.
@@ -64,15 +58,15 @@ public class StatsUtil
      * @param stack the ItemStack to track the stat for (displayName will be read from the descriptionId)
      * @param count the number of the item to track the stat for.
      */
-    public static void trackStatByStack(IBuilding building, String statIdentifier, ItemStack stack, int count) 
+    public static void trackStatByStack(IBuilding building, String statIdentifier, ItemStack stack, int count)
     {
-        if (stack == null) 
+        if (stack == null)
         {
             Log.getLogger().warn("Attempted to track stat '{}' with null stack: ", statIdentifier);
             return;
         }
 
-        trackStatByName(building, statIdentifier, stack.getHoverName(), count);
+        trackStatByName(building, statIdentifier, new net.minecraft.util.ChatComponentText(stack.getDisplayName()), count);
     }
 
     /**
@@ -83,9 +77,9 @@ public class StatsUtil
      * @param displayName the display name of the item to track the stat for.
      * @param count the number of the item to track the stat for.
      */
-    public static void trackStatByName(IBuilding building, String statIdentifier, String displayName, int count) 
+    public static void trackStatByName(IBuilding building, String statIdentifier, String displayName, int count)
     {
-        if (building == null) 
+        if (building == null)
         {
             Log.getLogger().warn("Attempted to track stat '{}' with null building: ", statIdentifier);
             return;
@@ -93,12 +87,12 @@ public class StatsUtil
 
         String statKey = statIdentifier + ";" + displayName;
         BuildingStatisticsModule statsModule = building.getModule(STATS_MODULE);
-        
-        if (statsModule != null) 
+
+        if (statsModule != null)
         {
             statsModule.incrementBy(statKey, count);
-        } 
-        else 
+        }
+        else
         {
             Log.getLogger().error("Attempt to track stats on a building that has no statistics module: {}", building);
         }
@@ -107,20 +101,20 @@ public class StatsUtil
     /**
      * Track a stat for a given building using the standard STATS_MODULE, with some null safety built in.
      * Used for a stats where the category has a detailed breakdown by name.
+     * [1.7.10] IChatComponent overload removed - use trackStatByName(IBuilding, String, String, int) directly.
      * @param building the building to track the stat for.
      * @param statIdentifier the identifier for the stat.
-     * @param displayName the display name of the item to track the stat for, as a Component.
+     * @param displayName the display name of the item to track the stat for, as an IChatComponent.
      * @param count the number of the item to track the stat for.
      */
-    public static void trackStatByName(IBuilding building, String statIdentifier, Component displayName, int count) 
+    public static void trackStatByName(final IBuilding building, final String statIdentifier, final IChatComponent displayName, final int count)
     {
-        if (displayName == null) 
+        if (displayName == null)
         {
-            Log.getLogger().warn("Attempted to track stat '{}' with null displayName as component: ", statIdentifier);
+            Log.getLogger().warn("Attempted to track stat '{}' with null displayName as IChatComponent: ", statIdentifier);
             return;
         }
-
-        trackStatByName(building, statIdentifier, displayName.getString(), count);
+        trackStatByName(building, statIdentifier, displayName.getFormattedText(), count);
     }
 
     /**
@@ -130,20 +124,23 @@ public class StatsUtil
      * @param statIdentifier the identifier for the stat.
      * @param count the number of the item to track the stat for.
      */
-    public static void trackStat(IBuilding building, String statIdentifier, int count) 
+    public static void trackStat(IBuilding building, String statIdentifier, int count)
     {
-        if (building == null) 
+        if (building == null)
         {
             Log.getLogger().warn("Attempted to track stat '{}' with null building: ", statIdentifier);
             return;
         }
 
         BuildingStatisticsModule statsModule = building.getModule(STATS_MODULE);
-        
-        if (statsModule != null) 
+
+        if (statsModule != null)
         {
             statsModule.incrementBy(statIdentifier, count);
-        } 
+        }
     }
 
 }
+
+
+

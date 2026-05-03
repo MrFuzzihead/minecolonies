@@ -2,33 +2,33 @@ package com.minecolonies.api.colony.buildings;
 
 import com.minecolonies.api.colony.requestsystem.location.ILocation;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.entity.player.EntityPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface IGuardBuilding extends IBuilding
 {
     /**
-     * Worker gets this distance times building level away from his/her hut to patrol.
+     * Worker gets this distance times building World away from his/her hut to patrol.
      */
     int PATROL_DISTANCE = 30;
 
     /**
-     * Check if a guard should take damage by a player..
+     * Check if a guard should take damage by a EntityPlayer..
      *
      * @param citizen the citizen.
-     * @param player  the player.
-     * @return false if in follow mode and following the player.
+     * @param EntityPlayer  the EntityPlayer.
+     * @return false if in follow mode and following the EntityPlayer.
      */
-    static boolean checkIfGuardShouldTakeDamage(final AbstractEntityCitizen citizen, final Player player)
+    static boolean checkIfGuardShouldTakeDamage(final AbstractEntityCitizen citizen, final EntityPlayer EntityPlayer)
     {
         final IBuilding buildingWorker = citizen.getCitizenColonyHandler().getWorkBuilding();
         if (!(buildingWorker instanceof IGuardBuilding))
         {
             return true;
         }
-        if (player.equals(((IGuardBuilding) buildingWorker).getPlayerToFollowOrRally()))
+        if (EntityPlayer.equals(((IGuardBuilding) buildingWorker).getPlayerToFollowOrRally()))
         {
             return false;
         }
@@ -49,7 +49,7 @@ public interface IGuardBuilding extends IBuilding
      * @return the position of the next target.
      */
     @Nullable
-    BlockPos getNextPatrolTarget(final boolean newTarget);
+    int[] getNextPatrolTarget(final boolean newTarget);
 
     /**
      * Called when a guard is at the current patrol point
@@ -88,30 +88,30 @@ public interface IGuardBuilding extends IBuilding
     /**
      * Get the position the guard should guard.
      *
-     * @return the {@link BlockPos} of the guard position.
+     * @return the {@link int[]} of the guard position.
      */
-    BlockPos getGuardPos(final @NotNull AbstractEntityCitizen worker);
+    int[] getGuardPos(final @NotNull AbstractEntityCitizen worker);
 
     /**
      * Set where the guard should guard.
      *
-     * @param guardPos the {@link BlockPos} to guard.
+     * @param guardPos the {@link int[]} to guard.
      */
-    void setGuardPos(BlockPos guardPos);
+    void setGuardPos(int[] guardPos);
 
     /**
-     * Entity of player to follow or rally.
+     * Entity of EntityPlayer to follow or rally.
      *
      * @return the PlayerEntity reference.
      */
-    Player getPlayerToFollowOrRally();
+    EntityPlayer getPlayerToFollowOrRally();
 
     /**
-     * Sets the player to follow.
+     * Sets the EntityPlayer to follow.
      *
-     * @param player the player to follow.
+     * @param EntityPlayer the EntityPlayer to follow.
      */
-    void setPlayerToFollow(Player player);
+    void setPlayerToFollow(EntityPlayer EntityPlayer);
 
     /**
      * Location to to rally to.
@@ -132,14 +132,14 @@ public interface IGuardBuilding extends IBuilding
      *
      * @return the position the guard is supposed to be while following.
      */
-    BlockPos getPositionToFollow();
+    int[] getPositionToFollow();
 
     /**
      * Adds new patrolTargets.
      *
      * @param target the target to add
      */
-    void addPatrolTarget(BlockPos target);
+    void addPatrolTarget(int[] target);
 
     /**
      * Resets the patrolTargets list.
@@ -147,7 +147,7 @@ public interface IGuardBuilding extends IBuilding
     void resetPatrolTargets();
 
     /**
-     * Get the Vision bonus range for the building level
+     * Get the Vision bonus range for the building World
      *
      * @return an integer for the additional range.
      */
@@ -170,12 +170,14 @@ public interface IGuardBuilding extends IBuilding
      *
      * @param pos Position to set
      */
-    void setTempNextPatrolPoint(BlockPos pos);
+    void setTempNextPatrolPoint(int[] pos);
 
     /**
      * Get the position of the assigned mine
      *
      * @return the coords of the assigned mine
      */
-    BlockPos getMinePos();
+    int[] getMinePos();
 }
+
+

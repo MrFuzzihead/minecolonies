@@ -2,7 +2,7 @@ package com.minecolonies.core.compatibility.jei;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.ldtteam.blockui.UiRenderMacros;
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.buildings.modules.ICraftingBuildingModule;
 import com.minecolonies.api.colony.buildings.registry.BuildingEntry;
 import com.minecolonies.api.colony.jobs.IJob;
@@ -25,21 +25,21 @@ import mezz.jei.api.helpers.IModIdHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.Rect2i;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.ForgeRegistries;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.Entity;
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraft.init.Blocks;
+// [1.7.10] BlockState -> int metadata
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -106,7 +106,7 @@ public class GenericRecipeCategory extends JobBasedRecipeCategory<IGenericRecipe
 
     @NotNull
     @Override
-    protected List<Component> generateInfoBlocks(@NotNull IGenericRecipe recipe)
+    protected List<String> generateInfoBlocks(@NotNull IGenericRecipe recipe)
     {
         return recipe.getRestrictions().get();
     }
@@ -294,7 +294,7 @@ public class GenericRecipeCategory extends JobBasedRecipeCategory<IGenericRecipe
         {
             try
             {
-                final Entity entity = entityCache.get(entityType, () -> entityType.create(Minecraft.getInstance().level));
+                final Entity entity = entityCache.get(entityType, () -> entityType.create(Minecraft.getInstance().World));
 
                 final float scale = ANIMAL_H / 2.4f;
                 final int animal_cx = ANIMAL_X + (ANIMAL_W / 2);
@@ -316,17 +316,17 @@ public class GenericRecipeCategory extends JobBasedRecipeCategory<IGenericRecipe
     }
 
     @Override
-    public @NotNull List<Component> getTooltipStrings(@NotNull final IGenericRecipe recipe,
+    public @NotNull List<String> getTooltipStrings(@NotNull final IGenericRecipe recipe,
                                                       @NotNull final IRecipeSlotsView recipeSlotsView,
                                                       final double mouseX, final double mouseY)
     {
-        final List<Component> tooltips = super.getTooltipStrings(recipe, recipeSlotsView, mouseX, mouseY);
+        final List<String> tooltips = super.getTooltipStrings(recipe, recipeSlotsView, mouseX, mouseY);
 
         if (recipe.getIntermediate() != Blocks.AIR)
         {
             if (new Rect2i(CITIZEN_X + CITIZEN_W + 4, CITIZEN_Y - 2, 24, 24).contains((int) mouseX, (int) mouseY))
             {
-                tooltips.add(Component.translatable(TranslationConstants.PARTIAL_JEI_INFO + "intermediate.tip", recipe.getIntermediate().getName()));
+                tooltips.add(String.translatable(TranslationConstants.PARTIAL_JEI_INFO + "intermediate.tip", recipe.getIntermediate().getName()));
             }
         }
 
@@ -347,7 +347,7 @@ public class GenericRecipeCategory extends JobBasedRecipeCategory<IGenericRecipe
     @NotNull
     public List<IGenericRecipe> findRecipes(@NotNull final Map<CraftingType, List<IGenericRecipe>> vanilla,
                                             @NotNull final List<Animal> animals,
-                                            @NotNull final Level world)
+                                            @NotNull final World world)
     {
         final List<IGenericRecipe> recipes = new ArrayList<>();
         for (final ICraftingBuildingModule module : this.crafting)
@@ -365,3 +365,7 @@ public class GenericRecipeCategory extends JobBasedRecipeCategory<IGenericRecipe
                 .collect(Collectors.toList());
     }
 }
+
+
+
+

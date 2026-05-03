@@ -11,8 +11,8 @@ import com.minecolonies.core.colony.ColonyView;
 import com.minecolonies.core.colony.buildings.modules.BuildingModules;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingTownHall;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingWareHouse;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,7 +38,7 @@ public class RegisteredStructureManagerView implements IRegisteredStructureManag
      * Map of all buildings.
      */
     @NotNull
-    private final Map<BlockPos, IBuildingView> buildings = new HashMap<>();
+    private final Map<int[], IBuildingView> buildings = new HashMap<>();
 
     /**
      * Set of all building extensions.
@@ -70,7 +70,7 @@ public class RegisteredStructureManagerView implements IRegisteredStructureManag
 
     @Nullable
     @Override
-    public  IMessage handleColonyViewRemoveBuildingMessage(final BlockPos buildingId)
+    public  IMessage handleColonyViewRemoveBuildingMessage(final int[] buildingId)
     {
         final IBuildingView building = buildings.remove(buildingId);
         if (townHall == building)
@@ -82,7 +82,7 @@ public class RegisteredStructureManagerView implements IRegisteredStructureManag
 
     @Nullable
     @Override
-    public IMessage handleColonyBuildingViewMessage(final BlockPos buildingId, @NotNull final FriendlyByteBuf buf)
+    public IMessage handleColonyBuildingViewMessage(final int[] buildingId, @NotNull final PacketBuffer buf)
     {
         if (buildings.containsKey(buildingId))
         {
@@ -147,13 +147,13 @@ public class RegisteredStructureManagerView implements IRegisteredStructureManag
 
     @NotNull
     @Override
-    public Map<BlockPos, IBuildingView> getBuildings()
+    public Map<int[], IBuildingView> getBuildings()
     {
         return buildings;
     }
 
     @Override
-    public void deserializeFromView(final boolean isNewSubscription, final @NotNull FriendlyByteBuf buf)
+    public void deserializeFromView(final boolean isNewSubscription, final @NotNull PacketBuffer buf)
     {
         if (isNewSubscription)
         {
@@ -162,3 +162,5 @@ public class RegisteredStructureManagerView implements IRegisteredStructureManag
         }
     }
 }
+
+

@@ -1,7 +1,7 @@
 package com.minecolonies.api.entity.citizen;
 
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -128,3 +128,4 @@ public class VisibleCitizenStatus
         return Collections.unmodifiableMap(visibleStatusMap);
     }
 }
+

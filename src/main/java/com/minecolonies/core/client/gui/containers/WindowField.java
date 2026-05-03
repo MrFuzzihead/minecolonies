@@ -1,10 +1,11 @@
 package com.minecolonies.core.client.gui.containers;
 
-import com.ldtteam.blockui.PaneBuilders;
+// [1.7.10] blockui replaced by ModularUI2
 import com.ldtteam.blockui.controls.Button;
-import com.ldtteam.blockui.controls.ButtonImage;
-import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.views.View;
 import com.ldtteam.structurize.client.gui.WindowSelectRes;
 import com.minecolonies.api.colony.ICitizen;
 import com.minecolonies.api.colony.IColonyManager;
@@ -21,23 +22,25 @@ import com.minecolonies.core.items.ItemCrop;
 import com.minecolonies.core.network.messages.server.colony.building.fields.FarmFieldPlotResizeMessage;
 import com.minecolonies.core.network.messages.server.colony.building.fields.FarmFieldUpdateSeedMessage;
 import com.minecolonies.core.tileentities.TileEntityScarecrow;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.language.I18n;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
+import net.minecraft.util.EnumChatFormatting;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
+// [1.7.10] Holder removed
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] tags removed
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.block.CropBlock;
+import net.minecraft.util.Direction;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.Tags;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -121,23 +124,23 @@ public class WindowField extends AbstractWindowSkeleton
             registerButton(DIRECTIONAL_BUTTON_ID_PREFIX + dir.getName(), this::onDirectionalButtonClick);
         }
 
-        final Holder<Biome> biomeHolder = Minecraft.getInstance().level.getBiome(tileEntityScarecrow.getBlockPos());
+        final Holder<Biome> biomeHolder = Minecraft.getInstance().World.getBiome(tileEntityScarecrow.getBlockPos());
         final ResourceLocation biomeID = biomeHolder.unwrapKey().get().location();
         final String biomeLangKey = "biome." + biomeID.getNamespace() + "." + biomeID.getPath();
         this.findPaneOfTypeByID("biome", Text.class)
-            .setText(Component.translatable("com.minecolonies.core.biome")
-                .append(I18n.exists(biomeLangKey) ? Component.translatable(biomeLangKey) : Component.literal(biomeID.getPath())));
+            .setText(String.translatable("com.minecolonies.core.biome")
+                .append(I18n.exists(biomeLangKey) ? String.translatable(biomeLangKey) : String.literal(biomeID.getPath())));
 
-        MutableComponent biomecategory = Component.literal("");
+        String biomecategory = String.literal("");
         for (final TagKey<Biome> preferredBiome : cropBiomeTags)
         {
             if (biomeHolder.is(preferredBiome))
             {
                 if (!biomecategory.getSiblings().isEmpty())
                 {
-                    biomecategory.append(Component.literal(","));
+                    biomecategory.append(String.literal(","));
                 }
-                biomecategory.append(Component.translatable(TranslationConstants.CROP_CLIMATE + "." + preferredBiome.location().getPath()));
+                biomecategory.append(String.translatable(TranslationConstants.CROP_CLIMATE + "." + preferredBiome.location().getPath()));
             }
         }
         this.findPaneOfTypeByID("climate", Text.class).setText(biomecategory);
@@ -150,10 +153,10 @@ public class WindowField extends AbstractWindowSkeleton
      */
     private void selectSeed()
     {
-        final Holder<Biome> biomeHolder = Minecraft.getInstance().level.getBiome(tileEntityScarecrow.getBlockPos());
+        final Holder<Biome> biomeHolder = Minecraft.getInstance().World.getBiome(tileEntityScarecrow.getBlockPos());
         new WindowSelectRes(
             this,
-            Component.translatable("com.minecolonies.coremod.gui.field.selectseed"),
+            String.translatable("com.minecolonies.coremod.gui.field.selectseed"),
             farmField.getSeed(),
             IColonyManager.getInstance().getCompatibilityManager().getListOfMatchingItems(stack -> stack.is(Tags.Items.SEEDS)
                 || (stack.getItem() instanceof BlockItem item && item.getBlock() instanceof CropBlock)
@@ -188,7 +191,7 @@ public class WindowField extends AbstractWindowSkeleton
 
         int newRadius = (currentValue % Math.min(currentValue+leftOver, MAX_RANGE)) + 1;
         tileEntityScarecrow.setFieldSize(direction.get(), newRadius);
-        button.setText(Component.literal(String.valueOf(newRadius)));
+        button.setText(String.literal(String.valueOf(newRadius)));
 
         Network.getNetwork().sendToServer(new FarmFieldPlotResizeMessage(newRadius, direction.get(), tileEntityScarecrow.getBlockPos()));
     }
@@ -261,7 +264,7 @@ public class WindowField extends AbstractWindowSkeleton
      */
     private void updateOwner()
     {
-        findPaneOfTypeByID(CURRENT_FARMER_TEXT_ID, Text.class).setText(Component.translatable(FIELD_GUI_NO_ASSIGNED_FARMER));
+        findPaneOfTypeByID(CURRENT_FARMER_TEXT_ID, Text.class).setText(String.translatable(FIELD_GUI_NO_ASSIGNED_FARMER));
 
         IColonyView colonyView = getCurrentColony();
         if (colonyView == null || farmField == null || !farmField.isTaken())
@@ -287,7 +290,7 @@ public class WindowField extends AbstractWindowSkeleton
             return;
         }
 
-        findPaneOfTypeByID(CURRENT_FARMER_TEXT_ID, Text.class).setText(Component.translatable(FIELD_GUI_ASSIGNED_FARMER, citizen.getName()));
+        findPaneOfTypeByID(CURRENT_FARMER_TEXT_ID, Text.class).setText(String.translatable(FIELD_GUI_ASSIGNED_FARMER, citizen.getName()));
     }
 
     /**
@@ -309,7 +312,7 @@ public class WindowField extends AbstractWindowSkeleton
         for (Direction dir : Direction.Plane.HORIZONTAL)
         {
             ButtonImage button = findPaneOfTypeByID(DIRECTIONAL_BUTTON_ID_PREFIX + dir.getName(), ButtonImage.class);
-            button.setText(Component.literal(Integer.toString(tileEntityScarecrow.getFieldSize()[dir.get2DDataValue()])));
+            button.setText(String.literal(Integer.toString(tileEntityScarecrow.getFieldSize()[dir.get2DDataValue()])));
 
             int buttonState = 1;
             if (!button.isEnabled())
@@ -324,8 +327,8 @@ public class WindowField extends AbstractWindowSkeleton
             button.setImage(TEXTURE, dir.get2DDataValue() * BUTTON_SIZE, buttonState * BUTTON_SIZE, BUTTON_SIZE, BUTTON_SIZE);
             PaneBuilders.tooltipBuilder()
               .hoverPane(button)
-              .append(Component.translatable(PARTIAL_BLOCK_HUT_FIELD_DIRECTION_ABSOLUTE + dir.getSerializedName()))
-              .appendNL(Component.translatable(getDirectionalTranslationKey(dir)).setStyle(Style.EMPTY.withItalic(true).withColor(ChatFormatting.GRAY)))
+              .append(String.translatable(PARTIAL_BLOCK_HUT_FIELD_DIRECTION_ABSOLUTE + dir.getSerializedName()))
+              .appendNL(String.translatable(getDirectionalTranslationKey(dir)).setStyle(Style.EMPTY.withItalic(true).withColor(ChatFormatting.GRAY)))
               .build();
         }
     }
@@ -372,3 +375,7 @@ public class WindowField extends AbstractWindowSkeleton
         updateAll();
     }
 }
+
+
+
+

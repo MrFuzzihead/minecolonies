@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.workorders;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.storage.StructurePacks;
@@ -18,13 +24,13 @@ import com.minecolonies.core.colony.buildings.AbstractBuildingStructureBuilder;
 import com.minecolonies.core.colony.buildings.modules.WorkerBuildingModule;
 import com.minecolonies.core.colony.buildings.modules.settings.StringSetting;
 import com.minecolonies.core.util.AdvancementUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import com.minecolonies.api.util.Tuple;
+import net.minecraft.world.ChunkCoordIntPair;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -223,13 +229,13 @@ public class WorkManager implements IWorkManager
      * @param compound Compound to save to.
      */
     @Override
-    public void write(@NotNull final CompoundTag compound)
+    public void write(@NotNull final NBTTagCompound compound)
     {
         //  Work Orders
-        @NotNull final ListTag list = new ListTag();
+        @NotNull final NBTTagList list = new NBTTagList();
         for (@NotNull final IServerWorkOrder o : workOrders.values())
         {
-            @NotNull final CompoundTag orderCompound = new CompoundTag();
+            @NotNull final NBTTagCompound orderCompound = new NBTTagCompound();
             o.write(orderCompound);
             list.add(orderCompound);
         }
@@ -243,7 +249,7 @@ public class WorkManager implements IWorkManager
      * @param compound Compound to read from.
      */
     @Override
-    public void read(@NotNull final CompoundTag compound)
+    public void read(@NotNull final NBTTagCompound compound)
     {
         workOrders.clear();
 
@@ -254,10 +260,10 @@ public class WorkManager implements IWorkManager
         }
 
         //  Work Orders
-        final ListTag list = compound.getList(TAG_WORK_ORDERS, Tag.TAG_COMPOUND);
+        final NBTTagList list = compound.getList(TAG_WORK_ORDERS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < list.size(); ++i)
         {
-            final CompoundTag orderCompound = list.getCompound(i);
+            final NBTTagCompound orderCompound = list.getCompound(i);
             @Nullable final IServerWorkOrder o = AbstractWorkOrder.createFromNBT(orderCompound, this);
             if (o != null)
             {
@@ -311,7 +317,7 @@ public class WorkManager implements IWorkManager
             order.setID(topWorkOrderId);
         }
 
-        final int level = order.getTargetLevel();
+        final int World = order.getTargetLevel();
         if (!readingFromNbt)
         {
             if (order instanceof WorkOrderBuilding buildingOrder)
@@ -320,13 +326,13 @@ public class WorkManager implements IWorkManager
                 if (building != null)
                 {
                     AdvancementUtils.TriggerAdvancementPlayersForColony(colony,
-                            player -> AdvancementTriggers.CREATE_BUILD_REQUEST.trigger(player, building.getBuildingType().getRegistryName().getPath(), level));
+                            player -> AdvancementTriggers.CREATE_BUILD_REQUEST.trigger(player, building.getBuildingType().getRegistryName().getPath(), World));
                 }
             }
             else if (order instanceof WorkOrderDecoration)
             {
                 AdvancementUtils.TriggerAdvancementPlayersForColony(colony,
-                  player -> AdvancementTriggers.CREATE_BUILD_REQUEST.trigger(player, order.getFileName().replace(String.valueOf(level), ""), level));
+                  player -> AdvancementTriggers.CREATE_BUILD_REQUEST.trigger(player, order.getFileName().replace(String.valueOf(World), ""), World));
             }
         }
 
@@ -342,16 +348,16 @@ public class WorkManager implements IWorkManager
      */
     private boolean isWorkOrderWithinColony(final IWorkOrder order)
     {
-        final Level world = colony.getWorld();
+        final World world = colony.getWorld();
         final Blueprint blueprint = StructurePacks.getBlueprint(order.getStructurePack(), order.getStructurePath());
-        final Tuple<BlockPos, BlockPos> corners
+        final Tuple<int[], int[]> corners
           = ColonyUtils.calculateCorners(order.getLocation(),
           world,
           blueprint,
           order.getRotation(),
           order.isMirrored());
 
-        Set<ChunkPos> chunks = new HashSet<>();
+        Set<ChunkCoordIntPair> chunks = new HashSet<>();
         final int minX = Math.min(corners.getA().getX(), corners.getB().getX()) + 1;
         final int maxX = Math.max(corners.getA().getX(), corners.getB().getX());
 
@@ -364,7 +370,7 @@ public class WorkManager implements IWorkManager
             {
                 final int chunkX = x >> 4;
                 final int chunkZ = z >> 4;
-                final ChunkPos pos = new ChunkPos(chunkX, chunkZ);
+                final ChunkCoordIntPair pos = new ChunkCoordIntPair(chunkX, chunkZ);
                 if (!chunks.contains(pos))
                 {
                     chunks.add(pos);
@@ -404,7 +410,7 @@ public class WorkManager implements IWorkManager
 
             if (order.isClaimed() && getColony().getServerBuildingManager().getBuildings().get(order.getClaimedBy()) == null)
             {
-                order.setClaimedBy(BlockPos.ZERO);
+                order.setClaimedBy(new int[]{0,0,0});
             }
 
             tryAssignWorkOrder(order, (b) -> order.getClaimedBy().equals(b.getPosition()));
@@ -473,7 +479,7 @@ public class WorkManager implements IWorkManager
      * @return the list.
      */
     @Override
-    public <W extends IServerWorkOrder> List<W> getOrderedList(Class<W> type, BlockPos builder)
+    public <W extends IServerWorkOrder> List<W> getOrderedList(Class<W> type, int[] builder)
     {
         return getOrderedList(type::isInstance, builder)
           .stream()
@@ -489,7 +495,7 @@ public class WorkManager implements IWorkManager
      * @return the list.
      */
     @Override
-    public List<IServerWorkOrder> getOrderedList(@NotNull Predicate<IServerWorkOrder> predicate, final BlockPos builder)
+    public List<IServerWorkOrder> getOrderedList(@NotNull Predicate<IServerWorkOrder> predicate, final int[] builder)
     {
         return workOrders.values().stream()
           .filter(o -> (!o.isClaimed() || o.getClaimedBy().equals(builder)))
@@ -526,3 +532,8 @@ public class WorkManager implements IWorkManager
         return colony;
     }
 }
+
+
+
+
+

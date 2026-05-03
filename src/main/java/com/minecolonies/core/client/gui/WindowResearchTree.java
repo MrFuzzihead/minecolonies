@@ -1,9 +1,29 @@
 package com.minecolonies.core.client.gui;
 
-import com.ldtteam.blockui.PaneBuilders;
-import com.ldtteam.blockui.controls.*;
-import com.ldtteam.blockui.views.View;
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
 import com.ldtteam.blockui.views.ZoomDragView;
+import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Color;
+import com.ldtteam.blockui.controls.DropDownList;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
+import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.controls.TextField;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
+import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.MinecoloniesAPIProxy;
 import com.minecolonies.api.colony.buildings.registry.IBuildingRegistry;
@@ -22,13 +42,13 @@ import com.minecolonies.core.client.gui.blockui.RotatingItemIcon;
 import com.minecolonies.core.client.gui.modules.building.UniversityModuleWindow;
 import com.minecolonies.core.network.messages.server.colony.building.university.TryResearchMessage;
 import com.minecolonies.core.research.GlobalResearchEffect;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.items.wrapper.InvWrapper;
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -40,7 +60,7 @@ import static com.minecolonies.api.research.util.ResearchConstants.*;
 import static com.minecolonies.api.util.constant.WindowConstants.*;
 
 /**
- * BOWindow to display a particular branch of the tree.
+ * Object (BOWindow: todo ModularUI2 removed) to display a particular branch of the tree.
  */
 public class WindowResearchTree extends AbstractWindowSkeleton
 {
@@ -270,7 +290,7 @@ public class WindowResearchTree extends AbstractWindowSkeleton
       final boolean abandoned)
     {
         // Data Pack items load non-deterministically, and the underlying researchTree hashmap doesn't guarantee return of items in any specific order.
-        // Sort by the number on the "sortOrder" tag if present to allow control of display order.
+        // Sort by the number on the "sortOrder" NBTBase if present to allow control of display order.
         researchList.sort(Comparator.comparing(unsortedResearch -> IGlobalResearchTree.getInstance().getResearch(branch, unsortedResearch).getSortOrder()));
 
         int nextHeight = height;
@@ -332,7 +352,7 @@ public class WindowResearchTree extends AbstractWindowSkeleton
             timeLabel.setPosition((i - 1) * (GRADIENT_WIDTH + X_SPACING) + GRADIENT_WIDTH / 2 - TIME_WIDTH / 4, TIMELABEL_Y_POSITION);
             if(branchType == ResearchBranchType.UNLOCKABLES)
             {
-                timeLabel.setText(Component.translatable("com.minecolonies.coremod.gui.research.tier.header.unrestricted",
+                timeLabel.setText(String.translatable("com.minecolonies.coremod.gui.research.tier.header.unrestricted",
                   (i > building.getBuildingMaxLevel()) ? building.getBuildingMaxLevel() : i,
                   IGlobalResearchTree.getInstance().getBranchData(branch).getHoursTime(i)));
                 timeLabel.setColors(COLOR_TEXT_LABEL);
@@ -341,7 +361,7 @@ public class WindowResearchTree extends AbstractWindowSkeleton
             }
             else
             {
-                timeLabel.setText(Component.translatable("com.minecolonies.coremod.gui.research.tier.header",
+                timeLabel.setText(String.translatable("com.minecolonies.coremod.gui.research.tier.header",
                   (i > building.getBuildingMaxLevel()) ? building.getBuildingMaxLevel() : i,
                   IGlobalResearchTree.getInstance().getBranchData(branch).getHoursTime(i)));
 
@@ -393,7 +413,7 @@ public class WindowResearchTree extends AbstractWindowSkeleton
         {
             return ResearchButtonState.IN_PROGRESS;
         }
-        // If the University too low-level for the research, or if this research is max-level, the building is max level, and another max-level research is completed.
+        // If the University too low-World for the research, or if this research is max-World, the building is max World, and another max-World research is completed.
         else if (research.getDepth() > building.getBuildingLevel() && !(research.getDepth() > building.getBuildingMaxLevel() && !hasMax
                     && building.getBuildingLevel() == building.getBuildingMaxLevel()) && branchType != ResearchBranchType.UNLOCKABLES)
         {
@@ -532,13 +552,13 @@ public class WindowResearchTree extends AbstractWindowSkeleton
             case TOO_MANY_PROGRESS:
                 ButtonImage tooMany1 = new ButtonImage();
                 tooMany1.setImage(new ResourceLocation(Constants.MOD_ID, MEDIUM_SIZED_BUTTON_DIS), false);
-                tooMany1.setText(Component.translatable("com.minecolonies.coremod.research.research.toomanyinprogress.1"));
+                tooMany1.setText(String.translatable("com.minecolonies.coremod.research.research.toomanyinprogress.1"));
                 tooMany1.setSize(BUTTON_LENGTH, BUTTON_HEIGHT);
                 tooMany1.setPosition(offsetX + ICON_WIDTH * 2, offsetY + BUTTON_HEIGHT);
                 view.addChild(tooMany1);
                 final ButtonImage tooMany2 = new ButtonImage();
                 tooMany2.setImage(new ResourceLocation(Constants.MOD_ID, MEDIUM_SIZED_BUTTON_DIS), false);
-                tooMany2.setText(Component.translatable("com.minecolonies.coremod.research.research.toomanyinprogress.2"));
+                tooMany2.setText(String.translatable("com.minecolonies.coremod.research.research.toomanyinprogress.2"));
                 tooMany2.setSize(BUTTON_LENGTH, BUTTON_HEIGHT);
                 tooMany2.setPosition(offsetX + ICON_WIDTH * 2, offsetY + BUTTON_HEIGHT * 2);
                 view.addChild(tooMany2);
@@ -600,10 +620,10 @@ public class WindowResearchTree extends AbstractWindowSkeleton
     private void generateResearchTooltips(final Button tipItem, final IGlobalResearch research, final ResearchButtonState state)
     {
         // have to use a deep copy of getName, or the TranslationText will also retain and apply the formatting in other contexts.
-        final AbstractTextBuilder.TooltipBuilder hoverPaneBuilder = PaneBuilders.tooltipBuilder().hoverPane(tipItem).append(MutableComponent.create(research.getName()).copy()).bold().color(COLOR_TEXT_NAME);
+        final AbstractTextBuilder.TooltipBuilder hoverPaneBuilder = PaneBuilders.tooltipBuilder().hoverPane(tipItem).append(String.create(research.getName()).copy()).bold().color(COLOR_TEXT_NAME);
         if (!research.getSubtitle().getKey().isEmpty())
         {
-            hoverPaneBuilder.paragraphBreak().italic().colorName("GRAY").append(MutableComponent.create(research.getSubtitle()));
+            hoverPaneBuilder.paragraphBreak().italic().colorName("GRAY").append(String.create(research.getSubtitle()));
         }
         for (int txt = 0; txt < research.getEffects().size(); txt++)
         {
@@ -614,20 +634,20 @@ public class WindowResearchTree extends AbstractWindowSkeleton
             if (researchEffect instanceof GlobalResearchEffect globalResearchEffect && researchEffect.getId().equals(CITIZEN_CAP)
                   && globalResearchEffect.getEffect() > IMinecoloniesAPI.getInstance().getConfig().getServer().maxCitizenPerColony.get())
             {
-                final MutableComponent mainText =
-                  Component.translatable(researchEffect.getName().getKey(), 0, IMinecoloniesAPI.getInstance().getConfig().getServer().maxCitizenPerColony.get());
+                final String mainText =
+                  String.translatable(researchEffect.getName().getKey(), 0, IMinecoloniesAPI.getInstance().getConfig().getServer().maxCitizenPerColony.get());
                 // This call to `Math.round` doesn't serve any purpose, it's only meant to convert the double into a long, so that it will display correctly without any trailing zeroes.
-                final MutableComponent finishText = Component.translatable(researchEffect.getName().getKey() + ".over", Math.round(globalResearchEffect.getEffect()));
-                hoverPaneBuilder.paragraphBreak().append(mainText).append(Component.literal(" ")).append(finishText);
+                final String finishText = String.translatable(researchEffect.getName().getKey() + ".over", Math.round(globalResearchEffect.getEffect()));
+                hoverPaneBuilder.paragraphBreak().append(mainText).append(String.literal(" ")).append(finishText);
             }
             else
             {
-                hoverPaneBuilder.paragraphBreak().append(MutableComponent.create(researchEffect.getName()));
+                hoverPaneBuilder.paragraphBreak().append(String.create(researchEffect.getName()));
             }
 
             if (!researchEffect.getSubtitle().getKey().isEmpty())
             {
-                hoverPaneBuilder.paragraphBreak().append(Component.literal("-")).append(MutableComponent.create(researchEffect.getSubtitle())).italic().colorName("GRAY");
+                hoverPaneBuilder.paragraphBreak().append(String.literal("-")).append(String.create(researchEffect.getSubtitle())).italic().colorName("GRAY");
             }
         }
         if (state != ResearchButtonState.FINISHED && state != ResearchButtonState.IN_PROGRESS)
@@ -636,20 +656,20 @@ public class WindowResearchTree extends AbstractWindowSkeleton
             {
                 if (research.getResearchRequirements().get(txt).isFulfilled(this.building.getColony()))
                 {
-                    hoverPaneBuilder.paragraphBreak().append(Component.literal(" - ")).color(COLOR_TEXT_FULFILLED)
+                    hoverPaneBuilder.paragraphBreak().append(String.literal(" - ")).color(COLOR_TEXT_FULFILLED)
                       .append(research.getResearchRequirements().get(txt).getDesc());
                 }
                 else
                 {
-                    hoverPaneBuilder.paragraphBreak().append(Component.literal(" - ")).color(COLOR_TEXT_UNFULFILLED)
+                    hoverPaneBuilder.paragraphBreak().append(String.literal(" - ")).color(COLOR_TEXT_UNFULFILLED)
                       .append(research.getResearchRequirements().get(txt).getDesc());
                 }
             }
             for (final IResearchCost cost : research.getCostList())
             {
                 hoverPaneBuilder.paragraphBreak()
-                  .append(Component.literal(" - "))
-                  .append(Component.translatable("com.minecolonies.coremod.research.limit.requirement", cost.getCount(), cost.getTranslatedName()));
+                  .append(String.literal(" - "))
+                  .append(String.translatable("com.minecolonies.coremod.research.limit.requirement", cost.getCount(), cost.getTranslatedName()));
                 if (research.hasEnoughResources(Minecraft.getInstance().player, building.getPosition()))
                 {
                     hoverPaneBuilder.color(COLOR_TEXT_FULFILLED);
@@ -661,23 +681,23 @@ public class WindowResearchTree extends AbstractWindowSkeleton
             }
             if (research.getDepth() > building.getBuildingLevel() && building.getBuildingLevel() != building.getBuildingMaxLevel() && branchType != ResearchBranchType.UNLOCKABLES)
             {
-                hoverPaneBuilder.paragraphBreak().append(Component.translatable("com.minecolonies.coremod.research.requirement.university.level", Math.min(research.getDepth(), this.building.getBuildingMaxLevel())));
+                hoverPaneBuilder.paragraphBreak().append(String.translatable("com.minecolonies.coremod.research.requirement.university.World", Math.min(research.getDepth(), this.building.getBuildingMaxLevel())));
             }
             if (research.getDepth() == MAX_DEPTH && branchType != ResearchBranchType.UNLOCKABLES)
             {
                 if (hasMax)
                 {
-                    hoverPaneBuilder.paragraphBreak().append(Component.translatable("com.minecolonies.coremod.research.limit.onemaxperbranch")).color(COLOR_TEXT_UNFULFILLED);
+                    hoverPaneBuilder.paragraphBreak().append(String.translatable("com.minecolonies.coremod.research.limit.onemaxperbranch")).color(COLOR_TEXT_UNFULFILLED);
                 }
                 else
                 {
-                    hoverPaneBuilder.paragraphBreak().append(Component.translatable("com.minecolonies.coremod.research.limit.onemaxperbranch")).color(COLOR_TEXT_FULFILLED);
+                    hoverPaneBuilder.paragraphBreak().append(String.translatable("com.minecolonies.coremod.research.limit.onemaxperbranch")).color(COLOR_TEXT_FULFILLED);
                 }
             }
         }
         if (research.isImmutable())
         {
-            hoverPaneBuilder.paragraphBreak().append(Component.translatable("com.minecolonies.coremod.research.limit.immutable")).color(COLOR_TEXT_UNFULFILLED);
+            hoverPaneBuilder.paragraphBreak().append(String.translatable("com.minecolonies.coremod.research.limit.immutable")).color(COLOR_TEXT_UNFULFILLED);
         }
         hoverPaneBuilder.build();
     }
@@ -696,7 +716,7 @@ public class WindowResearchTree extends AbstractWindowSkeleton
     {
         final Text nameText = new Text();
         nameText.setSize(NAME_LABEL_WIDTH, NAME_LABEL_HEIGHT);
-        nameText.setText(MutableComponent.create(research.getName()));
+        nameText.setText(String.create(research.getName()));
         nameText.setPosition(offsetX + ICON_WIDTH + TEXT_X_OFFSET, offsetY);
         nameText.setColors(COLOR_TEXT_DARK);
         nameText.setTextScale(1.4f);
@@ -734,7 +754,7 @@ public class WindowResearchTree extends AbstractWindowSkeleton
             }
             final Text progressLabel = new Text();
             progressLabel.setSize(NAME_LABEL_WIDTH, INITIAL_Y_OFFSET);
-            progressLabel.setText(Component.translatable("com.minecolonies.coremod.gui.research.time", timeRemaining));
+            progressLabel.setText(String.translatable("com.minecolonies.coremod.gui.research.time", timeRemaining));
             progressLabel.setPosition(offsetX + ICON_WIDTH + TEXT_X_OFFSET, offsetY + NAME_LABEL_HEIGHT);
             progressLabel.setColors(COLOR_TEXT_DARK);
             progressLabel.setTextScale(0.7f);
@@ -759,10 +779,10 @@ public class WindowResearchTree extends AbstractWindowSkeleton
         undoText.setSize(BUTTON_LENGTH, BUTTON_HEIGHT);
         undoText.setPosition(parent.getX() + TEXT_X_OFFSET + (GRADIENT_WIDTH - BUTTON_LENGTH) / 2, parent.getY() + TEXT_Y_OFFSET + (GRADIENT_HEIGHT - BUTTON_HEIGHT) / 2);
         undoText.setColors(COLOR_TEXT_DARK);
-        undoText.setText(Component.translatable("com.minecolonies.coremod.research.undo.progress"));
+        undoText.setText(String.translatable("com.minecolonies.coremod.research.undo.progress"));
         undoText.disable();
         parent.getParent().addChild(undoText);
-        PaneBuilders.tooltipBuilder().hoverPane(undoButton).append(Component.translatable("com.minecolonies.coremod.research.undo.progress.tooltip")).color(COLOR_TEXT_UNFULFILLED).bold().build();
+        PaneBuilders.tooltipBuilder().hoverPane(undoButton).append(String.translatable("com.minecolonies.coremod.research.undo.progress.tooltip")).color(COLOR_TEXT_UNFULFILLED).bold().build();
     }
 
     /**
@@ -794,17 +814,17 @@ public class WindowResearchTree extends AbstractWindowSkeleton
         undoButton.setSize(BUTTON_LENGTH, BUTTON_HEIGHT);
         undoButton.setPosition(parent.getX(), parent.getY() + TEXT_Y_OFFSET + (GRADIENT_HEIGHT - NAME_LABEL_HEIGHT) / 2);
         final AbstractTextBuilder.TooltipBuilder undoTipBuilder = PaneBuilders.tooltipBuilder().hoverPane(undoButton)
-                                  .append(Component.translatable("com.minecolonies.coremod.research.undo.remove.tooltip")).bold().color(COLOR_TEXT_UNFULFILLED);
+                                  .append(String.translatable("com.minecolonies.coremod.research.undo.remove.tooltip")).bold().color(COLOR_TEXT_UNFULFILLED);
         undoText.setSize(BUTTON_LENGTH, BUTTON_HEIGHT);
         undoText.setPosition(parent.getX() + TEXT_X_OFFSET, parent.getY() + TEXT_Y_OFFSET + (GRADIENT_HEIGHT - NAME_LABEL_HEIGHT) / 2);
         undoText.setColors(COLOR_TEXT_DARK);
         if (!missingItems.isEmpty())
         {
             undoButton.setImage(new ResourceLocation(Constants.MOD_ID, MEDIUM_SIZED_BUTTON_DIS), false);
-            undoText.setText(Component.translatable("com.minecolonies.coremod.research.research.notenoughresources"));
+            undoText.setText(String.translatable("com.minecolonies.coremod.research.research.notenoughresources"));
             for (ItemStorage cost : missingItems)
             {
-                undoTipBuilder.paragraphBreak().append(Component.translatable("com.minecolonies.coremod.research.requirement.research",
+                undoTipBuilder.paragraphBreak().append(String.translatable("com.minecolonies.coremod.research.requirement.research",
                   cost.getItem().getDescription())).color(COLOR_TEXT_UNFULFILLED);
             }
         }
@@ -812,7 +832,7 @@ public class WindowResearchTree extends AbstractWindowSkeleton
         {
             undoButton.setImage(new ResourceLocation(Constants.MOD_ID, MEDIUM_SIZED_BUTTON_RES), false);
             undoButton.setID("undo:" + parent.getID());
-            undoText.setText(Component.translatable("com.minecolonies.coremod.research.undo.remove"));
+            undoText.setText(String.translatable("com.minecolonies.coremod.research.undo.remove"));
         }
         undoText.disable();
         parent.getParent().addChild(undoButton);
@@ -947,7 +967,7 @@ public class WindowResearchTree extends AbstractWindowSkeleton
             immutIcon.setSize(DEFAULT_COST_SIZE, DEFAULT_COST_SIZE);
             immutIcon.setPosition(offsetX + GRADIENT_WIDTH - DEFAULT_COST_SIZE, offsetY);
             view.addChild(immutIcon);
-            PaneBuilders.tooltipBuilder().hoverPane(immutIcon).paragraphBreak().append(Component.translatable("com.minecolonies.coremod.research.limit.immutable"))
+            PaneBuilders.tooltipBuilder().hoverPane(immutIcon).paragraphBreak().append(String.translatable("com.minecolonies.coremod.research.limit.immutable"))
               .color(COLOR_TEXT_FULFILLED).build();
         }
 
@@ -1066,10 +1086,10 @@ public class WindowResearchTree extends AbstractWindowSkeleton
                     final Text orLabel = new Text();
                     orLabel.setSize(OR_WIDTH, OR_HEIGHT);
                     orLabel.setColors(COLOR_TEXT_DARK);
-                    orLabel.setText(Component.translatable("com.minecolonies.coremod.research.research.or"));
+                    orLabel.setText(String.translatable("com.minecolonies.coremod.research.research.or"));
                     orLabel.setPosition(offsetX + INITIAL_X_OFFSET, offsetY + TEXT_Y_OFFSET);
                     view.addChild(orLabel);
-                    PaneBuilders.tooltipBuilder().hoverPane(orLabel).append(Component.translatable("com.minecolonies.coremod.research.research.or.tooltip")).build();
+                    PaneBuilders.tooltipBuilder().hoverPane(orLabel).append(String.translatable("com.minecolonies.coremod.research.research.or.tooltip")).build();
 
                     if (lastSibling)
                     {
@@ -1108,3 +1128,7 @@ public class WindowResearchTree extends AbstractWindowSkeleton
         }
     }
 }
+
+
+
+

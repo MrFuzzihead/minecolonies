@@ -19,11 +19,12 @@ import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.core.tileentities.TileEntityColonyBuilding;
 import com.minecolonies.core.util.BuildingUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.entity.BlockEntity;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import com.minecolonies.api.util.Tuple;
+import net.minecraft.world.World;
+// [1.7.10] World.block.Mirror removed
+// [1.7.10] block.entity removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
@@ -44,10 +45,10 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
     /**
      * The location of the building.
      */
-    private final BlockPos location;
+    private final int[] location;
 
     /**
-     * The level of the building.
+     * The World of the building.
      */
     private int buildingLevel = 0;
 
@@ -84,8 +85,8 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
     /**
      * Corners of the building.
      */
-    private BlockPos lowerCorner  = BlockPos.ZERO;
-    private BlockPos higherCorner = BlockPos.ZERO;
+    private int[] lowerCorner  = new int[]{0,0,0};
+    private int[] higherCorner = new int[]{0,0,0};
 
     /**
      * Cached rotation.
@@ -95,7 +96,7 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
     /**
      * Parent schematic this is in
      */
-    private BlockPos parentSchematic = BlockPos.ZERO;
+    private int[] parentSchematic = new int[]{0,0,0};
 
     /**
      * Blueprint future for delayed info reading.
@@ -109,9 +110,9 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
      */
     private boolean recalcPrestige;
 
-    public AbstractSchematicProvider(final BlockPos pos, final IColony colony)
+    public AbstractSchematicProvider(final int[] pos, final IColony colony)
     {
-        if (pos.equals(BlockPos.ZERO))
+        if (pos.equals(new int[]{0,0,0}))
         {
             Log.getLogger().warn("Creating building at zero pos!:", new Exception());
         }
@@ -160,9 +161,9 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compound = new CompoundTag();
+        final NBTTagCompound compound = new NBTTagCompound();
         BlockPosUtil.write(compound, TAG_LOCATION, location);
 
         compound.putString(TAG_PACK, structurePack);
@@ -186,7 +187,7 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         buildingLevel = compound.getInt(TAG_SCHEMATIC_LEVEL);
 
@@ -221,7 +222,7 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
         parentSchematic = BlockPosUtil.read(compound, TAG_PARENT_SCHEM);
     }
 
-    private void deserializerStructureInformationFrom(final CompoundTag compound)
+    private void deserializerStructureInformationFrom(final NBTTagCompound compound)
     {
         String packName;
         String path;
@@ -258,26 +259,26 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
     }
 
     @Override
-    public BlockPos getPosition()
+    public int[] getPosition()
     {
         return location;
     }
 
     @Override
-    public void setCorners(final BlockPos pos1, final BlockPos pos2)
+    public void setCorners(final int[] pos1, final int[] pos2)
     {
-        this.lowerCorner = new BlockPos(Math.min(pos1.getX(), pos2.getX()), Math.min(pos1.getY(), pos2.getY()), Math.min(pos1.getZ(), pos2.getZ()));
-        this.higherCorner = new BlockPos(Math.max(pos1.getX(), pos2.getX()), Math.max(pos1.getY(), pos2.getY()), Math.max(pos1.getZ(), pos2.getZ()));
+        this.lowerCorner = new int[]{Math.min(pos1[0], pos2[0]), Math.min(pos1[1], pos2[1]), Math.min(pos1[2], pos2[2])};
+        this.higherCorner = new int[]{Math.max(pos1[0], pos2[0]), Math.max(pos1[1], pos2[1]), Math.max(pos1[2], pos2[2])};
     }
 
     @Override
-    public Tuple<BlockPos, BlockPos> getCorners()
+    public Tuple<int[], int[]> getCorners()
     {
-        if (lowerCorner.equals(BlockPos.ZERO) || higherCorner.equals(BlockPos.ZERO))
+        if (lowerCorner.equals(new int[]{0,0,0}) || higherCorner.equals(new int[]{0,0,0}))
         {
             this.calculateCorners();
 
-            if (lowerCorner.equals(BlockPos.ZERO) || higherCorner.equals(BlockPos.ZERO))
+            if (lowerCorner.equals(new int[]{0,0,0}) || higherCorner.equals(new int[]{0,0,0}))
             {
                 return new Tuple<>(getPosition(), getPosition());
             }
@@ -287,26 +288,26 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
     }
 
     @Override
-    public BlockPos getID()
+    public int[] getID()
     {
         // Location doubles as ID.
         return location;
     }
 
     @Override
-    public BlockPos getParent()
+    public int[] getParent()
     {
-        return isParentValid(parentSchematic) ? parentSchematic : BlockPos.ZERO;
+        return isParentValid(parentSchematic) ? parentSchematic : new int[]{0,0,0};
     }
 
     @Override
     public boolean hasParent()
     {
-        return !parentSchematic.equals(BlockPos.ZERO);
+        return !parentSchematic.equals(new int[]{0,0,0});
     }
 
     @Override
-    public void setParent(final BlockPos pos)
+    public void setParent(final int[] pos)
     {
         if (isParentValid(pos))
         {
@@ -314,14 +315,14 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
         }
     }
 
-    private boolean isParentValid(BlockPos position)
+    private boolean isParentValid(int[] position)
     {
         final IBuilding building = colony.getServerBuildingManager().getBuilding(position);
         return building != null && !building.getID().equals(getID()) && !building.hasParent();
     }
 
     @Override
-    public Set<BlockPos> getChildren()
+    public Set<int[]> getChildren()
     {
         return colony.getServerBuildingManager().getBuildings().values().stream()
           .filter(f -> f.getParent().equals(getID()))
@@ -407,7 +408,7 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
     @Override
     public void asyncPrestigeRecalc()
     {
-        // No need to calculate prestige for buildings at level 0.
+        // No need to calculate prestige for buildings at World 0.
         if (buildingLevel == 0)
         {
             colony.getServerBuildingManager().clearPendingPrestigeCalc(this);
@@ -448,8 +449,8 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
     @Override
     public String getStructurePack()
     {
-        final BlockPos parent = getParent();
-        if (parent != BlockPos.ZERO)
+        final int[] parent = getParent();
+        if (parent != new int[]{0,0,0})
         {
             final IBuilding building = colony.getServerBuildingManager().getBuilding(parent);
             if (building != null)
@@ -477,15 +478,15 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
     }
 
     @Override
-    public void setBuildingLevel(final int level)
+    public void setBuildingLevel(final int World)
     {
-        if (level > getMaxBuildingLevel())
+        if (World > getMaxBuildingLevel())
         {
             return;
         }
 
         isDeconstructed = false;
-        buildingLevel = level;
+        buildingLevel = World;
         markDirty();
     }
 
@@ -502,15 +503,15 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
     }
 
     @Override
-    public boolean isInBuilding(@NotNull final BlockPos positionVec)
+    public boolean isInBuilding(@NotNull final int[] positionVec)
     {
-        final Tuple<BlockPos, BlockPos> corners = getCorners();
-        BlockPos cornerA = corners.getA();
-        BlockPos cornerB = corners.getB();
+        final Tuple<int[], int[]> corners = getCorners();
+        int[] cornerA = corners.getA();
+        int[] cornerB = corners.getB();
 
         if (this.hasModule(IAltersBuildingFootprint.class))
         {
-            final Tuple<BlockPos, BlockPos> extensions = this.getFirstModuleOccurance(IAltersBuildingFootprint.class).getAdditionalCorners();
+            final Tuple<int[], int[]> extensions = this.getFirstModuleOccurance(IAltersBuildingFootprint.class).getAdditionalCorners();
             cornerA = cornerA.offset(extensions.getA());
             cornerB = cornerB.offset(extensions.getB());
         }
@@ -533,21 +534,21 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
 
             setCorners(blueprintDataProvider.getInWorldCorners().getA(), blueprintDataProvider.getInWorldCorners().getB());
 
-            int level = 0;
+            int World = 0;
             try
             {
-                level = Integer.parseInt(blueprintDataProvider.getSchematicName().substring(blueprintDataProvider.getSchematicName().length() - 1));
+                World = Integer.parseInt(blueprintDataProvider.getSchematicName().substring(blueprintDataProvider.getSchematicName().length() - 1));
             }
             catch (NumberFormatException e)
             {
             }
 
-            if (level > 0 && (level > getBuildingLevel() || isDeconstructed) && level <= getMaxBuildingLevel())
+            if (World > 0 && (World > getBuildingLevel() || isDeconstructed) && World <= getMaxBuildingLevel())
             {
-                if (level > getBuildingLevel())
+                if (World > getBuildingLevel())
                 {
-                    Tuple<BlockPos, BlockPos> corners = getCorners();
-                    if (getParent() != BlockPos.ZERO)
+                    Tuple<int[], int[]> corners = getCorners();
+                    if (getParent() != new int[]{0,0,0})
                     {
                         final BlockEntity parentTileEntity = colony.getWorld().getBlockEntity(getParent());
                         if (parentTileEntity instanceof AbstractTileEntityColonyBuilding parentBuildingTileEntity)
@@ -555,11 +556,11 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
                             corners = parentBuildingTileEntity.getBuilding().getCorners();
                         }
                     }
-                    FireworkUtils.spawnFireworksAtAABBCorners(corners, colony.getWorld(), level);
+                    FireworkUtils.spawnFireworksAtAABBCorners(corners, colony.getWorld(), World);
                 }
 
-                setBuildingLevel(level);
-                onUpgradeComplete(null, level);
+                setBuildingLevel(World);
+                onUpgradeComplete(null, World);
                 isDeconstructed = false;
             }
         }
@@ -583,3 +584,10 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
         this.buildingType = buildingType;
     }
 }
+
+
+
+
+
+
+

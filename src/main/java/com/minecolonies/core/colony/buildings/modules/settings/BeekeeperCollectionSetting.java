@@ -1,15 +1,15 @@
 package com.minecolonies.core.colony.buildings.modules.settings;
 
-import com.ldtteam.blockui.Pane;
-import com.ldtteam.blockui.controls.ButtonImage;
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.buildings.modules.ICommonSettingsModule;
 import com.minecolonies.api.colony.buildings.modules.settings.ISettingKey;
 import com.minecolonies.api.colony.buildings.modules.settings.ISettingsModuleView;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingBeekeeper;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 import java.util.List;
 
@@ -46,17 +46,16 @@ public class BeekeeperCollectionSetting extends StringSetting
         super(settings, currentIndex);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void setupHandler(
       final ISettingKey<?> key,
-      final Pane pane,
+      final Object pane,
       final ICommonSettingsModule settingsModuleView,
       final IBuildingView building,
-      final BOWindow window)
+      final Object /* BOWindow: todo ModularUI2 */ window)
     {
+        // [1.7.10] todo: ModularUI2 port
         hasResearch = building.getColony().getResearchManager().getResearchEffects().getEffectStrength(BEEKEEP_2) > 0;
-        pane.findPaneOfTypeByID("trigger", ButtonImage.class).setHandler(button -> settingsModuleView.trigger(key));
     }
 
     @Override
@@ -65,3 +64,6 @@ public class BeekeeperCollectionSetting extends StringSetting
         return super.isIndexAllowed(index) && (hasResearch || !getSettings().get(index).equals(BuildingBeekeeper.BOTH));
     }
 }
+
+
+

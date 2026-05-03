@@ -18,6 +18,7 @@ import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.StatsUtil;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import com.minecolonies.core.colony.buildings.modules.WorkerBuildingModule;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingDeliveryman;
 import com.minecolonies.core.colony.interactionhandling.PosBasedInteraction;
@@ -29,14 +30,14 @@ import com.minecolonies.core.entity.ai.workers.AbstractEntityAIInteract;
 import com.minecolonies.core.tileentities.TileEntityColonyBuilding;
 import com.minecolonies.core.tileentities.TileEntityRack;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.items.IItemHandler;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] int /* InteractionHand */ removed
+import net.minecraft.item.ItemStack;
+// [1.7.10] block.entity removed
+// [1.7.10] capabilities removed
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -162,7 +163,7 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
 
         worker.getCitizenData().setVisibleStatus(DELIVERING);
 
-        final BlockPos pickupTarget = currentTask.getRequester().getLocation().getInDimensionLocation();
+        final int[] pickupTarget = currentTask.getRequester().getLocation().getInDimensionLocation();
         final IBuilding pickupBuilding = building.getColony().getServerBuildingManager().getBuilding(pickupTarget);
         if (pickupBuilding == null)
         {
@@ -219,7 +220,7 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
             return false;
         }
 
-        final IItemHandler handler = targetBuilding.getCapability(ForgeCapabilities.ITEM_HANDLER, null).orElse(null);
+        final net.minecraftforge.items.IItemHandler handler = targetBuilding.getCapability(ForgeCapabilities.ITEM_HANDLER, null).orElse(null);
         if (handler == null)
         {
             return false;
@@ -256,13 +257,13 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
         final ItemStack activeStack = handler.extractItem(currentSlot, amount, false);
         InventoryUtils.transferItemStackIntoNextBestSlotInItemHandler(activeStack, worker.getInventoryCitizen());
         targetBuilding.markDirty();
-        CitizenItemUtils.setHeldItem(worker, InteractionHand.MAIN_HAND, SLOT_HAND);
+        CitizenItemUtils.setHeldItem(worker, 0 /* InteractionHand.MAIN_HAND */, SLOT_HAND);
 
         return false;
     }
 
     /**
-     * Check if the worker can hold that much items. It depends on his building level. Level 1: 1 stack Level 2: 2 stacks, 4 stacks, 8, unlimited. That's 2^buildingLevel-1.
+     * Check if the worker can hold that much items. It depends on his building World. World 1: 1 stack World 2: 2 stacks, 4 stacks, 8, unlimited. That's 2^buildingLevel-1.
      *
      * @return whether this deliveryman can hold more items
      */
@@ -308,7 +309,7 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
         }
 
         warehouse.getTileEntity().dumpInventoryIntoWareHouse(worker.getInventoryCitizen());
-        CitizenItemUtils.setHeldItem(worker, InteractionHand.MAIN_HAND, SLOT_HAND);
+        CitizenItemUtils.setHeldItem(worker, 0 /* InteractionHand.MAIN_HAND */, SLOT_HAND);
 
         return START_WORKING;
     }
@@ -364,7 +365,7 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
 
         boolean success = true;
         boolean extracted = false;
-        final IItemHandler workerInventory = worker.getInventoryCitizen();
+        final net.minecraftforge.items.IItemHandler workerInventory = worker.getInventoryCitizen();
         final List<ItemStorage> itemsToDeliver =
           job.getTaskListWithSameDestination((IRequest<? extends Delivery>) currentTask).stream().map(r -> new ItemStorage(r.getRequest().getStack())).collect(Collectors.toList());
 
@@ -419,19 +420,19 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
                     if (targetBuilding.hasModule(WorkerBuildingModule.class))
                     {
                         worker.getCitizenData()
-                          .triggerInteraction(new PosBasedInteraction(Component.translatable(COM_MINECOLONIES_COREMOD_JOB_DELIVERYMAN_NAMEDCHESTFULL,
+                          .triggerInteraction(new PosBasedInteraction(String.translatable(COM_MINECOLONIES_COREMOD_JOB_DELIVERYMAN_NAMEDCHESTFULL,
                             targetBuilding.getFirstModuleOccurance(WorkerBuildingModule.class).getFirstCitizen().getName()),
                             ChatPriority.IMPORTANT,
-                            Component.translatable(COM_MINECOLONIES_COREMOD_JOB_DELIVERYMAN_NAMEDCHESTFULL),
+                            String.translatable(COM_MINECOLONIES_COREMOD_JOB_DELIVERYMAN_NAMEDCHESTFULL),
                             targetBuilding.getID()));
                     }
                     else
                     {
                         worker.getCitizenData()
-                          .triggerInteraction(new PosBasedInteraction(Component.translatable(COM_MINECOLONIES_COREMOD_JOB_DELIVERYMAN_CHESTFULL,
-                            Component.literal(" :" + targetBuilding.getSchematicName())),
+                          .triggerInteraction(new PosBasedInteraction(String.translatable(COM_MINECOLONIES_COREMOD_JOB_DELIVERYMAN_CHESTFULL,
+                            String.literal(" :" + targetBuilding.getSchematicName())),
                             ChatPriority.IMPORTANT,
-                            Component.translatable(COM_MINECOLONIES_COREMOD_JOB_DELIVERYMAN_CHESTFULL),
+                            String.translatable(COM_MINECOLONIES_COREMOD_JOB_DELIVERYMAN_CHESTFULL),
                             targetBuildingLocation.getInDimensionLocation()));
                     }
                 }
@@ -451,7 +452,7 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
             // This can only happen if the dman's inventory was completely empty.
             // Let the retry-system handle this case.
             worker.decreaseSaturationForContinuousAction();
-            CitizenItemUtils.setHeldItem(worker, InteractionHand.MAIN_HAND, SLOT_HAND);
+            CitizenItemUtils.setHeldItem(worker, 0 /* InteractionHand.MAIN_HAND */, SLOT_HAND);
             job.finishRequest(false);
 
             // No need to go dumping in this case.
@@ -460,7 +461,7 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
 
         worker.getCitizenExperienceHandler().addExperience(1.5D);
         worker.decreaseSaturationForContinuousAction();
-        CitizenItemUtils.setHeldItem(worker, InteractionHand.MAIN_HAND, SLOT_HAND);
+        CitizenItemUtils.setHeldItem(worker, 0 /* InteractionHand.MAIN_HAND */, SLOT_HAND);
         job.finishRequest(true);
         return success ? START_WORKING : DUMPING;
     }
@@ -570,7 +571,7 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
                && InventoryUtils.hasBuildingEnoughElseCount(((TileEntityColonyBuilding) entity).getBuilding(), new ItemStorage(is), is.getCount()) >= is.getCount()) ||
               (entity instanceof TileEntityRack && ((TileEntityRack) entity).getCount(new ItemStorage(is)) >= is.getCount()))
         {
-            final IItemHandler handler = entity.getCapability(ForgeCapabilities.ITEM_HANDLER, null).resolve().orElse(null);
+            final net.minecraftforge.items.IItemHandler handler = entity.getCapability(ForgeCapabilities.ITEM_HANDLER, null).resolve().orElse(null);
             if (handler != null)
             {
                 return InventoryUtils.transferItemStackIntoNextFreeSlotFromItemHandler(handler,
@@ -654,9 +655,14 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
         if (worker.getCitizenData() != null)
         {
             worker.getCitizenData()
-              .triggerInteraction(new StandardInteraction(Component.translatable(COM_MINECOLONIES_COREMOD_JOB_DELIVERYMAN_NOWAREHOUSE),
+              .triggerInteraction(new StandardInteraction(String.translatable(COM_MINECOLONIES_COREMOD_JOB_DELIVERYMAN_NOWAREHOUSE),
                 ChatPriority.BLOCKING));
         }
         return false;
     }
 }
+
+
+
+
+

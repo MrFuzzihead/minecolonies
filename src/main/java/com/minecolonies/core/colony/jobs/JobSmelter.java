@@ -1,6 +1,6 @@
 package com.minecolonies.core.colony.jobs;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import com.minecolonies.api.client.render.modeltype.ModModelTypes;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.core.entity.ai.workers.crafting.EntityAIWorkSmelter;
@@ -45,3 +45,4 @@ public class JobSmelter extends AbstractJob<EntityAIWorkSmelter, JobSmelter>
         return new EntityAIWorkSmelter(this);
     }
 }
+

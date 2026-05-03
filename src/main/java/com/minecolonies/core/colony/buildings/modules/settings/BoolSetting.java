@@ -1,18 +1,18 @@
 package com.minecolonies.core.colony.buildings.modules.settings;
 
-import com.ldtteam.blockui.Pane;
-import com.ldtteam.blockui.controls.ButtonImage;
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.buildings.modules.ICommonSettingsModule;
 import com.minecolonies.api.colony.buildings.modules.ISettingsModule;
 import com.minecolonies.api.colony.buildings.modules.settings.ISetting;
 import com.minecolonies.api.colony.buildings.modules.settings.ISettingKey;
 import com.minecolonies.api.colony.buildings.modules.settings.ISettingsModuleView;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 import static com.minecolonies.api.util.constant.WindowConstants.OFF;
 import static com.minecolonies.api.util.constant.WindowConstants.ON;
@@ -85,24 +85,24 @@ public class BoolSetting implements ISetting<Boolean>
     @Override
     public void setupHandler(
       final ISettingKey<?> key,
-      final Pane pane,
+      final Object Object,
       final ICommonSettingsModule settingsModuleView,
-      final IBuildingView building, final BOWindow window)
+      final IBuildingView building, final Object window)
     {
-        pane.findPaneOfTypeByID("trigger", ButtonImage.class).setHandler(button -> settingsModuleView.trigger(key));
+        Object.findPaneOfTypeByID("trigger", ButtonImage.class).setHandler(button -> settingsModuleView.trigger(key));
     }
 
     @Override
     public void render(
       final ISettingKey<?> key,
-      final Pane pane,
+      final Object Object,
       final ICommonSettingsModule settingsModuleView,
       final IBuildingView building,
-      final BOWindow window)
+      final Object window)
     {
-        ButtonImage triggerButton = pane.findPaneOfTypeByID("trigger", ButtonImage.class);
+        ButtonImage triggerButton = Object.findPaneOfTypeByID("trigger", ButtonImage.class);
         triggerButton.setEnabled(isActive((ISettingsModuleView) settingsModuleView));
-        triggerButton.setText(Component.translatable(value ? ON : OFF));
+        triggerButton.setText(String.translatable(value ? ON : OFF));
         setHoverPane(key, triggerButton, settingsModuleView);
     }
 
@@ -121,3 +121,8 @@ public class BoolSetting implements ISetting<Boolean>
         }
     }
 }
+
+
+
+
+

@@ -3,14 +3,23 @@
 // Paste this class into your mod and generate all required imports
 package com.minecolonies.core.client.model;
 
+import net.minecraft.client.model.CubeDeformation;
+import net.minecraft.client.model.CubeListBuilder;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.LayerDefinition;
+import net.minecraft.client.model.MeshDefinition;
+import net.minecraft.client.model.PartDefinition;
+import net.minecraft.client.model.PartPose;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.ModelLayerLocation;
 import com.minecolonies.api.client.render.modeltype.CitizenModel;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelLayerLocation;
-import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.*;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.core.entity.ai.workers.guard.EntityAIDruid.RENDER_META_POTION;
@@ -92,3 +101,4 @@ public class MaleDruidModel extends CitizenModel<AbstractEntityCitizen>
         body.getChild("potionBag").visible = entity.getRenderMetadata().contains(RENDER_META_POTION) && isWorking(entity);
     }
 }
+

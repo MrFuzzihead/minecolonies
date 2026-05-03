@@ -9,8 +9,8 @@ import com.minecolonies.api.colony.requestsystem.requestable.deliveryman.Deliver
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.WorkerBuildingModule;
 import com.minecolonies.core.colony.jobs.JobDeliveryman;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.BuildingConstants.CONST_DEFAULT_MAX_BUILDING_LEVEL;
@@ -30,7 +30,7 @@ public class BuildingDeliveryman extends AbstractBuilding implements IBuildingDe
      * @param c the colony.
      * @param l the location
      */
-    public BuildingDeliveryman(final IColony c, final BlockPos l)
+    public BuildingDeliveryman(final IColony c, final int[] l)
     {
         super(c, l);
     }
@@ -69,3 +69,5 @@ public class BuildingDeliveryman extends AbstractBuilding implements IBuildingDe
         return super.canEat(stack);
     }
 }
+
+

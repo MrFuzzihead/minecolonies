@@ -10,14 +10,14 @@ import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.Log;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.nbt.TagParser;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.wrapper.InvWrapper;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] GsonHelper removed
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+// [1.7.10] items shim in com.minecolonies.api.shim
+// [1.7.10] registries removed
 
 import java.util.List;
 
@@ -74,17 +74,17 @@ public class DeliveryObjectiveTemplateTemplate extends DialogueObjectiveTemplate
 
     private void buildDialogueTrees()
     {
-        final Component ready = Component.translatable("com.minecolonies.coremod.questobjectives.delivery.ready", item.getDisplayName());
-        final AnswerElement ready1 = new AnswerElement(Component.translatable("com.minecolonies.coremod.questobjectives.delivery.ready.give"),
+        final String ready = String.translatable("com.minecolonies.coremod.questobjectives.delivery.ready", item.getDisplayName());
+        final AnswerElement ready1 = new AnswerElement(String.translatable("com.minecolonies.coremod.questobjectives.delivery.ready.give"),
                 new IQuestDialogueAnswer.NextObjectiveDialogueAnswer(this.nextObjective));
-        final AnswerElement ready2 = new AnswerElement(Component.translatable("com.minecolonies.coremod.questobjectives.delivery.ready.later"),
+        final AnswerElement ready2 = new AnswerElement(String.translatable("com.minecolonies.coremod.questobjectives.delivery.ready.later"),
                 new IQuestDialogueAnswer.CloseUIDialogueAnswer());
         this.readyDialogueElement = new DialogueElement(ready, List.of(ready1, ready2));
 
-        final Component waiting = Component.translatable("com.minecolonies.coremod.questobjectives.delivery.waiting", item.getDisplayName());
-        final AnswerElement waiting1 = new AnswerElement(Component.translatable("com.minecolonies.coremod.questobjectives.answer.later"),
+        final String waiting = String.translatable("com.minecolonies.coremod.questobjectives.delivery.waiting", item.getDisplayName());
+        final AnswerElement waiting1 = new AnswerElement(String.translatable("com.minecolonies.coremod.questobjectives.answer.later"),
                 new IQuestDialogueAnswer.CloseUIDialogueAnswer());
-        final AnswerElement waiting2 = new AnswerElement(Component.translatable("com.minecolonies.coremod.questobjectives.delivery.waiting.cancel"),
+        final AnswerElement waiting2 = new AnswerElement(String.translatable("com.minecolonies.coremod.questobjectives.delivery.waiting.cancel"),
                 new IQuestDialogueAnswer.QuestCancellationDialogueAnswer());
         this.waitingDialogueElement = new DialogueElement(waiting, List.of(waiting1, waiting2));
     }
@@ -142,11 +142,15 @@ public class DeliveryObjectiveTemplateTemplate extends DialogueObjectiveTemplate
     }
 
     @Override
-    public Component getProgressText(final IQuestInstance quest, final Style style)
+    public String getProgressText(final IQuestInstance quest, final Style style)
     {
-        return Component.translatable("com.minecolonies.coremod.questobjectives.delivery.progress",
+        return String.translatable("com.minecolonies.coremod.questobjectives.delivery.progress",
           0,
           quantity,
           item.getDisplayName().plainCopy().setStyle(style));
     }
 }
+
+
+
+

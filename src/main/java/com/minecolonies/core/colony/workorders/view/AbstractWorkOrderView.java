@@ -9,11 +9,11 @@ import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.ColonyUtils;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.entity.ai.workers.util.BuildingProgressStage;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.phys.AABB;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.World;
+import net.minecraft.world.block.Mirror;
+// [1.7.10] world.phys removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
@@ -38,7 +38,7 @@ public abstract class AbstractWorkOrderView implements IWorkOrderView
     /**
      * Claimed by building id pos.
      */
-    private BlockPos claimedBy;
+    private int[] claimedBy;
 
     /**
      * Its description.
@@ -58,7 +58,7 @@ public abstract class AbstractWorkOrderView implements IWorkOrderView
     /**
      * Position where its being built at.
      */
-    private BlockPos location;
+    private int[] location;
 
     /**
      * Position where its being built at.
@@ -71,12 +71,12 @@ public abstract class AbstractWorkOrderView implements IWorkOrderView
     private boolean isMirrored;
 
     /**
-     * The level it's at before the upgrade.
+     * The World it's at before the upgrade.
      */
     private int currentLevel;
 
     /**
-     * Level it's being upgraded to.
+     * World it's being upgraded to.
      */
     private int targetLevel;
 
@@ -93,7 +93,7 @@ public abstract class AbstractWorkOrderView implements IWorkOrderView
     /**
      * The workorder area
      */
-    protected AABB box = Constants.EMPTY_AABB;
+    protected net.minecraft.util.AxisAlignedBB box = null /* [1.7.10] AxisAlignedBB default */;
 
     /**
      * The blueprint of this workorders schematic
@@ -138,18 +138,18 @@ public abstract class AbstractWorkOrderView implements IWorkOrderView
         this.priority = priority;
     }
 
-    public BlockPos getClaimedBy()
+    public int[] getClaimedBy()
     {
         return claimedBy;
     }
 
-    public void setClaimedBy(final BlockPos position)
+    public void setClaimedBy(final int[] position)
     {
         this.claimedBy = position;
     }
 
     @Override
-    public void setBlueprint(final Blueprint blueprint, final Level world)
+    public void setBlueprint(final Blueprint blueprint, final World world)
     {
         if (blueprint != null)
         {
@@ -172,7 +172,7 @@ public abstract class AbstractWorkOrderView implements IWorkOrderView
     }
 
     @Override
-    public AABB getBoundingBox()
+    public net.minecraft.util.AxisAlignedBB getBoundingBox()
     {
         return box;
     }
@@ -207,7 +207,7 @@ public abstract class AbstractWorkOrderView implements IWorkOrderView
     }
 
     @Override
-    public void loadBlueprint(final Level world, final Consumer<Blueprint> afterLoad)
+    public void loadBlueprint(final World world, final Consumer<Blueprint> afterLoad)
     {
         if (blueprint != null)
         {
@@ -246,7 +246,7 @@ public abstract class AbstractWorkOrderView implements IWorkOrderView
     }
 
     @Override
-    public BlockPos getLocation()
+    public int[] getLocation()
     {
         return this.location;
     }
@@ -266,7 +266,7 @@ public abstract class AbstractWorkOrderView implements IWorkOrderView
     @Override
     public boolean isClaimed()
     {
-        return !BlockPos.ZERO.equals(claimedBy);
+        return !new int[]{0,0,0}.equals(claimedBy);
     }
 
     @Override
@@ -282,7 +282,7 @@ public abstract class AbstractWorkOrderView implements IWorkOrderView
     }
 
     @Override
-    public void deserialize(@NotNull final FriendlyByteBuf buf)
+    public void deserialize(@NotNull final PacketBuffer buf)
     {
         id = buf.readInt();
         priority = buf.readInt();
@@ -297,11 +297,11 @@ public abstract class AbstractWorkOrderView implements IWorkOrderView
         currentLevel = buf.readInt();
         targetLevel = buf.readInt();
         stage = BuildingProgressStage.values()[buf.readInt()];
-        box = new AABB(buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readDouble());
+        box = net.minecraft.util.AxisAlignedBB.getBoundingBox(buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readDouble());
     }
 
     @Override
-    public boolean canBuildIgnoringDistance(@NotNull final BlockPos builderLocation, final int builderLevel)
+    public boolean canBuildIgnoringDistance(@NotNull final int[] builderLocation, final int builderLevel)
     {
         //  A Build WorkOrder may be fulfilled by a Builder as long as any ONE of the following is true:
         //  - The Builder's Work AbstractBuilding is built
@@ -310,3 +310,7 @@ public abstract class AbstractWorkOrderView implements IWorkOrderView
         return (builderLevel >= targetLevel || builderLevel == 5 || (builderLocation.equals(location)));
     }
 }
+
+
+
+

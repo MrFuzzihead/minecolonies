@@ -3,13 +3,19 @@
 // Paste this class into your mod and generate all required imports
 package com.minecolonies.core.client.model;
 
+import net.minecraft.client.model.CubeDeformation;
+import net.minecraft.client.model.CubeListBuilder;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.LayerDefinition;
+import net.minecraft.client.model.MeshDefinition;
+import net.minecraft.client.model.PartDefinition;
+import net.minecraft.client.model.PartPose;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.*;
-import net.minecraft.world.entity.PathfinderMob;
 
-public class MercenaryModel extends HumanoidModel<PathfinderMob>
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] world.entity removed
+
+public class MercenaryModel extends HumanoidModel<Object>
 {
     public MercenaryModel(final ModelPart part)
     {

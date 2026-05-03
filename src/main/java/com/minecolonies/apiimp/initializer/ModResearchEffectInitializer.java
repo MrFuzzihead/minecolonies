@@ -3,9 +3,9 @@ package com.minecolonies.apiimp.initializer;
 import com.minecolonies.api.research.ModResearchEffects;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.research.GlobalResearchEffect;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] registries removed
+// [1.7.10] registries removed
 
 import static com.minecolonies.api.research.ModResearchEffects.*;
 
@@ -32,10 +32,12 @@ public class ModResearchEffectInitializer
      * @param readFromNBT  function to read this item from json.
      * @return the finalized registry object.
      */
-    private static RegistryObject<ResearchEffectEntry> create(
+    private static ResearchEffectEntry create(
         final ResourceLocation registryName,
         final ReadFromNBTFunction readFromNBT)
     {
         return DEFERRED_REGISTER.register(registryName.getPath(), () -> new ResearchEffectEntry(registryName, readFromNBT));
     }
 }
+
+

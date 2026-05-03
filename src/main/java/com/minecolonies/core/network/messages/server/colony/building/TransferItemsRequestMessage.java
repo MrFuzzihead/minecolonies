@@ -10,13 +10,13 @@ import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.core.MineColonies;
 import com.minecolonies.core.network.messages.server.AbstractBuildingServerMessage;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.wrapper.InvWrapper;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -68,7 +68,7 @@ public class TransferItemsRequestMessage extends AbstractBuildingServerMessage<I
     }
 
     @Override
-    public void fromBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void fromBytesOverride(@NotNull final PacketBuffer buf)
     {
         itemStack = buf.readItem();
         quantity = buf.readInt();
@@ -76,7 +76,7 @@ public class TransferItemsRequestMessage extends AbstractBuildingServerMessage<I
     }
 
     @Override
-    public void toBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void toBytesOverride(@NotNull final PacketBuffer buf)
     {
         buf.writeItem(itemStack);
         buf.writeInt(quantity);
@@ -84,7 +84,7 @@ public class TransferItemsRequestMessage extends AbstractBuildingServerMessage<I
     }
 
     @Override
-    protected void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony, final IBuilding building)
+    protected void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony, final IBuilding building)
     {
         if (quantity <= 0)
         {
@@ -92,7 +92,7 @@ public class TransferItemsRequestMessage extends AbstractBuildingServerMessage<I
             return;
         }
 
-        final Player player = ctxIn.getSender();
+        final Player player = ctx.getServerHandler().playerEntity;
         if (player == null)
         {
             return;
@@ -136,7 +136,7 @@ public class TransferItemsRequestMessage extends AbstractBuildingServerMessage<I
 
         if (!ItemStackUtils.isEmpty(remainingItemStack))
         {
-            MessageUtils.format(Component.translatable("entity.builder.inventoryfull", remainingItemStack.getDisplayName()).withStyle(ChatFormatting.RED)).sendTo(player);
+            MessageUtils.format(String.translatable("entity.builder.inventoryfull", remainingItemStack.getDisplayName()).withStyle(ChatFormatting.RED)).sendTo(player);
         }
 
         if (ItemStackUtils.isEmpty(remainingItemStack) || ItemStackUtils.getSize(remainingItemStack) != amountToTake)
@@ -172,3 +172,6 @@ public class TransferItemsRequestMessage extends AbstractBuildingServerMessage<I
         }
     }
 }
+
+
+

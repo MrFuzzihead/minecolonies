@@ -12,15 +12,15 @@ import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.PlacementSettings;
 import com.minecolonies.api.colony.colonyEvents.IColonyRaidEvent;
 import com.minecolonies.core.colony.events.raid.pirateEvent.ShipBasedRaiderUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.entity.BlockEntity;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraft.init.Blocks;
+import net.minecraft.world.Mirror;
+import net.minecraft.world.Rotation;
+// [1.7.10] block.entity removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,7 +40,7 @@ public final class CreativeRaiderStructureHandler extends CreativeStructureHandl
     /**
      * Map for the spawner positions.
      */
-    private Map<BlockPos, List<String>> map;
+    private Map<int[], List<String>> map;
 
     /**
      * The raid event associated to this.
@@ -64,8 +64,8 @@ public final class CreativeRaiderStructureHandler extends CreativeStructureHandl
      * @param colonyId       the colony id.
      */
     public CreativeRaiderStructureHandler(
-      final Level world,
-      final BlockPos pos,
+      final World world,
+      final int[] pos,
       final Future<Blueprint> blueprintFuture,
       final PlacementSettings settings,
       final boolean fancyPlacement,
@@ -79,7 +79,7 @@ public final class CreativeRaiderStructureHandler extends CreativeStructureHandl
         final BlockInfo info = getBluePrint().getBlockInfoAsMap().getOrDefault(getBluePrint().getPrimaryBlockOffset(), null);
         if (info.getTileEntityData() != null)
         {
-            final CompoundTag teData = getBluePrint().getTileEntityData(pos, getBluePrint().getPrimaryBlockOffset());
+            final NBTTagCompound teData = getBluePrint().getTileEntityData(pos, getBluePrint().getPrimaryBlockOffset());
             if (teData != null && teData.contains(TAG_BLUEPRINTDATA))
             {
                 final BlockEntity entity = BlockEntity.loadStatic(pos, info.getState(), info.getTileEntityData());
@@ -108,8 +108,8 @@ public final class CreativeRaiderStructureHandler extends CreativeStructureHandl
      * @param colonyId       the colony id.
      */
     public CreativeRaiderStructureHandler(
-      final Level world,
-      final BlockPos pos,
+      final World world,
+      final int[] pos,
       final Blueprint blueprint,
       final PlacementSettings settings,
       final boolean fancyPlacement,
@@ -123,7 +123,7 @@ public final class CreativeRaiderStructureHandler extends CreativeStructureHandl
         final BlockInfo info = getBluePrint().getBlockInfoAsMap().getOrDefault(getBluePrint().getPrimaryBlockOffset(), null);
         if (info.getTileEntityData() != null)
         {
-            final CompoundTag teData = getBluePrint().getTileEntityData(pos, getBluePrint().getPrimaryBlockOffset());
+            final NBTTagCompound teData = getBluePrint().getTileEntityData(pos, getBluePrint().getPrimaryBlockOffset());
             if (teData != null && teData.contains(TAG_BLUEPRINTDATA))
             {
                 final BlockEntity entity = BlockEntity.loadStatic(pos, info.getState(), info.getTileEntityData());
@@ -141,16 +141,16 @@ public final class CreativeRaiderStructureHandler extends CreativeStructureHandl
     }
 
     @Override
-    public void triggerSuccess(final BlockPos pos, final List<ItemStack> list, final boolean placement)
+    public void triggerSuccess(final int[] pos, final List<ItemStack> list, final boolean placement)
     {
         super.triggerSuccess(pos, list, placement);
-        final BlockPos worldPos = getProgressPosInWorld(pos);
+        final int[] worldPos = getProgressPosInWorld(pos);
         if (getWorld().getBlockState(worldPos).getBlock() == Blocks.GOLD_BLOCK && map != null)
         {
             final List<String> tags = map.getOrDefault(worldPos, Collections.emptyList());
-            for (final String tag : tags)
+            for (final String NBTBase : tags)
             {
-                switch (tag)
+                switch (NBTBase)
                 {
                     case NORMAL_RAIDER:
                         ShipBasedRaiderUtils.setupSpawner(worldPos, getWorld(), event.getNormalRaiderType(), event, colonyId);
@@ -178,10 +178,10 @@ public final class CreativeRaiderStructureHandler extends CreativeStructureHandl
      * @param player         the placing player.
      */
     public static void loadAndPlaceStructure(
-      final Level worldObj, @NotNull final Future<Blueprint> blueprintFuture,
-      @NotNull final BlockPos pos,
+      final World worldObj, @NotNull final Future<Blueprint> blueprintFuture,
+      @NotNull final int[] pos,
       final boolean fancyPlacement, final int colonyId, final IColonyRaidEvent event,
-      @Nullable final ServerPlayer player)
+      @Nullable final EntityPlayerMP player)
     {
         try
         {
@@ -206,10 +206,10 @@ public final class CreativeRaiderStructureHandler extends CreativeStructureHandl
      * @param player         the placing player.
      */
     public static void loadAndPlaceStructure(
-      final Level worldObj, @NotNull final Blueprint blueprint,
-      @NotNull final BlockPos pos,
+      final World worldObj, @NotNull final Blueprint blueprint,
+      @NotNull final int[] pos,
       final boolean fancyPlacement, final int colonyId, final IColonyRaidEvent event,
-      @Nullable final ServerPlayer player)
+      @Nullable final EntityPlayerMP player)
     {
         try
         {
@@ -222,3 +222,8 @@ public final class CreativeRaiderStructureHandler extends CreativeStructureHandl
         }
     }
 }
+
+
+
+
+

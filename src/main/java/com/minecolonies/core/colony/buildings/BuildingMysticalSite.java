@@ -1,12 +1,12 @@
 package com.minecolonies.core.colony.buildings;
 
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.colony.buildings.IMysticalSite;
 import com.minecolonies.core.client.gui.WindowHutMinPlaceholder;
 import com.minecolonies.core.colony.buildings.views.AbstractBuildingView;
-import net.minecraft.core.BlockPos;
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 
 public class BuildingMysticalSite extends AbstractBuilding implements IMysticalSite
@@ -14,7 +14,7 @@ public class BuildingMysticalSite extends AbstractBuilding implements IMysticalS
     private static final String MYSTICAL_SITE = "mysticalsite";
 
     /**
-     * Maximum building level
+     * Maximum building World
      */
     private static final int MAX_BUILDING_LEVEL = 5;
 
@@ -24,7 +24,7 @@ public class BuildingMysticalSite extends AbstractBuilding implements IMysticalS
      * @param c the colony
      * @param l the position
      */
-    public BuildingMysticalSite(@NotNull final IColony c, final BlockPos l)
+    public BuildingMysticalSite(@NotNull final IColony c, final int[] l)
     {
         super(c, l);
     }
@@ -53,16 +53,19 @@ public class BuildingMysticalSite extends AbstractBuilding implements IMysticalS
          * @param c the colonyView.
          * @param l the location of the block.
          */
-        public View(final IColonyView c, final BlockPos l)
+        public View(final IColonyView c, final int[] l)
         {
             super(c, l);
         }
 
         @NotNull
         @Override
-        public BOWindow getWindow()
+        public Object /* BOWindow: todo ModularUI2 */ getWindow()
         {
             return new WindowHutMinPlaceholder<>(this);
         }
     }
 }
+
+
+

@@ -3,10 +3,10 @@ package com.minecolonies.api.colony.managers.interfaces;
 import com.minecolonies.api.colony.ICivilianData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.entity.citizen.AbstractCivilianEntity;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.Level;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -37,14 +37,14 @@ public interface IEntityManager
      *
      * @param compound the compound to read it from.
      */
-    void read(@NotNull CompoundTag compound);
+    void read(@NotNull NBTTagCompound compound);
 
     /**
      * Write the civilian to nbt.
      *
      * @param compoundNBT the compound to write it to.
      */
-    void write(@NotNull CompoundTag compoundNBT);
+    void write(@NotNull NBTTagCompound compoundNBT);
 
     /**
      * Sends packages to update the civilian.
@@ -53,8 +53,8 @@ public interface IEntityManager
      * @param newSubscribers   new subscribers
      */
     void sendPackets(
-      @NotNull Set<ServerPlayer> closeSubscribers,
-      @NotNull Set<ServerPlayer> newSubscribers);
+      @NotNull Set<EntityPlayerMP> closeSubscribers,
+      @NotNull Set<EntityPlayerMP> newSubscribers);
 
     /**
      * Returns a map of civilian in the colony. The map has ID as key, and civilian data as value.
@@ -81,7 +81,7 @@ public interface IEntityManager
      * @param force    True to skip max civilian test, false when not.
      * @return the new civilian.
      */
-    <T extends ICivilianData> T spawnOrCreateCivilian(T data, Level world, List<BlockPos> spawnPositions, boolean force);
+    <T extends ICivilianData> T spawnOrCreateCivilian(T data, World world, List<int[]> spawnPositions, boolean force);
 
     /**
      * Creates Civilian Data for a new civilian
@@ -114,3 +114,7 @@ public interface IEntityManager
      */
     void onColonyTick(IColony colony);
 }
+
+
+
+

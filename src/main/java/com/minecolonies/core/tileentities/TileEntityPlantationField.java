@@ -1,24 +1,15 @@
 package com.minecolonies.core.tileentities;
 
-import com.ldtteam.structurize.util.RotationMirror;
+import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.buildingextensions.plantation.IPlantationModule;
 import com.minecolonies.api.colony.buildingextensions.registry.BuildingExtensionRegistries;
 import com.minecolonies.api.colony.buildingextensions.registry.BuildingExtensionRegistries.BuildingExtensionEntry;
 import com.minecolonies.api.tileentities.AbstractTileEntityPlantationField;
-import com.minecolonies.api.tileentities.MinecoloniesTileEntities;
 import com.minecolonies.api.util.WorldUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.Connection;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.nbt.NBTTagCompound;
+import com.minecolonies.api.util.Tuple;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,9 +24,9 @@ import static com.minecolonies.api.util.constant.NbtTagConstants.*;
 public class TileEntityPlantationField extends AbstractTileEntityPlantationField
 {
     /**
-     * Cached result for {@link TileEntityPlantationField#getWorkingPositions(String)} ()}.
+     * Cached result for {@link TileEntityPlantationField#getWorkingPositions(String)}.
      */
-    private final Map<String, List<BlockPos>> workingPositions = new HashMap<>();
+    private final Map<String, List<int[]>> workingPositions = new HashMap<>();
 
     /**
      * The schematic name of the placeholder block.
@@ -53,20 +44,25 @@ public class TileEntityPlantationField extends AbstractTileEntityPlantationField
     private String packName = "";
 
     /**
-     * Corner positions of schematic, relative to te pos.
+     * Corner positions as [x, y, z] int arrays.
      */
-    private BlockPos corner1 = BlockPos.ZERO;
-    private BlockPos corner2 = BlockPos.ZERO;
+    private int[] corner1 = new int[]{0, 0, 0};
+    private int[] corner2 = new int[]{0, 0, 0};
 
     /**
-     * The used rotation/mirror.
+     * Rotation (0-3).
      */
-    private RotationMirror rotMir = RotationMirror.NONE;
+    private int rotation = 0;
 
     /**
-     * Map of block positions relative to TE pos and string tags
+     * Mirror flag.
      */
-    private Map<BlockPos, List<String>> tagPosMap = new HashMap<>();
+    private boolean mirrored = false;
+
+    /**
+     * Map of block positions (encoded as long[]) relative to TE pos and string tags.
+     */
+    private Map<long[], List<String>> tagPosMap = new HashMap<>();
 
     /**
      * The colony this plantation field is located in.
@@ -79,14 +75,16 @@ public class TileEntityPlantationField extends AbstractTileEntityPlantationField
     private Set<BuildingExtensionEntry> plantationFieldTypes;
 
     /**
-     * Default constructor.
-     *
-     * @param pos   The positions this tile entity is at.
-     * @param state The state the entity is in.
+     * NBTBase name pos map cache.
      */
-    public TileEntityPlantationField(final BlockPos pos, final BlockState state)
+    private Map<String, Set<long[]>> worldTagMapCache = null;
+
+    /**
+     * Default constructor.
+     */
+    public TileEntityPlantationField()
     {
-        super(MinecoloniesTileEntities.PLANTATION_FIELD.get(), pos, state);
+        super();
     }
 
     @Override
@@ -104,32 +102,33 @@ public class TileEntityPlantationField extends AbstractTileEntityPlantationField
     }
 
     @Override
-    public List<BlockPos> getWorkingPositions(final String tag)
+    public List<int[]> getWorkingPositions(final String NBTBase)
     {
-        workingPositions.computeIfAbsent(tag, newTag -> tagPosMap.entrySet().stream()
+        workingPositions.computeIfAbsent(NBTBase, newTag -> tagPosMap.entrySet().stream()
                                                           .filter(f -> f.getValue().contains(newTag))
                                                           .distinct()
                                                           .map(Map.Entry::getKey)
-                                                          .map(worldPosition::offset)
-                                                          .toList());
-        return workingPositions.get(tag);
+                                                          // TODO: long[] keys â€” decode + offset relative to TE pos
+                                                          .map(k -> new int[]{xCoord, yCoord, zCoord})
+                                                          .collect(Collectors.toList()));
+        return workingPositions.get(NBTBase);
     }
 
     @Override
     public IColony getCurrentColony()
     {
-        if (currentColony == null && level != null)
+        if (currentColony == null && worldObj != null)
         {
-            this.currentColony = IColonyManager.getInstance().getIColony(level, worldPosition);
+            this.currentColony = IColonyManager.getInstance().getIColony(worldObj, xCoord, yCoord, zCoord);
         }
         return currentColony;
     }
 
     @Override
     @Nullable
-    public ResourceKey<Level> getDimension()
+    public Integer getDimension()
     {
-        IColony colony = getCurrentColony();
+        final IColony colony = getCurrentColony();
         if (colony != null)
         {
             return colony.getDimension();
@@ -137,146 +136,103 @@ public class TileEntityPlantationField extends AbstractTileEntityPlantationField
         return null;
     }
 
-    @Nullable
     @Override
-    public ClientboundBlockEntityDataPacket getUpdatePacket()
+    public int getRotation()
     {
-        return ClientboundBlockEntityDataPacket.create(this);
+        return this.rotation;
     }
 
-    /**
-     * Get the rotation of the controller.
-     *
-     * @return the placed rotation.
-     */
-    public Rotation getRotation()
-    {
-        return this.rotMir.rotation();
-    }
-
-    /**
-     * Get the mirroring setting of the controller.
-     *
-     * @return true if mirrored.
-     */
+    @Override
     public boolean getMirror()
     {
-        return this.rotMir.isMirrored();
+        return this.mirrored;
     }
 
-    private BuildingExtensionEntry getPlantationFieldEntryFromFieldTag(String fieldTag)
+    private BuildingExtensionEntry getPlantationFieldEntryFromFieldTag(final String fieldTag)
     {
         return BuildingExtensionRegistries.getBuildingExtensionRegistry().getValues().stream()
                  .filter(fieldEntry -> {
-                     List<IPlantationModule> modules = fieldEntry.getExtensionModuleProducers().stream().map(m -> m.apply(null))
-                                                         .filter(IPlantationModule.class::isInstance)
-                                                         .map(m -> (IPlantationModule) m)
-                                                         .toList();
-
+                     final List<IPlantationModule> modules = fieldEntry.getExtensionModuleProducers().stream()
+                                                               .map(m -> m.apply(null))
+                                                               .filter(IPlantationModule.class::isInstance)
+                                                               .map(m -> (IPlantationModule) m)
+                                                               .collect(Collectors.toList());
                      return modules.stream().anyMatch(module -> module.getFieldTag().equals(fieldTag));
                  })
                  .findFirst()
                  .orElse(null);
     }
 
+    // â”€â”€â”€ IBlueprintDataProviderBE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
     @Override
-    public String getSchematicName()
-    {
-        return schematicName;
-    }
+    public String getSchematicName() { return schematicName; }
 
     @Override
     public void setSchematicName(final String s)
     {
         this.schematicName = s;
-        setChanged();
+        markDirty();
     }
 
     @Override
-    public Map<BlockPos, List<String>> getPositionedTags()
-    {
-        return tagPosMap;
-    }
+    public Map<long[], List<String>> getPositionedTags() { return tagPosMap; }
 
     @Override
-    public void setPositionedTags(final Map<BlockPos, List<String>> positionedTags)
+    public void setPositionedTags(final Map<long[], List<String>> positionedTags)
     {
         tagPosMap = positionedTags;
-        setChanged();
+        worldTagMapCache = null;
+        markDirty();
     }
 
     @Override
-    public Tuple<BlockPos, BlockPos> getSchematicCorners()
+    public Map<String, Set<long[]>> getWorldTagNamePosMap()
     {
-        if (corner1 == BlockPos.ZERO || corner2 == BlockPos.ZERO)
+        if (worldTagMapCache == null)
         {
-            return new Tuple<>(worldPosition, worldPosition);
+            worldTagMapCache = IBlueprintDataProviderBE.super.getWorldTagNamePosMap();
         }
+        return worldTagMapCache;
+    }
 
+    @Override
+    public Tuple<int[], int[]> getSchematicCorners()
+    {
+        if ((corner1[0] == 0 && corner1[1] == 0 && corner1[2] == 0)
+              || (corner2[0] == 0 && corner2[1] == 0 && corner2[2] == 0))
+        {
+            return new Tuple<>(new int[]{xCoord, yCoord, zCoord}, new int[]{xCoord, yCoord, zCoord});
+        }
         return new Tuple<>(corner1, corner2);
     }
 
     @Override
-    public void setSchematicCorners(final BlockPos pos1, final BlockPos pos2)
+    public void setSchematicCorners(final int[] pos1, final int[] pos2)
     {
         corner1 = pos1;
         corner2 = pos2;
-        setChanged();
+        markDirty();
     }
 
-    @Override
-    public void readSchematicDataFromNBT(final CompoundTag compound)
-    {
-        super.readSchematicDataFromNBT(compound);
-        final CompoundTag blueprintDataProvider = compound.getCompound(TAG_BLUEPRINTDATA);
-
-        this.packName = blueprintDataProvider.getString(TAG_PACK);
-        this.schematicPath = blueprintDataProvider.getString(TAG_PATH);
-    }
+    // â”€â”€â”€ NBT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     @Override
-    public BlockPos getTilePos()
+    public void readFromNBT(@NotNull final NBTTagCompound compound)
     {
-        return worldPosition;
-    }
-
-    @Override
-    public void rotate(final Rotation rotationIn)
-    {
-        this.rotMir = this.rotMir.rotate(rotationIn);
-    }
-
-    @Override
-    public void mirror(final Mirror mirror)
-    {
-        this.rotMir = this.rotMir.mirrorate(mirror);
-    }
-
-    @Override
-    public void onDataPacket(final Connection net, final ClientboundBlockEntityDataPacket packet)
-    {
-        final CompoundTag compound = packet.getTag();
-        this.load(compound);
-    }
-
-    @Override
-    public void load(final CompoundTag compound)
-    {
-        super.load(compound);
-        super.readSchematicDataFromNBT(compound);
-        this.rotMir = RotationMirror.of(Rotation.values()[compound.getInt(TAG_ROTATION)],
-                compound.getBoolean(TAG_MIRROR) ? Mirror.FRONT_BACK : Mirror.NONE);
-        if (compound.contains(TAG_PATH))
+        super.readFromNBT(compound);
+        readSchematicDataFromNBT(compound);
+        this.rotation = compound.getInteger(TAG_ROTATION);
+        this.mirrored = compound.getBoolean(TAG_MIRROR);
+        if (compound.hasKey(TAG_PATH))
         {
             this.schematicPath = compound.getString(TAG_PATH);
         }
-
-        if (compound.contains(TAG_NAME))
+        if (compound.hasKey(TAG_NAME))
         {
             this.schematicName = compound.getString(TAG_NAME);
             if (this.schematicPath == null || this.schematicPath.isEmpty())
             {
-                //Setup for recovery
                 this.schematicPath = this.schematicName;
                 this.schematicName = "";
             }
@@ -290,34 +246,28 @@ public class TileEntityPlantationField extends AbstractTileEntityPlantationField
     }
 
     @Override
-    public void saveAdditional(final CompoundTag compound)
+    public void writeToNBT(@NotNull final NBTTagCompound compound)
     {
-        super.saveAdditional(compound);
+        super.writeToNBT(compound);
         writeSchematicDataToNBT(compound);
-        compound.putInt(TAG_ROTATION, this.rotMir.rotation().ordinal());
-        compound.putBoolean(TAG_MIRROR, this.rotMir.isMirrored());
-        compound.putString(TAG_NAME, schematicName == null ? "" : schematicName);
-        compound.putString(TAG_PATH, schematicPath == null ? "" : schematicPath);
-        compound.putString(TAG_PACK, (packName == null || packName.isEmpty()) ? "" : packName);
+        compound.setInteger(TAG_ROTATION, this.rotation);
+        compound.setBoolean(TAG_MIRROR, this.mirrored);
+        compound.setString(TAG_NAME, schematicName == null ? "" : schematicName);
+        compound.setString(TAG_PATH, schematicPath == null ? "" : schematicPath);
+        compound.setString(TAG_PACK, (packName == null || packName.isEmpty()) ? "" : packName);
     }
 
     @Override
-    public void setChanged()
+    public void markDirty()
     {
-        if (level != null)
+        if (worldObj != null)
         {
-            WorldUtil.markChunkDirty(level, worldPosition);
+            WorldUtil.markChunkDirty(worldObj, xCoord, yCoord, zCoord);
         }
     }
 
-    @NotNull
-    @Override
-    public CompoundTag getUpdateTag()
-    {
-        return this.saveWithId();
-    }
+    public String getBlueprintPath() { return schematicPath; }
 
-    @Override
     public void setBlueprintPath(final String filePath)
     {
         this.schematicPath = filePath;
@@ -325,29 +275,15 @@ public class TileEntityPlantationField extends AbstractTileEntityPlantationField
         {
             this.schematicPath = this.schematicPath + ".blueprint";
         }
-        setChanged();
+        markDirty();
     }
 
-    @Override
+    public String getPackName() { return packName; }
+
     public void setPackName(final String packName)
     {
         this.packName = packName;
-        setChanged();
-    }
-
-    @Override
-    public String getBlueprintPath()
-    {
-        return schematicPath;
-    }
-
-    /**
-     * Getter for the pack.
-     *
-     * @return String name.
-     */
-    public String getPackName()
-    {
-        return packName;
+        markDirty();
     }
 }
+

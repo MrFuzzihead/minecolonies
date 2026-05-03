@@ -2,23 +2,20 @@ package com.minecolonies.apiimp.initializer;
 
 import com.minecolonies.api.enchants.ModEnchants;
 import com.minecolonies.core.enchants.RaiderDamageEnchant;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.enchantment.Enchantment;
-
-import static com.minecolonies.api.enchants.ModEnchants.ENCHANTMENTS;
 
 /**
- * Enchants initializer
+ * Enchants initializer.
+ * [1.7.10] Enchantments are registered by their constructor (auto-registers via enchantmentsList).
  */
 public class ModEnchantInitializer
 {
     static
     {
-        ModEnchants.raiderDamage = ENCHANTMENTS.register("raider_damage_enchant", () -> new RaiderDamageEnchant(Enchantment.Rarity.VERY_RARE, new EquipmentSlot[] {EquipmentSlot.MAINHAND}));
+        // [1.7.10] Enchantment constructor auto-registers; just instantiate and assign.
+        ModEnchants.raiderDamage = new RaiderDamageEnchant();
     }
-    /**
-     * Init this.
-     */
+
+    /** Init this (triggers class loading). */
     public static void init()
     {
         // Class load.

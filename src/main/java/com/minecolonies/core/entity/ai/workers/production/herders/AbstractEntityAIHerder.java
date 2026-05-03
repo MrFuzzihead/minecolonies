@@ -17,20 +17,22 @@ import com.minecolonies.core.colony.jobs.AbstractJob;
 import com.minecolonies.core.entity.ai.workers.AbstractEntityAIInteract;
 import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.AgeableMob;
-import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] sounds removed
+// [1.7.10] int /* InteractionHand */ removed
+// [1.7.10] net.minecraft.util.DamageSource removed
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.phys.Vec3;
+// [1.7.10] world.phys removed
 import net.minecraftforge.common.util.FakePlayer;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.item.ItemEntity;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -51,7 +53,7 @@ import static com.minecolonies.api.util.constant.StatisticsConstants.*;
 public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B extends AbstractBuilding> extends AbstractEntityAIInteract<J, B>
 {
     /**
-     * How many animals per hut level the worker should max have.
+     * How many animals per hut World the worker should max have.
      */
     private static final int ANIMAL_MULTIPLIER = 2;
 
@@ -83,7 +85,7 @@ public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B exte
     private static final int BREEDING_DELAY = 40;
 
     /**
-     * Level limit to feed children.
+     * World limit to feed children.
      */
     public static final int LIMIT_TO_FEED_CHILDREN = 10;
 
@@ -341,7 +343,7 @@ public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B exte
 
         final List<? extends Animal> animals = searchForAnimals(current_module::isCompatible);
 
-        if (!equipTool(InteractionHand.MAIN_HAND, ModEquipmentTypes.axe.get()))
+        if (!equipTool(0 /* InteractionHand.MAIN_HAND */, ModEquipmentTypes.axe.get()))
         {
             return START_WORKING;
         }
@@ -351,7 +353,7 @@ public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B exte
             return DECIDE;
         }
 
-        final BlockPos center = getCenterOfHerd(animals);
+        final int[] center = getCenterOfHerd(animals);
 
         // Butcher furthest animal
         animals.sort(Comparator.<Animal>comparingDouble(an -> an.blockPosition().distSqr(center)).reversed());
@@ -362,7 +364,7 @@ public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B exte
         {
             if (!entity.isBaby() && !entity.isInLove())
             {
-                if (toKill == null || !entity.level.canSeeSky(entity.blockPosition()) && toKill.level.canSeeSky(toKill.blockPosition()))
+                if (toKill == null || !entity.World.canSeeSky(entity.blockPosition()) && toKill.World.canSeeSky(toKill.blockPosition()))
                 {
                     toKill = entity;
                 }
@@ -393,22 +395,24 @@ public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B exte
      * Calculates the center of a herd
      *
      * @param animals
-     * @return blockpos center
+     * @return int[] center
      */
-    private BlockPos getCenterOfHerd(final List<? extends Animal> animals)
+    private int[] getCenterOfHerd(final List<? extends Animal> animals)
     {
         if (animals.isEmpty())
         {
-            return BlockPos.ZERO;
+            return new int[]{0,0,0};
         }
 
-        Vec3 avg = new Vec3(0, 0, 0);
+        double avgX = 0, avgY = 0, avgZ = 0;
         for (final Animal animal : animals)
         {
-            avg = avg.add(animal.position());
+            avgX += animal.posX;
+            avgY += animal.posY;
+            avgZ += animal.posZ;
         }
-
-        return BlockPos.containing(avg.multiply(1.0 / animals.size(), 1.0 / animals.size(), 1.0 / animals.size()));
+        final int count = animals.size();
+        return new int[]{(int)(avgX / count), (int)(avgY / count), (int)(avgZ / count)};
     }
 
     /**
@@ -439,7 +443,7 @@ public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B exte
             return DECIDE;
         }
 
-        final BlockPos center = getCenterOfHerd(breedables);
+        final int[] center = getCenterOfHerd(breedables);
 
         // Breed closest animal
         breedables.sort(Comparator.<Animal>comparingDouble(an -> an.blockPosition().distSqr(center)));
@@ -463,7 +467,7 @@ public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B exte
             return DECIDE;
         }
 
-        if (!equipItem(InteractionHand.MAIN_HAND, current_module.getBreedingItems()))
+        if (!equipItem(0 /* InteractionHand.MAIN_HAND */, current_module.getBreedingItems()))
         {
             CitizenItemUtils.removeHeldItem(worker);
             return START_WORKING;
@@ -521,7 +525,7 @@ public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B exte
             return DECIDE;
         }
 
-        if (!equipItem(InteractionHand.MAIN_HAND, current_module.getBreedingItems()))
+        if (!equipItem(0 /* InteractionHand.MAIN_HAND */, current_module.getBreedingItems()))
         {
             return START_WORKING;
         }
@@ -531,7 +535,7 @@ public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B exte
 
         for (final Animal animal : animals)
         {
-            if (worker.level.getGameTime() - fedRecently.getOrDefault(animal.getUUID(), 0L) > TICKS_SECOND * 60 * 5)
+            if (worker.World.getGameTime() - fedRecently.getOrDefault(animal.getUUID(), 0L) > TICKS_SECOND * 60 * 5)
             {
                 toFeed = animal;
                 break;
@@ -551,14 +555,14 @@ public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B exte
             }
 
             // Values taken from vanilla.
-            worker.swing(InteractionHand.MAIN_HAND);
+            worker.swing(0 /* InteractionHand.MAIN_HAND */);
             StatsUtil.trackStatByName(building, ITEM_USED, worker.getMainHandItem().getItem().getDescriptionId(), 1);
             worker.getMainHandItem().shrink(1);
             worker.getCitizenExperienceHandler().addExperience(XP_PER_ACTION);
-            worker.level.broadcastEntityEvent(toFeed, (byte) 18);
+            worker.World.broadcastEntityEvent(toFeed, (byte) 18);
             toFeed.playSound(SoundEvents.GENERIC_EAT, 1.0F, 1.0F);
             CitizenItemUtils.removeHeldItem(worker);
-            fedRecently.put(toFeed.getUUID(), worker.level.getGameTime());
+            fedRecently.put(toFeed.getUUID(), worker.World.getGameTime());
 
             return DECIDE;
         }
@@ -652,7 +656,7 @@ public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B exte
             else
             {
                 animal.setInLove(null);
-                worker.swing(InteractionHand.MAIN_HAND);
+                worker.swing(0 /* InteractionHand.MAIN_HAND */);
                 StatsUtil.trackStatByName(building, ITEM_USED, worker.getMainHandItem().getItem().getDescriptionId(), 1);
                 StatsUtil.trackStat(building, BREEDING_ATTEMPTS, 1);
                 worker.getMainHandItem().shrink(1);
@@ -702,7 +706,7 @@ public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B exte
      * @param hand     the hand to equip it in.
      * @return true if the tool was equipped.
      */
-    public boolean equipTool(final InteractionHand hand, final EquipmentTypeEntry toolType)
+    public boolean equipTool(final int /* InteractionHand */ hand, final EquipmentTypeEntry toolType)
     {
         if (getToolSlot(toolType) != -1)
         {
@@ -737,7 +741,7 @@ public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B exte
      * @param hand       the hand to equip it in.
      * @return true if the item was equipped.
      */
-    public boolean equipItem(final InteractionHand hand, final List<ItemStorage> itemStacks)
+    public boolean equipItem(final int /* InteractionHand */ hand, final List<ItemStorage> itemStacks)
     {
         for (final ItemStorage itemStorage : itemStacks)
         {
@@ -765,8 +769,8 @@ public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B exte
     /**
      * Ensures that the provided ItemStack has at least Looting I.
      * If the ItemStack does not have Looting, it will be added.
-     * If the ItemStack has Looting but with a level less than 1, it will be increased to 1.
-     * This method will NOT increase the level of Looting if it is already 1 or higher.
+     * If the ItemStack has Looting but with a World less than 1, it will be increased to 1.
+     * This method will NOT increase the World of Looting if it is already 1 or higher.
      *
      * @param stack the ItemStack to check and modify if necessary.
      */
@@ -791,10 +795,10 @@ public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B exte
      */
     protected void butcherSwing(FakePlayer fakePlayer, Animal animal)
     {
-        worker.swing(InteractionHand.MAIN_HAND); // visual only
-        DamageSource ds = animal.level.damageSources().playerAttack(fakePlayer);
+        worker.swing(0 /* InteractionHand.MAIN_HAND */); // visual only
+        net.minecraft.util.DamageSource ds = animal.World.damageSources().playerAttack(fakePlayer);
         animal.hurt(ds, (float) getButcheringAttackDamage());
-        CitizenItemUtils.damageItemInHand(worker, InteractionHand.MAIN_HAND, 1);
+        CitizenItemUtils.damageItemInHand(worker, 0 /* InteractionHand.MAIN_HAND */, 1);
     }
 
     /**
@@ -820,7 +824,7 @@ public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B exte
                 ItemStack prev = fp.getMainHandItem();
                 ItemStack temp = workerWeapon.copy();
                 ensureLootingI(temp);
-                fp.setItemInHand(InteractionHand.MAIN_HAND, temp);
+                fp.setItemInHand(0 /* InteractionHand.MAIN_HAND */, temp);
 
                 try
                 {
@@ -829,10 +833,10 @@ public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B exte
                 finally
                 {
                     // Restore whatever the fake player had (usually empty) to avoid dupes/leaks
-                    fp.setItemInHand(InteractionHand.MAIN_HAND, prev);
+                    fp.setItemInHand(0 /* InteractionHand.MAIN_HAND */, prev);
                 }
             }
-            else 
+            else
             {
                 butcherSwing(getFakePlayer(), animal);
             }
@@ -872,3 +876,9 @@ public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B exte
         return breedingItems;
     }
 }
+
+
+
+
+
+

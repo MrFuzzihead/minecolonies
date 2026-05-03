@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.buildingextensions;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 
 import com.minecolonies.api.blocks.ModBlocks;
@@ -7,23 +13,24 @@ import com.minecolonies.api.colony.buildingextensions.registry.BuildingExtension
 import com.minecolonies.api.colony.buildingextensions.registry.BuildingExtensionRegistries.BuildingExtensionEntry;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.tileentities.TileEntityScarecrow;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.FenceBlock;
-import net.minecraft.world.level.block.FenceGateBlock;
-import net.minecraft.world.level.block.WallBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
+import net.minecraft.world.block.FenceBlock;
+import net.minecraft.world.block.FenceGateBlock;
+import net.minecraft.world.block.WallBlock;
+import net.minecraft.util.Direction;
+// [1.7.10] block.entity removed
+// [1.7.10] BlockState -> int metadata
 
 import java.util.Locale;
 
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -68,7 +75,7 @@ public class FarmField extends AbstractBuildingExtensionModule
      * @param fieldType the type of field.
      * @param position  the position of the field.
      */
-    public FarmField(final BuildingExtensionEntry fieldType, final BlockPos position)
+    public FarmField(final BuildingExtensionEntry fieldType, final int[] position)
     {
         super(fieldType, position);
     }
@@ -79,7 +86,7 @@ public class FarmField extends AbstractBuildingExtensionModule
      * @param position the position it is placed in.
      * @param worldIn
      */
-    public static FarmField create(final BlockPos position, final Level worldIn)
+    public static FarmField create(final int[] position, final World worldIn)
     {
         final FarmField farmField = (FarmField) BuildingExtensionRegistries.farmField.get().produceExtension(position);
         if (farmField != null)
@@ -101,9 +108,9 @@ public class FarmField extends AbstractBuildingExtensionModule
     }
 
     @Override
-    public @NotNull CompoundTag serializeNBT()
+    public @NotNull NBTTagCompound serializeNBT()
     {
-        CompoundTag compound = super.serializeNBT();
+        NBTTagCompound compound = super.serializeNBT();
         compound.put(TAG_SEED, seed.serializeNBT());
         compound.putIntArray(TAG_RADIUS, radii);
         compound.putString(TAG_STAGE, fieldStage.name());
@@ -111,7 +118,7 @@ public class FarmField extends AbstractBuildingExtensionModule
     }
 
     @Override
-    public void deserializeNBT(final @NotNull CompoundTag compound)
+    public void deserializeNBT(final @NotNull NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
         setSeed(ItemStack.of(compound.getCompound(TAG_SEED)));
@@ -120,7 +127,7 @@ public class FarmField extends AbstractBuildingExtensionModule
     }
 
     @Override
-    public void serialize(final @NotNull FriendlyByteBuf buf)
+    public void serialize(final @NotNull PacketBuffer buf)
     {
         super.serialize(buf);
         buf.writeItem(getSeed());
@@ -129,7 +136,7 @@ public class FarmField extends AbstractBuildingExtensionModule
     }
 
     @Override
-    public void deserialize(@NotNull final FriendlyByteBuf buf)
+    public void deserialize(@NotNull final PacketBuffer buf)
     {
         super.deserialize(buf);
         setSeed(buf.readItem());
@@ -218,7 +225,7 @@ public class FarmField extends AbstractBuildingExtensionModule
      * @param position the position.
      * @return true if it is.
      */
-    public boolean isNoPartOfField(@NotNull final Level world, @NotNull final BlockPos position)
+    public boolean isNoPartOfField(@NotNull final World world, @NotNull final int[] position)
     {
         return world.isEmptyBlock(position) || isValidDelimiter(world.getBlockState(position.above()).getBlock());
     }
@@ -239,8 +246,8 @@ public class FarmField extends AbstractBuildingExtensionModule
      */
     public enum Stage
     {
-        EMPTY(new ResourceLocation("minecraft", "textures/item/iron_hoe.png")), 
-        HOED(new ResourceLocation("minecraft", "textures/item/wheat_seeds.png")), 
+        EMPTY(new ResourceLocation("minecraft", "textures/item/iron_hoe.png")),
+        HOED(new ResourceLocation("minecraft", "textures/item/wheat_seeds.png")),
         PLANTED(new ResourceLocation(Constants.MOD_ID, "textures/item/crops/durum.png"));
 
         protected final ResourceLocation stageIcon;
@@ -262,12 +269,12 @@ public class FarmField extends AbstractBuildingExtensionModule
 
         /**
          * Gets the translatable text of the current stage in the farm field's progress.
-         * 
+         *
          * @return the translatable text of the current stage.
          */
-        public Component getStageText()
+        public String getStageText()
         {
-            return Component.translatable(FIELD_STATUS + "." + name().toLowerCase(Locale.ROOT));
+            return String.translatable(FIELD_STATUS + "." + name().toLowerCase(Locale.ROOT));
         }
 
 
@@ -286,3 +293,7 @@ public class FarmField extends AbstractBuildingExtensionModule
         }
     }
 }
+
+
+
+

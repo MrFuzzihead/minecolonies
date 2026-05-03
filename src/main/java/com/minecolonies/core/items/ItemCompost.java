@@ -2,16 +2,16 @@ package com.minecolonies.core.items;
 
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.blocks.MinecoloniesCropBlock;
-import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.world.WorldServer;
+// [1.7.10] InteractionResult -> boolean
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.World;
 import net.minecraft.world.level.block.LevelEvent;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.NotNull;
 
 import static net.minecraft.world.item.BoneMealItem.applyBonemeal;
@@ -32,23 +32,23 @@ public class ItemCompost extends AbstractItemMinecolonies
     }
 
     /**
-     * Wrapper around {@link net.minecraft.world.item.BoneMealItem#applyBonemeal(ItemStack, Level, BlockPos, Player)}
+     * Wrapper around {@link net.minecraft.world.item.BoneMealItem#applyBonemeal(ItemStack, World, blockPos, Player)}
      * to handle {@link MinecoloniesCropBlock} as well.
      *
      * @param stack  the input item stack.
-     * @param level  the input level.
+     * @param World  the input World.
      * @param pos    the input position.
      * @param player the input player.
      * @return true if successfully bone-mealed.
      */
-    private static boolean applyCompost(@NotNull ItemStack stack, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player)
+    private static boolean applyCompost(@NotNull ItemStack stack, @NotNull World World, @NotNull int[] pos, @NotNull Player player)
     {
-        BlockState state = level.getBlockState(pos);
+        BlockState state = World.getBlockState(pos);
         if (state.getBlock() instanceof MinecoloniesCropBlock cropBlock)
         {
             if (!cropBlock.isMaxAge(state))
             {
-                if (level instanceof ServerLevel serverLevel)
+                if (World instanceof ServerLevel serverLevel)
                 {
                     cropBlock.attemptGrow(state, serverLevel, pos);
                     stack.shrink(1);
@@ -60,7 +60,7 @@ public class ItemCompost extends AbstractItemMinecolonies
             return false;
         }
 
-        return applyBonemeal(stack, level, pos, player);
+        return applyBonemeal(stack, World, pos, player);
     }
 
     @Override
@@ -79,5 +79,9 @@ public class ItemCompost extends AbstractItemMinecolonies
         return InteractionResult.PASS;
     }
 }
+
+
+
+
 
 

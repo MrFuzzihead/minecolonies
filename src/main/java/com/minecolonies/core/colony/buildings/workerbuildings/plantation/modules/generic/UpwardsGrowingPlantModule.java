@@ -1,12 +1,18 @@
 package com.minecolonies.core.colony.buildings.workerbuildings.plantation.modules.generic;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.colony.buildingextensions.IBuildingExtension;
 import com.minecolonies.core.colony.buildings.workerbuildings.plantation.AbstractPlantationModule;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+// [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,8 +46,8 @@ public abstract class UpwardsGrowingPlantModule extends AbstractPlantationModule
      * Default constructor.
      *
      * @param field    the field instance this module is working on.
-     * @param fieldTag the tag of the field anchor block.
-     * @param workTag  the tag of the working positions.
+     * @param fieldTag the NBTBase of the field anchor block.
+     * @param workTag  the NBTBase of the working positions.
      * @param item     the item which is harvested.
      */
     protected UpwardsGrowingPlantModule(
@@ -55,7 +61,7 @@ public abstract class UpwardsGrowingPlantModule extends AbstractPlantationModule
     }
 
     @Override
-    public PlantationModuleResult.Builder decideFieldWork(final Level world, final @NotNull BlockPos workingPosition)
+    public PlantationModuleResult.Builder decideFieldWork(final World world, final @NotNull int[] workingPosition)
     {
         ActionToPerform action = decideWorkAction(world, workingPosition, false);
         return switch (action)
@@ -82,7 +88,7 @@ public abstract class UpwardsGrowingPlantModule extends AbstractPlantationModule
      * @param enablePercentChance if the field has a maximum length, ensure a percentage roll is thrown to check if harvesting is allowed.
      * @return the {@link PlantationModuleResult} that the AI is going to perform.
      */
-    private ActionToPerform decideWorkAction(final Level world, final BlockPos plantingPosition, final boolean enablePercentChance)
+    private ActionToPerform decideWorkAction(final World world, final int[] plantingPosition, final boolean enablePercentChance)
     {
         BlockState blockState = world.getBlockState(plantingPosition.above());
         if (isValidPlantingBlock(blockState))
@@ -134,7 +140,7 @@ public abstract class UpwardsGrowingPlantModule extends AbstractPlantationModule
      * @param enablePercentChance if the field has a maximum length, ensure a percentage roll is thrown to check if harvesting is allowed.
      * @return true if plant is harvestable.
      */
-    private boolean canHarvest(final Level world, final BlockPos plantingPosition, final boolean enablePercentChance)
+    private boolean canHarvest(final World world, final int[] plantingPosition, final boolean enablePercentChance)
     {
         int minimumPlantLength = getMinimumPlantLength();
         Integer maximumPlantLength = getMaximumPlantLength();
@@ -194,9 +200,9 @@ public abstract class UpwardsGrowingPlantModule extends AbstractPlantationModule
     }
 
     @Override
-    public BlockPos getNextWorkingPosition(final Level world)
+    public int[] getNextWorkingPosition(final World world)
     {
-        for (BlockPos position : getWorkingPositions())
+        for (int[] position : getWorkingPositions())
         {
             if (decideWorkAction(world, position, true) != ActionToPerform.NONE)
             {
@@ -220,7 +226,7 @@ public abstract class UpwardsGrowingPlantModule extends AbstractPlantationModule
     }
 
     @Override
-    public BlockPos getPositionToWalkTo(final Level world, final BlockPos workingPosition)
+    public int[] getPositionToWalkTo(final World world, final int[] workingPosition)
     {
         return Stream.of(workingPosition.north(), workingPosition.south(), workingPosition.west(), workingPosition.east())
                  .filter(pos -> world.getBlockState(pos).isAir())
@@ -228,3 +234,5 @@ public abstract class UpwardsGrowingPlantModule extends AbstractPlantationModule
                  .orElse(workingPosition);
     }
 }
+
+

@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.buildings;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.minecolonies.api.colony.ICitizenData;
@@ -27,20 +33,21 @@ import com.minecolonies.core.entity.pathfinding.pathjobs.PathJobRandomPos;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
 import com.minecolonies.core.items.ItemBannerRallyGuards;
 import com.minecolonies.core.util.AttributeModifierUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArrowItem;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+// [1.7.10] NbtUtils removed
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+import com.minecolonies.api.util.Tuple;
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+import net.minecraft.entity.player.EntityPlayer;
+// [1.7.10] ArmorItem -> ItemArmor; ArrowItem -> Items.arrow
+import net.minecraft.item.ItemArmor;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -95,29 +102,29 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
     private static final int PATROL_BASE_DIST = 50;
 
     /**
-     * The Bonus Health for each building level
+     * The Bonus Health for each building World
      */
     protected static final int BONUS_HEALTH_PER_LEVEL = 2;
 
     /**
-     * Vision range per building level.
+     * Vision range per building World.
      */
     protected static final int VISION_RANGE_PER_LEVEL = 3;
 
     /**
-     * Base Vision range per building level.
+     * Base Vision range per building World.
      */
     protected static final int BASE_VISION_RANGE = 15;
 
     /**
      * The position at which the guard should guard at.
      */
-    private BlockPos guardPos = this.getID();
+    private int[] guardPos = this.getID();
 
     /**
      * The list of manual patrol targets.
      */
-    protected List<BlockPos> patrolTargets = new ArrayList<>();
+    protected List<int[]> patrolTargets = new ArrayList<>();
 
     /**
      * The UUID of the player the guard has been set to follow.
@@ -132,7 +139,7 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
     /**
      * A temporary next patrol point, which gets consumed and used once
      */
-    protected BlockPos tempNextPatrolPoint = null;
+    protected int[] tempNextPatrolPoint = null;
 
     /**
      * Pathing future for the next patrol target.
@@ -142,7 +149,7 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
     /**
      * The location of the assigned mine
      */
-    private BlockPos minePos;
+    private int[] minePos;
 
     /**
      * List of hostiles.
@@ -155,7 +162,7 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
      * @param c the colony
      * @param l the position
      */
-    public AbstractBuildingGuards(@NotNull final IColony c, final BlockPos l)
+    public AbstractBuildingGuards(@NotNull final IColony c, final int[] l)
     {
         super(c, l);
 
@@ -164,16 +171,16 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
 
         keepX.put(itemStack -> !ItemStackUtils.isEmpty(itemStack)
                                  && itemStack.getItem() instanceof ArmorItem
-                                 && ((ArmorItem) itemStack.getItem()).getEquipmentSlot() == EquipmentSlot.CHEST, new Tuple<>(1, true));
+                                 && ((ArmorItem) itemStack.getItem()).getEquipmentSlot() == null /* EquipmentSlot. */, new Tuple<>(1, true));
         keepX.put(itemStack -> !ItemStackUtils.isEmpty(itemStack)
                                  && itemStack.getItem() instanceof ArmorItem
-                                 && ((ArmorItem) itemStack.getItem()).getEquipmentSlot() == EquipmentSlot.HEAD, new Tuple<>(1, true));
+                                 && ((ArmorItem) itemStack.getItem()).getEquipmentSlot() == null /* EquipmentSlot. */, new Tuple<>(1, true));
         keepX.put(itemStack -> !ItemStackUtils.isEmpty(itemStack)
                                  && itemStack.getItem() instanceof ArmorItem
-                                 && ((ArmorItem) itemStack.getItem()).getEquipmentSlot() == EquipmentSlot.LEGS, new Tuple<>(1, true));
+                                 && ((ArmorItem) itemStack.getItem()).getEquipmentSlot() == null /* EquipmentSlot. */, new Tuple<>(1, true));
         keepX.put(itemStack -> !ItemStackUtils.isEmpty(itemStack)
                                  && itemStack.getItem() instanceof ArmorItem
-                                 && ((ArmorItem) itemStack.getItem()).getEquipmentSlot() == EquipmentSlot.FEET, new Tuple<>(1, true));
+                                 && ((ArmorItem) itemStack.getItem()).getEquipmentSlot() == null /* EquipmentSlot. */, new Tuple<>(1, true));
 
         keepX.put(itemStack -> {
             if (ItemStackUtils.isEmpty(itemStack) || !(itemStack.getItem() instanceof ArrowItem))
@@ -190,7 +197,7 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
     /**
      * We use this to set possible health multipliers and give achievements.
      *
-     * @param newLevel The new level.
+     * @param newLevel The new World.
      */
     @Override
     public void onUpgradeComplete(@Nullable final Blueprint blueprint, final int newLevel)
@@ -215,15 +222,15 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
     //// ---- Overrides ---- \\\\
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
 
-        final ListTag wayPointTagList = compound.getList(NBT_PATROL_TARGETS, Tag.TAG_COMPOUND);
+        final NBTTagList wayPointTagList = compound.getList(NBT_PATROL_TARGETS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < wayPointTagList.size(); ++i)
         {
-            final CompoundTag blockAtPos = wayPointTagList.getCompound(i);
-            final BlockPos pos = BlockPosUtil.read(blockAtPos, NBT_TARGET);
+            final NBTTagCompound blockAtPos = wayPointTagList.getCompound(i);
+            final int[] pos = BlockPosUtil.read(blockAtPos, NBT_TARGET);
             patrolTargets.add(pos);
         }
 
@@ -241,14 +248,14 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compound = super.serializeNBT();
+        final NBTTagCompound compound = super.serializeNBT();
 
-        @NotNull final ListTag wayPointTagList = new ListTag();
-        for (@NotNull final BlockPos pos : patrolTargets)
+        @NotNull final NBTTagList wayPointTagList = new NBTTagList();
+        for (@NotNull final int[] pos : patrolTargets)
         {
-            @NotNull final CompoundTag wayPointCompound = new CompoundTag();
+            @NotNull final NBTTagCompound wayPointCompound = new NBTTagCompound();
             BlockPosUtil.write(wayPointCompound, NBT_TARGET, pos);
 
             wayPointTagList.add(wayPointCompound);
@@ -269,12 +276,12 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
     }
 
     @Override
-    public void serializeToView(@NotNull final FriendlyByteBuf buf, final boolean fullSync)
+    public void serializeToView(@NotNull final PacketBuffer buf, final boolean fullSync)
     {
         super.serializeToView(buf, fullSync);
         buf.writeInt(patrolTargets.size());
 
-        for (final BlockPos pos : patrolTargets)
+        for (final int[] pos : patrolTargets)
         {
             buf.writeBlockPos(pos);
         }
@@ -304,7 +311,7 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
 
     @Override
     @Nullable
-    public Player getPlayerToFollowOrRally()
+    public EntityPlayer getPlayerToFollowOrRally()
     {
         if (rallyLocation != null && rallyLocation instanceof EntityLocation)
         {
@@ -326,7 +333,7 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
     /**
      * The last patrol position
      */
-    private BlockPos lastPatrolPoint;
+    private int[] lastPatrolPoint;
 
     /**
      * The patrol waiting for others timeout
@@ -394,7 +401,7 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
 
     @Override
     @Nullable
-    public BlockPos getNextPatrolTarget(final boolean newTarget)
+    public int[] getNextPatrolTarget(final boolean newTarget)
     {
         if (!newTarget && lastPatrolPoint != null)
         {
@@ -416,7 +423,7 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
 
         if (!getSetting(PATROL_MODE).getValue().equals(GuardPatrolModeSetting.MANUAL) || patrolTargets == null || patrolTargets.isEmpty())
         {
-            BlockPos pos = null;
+            int[] pos = null;
             if (this.pathResult != null)
             {
                 if (this.pathResult.isDone())
@@ -474,7 +481,7 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
     }
 
     @Override
-    public void setTempNextPatrolPoint(final BlockPos pos)
+    public void setTempNextPatrolPoint(final int[] pos)
     {
         tempNextPatrolPoint = pos;
     }
@@ -484,7 +491,7 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
      *
      * @return the position of the mine
      */
-    public BlockPos getMinePos()
+    public int[] getMinePos()
     {
         return minePos;
     }
@@ -494,7 +501,7 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
      *
      * @param pos the position of the mine
      */
-    public void setMinePos(BlockPos pos)
+    public void setMinePos(int[] pos)
     {
         if (pos == null)
         {
@@ -525,22 +532,22 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
     }
 
     @Override
-    public BlockPos getGuardPos(final @NotNull AbstractEntityCitizen worker)
+    public int[] getGuardPos(final @NotNull AbstractEntityCitizen worker)
     {
         return guardPos;
     }
 
     @Override
-    public void setGuardPos(final BlockPos guardPos)
+    public void setGuardPos(final int[] guardPos)
     {
         this.guardPos = guardPos;
     }
 
     @Override
-    public BlockPos getPositionToFollow()
+    public int[] getPositionToFollow()
     {
         Player followPlayer = getPlayerFromUUID(followPlayerUUID, this.colony.getWorld());
-        if (getSetting(GUARD_TASK).getValue().equals(GuardTaskSetting.FOLLOW) && followPlayer != null && followPlayer.level.dimension() == this.colony.getDimension())
+        if (getSetting(GUARD_TASK).getValue().equals(GuardTaskSetting.FOLLOW) && followPlayer != null && followPlayer.World.dimension() == this.colony.getDimension())
         {
             return followPlayer.blockPosition();
         }
@@ -630,16 +637,16 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
             if (reduceSaturation && iCitizenData.getSaturation() < LOW_SATURATION)
             {
                 // In addition to the scaled saturation reduction during rallying, stopping a rally
-                // will - if only LOW_SATURATION is left - set the saturation level to 0.
+                // will - if only LOW_SATURATION is left - set the saturation World to 0.
                 iCitizenData.decreaseSaturation(LOW_SATURATION);
             }
         }
     }
 
     @Override
-    public void setPlayerToFollow(final Player player)
+    public void setPlayerToFollow(final EntityPlayer player)
     {
-        this.followPlayerUUID = player.getUUID();
+        this.followPlayerUUID = player.getGameProfile().getId();
 
         for (final ICitizenData iCitizenData : getAllAssignedCitizen())
         {
@@ -652,7 +659,7 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
     }
 
     /**
-     * Bonus guard hp per bulding level
+     * Bonus guard hp per bulding World
      *
      * @return the bonus health.
      */
@@ -667,7 +674,7 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
      * @param target the target to add
      */
     @Override
-    public void addPatrolTarget(final BlockPos target)
+    public void addPatrolTarget(final int[] target)
     {
         this.patrolTargets.add(target);
         this.markDirty();
@@ -684,7 +691,7 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
     }
 
     /**
-     * Get the Vision bonus range for the building level
+     * Get the Vision bonus range for the building World
      *
      * @return an integer for the additional range.
      */
@@ -711,7 +718,7 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
         /**
          * The list of manual patrol targets.
          */
-        private List<BlockPos> patrolTargets = new ArrayList<>();
+        private List<int[]> patrolTargets = new ArrayList<>();
 
         @NotNull
         private final List<Integer> guards = new ArrayList<>();
@@ -719,7 +726,7 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
         /**
          * Location of the assigned mine
          */
-        private BlockPos minePos;
+        private int[] minePos;
 
         /**
          * The client view constructor for the AbstractGuardBuilding.
@@ -727,7 +734,7 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
          * @param c the colony.
          * @param l the location.
          */
-        public View(final IColonyView c, @NotNull final BlockPos l)
+        public View(final IColonyView c, @NotNull final int[] l)
         {
             super(c, l);
         }
@@ -744,7 +751,7 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
         }
 
         @Override
-        public void deserialize(@NotNull final FriendlyByteBuf buf)
+        public void deserialize(@NotNull final PacketBuffer buf)
         {
             super.deserialize(buf);
 
@@ -773,7 +780,7 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
             }
         }
 
-        public List<BlockPos> getPatrolTargets()
+        public List<int[]> getPatrolTargets()
         {
             return new ArrayList<>(patrolTargets);
         }
@@ -783,14 +790,14 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
          *
          * @return the position of the mine
          */
-        public BlockPos getMinePos() { return minePos; }
+        public int[] getMinePos() { return minePos; }
 
         /**
          * Set the position of the mine the guard is patrolling
          *
          * @param pos the position of the mine
          */
-        public void setMinePos(BlockPos pos) { this.minePos = pos; }
+        public void setMinePos(int[] pos) { this.minePos = pos; }
 
         @Override
         public int getRange()
@@ -799,3 +806,9 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
         }
     }
 }
+
+
+
+
+
+

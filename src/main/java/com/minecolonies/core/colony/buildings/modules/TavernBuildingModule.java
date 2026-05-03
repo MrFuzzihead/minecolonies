@@ -1,6 +1,12 @@
 package com.minecolonies.core.colony.buildings.modules;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
@@ -21,15 +27,15 @@ import com.minecolonies.core.colony.interactionhandling.RecruitmentInteraction;
 import com.minecolonies.core.datalistener.CustomVisitorListener;
 import com.minecolonies.core.datalistener.RecruitmentItemsListener;
 import com.minecolonies.core.network.messages.client.colony.PlayMusicAtPosMessage;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.entity.player.EntityPlayerMP;
+// [1.7.10] world.entity removed
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -73,12 +79,12 @@ public class TavernBuildingModule extends AbstractBuildingModule implements IDef
     /**
      * List of sitting positions for this building
      */
-    private final List<BlockPos> sitPositions = new ArrayList<>();
+    private final List<int[]> sitPositions = new ArrayList<>();
 
     /**
      * List of work positions for this building
      */
-    private final List<BlockPos> workPositions = new ArrayList<>();
+    private final List<int[]> workPositions = new ArrayList<>();
 
     private boolean initTags = false;
 
@@ -99,18 +105,18 @@ public class TavernBuildingModule extends AbstractBuildingModule implements IDef
     }
 
     @Override
-    public void onPlayerEnterBuilding(final Player player)
+    public void onPlayerEnterBuilding(final net.minecraft.entity.player.EntityPlayer player)
     {
         if (musicCooldown <= 0 && building.getBuildingLevel() > 0 && !building.getColony().isDay())
         {
             int count = 0;
-            BlockPos avg = BlockPos.ZERO;
+            int[] avg = new int[]{0,0,0};
             for (final Integer id : externalCitizens)
             {
                 final IVisitorData data = building.getColony().getVisitorManager().getVisitor(id);
                 if (data != null)
                 {
-                    if (!data.getSittingPosition().equals(BlockPos.ZERO))
+                    if (!data.getSittingPosition().equals(new int[]{0,0,0}))
                     {
                         count++;
                         avg = avg.offset(data.getSittingPosition());
@@ -123,9 +129,9 @@ public class TavernBuildingModule extends AbstractBuildingModule implements IDef
                 return;
             }
 
-            avg = new BlockPos(avg.getX() / count, avg.getY() / count, avg.getZ() / count);
+            avg = new int[]{avg[0] / count, avg[1] / count, avg[2] / count};
             final PlayMusicAtPosMessage message = new PlayMusicAtPosMessage(TavernSounds.tavernTheme, avg, building.getColony().getWorld(), 0.7f, 1.0f);
-            for (final ServerPlayer curPlayer : building.getColony().getPackageManager().getCloseSubscribers())
+            for (final EntityPlayerMP curPlayer : building.getColony().getPackageManager().getCloseSubscribers())
             {
                 Network.getNetwork().sendToPlayer(message, curPlayer);
             }
@@ -170,7 +176,7 @@ public class TavernBuildingModule extends AbstractBuildingModule implements IDef
         final IVisitorData visitorData = spawnVisitor();
         if (visitorData != null && !CustomVisitorListener.chanceCustomVisitors(visitorData))
         {
-            visitorData.triggerInteraction(new RecruitmentInteraction(Component.translatable(
+            visitorData.triggerInteraction(new RecruitmentInteraction(String.translatable(
                 "com.minecolonies.coremod.gui.chat.recruitstory" + (building.getColony().getWorld().random.nextInt(MAX_STORY) + 1), visitorData.getName().split(" ")[0]),
                 ChatPriority.IMPORTANT));
         }
@@ -197,14 +203,14 @@ public class TavernBuildingModule extends AbstractBuildingModule implements IDef
         recruitCostItem.setCount(Math.min(cost.recruitItem().getMaxStackSize(), recruitCostItem.getCount() + MathUtils.RANDOM.nextInt(3)));
         newCitizen.setRecruitCosts(recruitCostItem);
 
-        List<BlockPos> spawnPositions = new ArrayList<>();
-        final BlockPos gatePos = building.getColony().getServerBuildingManager().getRandomBuilding(b -> b.getBuildingType() == ModBuildings.gateHouse.get());
+        List<int[]> spawnPositions = new ArrayList<>();
+        final int[] gatePos = building.getColony().getServerBuildingManager().getRandomBuilding(b -> b.getBuildingType() == ModBuildings.gateHouse.get());
         if (gatePos != null)
         {
             final IBuilding gateHouseBuilding = building.getColony().getServerBuildingManager().getBuilding(gatePos);
             if (gateHouseBuilding != null)
             {
-                final List<BlockPos> gatePositions = gateHouseBuilding.getLocationsFromTag(TAG_GATE);
+                final List<int[]> gatePositions = gateHouseBuilding.getLocationsFromTag(TAG_GATE);
                 if (gatePositions.isEmpty())
                 {
                     spawnPositions.add(gatePos);
@@ -220,7 +226,7 @@ public class TavernBuildingModule extends AbstractBuildingModule implements IDef
         building.getColony().getVisitorManager().spawnOrCreateCivilian(newCitizen, building.getColony().getWorld(), spawnPositions, true);
         if (newCitizen.getEntity().isPresent())
         {
-            newCitizen.getEntity().get().setItemSlot(EquipmentSlot.FEET, cost.boots());
+            newCitizen.getEntity().get().setItemSlot(null /* EquipmentSlot. */, cost.boots());
         }
 
         StatsUtil.trackStat(building, NEW_VISITORS, 1);
@@ -230,12 +236,12 @@ public class TavernBuildingModule extends AbstractBuildingModule implements IDef
     }
 
     @Override
-    public void serializeNBT(final CompoundTag nbt)
+    public void serializeNBT(final NBTTagCompound nbt)
     {
-        final ListTag visitorlist = new ListTag();
+        final NBTTagList visitorlist = new NBTTagList();
         for (final Integer id : externalCitizens)
         {
-            CompoundTag visitorCompound = new CompoundTag();
+            NBTTagCompound visitorCompound = new NBTTagCompound();
             visitorCompound.putInt(TAG_VISITOR_ID, id);
             visitorlist.add(visitorCompound);
         }
@@ -245,12 +251,12 @@ public class TavernBuildingModule extends AbstractBuildingModule implements IDef
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag nbt)
+    public void deserializeNBT(final NBTTagCompound nbt)
     {
-        final ListTag visitorlist = nbt.getList(TAG_VISITORS, TAG_COMPOUND);
-        for (final Tag data : visitorlist)
+        final NBTTagList visitorlist = nbt.getList(TAG_VISITORS, TAG_COMPOUND);
+        for (final NBTBase data : visitorlist)
         {
-            final int id = ((CompoundTag) data).getInt(TAG_VISITOR_ID);
+            final int id = ((NBTTagCompound) data).getInt(TAG_VISITOR_ID);
             final ICitizenData citizenData = building.getColony().getVisitorManager().getCivilian(id);
             if (citizenData != null)
             {
@@ -264,11 +270,11 @@ public class TavernBuildingModule extends AbstractBuildingModule implements IDef
     /**
      * Gets a free sitting position
      *
-     * @return a blockpos to sit at
+     * @return a int[] to sit at
      */
-    public BlockPos getFreeSitPosition()
+    public int[] getFreeSitPosition()
     {
-        final List<BlockPos> positions = new ArrayList<>(getSitPositions());
+        final List<int[]> positions = new ArrayList<>(getSitPositions());
 
         if (positions.isEmpty())
         {
@@ -316,7 +322,7 @@ public class TavernBuildingModule extends AbstractBuildingModule implements IDef
      *
      * @return a random work pos
      */
-    public BlockPos getWorkPos()
+    public int[] getWorkPos()
     {
         if (!getWorkPositions().isEmpty())
         {
@@ -330,7 +336,7 @@ public class TavernBuildingModule extends AbstractBuildingModule implements IDef
      *
      * @return sit pos list
      */
-    private List<BlockPos> getSitPositions()
+    private List<int[]> getSitPositions()
     {
         initTagPositions();
         return sitPositions;
@@ -341,7 +347,7 @@ public class TavernBuildingModule extends AbstractBuildingModule implements IDef
      *
      * @return work pos list
      */
-    private List<BlockPos> getWorkPositions()
+    private List<int[]> getWorkPositions()
     {
         initTagPositions();
         return workPositions;
@@ -361,7 +367,7 @@ public class TavernBuildingModule extends AbstractBuildingModule implements IDef
         if (te != null)
         {
             initTags = true;
-            for (final Map.Entry<BlockPos, List<String>> entry : te.getWorldTagPosMap().entrySet())
+            for (final Map.Entry<int[], List<String>> entry : te.getWorldTagPosMap().entrySet())
             {
                 if (entry.getValue().contains(TAG_SITTING))
                 {
@@ -416,16 +422,24 @@ public class TavernBuildingModule extends AbstractBuildingModule implements IDef
          * @param c the colonyView.
          * @param l the location of the block.
          */
-        public View(final IColonyView c, final BlockPos l)
+        public View(final IColonyView c, final int[] l)
         {
             super(c, l);
         }
 
         @NotNull
         @Override
-        public BOWindow getWindow()
+        public Object /* BOWindow: todo ModularUI2 */ getWindow()
         {
             return new WindowHutLiving(this);
         }
     }
 }
+
+
+
+
+
+
+
+

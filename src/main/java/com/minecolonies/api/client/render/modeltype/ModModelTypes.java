@@ -1,7 +1,7 @@
 package com.minecolonies.api.client.render.modeltype;
 
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 public final class ModModelTypes
 {
@@ -98,3 +98,4 @@ public final class ModModelTypes
         throw new IllegalStateException("Tried to initialize: ModModelTypes but this is a Utility class.");
     }
 }
+

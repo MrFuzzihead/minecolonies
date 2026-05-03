@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import com.minecolonies.core.entity.pathfinding.navigation.AbstractAdvancedPathNavigate;
 import com.minecolonies.api.entity.pathfinding.registry.IPathNavigateRegistry;
 import com.minecolonies.core.entity.pathfinding.navigation.MinecoloniesAdvancedPathNavigate;
-import net.minecraft.world.entity.Mob;
+// [1.7.10] world.entity removed
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,24 +15,26 @@ import java.util.function.Predicate;
 
 public class PathNavigateRegistry implements IPathNavigateRegistry
 {
-    private static final Function<Mob, AbstractAdvancedPathNavigate> DEFAULT = (entityLiving -> new MinecoloniesAdvancedPathNavigate(entityLiving, entityLiving.level));
+    private static final Function<EntityCreature, AbstractAdvancedPathNavigate> DEFAULT = (entityLiving -> new MinecoloniesAdvancedPathNavigate(entityLiving, entityLiving.World));
 
-    private final Map<Predicate<Mob>, Function<Mob, AbstractAdvancedPathNavigate>> registry = Maps.newLinkedHashMap();
+    private final Map<Predicate<EntityCreature>, Function<EntityCreature, AbstractAdvancedPathNavigate>> registry = Maps.newLinkedHashMap();
 
     @Override
     public IPathNavigateRegistry registerNewPathNavigate(
-      final Predicate<Mob> selectionPredicate, final Function<Mob, AbstractAdvancedPathNavigate> navigateProducer)
+      final Predicate<EntityCreature> selectionPredicate, final Function<EntityCreature, AbstractAdvancedPathNavigate> navigateProducer)
     {
         registry.put(selectionPredicate, navigateProducer);
         return this;
     }
 
     @Override
-    public AbstractAdvancedPathNavigate getNavigateFor(final Mob entityLiving)
+    public AbstractAdvancedPathNavigate getNavigateFor(final EntityCreature entityLiving)
     {
-        final List<Predicate<Mob>> predicates = new ArrayList<>(registry.keySet());
+        final List<Predicate<EntityCreature>> predicates = new ArrayList<>(registry.keySet());
         Collections.reverse(predicates);
 
         return predicates.stream().filter(predicate -> predicate.test(entityLiving)).findFirst().map(predicate -> registry.get(predicate)).orElse(DEFAULT).apply(entityLiving);
     }
 }
+
+

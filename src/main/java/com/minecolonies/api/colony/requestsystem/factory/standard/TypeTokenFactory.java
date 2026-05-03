@@ -8,8 +8,8 @@ import com.minecolonies.api.util.ReflectionUtils;
 import com.minecolonies.api.util.constant.NbtTagConstants;
 import com.minecolonies.api.util.constant.SerializationIdentifierConstants;
 import com.minecolonies.api.util.constant.TypeConstants;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.NotNull;
 
 public class TypeTokenFactory implements IFactory<Class<?>, TypeToken<?>>
@@ -38,9 +38,9 @@ public class TypeTokenFactory implements IFactory<Class<?>, TypeToken<?>>
 
     @NotNull
     @Override
-    public CompoundTag serialize(@NotNull final IFactoryController controller, @NotNull final TypeToken<?> typeToken)
+    public NBTTagCompound serialize(@NotNull final IFactoryController controller, @NotNull final TypeToken<?> typeToken)
     {
-        CompoundTag compound = new CompoundTag();
+        NBTTagCompound compound = new NBTTagCompound();
 
         compound.putString(NbtTagConstants.TAG_VALUE, typeToken.getRawType().getName());
 
@@ -49,7 +49,7 @@ public class TypeTokenFactory implements IFactory<Class<?>, TypeToken<?>>
 
     @NotNull
     @Override
-    public TypeToken<?> deserialize(@NotNull final IFactoryController controller, @NotNull final CompoundTag nbt) throws Throwable
+    public TypeToken<?> deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound nbt) throws Throwable
     {
         try
         {
@@ -78,13 +78,13 @@ public class TypeTokenFactory implements IFactory<Class<?>, TypeToken<?>>
     }
 
     @Override
-    public void serialize(IFactoryController controller, TypeToken<?> input, FriendlyByteBuf packetBuffer)
+    public void serialize(IFactoryController controller, TypeToken<?> input, PacketBuffer packetBuffer)
     {
         packetBuffer.writeUtf(input.getRawType().getName());
     }
 
     @Override
-    public TypeToken<?> deserialize(IFactoryController controller, FriendlyByteBuf buffer) throws Throwable
+    public TypeToken<?> deserialize(IFactoryController controller, PacketBuffer buffer) throws Throwable
     {
         try
         {
@@ -102,3 +102,6 @@ public class TypeTokenFactory implements IFactory<Class<?>, TypeToken<?>>
         return SerializationIdentifierConstants.TYPE_TOKEN_ID;
     }
 }
+
+
+

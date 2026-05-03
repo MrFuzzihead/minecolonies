@@ -1,9 +1,9 @@
 package com.minecolonies.api.colony.connections;
 
 import com.minecolonies.api.util.BlockPosUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 
 import static com.minecolonies.api.util.constant.NbtTagConstants.*;
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_STATUS;
@@ -16,7 +16,7 @@ public class ColonyConnection
     public DiplomacyStatus diplomacyStatus;
     public int                                      id;
     public String                                   name;
-    public BlockPos                                 pos;
+    public int[]                                 pos;
 
     /**
      * Connected Colony Data with:
@@ -29,7 +29,7 @@ public class ColonyConnection
     public ColonyConnection(
         int id,
         String name,
-        BlockPos pos,
+        int[] pos,
         DiplomacyStatus diplomacyStatus)
     {
         this.id = id;
@@ -46,26 +46,26 @@ public class ColonyConnection
         // noop
     }
 
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compoundTag = new CompoundTag();
-        compoundTag.putInt(TAG_ID, id);
-        compoundTag.putString(TAG_NAME, name);
-        BlockPosUtil.write(compoundTag, TAG_POS, pos);
-        compoundTag.putInt(TAG_STATUS, diplomacyStatus.ordinal());
-        return compoundTag;
+        final NBTTagCompound NBTTagCompound = new NBTTagCompound();
+        NBTTagCompound.putInt(TAG_ID, id);
+        NBTTagCompound.putString(TAG_NAME, name);
+        BlockPosUtil.write(NBTTagCompound, TAG_POS, pos);
+        NBTTagCompound.putInt(TAG_STATUS, diplomacyStatus.ordinal());
+        return NBTTagCompound;
     }
 
-    public ColonyConnection deserializeNBT(final CompoundTag compoundTag)
+    public ColonyConnection deserializeNBT(final NBTTagCompound NBTTagCompound)
     {
-        this.id = compoundTag.getInt(TAG_ID);
-        this.name = compoundTag.getString(TAG_NAME);
-        this.pos = BlockPosUtil.read(compoundTag, TAG_POS);
-        this.diplomacyStatus = DiplomacyStatus.values()[compoundTag.getInt(TAG_STATUS)];
+        this.id = NBTTagCompound.getInt(TAG_ID);
+        this.name = NBTTagCompound.getString(TAG_NAME);
+        this.pos = BlockPosUtil.read(NBTTagCompound, TAG_POS);
+        this.diplomacyStatus = DiplomacyStatus.values()[NBTTagCompound.getInt(TAG_STATUS)];
         return this;
     }
 
-    public void serializeByteBuf(final FriendlyByteBuf buf)
+    public void serializeByteBuf(final PacketBuffer buf)
     {
         buf.writeInt(id);
         buf.writeUtf(name);
@@ -73,7 +73,7 @@ public class ColonyConnection
         buf.writeInt(diplomacyStatus.ordinal());
     }
 
-    public ColonyConnection deserializeByteBuf(final FriendlyByteBuf buf)
+    public ColonyConnection deserializeByteBuf(final PacketBuffer buf)
     {
         this.id = buf.readInt();
         this.name = buf.readUtf();
@@ -82,3 +82,6 @@ public class ColonyConnection
         return this;
     }
 }
+
+
+

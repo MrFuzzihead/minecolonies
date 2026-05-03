@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.requestsystem.management.manager;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.TypeToken;
@@ -25,9 +31,9 @@ import com.minecolonies.api.util.constant.TypeConstants;
 import com.minecolonies.core.colony.requestsystem.management.IStandardRequestManager;
 import com.minecolonies.core.colony.requestsystem.management.handlers.*;
 import com.minecolonies.core.colony.requestsystem.management.manager.wrapped.WrappedStaticStateRequestManager;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -429,9 +435,9 @@ public class StandardRequestManager implements IStandardRequestManager
      * @return The NBTData that describes the current request system
      */
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag systemCompound = new CompoundTag();
+        final NBTTagCompound systemCompound = new NBTTagCompound();
         systemCompound.putInt(NBT_VERSION, version);
 
         systemCompound.put(NBT_DATASTORE, getFactoryController().serialize(dataStoreManager));
@@ -448,52 +454,52 @@ public class StandardRequestManager implements IStandardRequestManager
     }
 
     /**
-     * Method used to deserialize the data inside the given nbt tag into this request system.
+     * Method used to deserialize the data inside the given nbt NBTBase into this request system.
      *
      * @param nbt The data to deserialize.
      */
     @Override
-    public void deserializeNBT(final CompoundTag nbt)
+    public void deserializeNBT(final NBTTagCompound nbt)
     {
         executeDeserializationStepOrMarkForUpdate(nbt,
           NBT_VERSION,
-          CompoundTag::getInt,
+          NBTTagCompound::getInt,
           v -> version = v);
 
         executeDeserializationStepOrMarkForUpdate(nbt,
           NBT_DATASTORE,
-          CompoundTag::getCompound,
+          NBTTagCompound::getCompound,
           c -> dataStoreManager = getFactoryController().deserialize(c));
 
         executeDeserializationStepOrMarkForUpdate(nbt,
           NBT_ID_REQUEST_IDENTITIES,
-          CompoundTag::getCompound,
+          NBTTagCompound::getCompound,
           c -> requestIdentitiesDataStoreId = getFactoryController().deserialize(c));
         executeDeserializationStepOrMarkForUpdate(nbt,
           NBT_ID_REQUEST_RESOLVER_IDENTITIES,
-          CompoundTag::getCompound,
+          NBTTagCompound::getCompound,
           c -> requestResolverIdentitiesDataStoreId = getFactoryController().deserialize(c));
         executeDeserializationStepOrMarkForUpdate(nbt,
           NBT_ID_PROVIDER_ASSIGNMENTS,
-          CompoundTag::getCompound,
+          NBTTagCompound::getCompound,
           c -> providerRequestResolverAssignmentDataStoreId = getFactoryController().deserialize(c));
         executeDeserializationStepOrMarkForUpdate(nbt,
           NBT_ID_REQUEST_RESOLVER_ASSIGNMENTS,
-          CompoundTag::getCompound,
+          NBTTagCompound::getCompound,
           c -> requestResolverRequestAssignmentDataStoreId = getFactoryController().deserialize(c));
         executeDeserializationStepOrMarkForUpdate(nbt,
           NBT_ID_REQUESTABLE_TYPE_ASSIGNMENTS,
-          CompoundTag::getCompound,
+          NBTTagCompound::getCompound,
           c -> requestableTypeRequestResolverAssignmentDataStoreId = getFactoryController().deserialize(c));
 
         executeDeserializationStepOrMarkForUpdate(nbt,
           NBT_ID_PLAYER,
-          CompoundTag::getCompound,
+          NBTTagCompound::getCompound,
           c -> playerRequestResolverId = getFactoryController().deserialize(c));
 
         executeDeserializationStepOrMarkForUpdate(nbt,
           NBT_ID_RETRYING,
-          CompoundTag::getCompound,
+          NBTTagCompound::getCompound,
           c -> retryingRequestResolverId = getFactoryController().deserialize(c));
 
         if (dataStoreManager == null)
@@ -521,7 +527,7 @@ public class StandardRequestManager implements IStandardRequestManager
     }
 
     @Override
-    public void serialize(IFactoryController controller, FriendlyByteBuf buffer)
+    public void serialize(IFactoryController controller, PacketBuffer buffer)
     {
         buffer.writeInt(version);
         controller.serialize(buffer, dataStoreManager);
@@ -535,7 +541,7 @@ public class StandardRequestManager implements IStandardRequestManager
     }
 
     @Override
-    public void deserialize(IFactoryController controller, FriendlyByteBuf buffer)
+    public void deserialize(IFactoryController controller, PacketBuffer buffer)
     {
         version = buffer.readInt();
         dataStoreManager = controller.deserialize(buffer);
@@ -549,9 +555,9 @@ public class StandardRequestManager implements IStandardRequestManager
     }
 
     private <T> void executeDeserializationStepOrMarkForUpdate(
-      @NotNull final CompoundTag nbt,
+      @NotNull final NBTTagCompound nbt,
       @NotNull final String key,
-      @NotNull final BiFunction<CompoundTag, String, T> extractor,
+      @NotNull final BiFunction<NBTTagCompound, String, T> extractor,
       @NotNull final Consumer<T> valueConsumer)
     {
         if (!nbt.contains(key))
@@ -680,3 +686,6 @@ public class StandardRequestManager implements IStandardRequestManager
         this.version = currentVersion;
     }
 }
+
+
+

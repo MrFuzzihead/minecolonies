@@ -10,12 +10,12 @@ import com.minecolonies.api.research.factories.IGlobalResearchFactory;
 import com.minecolonies.api.util.NBTUtils;
 import com.minecolonies.api.util.constant.SerializationIdentifierConstants;
 import com.minecolonies.api.util.constant.TypeConstants;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.network.PacketBuffer;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -62,9 +62,9 @@ public class GlobalResearchFactory implements IGlobalResearchFactory
 
     @NotNull
     @Override
-    public CompoundTag serialize(@NotNull final IFactoryController controller, @NotNull final IGlobalResearch research)
+    public NBTTagCompound serialize(@NotNull final IFactoryController controller, @NotNull final IGlobalResearch research)
     {
-        final CompoundTag compound = new CompoundTag();
+        final NBTTagCompound compound = new NBTTagCompound();
         if (research.getParent() != null)
         {
             compound.putString(TAG_PARENT, research.getParent().toString());
@@ -80,36 +80,36 @@ public class GlobalResearchFactory implements IGlobalResearchFactory
         compound.putBoolean(TAG_AUTOSTART, research.isAutostart());
         compound.putBoolean(TAG_IMMUTABLE, research.isImmutable());
         compound.putBoolean(TAG_HIDDEN, research.isHidden());
-        @NotNull final ListTag costTagList = research.getCostList().stream().map(cost ->
+        @NotNull final NBTTagList costTagList = research.getCostList().stream().map(cost ->
         {
-            final CompoundTag costCompound = new CompoundTag();
+            final NBTTagCompound costCompound = new NBTTagCompound();
             costCompound.putString(TAG_COST_TYPE, cost.getType().getRegistryName().toString());
             costCompound.put(TAG_COST_NBT, cost.writeToNBT());
             return compound;
         }).collect(NBTUtils.toListNBT());
         compound.put(TAG_COSTS, costTagList);
 
-        @NotNull final ListTag reqTagList = research.getResearchRequirements().stream().map(req ->
+        @NotNull final NBTTagList reqTagList = research.getResearchRequirements().stream().map(req ->
         {
-            final CompoundTag reqCompound = new CompoundTag();
+            final NBTTagCompound reqCompound = new NBTTagCompound();
             reqCompound.putString(TAG_REQ_TYPE, req.getRegistryEntry().getRegistryName().toString());
             reqCompound.put(TAG_REQ_ITEM, req.writeToNBT());
             return reqCompound;
         }).collect(NBTUtils.toListNBT());
         compound.put(TAG_REQS, reqTagList);
 
-        @NotNull final ListTag effectTagList = research.getEffects().stream().map(eff ->
+        @NotNull final NBTTagList effectTagList = research.getEffects().stream().map(eff ->
         {
-            final CompoundTag effectCompound = new CompoundTag();
+            final NBTTagCompound effectCompound = new NBTTagCompound();
             effectCompound.putString(TAG_EFFECT_TYPE, eff.getRegistryEntry().getRegistryName().toString());
             effectCompound.put(TAG_EFFECT_ITEM, eff.writeToNBT());
             return effectCompound;
         }).collect(NBTUtils.toListNBT());
         compound.put(TAG_EFFECTS, effectTagList);
 
-        @NotNull final ListTag childTagList = research.getChildren().stream().map(child ->
+        @NotNull final NBTTagList childTagList = research.getChildren().stream().map(child ->
         {
-            final CompoundTag childCompound = new CompoundTag();
+            final NBTTagCompound childCompound = new NBTTagCompound();
             childCompound.putString(TAG_RESEARCH_CHILD, child.toString());
             return childCompound;
         }).collect(NBTUtils.toListNBT());
@@ -120,7 +120,7 @@ public class GlobalResearchFactory implements IGlobalResearchFactory
 
     @NotNull
     @Override
-    public IGlobalResearch deserialize(@NotNull final IFactoryController controller, @NotNull final CompoundTag nbt)
+    public IGlobalResearch deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound nbt)
     {
         final ResourceLocation id = new ResourceLocation(nbt.getString(TAG_ID));
         final ResourceLocation parent = nbt.contains(TAG_PARENT) ? new ResourceLocation(nbt.getString(TAG_PARENT)) : null;
@@ -137,25 +137,25 @@ public class GlobalResearchFactory implements IGlobalResearchFactory
 
         final IGlobalResearch research = getNewInstance(id, parent, branch, name, subtitle, depth, sortOrder, onlyChild, hidden, autostart, instant, immutable);
 
-        NBTUtils.streamCompound(nbt.getList(TAG_COSTS, Tag.TAG_COMPOUND)).forEach(compound -> {
+        NBTUtils.streamCompound(nbt.getList(TAG_COSTS, NBTBase.TAG_COMPOUND)).forEach(compound -> {
             final ModResearchCosts.ResearchCostEntry researchCostType = IMinecoloniesAPI.getInstance().getResearchCostRegistry().getValue(new ResourceLocation(compound.getString(TAG_COST_TYPE)));
             research.addCost(researchCostType.readFromNBT(compound.getCompound(TAG_COST_NBT)));
         });
-        NBTUtils.streamCompound(nbt.getList(TAG_REQS, Tag.TAG_COMPOUND))
+        NBTUtils.streamCompound(nbt.getList(TAG_REQS, NBTBase.TAG_COMPOUND))
             .forEach(compound -> research.addRequirement(Objects.requireNonNull(IMinecoloniesAPI.getInstance()
                 .getResearchRequirementRegistry()
                 .getValue(ResourceLocation.tryParse(compound.getString(TAG_REQ_TYPE)))).readFromNBT(compound.getCompound(TAG_REQ_ITEM))));
 
-        NBTUtils.streamCompound(nbt.getList(TAG_EFFECTS, Tag.TAG_COMPOUND))
+        NBTUtils.streamCompound(nbt.getList(TAG_EFFECTS, NBTBase.TAG_COMPOUND))
             .forEach(compound -> research.addEffect(Objects.requireNonNull(IMinecoloniesAPI.getInstance().getResearchEffectRegistry()
                 .getValue(ResourceLocation.tryParse(compound.getString(TAG_EFFECT_TYPE)))).readFromNBT(compound.getCompound(TAG_EFFECT_ITEM))));
 
-        NBTUtils.streamCompound(nbt.getList(TAG_CHILDS, Tag.TAG_COMPOUND)).forEach(compound -> research.addChild(new ResourceLocation(compound.getString(TAG_RESEARCH_CHILD))));
+        NBTUtils.streamCompound(nbt.getList(TAG_CHILDS, NBTBase.TAG_COMPOUND)).forEach(compound -> research.addChild(new ResourceLocation(compound.getString(TAG_RESEARCH_CHILD))));
         return research;
     }
 
     @Override
-    public void serialize(@NotNull IFactoryController controller, IGlobalResearch input, FriendlyByteBuf packetBuffer)
+    public void serialize(@NotNull IFactoryController controller, IGlobalResearch input, PacketBuffer packetBuffer)
     {
         packetBuffer.writeResourceLocation(input.getId());
         packetBuffer.writeBoolean(input.getParent() != null);
@@ -200,7 +200,7 @@ public class GlobalResearchFactory implements IGlobalResearchFactory
 
     @NotNull
     @Override
-    public IGlobalResearch deserialize(@NotNull IFactoryController controller, FriendlyByteBuf buffer) throws Throwable
+    public IGlobalResearch deserialize(@NotNull IFactoryController controller, PacketBuffer buffer) throws Throwable
     {
         final ResourceLocation id = buffer.readResourceLocation();
         final ResourceLocation parent = buffer.readBoolean() ? buffer.readResourceLocation() : null;
@@ -252,3 +252,8 @@ public class GlobalResearchFactory implements IGlobalResearchFactory
         return SerializationIdentifierConstants.GLOBAL_RESEARCH_ID;
     }
 }
+
+
+
+
+

@@ -12,71 +12,41 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.WindowPlantationField;
 import com.minecolonies.core.colony.buildingextensions.PlantationField;
 import com.minecolonies.core.tileentities.TileEntityPlantationField;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Explosion;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.material.MapColor;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.MathHelper;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Block class for the plantation field block.
+ * [1.7.10] Ported: Material; metadata bits 0-1 = facing, bit 2 = MIRROR;
+ * createTileEntity; onBlockActivated; onBlockPlacedBy; breakBlock.
  */
-public class BlockPlantationField extends AbstractBlockMinecoloniesHorizontal<BlockPlantationField> implements IBuilderUndestroyable, IAnchorBlock, IBuildingBrowsableBlock, EntityBlock
+public class BlockPlantationField extends AbstractBlockMinecoloniesHorizontal<BlockPlantationField>
+    implements IBuilderUndestroyable, IAnchorBlock, IBuildingBrowsableBlock
 {
-    /**
-     * If the block is mirrored.
-     */
-    public static final BooleanProperty MIRROR = BooleanProperty.create("mirror");
+    /** Metadata bit 2 = mirrored. */
+    public static final int META_MIRROR_BIT = 0x4;
 
-    /**
-     * The hardness this block has.
-     */
-    private static final float BLOCK_HARDNESS = 5F;
+    private static final float  BLOCK_HARDNESS = 5F;
+    private static final String BLOCK_NAME     = "blockhutplantationfield";
+    private static final float  RESISTANCE     = 1F;
 
-    /**
-     * This blocks name.
-     */
-    private static final String BLOCK_NAME = "blockhutplantationfield";
-
-    /**
-     * The resistance this block has.
-     */
-    private static final float RESISTANCE = 1F;
-
-    /**
-     * Cached list of shapes
-     */
-    private static final Map<Direction, VoxelShape> SHAPES = new EnumMap<>(Direction.class);
-
-    /**
-     * Default constructor.
-     */
     public BlockPlantationField()
     {
-        super(Properties.of().mapColor(MapColor.WOOD).sound(SoundType.WOOD).strength(BLOCK_HARDNESS, RESISTANCE));
-        this.registerDefaultState(this.defaultBlockState().setValue(FACING, Direction.NORTH).setValue(MIRROR, false));
+        super(Material.wood);
+        setHardness(BLOCK_HARDNESS);
+        setResistance(RESISTANCE);
+        setStepSound(Block.soundTypeWood);
     }
 
     @Override
@@ -86,128 +56,89 @@ public class BlockPlantationField extends AbstractBlockMinecoloniesHorizontal<Bl
     }
 
     @Override
-    public BlockEntity newBlockEntity(@NotNull final BlockPos blockPos, @NotNull final BlockState blockState)
+    public boolean hasTileEntity(final int metadata)
     {
-        return new TileEntityPlantationField(blockPos, blockState);
-    }
-
-    @NotNull
-    @Override
-    public BlockState rotate(@NotNull BlockState state, Rotation rot)
-    {
-        return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
-    }
-
-    @NotNull
-    @Override
-    public BlockState mirror(@NotNull BlockState state, Mirror mirrorIn)
-    {
-        return state.setValue(MIRROR, mirrorIn != Mirror.NONE);
+        return true;
     }
 
     @Override
-    public InteractionResult use(
-      final BlockState state,
-      final Level worldIn,
-      final BlockPos pos,
-      final Player player,
-      final InteractionHand hand,
-      final BlockHitResult ray)
+    public TileEntity createTileEntity(final World world, final int metadata)
     {
-        // If this is the client side, open the plantation field GUI
-        if (worldIn.isClientSide)
+        return new TileEntityPlantationField();
+    }
+
+    @Override
+    public boolean onBlockActivated(
+      final World worldIn,
+      final int x,
+      final int y,
+      final int z,
+      final EntityPlayer player,
+      final int side,
+      final float hitX,
+      final float hitY,
+      final float hitZ)
+    {
+        // Open plantation field GUI on client side only
+        if (worldIn.isRemote)
         {
-            if (hand == InteractionHand.OFF_HAND)
-            {
-                return InteractionResult.FAIL;
-            }
-
-            final BlockEntity tileEntity = worldIn.getBlockEntity(pos);
+            final TileEntity tileEntity = worldIn.getTileEntity(x, y, z);
             if (tileEntity instanceof TileEntityPlantationField plantationField)
             {
                 new WindowPlantationField(plantationField).open();
-                return InteractionResult.SUCCESS;
+                return true;
             }
-
-            return InteractionResult.FAIL;
+            return false;
         }
-
-        return InteractionResult.SUCCESS;
+        return true;
     }
 
     @Override
-    public VoxelShape getShape(final BlockState state, final BlockGetter worldIn, final BlockPos pos, final CollisionContext context)
+    public void onBlockPlacedBy(
+      @NotNull final World worldIn,
+      final int x,
+      final int y,
+      final int z,
+      final EntityLivingBase placer,
+      final ItemStack stack)
     {
-        Direction dir = state.getValue(FACING);
-        if (SHAPES.containsKey(dir))
-        {
-            return SHAPES.get(dir);
-        }
-        VoxelShape shape = Shapes.box(
-          0D + (dir.getStepX() > 0 ? 0.5 : 0),
-          0D,
-          0D + (dir.getStepZ() > 0 ? 0.5 : 0),
-          1D - (dir.getStepX() < 0 ? 0.5 : 0),
-          0.625D,
-          1D - (dir.getStepZ() < 0 ? 0.5 : 0)
-        );
-        SHAPES.put(dir, shape);
-        return shape;
-    }
+        super.onBlockPlacedBy(worldIn, x, y, z, placer, stack);
 
-    @Override
-    public void wasExploded(final Level worldIn, final BlockPos pos, final Explosion explosionIn)
-    {
-        notifyColonyAboutDestruction(worldIn, pos);
-        super.wasExploded(worldIn, pos, explosionIn);
-    }
-
-    @Override
-    public BlockState getStateForPlacement(final BlockPlaceContext context)
-    {
-        return super.getStateForPlacement(context).setValue(FACING, context.getHorizontalDirection());
-    }
-
-    @Override
-    public void setPlacedBy(@NotNull final Level worldIn, @NotNull final BlockPos pos, final BlockState state, final LivingEntity placer, final ItemStack stack)
-    {
-        super.setPlacedBy(worldIn, pos, state, placer, stack);
-
-        if (worldIn.isClientSide)
+        if (worldIn.isRemote)
         {
             return;
         }
 
-        final BlockEntity tileEntity = worldIn.getBlockEntity(pos);
+        final TileEntity tileEntity = worldIn.getTileEntity(x, y, z);
         if (tileEntity instanceof TileEntityPlantationField tileEntityPlantationField)
         {
-            final IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(worldIn, pos);
+            final IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(worldIn, x, y, z);
             if (colony != null)
             {
                 for (BuildingExtensionEntry plantationFieldType : tileEntityPlantationField.getPlantationFieldTypes())
                 {
-                    final PlantationField plantationField = PlantationField.create(plantationFieldType, pos);
+                    final PlantationField plantationField = PlantationField.create(plantationFieldType, new int[]{x, y, z});
 
-                    final List<BlockPos> workingPositions = tileEntityPlantationField.getWorkingPositions(plantationField.getModule().getWorkTag());
+                    final List<int[]> workingPositions = tileEntityPlantationField.getWorkingPositions(plantationField.getModule().getWorkTag());
                     if (workingPositions.isEmpty())
                     {
                         Log.getLogger()
-                            .warn("Plantation field blueprint at path {} does not have ANY tagged working positions for the tag '{}', please report this to devs!",
+                            .warn("Plantation field blueprint at path {} does not have ANY tagged working positions for the NBTBase '{}', please report this to devs!",
                                 tileEntityPlantationField.getBlueprintPath(),
                                 plantationField.getModule().getWorkTag());
                     }
 
-                    final List<BlockPos> validPositions = plantationField.getModule().getValidWorkingPositions(worldIn, workingPositions);
+                    final List<int[]> validPositions = plantationField.getModule().getValidWorkingPositions(worldIn, workingPositions);
                     if (!validPositions.isEmpty())
                     {
                         plantationField.setWorkingPositions(validPositions);
                         colony.getServerBuildingManager().addBuildingExtension(plantationField);
-                        colony.getServerBuildingManager().addLeisureSite(pos);
+                        colony.getServerBuildingManager().addLeisureSite(new int[]{x, y, z});
                     }
                     else
                     {
                         Log.getLogger()
-                            .warn("Plantation field blueprint at path {} does not have ANY VALID tagged working positions for the tag '{}', please report this to devs!",
+                            .warn("Plantation field blueprint at path {} does not have ANY VALID tagged working positions for the NBTBase '{}', please report this to devs!",
                                 tileEntityPlantationField.getBlueprintPath(),
                                 plantationField.getModule().getWorkTag());
                     }
@@ -217,38 +148,50 @@ public class BlockPlantationField extends AbstractBlockMinecoloniesHorizontal<Bl
     }
 
     @Override
-    public void playerWillDestroy(final Level worldIn, @NotNull final BlockPos pos, final BlockState state, @NotNull final Player player)
+    public void breakBlock(
+      final World worldIn,
+      final int x,
+      final int y,
+      final int z,
+      final Block block,
+      final int meta)
     {
-        notifyColonyAboutDestruction(worldIn, pos);
-        super.playerWillDestroy(worldIn, pos, state, player);
+        notifyColonyAboutDestruction(worldIn, x, y, z);
+        super.breakBlock(worldIn, x, y, z, block, meta);
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder)
+    public void onBlockDestroyedByExplosion(final World worldIn, final int x, final int y, final int z, final net.minecraft.world.Explosion explosionIn)
     {
-        builder.add(FACING, MIRROR);
+        notifyColonyAboutDestruction(worldIn, x, y, z);
+        super.onBlockDestroyedByExplosion(worldIn, x, y, z, explosionIn);
     }
 
-    /**
-     * Notify the colony about the destruction of the field.
-     *
-     * @param worldIn the world.
-     * @param pos     the position of the block.
-     */
-    private void notifyColonyAboutDestruction(final Level worldIn, final BlockPos pos)
+    @Override
+    public void onBlockHarvested(final World worldIn, final int x, final int y, final int z, final int meta, final EntityPlayer player)
     {
-        if (!worldIn.isClientSide())
+        notifyColonyAboutDestruction(worldIn, x, y, z);
+        super.onBlockHarvested(worldIn, x, y, z, meta, player);
+    }
+
+    private void notifyColonyAboutDestruction(final World worldIn, final int x, final int y, final int z)
+    {
+        if (!worldIn.isRemote)
         {
-            final IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(worldIn, pos);
+            final IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(worldIn, x, y, z);
             if (colony != null)
             {
-                final BlockEntity blockEntity = worldIn.getBlockEntity(pos);
+                final TileEntity blockEntity = worldIn.getTileEntity(x, y, z);
                 if (blockEntity instanceof TileEntityPlantationField plantationField)
                 {
                     for (BuildingExtensionEntry plantationFieldType : plantationField.getPlantationFieldTypes())
                     {
-                        colony.getServerBuildingManager().removeBuildingExtension(field -> field.getBuildingExtensionType().equals(plantationFieldType) && field.getPosition().equals(pos));
-                        colony.getServerBuildingManager().removeLeisureSite(pos);
+                        colony.getServerBuildingManager().removeBuildingExtension(
+                            field -> field.getBuildingExtensionType().equals(plantationFieldType)
+                                         && field.getPosition()[0] == x
+                                         && field.getPosition()[1] == y
+                                         && field.getPosition()[2] == z);
+                        colony.getServerBuildingManager().removeLeisureSite(new int[]{x, y, z});
                     }
                 }
             }

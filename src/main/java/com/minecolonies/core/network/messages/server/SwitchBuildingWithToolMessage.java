@@ -2,11 +2,10 @@ package com.minecolonies.core.network.messages.server;
 
 import com.ldtteam.structurize.items.ModItems;
 import com.minecolonies.api.network.IMessage;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,38 +39,38 @@ public class SwitchBuildingWithToolMessage implements IMessage
     }
 
     /**
-     * Reads this packet from a {@link FriendlyByteBuf}.
+     * Reads this packet from a {@link PacketBuffer}.
      *
      * @param buf The buffer begin read from.
      */
     @Override
-    public void fromBytes(@NotNull final FriendlyByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
         stack = buf.readItem();
     }
 
     /**
-     * Writes this packet to a {@link FriendlyByteBuf}.
+     * Writes this packet to a {@link PacketBuffer}.
      *
      * @param buf The buffer being written to.
      */
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
         buf.writeItem(stack);
     }
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.SERVER;
+        return Boolean.TRUE;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
-        final ServerPlayer player = ctxIn.getSender();
+        final EntityPlayerMP player = ctx.getServerHandler().playerEntity;
 
         int stackSlot = -1;
         int buildToolSlot = -1;
@@ -102,3 +101,6 @@ public class SwitchBuildingWithToolMessage implements IMessage
         }
     }
 }
+
+
+

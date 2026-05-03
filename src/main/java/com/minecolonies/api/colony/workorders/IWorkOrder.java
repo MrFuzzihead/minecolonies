@@ -3,10 +3,11 @@ package com.minecolonies.api.colony.workorders;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.core.entity.ai.workers.util.BuildingProgressStage;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+import net.minecraft.world.World;
+import net.minecraft.util.AxisAlignedBB;
+// [1.7.10] world.phys removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -61,19 +62,19 @@ public interface IWorkOrder
      * @param world world to use
      * @param afterLoad consumes the loaded blueprint or null
      */
-    void loadBlueprint(final Level world, final Consumer<Blueprint> afterLoad);
+    void loadBlueprint(final World world, final Consumer<Blueprint> afterLoad);
 
     /**
-     * Get the current level of the structure of the work order.
+     * Get the current World of the structure of the work order.
      *
-     * @return the current level.
+     * @return the current World.
      */
     int getCurrentLevel();
 
     /**
-     * Get the target level of the structure of the work order.
+     * Get the target World of the structure of the work order.
      *
-     * @return the target level.
+     * @return the target World.
      */
     int getTargetLevel();
 
@@ -96,7 +97,7 @@ public interface IWorkOrder
      *
      * @return the location
      */
-    BlockPos getLocation();
+    int[] getLocation();
 
     /**
      * Get the current rotation of the building
@@ -122,24 +123,24 @@ public interface IWorkOrder
     /**
      * Get the position of the Citizen that the Work Order is claimed by.
      *
-     * @return ID of citizen the Work Order has been claimed by, BLockpos.ZERO
+     * @return ID of citizen the Work Order has been claimed by, new int[]{0,0,0}
      */
     @NotNull
-    BlockPos getClaimedBy();
+    int[] getClaimedBy();
 
     /**
      * Set the Work order as claimed by a given building.
      *
      * @param builder the building position.
      */
-    void setClaimedBy(BlockPos builder);
+    void setClaimedBy(int[] builder);
 
     /**
      * Get the name of the work order, provides the custom name or the work order name when no custom name is given
      *
      * @return the display name for the work order
      */
-    Component getDisplayName();
+    String getDisplayName();
 
     /**
      * Get the file name of the structure.
@@ -157,7 +158,7 @@ public interface IWorkOrder
      *
      * @param blueprint
      */
-    void setBlueprint(Blueprint blueprint, final Level world);
+    void setBlueprint(Blueprint blueprint, final World world);
 
     /**
      * Get the stored blueprint
@@ -176,7 +177,7 @@ public interface IWorkOrder
      * Get the blueprints Boundingbox
      */
     @Nullable
-    public AABB getBoundingBox();
+    public AxisAlignedBB getBoundingBox();
 
     /**
      * Get the related colony or view
@@ -199,3 +200,8 @@ public interface IWorkOrder
      */
     BuildingProgressStage getStage();
 }
+
+
+
+
+

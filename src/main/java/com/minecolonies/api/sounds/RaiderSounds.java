@@ -1,6 +1,7 @@
 package com.minecolonies.api.sounds;
 
 import com.minecolonies.api.entity.mobs.RaiderType;
+// [1.7.10] sounds removed
 import net.minecraft.sounds.SoundEvent;
 
 import java.util.HashMap;
@@ -34,3 +35,4 @@ public final class RaiderSounds
 
     }
 }
+

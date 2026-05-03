@@ -1,14 +1,14 @@
 package com.minecolonies.core.colony.buildings.moduleviews;
 
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.buildings.modules.AbstractBuildingModuleView;
 import com.minecolonies.api.colony.managers.interfaces.IStatisticsManager;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.modules.building.WindowStatsModule;
 import com.minecolonies.core.colony.managers.StatisticsManager;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -22,13 +22,13 @@ public class BuildingStatisticsModuleView extends AbstractBuildingModuleView
     private IStatisticsManager statisticsManager = new StatisticsManager();
 
     @Override
-    public void deserialize(final @NotNull FriendlyByteBuf buf)
+    public void deserialize(final @NotNull PacketBuffer buf)
     {
         statisticsManager.deserialize(buf);
     }
 
     @Override
-    public BOWindow getWindow()
+    public Object /* BOWindow: todo ModularUI2 */ getWindow()
     {
         return new WindowStatsModule(this);
     }
@@ -40,9 +40,9 @@ public class BuildingStatisticsModuleView extends AbstractBuildingModuleView
     }
 
     @Override
-    public Component getDesc()
+    public String getDesc()
     {
-        return Component.translatable("com.minecolonies.core.gui.modules.stats");
+        return String.translatable("com.minecolonies.core.gui.modules.stats");
     }
 
     /**
@@ -54,3 +54,6 @@ public class BuildingStatisticsModuleView extends AbstractBuildingModuleView
         return statisticsManager;
     }
 }
+
+
+

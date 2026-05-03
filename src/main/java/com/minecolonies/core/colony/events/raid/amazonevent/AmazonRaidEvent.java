@@ -10,14 +10,14 @@ import com.minecolonies.core.entity.mobs.raider.amazons.EntityAmazonChiefRaider;
 import com.minecolonies.core.entity.mobs.raider.amazons.EntityAmazonSpearmanRaider;
 import com.minecolonies.core.entity.mobs.raider.amazons.EntityArcherAmazonRaider;
 import com.minecolonies.core.network.messages.client.PlayAudioMessage;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] sounds removed
+import net.minecraft.entity.Entity;
+// [1.7.10] world.entity removed
+import net.minecraft.entity.EntityLivingBase;
 
 import static com.minecolonies.api.entity.ModEntities.*;
 import static com.minecolonies.api.util.constant.TranslationConstants.RAID_AMAZON;
@@ -86,9 +86,9 @@ public class AmazonRaidEvent extends HordeRaidEvent
     }
 
     @Override
-    protected MutableComponent getDisplayName()
+    protected String getDisplayName()
     {
-        return Component.translatable(RAID_AMAZON);
+        return String.translatable(RAID_AMAZON);
     }
 
     @Override
@@ -103,7 +103,7 @@ public class AmazonRaidEvent extends HordeRaidEvent
     }
 
     @Override
-    public void onEntityDeath(final LivingEntity entity)
+    public void onEntityDeath(final EntityLivingBase entity)
     {
         super.onEntityDeath(entity);
         if (!(entity instanceof AbstractEntityMinecoloniesRaider))
@@ -146,7 +146,7 @@ public class AmazonRaidEvent extends HordeRaidEvent
      * @param compound NBTcompound with saved values
      * @return the raid event.
      */
-    public static AmazonRaidEvent loadFromNBT(final IColony colony, final CompoundTag compound)
+    public static AmazonRaidEvent loadFromNBT(final IColony colony, final NBTTagCompound compound)
     {
         AmazonRaidEvent event = new AmazonRaidEvent(colony);
         event.deserializeNBT(compound);
@@ -171,3 +171,8 @@ public class AmazonRaidEvent extends HordeRaidEvent
         return AMAZONCHIEF;
     }
 }
+
+
+
+
+

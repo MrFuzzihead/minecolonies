@@ -13,11 +13,11 @@ import com.minecolonies.core.colony.buildings.AbstractBuildingGuards;
 import com.minecolonies.core.colony.jobs.AbstractJobGuard;
 import com.minecolonies.core.entity.ai.workers.AbstractEntityAIInteract;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
+// [1.7.10] world.entity removed
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
+import net.minecraft.item.ItemStack;
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -42,14 +42,14 @@ public abstract class AbstractEntityAIFight<J extends AbstractJobGuard<J>, B ext
     public final List<EquipmentTypeEntry> toolsNeeded = new ArrayList<>();
 
     /**
-     * List of items that are required by the guard based on building level and guard level.  This array holds a pointer to the building level and then pointer to GuardGear
+     * List of items that are required by the guard based on building World and guard World.  This array holds a pointer to the building World and then pointer to GuardGear
      */
     public final List<List<GuardGear>> itemsNeeded = new ArrayList<>();
 
     /**
      * The current target for our guard.
      */
-    protected LivingEntity target = null;
+    protected EntityLivingBase target = null;
 
     /**
      * The value of the speed which the guard will move.
@@ -57,7 +57,7 @@ public abstract class AbstractEntityAIFight<J extends AbstractJobGuard<J>, B ext
     private static final double COMBAT_SPEED = 1.0;
 
     /**
-     * The bonus speed per worker level.
+     * The bonus speed per worker World.
      */
     public static final double SPEED_LEVEL_BONUS = 0.01;
 
@@ -160,7 +160,7 @@ public abstract class AbstractEntityAIFight<J extends AbstractJobGuard<J>, B ext
 
             int bestSlot = -1;
             int bestLevel = -1;
-            IItemHandler bestHandler = null;
+            net.minecraftforge.items.IItemHandler bestHandler = null;
 
             if (item.getType().isArmor())
             {
@@ -178,7 +178,7 @@ public abstract class AbstractEntityAIFight<J extends AbstractJobGuard<J>, B ext
             }
 
 
-            final Map<IItemHandler, List<Integer>> items = InventoryUtils.findAllSlotsInProviderWith(building, item);
+            final Map<net.minecraftforge.items.IItemHandler, List<Integer>> items = InventoryUtils.findAllSlotsInProviderWith(building, item);
             if (items.isEmpty())
             {
                 // None found, check for equipped
@@ -193,7 +193,7 @@ public abstract class AbstractEntityAIFight<J extends AbstractJobGuard<J>, B ext
             else
             {
                 // Compare levels
-                for (Map.Entry<IItemHandler, List<Integer>> entry : items.entrySet())
+                for (Map.Entry<net.minecraftforge.items.IItemHandler, List<Integer>> entry : items.entrySet())
                 {
                     for (final Integer slot : entry.getValue())
                     {
@@ -274,7 +274,7 @@ public abstract class AbstractEntityAIFight<J extends AbstractJobGuard<J>, B ext
     public void equipInventoryArmor()
     {
         cleanVisibleSlots();
-        final Set<EquipmentSlot> equipment = new HashSet<>();
+        final Set<int /* EquipmentSlot */> equipment = new HashSet<>();
         for (final GuardGear item : itemsNeeded.get(building.getBuildingLevelEquivalent() - 1))
         {
             if (equipment.contains(item.getType()))
@@ -326,15 +326,19 @@ public abstract class AbstractEntityAIFight<J extends AbstractJobGuard<J>, B ext
      */
     public void cleanVisibleSlots()
     {
-        final ItemStack stack = worker.getItemBySlot(EquipmentSlot.OFFHAND);
+        final ItemStack stack = worker.getItemBySlot(null /* EquipmentSlot. */);
         if (stack.isEmpty()
               || InventoryUtils.findFirstSlotInItemHandlerWith(getInventory(), itemStack -> ItemStackUtils.compareItemStacksIgnoreStackSize(stack, itemStack, false, true)) == -1)
         {
-            worker.setItemSlot(EquipmentSlot.OFFHAND, ItemStackUtils.EMPTY);
+            worker.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
         }
-        worker.setItemSlot(EquipmentSlot.HEAD, ItemStackUtils.EMPTY);
-        worker.setItemSlot(EquipmentSlot.CHEST, ItemStackUtils.EMPTY);
-        worker.setItemSlot(EquipmentSlot.LEGS, ItemStackUtils.EMPTY);
-        worker.setItemSlot(EquipmentSlot.FEET, ItemStackUtils.EMPTY);
+        worker.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
+        worker.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
+        worker.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
+        worker.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
     }
 }
+
+
+
+

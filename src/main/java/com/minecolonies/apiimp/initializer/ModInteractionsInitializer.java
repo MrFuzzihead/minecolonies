@@ -4,8 +4,8 @@ import com.minecolonies.api.colony.interactionhandling.ModInteractionResponseHan
 import com.minecolonies.api.colony.interactionhandling.registry.InteractionResponseHandlerEntry;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.colony.interactionhandling.*;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.DeferredRegister;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] registries removed
 
 public final class ModInteractionsInitializer
 {
@@ -54,3 +54,5 @@ public final class ModInteractionsInitializer
                                                      .createEntry());
     }
 }
+
+

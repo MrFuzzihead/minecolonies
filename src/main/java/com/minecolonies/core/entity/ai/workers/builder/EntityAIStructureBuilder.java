@@ -20,15 +20,15 @@ import com.minecolonies.core.entity.ai.workers.util.BuildingStructureHandler;
 import com.minecolonies.core.entity.pathfinding.navigation.MinecoloniesAdvancedPathNavigate;
 import com.minecolonies.core.entity.pathfinding.pathjobs.PathJobMoveCloseToXNearY;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.util.EnumChatFormatting;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.entity.Entity;
+// [1.7.10] world.entity removed
+import net.minecraft.block.Block;
+// [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState.*;
@@ -40,7 +40,7 @@ import static com.minecolonies.api.util.constant.TranslationConstants.COM_MINECO
 public class EntityAIStructureBuilder extends AbstractEntityAIStructureWithWorkOrder<JobBuilder, BuildingBuilder>
 {
     /**
-     * Speed buff at 0 depth level.
+     * Speed buff at 0 depth World.
      */
     private static final double SPEED_BUFF_0 = 0.5;
 
@@ -50,7 +50,7 @@ public class EntityAIStructureBuilder extends AbstractEntityAIStructureWithWorkO
     private static final int ACTIONS_UNTIL_DUMP = 4096;
 
     /**
-     * Building level to purge mobs at the build site.
+     * Building World to purge mobs at the build site.
      */
     private static final int LEVEL_TO_PURGE_MOBS = 4;
 
@@ -167,7 +167,7 @@ public class EntityAIStructureBuilder extends AbstractEntityAIStructureWithWorkO
     {
         if (building.getBuildingLevel() >= LEVEL_TO_PURGE_MOBS && building.getWorkOrder() != null && building.getWorkOrder().getWorkOrderType() == WorkOrderType.BUILD)
         {
-            final BlockPos buildingPos = building.getWorkOrder().getLocation();
+            final int[] buildingPos = building.getWorkOrder().getLocation();
             final IBuilding building = worker.getCitizenColonyHandler().getColonyOrRegister().getServerBuildingManager().getBuilding(buildingPos);
             if (building != null)
             {
@@ -187,7 +187,7 @@ public class EntityAIStructureBuilder extends AbstractEntityAIStructureWithWorkO
     }
 
     @Override
-    protected boolean mineBlock(@NotNull final BlockPos blockToMine, @NotNull final BlockPos safeStand)
+    protected boolean mineBlock(@NotNull final int[] blockToMine, @NotNull final int[] safeStand)
     {
         return mineBlock(blockToMine, safeStand, true, !IColonyManager.getInstance().getCompatibilityManager().isOre(world.getBlockState(blockToMine)), null);
     }
@@ -205,7 +205,7 @@ public class EntityAIStructureBuilder extends AbstractEntityAIStructureWithWorkO
     }
 
     @Override
-    public boolean walkToConstructionSite(final BlockPos currentBlock)
+    public boolean walkToConstructionSite(final int[] currentBlock)
     {
         if (workFrom != null && workFrom.getX() == currentBlock.getX() && workFrom.getZ() == currentBlock.getZ() && workFrom.getY() >= currentBlock.getY())
         {
@@ -275,7 +275,7 @@ public class EntityAIStructureBuilder extends AbstractEntityAIStructureWithWorkO
     }
 
     @Override
-    public int getBlockMiningTime(@NotNull final BlockState state, @NotNull final BlockPos pos)
+    public int getBlockMiningTime(@NotNull final BlockState state, @NotNull final int[] pos)
     {
         return (int) (super.getBlockMiningTime(state, pos) * SPEED_BUFF_0);
     }
@@ -296,7 +296,7 @@ public class EntityAIStructureBuilder extends AbstractEntityAIStructureWithWorkO
     {
         super.sendCompletionMessage(wo);
 
-        final BlockPos position = wo.getLocation();
+        final int[] position = wo.getLocation();
         boolean showManualSuffix = false;
         if (building.getManualMode())
         {
@@ -310,13 +310,13 @@ public class EntityAIStructureBuilder extends AbstractEntityAIStructureWithWorkO
             }
         }
 
-        final MutableComponent message = Component.translatable(
+        final String message = String.translatable(
                 wo.getWorkOrderType().getCompletionMessageID(),
                 wo.getDisplayName(),
                 BlockPosUtil.calcDirection(building.getColony().getCenter(), position).getLongText())
             .withStyle(style -> style
                 .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                    Component.translatable("message.positiondist",
+                    String.translatable("message.positiondist",
                         position.getX(),
                         position.getY(),
                         position.getZ(),
@@ -325,7 +325,7 @@ public class EntityAIStructureBuilder extends AbstractEntityAIStructureWithWorkO
 
         if (showManualSuffix)
         {
-            message.append(Component.translatable(COM_MINECOLONIES_COREMOD_ENTITY_BUILDER_MANUAL_SUFFIX));
+            message.append(String.translatable(COM_MINECOLONIES_COREMOD_ENTITY_BUILDER_MANUAL_SUFFIX));
         }
 
         MessageUtils.forCitizen(worker, message).sendTo(worker.getCitizenColonyHandler().getColonyOrRegister().getImportantMessageEntityPlayers());
@@ -337,3 +337,6 @@ public class EntityAIStructureBuilder extends AbstractEntityAIStructureWithWorkO
         return !building.hasWorkOrder();
     }
 }
+
+
+

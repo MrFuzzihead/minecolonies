@@ -10,9 +10,9 @@ import com.minecolonies.api.colony.requestsystem.factory.ITypeOverrideHandler;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.ReflectionUtils;
 import com.minecolonies.api.util.constant.Suppression;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.Tuple;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import com.minecolonies.api.util.Tuple;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -259,9 +259,9 @@ public final class StandardFactoryController implements IFactoryController
 
     @Override
     @SuppressWarnings(Suppression.UNCHECKED)
-    public <OUTPUT> CompoundTag serialize(@NotNull final OUTPUT object) throws IllegalArgumentException
+    public <OUTPUT> NBTTagCompound serialize(@NotNull final OUTPUT object) throws IllegalArgumentException
     {
-        final CompoundTag compound = new CompoundTag();
+        final NBTTagCompound compound = new NBTTagCompound();
 
         final IFactory<?, OUTPUT> factory = getFactoryForOutput((TypeToken<? extends OUTPUT>) TypeToken.of(object.getClass()));
         compound.putShort(NEW_NBT_TYPE, factory.getSerializationId());
@@ -271,7 +271,7 @@ public final class StandardFactoryController implements IFactoryController
     }
 
     @Override
-    public <OUTPUT> OUTPUT deserialize(@NotNull final CompoundTag compound) throws IllegalArgumentException
+    public <OUTPUT> OUTPUT deserialize(@NotNull final NBTTagCompound compound) throws IllegalArgumentException
     {
         final IFactory<?, OUTPUT> factory;
         if (compound.contains(NEW_NBT_TYPE))
@@ -312,7 +312,7 @@ public final class StandardFactoryController implements IFactoryController
     }
 
     @Override
-    public <OUTPUT> void serialize(@NotNull final FriendlyByteBuf buffer, @NotNull final OUTPUT object) throws IllegalArgumentException
+    public <OUTPUT> void serialize(@NotNull final PacketBuffer buffer, @NotNull final OUTPUT object) throws IllegalArgumentException
     {
         final IFactory<?, OUTPUT> factory = getFactoryForOutput((TypeToken<? extends OUTPUT>) TypeToken.of(object.getClass()));
         buffer.writeShort(factory.getSerializationId());
@@ -320,7 +320,7 @@ public final class StandardFactoryController implements IFactoryController
     }
 
     @Override
-    public <OUTPUT> OUTPUT deserialize(@NotNull final FriendlyByteBuf buffer) throws IllegalArgumentException
+    public <OUTPUT> OUTPUT deserialize(@NotNull final PacketBuffer buffer) throws IllegalArgumentException
     {
         short classId = buffer.readShort();
         final IFactory<?, OUTPUT> factory;
@@ -368,3 +368,6 @@ public final class StandardFactoryController implements IFactoryController
         this.typeOverrideHandlers.add(overrideHandler);
     }
 }
+
+
+

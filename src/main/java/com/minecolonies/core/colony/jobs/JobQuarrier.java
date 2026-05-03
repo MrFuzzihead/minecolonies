@@ -8,8 +8,8 @@ import com.minecolonies.api.colony.buildings.modules.IAssignsJob;
 import com.minecolonies.api.colony.jobs.IJobWithExternalWorkStations;
 import com.minecolonies.core.colony.buildings.modules.QuarryModule;
 import com.minecolonies.core.entity.ai.workers.production.EntityAIQuarrier;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] net.minecraft.util.DamageSource removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -100,14 +100,14 @@ public class JobQuarrier extends AbstractJobStructure<EntityAIQuarrier, JobQuarr
     }
 
     @Override
-    public boolean ignoresDamage(@NotNull final DamageSource damageSource)
+    public boolean ignoresDamage(@NotNull final net.minecraft.util.DamageSource source)
     {
-        if (damageSource.typeHolder().is(FIRE_DAMAGE_PREDICATE))
+        if (net.minecraft.util.DamageSource.typeHolder().is(FIRE_DAMAGE_PREDICATE))
         {
             return getColony().getResearchManager().getResearchEffects().getEffectStrength(FIRE_RES) > 0;
         }
 
-        return super.ignoresDamage(damageSource);
+        return super.ignoresDamage(net.minecraft.util.DamageSource);
     }
 
     @Override
@@ -116,3 +116,7 @@ public class JobQuarrier extends AbstractJobStructure<EntityAIQuarrier, JobQuarr
         return 1.2;
     }
 }
+
+
+
+

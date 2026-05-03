@@ -3,10 +3,10 @@ package com.minecolonies.core.items;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.util.constant.NbtTagConstants;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.Level;
+import net.minecraft.entity.Entity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
 
 import static com.minecolonies.api.util.constant.Constants.STACKSIZE;
 
@@ -26,23 +26,23 @@ public class ItemAncientTome extends AbstractItemMinecolonies
     }
 
     @Override
-    public void inventoryTick(final ItemStack stack, final Level worldIn, final Entity entityIn, final int itemSlot, final boolean isSelected)
+    public void inventoryTick(final ItemStack stack, final World worldIn, final Entity entityIn, final int itemSlot, final boolean isSelected)
     {
         super.inventoryTick(stack, worldIn, entityIn, itemSlot, isSelected);
         if (!worldIn.isClientSide)
         {
             final IColony colony = IColonyManager.getInstance().getClosestColony(worldIn, entityIn.blockPosition());
-            final CompoundTag tag = new CompoundTag();
+            final NBTTagCompound NBTBase = new NBTTagCompound();
 
             if (colony != null)
             {
-                tag.putBoolean(NbtTagConstants.TAG_RAID_WILL_HAPPEN, colony.getRaiderManager().willRaidTonight());
+                NBTBase.putBoolean(NbtTagConstants.TAG_RAID_WILL_HAPPEN, colony.getRaiderManager().willRaidTonight());
             }
             else
             {
-                tag.putBoolean(NbtTagConstants.TAG_RAID_WILL_HAPPEN, false);
+                NBTBase.putBoolean(NbtTagConstants.TAG_RAID_WILL_HAPPEN, false);
             }
-            stack.setTag(tag);
+            stack.setTag(NBTBase);
         }
     }
 
@@ -51,3 +51,6 @@ public class ItemAncientTome extends AbstractItemMinecolonies
         return stack.getTag() != null && stack.getTag().getBoolean(NbtTagConstants.TAG_RAID_WILL_HAPPEN);
     }
 }
+
+
+

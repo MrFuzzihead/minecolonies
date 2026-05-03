@@ -1,6 +1,6 @@
 package com.minecolonies.api.colony.buildings.modules;
 
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.player.EntityPlayer;
 
 /**
  * Module interface for all building based events.
@@ -14,7 +14,7 @@ public interface IBuildingEventsModule extends IBuildingModule
 
     /**
      * Upgrade complete module hook.
-     * @param newLevel the new level.
+     * @param newLevel the new World.
      */
     default void onUpgradeComplete(int newLevel) { }
 
@@ -27,5 +27,7 @@ public interface IBuildingEventsModule extends IBuildingModule
      * On player entering hook.
      * @param player the player that entered the building.
      */
-    default void onPlayerEnterBuilding(Player player) { }
+    default void onPlayerEnterBuilding(EntityPlayer player) { }
 }
+
+

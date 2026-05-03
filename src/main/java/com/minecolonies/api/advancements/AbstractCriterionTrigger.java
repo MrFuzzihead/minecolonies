@@ -1,87 +1,52 @@
 package com.minecolonies.api.advancements;
 
-import com.google.common.collect.Maps;
-import net.minecraft.advancements.CriterionTrigger;
-import net.minecraft.advancements.CriterionTriggerInstance;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.PlayerAdvancements;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+// [1.7.10 BACKPORT] Advancements / CriterionTrigger do not exist in Minecraft 1.7.10.
+// This entire class is stubbed out so that the rest of the codebase compiles.
+// All trigger logic is commented out below.
+//
+// Original 1.21 imports (removed):
+//   com.google.common.collect.Maps
+//   net.minecraft.advancements.CriterionTrigger
+//   net.minecraft.advancements.CriterionTriggerInstance
+//   net.minecraft.resources.ResourceLocation
+//   net.minecraft.server.PlayerAdvancements
+
+// TODO: [1.7.10 BACKPORT] If achievement-tracking (analogous to advancements) is desired,
+// consider integrating with the vanilla 1.7.10 Achievement system or implementing
+// a lightweight custom trigger/reward system.
+
+import net.minecraft.util.ResourceLocation;
 
 import java.util.Map;
 import java.util.function.Function;
 
 /**
- * The base class of a Trigger that tracks listeners and defines criterion
- * related to the trigger, and how that is fetched from JSON
- * @param <T> the class of the individual listener that will perform the trigger
- * @param <U> the criterion the individual listener is checking
+ * Stub for the advancement criterion trigger base class.
+ * All bodies are commented out — no advancement logic runs in 1.7.10.
+ *
+ * @param <T> stub type parameter (was CriterionListeners subclass)
+ * @param <U> stub type parameter (was CriterionTriggerInstance subclass)
  */
-public abstract class AbstractCriterionTrigger<T extends CriterionListeners<U>, U extends CriterionTriggerInstance> implements CriterionTrigger<U>
+public abstract class AbstractCriterionTrigger<T extends CriterionListeners<U>, U>
 {
-    /** The designation for this trigger. Used by JSON advancement data. */
-    private final ResourceLocation                id;
+    private final ResourceLocation id;
 
-    /** The factory method to create a listener each time this trigger is utilised */
-    private final Function<PlayerAdvancements, T> createNew;
-
-    /** A map tracking each of the listeners */
-    private final Map<PlayerAdvancements, T>      listeners = Maps.newHashMap();
-
-    /**
-     * The trigger constructor that will define the trigger to be called
-     * @param id the designation for this trigger. Used by JSON.
-     * @param createNew the factory method for the listener
-     */
-    protected AbstractCriterionTrigger(ResourceLocation id, Function<PlayerAdvancements, T> createNew)
+    protected AbstractCriterionTrigger(final ResourceLocation id, final Function<Object, T> createNew)
     {
         this.id = id;
-        this.createNew = createNew;
+        // [1.7.10 BACKPORT] listener map and factory not used; no advancement system.
     }
 
-    @NotNull
-    @Override
     public ResourceLocation getId()
     {
         return id;
     }
 
-    @Override
-    public void addPlayerListener(@NotNull PlayerAdvancements playerAdvancements, @NotNull Listener<U> listener)
-    {
-        T listeners = this.listeners.get(playerAdvancements);
-        if (listeners == null)
-        {
-            listeners = createNew.apply(playerAdvancements);
-            this.listeners.put(playerAdvancements, listeners);
-        }
-        listeners.add(listener);
-    }
+    // [1.7.10 BACKPORT] All listener management methods below are no-ops.
+    // In 1.21 these drove the Advancement criterion system via PlayerAdvancements.
 
-    @Override
-    public void removePlayerListener(@NotNull PlayerAdvancements playerAdvancements, @NotNull Listener<U> listener)
-    {
-        final T listeners = this.listeners.get(playerAdvancements);
-
-        if (listeners != null)
-        {
-            listeners.remove(listener);
-            if (listeners.isEmpty())
-            {
-                this.listeners.remove(playerAdvancements);
-            }
-        }
-    }
-
-    @Nullable
-    protected T getListeners(PlayerAdvancements playerAdvancements)
-    {
-        return this.listeners.get(playerAdvancements);
-    }
-
-    @Override
-    public void removePlayerListeners(@NotNull PlayerAdvancements playerAdvancements)
-    {
-        this.listeners.remove(playerAdvancements);
-    }
+    // public void addPlayerListener(PlayerAdvancements playerAdvancements, Listener<U> listener) { ... }
+    // public void removePlayerListener(PlayerAdvancements playerAdvancements, Listener<U> listener) { ... }
+    // protected T getListeners(PlayerAdvancements playerAdvancements) { return null; }
+    // public void removePlayerListeners(PlayerAdvancements playerAdvancements) { ... }
 }

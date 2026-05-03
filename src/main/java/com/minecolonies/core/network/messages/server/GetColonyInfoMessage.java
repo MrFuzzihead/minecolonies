@@ -13,13 +13,12 @@ import com.minecolonies.core.network.messages.client.OpenColonyFoundingCovenantM
 import com.minecolonies.core.network.messages.client.OpenDeleteAbandonColonyMessage;
 import com.minecolonies.core.network.messages.client.OpenReactivateColonyMessage;
 import com.minecolonies.core.tileentities.TileEntityColonyBuilding;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import static com.minecolonies.api.util.constant.BuildingConstants.DEACTIVATED;
@@ -34,42 +33,42 @@ public class GetColonyInfoMessage implements IMessage
     /**
      * Position the player wants to found the colony at.
      */
-    BlockPos pos;
+    int[] pos;
 
     public GetColonyInfoMessage()
     {
         super();
     }
 
-    public GetColonyInfoMessage(final BlockPos pos)
+    public GetColonyInfoMessage(final int[] pos)
     {
         this.pos = pos;
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    public void toBytes(final PacketBuffer buf)
     {
         buf.writeBlockPos(pos);
     }
 
     @Override
-    public void fromBytes(final FriendlyByteBuf buf)
+    public void fromBytes(final PacketBuffer buf)
     {
         pos = buf.readBlockPos();
     }
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.SERVER;
+        return Boolean.TRUE;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
-        final ServerPlayer sender = ctxIn.getSender();
-        final Level world = ctxIn.getSender().level;
+        final EntityPlayerMP sender = ctx.getServerHandler().playerEntity;
+        final World world = ctx.getServerHandler().playerEntity.World;
 
         if (sender == null)
         {
@@ -94,13 +93,13 @@ public class GetColonyInfoMessage implements IMessage
             final double spawnDistance = Math.sqrt(BlockPosUtil.getDistanceSquared2D(pos, world.getSharedSpawnPos()));
             if (spawnDistance < MineColonies.getConfig().getServer().minDistanceFromWorldSpawn.get())
             {
-                Network.getNetwork().sendToPlayer(new OpenCantFoundColonyWarningMessage(Component.translatable("com.minecolonies.core.founding.tooclosetospawn", (int) (MineColonies.getConfig().getServer().minDistanceFromWorldSpawn.get() - spawnDistance)), pos, true), sender);
+                Network.getNetwork().sendToPlayer(new OpenCantFoundColonyWarningMessage(String.translatable("com.minecolonies.core.founding.tooclosetospawn", (int) (MineColonies.getConfig().getServer().minDistanceFromWorldSpawn.get() - spawnDistance)), pos, true), sender);
             }
             else if (spawnDistance > MineColonies.getConfig().getServer().maxDistanceFromWorldSpawn.get())
             {
-                Network.getNetwork().sendToPlayer(new OpenCantFoundColonyWarningMessage(Component.translatable("com.minecolonies.core.founding.toofarfromspawn", (int) (spawnDistance - MineColonies.getConfig().getServer().maxDistanceFromWorldSpawn.get())), pos, true), sender);
+                Network.getNetwork().sendToPlayer(new OpenCantFoundColonyWarningMessage(String.translatable("com.minecolonies.core.founding.toofarfromspawn", (int) (spawnDistance - MineColonies.getConfig().getServer().maxDistanceFromWorldSpawn.get())), pos, true), sender);
             }
-            else if (world.getBlockEntity(pos) instanceof TileEntityColonyBuilding townhall && townhall.getPositionedTags().containsKey(BlockPos.ZERO) && townhall.getPositionedTags().get(BlockPos.ZERO).contains(DEACTIVATED))
+            else if (world.getBlockEntity(pos) instanceof TileEntityColonyBuilding townhall && townhall.getPositionedTags().containsKey(new int[]{0,0,0}) && townhall.getPositionedTags().get(new int[]{0,0,0}).contains(DEACTIVATED))
             {
                 Network.getNetwork().sendToPlayer(new OpenReactivateColonyMessage(nextColony == null ? "" : nextColony.getName(), nextColony == null ? Integer.MAX_VALUE : (int) BlockPosUtil.getDistance(nextColony.getCenter(), pos) - (getConfig().getServer().initialColonySize.get() << 4), pos), sender);
             }
@@ -119,7 +118,11 @@ public class GetColonyInfoMessage implements IMessage
             final int blockRange = Math.max(MineColonies.getConfig().getServer().minColonyDistance.get(), getConfig().getServer().initialColonySize.get()) << 4;
             final int distance = (int) BlockPosUtil.getDistance(pos, nextColony.getCenter());
 
-            Network.getNetwork().sendToPlayer(new OpenCantFoundColonyWarningMessage(Component.translatable("com.minecolonies.core.founding.tooclosetocolony", Math.max(100, blockRange - distance)), pos, false), sender);
+            Network.getNetwork().sendToPlayer(new OpenCantFoundColonyWarningMessage(String.translatable("com.minecolonies.core.founding.tooclosetocolony", Math.max(100, blockRange - distance)), pos, false), sender);
         }
     }
 }
+
+
+
+

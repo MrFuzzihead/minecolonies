@@ -7,15 +7,15 @@ import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.entity.citizen.Skill;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.core.network.messages.server.AbstractColonyServerMessage;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
 /**
- * Adjust the skill level of the citizen.
+ * Adjust the skill World of the citizen.
  */
 public class AdjustSkillCitizenMessage extends AbstractColonyServerMessage
 {
@@ -59,7 +59,7 @@ public class AdjustSkillCitizenMessage extends AbstractColonyServerMessage
     }
 
     @Override
-    public void fromBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void fromBytesOverride(@NotNull final PacketBuffer buf)
     {
         citizenId = buf.readInt();
         quantity = buf.readInt();
@@ -67,7 +67,7 @@ public class AdjustSkillCitizenMessage extends AbstractColonyServerMessage
     }
 
     @Override
-    public void toBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void toBytesOverride(@NotNull final PacketBuffer buf)
     {
         buf.writeInt(citizenId);
         buf.writeInt(quantity);
@@ -75,7 +75,7 @@ public class AdjustSkillCitizenMessage extends AbstractColonyServerMessage
     }
 
     @Override
-    protected void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony)
+    protected void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony)
     {
         final ICitizenData citizenData = colony.getCitizenManager().getCivilian(citizenId);
         if (citizenData == null)
@@ -91,7 +91,7 @@ public class AdjustSkillCitizenMessage extends AbstractColonyServerMessage
             return;
         }
 
-        final Player player = ctxIn.getSender();
+        final Player player = ctx.getServerHandler().playerEntity;
         if (player == null)
         {
             return;
@@ -108,3 +108,5 @@ public class AdjustSkillCitizenMessage extends AbstractColonyServerMessage
         citizenData.markDirty(0);
     }
 }
+
+

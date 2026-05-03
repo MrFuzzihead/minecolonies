@@ -1,12 +1,11 @@
 package com.minecolonies.core.datalistener.model;
 
 import com.minecolonies.api.crafting.ItemStorage;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.random.Weight;
-import net.minecraft.util.random.WeightedEntry;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] net.minecraft.util.random.Weight/WeightedEntry removed
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -21,7 +20,7 @@ import java.util.function.Predicate;
  * @param rarity    the rarity of the disease.
  * @param cureItems the list of items needed to heal.
  */
-public record Disease(ResourceLocation id, Component name, int rarity, List<ItemStorage> cureItems) implements WeightedEntry
+public record Disease(ResourceLocation id, String name, int rarity, List<ItemStorage> cureItems)
 {
     /**
      * Predicate for the different usages to check if inventory contains a cure.
@@ -51,25 +50,24 @@ public record Disease(ResourceLocation id, Component name, int rarity, List<Item
      *
      * @return the cure string.
      */
-    public Component getCureString()
+    public String getCureString()
     {
-        final MutableComponent cureString = Component.literal("");
+        final StringBuilder cureString = new StringBuilder();
         for (int i = 0; i < cureItems.size(); i++)
         {
             final ItemStorage cureStack = cureItems.get(i);
-            cureString.append(String.valueOf(cureStack.getItemStack().getCount())).append(" ").append(cureStack.getItemStack().getHoverName());
+            cureString.append(cureStack.getItemStack().stackSize).append(" ").append(cureStack.getItemStack().getDisplayName());
             if (i != cureItems.size() - 1)
             {
                 cureString.append(" + ");
             }
         }
-        return cureString;
+        return cureString.toString();
     }
 
-    @Override
-    @NotNull
-    public Weight getWeight()
+    /** [1.7.10] Replaces WeightedEntry.getWeight() */
+    public int getWeight()
     {
-        return Weight.of(rarity);
+        return rarity;
     }
 }

@@ -12,11 +12,11 @@ import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.WorldUtil;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.network.PacketBuffer;
 
 import org.apache.logging.log4j.util.TriConsumer;
 import org.jetbrains.annotations.NotNull;
@@ -34,12 +34,12 @@ import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_QUANTITY;
 public class MinimumStockModule extends AbstractBuildingModule implements IMinimumStockModule, IPersistentModule, ITickingModule, IAltersRequiredItems
 {
     /**
-     * The minimum stock tag.
+     * The minimum stock NBTBase.
      */
     public static final String TAG_MINIMUM_STOCK = "minstock";
 
     /**
-     * Minimum stock it can hold per level.
+     * Minimum stock it can hold per World.
      */
     private static final int STOCK_PER_LEVEL = 5;
 
@@ -161,24 +161,24 @@ public class MinimumStockModule extends AbstractBuildingModule implements IMinim
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         minimumStock.clear();
-        final ListTag minimumStockTagList = compound.getList(TAG_MINIMUM_STOCK, Tag.TAG_COMPOUND);
+        final NBTTagList minimumStockTagList = compound.getList(TAG_MINIMUM_STOCK, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < minimumStockTagList.size(); i++)
         {
-            final CompoundTag compoundNBT = minimumStockTagList.getCompound(i);
+            final NBTTagCompound compoundNBT = minimumStockTagList.getCompound(i);
             minimumStock.put(new ItemStorage(ItemStack.of(compoundNBT)), compoundNBT.getInt(TAG_QUANTITY));
         }
     }
 
     @Override
-    public void serializeNBT(final CompoundTag compound)
+    public void serializeNBT(final NBTTagCompound compound)
     {
-        @NotNull final ListTag minimumStockTagList = new ListTag();
+        @NotNull final NBTTagList minimumStockTagList = new NBTTagList();
         for (@NotNull final Map.Entry<ItemStorage, Integer> entry : minimumStock.entrySet())
         {
-            final CompoundTag compoundNBT = new CompoundTag();
+            final NBTTagCompound compoundNBT = new NBTTagCompound();
             entry.getKey().getItemStack().save(compoundNBT);
             compoundNBT.putInt(TAG_QUANTITY, entry.getValue());
             minimumStockTagList.add(compoundNBT);
@@ -187,7 +187,7 @@ public class MinimumStockModule extends AbstractBuildingModule implements IMinim
     }
 
     @Override
-    public void serializeToView(@NotNull final FriendlyByteBuf buf)
+    public void serializeToView(@NotNull final PacketBuffer buf)
     {
         buf.writeInt(minimumStock.size());
         for (final Map.Entry<ItemStorage, Integer> entry : minimumStock.entrySet())
@@ -198,3 +198,7 @@ public class MinimumStockModule extends AbstractBuildingModule implements IMinim
         buf.writeBoolean(minimumStock.size() >= minimumStockSize());
     }
 }
+
+
+
+

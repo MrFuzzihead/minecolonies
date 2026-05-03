@@ -1,9 +1,26 @@
 package com.minecolonies.core.client.gui.modules.building;
 
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.Loader;
 import com.ldtteam.blockui.Pane;
+import com.ldtteam.blockui.PaneBuilders;
+import com.ldtteam.blockui.PaneParams;
+import com.ldtteam.blockui.MouseEventCallback;
+import com.ldtteam.blockui.controls.BOGuiGraphics;
 import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonHandler;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Image;
+import com.ldtteam.blockui.controls.ItemIcon;
 import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.views.BOWindow;
+import com.ldtteam.blockui.views.Box;
 import com.ldtteam.blockui.views.ScrollingList;
+import com.ldtteam.blockui.views.SwitchView;
+import com.ldtteam.blockui.views.View;
 import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.Network;
@@ -11,15 +28,15 @@ import com.minecolonies.core.client.gui.AbstractModuleWindow;
 import com.minecolonies.core.colony.buildings.moduleviews.MinerLevelManagementModuleView;
 import com.minecolonies.core.network.messages.server.colony.building.miner.MinerRepairLevelMessage;
 import com.minecolonies.core.network.messages.server.colony.building.miner.MinerSetLevelMessage;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.TranslationConstants.*;
 
 /**
- * BOWindow for the miner hut.
+ * Object (BOWindow: todo ModularUI2 removed) for the miner hut.
  */
 public class WindowHutMinerModule extends AbstractModuleWindow<MinerLevelManagementModuleView>
 {
@@ -27,7 +44,7 @@ public class WindowHutMinerModule extends AbstractModuleWindow<MinerLevelManagem
      * Util tags.
      */
     private static final String LIST_LEVELS       = "levels";
-    private static final String TEXT_LEVEL        = "level";
+    private static final String TEXT_LEVEL        = "World";
     private static final String BUTTON_MINE_LEVEL = "mine";
     private static final String BUTTON_REPAIR     = "repair";
     private static final String TEXT_DEPTH        = "depth";
@@ -63,7 +80,7 @@ public class WindowHutMinerModule extends AbstractModuleWindow<MinerLevelManagem
     }
 
     /**
-     * Handler for clicking on any of the mine level buttons.
+     * Handler for clicking on any of the mine World buttons.
      *
      * @param button the input button clicked.
      */
@@ -94,19 +111,24 @@ public class WindowHutMinerModule extends AbstractModuleWindow<MinerLevelManagem
             public void updateElement(final int index, @NotNull final Pane rowPane)
             {
                 final boolean isCurrentLevel = index == moduleView.current;
-                rowPane.findPaneOfTypeByID(TEXT_LEVEL, Text.class).setText(Component.literal(String.format("%02d", index + 1)));
+                rowPane.findPaneOfTypeByID(TEXT_LEVEL, Text.class).setText(String.literal(String.format("%02d", index + 1)));
 
                 rowPane.findPaneOfTypeByID(BUTTON_REPAIR, Button.class).setEnabled(!moduleView.doesWorkOrderExist(index));
                 rowPane.findPaneOfTypeByID(BUTTON_MINE_LEVEL, Button.class).setEnabled(!isCurrentLevel);
 
                 // Extra 1 is for Y depth fix
                 rowPane.findPaneOfTypeByID(TEXT_DEPTH, Text.class)
-                  .setText(Component.translatable(MINER_LEVEL_DEPTH)
-                             .append(Component.literal(": "))
-                             .append(Component.literal(String.valueOf(moduleView.levelsInfo.get(index).getB() + 1))));
+                  .setText(String.translatable(MINER_LEVEL_DEPTH)
+                             .append(String.literal(": "))
+                             .append(String.literal(String.valueOf(moduleView.levelsInfo.get(index).getB() + 1))));
                 rowPane.findPaneOfTypeByID(TEXT_NODE_COUNT, Text.class)
-                  .setText(Component.translatable(MINER_NODES).append(": ").append(String.valueOf(moduleView.levelsInfo.get(index).getA())));
+                  .setText(String.translatable(MINER_NODES).append(": ").append(String.valueOf(moduleView.levelsInfo.get(index).getA())));
             }
         });
     }
 }
+
+
+
+
+

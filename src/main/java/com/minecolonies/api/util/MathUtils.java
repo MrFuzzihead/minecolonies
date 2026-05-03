@@ -1,6 +1,6 @@
 package com.minecolonies.api.util;
 
-import net.minecraft.core.BlockPos;
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
@@ -40,7 +40,7 @@ public final class MathUtils
      * @param target   the end position.
      * @return the distance.
      */
-    public static double twoDimDistance(@NotNull final BlockPos position, @NotNull final BlockPos target)
+    public static double twoDimDistance(@NotNull final int[] position, @NotNull final int[] target)
     {
         final int x1 = position.getX();
         final int x2 = target.getX();
@@ -64,3 +64,5 @@ public final class MathUtils
         return Math.max(min, Math.min(max, value));
     }
 }
+
+

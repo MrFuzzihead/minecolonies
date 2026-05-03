@@ -4,10 +4,11 @@ import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingRabbitHutch;
 import com.minecolonies.core.colony.jobs.JobRabbitHerder;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.animal.Animal;
+// [1.7.10] int /* InteractionHand */ removed
+// [1.7.10] net.minecraft.util.DamageSource removed
+// [1.7.10] world.entity removed
 import net.minecraft.world.item.Items;
+import net.minecraft.world.entity.animal.Animal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,14 +57,18 @@ public class EntityAIWorkRabbitHerder extends AbstractEntityAIHerder<JobRabbitHe
     {
         if (animal != null && !walkingToAnimal(animal) && !ItemStackUtils.isEmpty(worker.getMainHandItem()))
         {
-            worker.swing(InteractionHand.MAIN_HAND);
+            worker.swing(0 /* InteractionHand.MAIN_HAND */);
 
             if (worker.getRandom().nextInt(1 + (ONE_HUNDRED_PERCENT - getPrimarySkillLevel()) / 5) <= 1)
             {
-                final DamageSource ds = animal.level.damageSources().playerAttack(getFakePlayer());
+                final net.minecraft.util.DamageSource ds = animal.World.damageSources().playerAttack(getFakePlayer());
                 animal.hurt(ds, (float) getButcheringAttackDamage());
-                CitizenItemUtils.damageItemInHand(worker, InteractionHand.MAIN_HAND, 1);
+                CitizenItemUtils.damageItemInHand(worker, 0 /* InteractionHand.MAIN_HAND */, 1);
             }
         }
     }
 }
+
+
+
+

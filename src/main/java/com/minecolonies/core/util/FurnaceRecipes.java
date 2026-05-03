@@ -4,13 +4,13 @@ import com.google.common.collect.ImmutableList;
 import com.minecolonies.api.compatibility.IFurnaceRecipes;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.crafting.RecipeStorage;
-import net.minecraft.core.NonNullList;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.java.util.List;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.World;
+import net.minecraft.init.Blocks;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -34,12 +34,12 @@ public class FurnaceRecipes implements IFurnaceRecipes
      *
      * @param recipeManager  The recipe manager to parse.
      */
-    public void loadRecipes(final RecipeManager recipeManager, final Level level)
+    public void loadRecipes(final RecipeManager recipeManager, final World World)
     {
         recipes.clear();
         reverseRecipes.clear();
         recipeManager.byType(RecipeType.SMELTING).values().forEach(recipe -> {
-            final NonNullList<Ingredient> list = recipe.getIngredients();
+            final java.util.List<Ingredient> list = recipe.getIngredients();
             if (list.size() == 1)
             {
                 for(final ItemStack smeltable: list.get(0).getItems())
@@ -48,7 +48,7 @@ public class FurnaceRecipes implements IFurnaceRecipes
                     {
                         final RecipeStorage storage = RecipeStorage.builder()
                                 .withInputs(ImmutableList.of(new ItemStorage(smeltable)))
-                                .withPrimaryOutput(recipe.getResultItem(level.registryAccess()))
+                                .withPrimaryOutput(recipe.getResultItem(World.registryAccess()))
                                 .withGridSize(1)
                                 .withIntermediate(Blocks.FURNACE)
                                 .withRecipeId(recipe.getId())
@@ -56,7 +56,7 @@ public class FurnaceRecipes implements IFurnaceRecipes
 
                         recipes.put(storage.getCleanedInput().get(0), storage);
 
-                        final ItemStack output = recipe.getResultItem(level.registryAccess()).copy();
+                        final ItemStack output = recipe.getResultItem(World.registryAccess()).copy();
                         output.setCount(1);
                         reverseRecipes.put(new ItemStorage(output), storage);
                     }
@@ -97,3 +97,5 @@ public class FurnaceRecipes implements IFurnaceRecipes
         return instance;
     }
 }
+
+

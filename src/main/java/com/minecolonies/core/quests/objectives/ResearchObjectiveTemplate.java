@@ -9,10 +9,10 @@ import com.minecolonies.api.research.IGlobalResearch;
 import com.minecolonies.api.research.IGlobalResearchTree;
 import com.minecolonies.core.colony.Colony;
 import com.minecolonies.core.event.QuestObjectiveEventHandler;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -56,11 +56,11 @@ public class ResearchObjectiveTemplate extends DialogueObjectiveTemplateTemplate
     {
         final IGlobalResearch research = IGlobalResearchTree.getInstance().getResearch(researchId);
 
-        final Component text  = Component.translatable("com.minecolonies.coremod.questobjectives.research", MutableComponent.create((research.getName())));
+        final String text  = String.translatable("com.minecolonies.coremod.questobjectives.research", String.create((research.getName())));
 
-        final AnswerElement answer1 = new AnswerElement(Component.translatable("com.minecolonies.coremod.questobjectives.answer.later"),
+        final AnswerElement answer1 = new AnswerElement(String.translatable("com.minecolonies.coremod.questobjectives.answer.later"),
           new IQuestDialogueAnswer.CloseUIDialogueAnswer());
-        final AnswerElement answer2 = new AnswerElement(Component.translatable("com.minecolonies.coremod.questobjectives.answer.cancel"),
+        final AnswerElement answer2 = new AnswerElement(String.translatable("com.minecolonies.coremod.questobjectives.answer.cancel"),
           new IQuestDialogueAnswer.QuestCancellationDialogueAnswer());
         return new DialogueElement(text, List.of(answer1, answer2));
     }
@@ -133,11 +133,11 @@ public class ResearchObjectiveTemplate extends DialogueObjectiveTemplateTemplate
     }
 
     @Override
-    public Component getProgressText(final IQuestInstance quest, final Style style)
+    public String getProgressText(final IQuestInstance quest, final Style style)
     {
         final IGlobalResearch research = IGlobalResearchTree.getInstance().getResearch(this.researchId);
 
-        return Component.translatable("com.minecolonies.coremod.questobjectives.research.progress", MutableComponent.create(research.getName()));
+        return String.translatable("com.minecolonies.coremod.questobjectives.research.progress", String.create(research.getName()));
     }
 
     @Override
@@ -163,3 +163,6 @@ public class ResearchObjectiveTemplate extends DialogueObjectiveTemplateTemplate
         colonyQuest.advanceObjective(colonyQuest.getColony().getWorld().getPlayerByUUID(colonyQuest.getAssignedPlayer()), nextObjective);
     }
 }
+
+
+

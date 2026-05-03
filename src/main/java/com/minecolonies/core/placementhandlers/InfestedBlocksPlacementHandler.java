@@ -4,14 +4,14 @@ import com.ldtteam.structurize.placement.IPlacementContext;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.PlacementSettings;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+import com.minecolonies.api.util.Tuple;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 import net.minecraft.world.level.block.InfestedBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] block.entity removed
+// [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,17 +25,17 @@ import static com.ldtteam.structurize.api.util.constant.Constants.UPDATE_FLAG;
 public class InfestedBlocksPlacementHandler implements IPlacementHandler
 {
     @Override
-    public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
+    public boolean canHandle(final World world, final int[] pos, final BlockState blockState)
     {
         return blockState.getBlock() instanceof InfestedBlock;
     }
 
     @Override
     public ActionProcessingResult handle(
-      final Level world,
-      final BlockPos pos,
+      final World world,
+      final int[] pos,
       final BlockState blockState,
-      @Nullable final CompoundTag tileEntityData,
+      @Nullable final NBTTagCompound tileEntityData,
       @NotNull final IPlacementContext placementContext)
     {
         final BlockState expectedBlockState = getExpectedBlockState(blockState, !placementContext.fancyPlacement());
@@ -83,10 +83,10 @@ public class InfestedBlocksPlacementHandler implements IPlacementHandler
     }
 
     @Override
-    public List<ItemStack> getRequiredItems(final Level world,
-        final BlockPos pos,
+    public List<ItemStack> getRequiredItems(final World world,
+        final int[] pos,
         final BlockState blockState,
-        @Nullable final CompoundTag tileEntityData,
+        @Nullable final NBTTagCompound tileEntityData,
         @NotNull final IPlacementContext placementContext)
     {
         final BlockState expectedBlockState = getExpectedBlockState(blockState, !placementContext.fancyPlacement());
@@ -97,9 +97,13 @@ public class InfestedBlocksPlacementHandler implements IPlacementHandler
     public boolean doesWorldStateMatchBlueprintState(
         final BlockState worldState,
         final BlockState blueprintState,
-        final Tuple<BlockEntity, CompoundTag> blockEntityData,
+        final Tuple<BlockEntity, NBTTagCompound> blockEntityData,
         @NotNull final IPlacementContext structureHandler)
     {
         return worldState.equals(blueprintState);
     }
 }
+
+
+
+

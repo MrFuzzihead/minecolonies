@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony.managers;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.MinecoloniesAPIProxy;
 import com.minecolonies.api.colony.ICitizenData;
@@ -17,14 +23,14 @@ import com.minecolonies.core.network.messages.client.colony.ColonyViewResearchMa
 import com.minecolonies.core.research.LocalResearch;
 import com.minecolonies.core.research.LocalResearchTree;
 import com.minecolonies.core.research.ResearchEffectManager;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.ForgeRegistries;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.block.Block;
+// [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -64,23 +70,23 @@ public class ResearchManager implements IResearchManager
     private boolean dirty;
 
     @Override
-    public void readFromNBT(@NotNull final CompoundTag compound)
+    public void readFromNBT(@NotNull final NBTTagCompound compound)
     {
         tree.readFromNBT(compound, effects);
     }
 
     @Override
-    public void writeToNBT(@NotNull final CompoundTag compound)
+    public void writeToNBT(@NotNull final NBTTagCompound compound)
     {
         tree.writeToNBT(compound);
     }
 
     @Override
-    public void sendPackets(final Set<ServerPlayer> closeSubscribers, final Set<ServerPlayer> newSubscribers)
+    public void sendPackets(final Set<EntityPlayerMP> closeSubscribers, final Set<EntityPlayerMP> newSubscribers)
     {
         if (dirty || !newSubscribers.isEmpty())
         {
-            final Set<ServerPlayer> players = new HashSet<>();
+            final Set<EntityPlayerMP> players = new HashSet<>();
             if (dirty)
             {
                 players.addAll(closeSubscribers);
@@ -154,19 +160,19 @@ public class ResearchManager implements IResearchManager
             // Unlockable Branch Research should trigger even if the university isn't at the required depth. Otherwise, we do need to consider it. CheckAutoStart will rerun on the university upgrade completion.
             if(IGlobalResearchTree.getInstance().getBranchData(research.getBranch()).getType() != ResearchBranchType.UNLOCKABLES)
             {
-                int level = 0;
-                Map<BlockPos, IBuilding> buildings = colony.getServerBuildingManager().getBuildings();
-                for (Map.Entry<BlockPos, IBuilding> building : buildings.entrySet())
+                int World = 0;
+                Map<int[], IBuilding> buildings = colony.getServerBuildingManager().getBuildings();
+                for (Map.Entry<int[], IBuilding> building : buildings.entrySet())
                 {
                     if (building.getValue().getBuildingType() == ModBuildings.university.get())
                     {
-                        if (building.getValue().getBuildingLevel() > level)
+                        if (building.getValue().getBuildingLevel() > World)
                         {
-                            level = building.getValue().getBuildingLevel();
+                            World = building.getValue().getBuildingLevel();
                         }
                     }
                 }
-                if (level < research.getDepth())
+                if (World < research.getDepth())
                 {
                     continue;
                 }
@@ -192,7 +198,7 @@ public class ResearchManager implements IResearchManager
             // if research has item requirements, only notify player; we don't want to have items disappearing from inventories.
             if (!research.getCostList().isEmpty())
             {
-                MessageUtils.format(RESEARCH_AVAILABLE, MutableComponent.create(research.getName())).sendTo(colony).forAllPlayers();
+                MessageUtils.format(RESEARCH_AVAILABLE, String.create(research.getName())).sendTo(colony).forAllPlayers();
                 for (Player player : colony.getMessagePlayerEntities())
                 {
                     SoundUtils.playSuccessSound(player, player.blockPosition());
@@ -243,7 +249,7 @@ public class ResearchManager implements IResearchManager
             }
 
             MessageUtils.format(RESEARCH_CONCLUDED + ThreadLocalRandom.current().nextInt(3),
-                MutableComponent.create(IGlobalResearchTree.getInstance().getResearch(research.getBranch(), research.getId()).getName()))
+                String.create(IGlobalResearchTree.getInstance().getResearch(research.getBranch(), research.getId()).getName()))
               .sendTo(colony)
               .forAllPlayers();
             for (Player player : colony.getMessagePlayerEntities())
@@ -253,8 +259,8 @@ public class ResearchManager implements IResearchManager
         }
         else
         {
-            MessageUtils.format(RESEARCH_AVAILABLE, MutableComponent.create(research.getName()))
-              .append(MESSAGE_RESEARCH_STARTED, MutableComponent.create(research.getName()))
+            MessageUtils.format(RESEARCH_AVAILABLE, String.create(research.getName()))
+              .append(MESSAGE_RESEARCH_STARTED, String.create(research.getName()))
               .sendTo(colony)
               .forAllPlayers();
             for (Player player : colony.getMessagePlayerEntities())
@@ -264,3 +270,7 @@ public class ResearchManager implements IResearchManager
         }
     }
 }
+
+
+
+

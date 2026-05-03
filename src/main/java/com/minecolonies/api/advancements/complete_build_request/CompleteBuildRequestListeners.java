@@ -1,21 +1,11 @@
 package com.minecolonies.api.advancements.complete_build_request;
-
 import com.minecolonies.api.advancements.CriterionListeners;
-import net.minecraft.server.PlayerAdvancements;
-
-/**
- * The listener instantiated for every advancement that listens to the associated criterion.
- * A basic class to trigger with the correct arguments
- */
+// [1.7.10 BACKPORT] Stubbed out — advancements do not exist in Minecraft 1.7.10.
+/** Stub listeners — no-op in 1.7.10. */
 public class CompleteBuildRequestListeners extends CriterionListeners<CompleteBuildRequestCriterionInstance>
 {
-    public CompleteBuildRequestListeners(final PlayerAdvancements playerAdvancements)
+    public CompleteBuildRequestListeners(final Object playerAdvancements)
     {
         super(playerAdvancements);
-    }
-
-    public void trigger(final String structureName, final int level)
-    {
-        trigger(instance -> instance.test(structureName, level));
     }
 }

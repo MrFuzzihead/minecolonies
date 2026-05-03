@@ -1,14 +1,20 @@
 package com.minecolonies.core.colony.interactionhandling;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.ICitizenDataView;
 import com.minecolonies.api.colony.interactionhandling.IChatPriority;
-import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.IChatComponent;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 import static com.minecolonies.api.colony.interactionhandling.ModInteractionResponseHandlers.SIMPLE_NOTIFICATION;
 
@@ -23,7 +29,7 @@ public class SimpleNotificationInteraction extends StandardInteraction
     private boolean active = true;
 
     public SimpleNotificationInteraction(
-      final Component inquiry,
+      final String inquiry,
       final IChatPriority priority)
     {
         super(inquiry, null, priority);
@@ -38,7 +44,7 @@ public class SimpleNotificationInteraction extends StandardInteraction
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public boolean onClientResponseTriggered(final int responseId, final Player player, final ICitizenDataView data, final BOWindow window)
+    public boolean onClientResponseTriggered(final int responseId, final Player player, final ICitizenDataView data, final Object /* BOWindow: todo ModularUI2 */ window)
     {
         onResponse(responseId);
         return super.onClientResponseTriggered(responseId, player, data, window);
@@ -51,7 +57,7 @@ public class SimpleNotificationInteraction extends StandardInteraction
      */
     private void onResponse(final int responseId)
     {
-        final Component response = getPossibleResponses().get(responseId);
+        final String response = getPossibleResponses().get(responseId);
         if (response.getContents() instanceof TranslatableContents)
         {
             if (((TranslatableContents) response.getContents()).getKey().equals(INTERACTION_R_OKAY)
@@ -74,3 +80,6 @@ public class SimpleNotificationInteraction extends StandardInteraction
         return active;
     }
 }
+
+
+

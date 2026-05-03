@@ -9,7 +9,7 @@ import com.minecolonies.core.commands.commandTypes.IMCOPCommand;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
+import net.minecraft.util.IChatComponent;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ public class CommandColonyRaidsInfo implements IMCOPCommand
 
         if (!context.getSource().hasPermission(OP_PERM_LEVEL) && !MineColonies.getConfig().getServer().canPlayerUseShowColonyInfoCommand.get())
         {
-            context.getSource().sendSuccess(() -> Component.translatable(COMMAND_DISABLED_IN_CONFIG), true);
+            context.getSource().sendSuccess(() -> String.translatable(COMMAND_DISABLED_IN_CONFIG), true);
             return 0;
         }
 
@@ -39,7 +39,7 @@ public class CommandColonyRaidsInfo implements IMCOPCommand
         {
             final RaidManager.RaidHistory history = allRaids.get(i);
             final double hoursSince = Math.round(100 * (colony.getWorld().getGameTime() - history.raidTime) / (20.0 * 60 * 60)) / 100.0;
-            context.getSource().sendSuccess(() -> Component.literal(hoursSince + " hours ago:" + history), true);
+            context.getSource().sendSuccess(() -> String.literal(hoursSince + " hours ago:" + history), true);
         }
 
         return 1;
@@ -61,3 +61,5 @@ public class CommandColonyRaidsInfo implements IMCOPCommand
           .then(IMCCommand.newArgument(COLONYID_ARG, ColonyIdArgument.id()).executes(this::checkPreConditionAndExecute));
     }
 }
+
+

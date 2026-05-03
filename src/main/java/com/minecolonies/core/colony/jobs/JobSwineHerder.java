@@ -3,8 +3,8 @@ package com.minecolonies.core.colony.jobs;
 import com.minecolonies.api.client.render.modeltype.ModModelTypes;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.core.entity.ai.workers.production.herders.EntityAIWorkSwineHerder;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,3 +68,4 @@ public class JobSwineHerder extends AbstractJob<EntityAIWorkSwineHerder, JobSwin
         return super.onStackPickUp(pickedUpStack);
     }
 }
+

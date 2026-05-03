@@ -8,18 +8,16 @@ import com.minecolonies.api.colony.buildings.ModBuildings;
 import com.minecolonies.api.colony.buildings.registry.BuildingEntry;
 import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.core.colony.buildings.modules.BuildingModules;
-
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
-
+import net.minecraft.entity.player.EntityPlayer;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.TranslationConstants.WARNING_DUPLICATE_TAVERN;
 
 /**
- * HutBlock for the Tavern
+ * HutBlock for the Tavern.
+ * [1.7.10] Ported: canPlaceAt uses int x,y,z; Player/World replaced; colony.getWorld().isClientSide → isRemote.
  */
-public class BlockHutTavern extends AbstractBlockHut<com.minecolonies.core.blocks.huts.BlockHutTavern>
+public class BlockHutTavern extends AbstractBlockHut<BlockHutTavern>
 {
     /**
      * Block name
@@ -47,19 +45,22 @@ public class BlockHutTavern extends AbstractBlockHut<com.minecolonies.core.block
      * @return true if the block can be placed.
      */
     @Override
-    public boolean canPlaceAt(final BlockPos pos, final Player player)
+    public boolean canPlaceAt(final int[] pos, final EntityPlayer player)
     {
-        IColony colony = IColonyManager.getInstance().getIColony(player.level(), pos);
-        
+        final IColony colony = IColonyManager.getInstance().getIColony(player.worldObj, pos[0], pos[1], pos[2]);
+        if (colony == null)
+        {
+            return true;
+        }
+
         for (final IBuilding building : colony.getServerBuildingManager().getBuildings().values())
         {
-            if (colony.getWorld() != null && !colony.getWorld().isClientSide && building.hasModule(BuildingModules.TAVERN_VISITOR))
+            if (!colony.getWorld().isRemote && building.hasModule(BuildingModules.TAVERN_VISITOR))
             {
-                MessageUtils.format(WARNING_DUPLICATE_TAVERN, building.getPosition().toShortString()).sendTo(player);
+                MessageUtils.format(WARNING_DUPLICATE_TAVERN, building.getPosition()[0] + "," + building.getPosition()[1] + "," + building.getPosition()[2]).sendTo(player);
                 return false;
             }
         }
-
         return true;
     }
 }

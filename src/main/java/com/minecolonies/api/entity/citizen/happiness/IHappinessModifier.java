@@ -1,7 +1,7 @@
 package com.minecolonies.api.entity.citizen.happiness;
 
 import com.minecolonies.api.colony.ICitizenData;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -36,7 +36,7 @@ public interface IHappinessModifier
      * @param compoundNBT the compound to read it from.
      * @param persist     whether we're reading from persisted data or from networking.
      */
-    void read(final CompoundTag compoundNBT, final boolean persist);
+    void read(final NBTTagCompound compoundNBT, final boolean persist);
 
     /**
      * Write it to NBT.
@@ -44,5 +44,7 @@ public interface IHappinessModifier
      * @param compoundNBT the compound to write it to.
      * @param persist     whether we're reading from persisted data or from networking.
      */
-    void write(final CompoundTag compoundNBT, final boolean persist);
+    void write(final NBTTagCompound compoundNBT, final boolean persist);
 }
+
+

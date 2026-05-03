@@ -1,6 +1,6 @@
 package com.minecolonies.core.colony.jobs;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import com.minecolonies.api.client.render.modeltype.ModModelTypes;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.core.entity.ai.workers.guard.EntityAIRanger;
@@ -40,3 +40,4 @@ public class JobRanger extends AbstractJobGuard<JobRanger>
         return ModModelTypes.ARCHER_GUARD_ID;
     }
 }
+

@@ -4,8 +4,9 @@ import com.minecolonies.api.colony.requestsystem.factory.FactoryVoidInput;
 import com.minecolonies.api.colony.requestsystem.factory.IFactory;
 import com.minecolonies.api.colony.requestsystem.factory.IFactoryController;
 import com.minecolonies.api.research.IGlobalResearch;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.Constants.PARAMS_GLOBAL_RESEARCH;
@@ -41,12 +42,12 @@ public interface IGlobalResearchFactory extends IFactory<FactoryVoidInput, IGlob
 
         if (!(context[3] instanceof final TranslatableContents name))
         {
-            throw new IllegalArgumentException("Parameter 4 is supposed to be the name property (Translation Text Component)!");
+            throw new IllegalArgumentException("Parameter 4 is supposed to be the name property (Translation Text String)!");
         }
 
         if (!(context[4] instanceof final TranslatableContents subtitle))
         {
-            throw new IllegalArgumentException("Parameter 5 is supposed to be the subtitle property (Translation Text Component)!");
+            throw new IllegalArgumentException("Parameter 5 is supposed to be the subtitle property (Translation Text String)!");
         }
 
         if (!(context[5] instanceof Integer depth))
@@ -117,3 +118,6 @@ public interface IGlobalResearchFactory extends IFactory<FactoryVoidInput, IGlob
         final boolean instant,
         final boolean immutable);
 }
+
+
+

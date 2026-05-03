@@ -2,9 +2,10 @@ package com.minecolonies.core.entity.pathfinding.proxy;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyManager;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.core.BlockPos;
+import net.minecraft.entity.EntityCreature;
+import net.minecraft.entity.EntityLivingBase;
+// [1.7.10] world.entity removed
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -21,16 +22,16 @@ public class GeneralEntityWalkToProxy extends AbstractWalkToProxy
      *
      * @param entity the entity.
      */
-    public GeneralEntityWalkToProxy(final Mob entity)
+    public GeneralEntityWalkToProxy(final EntityCreature entity)
     {
         super(entity);
     }
 
     @Override
-    public Set<BlockPos> getWayPoints()
+    public Set<int[]> getWayPoints()
     {
-        final LivingEntity living = getEntity();
-        final BlockPos pos = living.blockPosition();
+        final EntityLivingBase living = getEntity();
+        final int[] pos = living.blockPosition();
         final IColony colony = IColonyManager.getInstance().getClosestColony(living.getCommandSenderWorld(), pos);
 
         if (colony == null || !colony.isCoordInColony(living.getCommandSenderWorld(), pos))
@@ -49,8 +50,11 @@ public class GeneralEntityWalkToProxy extends AbstractWalkToProxy
 
     @Nullable
     @Override
-    public BlockPos getSpecializedProxy(final BlockPos target, final double distanceToPath)
+    public int[] getSpecializedProxy(final int[] target, final double distanceToPath)
     {
         return null;
     }
 }
+
+
+

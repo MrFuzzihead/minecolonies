@@ -10,12 +10,13 @@ import com.minecolonies.api.items.IMinecoloniesFoodItem;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingCook;
 import com.minecolonies.core.items.ItemCrop;
 import com.minecolonies.core.tileentities.TileEntityRack;
-import net.minecraft.core.BlockPos;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] food removed
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
+// [1.7.10] block.entity removed
 
 import javax.annotation.Nullable;
 import java.util.Set;
@@ -51,9 +52,9 @@ public class FoodUtils
     }
 
     /**
-     * Check if that food can be eaten at a given building level.
+     * Check if that food can be eaten at a given building World.
      * @param stack the stack to check.
-     * @param buildingLevel the respective building level.
+     * @param buildingLevel the respective building World.
      * @return true if so.
      */
     public static boolean canEatLevel(final ItemStack stack, final int buildingLevel)
@@ -72,9 +73,9 @@ public class FoodUtils
     }
 
     /**
-     * Calculate the given max building level for a given food.
+     * Calculate the given max building World for a given food.
      * @param resource the stack to check.
-     * @return the building level.
+     * @return the building World.
      */
     public static int getBuildingLevelForFood(final ItemStack resource)
     {
@@ -201,7 +202,7 @@ public class FoodUtils
         int bestScore = Integer.MAX_VALUE;
         ItemStorage bestStorage = null;
 
-        final Level world = building.getColony().getWorld();
+        final World world = building.getColony().getWorld();
         final int homeBuildingLevel = citizenData.getHomeBuilding() == null ? 0 : citizenData.getHomeBuilding().getBuildingLevelEquivalent();
 
         final ICitizenFoodHandler.CitizenFoodStats foodStats = citizenData.getCitizenFoodHandler().getFoodHappinessStats();
@@ -212,7 +213,7 @@ public class FoodUtils
         final boolean criticalQuality = foodStats.quality() <= qualityRequirement;
         final ICitizenFoodHandler foodHandler = citizenData.getCitizenFoodHandler();
 
-        for (final BlockPos pos : building.getContainers())
+        for (final int[] pos : building.getContainers())
         {
             if (WorldUtil.isBlockLoaded(world, pos))
             {
@@ -280,7 +281,7 @@ public class FoodUtils
         int bestScore = Integer.MAX_VALUE;
         ItemStorage bestStorage = null;
 
-        final Level world = building.getColony().getWorld();
+        final World world = building.getColony().getWorld();
         final int homeBuildingLevel = citizenData.getHomeBuilding() == null ? 0 : citizenData.getHomeBuilding().getBuildingLevelEquivalent();
 
         final ICitizenFoodHandler.CitizenFoodStats foodStats = citizenData.getCitizenFoodHandler().getFoodHappinessStats();
@@ -305,7 +306,7 @@ public class FoodUtils
             }
         }
 
-        for (final BlockPos pos : building.getContainers())
+        for (final int[] pos : building.getContainers())
         {
             if (WorldUtil.isBlockLoaded(world, pos))
             {
@@ -362,7 +363,7 @@ public class FoodUtils
 
     /**
      * Get the min food quality requirement.
-     * @param buildingLevel the building level to take into account.
+     * @param buildingLevel the building World to take into account.
      * @return the food quality requirement in number of items.
      */
     public static int getMinFoodQualityRequirement(final int buildingLevel)
@@ -372,7 +373,7 @@ public class FoodUtils
 
     /**
      * Get the min food diversity requirement.
-     * @param buildingLevel the building level to take into account.
+     * @param buildingLevel the building World to take into account.
      * @return the food diversity requirement in number of items.
      */
     public static int getMinFoodDiversityRequirement(final int buildingLevel)
@@ -380,3 +381,6 @@ public class FoodUtils
         return buildingLevel;
     }
 }
+
+
+

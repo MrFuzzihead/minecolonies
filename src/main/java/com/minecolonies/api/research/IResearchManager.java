@@ -1,9 +1,9 @@
 package com.minecolonies.api.research;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.block.Block;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
@@ -18,16 +18,16 @@ public interface IResearchManager
      *
      * @param compound the compound.
      */
-    void readFromNBT(@NotNull final CompoundTag compound);
+    void readFromNBT(@NotNull final NBTTagCompound compound);
 
     /**
      * Write all stats to nbt.
      *
      * @param statsCompound the compound.
      */
-    void writeToNBT(@NotNull final CompoundTag statsCompound);
+    void writeToNBT(@NotNull final NBTTagCompound statsCompound);
 
-    void sendPackets(Set<ServerPlayer> closeSubscribers, Set<ServerPlayer> newSubscribers);
+    void sendPackets(Set<EntityPlayerMP> closeSubscribers, Set<EntityPlayerMP> newSubscribers);
 
     void markDirty();
 
@@ -63,3 +63,6 @@ public interface IResearchManager
      */
     void checkAutoStartResearch();
 }
+
+
+

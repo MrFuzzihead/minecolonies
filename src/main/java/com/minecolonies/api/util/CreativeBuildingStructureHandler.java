@@ -16,19 +16,18 @@ import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.tileentities.AbstractTileEntityColonyBuilding;
 import com.minecolonies.core.entity.ai.workers.util.ConstructionTapeHelper;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.WorldServer;
+import net.minecraft.entity.player.EntityPlayerMP;
+// [1.7.10] tags removed
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+import net.minecraft.world.block.Mirror;
+import net.minecraft.world.block.Rotation;
+// [1.7.10] block.entity removed
+// [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,7 +57,7 @@ public final class CreativeBuildingStructureHandler extends CreativeStructureHan
      * @param settings       the placement settings.
      * @param fancyPlacement if fancy or complete.
      */
-    public CreativeBuildingStructureHandler(final Level world, final BlockPos pos, final Blueprint blueprint, final PlacementSettings settings, final boolean fancyPlacement)
+    public CreativeBuildingStructureHandler(final World world, final int[] pos, final Blueprint blueprint, final PlacementSettings settings, final boolean fancyPlacement)
     {
         super(world, pos, blueprint, settings, fancyPlacement);
         setupBuilding();
@@ -73,7 +72,7 @@ public final class CreativeBuildingStructureHandler extends CreativeStructureHan
      * @param settings       the placement settings.
      * @param fancyPlacement if fancy or complete.
      */
-    public CreativeBuildingStructureHandler(final Level world, final BlockPos pos, final Future<Blueprint> blueprint, final PlacementSettings settings, final boolean fancyPlacement)
+    public CreativeBuildingStructureHandler(final World world, final int[] pos, final Future<Blueprint> blueprint, final PlacementSettings settings, final boolean fancyPlacement)
     {
         super(world, pos, blueprint, settings, fancyPlacement);
         setupBuilding();
@@ -92,19 +91,19 @@ public final class CreativeBuildingStructureHandler extends CreativeStructureHan
     }
 
     @Override
-    public void triggerSuccess(final BlockPos pos, final List<ItemStack> list, final boolean placement)
+    public void triggerSuccess(final int[] pos, final List<ItemStack> list, final boolean placement)
     {
         super.triggerSuccess(pos, list, placement);
-        final BlockPos worldPos = getProgressPosInWorld(pos);
+        final int[] worldPos = getProgressPosInWorld(pos);
 
         final Blueprint blueprint = getBluePrint();
-        final CompoundTag teData = blueprint.getTileEntityData(worldPos, pos);
+        final NBTTagCompound teData = blueprint.getTileEntityData(worldPos, pos);
         if (teData != null && teData.contains(TAG_BLUEPRINTDATA))
         {
             final BlockEntity te = getWorld().getBlockEntity(worldPos);
             if (te instanceof IBlueprintDataProviderBE blueprintDataProviderBE)
             {
-                final CompoundTag tagData = teData.getCompound(TAG_BLUEPRINTDATA);
+                final NBTTagCompound tagData = teData.getCompound(TAG_BLUEPRINTDATA);
                 final String schematicPath = tagData.getString(TAG_NAME);
                 final String location = StructurePacks.getStructurePack(blueprint.getPackName()).getSubPath(Utils.resolvePath(blueprint.getFilePath(), schematicPath));
 
@@ -150,11 +149,11 @@ public final class CreativeBuildingStructureHandler extends CreativeStructureHan
      * @return the placed blueprint.
      */
     public static Blueprint loadAndPlaceStructureWithRotation(
-      final Level worldObj, @NotNull final Future<Blueprint> future,
-      @NotNull final BlockPos pos, final Rotation rotation,
+      final World worldObj, @NotNull final Future<Blueprint> future,
+      @NotNull final int[] pos, final Rotation rotation,
       @NotNull final Mirror mirror,
       final boolean fancyPlacement,
-      @Nullable final ServerPlayer player)
+      @Nullable final EntityPlayerMP player)
     {
         try
         {
@@ -183,3 +182,8 @@ public final class CreativeBuildingStructureHandler extends CreativeStructureHan
         }
     }
 }
+
+
+
+
+

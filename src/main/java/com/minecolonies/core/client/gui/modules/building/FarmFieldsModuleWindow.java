@@ -1,8 +1,10 @@
 package com.minecolonies.core.client.gui.modules.building;
 
+// [1.7.10] blockui replaced by ModularUI2
 import com.ldtteam.blockui.Pane;
-import com.ldtteam.blockui.PaneBuilders;
-import com.ldtteam.blockui.controls.*;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ButtonImage;
+import com.ldtteam.blockui.controls.Text;
 import com.ldtteam.blockui.views.ScrollingList;
 import com.minecolonies.api.colony.buildingextensions.IBuildingExtension;
 import com.minecolonies.api.util.BlockPosUtil;
@@ -11,10 +13,10 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.AbstractModuleWindow;
 import com.minecolonies.core.colony.buildingextensions.FarmField;
 import com.minecolonies.core.colony.buildings.moduleviews.FieldsModuleView;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.IChatComponent;
+// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.TranslationConstants.*;
@@ -22,7 +24,7 @@ import static com.minecolonies.api.util.constant.translation.GuiTranslationConst
 import static com.minecolonies.api.util.constant.translation.GuiTranslationConstants.FIELD_LIST_LABEL_FIELD_COUNT;
 
 /**
- * BOWindow for the fields tab in huts.
+ * Object (BOWindow: todo ModularUI2 removed) for the fields tab in huts.
  */
 public class FarmFieldsModuleWindow extends AbstractModuleWindow<FieldsModuleView>
 {
@@ -141,9 +143,9 @@ public class FarmFieldsModuleWindow extends AbstractModuleWindow<FieldsModuleVie
     private void updateUI()
     {
         findPaneOfTypeByID(TAG_BUTTON_ASSIGNMENT_MODE, Button.class)
-          .setText(Component.translatable(moduleView.assignFieldManually() ? COM_MINECOLONIES_COREMOD_GUI_HIRING_ON : COM_MINECOLONIES_COREMOD_GUI_HIRING_OFF));
+          .setText(String.translatable(moduleView.assignFieldManually() ? COM_MINECOLONIES_COREMOD_GUI_HIRING_ON : COM_MINECOLONIES_COREMOD_GUI_HIRING_OFF));
         findPaneOfTypeByID(TAG_FIELD_COUNT, Text.class)
-          .setText(Component.translatable(FIELD_LIST_LABEL_FIELD_COUNT, moduleView.getOwnedFields().size(), moduleView.getMaxFieldCount()));
+          .setText(String.translatable(FIELD_LIST_LABEL_FIELD_COUNT, moduleView.getOwnedFields().size(), moduleView.getMaxFieldCount()));
     }
 
     @Override
@@ -169,11 +171,11 @@ public class FarmFieldsModuleWindow extends AbstractModuleWindow<FieldsModuleVie
                 if (field instanceof FarmField farmField && !farmField.getSeed().isEmpty())
                 {
                     rowPane.findPaneOfTypeByID(TAG_ICON, ItemIcon.class).setItem(farmField.getSeed());
-                    rowPane.findPaneOfTypeByID(TAG_STAGE_TEXT, Text.class).setText(Component.translatable(FIELD_STATUS));
+                    rowPane.findPaneOfTypeByID(TAG_STAGE_TEXT, Text.class).setText(String.translatable(FIELD_STATUS));
                     iconPane.setImage(farmField.getFieldStage().getStageIcon(), true);
                     AbstractTextBuilder.TooltipBuilder hoverText = PaneBuilders.tooltipBuilder().hoverPane(iconPane);
-                    hoverText.append(Component.translatable(FIELD_STATUS_CURRENT, farmField.getFieldStage().getStageText())).paragraphBreak();
-                    hoverText.append(Component.translatable(FIELD_STATUS_NEXT, farmField.getFieldStage().getNextStage().getStageText()));
+                    hoverText.append(String.translatable(FIELD_STATUS_CURRENT, farmField.getFieldStage().getStageText())).paragraphBreak();
+                    hoverText.append(String.translatable(FIELD_STATUS_NEXT, farmField.getFieldStage().getNextStage().getStageText()));
                     hoverText.build();
                 }
                 else
@@ -184,9 +186,9 @@ public class FarmFieldsModuleWindow extends AbstractModuleWindow<FieldsModuleVie
                 final String distance = Integer.toString(field.getSqDistance(buildingView));
                 final DirectionResult direction = BlockPosUtil.calcDirection(buildingView.getPosition(), field.getPosition());
 
-                final Component directionText = switch (direction) {
+                final String directionText = switch (direction) {
                     case UP, DOWN -> direction.getLongText();
-                    default -> Component.translatable(FIELD_LIST_LABEL_DISTANCE, Component.literal(distance + "m"), direction.getShortText());
+                    default -> String.translatable(FIELD_LIST_LABEL_DISTANCE, String.literal(distance + "m"), direction.getShortText());
                 };
 
                 rowPane.findPaneOfTypeByID(TAG_DISTANCE, Text.class).setText(directionText);
@@ -209,7 +211,7 @@ public class FarmFieldsModuleWindow extends AbstractModuleWindow<FieldsModuleVie
                     {
                         assignButton.disable();
 
-                        MutableComponent warningTooltip = moduleView.getFieldWarningTooltip(field);
+                        String warningTooltip = moduleView.getFieldWarningTooltip(field);
                         if (warningTooltip != null && moduleView.assignFieldManually())
                         {
                             PaneBuilders.tooltipBuilder()
@@ -252,3 +254,7 @@ public class FarmFieldsModuleWindow extends AbstractModuleWindow<FieldsModuleVie
         }
     }
 }
+
+
+
+

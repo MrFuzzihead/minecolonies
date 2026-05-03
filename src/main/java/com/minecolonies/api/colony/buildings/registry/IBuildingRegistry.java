@@ -1,13 +1,15 @@
 package com.minecolonies.api.colony.buildings.registry;
 
 import com.minecolonies.api.IMinecoloniesAPI;
-import net.minecraftforge.registries.IForgeRegistry;
+import com.minecolonies.api.registry.SimpleRegistry;
+// [1.7.10] IForgeRegistry → SimpleRegistry
 
 public interface IBuildingRegistry
 {
 
-    static IForgeRegistry<BuildingEntry> getInstance()
+    static SimpleRegistry<BuildingEntry> getInstance()
     {
         return IMinecoloniesAPI.getInstance().getBuildingRegistry();
     }
 }
+

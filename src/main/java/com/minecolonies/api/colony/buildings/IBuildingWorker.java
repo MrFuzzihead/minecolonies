@@ -3,8 +3,8 @@ package com.minecolonies.api.colony.buildings;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.jobs.IJob;
 import com.minecolonies.api.entity.citizen.Skill;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
+import net.minecraft.item.ItemStack;
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,7 +13,7 @@ import java.util.List;
 public interface IBuildingWorker extends IBuilding
 {
     /**
-     * Minimal level to ask for wood tools. (WOOD_HUT_LEVEL + 1 == stone)
+     * Minimal World to ask for wood tools. (WOOD_HUT_LEVEL + 1 == stone)
      */
     int WOOD_HUT_LEVEL = 0;
 
@@ -53,7 +53,7 @@ public interface IBuildingWorker extends IBuilding
      *
      * @return the handlers of the building + citizen.
      */
-    List<IItemHandler> getHandlers();
+    List<net.minecraftforge.items.IItemHandler> getHandlers();
 
     boolean assignCitizen(ICitizenData citizen);
 
@@ -66,7 +66,7 @@ public interface IBuildingWorker extends IBuilding
     String getJobName();
 
     /**
-     * Get the max tool level useable by the worker.
+     * Get the max tool World useable by the worker.
      *
      * @return the integer.
      */
@@ -110,3 +110,6 @@ public interface IBuildingWorker extends IBuilding
      */
     boolean canEat(final ItemStack stack);
 }
+
+
+

@@ -5,9 +5,11 @@ import com.minecolonies.api.research.costs.ListItemCost;
 import com.minecolonies.api.research.costs.SimpleItemCost;
 import com.minecolonies.api.research.costs.TagItemCost;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
+// [1.7.10] registries removed
+// [1.7.10] registries removed
 
 import static com.minecolonies.api.research.ModResearchCosts.*;
 
@@ -42,3 +44,5 @@ public class ModResearchCostInitializer
         return DEFERRED_REGISTER.register(registryName.getPath(), () -> new ResearchCostEntry(registryName, readFromNBT, readFromJson));
     }
 }
+
+

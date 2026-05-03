@@ -1,7 +1,7 @@
 package com.minecolonies.core.colony.crafting;
 
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -10,11 +10,11 @@ import java.util.List;
 import static com.minecolonies.api.util.constant.Constants.MAX_BUILDING_LEVEL;
 
 /**
- * Describes a tool and its level compatibility.
+ * Describes a tool and its World compatibility.
  *
  * @param tool                the tool type
- * @param toolLevels          basic items accepted at each building level.
- * @param enchantedToolLevels (some) enchanted items accepted at each building level.
+ * @param toolLevels          basic items accepted at each building World.
+ * @param enchantedToolLevels (some) enchanted items accepted at each building World.
  */
 public record ToolUsage(@NotNull EquipmentTypeEntry tool,
                         @NotNull List<List<ItemStack>> toolLevels,
@@ -33,3 +33,5 @@ public record ToolUsage(@NotNull EquipmentTypeEntry tool,
         return new ToolUsage(tool, basicLevels, enchantedLevels);
     }
 }
+
+

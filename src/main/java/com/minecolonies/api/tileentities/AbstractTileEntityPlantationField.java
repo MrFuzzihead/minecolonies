@@ -1,17 +1,9 @@
 package com.minecolonies.api.tileentities;
 
-import com.ldtteam.structurize.api.util.IRotatableBlockEntity;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildingextensions.registry.BuildingExtensionRegistries.BuildingExtensionEntry;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.tileentity.TileEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -20,18 +12,14 @@ import java.util.Set;
 /**
  * The abstract implementation for plantation field tile entities.
  */
-public abstract class AbstractTileEntityPlantationField extends BlockEntity implements IBlueprintDataProviderBE, IRotatableBlockEntity
+public abstract class AbstractTileEntityPlantationField extends TileEntity implements IBlueprintDataProviderBE
 {
     /**
-     * Default method.
-     *
-     * @param entityType the entity type.
-     * @param pos        the positions this tile entity is at.
-     * @param state      the state the entity is in.
+     * Default constructor.
      */
-    protected AbstractTileEntityPlantationField(final BlockEntityType<? extends AbstractTileEntityPlantationField> entityType, final BlockPos pos, final BlockState state)
+    protected AbstractTileEntityPlantationField()
     {
-        super(entityType, pos, state);
+        super();
     }
 
     /**
@@ -42,12 +30,12 @@ public abstract class AbstractTileEntityPlantationField extends BlockEntity impl
     public abstract Set<BuildingExtensionEntry> getPlantationFieldTypes();
 
     /**
-     * The working positions stored in this field.
+     * The working positions stored in this field (as [x, y, z] int arrays).
      *
-     * @param tag the tag to search for.
+     * @param NBTBase the NBTBase to search for.
      * @return a list of working positions.
      */
-    public abstract List<BlockPos> getWorkingPositions(String tag);
+    public abstract List<int[]> getWorkingPositions(String NBTBase);
 
     /**
      * The colony this field is located in.
@@ -59,24 +47,23 @@ public abstract class AbstractTileEntityPlantationField extends BlockEntity impl
     /**
      * Get the dimension this plantation field is placed in.
      *
-     * @return the dimension key.
+     * @return the dimension ID.
      */
     @Nullable
-    public abstract ResourceKey<Level> getDimension();
-
-    @Nullable
-    @Override
-    public abstract ClientboundBlockEntityDataPacket getUpdatePacket();
+    public abstract Integer getDimension();
 
     /**
-     * Get the rotation of the controller.
+     * Get the rotation of the controller (0-3).
+     *
      * @return the placed rotation.
      */
-    public abstract Rotation getRotation();
+    public abstract int getRotation();
 
     /**
      * Get the mirroring setting of the controller.
+     *
      * @return true if mirrored.
      */
     public abstract boolean getMirror();
 }
+

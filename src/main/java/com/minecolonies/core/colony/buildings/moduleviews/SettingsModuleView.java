@@ -1,6 +1,12 @@
 package com.minecolonies.core.colony.buildings.moduleviews;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.buildings.modules.AbstractBuildingModuleView;
 import com.minecolonies.api.colony.buildings.modules.settings.ISetting;
 import com.minecolonies.api.colony.buildings.modules.settings.ISettingKey;
@@ -11,13 +17,13 @@ import com.minecolonies.core.Network;
 import com.minecolonies.core.client.gui.modules.building.SettingsModuleWindow;
 import com.minecolonies.core.colony.buildings.modules.settings.SettingKey;
 import com.minecolonies.core.network.messages.server.colony.building.TriggerSettingMessage;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayerMP;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,7 +43,7 @@ public class SettingsModuleView extends AbstractBuildingModuleView implements IS
     final Map<ISettingKey<?>, ISetting<?>> settings = new LinkedHashMap<>();
 
     @Override
-    public void deserialize(@NotNull final FriendlyByteBuf buf)
+    public void deserialize(@NotNull final PacketBuffer buf)
     {
         final Map<ISettingKey<?>, ISetting> tempSettings = new LinkedHashMap<>();
         final int size = buf.readInt();
@@ -96,7 +102,7 @@ public class SettingsModuleView extends AbstractBuildingModuleView implements IS
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public BOWindow getWindow()
+    public Object /* BOWindow: todo ModularUI2 */ getWindow()
     {
         return new SettingsModuleWindow(this);
     }
@@ -108,9 +114,9 @@ public class SettingsModuleView extends AbstractBuildingModuleView implements IS
     }
 
     @Override
-    public Component getDesc()
+    public String getDesc()
     {
-        return Component.translatable("com.minecolonies.coremod.gui.workerhuts.settings");
+        return String.translatable("com.minecolonies.coremod.gui.workerhuts.settings");
     }
 
     @Override
@@ -120,12 +126,12 @@ public class SettingsModuleView extends AbstractBuildingModuleView implements IS
         if (setting.isActive(this))
         {
             setting.trigger();
-            Network.getNetwork().sendToServer(new TriggerSettingMessage(getColony(), key, setting, getProducer().getRuntimeID(), buildingView == null ? BlockPos.ZERO : buildingView.getPosition()));
+            Network.getNetwork().sendToServer(new TriggerSettingMessage(getColony(), key, setting, getProducer().getRuntimeID(), buildingView == null ? new int[]{0,0,0} : buildingView.getPosition()));
         }
     }
 
     @Override
-    public void updateSetting(final ISettingKey<?> settingKey, final ISetting<?> value, final ServerPlayer sender)
+    public void updateSetting(final ISettingKey<?> settingKey, final ISetting<?> value, final EntityPlayerMP sender)
     {
         if (settings.containsKey(settingKey))
         {
@@ -133,3 +139,7 @@ public class SettingsModuleView extends AbstractBuildingModuleView implements IS
         }
     }
 }
+
+
+
+

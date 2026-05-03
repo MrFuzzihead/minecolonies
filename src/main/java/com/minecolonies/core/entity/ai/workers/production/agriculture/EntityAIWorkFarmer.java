@@ -33,22 +33,22 @@ import com.minecolonies.core.items.ItemCrop;
 import com.minecolonies.core.network.messages.client.CompostParticleMessage;
 import com.minecolonies.core.util.AdvancementUtils;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.world.InteractionHand;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] Direction -> net.minecraft.util.EnumFacing
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.WorldServer;
+// [1.7.10] tags removed
+// [1.7.10] int /* InteractionHand */ removed
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] world.phys removed
+// [1.7.10] world.phys removed
 import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
@@ -90,7 +90,7 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
     private static final int SMALLEST_DELAY = 1;
 
     /**
-     * The bonus the farmer gains each update is level/divider.
+     * The bonus the farmer gains each update is World/divider.
      */
     private static final double DELAY_DIVIDER = 1;
 
@@ -244,7 +244,7 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
         {
             if (worker.getCitizenData() != null)
             {
-                worker.getCitizenData().triggerInteraction(new StandardInteraction(Component.translatable(NO_FREE_FIELDS), ChatPriority.BLOCKING));
+                worker.getCitizenData().triggerInteraction(new StandardInteraction(String.translatable(NO_FREE_FIELDS), ChatPriority.BLOCKING));
             }
             worker.getCitizenData().setJobStatus(JobStatus.STUCK);
             return IDLE;
@@ -310,9 +310,9 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
      * @param predicate the predicate to test.
      * @return true if a harvestable crop was found.
      */
-    private boolean checkIfShouldExecute(@NotNull final FarmField farmField, @NotNull final Predicate<BlockPos> predicate)
+    private boolean checkIfShouldExecute(@NotNull final FarmField farmField, @NotNull final Predicate<int[]> predicate)
     {
-        BlockPos position;
+        int[] position;
         do
         {
             building.setWorkingOffset(nextValidCell(farmField));
@@ -368,7 +368,7 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
      * @param farmField the field close to this position.
      * @return position of hoeable surface or null if there is not one
      */
-    private BlockPos findHoeableSurface(@NotNull BlockPos position, @NotNull final FarmField farmField)
+    private int[] findHoeableSurface(@NotNull int[] position, @NotNull final FarmField farmField)
     {
         position = getSurfacePos(position);
         if (position == null)
@@ -401,7 +401,7 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
         final BlockHitResult blockHitResult = new BlockHitResult(Vec3.ZERO, Direction.UP, position, false);
         final UseOnContext useOnContext = new UseOnContext(world,
           null,
-          InteractionHand.MAIN_HAND,
+          0 /* InteractionHand.MAIN_HAND */,
           getInventory().getStackInSlot(InventoryUtils.getFirstSlotOfItemHandlerContainingEquipment(getInventory(), ModEquipmentTypes.hoe.get(), TOOL_LEVEL_WOOD_OR_GOLD, building.getMaxEquipmentLevel())),
           blockHitResult);
         final BlockState toolModifiedState = blockState.getToolModifiedState(useOnContext, ToolActions.HOE_TILL, true);
@@ -419,7 +419,7 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
      * @param position the location to begin the search
      * @return the position of the surface block or null if it can't be found
      */
-    private BlockPos getSurfacePos(final BlockPos position)
+    private int[] getSurfacePos(final int[] position)
     {
         return getSurfacePos(position, 0);
     }
@@ -431,7 +431,7 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
      * @param depth    the depth of the search for the surface
      * @return the position of the surface block or null if it can't be found
      */
-    private BlockPos getSurfacePos(final BlockPos position, final Integer depth)
+    private int[] getSurfacePos(final int[] position, final Integer depth)
     {
         if (Math.abs(depth) > MAX_DEPTH || !WorldUtil.isBlockLoaded(world, position))
         {
@@ -462,7 +462,7 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
      *
      * @return the new offset position
      */
-    protected BlockPos nextValidCell(FarmField farmField)
+    protected int[] nextValidCell(FarmField farmField)
     {
         int ring, ringCell, x, z;
         Direction facing;
@@ -501,7 +501,7 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
             || -x > farmField.getRadius(Direction.WEST)
         );
 
-        return new BlockPos(x, 0, z);
+        return new int[]{x, 0, z};
     }
 
     protected int getLargestCell(FarmField farmField)
@@ -524,7 +524,7 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
         {
             if (building.getWorkingOffset() != null)
             {
-                final BlockPos position = farmField.getPosition().below().south(building.getWorkingOffset().getZ()).east(building.getWorkingOffset().getX());
+                final int[] position = farmField.getPosition().below().south(building.getWorkingOffset().getZ()).east(building.getWorkingOffset().getX());
 
                 // Still moving to the block
                 if (!walkToSafePos(position.above()))
@@ -595,7 +595,7 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
      * @param farmField the field close to this position.
      * @return true if the farmer should move on.
      */
-    private boolean hoeIfAble(BlockPos position, final FarmField farmField)
+    private boolean hoeIfAble(int[] position, final FarmField farmField)
     {
         position = findHoeableSurface(position, farmField);
         if (position != null && !checkForToolOrWeapon(ModEquipmentTypes.hoe.get()))
@@ -606,7 +606,7 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
                 equipHoe();
                 worker.swing(worker.getUsedItemHand());
                 createCorrectFarmlandForSeed(farmField.getSeed(), position);
-                CitizenItemUtils.damageItemInHand(worker, InteractionHand.MAIN_HAND, 1);
+                CitizenItemUtils.damageItemInHand(worker, 0 /* InteractionHand.MAIN_HAND */, 1);
                 worker.decreaseSaturationForContinuousAction();
                 worker.getCitizenColonyHandler().getColonyOrRegister().getStatisticsManager().increment(LAND_TILLED, worker.getCitizenColonyHandler().getColonyOrRegister().getDay());
 
@@ -622,7 +622,7 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
      * @param seed the crop.
      * @param pos the position.
      */
-    private void createCorrectFarmlandForSeed(final ItemStack seed, final BlockPos pos)
+    private void createCorrectFarmlandForSeed(final ItemStack seed, final int[] pos)
     {
         if (seed.getItem() instanceof ItemCrop itemCrop)
         {
@@ -658,7 +658,7 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
      * @param position the block to harvest.
      * @return true if we harvested or not supposed to.
      */
-    private boolean harvestIfAble(BlockPos position)
+    private boolean harvestIfAble(int[] position)
     {
         position = findHarvestableSurface(position);
         if (position != null)
@@ -699,7 +699,7 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
      * @param position  the position to try.
      * @return the next state to go to.
      */
-    private boolean tryToPlant(final FarmField farmField, BlockPos position)
+    private boolean tryToPlant(final FarmField farmField, int[] position)
     {
         position = findPlantableSurface(position, farmField);
         return position == null || plantCrop(farmField.getSeed(), position);
@@ -710,7 +710,7 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
      */
     private void equipHoe()
     {
-        CitizenItemUtils.setHeldItem(worker, InteractionHand.MAIN_HAND, getHoeSlot());
+        CitizenItemUtils.setHeldItem(worker, 0 /* InteractionHand.MAIN_HAND */, getHoeSlot());
     }
 
     /**
@@ -720,7 +720,7 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
      * @param farmField the field close to this position.
      * @return position of plantable surface or null
      */
-    private BlockPos findPlantableSurface(@NotNull BlockPos position, @NotNull final FarmField farmField)
+    private int[] findPlantableSurface(@NotNull int[] position, @NotNull final FarmField farmField)
     {
         position = getSurfacePos(position);
         if (position == null
@@ -744,7 +744,7 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
      * @param position the location.
      * @return true if successful.
      */
-    private boolean plantCrop(final ItemStack item, @NotNull final BlockPos position)
+    private boolean plantCrop(final ItemStack item, @NotNull final int[] position)
     {
         if (item == null || item.isEmpty())
         {
@@ -757,7 +757,7 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
         }
 
         if (item.getItem() instanceof BlockItem blockItem && (blockItem.getBlock() instanceof CropBlock || blockItem.getBlock() instanceof StemBlock || blockItem.getBlock() instanceof MinecoloniesCropBlock)
-            && blockItem.getBlock().defaultBlockState().canSurvive(worker.level(), position.above()))
+            && blockItem.getBlock().defaultBlockState().canSurvive(worker.World(), position.above()))
         {
             @NotNull final Item seed = item.getItem();
             if ((seed == Items.MELON_SEEDS || seed == Items.PUMPKIN_SEEDS) && building.getPrevPos() != null && !world.isEmptyBlock(building.getPrevPos().above()))
@@ -779,7 +779,7 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
      * @param position the position to check.
      * @return position of harvestable block or null
      */
-    private BlockPos findHarvestableSurface(@NotNull BlockPos position)
+    private int[] findHarvestableSurface(@NotNull int[] position)
     {
         position = getSurfacePos(position);
         if (position == null)
@@ -919,3 +919,9 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
         return false;
     }
 }
+
+
+
+
+
+

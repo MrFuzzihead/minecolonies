@@ -1,160 +1,51 @@
 package com.minecolonies.api.util;
 
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.Property;
+// [1.7.10] BlockState -> Block + int metadata; Property<?> not available
+import net.minecraft.block.Block;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
 /**
- * Stores a blockstate for comparing.
+ * Stores a block and metadata for comparing.
+ * [1.7.10] Replaces 1.21 BlockState + Property<?> pattern with Block + int metadata.
  */
 public class BlockStateStorage
 {
-    /**
-     * The state to store.
-     */
-    private final BlockState state;
+    /** The block to store. */
+    private final Block block;
 
-    /**
-     * List of properties used to compare
-     */
-    private final List<Property<?>> propertyList;
+    /** The metadata to store. */
+    private final int meta;
 
-    /**
-     * Hashcode of the storage.
-     */
-    private int hashCode;
-
-    /**
-     * True: states are compared ignoring the properties in the given propertyList. False: states are only compared within the properties on the propertyList.
-     */
-    private final boolean exclude;
+    /** Hashcode of the storage. */
+    private final int hashCode;
 
     /**
      * Create an instance of the storage.
      *
-     * @param state             The blockstate to store
-     * @param compareProperties the list of properties to compare
-     * @param exclude           True: states are compared ignoring the properties in the given list. False: states are only compared within the properties on the list.
+     * @param block the block
+     * @param meta  the block metadata
      */
-    public BlockStateStorage(@NotNull final BlockState state, @NotNull final List<Property<?>> compareProperties, final boolean exclude)
+    public BlockStateStorage(@NotNull final Block block, final int meta)
     {
-        this.state = state;
-        this.propertyList = compareProperties;
-        this.exclude = exclude;
-
-        // Calculating the hashcode once
-        hashCode = state.getBlock().hashCode();
-
-        if (!exclude)
-        {
-            // hashcode only for included properties
-            for (final Property<?> prop : compareProperties)
-            {
-                if (state.hasProperty(prop))
-                {
-                    hashCode += prop.hashCode();
-                    hashCode += state.getValue(prop).hashCode();
-                }
-            }
-        }
-        else
-        {
-            // hashcode for all except the excluded properties
-            for (final Property<?> prop : state.getProperties())
-            {
-                if (!compareProperties.contains(prop))
-                {
-                    hashCode += prop.hashCode();
-                    hashCode += state.getValue(prop).hashCode();
-                }
-            }
-        }
+        this.block    = block;
+        this.meta     = meta;
+        this.hashCode = 31 * block.hashCode() + meta;
     }
 
-    /**
-     * Returns the stored state
-     *
-     * @return state
-     */
-    public BlockState getState()
-    {
-        return state;
-    }
+    /** Returns the stored block. */
+    public Block getBlock() { return block; }
 
-    /**
-     * Gets the list of the properties this storage uses to compare storages.
-     *
-     * @return property list
-     */
-    public List<Property<?>> getCompareProperties()
-    {
-        return propertyList;
-    }
+    /** Returns the stored metadata. */
+    public int getMeta() { return meta; }
 
     @Override
-    public int hashCode()
-    {
-        return hashCode;
-    }
+    public int hashCode() { return hashCode; }
 
     @Override
     public boolean equals(final Object o)
     {
-        if (this == o)
-        {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass())
-        {
-            return false;
-        }
-
-        final BlockStateStorage comparingToStorage = (BlockStateStorage) o;
-
-        if (comparingToStorage.getState() == state)
-        {
-            return true;
-        }
-
-        if (exclude)
-        {
-            for (final Property<?> prop : state.getProperties())
-            {
-                // skip excluded properties upon comparing
-                if (getCompareProperties().contains(prop))
-                {
-                    continue;
-                }
-
-                if (!comparingToStorage.getState().hasProperty(prop))
-                {
-                    return false;
-                }
-
-                if (!comparingToStorage.getState().getValue(prop).equals(state.getValue(prop)))
-                {
-                    return false;
-                }
-            }
-        }
-        else
-        {
-            for (final Property<?> prop : propertyList)
-            {
-                if (!comparingToStorage.getState().hasProperty(prop))
-                {
-                    return false;
-                }
-
-                if (!comparingToStorage.getState().getValue(prop).equals(state.getValue(prop)))
-                {
-                    return false;
-                }
-            }
-        }
-
-        return true;
+        if (this == o) return true;
+        if (!(o instanceof BlockStateStorage other)) return false;
+        return meta == other.meta && block == other.block;
     }
 }

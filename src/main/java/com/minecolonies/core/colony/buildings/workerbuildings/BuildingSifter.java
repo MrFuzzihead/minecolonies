@@ -5,8 +5,8 @@ import com.minecolonies.api.colony.jobs.registry.JobEntry;
 import com.minecolonies.api.items.ModTags;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.AbstractCraftingBuildingModule;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.NBTTagCompound;
+// [1.7.10] int[] -> int x,y,z
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_CURRENT_DAILY;
@@ -27,7 +27,7 @@ public class BuildingSifter extends AbstractBuilding
     private static final String SIFTER_DESC = "sifter";
 
     /**
-     * Max building level of the sifter.
+     * Max building World of the sifter.
      */
     private static final int MAX_BUILDING_LEVEL = 5;
 
@@ -42,7 +42,7 @@ public class BuildingSifter extends AbstractBuilding
      * @param c the colony.
      * @param l the location
      */
-    public BuildingSifter(final IColony c, final BlockPos l)
+    public BuildingSifter(final IColony c, final int[] l)
     {
         super(c, l);
 
@@ -105,7 +105,7 @@ public class BuildingSifter extends AbstractBuilding
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag compound)
+    public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
 
@@ -113,9 +113,9 @@ public class BuildingSifter extends AbstractBuilding
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag compound = super.serializeNBT();
+        final NBTTagCompound compound = super.serializeNBT();
 
         compound.putInt(TAG_CURRENT_DAILY, currentDailyQuantity);
 
@@ -135,3 +135,6 @@ public class BuildingSifter extends AbstractBuilding
         }
     }
 }
+
+
+

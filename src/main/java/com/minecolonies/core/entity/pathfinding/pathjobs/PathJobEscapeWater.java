@@ -9,10 +9,10 @@ import com.minecolonies.core.entity.pathfinding.MNode;
 import com.minecolonies.core.entity.pathfinding.PathingOptions;
 import com.minecolonies.core.entity.pathfinding.SurfaceType;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.pathfinder.Path;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] world.entity removed
+import net.minecraft.world.World;
+import net.minecraft.pathfinding.Path;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,12 +27,12 @@ public class PathJobEscapeWater extends AbstractPathJob implements IDestinationP
      * Position to run to, in order to avoid something.
      */
     @NotNull
-    protected final BlockPos avoid;
+    protected final int[] avoid;
 
     /**
      * The blockposition we're trying to move away to
      */
-    private BlockPos preferredDirection;
+    private int[] preferredDirection;
 
     /**
      * Prepares the PathJob for the path finding system.
@@ -43,10 +43,10 @@ public class PathJobEscapeWater extends AbstractPathJob implements IDestinationP
      * @param entity the entity.
      */
     public PathJobEscapeWater(
-      final Level world,
-      @NotNull final BlockPos start,
+      final World world,
+      @NotNull final int[] start,
       final int range,
-      final Mob entity)
+      final EntityCreature entity)
     {
         super(world, start, 500, new PathResult<PathJobEscapeWater>(), entity);
 
@@ -116,8 +116,11 @@ public class PathJobEscapeWater extends AbstractPathJob implements IDestinationP
     }
 
     @Override
-    public BlockPos getDestination()
+    public int[] getDestination()
     {
         return preferredDirection;
     }
 }
+
+
+

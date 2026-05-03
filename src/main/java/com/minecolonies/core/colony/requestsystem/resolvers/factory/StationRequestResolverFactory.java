@@ -8,8 +8,8 @@ import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.util.constant.SerializationIdentifierConstants;
 import com.minecolonies.api.util.constant.TypeConstants;
 import com.minecolonies.core.colony.requestsystem.resolvers.StationRequestResolver;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -46,10 +46,10 @@ public class StationRequestResolverFactory implements IRequestResolverFactory<St
 
     @NotNull
     @Override
-    public CompoundTag serialize(
+    public NBTTagCompound serialize(
       @NotNull final IFactoryController controller, @NotNull final StationRequestResolver StationRequestResolver)
     {
-        final CompoundTag compound = new CompoundTag();
+        final NBTTagCompound compound = new NBTTagCompound();
         compound.put(NBT_TOKEN, controller.serialize(StationRequestResolver.getId()));
         compound.put(NBT_LOCATION, controller.serialize(StationRequestResolver.getLocation()));
         return compound;
@@ -57,7 +57,7 @@ public class StationRequestResolverFactory implements IRequestResolverFactory<St
 
     @NotNull
     @Override
-    public StationRequestResolver deserialize(@NotNull final IFactoryController controller, @NotNull final CompoundTag nbt)
+    public StationRequestResolver deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound nbt)
     {
         final IToken<?> token = controller.deserialize(nbt.getCompound(NBT_TOKEN));
         final ILocation location = controller.deserialize(nbt.getCompound(NBT_LOCATION));
@@ -66,7 +66,7 @@ public class StationRequestResolverFactory implements IRequestResolverFactory<St
     }
 
     @Override
-    public void serialize(IFactoryController controller, StationRequestResolver input, FriendlyByteBuf packetBuffer)
+    public void serialize(IFactoryController controller, StationRequestResolver input, PacketBuffer packetBuffer)
     {
         controller.serialize(packetBuffer, input.getId());
         controller.serialize(packetBuffer, input.getLocation());
@@ -74,7 +74,7 @@ public class StationRequestResolverFactory implements IRequestResolverFactory<St
 
     @NotNull
     @Override
-    public StationRequestResolver deserialize(IFactoryController controller, @NotNull FriendlyByteBuf buffer) throws Throwable
+    public StationRequestResolver deserialize(IFactoryController controller, @NotNull PacketBuffer buffer) throws Throwable
     {
         final IToken<?> token = controller.deserialize(buffer);
         final ILocation location = controller.deserialize(buffer);
@@ -88,3 +88,6 @@ public class StationRequestResolverFactory implements IRequestResolverFactory<St
         return SerializationIdentifierConstants.STATION_REQUEST_RESOLVER_ID;
     }
 }
+
+
+

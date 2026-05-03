@@ -1,4 +1,10 @@
 package com.minecolonies.core.colony;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.MinecoloniesAPIProxy;
@@ -40,19 +46,19 @@ import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.entity.citizen.citizenhandlers.*;
 import com.minecolonies.core.network.messages.client.colony.ColonyViewCitizenViewMessage;
 import com.minecolonies.core.util.AttributeModifierUtils;
-import net.minecraft.core.BlockPos;
+// [1.7.10] int[] -> int x,y,z
 import net.minecraft.nbt.*;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayerMP;
+// [1.7.10] int /* InteractionHand */ removed
+import net.minecraft.entity.Entity;
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -150,7 +156,7 @@ public class CitizenData implements ICitizenData
     /**
      * Report end message to:
      */
-    private ServerPlayer originPlayerRestart;
+    private EntityPlayerMP originPlayerRestart;
 
     /**
      * The id of the citizens texture.
@@ -165,7 +171,7 @@ public class CitizenData implements ICitizenData
     /**
      * The citizens current bedBos.
      */
-    private BlockPos bedPos = BlockPos.ZERO;
+    private int[] bedPos = new int[]{0,0,0};
 
     /**
      * The home building of the citizen.
@@ -203,7 +209,7 @@ public class CitizenData implements ICitizenData
     /**
      * The last position of the citizen.
      */
-    private BlockPos lastPosition = new BlockPos(0, 0, 0);
+    private int[] lastPosition = new int[]{0, 0, 0};
 
     /**
      * The citizen happiness handler.
@@ -233,7 +239,7 @@ public class CitizenData implements ICitizenData
     /**
      * The citizen chat options on the server side.
      */
-    protected final Map<Component, IInteractionResponseHandler> citizenChatOptions = new HashMap<>();
+    protected final Map<String, IInteractionResponseHandler> citizenChatOptions = new HashMap<>();
 
     /**
      * The current status of the citizen's working (?)
@@ -254,7 +260,7 @@ public class CitizenData implements ICitizenData
      * The current location of interest.
      */
     @Nullable
-    private BlockPos statusPosition;
+    private int[] statusPosition;
 
     /**
      * The citizen data random.
@@ -269,7 +275,7 @@ public class CitizenData implements ICitizenData
     /**
      * Consumed position to determine the next position to respawn at.
      */
-    private BlockPos nextRespawnPos = null;
+    private int[] nextRespawnPos = null;
 
     /**
      * Parents of the citizen.
@@ -365,7 +371,7 @@ public class CitizenData implements ICitizenData
     }
 
     @Override
-    public void onResponseTriggered(@NotNull final Component key, final int responseId, final Player player)
+    public void onResponseTriggered(@NotNull final String key, final int responseId, final Player player)
     {
         if (citizenChatOptions.containsKey(key))
         {
@@ -435,7 +441,7 @@ public class CitizenData implements ICitizenData
         {
             for (final UUID player : interactedRecentlyPlayers)
             {
-                if (getColony().getWorld().getPlayerByUUID(player) instanceof ServerPlayer playerEntity)
+                if (getColony().getWorld().getPlayerByUUID(player) instanceof EntityPlayerMP playerEntity)
                 {
                     Network.getNetwork().sendToPlayer(new ColonyViewCitizenViewMessage((Colony) getColony(), this), playerEntity);
                 }
@@ -553,7 +559,7 @@ public class CitizenData implements ICitizenData
         citizen.getCitizenColonyHandler().setColonyId(getColony().getID());
 
         citizen.setIsChild(isChild());
-        citizen.setCustomName(Component.literal(getName()));
+        citizen.setCustomName(String.literal(getName()));
 
         citizen.getAttribute(Attributes.MAX_HEALTH).setBaseValue(BASE_MAX_HEALTH);
 
@@ -571,7 +577,7 @@ public class CitizenData implements ICitizenData
         citizen.getEntityData().set(DATA_JOB, getJob() == null ? "" : getJob().getJobRegistryEntry().getKey().toString());
         citizen.getEntityData().set(DATA_STYLE, colony.getTextureStyleId());
 
-        if (getBedPos().equals(BlockPos.ZERO))
+        if (getBedPos().equals(new int[]{0,0,0}))
         {
             citizen.getCitizenSleepHandler().onWakeUp();
         }
@@ -596,23 +602,15 @@ public class CitizenData implements ICitizenData
      */
     private void applyItemModifiers(AbstractEntityCitizen citizen)
     {
-        for (final EquipmentSlot slot : EquipmentSlot.values())
+        // [1.7.10] Iterate armor slots 0-3 (boots=0, leggings=1, chestplate=2, helmet=3)
+        for (int slot = 0; slot < 4; slot++)
         {
-            final ItemStack stack;
-            if (slot.isArmor())
-            {
-                stack = citizen.getInventoryCitizen().getArmorInSlot(slot);
-            }
-            else
-            {
-                stack = citizen.getItemBySlot(slot);
-            }
-
-            if (!ItemStackUtils.isEmpty(stack))
-            {
-                citizen.getAttributes().addTransientAttributeModifiers(stack.getAttributeModifiers(slot));
-            }
+            final ItemStack stack = citizen.getInventoryCitizen().getArmorInSlot(slot);
+            // [1.7.10] attribute modifiers via getAttributeModifiers not available in 1.7.10; skip
         }
+        // [1.7.10] main hand slot
+        final ItemStack mainHand = citizen.getHeldItem();
+        // attribute modifiers skipped for 1.7.10
     }
 
     /**
@@ -895,7 +893,7 @@ public class CitizenData implements ICitizenData
 
         if (homeBuilding != null)
         {
-            setBedPos(BlockPos.ZERO);
+            setBedPos(new int[]{0,0,0});
         }
 
         homeBuilding = building;
@@ -924,7 +922,7 @@ public class CitizenData implements ICitizenData
         if (getEntity().isPresent())
         {
             final Entity entity = getEntity().get();
-            if (entity.isAlive() && WorldUtil.isEntityBlockLoaded(entity.level, entity.blockPosition()))
+            if (entity.isAlive() && WorldUtil.isEntityBlockLoaded(entity.World, entity.blockPosition()))
             {
                 return;
             }
@@ -940,7 +938,7 @@ public class CitizenData implements ICitizenData
 
         boolean spawnVisible;
         //Okey we are either just done traveling or the entity disappeared, lets check if we just finished traveling.
-        final Optional<BlockPos> travelingTargetCandidate = getColony().getTravellingManager().getTravellingTargetFor(this);
+        final Optional<int[]> travelingTargetCandidate = getColony().getTravellingManager().getTravellingTargetFor(this);
         if (travelingTargetCandidate.isPresent())
         {
             //We just finished traveling, lets spawn the entity by setting the nextRespawnPosition.
@@ -954,7 +952,7 @@ public class CitizenData implements ICitizenData
             spawnVisible = true;
         }
 
-        List<BlockPos> spawnPositions = new ArrayList<>();
+        List<int[]> spawnPositions = new ArrayList<>();
         if (nextRespawnPos != null)
         {
             spawnPositions.add(nextRespawnPos);
@@ -1038,7 +1036,7 @@ public class CitizenData implements ICitizenData
     }
 
     @Override
-    public void serializeViewNetworkData(@NotNull final FriendlyByteBuf buf)
+    public void serializeViewNetworkData(@NotNull final PacketBuffer buf)
     {
         buf.writeUtf(name);
         buf.writeBoolean(female);
@@ -1070,7 +1068,7 @@ public class CitizenData implements ICitizenData
 
         buf.writeInt(colony.getID());
 
-        final CompoundTag compound = new CompoundTag();
+        final NBTTagCompound compound = new NBTTagCompound();
         inventory.write(compound);
         buf.writeNbt(compound);
         buf.writeBlockPos(lastPosition);
@@ -1090,7 +1088,7 @@ public class CitizenData implements ICitizenData
             buf.writeInt(0);
         }
 
-        final CompoundTag happinessCompound = new CompoundTag();
+        final NBTTagCompound happinessCompound = new NBTTagCompound();
         citizenHappinessHandler.write(happinessCompound, false);
         buf.writeNbt(happinessCompound);
 
@@ -1178,13 +1176,13 @@ public class CitizenData implements ICitizenData
     }
 
     @Override
-    public void setLastPosition(final BlockPos lastPosition)
+    public void setLastPosition(final int[] lastPosition)
     {
         this.lastPosition = lastPosition;
     }
 
     @Override
-    public BlockPos getLastPosition()
+    public int[] getLastPosition()
     {
         return lastPosition;
     }
@@ -1214,7 +1212,7 @@ public class CitizenData implements ICitizenData
     }
 
     @Override
-    public BlockPos getBedPos()
+    public int[] getBedPos()
     {
         return bedPos;
     }
@@ -1227,7 +1225,7 @@ public class CitizenData implements ICitizenData
     }
 
     @Override
-    public void setBedPos(final BlockPos bedPos)
+    public void setBedPos(final int[] bedPos)
     {
         this.bedPos = bedPos;
     }
@@ -1263,7 +1261,7 @@ public class CitizenData implements ICitizenData
     }
 
     @Override
-    public void scheduleRestart(final ServerPlayer player)
+    public void scheduleRestart(final EntityPlayerMP player)
     {
         originPlayerRestart = player;
         restartScheduled = true;
@@ -1313,9 +1311,9 @@ public class CitizenData implements ICitizenData
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag nbtTagCompound = new CompoundTag();
+        final NBTTagCompound nbtTagCompound = new NBTTagCompound();
 
         nbtTagCompound.putInt(TAG_ID, id);
         nbtTagCompound.putString(TAG_NAME, name);
@@ -1338,7 +1336,7 @@ public class CitizenData implements ICitizenData
 
         if (job != null)
         {
-            @NotNull final Tag jobCompound = job.serializeNBT();
+            @NotNull final NBTBase jobCompound = job.serializeNBT();
             nbtTagCompound.put("job", jobCompound);
         }
 
@@ -1348,17 +1346,17 @@ public class CitizenData implements ICitizenData
         citizenDiseaseHandler.write(nbtTagCompound);
 
         inventory.write(nbtTagCompound);
-        nbtTagCompound.putInt(TAG_HELD_ITEM_SLOT, inventory.getHeldItemSlot(InteractionHand.MAIN_HAND));
-        nbtTagCompound.putInt(TAG_OFFHAND_HELD_ITEM_SLOT, inventory.getHeldItemSlot(InteractionHand.OFF_HAND));
+        nbtTagCompound.putInt(TAG_HELD_ITEM_SLOT, inventory.getHeldItemSlot(0 /* InteractionHand.MAIN_HAND */));
+        nbtTagCompound.putInt(TAG_OFFHAND_HELD_ITEM_SLOT, inventory.getHeldItemSlot(1 /* InteractionHand.OFF_HAND */));
 
         BlockPosUtil.write(nbtTagCompound, TAG_BEDS, bedPos);
         nbtTagCompound.putBoolean(TAG_ASLEEP, isAsleep);
         nbtTagCompound.putBoolean(TAG_JUST_ATE, justAte);
 
-        @NotNull final ListTag chatTagList = new ListTag();
+        @NotNull final NBTTagList chatTagList = new NBTTagList();
         for (@NotNull final IInteractionResponseHandler entry : citizenChatOptions.values())
         {
-            @NotNull final CompoundTag chatOptionCompound = new CompoundTag();
+            @NotNull final NBTTagCompound chatOptionCompound = new NBTTagCompound();
             chatOptionCompound.put(TAG_CHAT_OPTION, entry.serializeNBT());
             chatTagList.add(chatOptionCompound);
         }
@@ -1369,48 +1367,48 @@ public class CitizenData implements ICitizenData
         nbtTagCompound.putString(TAG_PARENT_A, parents.getA());
         nbtTagCompound.putString(TAG_PARENT_B, parents.getB());
 
-        @NotNull final ListTag siblingsNBT = new ListTag();
+        @NotNull final NBTTagList siblingsNBT = new NBTTagList();
         for (final int sibling : siblings)
         {
-            siblingsNBT.add(IntTag.valueOf(sibling));
+            siblingsNBT.add(NBTTagInt.valueOf(sibling));
         }
         nbtTagCompound.put(TAG_SIBLINGS, siblingsNBT);
 
-        @NotNull final ListTag childrenNBT = new ListTag();
+        @NotNull final NBTTagList childrenNBT = new NBTTagList();
         for (final int child : children)
         {
-            childrenNBT.add(IntTag.valueOf(child));
+            childrenNBT.add(NBTTagInt.valueOf(child));
         }
         nbtTagCompound.put(TAG_CHILDREN, childrenNBT);
         nbtTagCompound.putInt(TAG_PARTNER, partner);
         nbtTagCompound.putBoolean(TAG_ACTIVE, this.isWorking);
         nbtTagCompound.putInt(TAG_LEISURE, this.leisureTime);
 
-        @NotNull final ListTag avQuestNBT = new ListTag();
+        @NotNull final NBTTagList avQuestNBT = new NBTTagList();
         for (final ResourceLocation quest : availableQuests)
         {
-            avQuestNBT.add(StringTag.valueOf(quest.toString()));
+            avQuestNBT.add(NBTTagString.valueOf(quest.toString()));
         }
         nbtTagCompound.put(TAG_AV_QUESTS, avQuestNBT);
 
-        @NotNull final ListTag partQuestNBT = new ListTag();
+        @NotNull final NBTTagList partQuestNBT = new NBTTagList();
         for (final ResourceLocation quest : participatingQuests)
         {
-            partQuestNBT.add(StringTag.valueOf(quest.toString()));
+            partQuestNBT.add(NBTTagString.valueOf(quest.toString()));
         }
         nbtTagCompound.put(TAG_PART_QUESTS, partQuestNBT);
 
-        @NotNull final ListTag finishedQuestNBT = new ListTag();
+        @NotNull final NBTTagList finishedQuestNBT = new NBTTagList();
         for (final ResourceLocation quest : finishedQuests)
         {
-            finishedQuestNBT.add(StringTag.valueOf(quest.toString()));
+            finishedQuestNBT.add(NBTTagString.valueOf(quest.toString()));
         }
         nbtTagCompound.put(TAG_FINISHED_AV_QUESTS, finishedQuestNBT);
 
-        @NotNull final ListTag finishedPartQuestNBT = new ListTag();
+        @NotNull final NBTTagList finishedPartQuestNBT = new NBTTagList();
         for (final ResourceLocation quest : finishedQuestParticipation)
         {
-            finishedPartQuestNBT.add(StringTag.valueOf(quest.toString()));
+            finishedPartQuestNBT.add(NBTTagString.valueOf(quest.toString()));
         }
         nbtTagCompound.put(TAG_FINISHED_PART_QUESTS, finishedPartQuestNBT);
 
@@ -1422,7 +1420,7 @@ public class CitizenData implements ICitizenData
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag nbtTagCompound)
+    public void deserializeNBT(final NBTTagCompound nbtTagCompound)
     {
         name = nbtTagCompound.getString(TAG_NAME);
         female = nbtTagCompound.getBoolean(TAG_FEMALE);
@@ -1467,8 +1465,8 @@ public class CitizenData implements ICitizenData
         if (nbtTagCompound.contains(TAG_INVENTORY))
         {
             this.inventory.read(nbtTagCompound);
-            this.inventory.setHeldItem(InteractionHand.MAIN_HAND, nbtTagCompound.getInt(TAG_HELD_ITEM_SLOT));
-            this.inventory.setHeldItem(InteractionHand.OFF_HAND, nbtTagCompound.getInt(TAG_OFFHAND_HELD_ITEM_SLOT));
+            this.inventory.setHeldItem(0 /* InteractionHand.MAIN_HAND */, nbtTagCompound.getInt(TAG_HELD_ITEM_SLOT));
+            this.inventory.setHeldItem(1 /* InteractionHand.OFF_HAND */, nbtTagCompound.getInt(TAG_OFFHAND_HELD_ITEM_SLOT));
         }
 
         if (name.isEmpty())
@@ -1490,7 +1488,7 @@ public class CitizenData implements ICitizenData
         //  Citizen chat options.
         if (nbtTagCompound.contains(TAG_CHAT_OPTIONS))
         {
-            final ListTag handlerTagList = nbtTagCompound.getList(TAG_CHAT_OPTIONS, Tag.TAG_COMPOUND);
+            final NBTTagList handlerTagList = nbtTagCompound.getList(TAG_CHAT_OPTIONS, NBTBase.TAG_COMPOUND);
             for (int i = 0; i < handlerTagList.size(); ++i)
             {
                 try
@@ -1517,13 +1515,13 @@ public class CitizenData implements ICitizenData
         {
             citizenSkillHandler.init((int) citizenHappinessHandler.getHappiness(getColony(), this));
             final Map<String, Integer> levels = new HashMap<>();
-            final ListTag levelTagList = nbtTagCompound.getList(TAG_LEVEL_MAP, Tag.TAG_COMPOUND);
+            final NBTTagList levelTagList = nbtTagCompound.getList(TAG_LEVEL_MAP, NBTBase.TAG_COMPOUND);
             for (int i = 0; i < levelTagList.size(); ++i)
             {
-                final CompoundTag levelExperienceAtJob = levelTagList.getCompound(i);
+                final NBTTagCompound levelExperienceAtJob = levelTagList.getCompound(i);
                 final String jobName = levelExperienceAtJob.getString(TAG_NAME);
-                final int level = Math.min(levelExperienceAtJob.getInt(TAG_LEVEL), MAX_CITIZEN_LEVEL);
-                levels.put(jobName, level);
+                final int World = Math.min(levelExperienceAtJob.getInt(TAG_LEVEL), MAX_CITIZEN_LEVEL);
+                levels.put(jobName, World);
             }
 
             for (final Map.Entry<String, Integer> entry : levels.entrySet())
@@ -1549,13 +1547,13 @@ public class CitizenData implements ICitizenData
         final String parentB = nbtTagCompound.getString(TAG_PARENT_B);
 
         this.parents = new Tuple<>(parentA, parentB);
-        @NotNull final ListTag siblingsNBT = nbtTagCompound.getList(TAG_SIBLINGS, Tag.TAG_INT);
+        @NotNull final NBTTagList siblingsNBT = nbtTagCompound.getList(TAG_SIBLINGS, NBTBase.TAG_INT);
         for (int i = 0; i < siblingsNBT.size(); i++)
         {
             siblings.add(siblingsNBT.getInt(i));
         }
 
-        @NotNull final ListTag childrenNBT = nbtTagCompound.getList(TAG_CHILDREN, Tag.TAG_INT);
+        @NotNull final NBTTagList childrenNBT = nbtTagCompound.getList(TAG_CHILDREN, NBTBase.TAG_INT);
         for (int i = 0; i < childrenNBT.size(); i++)
         {
             children.add(childrenNBT.getInt(i));
@@ -1565,25 +1563,25 @@ public class CitizenData implements ICitizenData
         this.isWorking = nbtTagCompound.getBoolean(TAG_ACTIVE);
         this.leisureTime = nbtTagCompound.getInt(TAG_LEISURE);
 
-        @NotNull final ListTag availQuestNbt = nbtTagCompound.getList(TAG_AV_QUESTS, TAG_STRING);
+        @NotNull final NBTTagList availQuestNbt = nbtTagCompound.getList(TAG_AV_QUESTS, TAG_STRING);
         for (int i = 0; i < availQuestNbt.size(); i++)
         {
             availableQuests.add(new ResourceLocation(availQuestNbt.getString(i)));
         }
 
-        @NotNull final ListTag partQuestsNbt = nbtTagCompound.getList(TAG_PART_QUESTS, TAG_STRING);
+        @NotNull final NBTTagList partQuestsNbt = nbtTagCompound.getList(TAG_PART_QUESTS, TAG_STRING);
         for (int i = 0; i < partQuestsNbt.size(); i++)
         {
             participatingQuests.add(new ResourceLocation(partQuestsNbt.getString(i)));
         }
 
-        @NotNull final ListTag finQuestNbt = nbtTagCompound.getList(TAG_FINISHED_AV_QUESTS, TAG_STRING);
+        @NotNull final NBTTagList finQuestNbt = nbtTagCompound.getList(TAG_FINISHED_AV_QUESTS, TAG_STRING);
         for (int i = 0; i < finQuestNbt.size(); i++)
         {
             finishedQuests.add(new ResourceLocation(finQuestNbt.getString(i)));
         }
 
-        @NotNull final ListTag finPartQuestsNbt = nbtTagCompound.getList(TAG_FINISHED_PART_QUESTS, TAG_STRING);
+        @NotNull final NBTTagList finPartQuestsNbt = nbtTagCompound.getList(TAG_FINISHED_PART_QUESTS, TAG_STRING);
         for (int i = 0; i < finPartQuestsNbt.size(); i++)
         {
             finishedQuestParticipation.add(new ResourceLocation(finPartQuestsNbt.getString(i)));
@@ -1697,7 +1695,7 @@ public class CitizenData implements ICitizenData
         for (final IInteractionResponseHandler handler : toRemove)
         {
             citizenChatOptions.remove(handler.getId());
-            for (final Component comp : handler.getPossibleResponses())
+            for (final String comp : handler.getPossibleResponses())
             {
                 if (citizenChatOptions.containsKey(handler.getResponseResult(comp)))
                 {
@@ -1815,13 +1813,13 @@ public class CitizenData implements ICitizenData
     }
 
     @Override
-    public @Nullable BlockPos getStatusPosition()
+    public @Nullable int[] getStatusPosition()
     {
         return this.statusPosition;
     }
 
     @Override
-    public void setStatusPosition(@Nullable BlockPos pos)
+    public void setStatusPosition(@Nullable int[] pos)
     {
         if (!Objects.equals(this.statusPosition, pos))
         {
@@ -1837,7 +1835,7 @@ public class CitizenData implements ICitizenData
      * @param nbt    nbt compound to read from
      * @return new CitizenData
      */
-    public static CitizenData loadFromNBT(final IColony colony, final CompoundTag nbt)
+    public static CitizenData loadFromNBT(final IColony colony, final NBTTagCompound nbt)
     {
         final CitizenData data = new CitizenData(nbt.getInt(TAG_ID), colony);
         data.deserializeNBT(nbt);
@@ -1889,21 +1887,21 @@ public class CitizenData implements ICitizenData
 
         if (job != null && job.getWorkBuilding() != null && !job.getWorkBuilding().isGuardBuildingNear() && !WorldUtil.isPeaceful(colony.getWorld()))
         {
-            triggerInteraction(new StandardInteraction(Component.translatable(CITIZEN_NOT_GUARD_NEAR_WORK),
-                Component.translatable(CITIZEN_NOT_GUARD_NEAR_WORK),
+            triggerInteraction(new StandardInteraction(String.translatable(CITIZEN_NOT_GUARD_NEAR_WORK),
+                String.translatable(CITIZEN_NOT_GUARD_NEAR_WORK),
                 ChatPriority.CHITCHAT));
         }
 
         if (homeBuilding != null && !homeBuilding.isGuardBuildingNear() && !WorldUtil.isPeaceful(colony.getWorld()))
         {
-            triggerInteraction(new StandardInteraction(Component.translatable(CITIZEN_NOT_GUARD_NEAR_HOME),
-                Component.translatable(CITIZEN_NOT_GUARD_NEAR_HOME),
+            triggerInteraction(new StandardInteraction(String.translatable(CITIZEN_NOT_GUARD_NEAR_HOME),
+                String.translatable(CITIZEN_NOT_GUARD_NEAR_HOME),
                 ChatPriority.CHITCHAT));
         }
     }
 
     @Override
-    public void setNextRespawnPosition(final BlockPos pos)
+    public void setNextRespawnPosition(final int[] pos)
     {
         nextRespawnPos = pos;
     }
@@ -2032,7 +2030,7 @@ public class CitizenData implements ICitizenData
     @Override
     public void openDialogue(final IQuestInstance quest, final int index)
     {
-        final Component comp = Component.literal(quest.getId().toString());
+        final String comp = String.literal(quest.getId().toString());
         if (IQuestManager.GLOBAL_SERVER_QUESTS.get(quest.getId()).getObjective(index) instanceof IQuestDeliveryObjective)
         {
             citizenChatOptions.put(comp, new QuestDeliveryInteraction(comp, ChatPriority.CHITCHAT, quest.getId(), index, this));
@@ -2085,7 +2083,7 @@ public class CitizenData implements ICitizenData
     }
 
     @Override
-    public void onInteractionClosed(final Component key, final ServerPlayer sender)
+    public void onInteractionClosed(final String key, final EntityPlayerMP sender)
     {
         final IInteractionResponseHandler chatOption = citizenChatOptions.get(key);
         if (chatOption != null)
@@ -2123,7 +2121,7 @@ public class CitizenData implements ICitizenData
     }
 
     @Nullable
-    public BlockPos getHomePosition()
+    public int[] getHomePosition()
     {
         @Nullable final IBuilding homeBuilding = getHomeBuilding();
         if (homeBuilding != null)
@@ -2160,3 +2158,11 @@ public class CitizenData implements ICitizenData
         return this.leisureTime;
     }
 }
+
+
+
+
+
+
+
+

@@ -2,23 +2,23 @@ package com.minecolonies.core.items;
 
 import com.minecolonies.api.blocks.ModBlocks;
 import com.minecolonies.core.tileentities.TileEntityColonyFlag;
-import com.mojang.datafixers.util.Pair;
+import com.minecolonies.api.util.Tuple;
 
-import net.minecraft.world.level.block.Block;
+import net.minecraft.block.Block;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.BannerItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.core.Holder;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BannerBlockEntity;
-import net.minecraft.world.level.block.entity.BannerPattern;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.Level;
+// [1.7.10] Holder removed
+import net.minecraft.nbt.NBTTagCompound;
+// [1.7.10] block.entity removed
+// [1.7.10] block.entity removed
+// [1.7.10] block.entity removed
+// [1.7.10] InteractionResult -> boolean
+import net.minecraft.util.IChatComponent;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -64,7 +64,7 @@ public class ItemColonyFlagBanner extends BannerItem
                 source = ((TileEntityColonyFlag) te).getPatterns();
             }
 
-            CompoundTag bannerPattern = new CompoundTag();
+            NBTTagCompound bannerPattern = new NBTTagCompound();
             source.forEach((pattern) -> patternsBuilder.addPattern(pattern.getFirst(), pattern.getSecond()));
             bannerPattern.put(TAG_BANNER_PATTERNS, patternsBuilder.toListTag());
 
@@ -75,16 +75,22 @@ public class ItemColonyFlagBanner extends BannerItem
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn)
+    public void appendHoverText(ItemStack stack, @Nullable World worldIn, List<String> tooltip, TooltipFlag flagIn)
     {
-        CompoundTag tag = BlockItem.getBlockEntityData(stack);
-        if (tag != null && tag.contains(TAG_BANNER_PATTERNS))
+        NBTTagCompound NBTBase = BlockItem.getBlockEntityData(stack);
+        if (NBTBase != null && NBTBase.contains(TAG_BANNER_PATTERNS))
         {
             super.appendHoverText(stack, worldIn, tooltip, flagIn);
         }
         else
         {
-            tooltip.add(Component.translatable("com.minecolonies.coremod.item.colony_banner.tooltipempty"));
+            tooltip.add(String.translatable("com.minecolonies.coremod.item.colony_banner.tooltipempty"));
         }
     }
 }
+
+
+
+
+
+

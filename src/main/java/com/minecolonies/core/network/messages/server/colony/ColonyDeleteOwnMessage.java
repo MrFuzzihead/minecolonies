@@ -4,10 +4,9 @@ import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.api.util.MessageUtils;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.entity.player.EntityPlayerMP;
 import org.jetbrains.annotations.Nullable;
 
 import static com.minecolonies.api.util.constant.TranslationConstants.MESSAGE_INFO_COLONY_DESTROY_SUCCESS;
@@ -19,34 +18,34 @@ import static com.minecolonies.api.util.constant.TranslationConstants.MESSAGE_IN
 public class ColonyDeleteOwnMessage implements IMessage
 {
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    public void toBytes(final PacketBuffer buf)
     {
 
     }
 
     @Override
-    public void fromBytes(final FriendlyByteBuf buf)
+    public void fromBytes(final PacketBuffer buf)
     {
 
     }
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.SERVER;
+        return Boolean.TRUE;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
-        final ServerPlayer player = ctxIn.getSender();
+        final EntityPlayerMP player = ctx.getServerHandler().playerEntity;
         if (player == null)
         {
             return;
         }
 
-        final IColony colony = IColonyManager.getInstance().getIColonyByOwner(player.level, player);
+        final IColony colony = IColonyManager.getInstance().getIColonyByOwner(player.World, player);
         if (colony != null)
         {
             IColonyManager.getInstance().deleteColonyByDimension(colony.getID(), false, colony.getDimension());
@@ -58,3 +57,6 @@ public class ColonyDeleteOwnMessage implements IMessage
         }
     }
 }
+
+
+

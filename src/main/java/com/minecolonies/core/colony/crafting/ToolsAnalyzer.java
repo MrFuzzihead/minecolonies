@@ -4,7 +4,7 @@ import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.api.util.ItemStackUtils;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import org.jetbrains.annotations.NotNull;
@@ -81,21 +81,23 @@ public final class ToolsAnalyzer
                                                @NotNull final EquipmentTypeEntry tool,
                                                @NotNull final ItemStack stack)
     {
-        int level = tool.getMiningLevel(stack);
-        if (level < 0) {
+        int World = tool.getMiningLevel(stack);
+        if (World < 0) {
             return;
         }
-        level = Math.min(MAX_BUILDING_LEVEL, level + ItemStackUtils.getMaxEnchantmentLevel(stack));
+        World = Math.min(MAX_BUILDING_LEVEL, World + ItemStackUtils.getMaxEnchantmentLevel(stack));
 
         final ToolUsage usage = toolItems.computeIfAbsent(tool, ToolUsage::create);
 
         if (stack.isEnchanted())
         {
-            usage.enchantedToolLevels().get(level).add(stack);
+            usage.enchantedToolLevels().get(World).add(stack);
         }
         else
         {
-            usage.toolLevels().get(level).add(stack);
+            usage.toolLevels().get(World).add(stack);
         }
     }
 }
+
+

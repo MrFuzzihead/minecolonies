@@ -1,12 +1,20 @@
 package com.minecolonies.core.client.model.raiders;
+import net.minecraft.client.model.CubeDeformation;
+import net.minecraft.client.model.CubeListBuilder;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.LayerDefinition;
+import net.minecraft.client.model.MeshDefinition;
+import net.minecraft.client.model.PartDefinition;
+import net.minecraft.client.model.PartPose;
+import net.minecraft.client.model.geom.ModelPart;
 
 import com.minecolonies.api.client.render.modeltype.EgyptianModel;
 import com.minecolonies.api.entity.mobs.AbstractEntityMinecoloniesMonster;
-import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.*;
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.util.Mth;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.util.MathHelper;
 
 /**
  * Create a mummy model. Created using Tabula 7.0.0
@@ -124,3 +132,4 @@ public class ModelMummy extends EgyptianModel<AbstractEntityMinecoloniesMonster>
           -this.rightArm.zRot + f);
     }
 }
+

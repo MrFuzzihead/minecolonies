@@ -1,8 +1,8 @@
 package com.minecolonies.api.colony.managers.interfaces;
 
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -18,7 +18,7 @@ public interface IEventStructureManager
      * @param eventID          eventID to spawn for
      * @return true if successfully spawned
      */
-    boolean spawnTemporaryStructure(Blueprint structure, BlockPos targetSpawnPoint, int eventID);
+    boolean spawnTemporaryStructure(Blueprint structure, int[] targetSpawnPoint, int eventID);
 
     /**
      * Restores backup schematics for the given event ID, may be more than one.
@@ -32,12 +32,15 @@ public interface IEventStructureManager
      *
      * @param compound the compound to read from.
      */
-    void readFromNBT(@NotNull CompoundTag compound);
+    void readFromNBT(@NotNull NBTTagCompound compound);
 
     /**
      * Writes all backup schematics to NBT
      *
      * @param compound the compound to write to.
      */
-    void writeToNBT(@NotNull CompoundTag compound);
+    void writeToNBT(@NotNull NBTTagCompound compound);
 }
+
+
+

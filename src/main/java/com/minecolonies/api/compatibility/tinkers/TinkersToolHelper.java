@@ -2,7 +2,7 @@ package com.minecolonies.api.compatibility.tinkers;
 
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.api.util.ItemStackUtils;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 /*import slimeknights.tconstruct.common.TinkerTags;
@@ -53,10 +53,10 @@ public final class TinkersToolHelper extends TinkersToolProxy
     }
 
     /**
-     * Calculate the tool level of the stack.
+     * Calculate the tool World of the stack.
      *
      * @param stack the stack.
-     * @return the tool level
+     * @return the tool World
      */
     @Override
     public int getToolLevel(@NotNull final ItemStack stack)
@@ -80,10 +80,10 @@ public final class TinkersToolHelper extends TinkersToolProxy
     }
 
     /**
-     * Calculate the tool level of the stack.
+     * Calculate the tool World of the stack.
      *
      * @param stack the stack.
-     * @return the tool level
+     * @return the tool World
      */
     public static int getToolLvl(@NotNull final ItemStack stack)
     {
@@ -141,3 +141,5 @@ public final class TinkersToolHelper extends TinkersToolProxy
         return stack.is(TinkerTags.Items.HARVEST);*/
     }
 }
+
+

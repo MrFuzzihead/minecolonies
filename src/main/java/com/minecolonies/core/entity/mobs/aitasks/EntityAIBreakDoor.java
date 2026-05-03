@@ -10,12 +10,12 @@ import com.minecolonies.core.MineColonies;
 import com.minecolonies.core.colony.buildings.AbstractBuildingGuards;
 import com.minecolonies.core.colony.jobs.AbstractJobGuard;
 import com.minecolonies.core.entity.ai.workers.guard.AbstractEntityAIGuard;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.goal.BreakDoorGoal;
-import net.minecraft.world.level.block.state.BlockState;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] world.entity removed
+// [1.7.10] world.entity removed
+// [1.7.10] BlockState -> int metadata
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.phys.Vec3;
+// [1.7.10] world.phys removed
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -32,7 +32,7 @@ public class EntityAIBreakDoor extends BreakDoorGoal
     /**
      * Previous break pos
      */
-    private BlockPos prevDoorPos = BlockPos.ZERO;
+    private int[] prevDoorPos = new int[]{0,0,0};
 
     /**
      * The door's hardness we're breaking
@@ -44,7 +44,7 @@ public class EntityAIBreakDoor extends BreakDoorGoal
      */
     private int breakChance = 1;
 
-    public EntityAIBreakDoor(final Mob entityIn)
+    public EntityAIBreakDoor(final EntityCreature entityIn)
     {
         super(entityIn, difficulty -> difficulty.getId() > 0);
         setFlags(EnumSet.of(Flag.MOVE));
@@ -53,48 +53,48 @@ public class EntityAIBreakDoor extends BreakDoorGoal
     @Override
     public boolean canContinueToUse()
     {
-        return super.canContinueToUse() && !mob.level.isEmptyBlock(doorPos);
+        return super.canContinueToUse() && !EntityCreature.World.isEmptyBlock(doorPos);
     }
 
     @Override
     public void start()
     {
         super.start();
-        if (!prevDoorPos.equals(doorPos))
+        if (!Arrays.equals(doorPos, prevDoorPos))
         {
             this.breakTime = 0;
         }
         prevDoorPos = doorPos;
-        hardness = (int) (1 + mob.level.getBlockState(doorPos).getDestroySpeed(mob.level, doorPos));
+        hardness = (int) (1 + EntityCreature.World.getBlockState(doorPos).getDestroySpeed(EntityCreature.World, doorPos));
 
         // No stuck during door break
-        if (mob instanceof AbstractEntityMinecoloniesRaider)
+        if (EntityCreature instanceof AbstractEntityMinecoloniesRaider)
         {
-            ((AbstractEntityMinecoloniesRaider) mob).setCanBeStuck(false);
+            ((AbstractEntityMinecoloniesRaider) EntityCreature).setCanBeStuck(false);
         }
     }
 
     public void stop()
     {
         super.stop();
-        this.mob.level.destroyBlockProgress(this.mob.getId(), this.doorPos, -1);
-        if (mob instanceof AbstractEntityMinecoloniesRaider)
+        this.EntityCreature.World.destroyBlockProgress(this.EntityCreature.getId(), this.doorPos, -1);
+        if (EntityCreature instanceof AbstractEntityMinecoloniesRaider)
         {
-            ((AbstractEntityMinecoloniesRaider) mob).setCanBeStuck(true);
+            ((AbstractEntityMinecoloniesRaider) EntityCreature).setCanBeStuck(true);
         }
     }
 
     @Override
     public void tick()
     {
-        if (mob.getCommandSenderWorld().getDifficulty().getId() < 2 || !MineColonies.getConfig().getServer().raidersbreakdoors.get())
+        if (EntityCreature.getCommandSenderWorld().getDifficulty().getId() < 2 || !MineColonies.getConfig().getServer().raidersbreakdoors.get())
         {
             breakTime = 0;
             return;
         }
 
         // Only advances breaking time in relation to hardness
-        if (this.mob.getRandom().nextInt(breakChance) != 0)
+        if (this.EntityCreature.getRandom().nextInt(breakChance) != 0)
         {
             this.breakTime--;
         }
@@ -102,19 +102,19 @@ public class EntityAIBreakDoor extends BreakDoorGoal
         {
             double fasterBreakPerXNearby = 5;
 
-            if (mob instanceof AbstractEntityMinecoloniesRaider && !mob.level.isClientSide() && mob.level.getBlockState(doorPos).getBlock() instanceof AbstractBlockGate)
+            if (EntityCreature instanceof AbstractEntityMinecoloniesRaider && !EntityCreature.World.isClientSide() && EntityCreature.World.getBlockState(doorPos).getBlock() instanceof AbstractBlockGate)
             {
-                final IColony colony = ((AbstractEntityMinecoloniesRaider) mob).getColony();
+                final IColony colony = ((AbstractEntityMinecoloniesRaider) EntityCreature).getColony();
 
                 fasterBreakPerXNearby += colony.getResearchManager().getResearchEffects().getEffectStrength(MECHANIC_ENHANCED_GATES);
             }
 
             fasterBreakPerXNearby /= 2;
             breakChance = (int) Math.max(1,
-              hardness / (1 + (mob.level.getEntitiesOfClass(AbstractEntityMinecoloniesRaider.class, mob.getBoundingBox().inflate(5)).size() / fasterBreakPerXNearby)));
+              hardness / (1 + (EntityCreature.World.getEntitiesOfClass(AbstractEntityMinecoloniesRaider.class, EntityCreature.getBoundingBox().inflate(5)).size() / fasterBreakPerXNearby)));
 
             // Alert nearby guards
-            if (this.mob.getRandom().nextInt(breakChance) == 0 && mob instanceof AbstractEntityMinecoloniesRaider raider && mob.level.getBlockState(doorPos)
+            if (this.EntityCreature.getRandom().nextInt(breakChance) == 0 && EntityCreature instanceof AbstractEntityMinecoloniesRaider raider && EntityCreature.World.getBlockState(doorPos)
                 .getBlock() instanceof AbstractBlockGate)
             {
                 // Alerts guards of raiders reaching a building
@@ -134,9 +134,13 @@ public class EntityAIBreakDoor extends BreakDoorGoal
                     }
                 }
 
-                possibleGuards.sort(Comparator.comparingInt(guard -> (int) doorPos.distSqr(guard.blockPosition())));
-                BlockPos gotoPos = BlockPos.containing(Vec3.atCenterOf(doorPos)
-                    .add(Vec3.atCenterOf(raider.getColony().getCenter()).subtract(Vec3.atCenterOf(doorPos)).normalize().multiply(3, 0, 3)));
+                possibleGuards.sort(Comparator.comparingInt(guard -> (int) BlockPosUtil.distSqr(doorPos, (int)guard.posX, (int)guard.posY, (int)guard.posZ)));
+                // [1.7.10] Vec3.atCenterOf not available; compute center offset manually
+                final int[] colonyCenter = raider.getColony().getCenter();
+                final double dx = colonyCenter[0] - doorPos[0];
+                final double dz = colonyCenter[2] - doorPos[2];
+                final double len = Math.sqrt(dx * dx + dz * dz);
+                final int[] gotoPos = new int[]{doorPos[0] + (len > 0 ? (int)(dx / len * 3) : 0), doorPos[1], doorPos[2] + (len > 0 ? (int)(dz / len * 3) : 0)};
 
                 for (int i = 0; i < possibleGuards.size() && i <= 3; i++)
                 {
@@ -147,13 +151,17 @@ public class EntityAIBreakDoor extends BreakDoorGoal
 
         if (this.breakTime == this.getDoorBreakTime() - 1)
         {
-            final BlockState toBreak = mob.level.getBlockState(doorPos);
+            final BlockState toBreak = EntityCreature.World.getBlockState(doorPos);
             if (toBreak.getBlock() instanceof AbstractBlockGate)
             {
-                ((AbstractBlockGate) toBreak.getBlock()).removeGate(mob.level, doorPos, toBreak.getValue(BlockStateProperties.HORIZONTAL_FACING).getClockWise());
+                ((AbstractBlockGate) toBreak.getBlock()).removeGate(EntityCreature.World, doorPos, toBreak.getValue(BlockStateProperties.HORIZONTAL_FACING).getClockWise());
             }
         }
 
         super.tick();
     }
 }
+
+
+
+

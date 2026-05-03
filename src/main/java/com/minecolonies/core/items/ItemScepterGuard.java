@@ -8,14 +8,14 @@ import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.core.colony.buildings.AbstractBuildingGuards;
 import com.minecolonies.core.colony.buildings.modules.settings.GuardTaskSetting;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
+import net.minecraft.nbt.NBTTagCompound;
+// [1.7.10] InteractionResult -> boolean
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_ID;
@@ -28,7 +28,7 @@ import static com.minecolonies.api.util.constant.translation.ToolTranslationCons
 public class ItemScepterGuard extends AbstractItemMinecolonies
 {
     /**
-     * The compound tag for the last pos the tool has been clicked.
+     * The compound NBTBase for the last pos the tool has been clicked.
      */
     private static final String TAG_LAST_POS = "lastPos";
 
@@ -55,13 +55,13 @@ public class ItemScepterGuard extends AbstractItemMinecolonies
         final ItemStack scepter = ctx.getPlayer().getItemInHand(ctx.getHand());
         if (!scepter.hasTag())
         {
-            scepter.setTag(new CompoundTag());
+            scepter.setTag(new NBTTagCompound());
         }
-        final CompoundTag compound = scepter.getTag();
+        final NBTTagCompound compound = scepter.getTag();
 
         if (compound.contains(TAG_LAST_POS))
         {
-            final BlockPos lastPos = BlockPosUtil.read(compound, TAG_LAST_POS);
+            final int[] lastPos = BlockPosUtil.read(compound, TAG_LAST_POS);
             if (lastPos.equals(ctx.getClickedPos()))
             {
                 ctx.getPlayer().getInventory().removeItemNoUpdate(ctx.getPlayer().getInventory().selected);
@@ -83,7 +83,7 @@ public class ItemScepterGuard extends AbstractItemMinecolonies
      * @return if it has been successful.
      */
     @NotNull
-    private static InteractionResult handleItemUsage(final Level worldIn, final BlockPos pos, final CompoundTag compound, final Player playerIn, final ItemStack stack)
+    private static InteractionResult handleItemUsage(final World worldIn, final int[] pos, final NBTTagCompound compound, final Player playerIn, final ItemStack stack)
     {
         if (!compound.contains(TAG_ID))
         {
@@ -95,7 +95,7 @@ public class ItemScepterGuard extends AbstractItemMinecolonies
             return InteractionResult.FAIL;
         }
 
-        final BlockPos guardTower = BlockPosUtil.read(compound, TAG_POS);
+        final int[] guardTower = BlockPosUtil.read(compound, TAG_POS);
         final IBuilding hut = colony.getServerBuildingManager().getBuilding(guardTower);
         if (!(hut instanceof AbstractBuildingGuards))
         {
@@ -129,3 +129,7 @@ public class ItemScepterGuard extends AbstractItemMinecolonies
         return InteractionResult.SUCCESS;
     }
 }
+
+
+
+

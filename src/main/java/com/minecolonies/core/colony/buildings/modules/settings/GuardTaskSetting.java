@@ -1,9 +1,15 @@
 package com.minecolonies.core.colony.buildings.modules.settings;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BoneMealItem;
 
-import com.ldtteam.blockui.Pane;
-import com.ldtteam.blockui.PaneBuilders;
-import com.ldtteam.blockui.controls.ButtonImage;
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.buildings.modules.ICommonSettingsModule;
 import com.minecolonies.api.colony.buildings.modules.settings.ISettingKey;
@@ -11,9 +17,9 @@ import com.minecolonies.api.colony.buildings.modules.settings.ISettingsModuleVie
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.core.colony.buildings.AbstractBuildingGuards;
 import com.minecolonies.core.colony.buildings.modules.BuildingModules;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayerMP;
 
 import java.util.List;
 
@@ -72,7 +78,7 @@ public class GuardTaskSetting extends StringSettingWithDesc
     }
 
     @Override
-    public void onUpdate(final IBuilding building, final ServerPlayer sender)
+    public void onUpdate(final IBuilding building, final EntityPlayerMP sender)
     {
         if (building instanceof AbstractBuildingGuards guardBuilding && getValue().equals(FOLLOW))
         {
@@ -81,46 +87,17 @@ public class GuardTaskSetting extends StringSettingWithDesc
     }
 
     @Override
-    public void setupHandler(final ISettingKey<?> key, final Pane pane, final ICommonSettingsModule settingsModuleView, final IBuildingView building, final BOWindow window)
+    public void setupHandler(final ISettingKey<?> key, final Object pane, final ICommonSettingsModule settingsModuleView, final IBuildingView building, final Object /* BOWindow: todo ModularUI2 */ window)
     {
+        // [1.7.10] todo: ModularUI2 port
         super.setupHandler(key, pane, settingsModuleView, building, window);
-
-        final ButtonImage setPositionsButton = pane.findPaneOfTypeByID("setPositions", ButtonImage.class);
-        if (building.getModuleView(BuildingModules.GUARD_TOOL) != null)
-        {
-            setPositionsButton.setHandler(button -> building.getModuleView(BuildingModules.GUARD_TOOL).getWindow().open());
-        }
     }
 
     @Override
-    public void render(final ISettingKey<?> key, final Pane pane, final ICommonSettingsModule settingsModuleView, final IBuildingView building, final BOWindow window)
+    public void render(final ISettingKey<?> key, final Object pane, final ICommonSettingsModule settingsModuleView, final IBuildingView building, final Object /* BOWindow: todo ModularUI2 */ window)
     {
+        // [1.7.10] todo: ModularUI2 port
         super.render(key, pane, settingsModuleView, building, window);
-
-        final ButtonImage setPositionsButton = pane.findPaneOfTypeByID("setPositions", ButtonImage.class);
-        final ButtonImage helpButton = pane.findPaneOfTypeByID("helpButton", ButtonImage.class);
-
-        switch (getValue())
-        {
-            case PATROL ->
-            {
-                final String patrolMode = settingsModuleView.getSetting(PATROL_MODE).getValue();
-                setPositionsButton.setVisible(patrolMode.equals(MANUAL));
-                helpButton.setVisible(false);
-            }
-            case GUARD -> setPositionsButton.setVisible(true);
-            case PATROL_MINE ->
-            {
-                setPositionsButton.setVisible(false);
-                helpButton.setVisible(true);
-                setPatrolMineHelpLabel(helpButton, (AbstractBuildingGuards.View) building);
-            }
-            default ->
-            {
-                setPositionsButton.setVisible(false);
-                helpButton.setVisible(false);
-            }
-        }
     }
 
     @Override
@@ -145,20 +122,9 @@ public class GuardTaskSetting extends StringSettingWithDesc
      * @param button   the button instance.
      * @param building the building.
      */
-    private void setPatrolMineHelpLabel(final ButtonImage button, final AbstractBuildingGuards.View building)
-    {
-        Component component;
-        if (building.getMinePos() != null)
-        {
-            component = Component.translatable("com.minecolonies.coremod.gui.worherhuts.patrollingmine", building.getMinePos().toShortString());
-        }
-        else
-        {
-            component = Component.translatable("com.minecolonies.coremod.job.guard.assignmine");
-        }
-        PaneBuilders.tooltipBuilder()
-          .append(component)
-          .hoverPane(button)
-          .build();
-    }
+    // [1.7.10] todo: ModularUI2 port - setPatrolMineHelpLabel removed (uses ButtonImage)
 }
+
+
+
+

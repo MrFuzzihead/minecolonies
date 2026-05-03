@@ -25,13 +25,13 @@ import com.minecolonies.core.entity.ai.workers.AbstractEntityAIUsesFurnace;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.InvWrapper;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+// [1.7.10] block.entity removed
+// [1.7.10] items shim in com.minecolonies.api.shim
+// [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayDeque;
@@ -64,7 +64,7 @@ public class EntityAIWorkCook extends AbstractEntityAIUsesFurnace<JobCook, Build
     private static final int SERVE_DELAY = 30;
 
     /**
-     * Level at which the cook should give some food to the player.
+     * World at which the cook should give some food to the player.
      */
     private static final int LEVEL_TO_FEED_PLAYER = 10;
 
@@ -152,7 +152,7 @@ public class EntityAIWorkCook extends AbstractEntityAIUsesFurnace<JobCook, Build
         final RestaurantMenuModule menuModule = building.getModule(RESTAURANT_MENU);
         if (menuModule.getMenu().isEmpty() && worker.getCitizenData() != null)
         {
-            worker.getCitizenData().triggerInteraction(new StandardInteraction(Component.translatable(FURNACE_USER_NO_FOOD), ChatPriority.BLOCKING));
+            worker.getCitizenData().triggerInteraction(new StandardInteraction(String.translatable(FURNACE_USER_NO_FOOD), ChatPriority.BLOCKING));
         }
     }
 
@@ -230,7 +230,7 @@ public class EntityAIWorkCook extends AbstractEntityAIUsesFurnace<JobCook, Build
 
         if (citizenData.getHomeBuilding() != null && citizenData.getHomeBuilding().getBuildingLevelEquivalent() > building.getBuildingLevel() + 1)
         {
-            worker.getCitizenData().triggerInteraction(new StandardInteraction(Component.translatable(POOR_RESTAURANT_INTERACTION), ChatPriority.IMPORTANT));
+            worker.getCitizenData().triggerInteraction(new StandardInteraction(String.translatable(POOR_RESTAURANT_INTERACTION), ChatPriority.IMPORTANT));
         }
 
         String foodName = worker.getInventoryCitizen().getStackInSlot(foodSlot).getDescriptionId();
@@ -271,7 +271,7 @@ public class EntityAIWorkCook extends AbstractEntityAIUsesFurnace<JobCook, Build
         }
 
         final Player player = playerToServe.poll();
-        final IItemHandler handler = new InvWrapper(player.getInventory());
+        final net.minecraftforge.items.IItemHandler handler = new InvWrapper(player.getInventory());
         final RestaurantMenuModule module = worker.getCitizenData().getWorkBuilding().getModule(RESTAURANT_MENU);
         final Predicate<ItemStack> canEatPredicate = stack -> module.getMenu().contains(new ItemStorage(stack));
         if (InventoryUtils.isItemHandlerFull(handler))
@@ -359,7 +359,7 @@ public class EntityAIWorkCook extends AbstractEntityAIUsesFurnace<JobCook, Build
 
             if (!hasMinecoloniesFoodInMenu)
             {
-                worker.getCitizenData().triggerInteraction(new StandardInteraction(Component.translatable(POOR_MENU_INTERACTION), ChatPriority.IMPORTANT));
+                worker.getCitizenData().triggerInteraction(new StandardInteraction(String.translatable(POOR_MENU_INTERACTION), ChatPriority.IMPORTANT));
             }
         }
 
@@ -434,3 +434,7 @@ public class EntityAIWorkCook extends AbstractEntityAIUsesFurnace<JobCook, Build
         return new Food(STACKSIZE, building.getBuildingLevel());
     }
 }
+
+
+
+

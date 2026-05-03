@@ -1,27 +1,27 @@
 package com.minecolonies.api.colony.buildings;
 
 import com.minecolonies.api.tileentities.AbstractTileEntityColonyBuilding;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.util.LazyOptional;
+// [1.7.10] int[] -> int x,y,z
+// [1.7.10] EnumFacing -> net.minecraft.util.EnumFacing
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] capabilities removed
+// [1.7.10] capabilities removed
+// [1.7.10] LazyOptional removed
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public interface IBuildingContainer extends ISchematicProvider, ICapabilityProvider
+public interface IBuildingContainer extends ISchematicProvider
 {
     @Override
-    void deserializeNBT(CompoundTag compound);
+    void deserializeNBT(NBTTagCompound compound);
 
     @Override
-    CompoundTag serializeNBT();
+    NBTTagCompound serializeNBT();
 
     /**
      * Get the pick up priority of the building.
@@ -42,21 +42,21 @@ public interface IBuildingContainer extends ISchematicProvider, ICapabilityProvi
      *
      * @param pos position to add.
      */
-    void addContainerPosition(@NotNull BlockPos pos);
+    void addContainerPosition(@NotNull int[] pos);
 
     /**
      * Remove a container from the building.
      *
      * @param pos position to remove.
      */
-    void removeContainerPosition(BlockPos pos);
+    void removeContainerPosition(int[] pos);
 
     /**
      * Get all containers which belong to the building (including hutblock).
      *
      * @return a copy of the list to avoid currentModification exception.
      */
-    List<BlockPos> getContainers();
+    List<int[]> getContainers();
 
     /**
      * Register a blockState and position. We suppress this warning since this parameter will be used in child classes which override this method.
@@ -65,7 +65,7 @@ public interface IBuildingContainer extends ISchematicProvider, ICapabilityProvi
      * @param pos        of the blockState
      * @param world      world to register it at.
      */
-    void registerBlockPosition(@NotNull BlockState blockState, @NotNull BlockPos pos, @NotNull Level world);
+    void registerBlockPosition(@NotNull BlockState blockState, @NotNull int[] pos, @NotNull World world);
 
     /**
      * Register a block and position. We suppress this warning since this parameter will be used in child classes which override this method.
@@ -75,7 +75,7 @@ public interface IBuildingContainer extends ISchematicProvider, ICapabilityProvi
      * @param world world to register it at.
      */
     @SuppressWarnings("squid:S1172")
-    void registerBlockPosition(@NotNull Block block, @NotNull BlockPos pos, @NotNull Level world);
+    void registerBlockPosition(@NotNull Block block, @NotNull int[] pos, @NotNull World world);
 
     /**
      * Returns the tile entity that belongs to the colony building.
@@ -91,7 +91,10 @@ public interface IBuildingContainer extends ISchematicProvider, ICapabilityProvi
      */
     void setTileEntity(AbstractTileEntityColonyBuilding te);
 
-    @Nonnull
-    @Override
-    <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, final Direction direction);
+    // [1.7.10] getCapability not supported - no Forge capability system in 1.7.10
 }
+
+
+
+
+

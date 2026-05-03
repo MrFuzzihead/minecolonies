@@ -1,30 +1,39 @@
 package com.minecolonies.core.client.model;
 
+import net.minecraft.client.model.CubeDeformation;
+import net.minecraft.client.model.CubeListBuilder;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.LayerDefinition;
+import net.minecraft.client.model.MeshDefinition;
+import net.minecraft.client.model.PartDefinition;
+import net.minecraft.client.model.PartPose;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.Model;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.model.Model;
-import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.CubeListBuilder;
-import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.model.geom.builders.PartDefinition;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+// [1.7.10] client removed (use @SideOnly)
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Model for the Spear. The model is a long wooden rod with an iron head and leather handle.
  */
-@OnlyIn(Dist.CLIENT)
+// @OnlyIn(Dist.CLIENT) - replaced by @SideOnly(Side.CLIENT) above
 public class SpearModel extends Model
 {
     private final ModelPart handle;
 
     public SpearModel(ModelPart handle)
     {
-        super(RenderType::entitySolid);
+        super(); // [1.7.10] RenderType not available
         this.handle = handle;
     }
 
@@ -64,3 +73,4 @@ public class SpearModel extends Model
         handle.render(matrixStack, buffer, packedLight, packedOverlay);
     }
 }
+

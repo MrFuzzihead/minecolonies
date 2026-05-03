@@ -1,12 +1,11 @@
 package com.minecolonies.core.colony.crafting;
 
 import com.minecolonies.api.network.IMessage;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] client removed (use @SideOnly)
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,7 +17,7 @@ public class CustomRecipeManagerMessage implements IMessage
     /**
      * The buffer with the data.
      */
-    private FriendlyByteBuf managerBuffer;
+    private PacketBuffer managerBuffer;
 
     /**
      * Empty constructor used when registering the message
@@ -33,38 +32,40 @@ public class CustomRecipeManagerMessage implements IMessage
      *
      * @param buf               the bytebuffer.
      */
-    public CustomRecipeManagerMessage(final FriendlyByteBuf buf)
+    public CustomRecipeManagerMessage(final PacketBuffer buf)
     {
-        this.managerBuffer = new FriendlyByteBuf(buf.copy());
+        this.managerBuffer = new PacketBuffer(buf.copy());
     }
 
     @Override
-    public void fromBytes(@NotNull final FriendlyByteBuf buf)
+    public void fromBytes(@NotNull final PacketBuffer buf)
     {
-        managerBuffer = new FriendlyByteBuf(buf.retain());
+        managerBuffer = new PacketBuffer(buf.retain());
     }
 
     @Override
-    public void toBytes(@NotNull final FriendlyByteBuf buf)
+    public void toBytes(@NotNull final PacketBuffer buf)
     {
         buf.writeBytes(managerBuffer);
     }
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.CLIENT;
+        return Boolean.FALSE;
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
-        if (Minecraft.getInstance().level != null)
+        if (Minecraft.getInstance().World != null)
         {
             CustomRecipeManager.getInstance().handleCustomRecipeManagerMessage(managerBuffer);
         }
         managerBuffer.release();
     }
 }
+
+

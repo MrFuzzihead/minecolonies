@@ -1,158 +1,58 @@
 package com.minecolonies.api.util;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+// [1.7.10] VoxelShape, Shapes, Direction.Axis do not exist in 1.7.10
+// All methods are stubbed with TODO
+
+import net.minecraft.world.IBlockAccess;
 
 /**
- * Utility methods for dealing with voxel shapes
+ * Utility methods for dealing with voxel shapes.
+ * [1.7.10] VoxelShape API does not exist; methods are no-op stubs.
  */
 public class ShapeUtil
 {
     /**
-     * Fast shape max for normal blocks
-     *
-     * @param shape
-     * @param axis
-     * @return
+     * [1.7.10] VoxelShape not available; always returns 1.0 (full block max).
      */
-    public static double max(final VoxelShape shape, final Direction.Axis axis)
+    public static double max(final Object shape, final Object axis)
     {
-        if (shape == Shapes.block())
-        {
-            return 1.0;
-        }
-
-        // Note: in vanilla this is -infinity
-        if (shape == Shapes.empty())
-        {
-            return 0;
-        }
-
-        return shape.max(axis);
+        // TODO: no 1.7.10 VoxelShape equivalent
+        return 1.0;
     }
 
     /**
-     * Fast shape min for normal Blocks
-     *
-     * @param shape
-     * @param axis
-     * @return
+     * [1.7.10] VoxelShape not available; always returns 0.0 (full block min).
      */
-    public static double min(final VoxelShape shape, final Direction.Axis axis)
+    public static double min(final Object shape, final Object axis)
     {
-        if (shape == Shapes.block())
-        {
-            return 0.0;
-        }
-
-        // Note: in vanilla this is +infinity
-        if (shape == Shapes.empty())
-        {
-            return 0;
-        }
-
-        return shape.min(axis);
+        // TODO: no 1.7.10 VoxelShape equivalent
+        return 0.0;
     }
 
     /**
-     * Check if a shape is empty
-     *
-     * @param shape
-     * @return
+     * [1.7.10] VoxelShape collision check not available; always returns false.
      */
-    public static boolean isEmpty(final VoxelShape shape)
+    public static boolean hasCollision(final IBlockAccess world, final int[] pos, final Object blockState)
     {
-        if (shape == Shapes.block())
-        {
-            return false;
-        }
-
-        if (shape == Shapes.empty())
-        {
-            return true;
-        }
-
-        return shape.isEmpty();
+        // TODO: no 1.7.10 VoxelShape equivalent
+        return false;
     }
 
     /**
-     * Get the start y of a voxelshape.
-     *
-     * @param bb  the voxelshape.
-     * @param def the default if empty.
-     * @return the start y.
+     * [1.7.10] VoxelShape not available; returns empty stub.
      */
-    public static double getStartY(final VoxelShape bb, final double def)
+    public static Object empty()
     {
-        return isEmpty(bb) ? def : min(bb, Direction.Axis.Y);
+        // TODO: no 1.7.10 VoxelShape equivalent
+        return null;
     }
 
     /**
-     * Get the end y of a voxelshape.
-     *
-     * @param bb  the voxelshape.
-     * @param def the default if empty.
-     * @return the end y.
+     * [1.7.10] VoxelShape not available; returns full block stub.
      */
-    public static double getEndY(final VoxelShape bb, final double def)
+    public static Object block()
     {
-        return isEmpty(bb) ? def : max(bb, Direction.Axis.Y);
-    }
-
-    /**
-     * Check if the given block has a collision shape
-     *
-     * @param world
-     * @param pos
-     * @param state
-     * @return
-     */
-    public static boolean hasCollision(final BlockGetter world, final BlockPos pos, final BlockState state)
-    {
-        if (!state.getBlock().hasCollision)
-        {
-            return false;
-        }
-
-        return hasCollision(state, state.getCollisionShape(world, pos));
-    }
-
-    /**
-     * Check if the given block has a collision shape
-     *
-     * @param world
-     * @param pos
-     * @param state
-     * @return
-     */
-    public static boolean hasCollision(final BlockGetter world, final int x, final int y, final int z, final BlockState state)
-    {
-        if (!state.getBlock().hasCollision)
-        {
-            return false;
-        }
-
-        return hasCollision(state, state.getCollisionShape(world, new BlockPos(x, y, z)));
-    }
-
-    /**
-     * Check if the given block has a collision shape
-     *
-     * @param state
-     * @param collisionShape
-     * @return
-     */
-    public static boolean hasCollision(final BlockState state, final VoxelShape collisionShape)
-    {
-        if (!state.getBlock().hasCollision)
-        {
-            return false;
-        }
-
-        return !ShapeUtil.isEmpty(collisionShape);
+        // TODO: no 1.7.10 VoxelShape equivalent
+        return null;
     }
 }

@@ -2,13 +2,12 @@ package com.minecolonies.core.network.messages.client.colony;
 
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.network.IMessage;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] Registries removed
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -17,28 +16,28 @@ import org.jetbrains.annotations.Nullable;
 public class ColonyViewRemoveMessage implements IMessage
 {
     private int id;
-    private ResourceKey<Level> dimension;
+    private int /* ResourceKey */ dimension;
 
     public ColonyViewRemoveMessage()
     {
         super();
     }
 
-    public ColonyViewRemoveMessage(final int id, final ResourceKey<Level> dimension)
+    public ColonyViewRemoveMessage(final int id, final int /* ResourceKey */ dimension)
     {
         this.id = id;
         this.dimension = dimension;
     }
 
     @Override
-    public void toBytes(final FriendlyByteBuf buf)
+    public void toBytes(final PacketBuffer buf)
     {
         buf.writeInt(id);
         buf.writeUtf(dimension.location().toString());
     }
 
     @Override
-    public void fromBytes(final FriendlyByteBuf buf)
+    public void fromBytes(final PacketBuffer buf)
     {
         id = buf.readInt();
         dimension = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(buf.readUtf(32767)));
@@ -46,14 +45,17 @@ public class ColonyViewRemoveMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public Boolean getExecutionSide()
     {
-        return LogicalSide.CLIENT;
+        return Boolean.FALSE;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer)
     {
         IColonyManager.getInstance().removeColonyView(id, dimension);
     }
 }
+
+
+

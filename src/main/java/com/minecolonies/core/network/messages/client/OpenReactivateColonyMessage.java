@@ -2,9 +2,9 @@ package com.minecolonies.core.network.messages.client;
 
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.core.client.gui.townhall.WindowTownHallColonyReactivate;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 
 /**
  * Message to open the colony founding covenant.
@@ -16,7 +16,7 @@ public class OpenReactivateColonyMessage implements IMessage
      */
     private String closestName;
     private int      closestDistance;
-    private BlockPos townHallPos;
+    private int[] townHallPos;
 
     /**
      * Default constructor
@@ -26,7 +26,7 @@ public class OpenReactivateColonyMessage implements IMessage
         super();
     }
 
-    public OpenReactivateColonyMessage(final String closestName, final int closestDistance, final BlockPos townHallPos)
+    public OpenReactivateColonyMessage(final String closestName, final int closestDistance, final int[] townHallPos)
     {
         super();
         this.closestName = closestName;
@@ -35,13 +35,13 @@ public class OpenReactivateColonyMessage implements IMessage
     }
 
     @Override
-    public void onExecute(NetworkEvent.Context ctxIn, boolean isLogicalServer)
+    public void onExecute(MessageContext ctx, boolean isLogicalServer)
     {
         new WindowTownHallColonyReactivate(townHallPos, closestName, closestDistance).open();
     }
 
     @Override
-    public void toBytes(FriendlyByteBuf buf)
+    public void toBytes(PacketBuffer buf)
     {
         buf.writeUtf(closestName);
         buf.writeInt(closestDistance);
@@ -49,10 +49,12 @@ public class OpenReactivateColonyMessage implements IMessage
     }
 
     @Override
-    public void fromBytes(FriendlyByteBuf buf)
+    public void fromBytes(PacketBuffer buf)
     {
         this.closestName = buf.readUtf(32767);
         this.closestDistance = buf.readInt();
         this.townHallPos = buf.readBlockPos();
     }
 }
+
+

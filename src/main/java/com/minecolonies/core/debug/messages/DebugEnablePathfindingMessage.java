@@ -6,9 +6,9 @@ import com.minecolonies.api.colony.IColony;
 import com.minecolonies.core.debug.DebugPlayerManager;
 import com.minecolonies.core.entity.pathfinding.PathfindingUtils;
 import com.minecolonies.core.network.messages.server.AbstractColonyServerMessage;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.PacketBuffer;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.entity.player.EntityPlayer;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -39,23 +39,23 @@ public class DebugEnablePathfindingMessage extends AbstractColonyServerMessage
     }
 
     @Override
-    public void fromBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void fromBytesOverride(@NotNull final PacketBuffer buf)
     {
         this.id = buf.readInt();
         enable = buf.readBoolean();
     }
 
     @Override
-    public void toBytesOverride(@NotNull final FriendlyByteBuf buf)
+    public void toBytesOverride(@NotNull final PacketBuffer buf)
     {
         buf.writeInt(id);
         buf.writeBoolean(enable);
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer, final IColony colony)
+    public void onExecute(final MessageContext ctx, final boolean isLogicalServer, final IColony colony)
     {
-        final Player player = ctxIn.getSender();
+        final Player player = ctx.getServerHandler().playerEntity;
         if (player == null || !DebugPlayerManager.hasDebugEnabled(player))
         {
             return;
@@ -77,3 +77,5 @@ public class DebugEnablePathfindingMessage extends AbstractColonyServerMessage
         }
     }
 }
+
+

@@ -1,54 +1,37 @@
 package com.minecolonies.core.blocks;
 
-import com.minecolonies.api.blocks.AbstractBlockBarrel;
-import com.minecolonies.api.blocks.ModBlocks;
+import com.minecolonies.api.blocks.AbstractBlockMinecoloniesHorizontal;
+import com.minecolonies.api.blocks.interfaces.ITickableBlockMinecolonies;
 import com.minecolonies.api.blocks.types.BarrelType;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.tileentities.TileEntityBarrel;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.material.MapColor;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.Level;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
-
-import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-
-public class BlockBarrel extends AbstractBlockBarrel<BlockBarrel> implements EntityBlock
+/**
+ * Block for the barrel (compost/items).
+ * [1.7.10] Ported: Material; metadata bits 0-1 = facing, bits 2-4 = BarrelType;
+ * createTileEntity; onBlockActivated; setBlockBoundsBasedOnState; canBlockStay.
+ */
+public class BlockBarrel extends com.minecolonies.api.blocks.AbstractBlockBarrel<BlockBarrel> implements ITickableBlockMinecolonies
 {
-    /**
-     * The hardness this block has.
-     */
     private static final float  BLOCK_HARDNESS = 5F;
-    /**
-     * This blocks name.
-     */
     private static final String BLOCK_NAME     = "barrel_block";
-    /**
-     * The resistance this block has.
-     */
     private static final float  RESISTANCE     = 1F;
 
     public BlockBarrel()
     {
-        super(Properties.of().mapColor(MapColor.WOOD).sound(SoundType.WOOD).strength(BLOCK_HARDNESS, RESISTANCE));
-        this.registerDefaultState(this.defaultBlockState().setValue(AbstractBlockBarrel.FACING, Direction.NORTH).setValue(VARIANT, BarrelType.ZERO));
+        super(Material.wood);
+        setHardness(BLOCK_HARDNESS);
+        setResistance(RESISTANCE);
+        setStepSound(Block.soundTypeWood);
     }
 
     @Override
@@ -58,81 +41,57 @@ public class BlockBarrel extends AbstractBlockBarrel<BlockBarrel> implements Ent
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder)
+    public boolean hasTileEntity(final int metadata)
     {
-        builder.add(AbstractBlockBarrel.FACING, VARIANT);
+        return true;
     }
 
-    @Nullable
     @Override
-    public BlockEntity newBlockEntity(@NotNull final BlockPos blockPos, @NotNull final BlockState blockState)
+    public TileEntity createTileEntity(final World world, final int metadata)
     {
-        return new TileEntityBarrel(blockPos, blockState);
+        return new TileEntityBarrel();
     }
 
-    @NotNull
     @Override
-    public InteractionResult use(
-      final BlockState state,
-      final Level worldIn,
-      final BlockPos pos,
-      final Player player,
-      final InteractionHand hand,
-      final BlockHitResult ray)
+    public boolean onBlockActivated(
+      final World worldIn,
+      final int x,
+      final int y,
+      final int z,
+      final EntityPlayer player,
+      final int side,
+      final float hitX,
+      final float hitY,
+      final float hitZ)
     {
-        final ItemStack itemstack = player.getInventory().getSelected();
-        final BlockEntity te = worldIn.getBlockEntity(pos);
-        if (te instanceof TileEntityBarrel && !worldIn.isClientSide)
+        final ItemStack itemstack = player.getHeldItem();
+        final TileEntity te = worldIn.getTileEntity(x, y, z);
+        if (te instanceof TileEntityBarrel && !worldIn.isRemote)
         {
-            ((TileEntityBarrel) te).useBarrel(player, itemstack, ray.getDirection());
+            ((TileEntityBarrel) te).useBarrel(player, itemstack, side);
             ((TileEntityBarrel) te).updateBlock(worldIn);
         }
-
-        return InteractionResult.SUCCESS;
-    }
-
-    @NotNull
-    @Override
-    public VoxelShape getShape(final BlockState state, final BlockGetter worldIn, final BlockPos pos, final CollisionContext context)
-    {
-        return Shapes.box(0, 0, 0, 1, 1.5, 1);
-    }
-
-    /**
-     * Convert the BlockState into the correct metadata value.
-     *
-     * @deprecated (Remove this as soon as minecraft offers anything better).
-     */
-    @NotNull
-    @Override
-    @Deprecated
-    public BlockState rotate(@NotNull final BlockState state, final Rotation rot)
-    {
-        return state.setValue(AbstractBlockBarrel.FACING, rot.rotate(state.getValue(AbstractBlockBarrel.FACING)));
-    }
-
-    /**
-     * @deprecated (Remove this as soon as minecraft offers anything better).
-     */
-    @NotNull
-    @Override
-    @Deprecated
-    public BlockState mirror(@NotNull final BlockState state, final Mirror mirrorIn)
-    {
-        return state.rotate(mirrorIn.getRotation(state.getValue(AbstractBlockBarrel.FACING)));
-    }
-
-    @Nullable
-    @Override
-    public BlockState getStateForPlacement(final BlockPlaceContext context)
-    {
-        return super.getStateForPlacement(context).setValue(AbstractBlockBarrel.FACING, context.getHorizontalDirection());
+        return true;
     }
 
     @Override
-    public boolean canSurvive(final BlockState state, final LevelReader worldIn, final BlockPos pos)
+    public void setBlockBoundsBasedOnState(final IBlockAccess access, final int x, final int y, final int z)
     {
-        return !worldIn.isEmptyBlock(pos.below())
-                 && worldIn.getBlockState(pos.below()).getBlock() != ModBlocks.blockBarrel;
+        // Barrel is slightly taller than a normal block (1.5 height); clamp at 1.0 for 1.7.10 bounds
+        setBlockBounds(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+    }
+
+    @Override
+    public boolean canBlockStay(final World world, final int x, final int y, final int z)
+    {
+        final Block below = world.getBlock(x, y - 1, z);
+        return below != com.minecolonies.api.blocks.ModBlocks.blockBarrel
+                   && below.isSideSolid(world, x, y - 1, z, net.minecraftforge.common.util.ForgeDirection.UP);
+    }
+
+    @Override
+    public boolean isOpaqueCube()
+    {
+        return false;
     }
 }

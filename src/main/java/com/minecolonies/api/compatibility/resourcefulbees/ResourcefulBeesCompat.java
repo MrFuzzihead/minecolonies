@@ -1,8 +1,8 @@
 package com.minecolonies.api.compatibility.resourcefulbees;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.List;
 public class ResourcefulBeesCompat implements IBeehiveCompat
 {
     @Override
-    public List<ItemStack> getCombsFromHive(BlockPos pos, Level world, int amount)
+    public List<ItemStack> getCombsFromHive(int[] pos, World world, int amount)
     {
         List<ItemStack> list = new ArrayList<>();
         /*if (world.getBlockEntity(pos) instanceof TieredBeehiveTileEntity)
@@ -32,3 +32,5 @@ public class ResourcefulBeesCompat implements IBeehiveCompat
         }
     }
 }
+
+

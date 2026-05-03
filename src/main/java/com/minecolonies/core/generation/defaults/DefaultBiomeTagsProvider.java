@@ -1,11 +1,11 @@
 package com.minecolonies.core.generation.defaults;
 
 import com.minecolonies.api.items.ModTags;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
-import net.minecraft.data.tags.BiomeTagsProvider;
-import net.minecraft.tags.BiomeTags;
-import net.minecraft.world.level.biome.Biomes;
+// [1.7.10] HolderLookup removed
+// [1.7.10] data removed
+// [1.7.10] data removed
+// [1.7.10] tags removed
+import net.minecraft.world.World.biome.Biomes;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +29,7 @@ public class DefaultBiomeTagsProvider extends BiomeTagsProvider
     @Override
     protected void addTags(final HolderLookup.Provider holder)
     {
-        tag(ModTags.coldBiomes)
+        NBTBase(ModTags.coldBiomes)
           .addTags(BiomeTags.IS_TAIGA)
           .addTags(BiomeTags.SPAWNS_SNOW_FOXES)
           .addTags(BiomeTags.POLAR_BEARS_SPAWN_ON_ALTERNATE_BLOCKS)
@@ -60,7 +60,7 @@ public class DefaultBiomeTagsProvider extends BiomeTagsProvider
             Biomes.WINDSWEPT_HILLS,
             Biomes.WINDSWEPT_GRAVELLY_HILLS);
 
-        tag(ModTags.temperateBiomes)
+        NBTBase(ModTags.temperateBiomes)
           .addTags(BiomeTags.HAS_VILLAGE_PLAINS)
           .addTags(Tags.Biomes.IS_PLAINS)
           .addTags(Tags.Biomes.IS_SWAMP)
@@ -81,7 +81,7 @@ public class DefaultBiomeTagsProvider extends BiomeTagsProvider
             Biomes.SUNFLOWER_PLAINS,
             Biomes.SWAMP);
 
-        tag(ModTags.humidBiomes)
+        NBTBase(ModTags.humidBiomes)
           .addTags(BiomeTags.IS_JUNGLE)
           .addTags(Tags.Biomes.IS_WET_OVERWORLD)
           .add(Biomes.BAMBOO_JUNGLE,
@@ -94,7 +94,7 @@ public class DefaultBiomeTagsProvider extends BiomeTagsProvider
             Biomes.MANGROVE_SWAMP,
             Biomes.SPARSE_JUNGLE);
 
-        tag(ModTags.dryBiomes)
+        NBTBase(ModTags.dryBiomes)
           .addTags(BiomeTags.HAS_DESERT_PYRAMID)
           .addTags(Tags.Biomes.IS_DESERT)
           .addTags(Tags.Biomes.IS_DRY)
@@ -108,3 +108,5 @@ public class DefaultBiomeTagsProvider extends BiomeTagsProvider
             Biomes.WINDSWEPT_SAVANNA);
     }
 }
+
+

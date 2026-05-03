@@ -9,12 +9,12 @@ import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.MessageUtils;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -69,7 +69,7 @@ public class EventDescriptionManager implements IEventDescriptionManager
     }
 
     @Override
-    public void serialize(@NotNull final FriendlyByteBuf buf)
+    public void serialize(@NotNull final PacketBuffer buf)
     {
         buf.writeInt(eventDescs.size());
         for (final IColonyEventDescription event : eventDescs)
@@ -80,12 +80,12 @@ public class EventDescriptionManager implements IEventDescriptionManager
     }
 
     @Override
-    public void deserializeNBT(@NotNull final CompoundTag eventManagerNBT)
+    public void deserializeNBT(@NotNull final NBTTagCompound eventManagerNBT)
     {
-        final ListTag eventDescListNBT = eventManagerNBT.getList(TAG_EVENT_DESC_LIST, Tag.TAG_COMPOUND);
-        for (final Tag event : eventDescListNBT)
+        final NBTTagList eventDescListNBT = eventManagerNBT.getList(TAG_EVENT_DESC_LIST, NBTBase.TAG_COMPOUND);
+        for (final NBTBase event : eventDescListNBT)
         {
-            final CompoundTag eventCompound = (CompoundTag) event;
+            final NBTTagCompound eventCompound = (NBTTagCompound) event;
             final ResourceLocation eventTypeID = new ResourceLocation(MOD_ID, eventCompound.getString(TAG_NAME));
 
             final ColonyEventDescriptionTypeRegistryEntry registryEntry = MinecoloniesAPIProxy.getInstance().getColonyEventDescriptionRegistry().getValue(eventTypeID);
@@ -101,13 +101,13 @@ public class EventDescriptionManager implements IEventDescriptionManager
     }
 
     @Override
-    public CompoundTag serializeNBT()
+    public NBTTagCompound serializeNBT()
     {
-        final CompoundTag eventManagerNBT = new CompoundTag();
-        final ListTag eventDescsListNBT = new ListTag();
+        final NBTTagCompound eventManagerNBT = new NBTTagCompound();
+        final NBTTagList eventDescsListNBT = new NBTTagList();
         for (final IColonyEventDescription event : eventDescs)
         {
-            final CompoundTag eventNBT = event.serializeNBT();
+            final NBTTagCompound eventNBT = event.serializeNBT();
             eventNBT.putString(TAG_NAME, event.getEventTypeId().getPath());
             eventDescsListNBT.add(eventNBT);
         }
@@ -133,18 +133,22 @@ public class EventDescriptionManager implements IEventDescriptionManager
         {
             if (builder == null)
             {
-                builder = MessageUtils.format(Component.translatable("com.minecolonies.core.event.summary.prefix")).append(Component.translatable(entry.getKey(), entry.getIntValue()));
+                builder = MessageUtils.format(String.translatable("com.minecolonies.core.event.summary.prefix")).append(String.translatable(entry.getKey(), entry.getIntValue()));
             }
             else
             {
-                builder = builder.append(Component.literal(", ")).append(Component.translatable(entry.getKey(), entry.getIntValue()));
+                builder = builder.append(String.literal(", ")).append(String.translatable(entry.getKey(), entry.getIntValue()));
             }
         }
 
         if (builder != null)
         {
-            builder.append(Component.literal("!"));
+            builder.append(String.literal("!"));
             builder.sendTo(colony.getImportantMessageEntityPlayers());
         }
     }
 }
+
+
+
+

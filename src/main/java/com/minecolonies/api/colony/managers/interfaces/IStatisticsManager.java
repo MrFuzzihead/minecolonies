@@ -1,7 +1,7 @@
 package com.minecolonies.api.colony.managers.interfaces;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.NotNull;
 
 import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
@@ -54,27 +54,27 @@ public interface IStatisticsManager
      * @param buf               the buffer to write to.
      * @param hasNewSubscribers
      */
-    void serialize(@NotNull final FriendlyByteBuf buf, final boolean hasNewSubscribers);
+    void serialize(@NotNull final PacketBuffer buf, final boolean hasNewSubscribers);
 
     /**
      * Deserialize from bytebuf.
      * @param buf the buffer to read from.
      */
-    void deserialize(@NotNull final FriendlyByteBuf buf);
+    void deserialize(@NotNull final PacketBuffer buf);
 
     /**
      * Reads the eventManager nbt and creates events from it
      *
      * @param compound the compound to read from.
      */
-    void readFromNBT(@NotNull final CompoundTag compound);
+    void readFromNBT(@NotNull final NBTTagCompound compound);
 
     /**
      * Write the eventmanager and all events to NBT
      *
      * @param compound the compound to write to.
      */
-    void writeToNBT(@NotNull final CompoundTag compound);
+    void writeToNBT(@NotNull final NBTTagCompound compound);
 
     /**
      * Getter for the whole stat list.
@@ -119,3 +119,6 @@ public interface IStatisticsManager
         }
     }
 }
+
+
+

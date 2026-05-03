@@ -4,8 +4,8 @@ import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.tileentities.AbstractTileEntityColonyBuilding;
 import com.minecolonies.api.tileentities.AbstractTileEntityWareHouse;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.world.World;
 
 public interface IWareHouse extends IBuilding
 {
@@ -22,7 +22,7 @@ public interface IWareHouse extends IBuilding
      *
      * @param world the world object.
      */
-    void upgradeContainers(Level world);
+    void upgradeContainers(World world);
 
     /**
      * Returns the tile entity that belongs to the colony building.
@@ -38,5 +38,7 @@ public interface IWareHouse extends IBuilding
      * @param inDimensionLocation the location.
      * @return true if so.
      */
-    boolean hasContainerPosition(BlockPos inDimensionLocation);
+    boolean hasContainerPosition(int[] inDimensionLocation);
 }
+
+

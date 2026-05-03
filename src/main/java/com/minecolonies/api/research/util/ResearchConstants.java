@@ -1,11 +1,11 @@
 package com.minecolonies.api.research.util;
 
-import com.ldtteam.blockui.Color;
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.damagesource.DamageType;
-import net.minecraft.world.damagesource.DamageTypes;
+// [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.util.ResourceLocation;
+// [1.7.10] net.minecraft.util.DamageSource removed
+// [1.7.10] net.minecraft.util.DamageSource removed
 
 import java.util.function.Predicate;
 
@@ -15,7 +15,7 @@ import java.util.function.Predicate;
 public final class ResearchConstants
 {
     /**
-     * The research tree tag.
+     * The research tree NBTBase.
      */
     public static final String TAG_RESEARCH_TREE = "researchTree";
 
@@ -36,7 +36,7 @@ public final class ResearchConstants
     public static final String TAG_COST_TYPE      = "cost-type";
     public static final String TAG_COST_ITEMS     = "cost-items";
     public static final String TAG_COST_ITEM      = "cost-item";
-    public static final String TAG_COST_TAG       = "cost-tag";
+    public static final String TAG_COST_TAG       = "cost-NBTBase";
     public static final String TAG_COST_NBT       = "cost-nbt";
     public static final String TAG_COST_COUNT     = "cost-count";
     public static final String TAG_REQS           = "requirements";
@@ -188,10 +188,11 @@ public final class ResearchConstants
     /**
      * Predicate for selecting any fire-related damage
      */
-    public static final Predicate<ResourceKey<DamageType>> FIRE_DAMAGE_PREDICATE = type -> type.equals(DamageTypes.LAVA)
-                                                                                             || type.equals(DamageTypes.HOT_FLOOR)
-                                                                                             || type.equals(DamageTypes.IN_FIRE)
-                                                                                             || type.equals(DamageTypes.ON_FIRE);
+    // [1.7.10] DamageTypes/ResourceKey removed; stub predicate
+    public static final java.util.function.Predicate<String> FIRE_DAMAGE_PREDICATE = type -> type.equals("lava")
+                                                                                             || type.equals("hotFloor")
+                                                                                             || type.equals("inFire")
+                                                                                             || type.equals("onFire");
 
     /**
      * Private constructor to hide implicit public one.
@@ -203,3 +204,7 @@ public final class ResearchConstants
          */
     }
 }
+
+
+
+

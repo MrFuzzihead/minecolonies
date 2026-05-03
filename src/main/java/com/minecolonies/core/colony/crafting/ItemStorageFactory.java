@@ -7,9 +7,9 @@ import com.minecolonies.api.crafting.IItemStorageFactory;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.util.constant.SerializationIdentifierConstants;
 import com.minecolonies.api.util.constant.TypeConstants;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -18,22 +18,22 @@ import org.jetbrains.annotations.NotNull;
 public class ItemStorageFactory implements IItemStorageFactory
 {
     /**
-     * Compound tag for the size.
+     * Compound NBTBase for the size.
      */
     private static final String TAG_SIZE = "size";
 
     /**
-     * Compound tag for the stack.
+     * Compound NBTBase for the stack.
      */
     private static final String TAG_STACK = "stack";
 
     /**
-     * Compound tag for the NBT info
+     * Compound NBTBase for the NBT info
      */
     private static final String TAG_SHOULDIGNORENBT = "ignoreNBT";
 
     /**
-     * Compound tag for the Damage Match Info
+     * Compound NBTBase for the Damage Match Info
      */
     private static final String TAG_SHOULDIGNOREDAMAGE = "ignoreDamage";
 
@@ -60,10 +60,10 @@ public class ItemStorageFactory implements IItemStorageFactory
 
     @NotNull
     @Override
-    public CompoundTag serialize(@NotNull final IFactoryController controller, @NotNull final ItemStorage storage)
+    public NBTTagCompound serialize(@NotNull final IFactoryController controller, @NotNull final ItemStorage storage)
     {
-        final CompoundTag compound = new CompoundTag();
-        @NotNull CompoundTag stackTag = new CompoundTag();
+        final NBTTagCompound compound = new NBTTagCompound();
+        @NotNull NBTTagCompound stackTag = new NBTTagCompound();
         storage.getItemStack().save(stackTag);
         compound.put(TAG_STACK, stackTag);
         compound.putInt(TAG_SIZE, storage.getAmount());
@@ -74,7 +74,7 @@ public class ItemStorageFactory implements IItemStorageFactory
 
     @NotNull
     @Override
-    public ItemStorage deserialize(@NotNull final IFactoryController controller, @NotNull final CompoundTag nbt)
+    public ItemStorage deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound nbt)
     {
         final ItemStack stack = ItemStack.of(nbt.getCompound(TAG_STACK));
         stack.setCount(1);
@@ -85,7 +85,7 @@ public class ItemStorageFactory implements IItemStorageFactory
     }
 
     @Override
-    public void serialize(IFactoryController controller, ItemStorage input, FriendlyByteBuf packetBuffer)
+    public void serialize(IFactoryController controller, ItemStorage input, PacketBuffer packetBuffer)
     {
         packetBuffer.writeItem(input.getItemStack());
         packetBuffer.writeVarInt(input.getAmount());
@@ -94,7 +94,7 @@ public class ItemStorageFactory implements IItemStorageFactory
     }
 
     @Override
-    public ItemStorage deserialize(IFactoryController controller, FriendlyByteBuf buffer) throws Throwable
+    public ItemStorage deserialize(IFactoryController controller, PacketBuffer buffer) throws Throwable
     {
         final ItemStack stack = buffer.readItem();
         final int size = buffer.readVarInt();
@@ -109,3 +109,6 @@ public class ItemStorageFactory implements IItemStorageFactory
         return SerializationIdentifierConstants.ITEM_STORAGE_ID;
     }
 }
+
+
+

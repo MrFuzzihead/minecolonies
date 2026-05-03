@@ -2,7 +2,7 @@ package com.minecolonies.core.colony.buildings.workerbuildings;
 
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
-import com.ldtteam.blockui.views.BOWindow;
+// [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyView;
@@ -24,10 +24,10 @@ import com.minecolonies.core.colony.requestsystem.resolvers.WarehouseRequestReso
 import com.minecolonies.core.tileentities.TileEntityColonyBuilding;
 import com.minecolonies.core.tileentities.TileEntityRack;
 import com.minecolonies.core.tileentities.TileEntityWareHouse;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.world.World;
+import net.minecraft.block.Block;
+// [1.7.10] block.entity removed
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -41,7 +41,7 @@ public class BuildingWareHouse extends AbstractBuilding implements IWareHouse
     private static final String WAREHOUSE = "warehouse";
 
     /**
-     * Max level of the building.
+     * Max World of the building.
      */
     private static final int MAX_LEVEL = 5;
 
@@ -56,16 +56,16 @@ public class BuildingWareHouse extends AbstractBuilding implements IWareHouse
      * @param c the colony.
      * @param l the location
      */
-    public BuildingWareHouse(final IColony c, final BlockPos l)
+    public BuildingWareHouse(final IColony c, final int[] l)
     {
         super(c, l);
     }
 
     @Override
-    public void requestRepair(final BlockPos builder)
+    public void requestRepair(final int[] builder)
     {
         //To ensure that the racks are all set to in the warehouse when repaired.
-        for (final BlockPos pos : containerList)
+        for (final int[] pos : containerList)
         {
             if (getColony().getWorld() != null)
             {
@@ -106,7 +106,7 @@ public class BuildingWareHouse extends AbstractBuilding implements IWareHouse
     }
 
     @Override
-    public boolean hasContainerPosition(final BlockPos inDimensionLocation)
+    public boolean hasContainerPosition(final int[] inDimensionLocation)
     {
         return containerList.contains(inDimensionLocation) || getLocation().getInDimensionLocation().equals(inDimensionLocation);
     }
@@ -118,7 +118,7 @@ public class BuildingWareHouse extends AbstractBuilding implements IWareHouse
     }
 
     @Override
-    public void registerBlockPosition(@NotNull final Block block, @NotNull final BlockPos pos, @NotNull final Level world)
+    public void registerBlockPosition(@NotNull final Block block, @NotNull final int[] pos, @NotNull final World world)
     {
         if (block instanceof BlockMinecoloniesRack)
         {
@@ -162,11 +162,11 @@ public class BuildingWareHouse extends AbstractBuilding implements IWareHouse
      * @param world the world object.
      */
     @Override
-    public void upgradeContainers(final Level world)
+    public void upgradeContainers(final World world)
     {
         if (getFirstModuleOccurance(WarehouseModule.class).getStorageUpgrade() < MAX_STORAGE_UPGRADE)
         {
-            for (final BlockPos pos : getContainers())
+            for (final int[] pos : getContainers())
             {
                 final BlockEntity entity = world.getBlockEntity(pos);
                 if (entity instanceof TileEntityRack && !(entity instanceof TileEntityColonyBuilding))
@@ -207,16 +207,20 @@ public class BuildingWareHouse extends AbstractBuilding implements IWareHouse
          * @param c the colonyview to put it in
          * @param l the positon
          */
-        public View(final IColonyView c, final BlockPos l)
+        public View(final IColonyView c, final int[] l)
         {
             super(c, l);
         }
 
         @NotNull
         @Override
-        public BOWindow getWindow()
+        public Object /* BOWindow: todo ModularUI2 */ getWindow()
         {
             return new WindowHutMinPlaceholder<>(this);
         }
     }
 }
+
+
+
+

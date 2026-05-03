@@ -15,14 +15,14 @@ import com.minecolonies.core.MineColonies;
 import com.minecolonies.core.client.gui.WindowSupplies;
 import com.minecolonies.core.client.gui.WindowSupplyStory;
 import com.minecolonies.core.entity.pathfinding.PathfindingUtils;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.EntityPlayer;
+// [1.7.10] BlockState -> int metadata
+// [1.7.10] World.material removed
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
+// [1.7.10] int[] -> int x,y,z
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,8 +33,8 @@ import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_RANDOM_KEY;
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_SAW_STORY;
 import static com.minecolonies.api.util.constant.TranslationConstants.CANT_PLACE_COLONY_IN_OTHER_DIM;
 
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+// [1.7.10] int /* InteractionHand */ removed
+// [1.7.10] InteractionResult -> boolean
 import net.minecraft.world.InteractionResultHolder;
 
 /**
@@ -58,7 +58,7 @@ public class ItemSupplyChestDeployer extends AbstractItemMinecolonies implements
     private static final int SCAN_HEIGHT = 7;
 
     /**
-     * If a schematic lacks a groundlevel tag, we assume it has this many levels of water
+     * If a schematic lacks a groundlevel NBTBase, we assume it has this many levels of water
      */
     private static final int DEFAULT_WATER_LEVELS = 3;
 
@@ -95,7 +95,7 @@ public class ItemSupplyChestDeployer extends AbstractItemMinecolonies implements
 
     @NotNull
     @Override
-    public InteractionResultHolder<ItemStack> use(final Level worldIn, final Player playerIn, final InteractionHand hand)
+    public InteractionResultHolder<ItemStack> use(final World worldIn, final Player playerIn, final int /* InteractionHand */ hand)
     {
         final ItemStack stack = playerIn.getItemInHand(hand);
         if (!stack.getOrCreateTag().contains(TAG_RANDOM_KEY))
@@ -123,7 +123,7 @@ public class ItemSupplyChestDeployer extends AbstractItemMinecolonies implements
      * @param hand       the hand that was used to place it.
      * @param itemInHand
      */
-    private void placeSupplyShip(Level world, @Nullable final BlockPos pos, final InteractionHand hand, final ItemStack itemInHand)
+    private void placeSupplyShip(World world, @Nullable final int[] pos, final int /* InteractionHand */ hand, final ItemStack itemInHand)
     {
         final String name = WorldUtil.isNetherType(world)
                               ? SUPPLY_SHIP_STRUCTURE_NAME_NETHER
@@ -156,7 +156,7 @@ public class ItemSupplyChestDeployer extends AbstractItemMinecolonies implements
      * @return true if so.
      */
     public static boolean canShipBePlaced(
-            @NotNull final Level world, @NotNull final BlockPos pos, final Blueprint ship, @NotNull final List<PlacementError> placementErrorList, final
+            @NotNull final World world, @NotNull final int[] pos, final Blueprint ship, @NotNull final List<PlacementError> placementErrorList, final
     Player placer)
     {
         if (MineColonies.getConfig().getServer().noSupplyPlacementRestrictions.get())
@@ -167,7 +167,7 @@ public class ItemSupplyChestDeployer extends AbstractItemMinecolonies implements
         final int sizeX = ship.getSizeX();
         final int sizeZ = ship.getSizeZ();
         final int waterLevel = BlueprintTagUtils.getNumberOfGroundLevels(ship, DEFAULT_WATER_LEVELS);
-        final BlockPos zeroPos = pos.subtract(ship.getPrimaryBlockOffset());
+        final int[] zeroPos = pos.subtract(ship.getPrimaryBlockOffset());
 
         final List<PlacementError> needsAirAbove = new ArrayList<>();
         final List<PlacementError> needsWaterList = new ArrayList<>();
@@ -178,8 +178,8 @@ public class ItemSupplyChestDeployer extends AbstractItemMinecolonies implements
             {
                 for (int y = 0; y <= Math.min(waterLevel + SCAN_HEIGHT, ship.getSizeY() - 1); y++)
                 {
-                    final BlockPos worldPos = new BlockPos(zeroPos.getX() + x, zeroPos.getY() + y, zeroPos.getZ() + z);
-                    final BlockState state = ship.getBlockState(new BlockPos(x,y,z));
+                    final int[] worldPos = new int[]{zeroPos[0] + x, zeroPos[1] + y, zeroPos[2] + z};
+                    final BlockState state = ship.getBlockState(new int[]{x,y,z});
 
                     if (y < waterLevel)
                     {
@@ -212,7 +212,7 @@ public class ItemSupplyChestDeployer extends AbstractItemMinecolonies implements
      * @param placer             the player placing the supply camp.
      * @param state              blueprint block at pos.
      */
-    private static void checkFluidAndNotInColony(final Level world, final BlockPos pos, @NotNull final List<PlacementError> placementErrorList, final Player placer, final BlockState state)
+    private static void checkFluidAndNotInColony(final World world, final int[] pos, @NotNull final List<PlacementError> placementErrorList, final Player placer, final BlockState state)
     {
         final boolean isOverworld = WorldUtil.isOverworldType(world);
         final boolean isWater = PathfindingUtils.isWater(world, pos);
@@ -244,9 +244,13 @@ public class ItemSupplyChestDeployer extends AbstractItemMinecolonies implements
      * @param placer the placer.
      * @return true if no colony found.
      */
-    private static boolean hasPlacePermission(final Level world, final BlockPos pos, final Player placer)
+    private static boolean hasPlacePermission(final World world, final int[] pos, final Player placer)
     {
         final IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(world, pos);
         return colony == null || colony.getPermissions().hasPermission(placer, Action.PLACE_BLOCKS);
     }
 }
+
+
+
+
