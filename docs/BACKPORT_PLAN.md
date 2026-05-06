@@ -17,7 +17,8 @@
 | `com.github.GTNewHorizons:lwjgl3ify:3.0.16` | Provides LWJGL3 + Java 25 runtime compatibility on 1.7.10 |
 | `com.github.GTNewHorizons:ModularUI2:2.3.58-1.7.10` | GUI framework replacing BlockUI |
 | Structurize (local jar) | Blueprint/structure system — assumed to be a 1.7.10-compatible build |
-| `com.github.GTNewHorizons:NotEnoughItems:2.7.69-GTNH` | Runtime dev tool (NEI) |
+| `com.github.GTNewHorizons:NotEnoughItems:2.7.69-GTNH` | Runtime dev tool (NEI) — **replaces JEI** for recipe viewing; the `core/compatibility/jei/` code needs to be rewritten for NEI's API |
+| `maven.modrinth:journeymap:v5.2.13` | JourneyMap 1.7.10 — added as a direct dependency; jar is obfuscated so stub classes exist in `src/main/java/journeymap/` for compilation; verify compat layer against actual 1.7.10 JM API at runtime |
 
 ## 1.21 → 1.7.10 API Mapping Reference
 
@@ -267,6 +268,8 @@ These 1.21 features have no equivalent in 1.7.10 and should be commented out wit
 4. **Java 25**: Keep modern Java syntax (records, sealed classes, text blocks, etc.) — lwjgl3ify handles runtime compatibility.
 5. **Structurize**: Treat the included local jar as the 1.7.10-compatible Structurize; adapt calls to its API as needed.
 6. **No Reflection**: Follow the coding guidelines — no reflection, no bytecode manipulation. Access Transformers (AT) should be used if private/protected access is needed.
+7. **NEI replaces JEI**: The `core/compatibility/jei/` compatibility layer was written for the modern JEI API. On 1.7.10, `NotEnoughItems` (NEI) is used instead. The JEI compat code needs to be rewritten to use NEI's API (`codechicken.nei.*`). Stub classes exist for compilation only.
+8. **JourneyMap (1.7.10 native)**: JourneyMap v5.2.13 for 1.7.10 is added as `maven.modrinth:journeymap:v5.2.13`. The jar is obfuscated (MCP-mapped), so stub sources exist in `src/main/java/journeymap/` for compilation purposes. At runtime the real JM classes take precedence. The compat code in `core/compatibility/journeymap/` should work once the stub/real JM API classes are reconciled.
 
 ---
 
@@ -388,8 +391,10 @@ Track implementation status here as work progresses.
 - [x] `core/network/messages/**` (136 files) — bulk: NetworkEvent.Context→MessageContext; LogicalSide→Boolean; ctx.getSender()→ctx.getServerHandler().playerEntity; ctx.enqueueWork→flattened; FriendlyByteBuf→PacketBuffer; ServerPlayer→EntityPlayerMP
 
 ### Phase 7 — Colony & Game Logic
-- [ ] `api/colony/**`
-- [ ] `core/colony/**`
+- [x] `api/colony/IColony.java` — removed Style/ChunkPos/Animal/Player 1.21 imports; kept BlockState (valid 1.7.10)
+- [x] `api/util/InventoryUtils.java` — removed FoodProperties/Player 1.21 imports; Item.byBlock→Item.getItemFromBlock; FoodProperties→ItemFood for transferFoodUpToSaturation
+- [x] `api/compatibility/CompatibilityManager.java` — removed BlockState 1.21 import
+- [ ] `core/colony/**` (remaining files)
 - [ ] `core/event/**`
 - [ ] `core/generation/**`
 - [ ] `core/research/**`

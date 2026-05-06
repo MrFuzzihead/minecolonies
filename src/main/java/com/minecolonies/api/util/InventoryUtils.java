@@ -1,4 +1,6 @@
 package com.minecolonies.api.util;
+// [1.7.10] FoodProperties removed — use net.minecraft.item.ItemFood instead
+// [1.7.10] Player removed — use EntityPlayer
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -126,7 +128,7 @@ public class InventoryUtils
      */
     public static Item getItemFromBlock(final Block block)
     {
-        return Item.byBlock(block);
+        return Item.getItemFromBlock(block); // [1.7.10] Item.byBlock -> Item.getItemFromBlock
     }
 
     /**
@@ -3131,20 +3133,25 @@ public class InventoryUtils
 
                 if (!ItemStackUtils.isEmpty(stack) && foodPredicate.test(stack))
                 {
-                    // Found food
-                    final FoodProperties itemFood = stack.getItem().getFoodProperties(stack, null);
-                    if (itemFood == null)
+                    // Found food — [1.7.10] FoodProperties replaced with ItemFood
+                    if (!(stack.getItem() instanceof net.minecraft.item.ItemFood))
+                    {
+                        continue;
+                    }
+                    final net.minecraft.item.ItemFood itemFood = (net.minecraft.item.ItemFood) stack.getItem();
+                    final int nutrition = itemFood.getHealAmount(stack);
+                    if (nutrition == 0)
                     {
                         continue;
                     }
 
-                    int amount = (int) Math.round(Math.ceil((requiredSaturation - foundSaturation) / (float) itemFood.getNutrition()));
+                    int amount = (int) Math.round(Math.ceil((requiredSaturation - foundSaturation) / (float) nutrition));
 
                     final ItemStack extractedFood;
                     if (amount > stack.getCount())
                     {
                         // Not enough yet
-                        foundSaturation += stack.getCount() * itemFood.getNutrition();
+                        foundSaturation += stack.getCount() * nutrition;
                         extractedFood = handler.extractItem(i, stack.getCount(), false);
                     }
                     else
@@ -3439,6 +3446,63 @@ public class InventoryUtils
         final ItemStorage unsatisfiedItems = new ItemStorage(item, toRemoveLeft);
 
         return unsatisfiedItems;
+    }
+
+    /**
+     * [1.7.10] Overload for IInventory - adds an itemstack to an IInventory.
+     */
+    public static boolean addItemStackToProvider(@NotNull final net.minecraft.inventory.IInventory inventory, @Nullable final ItemStack itemStack)
+    {
+        if (ItemStackUtils.isEmpty(itemStack)) return true;
+        for (int i = 0; i < inventory.getSizeInventory(); i++)
+        {
+            final ItemStack existing = inventory.getStackInSlot(i);
+            if (ItemStackUtils.isEmpty(existing))
+            {
+                inventory.setInventorySlotContents(i, itemStack.copy());
+                return true;
+            }
+            else if (ItemStack.areItemStacksEqual(existing, itemStack) && existing.stackSize < existing.getMaxStackSize())
+            {
+                final int space = existing.getMaxStackSize() - existing.stackSize;
+                final int toAdd = Math.min(itemStack.stackSize, space);
+                existing.stackSize += toAdd;
+                inventory.setInventorySlotContents(i, existing);
+                itemStack.stackSize -= toAdd;
+                if (itemStack.stackSize <= 0) return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * [1.7.10] Overload for IInventory - force-adds an itemstack to an IInventory.
+     */
+    @Nullable
+    public static ItemStack forceItemStackToProvider(
+      @NotNull final net.minecraft.inventory.IInventory inventory,
+      @NotNull final ItemStack itemStack,
+      @NotNull final java.util.function.Predicate<ItemStack> itemStackToKeepPredicate)
+    {
+        final ItemStack toAdd = itemStack.copy();
+        if (addItemStackToProvider(inventory, toAdd)) return ItemStackUtils.EMPTY;
+        return toAdd;
+    }
+
+    /**
+     * [1.7.10] Overload for IInventory - check if provider is full.
+     */
+    public static boolean isProviderFull(@NotNull final net.minecraft.inventory.IInventory inventory)
+    {
+        for (int i = 0; i < inventory.getSizeInventory(); i++)
+        {
+            final ItemStack stack = inventory.getStackInSlot(i);
+            if (ItemStackUtils.isEmpty(stack) || stack.stackSize < stack.getMaxStackSize())
+            {
+                return false;
+            }
+        }
+        return true;
     }
 }
 

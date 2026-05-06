@@ -1,4 +1,10 @@
 package com.minecolonies.api.colony;
+// [1.7.10] Style removed — no equivalent
+// [1.7.10] ChunkPos removed — long chunkPos used directly
+// [1.7.10] Animal removed — EntityAnimal used if needed
+import net.minecraft.util.Direction;
+// [1.7.10] Player removed — EntityPlayer used below
+import net.minecraft.block.state.BlockState;
 
 import com.minecolonies.api.colony.buildings.modules.ICommonSettingsModule;
 import com.minecolonies.api.colony.connections.IColonyConnectionManager;
@@ -21,10 +27,10 @@ import net.minecraft.block.Block;
 // [1.7.10] BlockState -> int metadata
 import net.minecraft.world.chunk.Chunk;
 // [1.7.10 BACKPORT] Removed:
-//   net.minecraftforge.common.capabilities.Capability      — no capabilities in 1.7.10
-//   net.minecraftforge.common.capabilities.CapabilityManager — no capabilities in 1.7.10
-//   net.minecraftforge.common.capabilities.CapabilityToken  — no capabilities in 1.7.10
-//   CLOSE_COLONY_CAP static field — replaced by ColonyChunkDataHandler.getColonyTagCapability()
+//   net.minecraftforge.common.capabilities.Capability      â€” no capabilities in 1.7.10
+//   net.minecraftforge.common.capabilities.CapabilityManager â€” no capabilities in 1.7.10
+//   net.minecraftforge.common.capabilities.CapabilityToken  â€” no capabilities in 1.7.10
+//   CLOSE_COLONY_CAP static field â€” replaced by ColonyChunkDataHandler.getColonyTagCapability()
 import cpw.mods.fml.common.gameevent.TickEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +42,7 @@ import java.util.*;
  */
 public interface IColony
 {
-    // [1.7.10 BACKPORT] CLOSE_COLONY_CAP removed — it was a Forge capability field:
+    // [1.7.10 BACKPORT] CLOSE_COLONY_CAP removed â€” it was a Forge capability field:
     //   Capability<IColonyTagCapability> CLOSE_COLONY_CAP = CapabilityManager.get(new CapabilityToken<>() {});
     // It is replaced by the static accessor:
     //   ColonyChunkDataHandler.getColonyTagCapability(chunk)
@@ -187,18 +193,18 @@ public interface IColony
         tempWayPoints.addAll(getWayPoints().keySet());
         tempWayPoints.addAll(getServerBuildingManager().getBuildings().keySet());
 
-        final double maxX = Math.max(position.getX(), target.getX());
-        final double maxZ = Math.max(position.getZ(), target.getZ());
+        final double maxX = Math.max(position[0], target[0]);
+        final double maxZ = Math.max(position[2], target[2]);
 
-        final double minX = Math.min(position.getX(), target.getX());
-        final double minZ = Math.min(position.getZ(), target.getZ());
+        final double minX = Math.min(position[0], target[0]);
+        final double minZ = Math.min(position[2], target[2]);
 
         final Iterator<int[]> iterator = tempWayPoints.iterator();
         while (iterator.hasNext())
         {
             final int[] p = iterator.next();
-            final int x = p.getX();
-            final int z = p.getZ();
+            final int x = p[0];
+            final int z = p[2];
             if (x < minX || x > maxX || z < minZ || z > maxZ)
             {
                 iterator.remove();

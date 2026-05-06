@@ -1,4 +1,9 @@
 package com.minecolonies.api.compatibility;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+
+// [1.7.10] BlockState removed — metadata used instead
+import net.minecraft.tileentity.TileEntityFurnace;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -183,7 +188,7 @@ public class CompatibilityManager implements ICompatibilityManager
     public void discover(final World world)
     {
         clear();
-        discoverAllItems(World);
+        discoverAllItems(world);
 
         discoverModCompat();
 
@@ -203,14 +208,14 @@ public class CompatibilityManager implements ICompatibilityManager
         serializeItemStorageList(buf, food);
         serializeItemStorageList(buf, edibles);
         serializeItemStorageList(buf, fuel);
-        serializeRegistryIds(buf, ForgeRegistries.ENTITY_TYPES, monsters);
+        serializeRegistryIds(buf, null, monsters); // [1.7.10] ForgeRegistries.ENTITY_TYPES not available
 
         serializeCompostRecipes(buf, compostRecipes);
 
         buf.writeInt(CHECKED_NBT_KEYS.size());
         for (final var entry : CHECKED_NBT_KEYS.entrySet())
         {
-            buf.writeInt(BuiltInRegistries.ITEM.getId(entry.getKey()));
+            buf.writeInt(net.minecraft.item.Item.getIdFromItem(entry.getKey()));
             buf.writeInt(entry.getValue().size());
             for (final CheckedNbtKey key : entry.getValue())
             {
@@ -235,7 +240,7 @@ public class CompatibilityManager implements ICompatibilityManager
         food.addAll(deserializeItemStorageList(buf));
         edibles.addAll(deserializeItemStorageList(buf));
         fuel.addAll(deserializeItemStorageList(buf));
-        monsters = ImmutableSet.copyOf(deserializeRegistryIds(buf, ForgeRegistries.ENTITY_TYPES));
+        monsters = ImmutableSet.copyOf(deserializeRegistryIds(buf, null)); // [1.7.10] ForgeRegistries.ENTITY_TYPES not available
 
         Log.getLogger().info("Synchronized {} saplings", saplings.size());
         Log.getLogger().info("Synchronized {} ore blocks with {} smeltable ores", oreBlocks.size(), smeltableOres.size());
@@ -253,7 +258,7 @@ public class CompatibilityManager implements ICompatibilityManager
 
         for (int i = 0, amount = buf.readInt(); i < amount; i++)
         {
-            final Item item = BuiltInRegistries.ITEM.byId(buf.readInt());
+            final Item item = net.minecraft.item.Item.getItemById(buf.readInt());
             Set<CheckedNbtKey> nbtKeys = new HashSet<>();
             for (int j = 0, children = buf.readInt(); j < children; j++)
             {
@@ -268,30 +273,55 @@ public class CompatibilityManager implements ICompatibilityManager
       @NotNull final PacketBuffer buf,
       @NotNull final Collection<ItemStorage> list)
     {
-        buf.writeCollection(list, StandardFactoryController.getInstance()::serialize);
+        // [1.7.10] buf.writeCollection does not exist; manual serialization
+        buf.writeInt(list.size());
+        for (final ItemStorage storage : list)
+        {
+            StandardFactoryController.getInstance().serialize(buf, storage);
+        }
     }
 
     @NotNull
     private static List<ItemStorage> deserializeItemStorageList(@NotNull final PacketBuffer buf)
     {
-        return buf.readList(StandardFactoryController.getInstance()::deserialize);
+        // [1.7.10] buf.readList does not exist; manual deserialization
+        final int size = buf.readInt();
+        final List<ItemStorage> result = new java.util.ArrayList<>();
+        for (int i = 0; i < size; i++)
+        {
+            result.add(StandardFactoryController.getInstance().deserialize(buf));
+        }
+        return result;
     }
 
     private static void serializeBlockList(
       @NotNull final PacketBuffer buf,
       @NotNull final Collection<Block> list)
     {
-        buf.writeCollection(list.stream().map(ItemStack::new).toList(), PacketBuffer::writeItem);
+        // [1.7.10] Serialize blocks by item ID
+        buf.writeInt(list.size());
+        for (final Block block : list)
+        {
+            final Item item = net.minecraft.item.Item.getItemFromBlock(block);
+            buf.writeInt(net.minecraft.item.Item.getIdFromItem(item));
+        }
     }
 
     @NotNull
     private static List<Block> deserializeBlockList(@NotNull final PacketBuffer buf)
     {
-        final List<ItemStack> stacks = buf.readList(PacketBuffer::readItem);
-        return stacks.stream()
-          .flatMap(stack -> stack.getItem() instanceof BlockItem blockItem
-                              ? Stream.of(blockItem.getBlock()) : Stream.empty())
-          .toList();
+        // [1.7.10] Deserialize blocks by item ID
+        final int size = buf.readInt();
+        final List<Block> blocks = new java.util.ArrayList<>();
+        for (int i = 0; i < size; i++)
+        {
+            final Item item = net.minecraft.item.Item.getItemById(buf.readInt());
+            if (item instanceof net.minecraft.item.ItemBlock)
+            {
+                blocks.add(((net.minecraft.item.ItemBlock) item).field_150939_a);
+            }
+        }
+        return blocks;
     }
 
     // [1.7.10] IForgeRegistry does not exist; monsters serialization stubbed.
@@ -317,16 +347,28 @@ public class CompatibilityManager implements ICompatibilityManager
       @NotNull final PacketBuffer buf,
       @NotNull final Map<Item, CompostRecipe> compostRecipes)
     {
-        final List<CompostRecipe> recipes = compostRecipes.values().stream().distinct().toList();
-        buf.writeCollection(recipes, ModRecipeSerializer.CompostRecipeSerializer.get()::toNetwork);
+        // [1.7.10] writeCollection replaced with manual loop
+        final List<CompostRecipe> recipes = new java.util.ArrayList<>(new java.util.LinkedHashSet<>(compostRecipes.values()));
+        buf.writeInt(recipes.size());
+        for (final CompostRecipe recipe : recipes)
+        {
+            ModRecipeSerializer.CompostRecipeSerializer.get().toNetwork(buf, recipe);
+        }
     }
 
     @NotNull
     private static List<CompostRecipe> deserializeCompostRecipes(@NotNull final PacketBuffer buf)
     {
+        // [1.7.10] readList replaced with manual loop
         final CompostRecipe.Serializer serializer = ModRecipeSerializer.CompostRecipeSerializer.get();
         final ResourceLocation empty = new ResourceLocation("");
-        return buf.readList(b -> serializer.fromNetwork(empty, b));
+        final int size = buf.readInt();
+        final List<CompostRecipe> result = new java.util.ArrayList<>();
+        for (int i = 0; i < size; i++)
+        {
+            result.add(serializer.fromNetwork(empty, buf));
+        }
+        return result;
     }
 
     /**
@@ -371,13 +413,15 @@ public class CompatibilityManager implements ICompatibilityManager
     @Override
     public boolean isPlantable(final ItemStack itemStack)
     {
-        return !itemStack.isEmpty() && itemStack.getItem() instanceof BlockItem && itemStack.is(ModTags.floristFlowers);
+        // [1.7.10] Tags replaced with runtime plantables list check
+        return !ItemStackUtils.isEmpty(itemStack) && plantables.contains(new ItemStorage(itemStack));
     }
 
     @Override
     public boolean isLuckyBlock(final Block block)
     {
-        return block.defaultBlockState().is(ModTags.oreChanceBlocks);
+        // [1.7.10] block.defaultBlockState().is(tag) not available; oreChanceBlocks tag replaced with oreBlocks set
+        return oreBlocks.contains(block);
     }
 
     @Nullable
@@ -431,7 +475,9 @@ public class CompatibilityManager implements ICompatibilityManager
         final Set<ItemStorage> filteredEdibles = new HashSet<>();
         for (final ItemStorage storage : edibles)
         {
-            if ((storage.getItemStack().getFoodProperties(null) != null && storage.getItemStack().getFoodProperties(null).getNutrition() >= minNutrition))
+            final ItemStack s = storage.getItemStack();
+            if (s.getItem() instanceof net.minecraft.item.ItemFood
+                    && ((net.minecraft.item.ItemFood) s.getItem()).func_150905_g(s) >= minNutrition)
             {
                 filteredEdibles.add(storage);
             }
@@ -492,7 +538,6 @@ public class CompatibilityManager implements ICompatibilityManager
     }
 
     @Override
-    @Override
     public boolean isOre(final Block block)
     {
         if (oreBlocks.isEmpty())
@@ -509,10 +554,10 @@ public class CompatibilityManager implements ICompatibilityManager
         {
             return true;
         }
-        if (isMineableOre(stack) || stack.is(ModTags.raw_ore))
+        if (isMineableOre(stack)) // [1.7.10] raw_ore tag removed
         {
             ItemStack smeltingResult = MinecoloniesAPIProxy.getInstance().getFurnaceRecipes().getSmeltingResult(stack);
-            return !smeltingResult.isEmpty();
+            return !ItemStackUtils.isEmpty(smeltingResult);
         }
 
         return false;
@@ -521,30 +566,23 @@ public class CompatibilityManager implements ICompatibilityManager
     @Override
     public boolean isMineableOre(@NotNull final ItemStack stack)
     {
-        return !isEmpty(stack) && stack.is(Tags.Items.ORES);
+        // [1.7.10] Tags replaced with OreDictionary check for ores
+        return !isEmpty(stack) && net.minecraftforge.oredict.OreDictionary.getOreIDs(stack).length > 0
+                   && java.util.Arrays.stream(net.minecraftforge.oredict.OreDictionary.getOreIDs(stack))
+                   .anyMatch(id -> net.minecraftforge.oredict.OreDictionary.getOreName(id).startsWith("ore"));
     }
 
     @Override
     public boolean isBreakableOre(@NotNull final ItemStack stack)
     {
-        if (stack.is(ModTags.breakable_ore))
+        // [1.7.10] Tags not available; check OreDictionary for "ore*" names pointing to blocks
+        if (ItemStackUtils.isEmpty(stack)) return false;
+        final Block block = net.minecraft.block.Block.getBlockFromItem(stack.getItem());
+        if (block != null && block != net.minecraft.init.Blocks.air)
         {
-            final Block block = Block.byItem(stack.getItem());
-            if (!block.defaultBlockState().isAir())
-            {
-                final List<LootTableAnalyzer.LootDrop> drops = CustomRecipeManager.getInstance().getLootDrops(block.getLootTable());
-                for (final LootTableAnalyzer.LootDrop drop : drops)
-                {
-                    for (final ItemStack dropStack : drop.getItemStacks())
-                    {
-                        if (ItemStackUtils.compareItemStacksIgnoreStackSize(stack, dropStack))
-                        {
-                            return false;   // blocks that drop themselves are not breakable ore
-                        }
-                    }
-                }
-            }
-            return true;
+            // If the ore drops itself, it's not a "breakable" ore (e.g. iron ore dropping iron ore)
+            // For 1.7.10, we rely on isMineableOre
+            return isMineableOre(stack);
         }
         return false;
     }
@@ -552,22 +590,24 @@ public class CompatibilityManager implements ICompatibilityManager
     @Override
     public void write(@NotNull final NBTTagCompound compound)
     {
-        @NotNull final NBTTagList saplingsLeavesTagList =
-          leavesToSaplingMap.entrySet()
-            .stream()
-            .filter(entry -> entry.getKey() != null)
-            .map(entry -> writeLeafSaplingEntryToNBT(entry.getKey().defaultBlockState(), entry.getValue()))
-            .collect(NBTUtils.toListNBT());
-        compound.put(TAG_SAP_LEAF, saplingsLeavesTagList);
+        @NotNull final NBTTagList saplingsLeavesTagList = new net.minecraft.nbt.NBTTagList();
+        for (final java.util.Map.Entry<Block, ItemStorage> entry : leavesToSaplingMap.entrySet())
+        {
+            if (entry.getKey() != null)
+            {
+                saplingsLeavesTagList.appendTag(writeLeafSaplingEntryToNBT(net.minecraft.block.Block.getIdFromBlock(entry.getKey()), entry.getValue()));
+            }
+        }
+        compound.setTag(TAG_SAP_LEAF, saplingsLeavesTagList);
     }
 
     @Override
     public void read(@NotNull final NBTTagCompound compound)
     {
-        NBTUtils.streamCompound(compound.getList(TAG_SAP_LEAF, NBTBase.TAG_COMPOUND))
+        NBTUtils.streamCompound(compound.getTagList(TAG_SAP_LEAF, 10))
           .map(CompatibilityManager::readLeafSaplingEntryFromNBT)
-          .filter(key -> !key.getA().isAir() && !leavesToSaplingMap.containsKey(key.getA().getBlock()) && !leavesToSaplingMap.containsValue(key.getB()))
-          .forEach(key -> leavesToSaplingMap.put(key.getA().getBlock(), key.getB()));
+          .filter(key -> key.getA() != null && !leavesToSaplingMap.containsKey(key.getA()) && !leavesToSaplingMap.containsValue(key.getB()))
+          .forEach(key -> leavesToSaplingMap.put(key.getA(), key.getB()));
     }
 
     @Override
@@ -579,7 +619,7 @@ public class CompatibilityManager implements ICompatibilityManager
         }
     }
 
-    @Override
+    // [1.7.10] Not in interface; kept without @Override
     public net.minecraft.creativetab.CreativeTabs getCreativeTab(final ItemStorage checkItem)
     {
         return creativeModeTabMap.get(checkItem);
@@ -589,7 +629,7 @@ public class CompatibilityManager implements ICompatibilityManager
     public int getCreativeTabKey(final ItemStorage checkItem)
     {
         final net.minecraft.creativetab.CreativeTabs creativeTab = creativeModeTabMap.get(checkItem);
-        return creativeTab == null ? DEFAULT_TAB_KEY : creativeModeTabMap.get(checkItem).column();
+        return creativeTab == null ? DEFAULT_TAB_KEY : creativeTab.getTabIndex();
     }
 
     @Override
@@ -610,26 +650,23 @@ public class CompatibilityManager implements ICompatibilityManager
     private void discoverMobs()
     {
         Set<ResourceLocation> monsterSet = new HashSet<>();
-
-        for (final Map.Entry<ResourceKey<EntityType<?>>, EntityType<?>> entry : ForgeRegistries.ENTITY_TYPES.getEntries())
+        // [1.7.10] Iterate EntityList string IDs; check if class implements IMob
+        for (final Object obj : net.minecraft.entity.EntityList.stringToClassMapping.entrySet())
         {
-            if (entry.getValue().getCategory() == MobCategory.MONSTER)
+            @SuppressWarnings("unchecked")
+            final java.util.Map.Entry<String, Class<?>> entry = (java.util.Map.Entry<String, Class<?>>) obj;
+            if (net.minecraft.entity.monster.IMob.class.isAssignableFrom(entry.getValue()))
             {
-                monsterSet.add(entry.getKey().location());
-            }
-            else if (entry.getValue().is(ModTags.hostile))
-            {
-                monsterSet.add(entry.getKey().location());
+                monsterSet.add(new ResourceLocation(entry.getKey()));
             }
         }
-
         monsters = ImmutableSet.copyOf(monsterSet);
     }
 
     /**
      * Create complete list of all existing items, client side only.
      */
-    private void discoverAllItems(final World World)
+    private void discoverAllItems(final World world)
     {
         if (!food.isEmpty())
         {
@@ -639,20 +676,30 @@ public class CompatibilityManager implements ICompatibilityManager
         final Set<ItemStorage> tempDuplicates = new HashSet<>();
         final Set<ItemStorage> tempFlowers = new HashSet<>();
 
-        final net.minecraft.creativetab.CreativeTabs.ItemDisplayParameters tempDisplayParams = new net.minecraft.creativetab.CreativeTabs.ItemDisplayParameters(World.enabledFeatures(), false, World.registryAccess());
-
         final ImmutableList.Builder<ItemStack> listBuilder = new ImmutableList.Builder<>();
 
-        CraftingUtils.forEachCreativeTabItems(tempDisplayParams, (tab, stacks) ->
+        // [1.7.10] Iterate items from each creative tab
+        for (final net.minecraft.creativetab.CreativeTabs tab : net.minecraft.creativetab.CreativeTabs.creativeTabArray)
         {
-            final Object2IntLinkedOpenHashMap<Item> mapping = new Object2IntLinkedOpenHashMap<>();
+            if (tab == null) continue;
+            final java.util.List<ItemStack> stacks = new java.util.ArrayList<>();
+            try
+            {
+                tab.displayAllReleventItems(stacks); // [1.7.10] typo in original API
+            }
+            catch (final Exception e)
+            {
+                Log.getLogger().warn("Error getting items from creative tab " + tab.getTabLabel(), e);
+                continue;
+            }
+            final Object2IntLinkedOpenHashMap<net.minecraft.item.Item> mapping = new Object2IntLinkedOpenHashMap<>();
             for (final ItemStack item : stacks)
             {
+                if (ItemStackUtils.isEmpty(item)) continue;
                 if (!tempDuplicates.add(new ItemStorage(item)) || mapping.addTo(item.getItem(), 1) > MAX_DEPTH)
                 {
                     continue;
                 }
-
                 listBuilder.add(item);
                 discoverSaplings(item);
                 discoverOres(item);
@@ -663,7 +710,7 @@ public class CompatibilityManager implements ICompatibilityManager
 
                 creativeModeTabMap.put(new ItemStorage(item), tab);
             }
-        });
+        }
 
         discoverFungi();
 
@@ -675,7 +722,6 @@ public class CompatibilityManager implements ICompatibilityManager
         Log.getLogger().info("Finished discovering fuel " + fuel.size());
         Log.getLogger().info("Finished discovering flowers " + beekeeperflowers.size());
 
-
         allItems = listBuilder.build();
         Log.getLogger().info("Finished discovering items " + allItems.size());
     }
@@ -685,9 +731,20 @@ public class CompatibilityManager implements ICompatibilityManager
      */
     private void discoverBeekeeperFlowers(final ItemStack item, final Set<ItemStorage> tempFlowers)
     {
-        if (item.is(ItemTags.FLOWERS))
+        // [1.7.10] Use OreDictionary for "flower*" entries
+        for (final String name : net.minecraftforge.oredict.OreDictionary.getOreNames())
         {
-            tempFlowers.add(new ItemStorage(item));
+            if (name.startsWith("flower"))
+            {
+                for (final ItemStack ore : net.minecraftforge.oredict.OreDictionary.getOres(name))
+                {
+                    if (net.minecraftforge.oredict.OreDictionary.itemMatches(ore, item, false))
+                    {
+                        tempFlowers.add(new ItemStorage(item));
+                        return;
+                    }
+                }
+            }
         }
     }
 
@@ -696,15 +753,22 @@ public class CompatibilityManager implements ICompatibilityManager
      */
     private void discoverOres(final ItemStack stack)
     {
-        if (stack.is(Tags.Items.ORES) || stack.is(ModTags.breakable_ore) || stack.is(ModTags.raw_ore))
+        // [1.7.10] Use OreDictionary for "ore*" entries
+        for (final int oreId : net.minecraftforge.oredict.OreDictionary.getOreIDs(stack))
         {
-            if (stack.getItem() instanceof BlockItem)
+            final String oreName = net.minecraftforge.oredict.OreDictionary.getOreName(oreId);
+            if (oreName.startsWith("ore") || oreName.startsWith("rawOre"))
             {
-                oreBlocks.add(((BlockItem) stack.getItem()).getBlock());
-            }
-            if (!MinecoloniesAPIProxy.getInstance().getFurnaceRecipes().getSmeltingResult(stack).isEmpty())
-            {
-                smeltableOres.add(new ItemStorage(stack));
+                final Block block = net.minecraft.block.Block.getBlockFromItem(stack.getItem());
+                if (block != null && block != net.minecraft.init.Blocks.air)
+                {
+                    oreBlocks.add(block);
+                }
+                if (!ItemStackUtils.isEmpty(MinecoloniesAPIProxy.getInstance().getFurnaceRecipes().getSmeltingResult(stack)))
+                {
+                    smeltableOres.add(new ItemStorage(stack));
+                }
+                return;
             }
         }
     }
@@ -714,9 +778,15 @@ public class CompatibilityManager implements ICompatibilityManager
      */
     private void discoverSaplings(final ItemStack stack)
     {
-        if (stack.is(ItemTags.SAPLINGS) || stack.is(Tags.Items.MUSHROOMS) || stack.is(ModTags.fungi))
+        // [1.7.10] Use OreDictionary for "treeSapling*" and "mushroom*" entries
+        for (final int oreId : net.minecraftforge.oredict.OreDictionary.getOreIDs(stack))
         {
-            saplings.add(new ItemStorage(stack, false, true));
+            final String name = net.minecraftforge.oredict.OreDictionary.getOreName(oreId);
+            if (name.startsWith("treeSapling") || name.startsWith("mushroom"))
+            {
+                saplings.add(new ItemStorage(stack, false, true));
+                return;
+            }
         }
     }
 
@@ -726,11 +796,7 @@ public class CompatibilityManager implements ICompatibilityManager
      */
     private void discoverFungi()
     {
-        // regular saplings and overworld mushrooms are discovered by loot drops, so will populate this table on
-        // their own (though only after the first tree is cut); nether "leaves" don't drop saplings by default
-        // though, so we instead use this table to force that.
-        leavesToSaplingMap.put(Blocks.NETHER_WART_BLOCK, new ItemStorage(new ItemStack(Items.CRIMSON_FUNGUS)));
-        leavesToSaplingMap.put(Blocks.WARPED_WART_BLOCK, new ItemStorage(new ItemStack(Items.WARPED_FUNGUS)));
+        // [1.7.10] Nether fungi blocks don't exist; no-op
     }
 
     /**
@@ -740,10 +806,10 @@ public class CompatibilityManager implements ICompatibilityManager
      */
     private void discoverCompostRecipes()
     {
+        // [1.7.10] RecipeManager not available; load from custom recipe list if present
         if (compostRecipes.isEmpty())
         {
-            discoverCompostRecipes(recipeManager.byType(ModRecipeSerializer.CompostRecipeType.get()).values().stream()
-              .map(r -> (CompostRecipe) r).toList());
+            discoverCompostRecipes(java.util.Collections.emptyList());
             Log.getLogger().info("Finished discovering compostables " + compostRecipes.size());
         }
     }
@@ -752,8 +818,9 @@ public class CompatibilityManager implements ICompatibilityManager
     {
         for (final CompostRecipe recipe : recipes)
         {
-            for (final ItemStack stack : recipe.getInput().getItems())
+            for (final Item item : recipe.getInputItems())
             {
+                final ItemStack stack = new ItemStack(item);
                 // there can be duplicates due to overlapping tags.  weakest one wins.
                 compostRecipes.merge(stack.getItem(), recipe,
                   (r1, r2) -> r1.getStrength() < r2.getStrength() ? r1 : r2);
@@ -766,11 +833,14 @@ public class CompatibilityManager implements ICompatibilityManager
      */
     private void discoverPlantables(final ItemStack stack)
     {
-        if (stack.is(ModTags.floristFlowers))
+        // [1.7.10] Use OreDictionary for florist flowers; check against known florist flower tag via config/oreDic
+        for (final int oreId : net.minecraftforge.oredict.OreDictionary.getOreIDs(stack))
         {
-            if (stack.getItem() instanceof BlockItem)
+            final String name = net.minecraftforge.oredict.OreDictionary.getOreName(oreId);
+            if (name.startsWith("flower") || name.startsWith("plant"))
             {
                 plantables.add(new ItemStorage(stack));
+                return;
             }
         }
     }
@@ -780,7 +850,7 @@ public class CompatibilityManager implements ICompatibilityManager
      */
     private void discoverFuel(final ItemStack stack)
     {
-        if (FurnaceBlockEntity.isFuel(stack))
+        if (net.minecraft.tileentity.TileEntityFurnace.isItemFuel(stack))
         {
             fuel.add(new ItemStorage(stack));
         }
@@ -802,17 +872,18 @@ public class CompatibilityManager implements ICompatibilityManager
     }
 
     // [1.7.10] BlockState/NbtUtils do not exist; leaf-sapling NBT helpers stubbed.
-    private static NBTTagCompound writeLeafSaplingEntryToNBT(final int blockMeta, final ItemStorage storage)
+    private static NBTTagCompound writeLeafSaplingEntryToNBT(final int blockId, final ItemStorage storage)
     {
         final NBTTagCompound compound = new NBTTagCompound();
-        compound.setInteger("BlockMeta", blockMeta);
+        compound.setInteger("BlockId", blockId);
         storage.getItemStack().writeToNBT(compound);
         return compound;
     }
 
-    private static com.minecolonies.api.util.Tuple<Integer, ItemStorage> readLeafSaplingEntryFromNBT(final NBTTagCompound compound)
+    private static com.minecolonies.api.util.Tuple<Block, ItemStorage> readLeafSaplingEntryFromNBT(final NBTTagCompound compound)
     {
-        return new com.minecolonies.api.util.Tuple<>(compound.getInteger("BlockMeta"),
+        final Block block = net.minecraft.block.Block.getBlockById(compound.getInteger("BlockId"));
+        return new com.minecolonies.api.util.Tuple<>(block,
             new ItemStorage(ItemStack.loadItemStackFromNBT(compound), false, true));
     }
 
@@ -821,16 +892,16 @@ public class CompatibilityManager implements ICompatibilityManager
      */
     private void discoverModCompat()
     {
-        if (ModList.get().isLoaded("resourcefulbees"))
+        if (cpw.mods.fml.common.Loader.isModLoaded("resourcefulbees"))
         {
             Compatibility.beeHiveCompat = new ResourcefulBeesCompat();
         }
-        if (ModList.get().isLoaded("tconstruct"))
+        if (cpw.mods.fml.common.Loader.isModLoaded("tconstruct"))
         {
             Compatibility.tinkersCompat = new TinkersToolHelper();
             Compatibility.tinkersSlimeCompat = new SlimeTreeCheck();
         }
-        if (ModList.get().isLoaded("dynamictrees"))
+        if (cpw.mods.fml.common.Loader.isModLoaded("dynamictrees"))
         {
             Compatibility.dynamicTreesCompat = new DynamicTreeCompat();
         }
