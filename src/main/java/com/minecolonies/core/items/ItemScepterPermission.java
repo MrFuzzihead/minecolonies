@@ -1,4 +1,9 @@
 package com.minecolonies.core.items;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.item.InteractionResult;
+import net.minecraft.world.item.Properties;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.IColonyView;
@@ -67,7 +72,7 @@ public class ItemScepterPermission extends AbstractItemMinecolonies implements I
      *
      * @param properties the properties.
      */
-    public ItemScepterPermission(final Item.Properties properties)
+    public ItemScepterPermission(final Properties properties)
     {
         super("scepterpermission", properties.stacksTo(1).durability(2));
     }

@@ -1,4 +1,8 @@
 package com.minecolonies.core.items;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.item.Properties;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.core.entity.other.SpearEntity;
 import com.minecolonies.core.client.render.SpearItemTileEntityRenderer;

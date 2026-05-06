@@ -8,12 +8,12 @@ import com.minecolonies.api.equipment.ModEquipmentTypes;
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.colony.crafting.CustomRecipe;
-// [1.7.10] data removed
-// [1.7.10] data removed
-// [1.7.10] data removed
-// [1.7.10] data removed
+import net.minecraft.data.CachedOutput;
+import net.minecraft.data.DataProvider;
+import net.minecraft.data.PackOutput;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.crafting.FinishedRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;

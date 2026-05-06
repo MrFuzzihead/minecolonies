@@ -1,4 +1,7 @@
 package com.minecolonies.core.network.messages.client.colony;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+
 
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.network.IMessage;

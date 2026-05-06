@@ -1,5 +1,7 @@
 package com.minecolonies.core.colony.managers;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+import net.minecraft.world.level.chunk.LevelChunk;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;

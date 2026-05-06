@@ -1,4 +1,5 @@
 package com.minecolonies.api.entity.citizen;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.ICivilianData;
 import com.minecolonies.api.entity.other.AbstractFastMinecoloniesEntity;
@@ -96,7 +97,7 @@ public abstract class AbstractCivilianEntity extends AbstractFastMinecoloniesEnt
             getNavigator().clearPathEntity();
             getLookHelper().setLookPositionWithEntity(player, 10.0F, 10.0F);
 
-            playSoundAtCitizenWith(worldObj, (int) posX, (int) posY, (int) posZ, GREETING, getCivilianData());
+            playSoundAtCitizenWith(worldObj, new int[]{(int) posX, (int) posY, (int) posZ}, GREETING, getCivilianData());
         }
     }
 
@@ -142,12 +143,11 @@ public abstract class AbstractCivilianEntity extends AbstractFastMinecoloniesEnt
      * @return true if successful.
      */
     @Override
-    public boolean mountEntity(final Entity entity)
+    public void mountEntity(final Entity entity)
     {
         if (entity instanceof SittingEntity || entity instanceof MinecoloniesMinecart || entity instanceof CavalryHorseEntity)
         {
-            return super.mountEntity(entity);
+            super.mountEntity(entity);
         }
-        return false;
     }
 }

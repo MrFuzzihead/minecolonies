@@ -1,4 +1,5 @@
 package com.minecolonies.core.generation.defaults;
+import net.minecraft.data.PackOutput;
 
 import com.minecolonies.api.blocks.ModBlocks;
 import com.minecolonies.api.colony.buildings.ModBuildings;

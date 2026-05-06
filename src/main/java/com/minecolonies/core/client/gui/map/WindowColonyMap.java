@@ -1,4 +1,5 @@
 package com.minecolonies.core.client.gui.map;
+import net.minecraft.world.entity.player.Player;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;

@@ -1,4 +1,7 @@
 package com.minecolonies.core.colony;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.ChatFormatting;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -723,7 +726,7 @@ public final class ColonyView implements IColonyView
         Collections.reverse(lastSpawnPoints);
 
         this.teamColonyColor = ChatFormatting.values()[buf.readInt()];
-        this.colonyFlag = buf.readNbt().getList(TAG_BANNER_PATTERNS, Constants.TAG_COMPOUND);
+        this.colonyFlag = buf.readNbt().getTagList(TAG_BANNER_PATTERNS, Constants.TAG_COMPOUND);
 
         this.mercenaryLastUseTime = buf.readLong();
 
@@ -1320,7 +1323,7 @@ public final class ColonyView implements IColonyView
     @Override
     public void usedMercenaries()
     {
-        mercenaryLastUseTime = world.getGameTime();
+        mercenaryLastUseTime = world.getTotalWorldTime();
     }
 
     @Override

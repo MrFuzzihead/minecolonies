@@ -1,4 +1,7 @@
 package com.minecolonies.core.entity.pathfinding;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.Direction;
+import net.minecraft.world.entity.player.Player;
 
 import com.ldtteam.domumornamentum.block.decorative.FloatingCarpetBlock;
 import com.ldtteam.domumornamentum.block.decorative.PanelBlock;
@@ -18,9 +21,15 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.MathHelper;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.block.BlockLadder;
 import net.minecraft.world.World;
-import net.minecraft.world.World.LevelReader;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.block.BlockLadder;
+
 import net.minecraft.block.*;
+import net.minecraft.block.state.BlockState;
 // [1.7.10] BlockState -> int metadata
 // [1.7.10] block import removed
 // [1.7.10] World.material removed
@@ -146,7 +155,7 @@ public class PathfindingUtils
         BlockState down = World.getBlockState(pos.below());
         while (canStandInSolidBlock(bs) && canStandInSolidBlock(down) && !down.getBlock().isLadder(down, World, pos.below(), entity) && down.getFluidState().isEmpty())
         {
-            pos.move(Direction.DOWN, 1);
+            pos.move(EnumFacing.DOWN, 1);
             bs = down;
             down = World.getBlockState(pos.below());
 
@@ -215,7 +224,7 @@ public class PathfindingUtils
      * @param pos   the position.
      * @param p     the path.
      */
-    public static void setLadderFacing(@NotNull final LevelReader world, final int[] pos, @NotNull final PathPointExtended p)
+    public static void setLadderFacing(@NotNull final IBlockAccess world, final int[] pos, @NotNull final PathPointExtended p)
     {
         final BlockState state = world.getBlockState(pos);
         final Block block = state.getBlock();
@@ -223,28 +232,28 @@ public class PathfindingUtils
         {
             if (state.getValue(VineBlock.SOUTH))
             {
-                p.setLadderFacing(Direction.NORTH);
+                p.setLadderFacing(EnumFacing.NORTH);
             }
             else if (state.getValue(VineBlock.WEST))
             {
-                p.setLadderFacing(Direction.EAST);
+                p.setLadderFacing(EnumFacing.EAST);
             }
             else if (state.getValue(VineBlock.NORTH))
             {
-                p.setLadderFacing(Direction.SOUTH);
+                p.setLadderFacing(EnumFacing.SOUTH);
             }
             else if (state.getValue(VineBlock.EAST))
             {
-                p.setLadderFacing(Direction.WEST);
+                p.setLadderFacing(EnumFacing.WEST);
             }
         }
-        else if (block instanceof LadderBlock)
+        else if (block instanceof BlockLadder)
         {
-            p.setLadderFacing(state.getValue(LadderBlock.FACING));
+            p.setLadderFacing(EnumFacing.NORTH); // [1.7.10] LadderBlock.FACING not available
         }
         else
         {
-            p.setLadderFacing(Direction.UP);
+            p.setLadderFacing(EnumFacing.UP);
         }
     }
 
@@ -265,7 +274,7 @@ public class PathfindingUtils
      * @param pos the pos in the world.
      * @return true if so.
      */
-    public static boolean isWater(@NotNull final BlockGetter world, final int[] pos)
+    public static boolean isWater(@NotNull final IBlockAccess world, final int[] pos)
     {
         return isWater(world, pos, null, null);
     }
@@ -278,7 +287,7 @@ public class PathfindingUtils
      * @param pFluidState existing fluidstate or null
      * @return true if so.
      */
-    public static boolean isWater(@NotNull final BlockGetter world, final int[] pos, @Nullable BlockState pState, @Nullable FluidState pFluidState)
+    public static boolean isWater(@NotNull final IBlockAccess world, final int[] pos, @Nullable BlockState pState)
     {
         BlockState state = pState;
         if (state == null)
@@ -324,7 +333,7 @@ public class PathfindingUtils
      * @param pFluidState existing fluidstate or null
      * @return true if so.
      */
-    public static boolean isLava(@NotNull final BlockGetter world, final int[] pos, @Nullable BlockState pState, @Nullable FluidState pFluidState)
+    public static boolean isLava(@NotNull final IBlockAccess world, final int[] pos, @Nullable BlockState pState)
     {
         BlockState state = pState;
         if (state == null)
@@ -366,7 +375,7 @@ public class PathfindingUtils
             return true;
         }
         return (blockState.is(BlockTags.CLIMBABLE) && ((options != null && options.canClimbAdvanced()))
-            || blockState.getBlock() instanceof LadderBlock
+            || blockState.getBlock() instanceof BlockLadder
             || blockState.is(ModTags.freeClimbBlocks));
     }
 
@@ -383,7 +392,7 @@ public class PathfindingUtils
             return true;
         }
 
-        if (state.getBlock() instanceof LadderBlock || state.is(ModTags.freeClimbBlocks))
+        if (state.getBlock() instanceof BlockLadder || state.is(ModTags.freeClimbBlocks))
         {
             return true;
         }
@@ -399,22 +408,22 @@ public class PathfindingUtils
             if (state.hasProperty(PipeBlock.EAST) && state.getValue(PipeBlock.EAST))
             {
                 offsetState = cachedBlockLookup.getBlockState(nextX + 1, nextY, nextZ);
-                offsetDirection = Direction.EAST;
+                offsetDirection = EnumFacing.EAST;
             }
             else if (state.hasProperty(PipeBlock.WEST) && state.getValue(PipeBlock.WEST))
             {
                 offsetState = cachedBlockLookup.getBlockState(nextX - 1, nextY, nextZ);
-                offsetDirection = Direction.WEST;
+                offsetDirection = EnumFacing.WEST;
             }
             else if (state.hasProperty(PipeBlock.NORTH) && state.getValue(PipeBlock.NORTH))
             {
                 offsetState = cachedBlockLookup.getBlockState(nextX, nextY, nextZ - 1);
-                offsetDirection = Direction.NORTH;
+                offsetDirection = EnumFacing.NORTH;
             }
             else if (state.hasProperty(PipeBlock.SOUTH) && state.getValue(PipeBlock.SOUTH))
             {
                 offsetState = cachedBlockLookup.getBlockState(nextX, nextY, nextZ + 1);
-                offsetDirection = Direction.SOUTH;
+                offsetDirection = EnumFacing.SOUTH;
             }
 
             if (offsetState != null)

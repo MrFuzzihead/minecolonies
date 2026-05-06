@@ -1,8 +1,8 @@
 package com.minecolonies.core.util;
+import net.minecraft.world.level.ChunkPos;
 
 // [1.7.10] int[] -> int x,y,z
 // [1.7.10] SectionPos removed
-import net.minecraft.world.World.ChunkPos;
 
 public class MutableChunkPos extends ChunkPos
 {

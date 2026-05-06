@@ -1,4 +1,8 @@
 package com.minecolonies.api.colony.interactionhandling;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+
+import net.minecraft.world.entity.player.Player;
 
 // [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.ICitizenData;

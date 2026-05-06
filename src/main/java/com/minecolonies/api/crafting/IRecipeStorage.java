@@ -134,7 +134,7 @@ public interface IRecipeStorage
     @Nullable
     default List<ItemStack> fullfillRecipeAndCopy(final World world, final List<net.minecraftforge.items.IItemHandler> handlers, boolean doInsert)
     {
-        return fullfillRecipeAndCopy((new Object /* LootParams */.Builder((ServerLevel) world)).create(LootContextParamSets.EMPTY), handlers, doInsert);
+        return fullfillRecipeAndCopy((Object) world, handlers, doInsert); // [1.7.10] no LootParams, pass world as context
     }
 
     /**
@@ -194,7 +194,7 @@ public interface IRecipeStorage
      */
     EquipmentTypeEntry getRequiredTool();
 
-    /** 
+    /**
      * Get the location/id of the Loot table used for optional outputs
      * @return the resource location for the table
      */

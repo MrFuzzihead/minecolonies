@@ -75,9 +75,9 @@ public class StandardPlayerRequestResolverFactory implements IFactory<IRequestMa
     public NBTTagCompound serialize(@NotNull final IFactoryController controller, @NotNull final StandardPlayerRequestResolver playerRequestResolver)
     {
         final NBTTagCompound compound = new NBTTagCompound();
-        compound.put(NBT_TOKEN, controller.serialize(playerRequestResolver.getId()));
-        compound.put(NBT_LOCATION, controller.serialize(playerRequestResolver.getLocation()));
-        compound.put(NBT_ASSIGNED_REQUESTS, playerRequestResolver.getAllAssignedRequests().stream().map(controller::serialize).collect(NBTUtils.toListNBT()));
+        compound.setTag(NBT_TOKEN, controller.serialize(playerRequestResolver.getId()));
+        compound.setTag(NBT_LOCATION, controller.serialize(playerRequestResolver.getLocation()));
+        compound.setTag(NBT_ASSIGNED_REQUESTS, playerRequestResolver.getAllAssignedRequests().stream().map(controller::serialize).collect(NBTUtils.toListNBT()));
         return compound;
     }
 
@@ -85,11 +85,11 @@ public class StandardPlayerRequestResolverFactory implements IFactory<IRequestMa
     @Override
     public StandardPlayerRequestResolver deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound nbt)
     {
-        final IToken<?> token = controller.deserialize(nbt.getCompound(NBT_TOKEN));
-        final ILocation location = controller.deserialize(nbt.getCompound(NBT_LOCATION));
+        final IToken<?> token = controller.deserialize(nbt.getCompoundTag(NBT_TOKEN));
+        final ILocation location = controller.deserialize(nbt.getCompoundTag(NBT_LOCATION));
 
         final Set<IToken<?>> assignedRequests =
-          NBTUtils.streamCompound(nbt.getList(NBT_ASSIGNED_REQUESTS, NBTBase.TAG_COMPOUND)).map(c -> (IToken<?>) controller.deserialize(c)).collect(Collectors.toSet());
+          NBTUtils.streamCompound(nbt.getTagList(NBT_ASSIGNED_REQUESTS, NBTBase.TAG_COMPOUND)).map(c -> (IToken<?>) controller.deserialize(c)).collect(Collectors.toSet());
 
         final StandardPlayerRequestResolver resolver = new StandardPlayerRequestResolver(location, token);
         resolver.setAllAssignedRequests(assignedRequests);

@@ -1,5 +1,7 @@
 package com.minecolonies.core.colony;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+import net.minecraft.world.level.chunk.LevelChunk;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -61,8 +63,11 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.MinecraftForge;
-// [1.7.10] forge event removed
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+// [1.7.10] SubscribeEvent package is cpw.mods.fml in 1.7.10
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.util.Direction;
+import net.minecraft.world.level.chunk.LevelChunk;
+import cpw.mods.fml.common.gameevent.TickEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -611,9 +616,9 @@ public final class ColonyManager implements IColonyManager
     }
 
     @Override
-    public void onServerTick(final net.minecraftforge.event.ServerTickEvent event)
+    public void onServerTick(final TickEvent.ServerTickEvent event)
     {
-        if (event.phase == net.minecraftforge.event.TickEvent.Phase.END)
+        if (event.phase == TickEvent.Phase.END)
         {
             for (@NotNull final IColony c : getAllColonies())
             {
@@ -646,9 +651,9 @@ public final class ColonyManager implements IColonyManager
     }
 
     @Override
-    public void onClientTick(final net.minecraftforge.event.ClientTickEvent event)
+    public void onClientTick(final TickEvent.ClientTickEvent event)
     {
-        if (event.phase == net.minecraftforge.event.TickEvent.Phase.END)
+        if (event.phase == TickEvent.Phase.END)
         {
             // [1.7.10 BACKPORT] Minecraft.getInstance().World → Minecraft.getMinecraft().theWorld
             if (Minecraft.getMinecraft().theWorld == null && !colonyViews.isEmpty())
@@ -666,9 +671,9 @@ public final class ColonyManager implements IColonyManager
     }
 
     @Override
-    public void onWorldTick(final net.minecraftforge.event.WorldTickEvent event)
+    public void onWorldTick(final TickEvent.WorldTickEvent event)
     {
-        if (event.phase == net.minecraftforge.event.TickEvent.Phase.END)
+        if (event.phase == TickEvent.Phase.END)
         {
             for (final IColony colony : getColonies(event.world))
             {

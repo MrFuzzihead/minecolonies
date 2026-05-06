@@ -107,10 +107,10 @@ public class BuildingFlorist extends AbstractBuilding
     public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
-        final NBTTagList compostBinTagList = compound.getList(TAG_PLANTGROUND, NBTBase.TAG_COMPOUND);
+        final NBTTagList compostBinTagList = compound.getTagList(TAG_PLANTGROUND, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < compostBinTagList.size(); ++i)
         {
-            plantGround.add(NbtUtils.readBlockPos(compostBinTagList.getCompound(i).getCompound(TAG_POS)));
+            plantGround.add(NbtUtils.readBlockPos(compostBinTagList.getCompoundTagAt(i).getCompoundTag(TAG_POS)));
         }
     }
 
@@ -122,10 +122,10 @@ public class BuildingFlorist extends AbstractBuilding
         for (@NotNull final int[] entry : plantGround)
         {
             @NotNull final NBTTagCompound compostBinCompound = new NBTTagCompound();
-            compostBinCompound.put(TAG_POS, NbtUtils.writeBlockPos(entry));
+            compostBincompound.setTag(TAG_POS, NbtUtils.writeBlockPos(entry));
             compostBinTagList.add(compostBinCompound);
         }
-        compound.put(TAG_PLANTGROUND, compostBinTagList);
+        compound.setTag(TAG_PLANTGROUND, compostBinTagList);
 
         return compound;
     }

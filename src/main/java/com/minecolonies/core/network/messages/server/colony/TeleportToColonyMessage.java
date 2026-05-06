@@ -1,4 +1,5 @@
 package com.minecolonies.core.network.messages.server.colony;
+import net.minecraft.tileentity.BlockEntity; // [1.7.10] alias -> TileEntity
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyManager;

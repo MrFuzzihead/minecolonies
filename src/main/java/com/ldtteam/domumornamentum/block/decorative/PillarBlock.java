@@ -7,9 +7,10 @@ import net.minecraft.block.Block;
  */
 public class PillarBlock extends Block
 {
-    public PillarBlock(final int id, final net.minecraft.block.material.Material material)
+    public PillarBlock()
     {
-        super(id, material);
+        super(net.minecraft.block.material.Material.wood);
     }
 }
+
 

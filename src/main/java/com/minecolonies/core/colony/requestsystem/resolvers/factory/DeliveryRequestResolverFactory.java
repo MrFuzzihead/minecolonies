@@ -50,8 +50,8 @@ public class DeliveryRequestResolverFactory implements IRequestResolverFactory<D
       @NotNull final IFactoryController controller, @NotNull final DeliveryRequestResolver deliveryRequestResolver)
     {
         final NBTTagCompound compound = new NBTTagCompound();
-        compound.put(NBT_TOKEN, controller.serialize(deliveryRequestResolver.getId()));
-        compound.put(NBT_LOCATION, controller.serialize(deliveryRequestResolver.getLocation()));
+        compound.setTag(NBT_TOKEN, controller.serialize(deliveryRequestResolver.getId()));
+        compound.setTag(NBT_LOCATION, controller.serialize(deliveryRequestResolver.getLocation()));
         return compound;
     }
 
@@ -59,8 +59,8 @@ public class DeliveryRequestResolverFactory implements IRequestResolverFactory<D
     @Override
     public DeliveryRequestResolver deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound nbt)
     {
-        final IToken<?> token = controller.deserialize(nbt.getCompound(NBT_TOKEN));
-        final ILocation location = controller.deserialize(nbt.getCompound(NBT_LOCATION));
+        final IToken<?> token = controller.deserialize(nbt.getCompoundTag(NBT_TOKEN));
+        final ILocation location = controller.deserialize(nbt.getCompoundTag(NBT_LOCATION));
 
         return new DeliveryRequestResolver(location, token);
     }

@@ -171,7 +171,7 @@ public class TileEntityRack extends AbstractTileEntityRack
 
         for (final ItemStorage storage : content.keySet())
         {
-            if (IColonyManager.getInstance().getCompatibilityManager().getCreativeTab(checkItem) == IColonyManager.getInstance().getCompatibilityManager().getCreativeTab(storage))
+            if (IColonyManager.getInstance().getCompatibilityManager().getCreativeTabKey(checkItem) == IColonyManager.getInstance().getCompatibilityManager().getCreativeTabKey(storage))
             {
                 return true;
             }

@@ -1,4 +1,5 @@
 package com.minecolonies.api.colony.managers.interfaces;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.List;
 import java.util.Set;

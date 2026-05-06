@@ -45,11 +45,11 @@ public class PrivateCrafting extends AbstractCrafting
     public static NBTTagCompound serialize(final IFactoryController controller, final PrivateCrafting input)
     {
         final NBTTagCompound compound = new NBTTagCompound();
-        compound.put(NBT_STACK, input.getStack().serializeNBT());
-        compound.putInt(NBT_COUNT, input.getCount());
-        compound.putInt(NBT_MIN_COUNT, input.getMinCount());
+        compound.setTag(NBT_STACK, input.getStack().writeToNBT(new net.minecraft.nbt.NBTTagCompound()));
+        compound.setInteger(NBT_COUNT, input.getCount());
+        compound.setInteger(NBT_MIN_COUNT, input.getMinCount());
         final NBTTagCompound tokenCompound = StandardFactoryController.getInstance().serialize(input.getRecipeID());
-        compound.put(NBT_TOKEN, tokenCompound);
+        compound.setTag(NBT_TOKEN, tokenCompound);
 
         return compound;
     }
@@ -63,13 +63,13 @@ public class PrivateCrafting extends AbstractCrafting
      */
     public static PrivateCrafting deserialize(final IFactoryController controller, final NBTTagCompound compound)
     {
-        final ItemStack stack = ItemStackUtils.deserializeFromNBT(compound.getCompound(NBT_STACK));
-        final int count = compound.getInt(NBT_COUNT);
-        final int minCount = compound.getInt(NBT_MIN_COUNT);
+        final ItemStack stack = ItemStackUtils.deserializeFromNBT(compound.getCompoundTag(NBT_STACK));
+        final int count = compound.getInteger(NBT_COUNT);
+        final int minCount = compound.getInteger(NBT_MIN_COUNT);
         IToken<?> token = null;
-        if (compound.contains(NBT_TOKEN))
+        if (compound.hasKey(NBT_TOKEN))
         {
-            token = StandardFactoryController.getInstance().deserialize(compound.getCompound(NBT_TOKEN));
+            token = StandardFactoryController.getInstance().deserialize(compound.getCompoundTag(NBT_TOKEN));
         }
         else
         {
@@ -87,7 +87,7 @@ public class PrivateCrafting extends AbstractCrafting
      */
     public static void serialize(final IFactoryController controller, final PacketBuffer buffer, final PrivateCrafting input)
     {
-        buffer.writeItem(input.getStack());
+        try { buffer.writeItemStackToBuffer(input.getStack()); } catch (java.io.IOException e) { throw new RuntimeException(e); }
         buffer.writeInt(input.getCount());
         buffer.writeInt(input.getMinCount());
         StandardFactoryController.getInstance().serialize(buffer, input.getRecipeID());
@@ -102,12 +102,15 @@ public class PrivateCrafting extends AbstractCrafting
      */
     public static PrivateCrafting deserialize(final IFactoryController controller, final PacketBuffer buffer)
     {
-        final ItemStack stack = buffer.readItem();
-        final int count = buffer.readInt();
-        final int minCount = buffer.readInt();
-        final IToken<?> token = StandardFactoryController.getInstance().deserialize(buffer);
-
-        return new PrivateCrafting(stack, count, minCount == 0 ? count : minCount, token);
+        try
+        {
+            final ItemStack stack = buffer.readItemStackFromBuffer();
+            final int count = buffer.readInt();
+            final int minCount = buffer.readInt();
+            final IToken<?> token = StandardFactoryController.getInstance().deserialize(buffer);
+            return new PrivateCrafting(stack, count, minCount == 0 ? count : minCount, token);
+        }
+        catch (final java.io.IOException e) { throw new RuntimeException("Failed to read PrivateCrafting", e); }
     }
 
     @Override

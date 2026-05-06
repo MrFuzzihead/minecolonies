@@ -1,4 +1,5 @@
 package com.minecolonies.core.network.messages.server;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.core.items.ItemClipboard;
@@ -36,7 +37,7 @@ public class ItemSettingMessage implements IMessage
     }
 
     @Override
-    public void onExecute(Context ctx, boolean isLogicalServer)
+    public void onExecute(MessageContext ctx, boolean isLogicalServer)
     {
         final EntityPlayerMP player = ctx.getServerHandler().playerEntity;
         

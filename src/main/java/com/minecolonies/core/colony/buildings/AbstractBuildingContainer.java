@@ -1,5 +1,7 @@
 package com.minecolonies.core.colony.buildings;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+import net.minecraft.tileentity.BlockEntity; // [1.7.10] alias -> TileEntity
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -82,20 +84,20 @@ public abstract class AbstractBuildingContainer extends AbstractSchematicProvide
     {
         super.deserializeNBT(compound);
 
-        final NBTTagList containerTagList = compound.getList(TAG_CONTAINERS, NBTBase.TAG_COMPOUND);
-        for (int i = 0; i < containerTagList.size(); ++i)
+        final NBTTagList containerTagList = compound.getTagList(TAG_CONTAINERS, 10); // 10 = TAG_Compound
+        for (int i = 0; i < containerTagList.tagCount(); ++i)
         {
-            final NBTTagCompound containerCompound = containerTagList.getCompound(i);
-            containerList.add(NbtUtils.readBlockPos(containerCompound));
+            final NBTTagCompound containerCompound = containerTagList.getCompoundTagAt(i);
+            containerList.add(com.minecolonies.api.util.BlockPosUtil.read(containerCompound, "pos"));
         }
-        if (compound.contains(TAG_PRIO))
+        if (compound.hasKey(TAG_PRIO))
         {
-            this.unscaledPickUpPriority = compound.getInt(TAG_PRIO);
+            this.unscaledPickUpPriority = compound.getInteger(TAG_PRIO);
         }
-        if (compound.contains(TAG_PRIO_STATE))
+        if (compound.hasKey(TAG_PRIO_STATE))
         {
             // This was the old int representation of Pickup:Never
-            if (compound.getInt(TAG_PRIO_STATE) == 0)
+            if (compound.getInteger(TAG_PRIO_STATE) == 0)
             {
                 this.unscaledPickUpPriority = 0;
             }
@@ -110,10 +112,12 @@ public abstract class AbstractBuildingContainer extends AbstractSchematicProvide
         @NotNull final NBTTagList containerTagList = new NBTTagList();
         for (@NotNull final int[] pos : containerList)
         {
-            containerTagList.add(NbtUtils.writeBlockPos(pos));
+            final NBTTagCompound posCompound = new NBTTagCompound();
+            com.minecolonies.api.util.BlockPosUtil.write(posCompound, "pos", pos);
+            containerTagList.appendTag(posCompound);
         }
-        compound.put(TAG_CONTAINERS, containerTagList);
-        compound.putInt(TAG_PRIO, this.unscaledPickUpPriority);
+        compound.setTag(TAG_CONTAINERS, containerTagList);
+        compound.setInteger(TAG_PRIO, this.unscaledPickUpPriority);
 
         return compound;
     }
@@ -127,7 +131,7 @@ public abstract class AbstractBuildingContainer extends AbstractSchematicProvide
     @Override
     public void alterPickUpPriority(final int value)
     {
-        this.unscaledPickUpPriority = Mth.clamp(this.unscaledPickUpPriority + value, 0, getMaxBuildingPriority(false));
+        this.unscaledPickUpPriority = net.minecraft.util.MathHelper.clamp_int(this.unscaledPickUpPriority + value, 0, getMaxBuildingPriority(false));
     }
 
     @Override
@@ -151,9 +155,10 @@ public abstract class AbstractBuildingContainer extends AbstractSchematicProvide
     }
 
     @Override
-    public void registerBlockPosition(@NotNull final BlockState blockState, @NotNull final int[] pos, @NotNull final World world)
+    // [1.7.10] BlockState is our custom wrapper class with .block field
+    public void registerBlockPosition(@NotNull final net.minecraft.block.state.BlockState blockState, @NotNull final int[] pos, @NotNull final World world)
     {
-        registerBlockPosition(blockState.getBlock(), pos, world);
+        registerBlockPosition(blockState.block, pos, world);
     }
 
     @Override
@@ -162,10 +167,10 @@ public abstract class AbstractBuildingContainer extends AbstractSchematicProvide
     {
         if (block instanceof AbstractBlockHut)
         {
-            final BlockEntity entity = world.getBlockEntity(pos);
+            final net.minecraft.tileentity.TileEntity entity = world.getTileEntity(pos[0], pos[1], pos[2]);
             if (entity instanceof TileEntityColonyBuilding buildingEntity)
             {
-                buildingEntity.setStructurePack(StructurePacks.getStructurePack(getStructurePack()));
+                // [1.7.10] StructurePacks not available; skip setStructurePack
                 buildingEntity.setMirror(isMirrored());
                 final IBuilding building = colony.getServerBuildingManager().getBuilding(pos);
                 if (building != null)
@@ -178,10 +183,10 @@ public abstract class AbstractBuildingContainer extends AbstractSchematicProvide
         else if (block instanceof BlockMinecoloniesRack)
         {
             addContainerPosition(pos);
-            final BlockEntity entity = world.getBlockEntity(pos);
+            final net.minecraft.tileentity.TileEntity entity = world.getTileEntity(pos[0], pos[1], pos[2]);
             if (entity instanceof TileEntityRack rackEntity)
             {
-                rackEntity.setBuildingPos(this.getID());
+                rackEntity.setBuildingPos(getID()[0], getID()[1], getID()[2]);
             }
         }
     }
@@ -201,10 +206,7 @@ public abstract class AbstractBuildingContainer extends AbstractSchematicProvide
     @Override
     public List<int[]> getLocationsFromTag(@NotNull final String tagName)
     {
-        if (getTileEntity() != null)
-        {
-            return getTileEntity().getCachedWorldTagNamePosMap().getOrDefault(tagName, Collections.emptyList());
-        }
+        // [1.7.10] tag position map uses long[] keys; return empty list as stub
         return Collections.emptyList();
     }
 

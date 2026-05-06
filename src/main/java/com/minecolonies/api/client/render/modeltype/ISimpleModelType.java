@@ -68,7 +68,7 @@ public interface ISimpleModelType extends IModelType
 
         final int moddedTextureId = (entityCitizen.getTextureId() % getNumTextures()) + 1;
         final String textureIdentifier =
-          getName().getPath() + (entityCitizen.isFemale() ? "female" : "male") + moddedTextureId + entityCitizen.getDataWatcher().getWatchableObjectString(DW_RENDER_META);
+          getName().getResourcePath() + (entityCitizen.isFemale() ? "female" : "male") + moddedTextureId + entityCitizen.getDataWatcher().getWatchableObjectString(DW_RENDER_META);
         // [1.7.10] ResourceManager.getResource not available client-side the same way; return directly
         return new ResourceLocation(Constants.MOD_ID, BASE_FOLDER + style + "/" + textureIdentifier + ".png");
     }
@@ -84,7 +84,7 @@ public interface ISimpleModelType extends IModelType
         final int moddedTextureId = (entityCitizen.getTextureId() % getNumTextures()) + 1;
         final String textureIdentifier =
           getTextureBase() + (entityCitizen.isFemale() ? "female" : "male") + moddedTextureId + entityCitizen.getDataWatcher()
-            .getWatchableObjectString(DATA_TEXTURE_SUFFIX);
+            .getWatchableObjectString(DW_RENDER_META);
         return new ResourceLocation(Constants.MOD_ID, "textures/entity_icon/citizen/" + style + "/" + textureIdentifier + ".png");
     }
 }

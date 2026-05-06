@@ -1,7 +1,8 @@
 package com.minecolonies.core.colony.buildings.workerbuildings.plantation;
+import net.minecraft.util.Direction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.core.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.BoneMealItem;
 import net.minecraft.world.level.chunk.LevelChunk;

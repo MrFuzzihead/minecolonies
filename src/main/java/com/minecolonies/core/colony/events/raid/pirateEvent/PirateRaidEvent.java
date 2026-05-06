@@ -1,4 +1,5 @@
 package com.minecolonies.core.colony.events.raid.pirateEvent;
+import net.minecraft.world.entity.EntityType;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.colonyEvents.IColonyEvent;

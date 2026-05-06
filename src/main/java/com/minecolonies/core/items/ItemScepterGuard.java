@@ -1,4 +1,7 @@
 package com.minecolonies.core.items;
+import net.minecraft.world.item.InteractionResult;
+import net.minecraft.world.item.Properties;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyManager;
@@ -37,7 +40,7 @@ public class ItemScepterGuard extends AbstractItemMinecolonies
      *
      * @param properties the properties.
      */
-    public ItemScepterGuard(final Item.Properties properties)
+    public ItemScepterGuard(final Properties properties)
     {
         super("scepterguard", properties.stacksTo(1).durability(2));
     }

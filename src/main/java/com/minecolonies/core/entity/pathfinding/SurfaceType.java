@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.pathfinding;
+import net.minecraft.util.Direction;
 
 import com.ldtteam.domumornamentum.block.decorative.FloatingCarpetBlock;
 import com.ldtteam.domumornamentum.block.decorative.PanelBlock;
@@ -10,7 +11,10 @@ import com.minecolonies.api.util.ShapeUtil;
 // [1.7.10] int[] -> int x,y,z
 // [1.7.10] Direction -> net.minecraft.util.EnumFacing
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.block.*;
+import net.minecraft.block.state.BlockState;
 // [1.7.10] BlockState -> int metadata
 // [1.7.10] World.material removed
 import net.minecraft.pathfinding.PathFinder;
@@ -35,7 +39,7 @@ public enum SurfaceType
      * @return true if the block at that location can be walked on.
      */
     @NotNull
-    public static SurfaceType getSurfaceType(final BlockGetter world, final BlockState blockState, final int[] pos)
+    public static SurfaceType getSurfaceType(final IBlockAccess world, final BlockState blockState, final int[] pos)
     {
         return getSurfaceType(world, blockState, pos, null);
     }
@@ -49,7 +53,7 @@ public enum SurfaceType
      * @return true if the block at that location can be walked on.
      */
     @NotNull
-    public static SurfaceType getSurfaceType(final BlockGetter world, final BlockState blockState, final int[] pos, @Nullable final PathingOptions pathingOptions)
+    public static SurfaceType getSurfaceType(final IBlockAccess world, final BlockState blockState, final int[] pos, @Nullable final PathingOptions pathingOptions)
     {
         final Block block = blockState.getBlock();
 

@@ -1,7 +1,8 @@
 package com.minecolonies.core.colony.buildings.workerbuildings.plantation.modules.specific;
+import net.minecraft.util.Direction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.core.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.BoneMealItem;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -21,7 +22,7 @@ import net.minecraft.world.World;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.level.block.SeaPickleBlock;
 // [1.7.10] BlockState -> int metadata
-import org.checkerframework.checker.nullness.qual.NonNull;
+// [1.7.10] checkerframework not available
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -107,7 +108,7 @@ public class SeapicklePlantModule extends BoneMealedPlantModule
     }
 
     @Override
-    public @NonNull List<Item> getValidBonemeal()
+    public @NotNull List<Item> getValidBonemeal()
     {
         // Only base minecraft bonemeal has water growing capabilities.
         // Compost (by design) should not inherit this functionality.

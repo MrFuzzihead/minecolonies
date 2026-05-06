@@ -1,4 +1,6 @@
 package com.minecolonies.core.quests.objectives;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.entity.player.Player;
 
 import com.google.gson.JsonObject;
 import com.minecolonies.api.quests.IObjectiveInstance;

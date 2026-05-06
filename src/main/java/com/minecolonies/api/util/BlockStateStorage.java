@@ -1,4 +1,5 @@
 package com.minecolonies.api.util;
+import net.minecraft.world.level.block.state.BlockState;
 
 // [1.7.10] BlockState -> Block + int metadata; Property<?> not available
 import net.minecraft.block.Block;

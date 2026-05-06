@@ -98,11 +98,11 @@ public class StandardDataStoreManager implements IDataStoreManager
         {
             final NBTTagCompound compound = new NBTTagCompound();
 
-            compound.put(NbtTagConstants.TAG_LIST, standardDataStoreManager.storeMap.keySet().stream().map(iToken -> {
+            compound.setTag(NbtTagConstants.TAG_LIST, standardDataStoreManager.storeMap.keySet().stream().map(iToken -> {
                 final NBTTagCompound entryCompound = new NBTTagCompound();
 
-                entryCompound.put(NbtTagConstants.TAG_TOKEN, controller.serialize(iToken));
-                entryCompound.put(NbtTagConstants.TAG_VALUE, controller.serialize(standardDataStoreManager.storeMap.get(iToken)));
+                entrycompound.setTag(NbtTagConstants.TAG_TOKEN, controller.serialize(iToken));
+                entrycompound.setTag(NbtTagConstants.TAG_VALUE, controller.serialize(standardDataStoreManager.storeMap.get(iToken)));
 
                 return entryCompound;
             }).collect(NBTUtils.toListNBT()));
@@ -115,14 +115,14 @@ public class StandardDataStoreManager implements IDataStoreManager
         public StandardDataStoreManager deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound nbt) throws Throwable
         {
             final Map<IToken<?>, IDataStore> storeMap = new HashMap<>();
-            final NBTTagList list = nbt.getList(NbtTagConstants.TAG_LIST, NBTBase.TAG_COMPOUND);
+            final NBTTagList list = nbt.getTagList(NbtTagConstants.TAG_LIST, NBTBase.TAG_COMPOUND);
             for (int i = 0; i < list.size(); i++)
             {
-                final NBTTagCompound NBTBase = list.getCompound(i);
+                final NBTTagCompound NBTBase = list.getCompoundTagAt(i);
                 try
                 {
-                    final IToken<?> token = controller.deserialize(NBTBase.getCompound(NbtTagConstants.TAG_TOKEN));
-                    final IDataStore store = controller.deserialize(NBTBase.getCompound(NbtTagConstants.TAG_VALUE));
+                    final IToken<?> token = controller.deserialize(NBTBase.getCompoundTag(NbtTagConstants.TAG_TOKEN));
+                    final IDataStore store = controller.deserialize(NBTBase.getCompoundTag(NbtTagConstants.TAG_VALUE));
                     storeMap.put(token, store);
                 }
                 catch (final Exception ex)

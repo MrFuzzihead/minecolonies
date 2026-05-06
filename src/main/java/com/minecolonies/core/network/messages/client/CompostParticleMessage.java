@@ -1,4 +1,6 @@
 package com.minecolonies.core.network.messages.client;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.level.block.state.BlockState;
 
 import com.minecolonies.api.network.IMessage;
 // [1.7.10] BlockState -> int metadata

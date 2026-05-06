@@ -1,4 +1,5 @@
 package com.minecolonies.core.commands.colonycommands;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.IChunkmanagerCapability;
 import com.minecolonies.api.colony.IColony;

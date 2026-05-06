@@ -1,4 +1,5 @@
 package com.minecolonies.core.tileentities;
+import net.minecraft.util.Direction;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyManager;

@@ -68,8 +68,9 @@ public final class RaiderMobUtils
     public static void setMobAttributes(final AbstractEntityMinecoloniesRaider EntityCreature, final IColony colony)
     {
         final double difficultyModifier = colony.getRaiderManager().getRaidDifficultyModifier();
-        EntityCreature.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(FOLLOW_RANGE * 2);
-        EntityCreature.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(difficultyModifier < 2.4 ? MOVEMENT_SPEED : MOVEMENT_SPEED * 1.2);
+        // [1.7.10] Use SharedMonsterAttributes instead of Attributes
+        EntityCreature.getEntityAttribute(net.minecraft.entity.SharedMonsterAttributes.followRange).setBaseValue(FOLLOW_RANGE * 2);
+        EntityCreature.getEntityAttribute(net.minecraft.entity.SharedMonsterAttributes.movementSpeed).setBaseValue(difficultyModifier < 2.4 ? MOVEMENT_SPEED : MOVEMENT_SPEED * 1.2);
         final int raidLevel = colony.getRaiderManager().getColonyRaidLevel();
 
         // Base damage
@@ -120,17 +121,18 @@ public final class RaiderMobUtils
 
             for (int i = 0; i < numberOfSpawns; i++)
             {
-                final AbstractEntityMinecoloniesRaider entity = (AbstractEntityMinecoloniesRaider) entityToSpawn.create(world);
+                // [1.7.10] use classToStringMapping + createEntityByName
+                final String entityName = net.minecraft.entity.EntityList.classToStringMapping.get(entityToSpawn);
+                final AbstractEntityMinecoloniesRaider entity = entityName == null ? null :
+                    (AbstractEntityMinecoloniesRaider) net.minecraft.entity.EntityList.createEntityByName(entityName, world);
 
                 if (entity != null)
                 {
-                    int[] spawnpos = BlockPosUtil.findAround(world, spawnLocation.offset(spawnDeviationX, 0, spawnDeviationZ), 5, 5, BlockPosUtil.SOLID_AIR_POS_SELECTOR);
-                    if (spawnpos == null)
-                    {
-                        spawnpos = spawnLocation.above();
-                    }
+                    int[] spawnOffset = new int[]{spawnLocation[0]+spawnDeviationX, spawnLocation[1], spawnLocation[2]+spawnDeviationZ};
+                    // [1.7.10] BlockPosUtil.findAround not available; use offset directly
+                    int[] spawnpos = spawnOffset;
 
-                    entity.absMoveTo(spawnpos.getX(), spawnpos.getY(), spawnpos.getZ(), (float) Mth.wrapDegrees(world.random.nextDouble() * WHOLE_CIRCLE), 0.0F);
+                    entity.setPositionAndRotation(spawnpos[0], spawnpos[1], spawnpos[2], (float) MathHelper.wrapAngleTo180_double(world.rand.nextDouble() * WHOLE_CIRCLE), 0.0F);
                     CompatibilityUtils.addEntity(world, entity);
                     entity.setColony(colony);
                     entity.setEventID(eventID);
@@ -156,46 +158,47 @@ public final class RaiderMobUtils
     {
         if (EntityCreature instanceof IMeleeBarbarianEntity || EntityCreature instanceof IMeleeNorsemenEntity || EntityCreature instanceof INorsemenChiefEntity)
         {
-            EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(Items.STONE_AXE));
+            // [1.7.10] setItemSlot -> setCurrentItemOrArmor, Items.STONE_AXE -> Items.stone_axe
+            EntityCreature.setCurrentItemOrArmor(0, new ItemStack(net.minecraft.init.Items.stone_axe));
         }
         else if (EntityCreature instanceof IPharaoEntity)
         {
-            EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(ModItems.pharaoscepter));
+            EntityCreature.setCurrentItemOrArmor(0, new ItemStack(ModItems.pharaoscepter));
         }
         else if (EntityCreature instanceof IArcherMobEntity)
         {
-            EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(Items.BOW));
+            EntityCreature.setCurrentItemOrArmor(0, new ItemStack(net.minecraft.init.Items.bow));
         }
         else if (EntityCreature instanceof ISpearmanMobEntity)
         {
-            EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(ModItems.spear));
+            EntityCreature.setCurrentItemOrArmor(0, new ItemStack(ModItems.spear));
         }
         else if (EntityCreature instanceof IChiefBarbarianEntity)
         {
-            EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(ModItems.chiefSword));
-            EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(Items.CHAINMAIL_HELMET));
-            EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(Items.CHAINMAIL_CHESTPLATE));
-            EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(Items.CHAINMAIL_LEGGINGS));
-            EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(Items.CHAINMAIL_BOOTS));
+            EntityCreature.setCurrentItemOrArmor(0, new ItemStack(ModItems.chiefSword));
+            EntityCreature.setCurrentItemOrArmor(4, new ItemStack(net.minecraft.init.Items.chainmail_helmet));
+            EntityCreature.setCurrentItemOrArmor(3, new ItemStack(net.minecraft.init.Items.chainmail_chestplate));
+            EntityCreature.setCurrentItemOrArmor(2, new ItemStack(net.minecraft.init.Items.chainmail_leggings));
+            EntityCreature.setCurrentItemOrArmor(1, new ItemStack(net.minecraft.init.Items.chainmail_boots));
         }
         else if (EntityCreature instanceof IPirateEntity)
         {
-            EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(ModItems.scimitar));
+            EntityCreature.setCurrentItemOrArmor(0, new ItemStack(ModItems.scimitar));
             if (EntityCreature instanceof ICaptainPirateEntity)
             {
                 if (new Random().nextBoolean())
                 {
-                    EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(ModItems.pirateHelmet_1));
-                    EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(ModItems.pirateChest_1));
-                    EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(ModItems.pirateLegs_1));
-                    EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(ModItems.pirateBoots_1));
+                    EntityCreature.setCurrentItemOrArmor(4, new ItemStack(ModItems.pirateHelmet_1));
+                    EntityCreature.setCurrentItemOrArmor(3, new ItemStack(ModItems.pirateChest_1));
+                    EntityCreature.setCurrentItemOrArmor(2, new ItemStack(ModItems.pirateLegs_1));
+                    EntityCreature.setCurrentItemOrArmor(1, new ItemStack(ModItems.pirateBoots_1));
                 }
                 else
                 {
-                    EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(ModItems.pirateHelmet_2));
-                    EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(ModItems.pirateChest_2));
-                    EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(ModItems.pirateLegs_2));
-                    EntityCreature.setItemSlot(null /* EquipmentSlot. */, new ItemStack(ModItems.pirateBoots_2));
+                    EntityCreature.setCurrentItemOrArmor(4, new ItemStack(ModItems.pirateHelmet_2));
+                    EntityCreature.setCurrentItemOrArmor(3, new ItemStack(ModItems.pirateChest_2));
+                    EntityCreature.setCurrentItemOrArmor(2, new ItemStack(ModItems.pirateLegs_2));
+                    EntityCreature.setCurrentItemOrArmor(1, new ItemStack(ModItems.pirateBoots_2));
                 }
             }
         }
@@ -210,15 +213,19 @@ public final class RaiderMobUtils
      */
     public static List<AbstractEntityMinecoloniesRaider> getBarbariansCloseToEntity(final Entity entity, final double distanceFromEntity)
     {
-        return CompatibilityUtils.getWorldFromEntity(entity).getEntitiesOfClass(
+        // [1.7.10] use getEntitiesWithinAABB + entity.boundingBox.expand
+        @SuppressWarnings("unchecked")
+        List<AbstractEntityMinecoloniesRaider> result = CompatibilityUtils.getWorldFromEntity(entity).getEntitiesWithinAABB(
           AbstractEntityMinecoloniesRaider.class,
-          entity.getBoundingBox().expandTowards(
-            distanceFromEntity,
-            3.0D,
-            distanceFromEntity),
-          Entity::isAlive);
+          entity.boundingBox.expand(distanceFromEntity, 3.0D, distanceFromEntity));
+        return result;
     }
 }
+
+
+
+
+
 
 
 

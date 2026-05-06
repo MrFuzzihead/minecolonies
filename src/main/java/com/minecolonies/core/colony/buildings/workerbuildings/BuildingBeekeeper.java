@@ -1,4 +1,6 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
+import net.minecraft.world.entity.animal.Animal;
+// [1.7.10] Bee: no equivalent. Class stub used.
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyManager;
@@ -105,7 +107,7 @@ public class BuildingBeekeeper extends AbstractBuilding
     public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
-        NBTUtils.streamCompound(compound.getList(NbtTagConstants.TAG_HIVES, NBTBase.TAG_COMPOUND))
+        NBTUtils.streamCompound(compound.getTagList(NbtTagConstants.TAG_HIVES, NBTBase.TAG_COMPOUND))
           .map(NbtUtils::readBlockPos)
           .forEach(this.hives::add);
     }
@@ -240,7 +242,7 @@ public class BuildingBeekeeper extends AbstractBuilding
 
         public HerdingModule()
         {
-            super(ModJobs.beekeeper.get(), a -> a instanceof Bee, new ItemStorage(ItemStack.EMPTY, 1));
+            super(ModJobs.beekeeper.get(), a -> a instanceof Bee, new ItemStorage(null, 1));
         }
 
         @NotNull

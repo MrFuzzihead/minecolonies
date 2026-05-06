@@ -1,4 +1,8 @@
 package com.minecolonies.core.items;
+import net.minecraft.world.item.InteractionResult;
+import net.minecraft.world.item.Properties;
+import net.minecraft.tileentity.BlockEntity; // [1.7.10] alias -> TileEntity
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.IColonyView;
@@ -37,7 +41,7 @@ public class ItemQuestLog extends AbstractItemMinecolonies
      *
      * @param properties the properties.
      */
-    public ItemQuestLog(final Item.Properties properties)
+    public ItemQuestLog(final Properties properties)
     {
         super("questlog", properties.stacksTo(STACKSIZE));
     }

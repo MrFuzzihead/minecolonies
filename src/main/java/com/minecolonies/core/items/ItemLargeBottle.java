@@ -1,4 +1,8 @@
 package com.minecolonies.core.items;
+import net.minecraft.world.item.InteractionResult;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.item.Properties;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.items.ModItems;
 import com.minecolonies.api.util.InventoryUtils;
@@ -15,7 +19,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.world.World.ClipContext;
+// [1.7.10] removed: import net.minecraft.world.World.ClipContext;
 import net.minecraft.world.World;
 // [1.7.10] world.phys removed
 // [1.7.10] world.phys removed

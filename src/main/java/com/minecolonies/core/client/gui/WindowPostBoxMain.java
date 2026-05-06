@@ -1,4 +1,5 @@
 package com.minecolonies.core.client.gui;
+import net.minecraft.world.entity.player.Player;
 
 // [1.7.10] blockui replaced by ModularUI2
 // [1.7.10] blockui replaced by ModularUI2
@@ -274,7 +275,7 @@ public class WindowPostBoxMain extends AbstractWindowSkeleton
                 .getString()
                 .toLowerCase(Locale.US)
                 .contains(filter.toLowerCase(Locale.US)) || (stack.getItem() instanceof EnchantedBookItem && EnchantedBookItem.getEnchantments(stack)
-                .getCompound(0)
+                .getCompoundTagAt(0)
                 .getString("id")
                 .contains(filter.toLowerCase(Locale.US))))
             .sorted(Comparator.comparingInt(s1 -> StringUtils.getLevenshteinDistance(s1.getHoverName().getString(), filter)))

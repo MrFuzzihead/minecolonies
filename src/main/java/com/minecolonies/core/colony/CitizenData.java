@@ -1,5 +1,6 @@
 package com.minecolonies.core.colony;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -1325,7 +1326,7 @@ public class CitizenData implements ICitizenData
         nbtTagCompound.putBoolean(TAG_CHILD, isChild);
         nbtTagCompound.putInt(TAG_TEXTURE, textureId);
 
-        nbtTagCompound.put(TAG_NEW_SKILLS, citizenSkillHandler.write());
+        nbtTagcompound.setTag(TAG_NEW_SKILLS, citizenSkillHandler.write());
 
         BlockPosUtil.write(nbtTagCompound, TAG_POS, getEntity().isPresent() ? getEntity().get().blockPosition() : lastPosition);
         if (nextRespawnPos != null)
@@ -1337,7 +1338,7 @@ public class CitizenData implements ICitizenData
         if (job != null)
         {
             @NotNull final NBTBase jobCompound = job.serializeNBT();
-            nbtTagCompound.put("job", jobCompound);
+            nbtTagcompound.setTag("job", jobCompound);
         }
 
         citizenHappinessHandler.write(nbtTagCompound, true);
@@ -1357,11 +1358,11 @@ public class CitizenData implements ICitizenData
         for (@NotNull final IInteractionResponseHandler entry : citizenChatOptions.values())
         {
             @NotNull final NBTTagCompound chatOptionCompound = new NBTTagCompound();
-            chatOptionCompound.put(TAG_CHAT_OPTION, entry.serializeNBT());
+            chatOptioncompound.setTag(TAG_CHAT_OPTION, entry.serializeNBT());
             chatTagList.add(chatOptionCompound);
         }
 
-        nbtTagCompound.put(TAG_CHAT_OPTIONS, chatTagList);
+        nbtTagcompound.setTag(TAG_CHAT_OPTIONS, chatTagList);
         nbtTagCompound.putInt(TAG_JOB_STATUS, jobStatus.ordinal());
 
         nbtTagCompound.putString(TAG_PARENT_A, parents.getA());
@@ -1372,14 +1373,14 @@ public class CitizenData implements ICitizenData
         {
             siblingsNBT.add(NBTTagInt.valueOf(sibling));
         }
-        nbtTagCompound.put(TAG_SIBLINGS, siblingsNBT);
+        nbtTagcompound.setTag(TAG_SIBLINGS, siblingsNBT);
 
         @NotNull final NBTTagList childrenNBT = new NBTTagList();
         for (final int child : children)
         {
             childrenNBT.add(NBTTagInt.valueOf(child));
         }
-        nbtTagCompound.put(TAG_CHILDREN, childrenNBT);
+        nbtTagcompound.setTag(TAG_CHILDREN, childrenNBT);
         nbtTagCompound.putInt(TAG_PARTNER, partner);
         nbtTagCompound.putBoolean(TAG_ACTIVE, this.isWorking);
         nbtTagCompound.putInt(TAG_LEISURE, this.leisureTime);
@@ -1389,28 +1390,28 @@ public class CitizenData implements ICitizenData
         {
             avQuestNBT.add(NBTTagString.valueOf(quest.toString()));
         }
-        nbtTagCompound.put(TAG_AV_QUESTS, avQuestNBT);
+        nbtTagcompound.setTag(TAG_AV_QUESTS, avQuestNBT);
 
         @NotNull final NBTTagList partQuestNBT = new NBTTagList();
         for (final ResourceLocation quest : participatingQuests)
         {
             partQuestNBT.add(NBTTagString.valueOf(quest.toString()));
         }
-        nbtTagCompound.put(TAG_PART_QUESTS, partQuestNBT);
+        nbtTagcompound.setTag(TAG_PART_QUESTS, partQuestNBT);
 
         @NotNull final NBTTagList finishedQuestNBT = new NBTTagList();
         for (final ResourceLocation quest : finishedQuests)
         {
             finishedQuestNBT.add(NBTTagString.valueOf(quest.toString()));
         }
-        nbtTagCompound.put(TAG_FINISHED_AV_QUESTS, finishedQuestNBT);
+        nbtTagcompound.setTag(TAG_FINISHED_AV_QUESTS, finishedQuestNBT);
 
         @NotNull final NBTTagList finishedPartQuestNBT = new NBTTagList();
         for (final ResourceLocation quest : finishedQuestParticipation)
         {
             finishedPartQuestNBT.add(NBTTagString.valueOf(quest.toString()));
         }
-        nbtTagCompound.put(TAG_FINISHED_PART_QUESTS, finishedPartQuestNBT);
+        nbtTagcompound.setTag(TAG_FINISHED_PART_QUESTS, finishedPartQuestNBT);
 
         if (textureUUID != null)
         {
@@ -1453,13 +1454,13 @@ public class CitizenData implements ICitizenData
             nextRespawnPos = BlockPosUtil.read(nbtTagCompound, TAG_RESPAWN_POS);
         }
 
-        citizenSkillHandler.read(nbtTagCompound.getCompound(TAG_NEW_SKILLS));
+        citizenSkillHandler.read(nbtTagCompound.getCompoundTag(TAG_NEW_SKILLS));
 
         saturation = nbtTagCompound.getDouble(TAG_SATURATION);
 
         if (nbtTagCompound.contains("job"))
         {
-            setJob(IJobDataManager.getInstance().createFrom(this, nbtTagCompound.getCompound("job")), true);
+            setJob(IJobDataManager.getInstance().createFrom(this, nbtTagCompound.getCompoundTag("job")), true);
         }
 
         if (nbtTagCompound.contains(TAG_INVENTORY))
@@ -1488,7 +1489,7 @@ public class CitizenData implements ICitizenData
         //  Citizen chat options.
         if (nbtTagCompound.contains(TAG_CHAT_OPTIONS))
         {
-            final NBTTagList handlerTagList = nbtTagCompound.getList(TAG_CHAT_OPTIONS, NBTBase.TAG_COMPOUND);
+            final NBTTagList handlerTagList = nbtTagCompound.getTagList(TAG_CHAT_OPTIONS, NBTBase.TAG_COMPOUND);
             for (int i = 0; i < handlerTagList.size(); ++i)
             {
                 try
@@ -1496,7 +1497,7 @@ public class CitizenData implements ICitizenData
                     final ServerCitizenInteraction handler =
                         (ServerCitizenInteraction) MinecoloniesAPIProxy.getInstance()
                             .getInteractionResponseHandlerDataManager()
-                            .createFrom(this, handlerTagList.getCompound(i).getCompound(TAG_CHAT_OPTION));
+                            .createFrom(this, handlerTagList.getCompoundTagAt(i).getCompoundTag(TAG_CHAT_OPTION));
                     citizenChatOptions.put(handler.getId(), handler);
                 }
                 catch (final Exception ex)
@@ -1515,10 +1516,10 @@ public class CitizenData implements ICitizenData
         {
             citizenSkillHandler.init((int) citizenHappinessHandler.getHappiness(getColony(), this));
             final Map<String, Integer> levels = new HashMap<>();
-            final NBTTagList levelTagList = nbtTagCompound.getList(TAG_LEVEL_MAP, NBTBase.TAG_COMPOUND);
+            final NBTTagList levelTagList = nbtTagCompound.getTagList(TAG_LEVEL_MAP, NBTBase.TAG_COMPOUND);
             for (int i = 0; i < levelTagList.size(); ++i)
             {
-                final NBTTagCompound levelExperienceAtJob = levelTagList.getCompound(i);
+                final NBTTagCompound levelExperienceAtJob = levelTagList.getCompoundTagAt(i);
                 final String jobName = levelExperienceAtJob.getString(TAG_NAME);
                 final int World = Math.min(levelExperienceAtJob.getInt(TAG_LEVEL), MAX_CITIZEN_LEVEL);
                 levels.put(jobName, World);
@@ -1547,13 +1548,13 @@ public class CitizenData implements ICitizenData
         final String parentB = nbtTagCompound.getString(TAG_PARENT_B);
 
         this.parents = new Tuple<>(parentA, parentB);
-        @NotNull final NBTTagList siblingsNBT = nbtTagCompound.getList(TAG_SIBLINGS, NBTBase.TAG_INT);
+        @NotNull final NBTTagList siblingsNBT = nbtTagCompound.getTagList(TAG_SIBLINGS, NBTBase.TAG_INT);
         for (int i = 0; i < siblingsNBT.size(); i++)
         {
             siblings.add(siblingsNBT.getInt(i));
         }
 
-        @NotNull final NBTTagList childrenNBT = nbtTagCompound.getList(TAG_CHILDREN, NBTBase.TAG_INT);
+        @NotNull final NBTTagList childrenNBT = nbtTagCompound.getTagList(TAG_CHILDREN, NBTBase.TAG_INT);
         for (int i = 0; i < childrenNBT.size(); i++)
         {
             children.add(childrenNBT.getInt(i));
@@ -1563,25 +1564,25 @@ public class CitizenData implements ICitizenData
         this.isWorking = nbtTagCompound.getBoolean(TAG_ACTIVE);
         this.leisureTime = nbtTagCompound.getInt(TAG_LEISURE);
 
-        @NotNull final NBTTagList availQuestNbt = nbtTagCompound.getList(TAG_AV_QUESTS, TAG_STRING);
+        @NotNull final NBTTagList availQuestNbt = nbtTagCompound.getTagList(TAG_AV_QUESTS, TAG_STRING);
         for (int i = 0; i < availQuestNbt.size(); i++)
         {
             availableQuests.add(new ResourceLocation(availQuestNbt.getString(i)));
         }
 
-        @NotNull final NBTTagList partQuestsNbt = nbtTagCompound.getList(TAG_PART_QUESTS, TAG_STRING);
+        @NotNull final NBTTagList partQuestsNbt = nbtTagCompound.getTagList(TAG_PART_QUESTS, TAG_STRING);
         for (int i = 0; i < partQuestsNbt.size(); i++)
         {
             participatingQuests.add(new ResourceLocation(partQuestsNbt.getString(i)));
         }
 
-        @NotNull final NBTTagList finQuestNbt = nbtTagCompound.getList(TAG_FINISHED_AV_QUESTS, TAG_STRING);
+        @NotNull final NBTTagList finQuestNbt = nbtTagCompound.getTagList(TAG_FINISHED_AV_QUESTS, TAG_STRING);
         for (int i = 0; i < finQuestNbt.size(); i++)
         {
             finishedQuests.add(new ResourceLocation(finQuestNbt.getString(i)));
         }
 
-        @NotNull final NBTTagList finPartQuestsNbt = nbtTagCompound.getList(TAG_FINISHED_PART_QUESTS, TAG_STRING);
+        @NotNull final NBTTagList finPartQuestsNbt = nbtTagCompound.getTagList(TAG_FINISHED_PART_QUESTS, TAG_STRING);
         for (int i = 0; i < finPartQuestsNbt.size(); i++)
         {
             finishedQuestParticipation.add(new ResourceLocation(finPartQuestsNbt.getString(i)));

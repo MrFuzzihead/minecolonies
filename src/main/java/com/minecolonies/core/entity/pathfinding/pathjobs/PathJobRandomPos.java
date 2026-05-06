@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.pathfinding.pathjobs;
+import net.minecraft.util.Direction;
 
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.core.entity.pathfinding.MNode;
@@ -71,7 +72,7 @@ public class PathJobRandomPos extends AbstractPathJob implements IDestinationPat
         this.minDistFromStart = minDistFromStart;
         this.maxDistToDest = -1;
 
-        this.destination = BlockPosUtil.getRandomPosAround(start, minDistFromStart);
+        this.destination = BlockPosUtil.getRandomPosAround(start[0], start[1], start[2], minDistFromStart);
     }
 
     /**
@@ -128,7 +129,7 @@ public class PathJobRandomPos extends AbstractPathJob implements IDestinationPat
         this.minDistFromStart = minDistFromStart;
         this.maxDistToDest = -1;
 
-        this.destination = BlockPosUtil.getRandomPosAround(start, minDistFromStart);
+        this.destination = BlockPosUtil.getRandomPosAround(start[0], start[1], start[2], minDistFromStart);
     }
 
     /**
@@ -163,7 +164,7 @@ public class PathJobRandomPos extends AbstractPathJob implements IDestinationPat
         this.minDistFromStart = minDistFromStart;
         this.maxDistToDest = -1;
         this.preferInside = preferInside;
-        this.destination = BlockPosUtil.getRandomPosAround(start, minDistFromStart);
+        this.destination = BlockPosUtil.getRandomPosAround(start[0], start[1], start[2], minDistFromStart);
         maxNodes = restrictionBox == null ? 2000 : 1000;
     }
 
@@ -203,8 +204,8 @@ public class PathJobRandomPos extends AbstractPathJob implements IDestinationPat
         if ((restrictionBox == null || (n.x >= restrictionBox.minX && n.x <= restrictionBox.maxX && n.y >= restrictionBox.minY && n.y <= restrictionBox.maxY && n.z >= restrictionBox.minZ && n.z <= restrictionBox.maxZ))
               && BlockPosUtil.distSqr(start, n.x, n.y, n.z) > minDistFromStart * minDistFromStart
               && (maxDistToDest == -1 || BlockPosUtil.distSqr(destination, n.x, n.y, n.z) < this.maxDistToDest * this.maxDistToDest)
-              && (getPathingOptions().canWalkUnderWater() || !PathfindingUtils.isWater(cachedBlockLookup, tempWorldPos.set(n.x, n.y - 1, n.z)))
-              && SurfaceType.getSurfaceType(cachedBlockLookup, cachedBlockLookup.getBlockState(n.x, n.y - 1, n.z), tempWorldPos.set(n.x, n.y - 1, n.z), getPathingOptions())
+              && (getPathingOptions().canWalkUnderWater() || !PathfindingUtils.isWater(cachedBlockLookup, setPos(n.x, n.y - 1, n.z)))
+              && SurfaceType.getSurfaceType(cachedBlockLookup, cachedBlockLookup.getBlockState(n.x, n.y - 1, n.z), setPos(n.x, n.y - 1, n.z), getPathingOptions())
                    == SurfaceType.WALKABLE)
         {
             if (preferInside && hasSpaceAbove(n.x,n.y,n.z))

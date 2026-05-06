@@ -1,4 +1,5 @@
 package com.minecolonies.api.colony;
+import net.minecraft.network.chat.Style;
 
 import org.jetbrains.annotations.NotNull;
 

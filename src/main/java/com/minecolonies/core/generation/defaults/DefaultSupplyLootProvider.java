@@ -1,4 +1,5 @@
 package com.minecolonies.core.generation.defaults;
+import net.minecraft.data.PackOutput;
 
 import com.minecolonies.api.items.ModItems;
 import com.minecolonies.core.generation.SimpleLootTableProvider;

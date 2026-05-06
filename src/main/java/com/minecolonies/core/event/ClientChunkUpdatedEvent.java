@@ -1,6 +1,9 @@
 package com.minecolonies.core.event;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.entity.player.Player;
 
 import net.minecraft.world.chunk.Chunk;
+import cpw.mods.fml.common.eventhandler.Event;
 // [1.7.10] eventbus removed
 import org.jetbrains.annotations.NotNull;
 

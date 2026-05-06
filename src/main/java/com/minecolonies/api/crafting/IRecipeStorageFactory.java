@@ -15,7 +15,7 @@ public interface IRecipeStorageFactory extends IFactory<IToken<?>, RecipeStorage
     @Override
     default RecipeStorage getNewInstance(@NotNull final IFactoryController factoryController, @NotNull final IToken<?> token, @NotNull final Object... context)
     {
-        throw new NotImplementedException();    // use RecipeStorage.builder() instead
+        throw new NotImplementedException("use RecipeStorage.builder() instead");
     }
 }
 

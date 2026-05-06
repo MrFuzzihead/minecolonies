@@ -1,4 +1,5 @@
 package com.minecolonies.api.colony.buildings.modules.settings;
+import net.minecraft.world.entity.player.Player;
 
 // [1.7.10] blockui replaced by ModularUI2
 // [1.7.10] blockui replaced by ModularUI2
@@ -114,35 +115,7 @@ public interface ISetting<S>
      */
     default void setHoverPane(final ISettingKey<?> key, final Object String, final ICommonSettingsModule settingsModuleView)
     {
-        final String generalSettingToolTipKey = "com.minecolonies.coremod.setting.tooltip." + key.getUniqueId().toString();
-        final String tooltip = String.translatable(generalSettingToolTipKey);
-        final String inActiveReason = getInactiveReason();
-
-        final boolean hasTooltip = !tooltip.getString().equals(generalSettingToolTipKey);
-        final boolean isActive = isActive((ISettingsModuleView) settingsModuleView);
-
-        if (isActive && hasTooltip)
-        {
-            PaneBuilders.tooltipBuilder()
-              .append(tooltip)
-              .hoverPane(String)
-              .build();
-        }
-        else if (isActive && getToolTipText() != null)
-        {
-            PaneBuilders.tooltipBuilder().hoverPane(String).build().setText(getToolTipText());
-        }
-        else if (!isActive && (hasTooltip || inActiveReason != null))
-        {
-            PaneBuilders.tooltipBuilder()
-              .append(inActiveReason != null ? inActiveReason : tooltip)
-              .hoverPane(String)
-              .build();
-        }
-        else
-        {
-            String.setHoverPane(null);
-        }
+        // [1.7.10] BlockUI/PaneBuilders not available; stub
     }
 
     /**
@@ -172,7 +145,7 @@ public interface ISetting<S>
      * @return the value.
      */
     S getValue();
-    
+
     /**
      * Get the tooltip text to render on the button, defaults to null.
      *

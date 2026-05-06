@@ -1,4 +1,5 @@
 package com.minecolonies.api.entity.mobs;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.MinecoloniesAPIProxy;
 import com.minecolonies.api.colony.IColony;
@@ -295,7 +296,7 @@ public abstract class AbstractEntityMinecoloniesRaider extends AbstractEntityMin
     @Override
     public boolean attackEntityFrom(@NotNull final net.minecraft.util.DamageSource source, final float damage)
     {
-        if (!(net.minecraft.util.DamageSource.getEntity() instanceof EntityLivingBase))
+        if (!(source.getEntity() instanceof EntityLivingBase))
         {
             if (tempEnvDamageImmunity)
             {
@@ -327,23 +328,23 @@ public abstract class AbstractEntityMinecoloniesRaider extends AbstractEntityMin
                 }
             }
 
-            final net.minecraft.entity.Entity source = net.minecraft.util.DamageSource.getEntity();
-            if (source instanceof EntityPlayer)
+            final net.minecraft.entity.Entity attacker = source.getEntity();
+            if (attacker instanceof EntityPlayer)
             {
-                final EntityPlayer player = (EntityPlayer) source;
+                final EntityPlayer player = (EntityPlayer) attacker;
                 if (damage > MIN_THORNS_DAMAGE && rand.nextInt(THORNS_CHANCE) == 0)
                 {
-                    source.attackEntityFrom(net.minecraft.util.DamageSource.causeThornsDamage(this), damage * 0.5f);
+                    attacker.attackEntityFrom(net.minecraft.util.DamageSource.causeThornsDamage(this), damage * 0.5f);
                 }
 
                 // TODO: ModEnchants.raiderDamage equivalent for 1.7.10
                 final float baseScalingDamage = Math.min(damage, MAX_SCALED_DAMAGE);
                 final float totalWithScaled = Math.max(damage, (damage - baseScalingDamage) + baseScalingDamage * HP_PERCENT_PER_DMG * this.getMaxHealth());
-                return super.attackEntityFrom(net.minecraft.util.DamageSource, totalWithScaled);
+                return super.attackEntityFrom(source, totalWithScaled);
             }
         }
 
-        return super.attackEntityFrom(net.minecraft.util.DamageSource, damage);
+        return super.attackEntityFrom(source, damage); // [1.7.10] use source variable
     }
 
     /**

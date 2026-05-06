@@ -1,5 +1,6 @@
 package com.minecolonies.core.colony.buildings;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -308,7 +309,7 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
             return;
         }
 
-        if (isInBuilding(EntityPlayer.blockPosition()))
+        if (isInBuilding(new int[]{(int)EntityPlayer.posX, (int)EntityPlayer.posY, (int)EntityPlayer.posZ}))
         {
             onPlayerEnterBuilding(EntityPlayer);
         }
@@ -322,7 +323,7 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
     {
         if (getBuildingLevel() == 0 && !hasParent())
         {
-            ChunkDataHelper.claimBuildingChunks(colony, true, getPosition(), getClaimRadius(getBuildingLevel()), getCorners());
+            ChunkDataHelper.claimBuildingChunks(colony, true, getPosition()[0], getPosition()[1], getPosition()[2], getClaimRadius(getBuildingLevel()), getCorners());
         }
     }
 
@@ -343,7 +344,7 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
     {
         super.deserializeNBT(compound);
         loadRequestSystemFromNBT(compound);
-        if (compound.contains(TAG_IS_BUILT))
+        if (compound.hasKey(TAG_IS_BUILT))
         {
             isBuilt = compound.getBoolean(TAG_IS_BUILT);
         }
@@ -351,22 +352,22 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
         {
             isBuilt = true;
         }
-        if (compound.contains(TAG_CUSTOM_NAME))
+        if (compound.hasKey(TAG_CUSTOM_NAME))
         {
             this.customName = compound.getString(TAG_CUSTOM_NAME);
         }
-        if (compound.contains(TAG_PRESTIGE))
+        if (compound.hasKey(TAG_PRESTIGE))
         {
-            this.prestige = compound.getInt(TAG_PRESTIGE);
+            this.prestige = compound.getInteger(TAG_PRESTIGE);
         }
 
-        if (compound.contains(TAG_BUILDING_MODULES))
+        if (compound.hasKey(TAG_BUILDING_MODULES))
         {
             for (IPersistentModule module : getModulesByType(IPersistentModule.class))
             {
-                if (compound.getCompound(TAG_BUILDING_MODULES).contains(module.getProducer().key))
+                if (compound.getCompoundTag(TAG_BUILDING_MODULES).hasKey(module.getProducer().key))
                 {
-                    module.deserializeNBT(compound.getCompound(TAG_BUILDING_MODULES).getCompound(module.getProducer().key));
+                    module.deserializeNBT(compound.getCompoundTag(TAG_BUILDING_MODULES).getCompoundTag(module.getProducer().key));
                 }
                 else
                 {
@@ -387,24 +388,24 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
         final NBTTagList list = new NBTTagList();
         for (final IRequestResolver<?> requestResolver : getResolvers())
         {
-            list.add(StandardFactoryController.getInstance().serialize(requestResolver.getId()));
+            list.appendTag(StandardFactoryController.getInstance().serialize(requestResolver.getId()));
         }
-        compound.put(TAG_RESOLVER, list);
-        compound.putString(TAG_BUILDING_TYPE, this.getBuildingType().getRegistryName().toString());
+        compound.setTag(TAG_RESOLVER, list);
+        compound.setString(TAG_BUILDING_TYPE, this.getBuildingType().getRegistryName().toString());
         writeRequestSystemToNBT(compound);
-        compound.putBoolean(TAG_IS_BUILT, isBuilt);
-        compound.putString(TAG_CUSTOM_NAME, customName);
-        compound.putInt(TAG_PRESTIGE, prestige);
+        compound.setBoolean(TAG_IS_BUILT, isBuilt);
+        compound.setString(TAG_CUSTOM_NAME, customName);
+        compound.setInteger(TAG_PRESTIGE, prestige);
 
         NBTTagCompound modules = new NBTTagCompound();
         for (IPersistentModule module : getModulesByType(IPersistentModule.class))
         {
             final NBTTagCompound NBTBase = new NBTTagCompound();
             module.serializeNBT(NBTBase);
-            modules.put(module.getProducer().key, NBTBase);
+            modules.setTag(module.getProducer().key, NBTBase);
         }
 
-        compound.put(TAG_BUILDING_MODULES, modules);
+        compound.setTag(TAG_BUILDING_MODULES, modules);
         return compound;
     }
 
@@ -433,14 +434,14 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
     {
         final AbstractTileEntityColonyBuilding tileEntityNew = this.getTileEntity();
         final World world = colony.getWorld();
-        final Block block = world.getBlockState(this.getPosition()).getBlock();
+        final Block block = world.getBlock(this.getPosition()[0], this.getPosition()[1], this.getPosition()[2]);
 
         if (tileEntityNew != null)
         {
-            world.updateNeighbourForOutputSignal(this.getPosition(), block);
+            world.notifyBlocksOfNeighborChange(this.getPosition()[0], this.getPosition()[1], this.getPosition()[2], block);
         }
 
-        ChunkDataHelper.claimBuildingChunks(colony, false, this.getID(), getClaimRadius(getBuildingLevel()), getCorners());
+        ChunkDataHelper.claimBuildingChunks(colony, false, this.getID()[0], this.getID()[1], this.getID()[2], getClaimRadius(getBuildingLevel()), getCorners());
         ConstructionTapeHelper.removeConstructionTape(getCorners(), world);
 
         getModulesByType(IBuildingEventsModule.class).forEach(IBuildingEventsModule::onDestroyed);
@@ -485,14 +486,14 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
             return;
         }
 
-        final int min = colony.getWorld().getMinBuildHeight();
-        final int max = colony.getWorld().getMaxBuildHeight();
-        if (getCorners().getA().getY() >= max || getCorners().getB().getY() >= max)
+        final int min = 0; // [1.7.10] world.getMinBuildHeight() doesn't exist; 0 is the minimum in 1.7.10
+        final int max = 256; // [1.7.10] world.getMaxBuildHeight() doesn't exist; 256 is the max in 1.7.10
+        if (getCorners().getA()[1] >= max || getCorners().getB()[1] >= max)
         {
             MessageUtils.format(BUILDER_BUILDING_TOO_HIGH, max).sendTo(colony).forAllPlayers();
             return;
         }
-        else if (getPosition().getY() <= min)
+        else if (getPosition()[1] <= min)
         {
             MessageUtils.format(BUILDER_BUILDING_TOO_LOW, min).sendTo(colony).forAllPlayers();
             return;
@@ -521,9 +522,9 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
             MessageUtils.format(WORK_ORDER_CREATED,
                 workOrder.getDisplayName(),
                 colony.getName(),
-                workOrder.getLocation().getX(),
-                workOrder.getLocation().getY(),
-                workOrder.getLocation().getZ())
+                workOrder.getLocation()[0],
+                workOrder.getLocation()[1],
+                workOrder.getLocation()[2])
               .sendTo(colony).forAllPlayers();
         }
         markDirty();
@@ -689,15 +690,17 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
     @Override
     public void serializeToView(@NotNull final PacketBuffer buf, final boolean fullSync)
     {
-        buf.writeUtf(this.getBuildingType().getRegistryName().toString());
+        try {
+        buf.writeStringToBuffer(this.getBuildingType().getRegistryName().toString());
         buf.writeInt(getBuildingLevel());
         buf.writeInt(getMaxBuildingLevel());
         buf.writeInt(getPickUpPriority());
         buf.writeInt(getCurrentWorkOrderLevel());
-        buf.writeUtf(getStructurePack());
-        buf.writeUtf(getBlueprintPath());
-        buf.writeBlockPos(getParent());
-        buf.writeUtf(this.customName);
+        buf.writeStringToBuffer(getStructurePack());
+        buf.writeStringToBuffer(getBlueprintPath());
+        final int[] parent = getParent();
+        buf.writeInt(parent[0]); buf.writeInt(parent[1]); buf.writeInt(parent[2]);
+        buf.writeStringToBuffer(this.customName);
         buf.writeInt(this.prestige);
 
         buf.writeInt(getRotation());
@@ -711,15 +714,15 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
         buf.writeInt(resolvers.size());
         for (final IRequestResolver<?> resolver : resolvers)
         {
-            buf.writeNbt(StandardFactoryController.getInstance().serialize(resolver.getId()));
+            buf.writeNBTTagCompoundToBuffer(StandardFactoryController.getInstance().serialize(resolver.getId()));
         }
-        buf.writeNbt(StandardFactoryController.getInstance().serialize(getId()));
+        buf.writeNBTTagCompoundToBuffer(StandardFactoryController.getInstance().serialize(getId()));
         buf.writeInt(containerList.size());
         for (int[] blockPos : containerList)
         {
-            buf.writeBlockPos(blockPos);
+            buf.writeInt(blockPos[0]); buf.writeInt(blockPos[1]); buf.writeInt(blockPos[2]);
         }
-        buf.writeNbt(requestSystemCompound);
+        buf.writeNBTTagCompoundToBuffer(requestSystemCompound);
 
         buf.writeBoolean(isDeconstructed());
         buf.writeBoolean(canAssignCitizens());
@@ -739,6 +742,7 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
             buf.writeInt(module.getProducer().getRuntimeID());
             module.serializeToView(buf, fullSync);
         }
+        } catch (java.io.IOException e) { throw new RuntimeException(e); }
     }
 
     /**
@@ -850,15 +854,15 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
             return;
         }
 
-        final ItemStack stack = new ItemStack(colony.getWorld().getBlockState(getPosition()).getBlock(), 1);
+        final ItemStack stack = new ItemStack(colony.getWorld().getBlock(getPosition()[0], getPosition()[1], getPosition()[2]), 1);
         final NBTTagCompound compoundNBT = new NBTTagCompound();
-        compoundNBT.putInt(TAG_COLONY_ID, this.getColony().getID());
-        compoundNBT.putInt(TAG_OTHER_LEVEL, this.getBuildingLevel());
-        stack.setTag(compoundNBT);
-        if (InventoryUtils.addItemStackToProvider(EntityPlayer, stack))
+        compoundNBT.setInteger(TAG_COLONY_ID, this.getColony().getID());
+        compoundNBT.setInteger(TAG_OTHER_LEVEL, this.getBuildingLevel());
+        stack.setTagCompound(compoundNBT);
+        if (InventoryUtils.addItemStackToProvider((net.minecraft.inventory.IInventory)EntityPlayer, stack))
         {
             this.destroy();
-            colony.getWorld().destroyBlock(this.getPosition(), false);
+            colony.getWorld().setBlockToAir(this.getPosition()[0], this.getPosition()[1], this.getPosition()[2]);
         }
         else
         {
@@ -898,13 +902,13 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
     public void deconstruct()
     {
         final Tuple<int[], int[]> tuple = getCorners();
-        for (int x = tuple.getA().getX(); x < tuple.getB().getX(); x++)
+        for (int x = tuple.getA()[0]; x < tuple.getB()[0]; x++)
         {
-            for (int z = tuple.getA().getZ(); z < tuple.getB().getZ(); z++)
+            for (int z = tuple.getA()[2]; z < tuple.getB()[2]; z++)
             {
-                for (int y = tuple.getA().getY(); y < tuple.getB().getY(); y++)
+                for (int y = tuple.getA()[1]; y < tuple.getB()[1]; y++)
                 {
-                    colony.getWorld().destroyBlock(new int[]{x, y, z}, false);
+                    colony.getWorld().setBlockToAir(x, y, z);
                 }
             }
         }
@@ -913,7 +917,7 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
     @Override
     public AbstractTileEntityColonyBuilding getTileEntity()
     {
-        if (tileEntity != null && tileEntity.isRemoved())
+        if (tileEntity != null && tileEntity.isInvalid())
         {
             tileEntity = null;
         }
@@ -922,11 +926,11 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
               && colony != null
               && colony.getWorld() != null
               && getPosition() != null
-              && WorldUtil.isBlockLoaded(colony.getWorld(), getPosition())
-              && !(colony.getWorld().getBlockState(getPosition()).getBlock() instanceof AirBlock)
-              && colony.getWorld().getBlockState(this.getPosition()).getBlock() instanceof AbstractColonyBlock<?>)
+              && WorldUtil.isBlockLoaded(colony.getWorld(), getPosition()[0], getPosition()[2])
+              && !(colony.getWorld().getBlock(getPosition()[0], getPosition()[1], getPosition()[2]).isAir(colony.getWorld(), getPosition()[0], getPosition()[1], getPosition()[2]))
+              && colony.getWorld().getBlock(getPosition()[0], getPosition()[1], getPosition()[2]) instanceof AbstractColonyBlock)
         {
-            final BlockEntity te = colony.getWorld().getBlockEntity(getPosition());
+            final net.minecraft.tileentity.TileEntity te = colony.getWorld().getTileEntity(getPosition()[0], getPosition()[1], getPosition()[2]);
             if (te instanceof TileEntityColonyBuilding)
             {
                 tileEntity = (TileEntityColonyBuilding) te;
@@ -941,9 +945,7 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
                 Log.getLogger().error("Somehow the wrong TileEntity is at the location where the building should be!", new Exception());
                 Log.getLogger().error("Trying to restore order!");
 
-                final AbstractTileEntityColonyBuilding tileEntityColonyBuilding = new TileEntityColonyBuilding(MinecoloniesTileEntities.BUILDING.get(), getPosition(), colony.getWorld().getBlockState(this.getPosition()));
-                colony.getWorld().setBlockEntity(tileEntityColonyBuilding);
-                this.tileEntity = tileEntityColonyBuilding;
+                // [1.7.10] Cannot easily create new TileEntity and setBlockEntity; skip restoration
             }
         }
 
@@ -956,7 +958,7 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
         cachedRotation = -1;
         if (!hasParent())
         {
-            ChunkDataHelper.claimBuildingChunks(colony, true, this.getID(), this.getClaimRadius(newLevel), getCorners());
+            ChunkDataHelper.claimBuildingChunks(colony, true, this.getID()[0], this.getID()[1], this.getID()[2], this.getClaimRadius(newLevel), getCorners());
         }
         recheckGuardBuildingNear = true;
 
@@ -1008,38 +1010,9 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
     @Override
     public void calculateCorners()
     {
-        final AbstractTileEntityColonyBuilding te = getTileEntity();
-        if (te != null && !te.getSchematicName().isEmpty())
-        {
-            setCorners(te.getInWorldCorners().getA(), te.getInWorldCorners().getB());
-            return;
-        }
-
-        try
-        {
-            final Blueprint blueprint = StructurePacks.getBlueprint(getStructurePack(), getBlueprintPath());
-            if (blueprint == null)
-            {
-                setCorners(getPosition(), getPosition());
-                return;
-            }
-            final Tuple<int[], int[]> corners
-              = ColonyUtils.calculateCorners(this.getPosition(),
-              colony.getWorld(),
-              blueprint,
-              getRotation(),
-              isMirrored());
-            this.setCorners(corners.getA(), corners.getB());
-
-            if (te != null)
-            {
-                this.getTileEntity().setSchematicCorners(corners.getA().subtract(getPosition()), corners.getB().subtract(getPosition()));
-            }
-        }
-        catch (final Exception ex)
-        {
-            setCorners(getPosition(), getPosition());
-        }
+        // [1.7.10] StructurePacks/Blueprint/IBlueprintDataProviderBE not available in 1.7.10
+        // Use position as both corners as a stub - real corners unknown without blueprint data
+        setCorners(getPosition(), getPosition());
     }
 
     @Override
@@ -1075,15 +1048,15 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
             {
                 final ItemStorage kept = ItemStorage.getItemStackOfListMatchingPredicate(localAlreadyKept, entry.getKey());
                 final int toKeep = entry.getValue().getA();
-                int rest = stack.getCount() - toKeep;
+                int rest = stack.stackSize - toKeep;
                 if (kept != null)
                 {
                     if (kept.getAmount() >= toKeep && !ItemStackUtils.isBetterEquipment(stack, kept.getItemStack()))
                     {
-                        return stack.getCount();
+                        return stack.stackSize;
                     }
 
-                    rest = kept.getAmount() + stack.getCount() - toKeep;
+                    rest = kept.getAmount() + stack.stackSize - toKeep;
 
                     localAlreadyKept.remove(kept);
                     kept.setAmount(kept.getAmount() + ItemStackUtils.getSize(stack) - Math.max(0, rest));
@@ -1104,7 +1077,7 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
                 return Math.min(rest, ItemStackUtils.getSize(stack));
             }
         }
-        return stack.getCount();
+        return stack.stackSize;
     }
 
     /**
@@ -1185,13 +1158,7 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
             handlers.add(workerEntity.getInventory());
         }
 
-        final BlockEntity entity = colony.getWorld().getBlockEntity(getID());
-        if (entity != null)
-        {
-            final LazyOptional<net.minecraftforge.items.IItemHandler> handler = entity.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
-            handler.ifPresent(handlers::add);
-        }
-
+        // [1.7.10] Capabilities/BlockEntity not available; skip block entity handler
         return ImmutableList.copyOf(handlers);
     }
 
@@ -1251,27 +1218,27 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
         {
             for (final int[] pos : containerList)
             {
-                final BlockEntity tempTileEntity = world.getBlockEntity(pos);
-                if (tempTileEntity instanceof ChestBlockEntity && !InventoryUtils.isProviderFull(tempTileEntity))
+                final net.minecraft.tileentity.TileEntity tempTileEntity = world.getTileEntity(pos[0], pos[1], pos[2]);
+                if (tempTileEntity instanceof net.minecraft.tileentity.TileEntityChest && !InventoryUtils.isProviderFull((net.minecraft.inventory.IInventory) tempTileEntity))
                 {
-                    return forceItemStackToProvider(tempTileEntity, stack);
+                    return forceItemStackToProvider((net.minecraft.inventory.IInventory) tempTileEntity, stack);
                 }
             }
         }
         else
         {
-            return forceItemStackToProvider(getTileEntity(), stack);
+            return forceItemStackToProvider((net.minecraft.inventory.IInventory) getTileEntity(), stack);
         }
         return stack;
     }
 
     @Nullable
-    private ItemStack forceItemStackToProvider(@NotNull final Object /* ICapabilityProvider - no capabilities in 1.7.10 */ provider, @NotNull final ItemStack itemStack)
+    private ItemStack forceItemStackToProvider(@NotNull final net.minecraft.inventory.IInventory provider, @NotNull final ItemStack itemStack)
     {
         final List<ItemStorage> localAlreadyKept = new ArrayList<>();
         return InventoryUtils.forceItemStackToProvider(provider,
           itemStack,
-          (ItemStack stack) -> EntityAIWorkDeliveryman.workerRequiresItem(this, stack, localAlreadyKept) != stack.getCount());
+          (ItemStack stack) -> EntityAIWorkDeliveryman.workerRequiresItem(this, stack, localAlreadyKept) != stack.stackSize);
     }
 
     //------------------------- Ending Required Tools/Item handling -------------------------//
@@ -1307,8 +1274,8 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
 
     protected void writeRequestSystemToNBT(final NBTTagCompound compound)
     {
-        compound.put(TAG_REQUESTOR_ID, StandardFactoryController.getInstance().serialize(requester));
-        compound.put(TAG_RS_BUILDING_DATASTORE, StandardFactoryController.getInstance().serialize(rsDataStoreToken));
+        compound.setTag(TAG_REQUESTOR_ID, StandardFactoryController.getInstance().serialize(requester));
+        compound.setTag(TAG_RS_BUILDING_DATASTORE, StandardFactoryController.getInstance().serialize(rsDataStoreToken));
     }
 
     protected void setupRsDataStore()
@@ -1324,18 +1291,18 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
 
     private void loadRequestSystemFromNBT(final NBTTagCompound compound)
     {
-        if (compound.contains(TAG_REQUESTOR_ID))
+        if (compound.hasKey(TAG_REQUESTOR_ID))
         {
-            this.requester = StandardFactoryController.getInstance().deserialize(compound.getCompound(TAG_REQUESTOR_ID));
+            this.requester = StandardFactoryController.getInstance().deserialize(compound.getCompoundTag(TAG_REQUESTOR_ID));
         }
         else
         {
             this.requester = StandardFactoryController.getInstance().getNewInstance(TypeToken.of(BuildingBasedRequester.class), this);
         }
 
-        if (compound.contains(TAG_RS_BUILDING_DATASTORE))
+        if (compound.hasKey(TAG_RS_BUILDING_DATASTORE))
         {
-            this.rsDataStoreToken = StandardFactoryController.getInstance().deserialize(compound.getCompound(TAG_RS_BUILDING_DATASTORE));
+            this.rsDataStoreToken = StandardFactoryController.getInstance().deserialize(compound.getCompoundTag(TAG_RS_BUILDING_DATASTORE));
         }
         else
         {
@@ -1391,13 +1358,13 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
         if (async)
         {
             citizenData.getJob().getAsyncRequests().add(requestToken);
-            citizenData.triggerInteraction(new RequestBasedInteraction(String.translatable(RequestSystemTranslationConstants.REQUEST_RESOLVER_ASYNC,
-                request.getLongDisplayString()), ChatPriority.PENDING, String.translatable(RequestSystemTranslationConstants.REQUEST_RESOLVER_ASYNC), request.getId()));
+            citizenData.triggerInteraction(new RequestBasedInteraction(RequestSystemTranslationConstants.REQUEST_RESOLVER_ASYNC,
+                ChatPriority.PENDING, RequestSystemTranslationConstants.REQUEST_RESOLVER_ASYNC, request.getId()));
         }
         else
         {
-            citizenData.triggerInteraction(new RequestBasedInteraction(String.translatable(RequestSystemTranslationConstants.REQUEST_RESOLVER_NORMAL,
-                request.getLongDisplayString()), ChatPriority.BLOCKING, String.translatable(RequestSystemTranslationConstants.REQUEST_RESOLVER_NORMAL), request.getId()));
+            citizenData.triggerInteraction(new RequestBasedInteraction(RequestSystemTranslationConstants.REQUEST_RESOLVER_NORMAL,
+                ChatPriority.BLOCKING, RequestSystemTranslationConstants.REQUEST_RESOLVER_NORMAL, request.getId()));
         }
 
         markDirty();
@@ -1427,10 +1394,10 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
     }
 
     @Override
-    public void registerBlockPosition(@NotNull final BlockState blockState, @NotNull final int[] pos, @NotNull final World world)
+    public void registerBlockPosition(@NotNull final net.minecraft.block.state.BlockState blockState, @NotNull final int[] pos, @NotNull final World world)
     {
         super.registerBlockPosition(blockState, pos, world);
-        getModulesByType(IModuleWithExternalBlocks.class).forEach(module -> module.onBlockPlacedInBuilding(blockState, pos, world));
+        getModulesByType(IModuleWithExternalBlocks.class).forEach(module -> module.onBlockPlacedInBuilding(blockState.meta, pos, world));
     }
 
     /**
@@ -1531,7 +1498,7 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
       final TypeToken<R> requestType)
     {
         return ImmutableList.copyOf(getOpenRequests(citizenId).stream()
-          .filter(request -> request.getType().isSubtypeOf(requestType))
+          .filter(request -> requestType.isAssignableFrom(request.getType()))
           .map(request -> (IRequest<? extends R>) request)
           .iterator());
     }
@@ -1636,7 +1603,7 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
     public <R> ImmutableList<IRequest<? extends R>> getCompletedRequestsOfType(@NotNull final ICitizenData citizenData, final TypeToken<R> requestType)
     {
         return ImmutableList.copyOf(getCompletedRequestsOfCitizenOrBuilding(citizenData).stream()
-          .filter(request -> request.getType().isSubtypeOf(requestType))
+          .filter(request -> requestType.isAssignableFrom(request.getType()))
           .map(request -> (IRequest<? extends R>) request)
           .iterator());
     }
@@ -1649,7 +1616,7 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
       final Predicate<IRequest<? extends R>> filter)
     {
         return ImmutableList.copyOf(getCompletedRequestsOfCitizenOrBuilding(citizenData).stream()
-          .filter(request -> request.getType().isSubtypeOf(requestType))
+          .filter(request -> requestType.isAssignableFrom(request.getType()))
           .map(request -> (IRequest<? extends R>) request)
           .filter(filter)
           .iterator());
@@ -1807,7 +1774,7 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
       final Predicate<IRequest<? extends R>> filter)
     {
         return ImmutableList.copyOf(getOpenRequests(citizenData.getId()).stream()
-          .filter(request -> request.getType().isSubtypeOf(requestType))
+          .filter(request -> requestType.isAssignableFrom(request.getType()))
           .map(request -> (IRequest<? extends R>) request)
           .filter(filter)
           .iterator());
@@ -2048,23 +2015,23 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
     {
         if (!getCitizensByRequest().containsKey(request.getId()))
         {
-            return String.literal("<UNKNOWN>");
+            return "<UNKNOWN>";
         }
 
         final int citizenId = getCitizensByRequest().get(request.getId());
         if (citizenId == -1)
         {
-            return String.translatable(getBuildingDisplayName());
+            return getBuildingDisplayName();
         }
 
         final ICitizenData citizenData = colony.getCitizenManager().getCivilian(citizenId);
         if (citizenData.getJob() == null)
         {
-            return String.literal(citizenData.getName());
+            return citizenData.getName();
         }
 
-        final String jobName = String.translatable(citizenData.getJob().getJobRegistryEntry().getTranslationKey().toLowerCase());
-        return jobName.append(String.literal(" " + citizenData.getName()));
+        final String jobName = citizenData.getJob().getJobRegistryEntry().getTranslationKey().toLowerCase();
+        return jobName + " " + citizenData.getName();
     }
 
     @Override

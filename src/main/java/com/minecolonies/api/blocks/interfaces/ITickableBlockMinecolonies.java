@@ -1,4 +1,6 @@
 package com.minecolonies.api.blocks.interfaces;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.tileentity.BlockEntity; // [1.7.10] alias -> TileEntity
 
 // [1.7.10 BACKPORT] The 1.21 ITickableBlockMinecolonies extended EntityBlock and used
 // BlockEntityTicker<T> to drive per-tick logic from the block side.

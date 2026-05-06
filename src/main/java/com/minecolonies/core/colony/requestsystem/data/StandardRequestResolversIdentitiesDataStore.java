@@ -97,12 +97,12 @@ public class StandardRequestResolversIdentitiesDataStore implements IRequestReso
         {
             final NBTTagCompound systemCompound = new NBTTagCompound();
 
-            systemCompound.put(TAG_TOKEN, controller.serialize(standardRequestIdentitiesDataStore.getId()));
-            systemCompound.put(TAG_LIST, standardRequestIdentitiesDataStore.getIdentities().keySet().stream().map(token -> {
+            systemcompound.setTag(TAG_TOKEN, controller.serialize(standardRequestIdentitiesDataStore.getId()));
+            systemcompound.setTag(TAG_LIST, standardRequestIdentitiesDataStore.getIdentities().keySet().stream().map(token -> {
                 final NBTTagCompound mapCompound = new NBTTagCompound();
 
-                mapCompound.put(TAG_TOKEN, controller.serialize(token));
-                mapCompound.put(TAG_RESOLVER, controller.serialize(standardRequestIdentitiesDataStore.getIdentities().get(token)));
+                mapcompound.setTag(TAG_TOKEN, controller.serialize(token));
+                mapcompound.setTag(TAG_RESOLVER, controller.serialize(standardRequestIdentitiesDataStore.getIdentities().get(token)));
 
                 return mapCompound;
             }).collect(NBTUtils.toListNBT()));
@@ -114,15 +114,15 @@ public class StandardRequestResolversIdentitiesDataStore implements IRequestReso
         @Override
         public StandardRequestResolversIdentitiesDataStore deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound nbt)
         {
-            final IToken<?> token = controller.deserialize(nbt.getCompound(TAG_TOKEN));
-            final NBTTagList list = nbt.getList(TAG_LIST, NBTBase.TAG_COMPOUND);
+            final IToken<?> token = controller.deserialize(nbt.getCompoundTag(TAG_TOKEN));
+            final NBTTagList list = nbt.getTagList(TAG_LIST, NBTBase.TAG_COMPOUND);
             final BiMap<IToken<?>, IRequestResolver<?>> biMap = HashBiMap.create();
 
             for (int i = 0; i < list.size(); i++)
             {
-                final NBTTagCompound mapCompound = list.getCompound(i);
-                final IToken<?> id = controller.deserialize(mapCompound.getCompound(TAG_TOKEN));
-                final IRequestResolver<?> resolver = controller.deserialize(mapCompound.getCompound(TAG_RESOLVER));
+                final NBTTagCompound mapCompound = list.getCompoundTagAt(i);
+                final IToken<?> id = controller.deserialize(mapCompound.getCompoundTag(TAG_TOKEN));
+                final IRequestResolver<?> resolver = controller.deserialize(mapCompound.getCompoundTag(TAG_RESOLVER));
                 if (resolver.isValid())
                 {
                     biMap.put(id, resolver);

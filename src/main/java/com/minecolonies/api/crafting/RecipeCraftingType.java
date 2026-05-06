@@ -16,7 +16,7 @@ import java.util.function.Predicate;
  * [1.7.10 BACKPORT STUB] A CraftingType for vanilla recipe types.
  * In 1.7.10 there is no RecipeManager; this is a no-op stub.
  */
-public class RecipeCraftingType extends CraftingType
+public class RecipeCraftingType<C, T> extends CraftingType
 {
     public RecipeCraftingType(@NotNull final ResourceLocation id)
     {

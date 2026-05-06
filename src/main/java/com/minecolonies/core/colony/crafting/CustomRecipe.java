@@ -1,5 +1,7 @@
 package com.minecolonies.core.colony.crafting;
-import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Style;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -287,7 +289,7 @@ public class CustomRecipe
         }
         else
         {
-            recipe.result = ItemStack.EMPTY;
+            recipe.result = null;
         }
 
         if (recipeJson.has(RECIPE_LOOTTABLE_PROP))

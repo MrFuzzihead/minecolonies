@@ -1,4 +1,5 @@
 package com.minecolonies.core.blocks;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.blocks.AbstractBlockMinecolonies;
 import com.minecolonies.api.colony.IColonyManager;
@@ -77,7 +78,7 @@ public class MinecoloniesCropBlock extends AbstractBlockMinecolonies<Minecolonie
     @Override
     public void registerBlockItem()
     {
-        net.minecraftforge.fml.common.registry.GameRegistry.registerItem(new ItemCrop(this), blockId.getResourcePath());
+        cpw.mods.fml.common.registry.GameRegistry.registerItem(new ItemCrop(this), blockId.getResourcePath());
     }
 
     /**

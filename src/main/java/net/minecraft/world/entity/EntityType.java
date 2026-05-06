@@ -10,7 +10,7 @@ public class EntityType<T>
 {
     private final String id;
 
-    private EntityType(final String id)
+    public EntityType(final String id)
     {
         this.id = id;
     }

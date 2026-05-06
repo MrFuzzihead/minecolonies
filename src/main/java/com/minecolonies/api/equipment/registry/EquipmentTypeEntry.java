@@ -81,8 +81,8 @@ public final class EquipmentTypeEntry
      */
     public static ResourceLocation parseResourceLocation(final ResourceLocation serialized)
     {
-        final String namespace = serialized.getNamespace().equals("minecraft") ? Constants.MOD_ID : serialized.getNamespace();
-        final String path = serialized.getPath().isEmpty() ? ModEquipmentTypes.none.get().registryName.getPath() : serialized.getPath();
+        final String namespace = serialized.getResourceDomain().equals("minecraft") ? Constants.MOD_ID : serialized.getResourceDomain(); // [1.7.10]
+        final String path = serialized.getResourcePath().isEmpty() ? ModEquipmentTypes.none.get().getRegistryName().getResourcePath() : serialized.getResourcePath(); // [1.7.10]
         return new ResourceLocation(namespace, path);
     }
 
@@ -222,7 +222,7 @@ public final class EquipmentTypeEntry
     {
         public int compare(EquipmentTypeEntry o1, EquipmentTypeEntry o2)
         {
-            return o1.registryName.compareTo(o2.registryName);
+            return o1.registryName.toString().compareTo(o2.registryName.toString()); // [1.7.10]
         }
     }
 }

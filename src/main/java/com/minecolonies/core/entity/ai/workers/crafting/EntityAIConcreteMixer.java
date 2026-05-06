@@ -1,4 +1,6 @@
 package com.minecolonies.core.entity.ai.workers.crafting;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.util.Direction;
 
 import com.minecolonies.api.entity.ai.statemachine.AITarget;
 import com.minecolonies.api.entity.ai.statemachine.states.IAIState;

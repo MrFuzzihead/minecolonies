@@ -1,4 +1,7 @@
 package com.minecolonies.core.items;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.item.Properties;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.util.SoundUtils;
 import com.minecolonies.core.Network;
@@ -45,7 +48,7 @@ public class ItemScrollBuff extends AbstractItemScroll
     @Override
     protected ItemStack onItemUseSuccess(final ItemStack itemStack, final World world, final EntityPlayerMP player)
     {
-        if (world.random.nextInt(8) > 0)
+        if (world.rand.nextInt(8) > 0)
         {
             for (final EntityLivingBase entity : world.getEntitiesOfClass(EntityCitizen.class, player.getBoundingBox().inflate(15, 2, 15)))
             {
@@ -60,7 +63,7 @@ public class ItemScrollBuff extends AbstractItemScroll
         }
         else
         {
-            player.displayClientMessage(String.translatable("minecolonies.scroll.failed" + (world.random.nextInt(FAIL_RESPONSES_TOTAL) + 1)).setStyle(Style.EMPTY.withColor(
+            player.displayClientMessage(String.translatable("minecolonies.scroll.failed" + (world.rand.nextInt(FAIL_RESPONSES_TOTAL) + 1)).setStyle(Style.EMPTY.withColor(
               ChatFormatting.GOLD)), true);
             player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, TICKS_SECOND * 10));
             SoundUtils.playSoundForPlayer(player, SoundEvents.TOTEM_USE, 0.04f, 1.0f);

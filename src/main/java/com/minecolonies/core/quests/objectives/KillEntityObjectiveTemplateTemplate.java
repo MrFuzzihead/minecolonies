@@ -8,12 +8,9 @@ import com.minecolonies.api.quests.IQuestObjectiveTemplate;
 import com.minecolonies.core.colony.Colony;
 import com.minecolonies.core.event.QuestObjectiveEventHandler;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.IChatComponent;
-// [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 import net.minecraft.util.ResourceLocation;
-// [1.7.10] world.entity removed
 import net.minecraft.entity.player.EntityPlayer;
-// [1.7.10] registries removed
+import net.minecraft.world.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,10 +56,10 @@ public class KillEntityObjectiveTemplateTemplate extends DialogueObjectiveTempla
     @NotNull
     private static DialogueElement buildDialogueTree(final EntityType<?> entityToKill)
     {
-        final String text = String.translatable("com.minecolonies.coremod.questobjectives.kill", entityToKill.getDescription());
-        final AnswerElement answer1 = new AnswerElement(String.translatable("com.minecolonies.coremod.questobjectives.answer.later"),
+        final String text = "com.minecolonies.coremod.questobjectives.kill";
+        final AnswerElement answer1 = new AnswerElement("com.minecolonies.coremod.questobjectives.answer.later",
                 new IQuestDialogueAnswer.CloseUIDialogueAnswer());
-        final AnswerElement answer2 = new AnswerElement(String.translatable("com.minecolonies.coremod.questobjectives.answer.cancel"),
+        final AnswerElement answer2 = new AnswerElement("com.minecolonies.coremod.questobjectives.answer.cancel",
                 new IQuestDialogueAnswer.QuestCancellationDialogueAnswer());
         return new DialogueElement(text, List.of(answer1, answer2));
     }
@@ -77,7 +74,8 @@ public class KillEntityObjectiveTemplateTemplate extends DialogueObjectiveTempla
         JsonObject details = jsonObject.getAsJsonObject(DETAILS_KEY);
         final int target = details.get(TARGET_KEY).getAsInt();
         final int quantity = details.get(QUANTITY_KEY).getAsInt();
-        final EntityType<?> entityType = ForgeRegistries.ENTITY_TYPES.getHolder(new ResourceLocation(details.get(ENTITY_TYPE_KEY).getAsString())).get().get();
+        // [1.7.10] EntityType lookup via ForgeRegistries not available; use ResourceLocation-based stub
+        final EntityType<?> entityType = new EntityType<>(details.get(ENTITY_TYPE_KEY).getAsString());
         final int nextObj = details.has(NEXT_OBJ_KEY) ? details.get(NEXT_OBJ_KEY).getAsInt() : -1;
 
         return new KillEntityObjectiveTemplateTemplate(target, quantity, entityType, nextObj, parseRewards(jsonObject));
@@ -96,7 +94,7 @@ public class KillEntityObjectiveTemplateTemplate extends DialogueObjectiveTempla
     }
 
     @Override
-    public String getProgressText(final IQuestInstance quest, final Style style)
+    public String getProgressText(final IQuestInstance quest, final net.minecraft.util.ChatStyle chatStyle)
     {
         if (quest.getCurrentObjectiveInstance() instanceof EntityKillProgressInstance progress)
         {
@@ -134,7 +132,7 @@ public class KillEntityObjectiveTemplateTemplate extends DialogueObjectiveTempla
     }
 
     @Override
-    public void onEntityKill(final IObjectiveInstance killProgressData, final IQuestInstance colonyQuest, final Player player)
+    public void onEntityKill(final IObjectiveInstance killProgressData, final IQuestInstance colonyQuest, final EntityPlayer player)
     {
         if (killProgressData.isFulfilled())
         {

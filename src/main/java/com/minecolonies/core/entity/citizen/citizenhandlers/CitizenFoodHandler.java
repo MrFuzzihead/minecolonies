@@ -132,7 +132,7 @@ public class CitizenFoodHandler implements ICitizenFoodHandler
     @Override
     public void read(final NBTTagCompound compound)
     {
-        @NotNull final NBTTagList lastFoodNbt = compound.getList(TAG_LAST_FOODS, TAG_STRING);
+        @NotNull final NBTTagList lastFoodNbt = compound.getTagList(TAG_LAST_FOODS, TAG_STRING);
         for (int i = 0; i < lastFoodNbt.size(); i++)
         {
             final Item lastFood = BuiltInRegistries.ITEM.get(new ResourceLocation(lastFoodNbt.getString(i)));
@@ -151,7 +151,7 @@ public class CitizenFoodHandler implements ICitizenFoodHandler
         {
             lastEatenFoodsNBT.add(NBTTagString.valueOf(BuiltInRegistries.ITEM.getKey(foodItem).toString()));
         }
-        compound.put(TAG_LAST_FOODS, lastEatenFoodsNBT);
+        compound.setTag(TAG_LAST_FOODS, lastEatenFoodsNBT);
     }
 
     @Override

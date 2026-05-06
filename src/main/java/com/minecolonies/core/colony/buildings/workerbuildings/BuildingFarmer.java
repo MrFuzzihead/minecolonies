@@ -1,4 +1,8 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+
+import net.minecraft.tags.TagKey;
 
 // [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.IColony;

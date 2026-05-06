@@ -1,4 +1,7 @@
 package com.minecolonies.core.research;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+
 
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.api.research.IGlobalResearchTree;

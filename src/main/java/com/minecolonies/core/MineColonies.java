@@ -1,8 +1,18 @@
 package com.minecolonies.core;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.entity.animal.Animal;
 
 // [1.7.10 BACKPORT] Structurize imports may differ depending on the 1.7.10-compatible jar.
 // TODO: verify package names once the Structurize 1.7.10 jar API is confirmed.
 import com.ldtteam.structurize.storage.SurvivalBlueprintHandlers;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.entity.animal.Animal;
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.minecolonies.api.MinecoloniesAPIProxy;
 // [1.7.10 BACKPORT] AdvancementTriggers do not exist in 1.7.10 — commented out.
@@ -111,6 +121,10 @@ public class MineColonies
     //   - ChunkAPI IChunkDataHandler for per-chunk data (IChunkmanagerCapability, IColonyTagCapability)
     //   - ColonyManagerWorldSavedData (a WorldSavedData subclass) for world-World data
     // TODO: [1.7.10 BACKPORT] Create ColonyManagerWorldSavedData and ChunkAPI handler classes.
+    /** [1.7.10 stub] Placeholder for chunk storage capability key. */
+    public static final Object CHUNK_STORAGE_UPDATE_CAP = null;
+    /** [1.7.10 stub] Placeholder for colony manager capability key. */
+    public static final Object COLONY_MANAGER_CAP = null;
 
     /**
      * The config instance — loaded during {@link #preInit(FMLPreInitializationEvent)}.

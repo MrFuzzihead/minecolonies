@@ -1,5 +1,6 @@
 package com.minecolonies.core.colony.managers;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -144,8 +145,8 @@ public class VisitorManager implements IVisitorManager
     {
         if (compound.contains(TAG_VISIT_MANAGER))
         {
-            final NBTTagCompound visitorManagerNBT = compound.getCompound(TAG_VISIT_MANAGER);
-            final NBTTagList citizenList = visitorManagerNBT.getList(TAG_VISITORS, NBTBase.TAG_COMPOUND);
+            final NBTTagCompound visitorManagerNBT = compound.getCompoundTag(TAG_VISIT_MANAGER);
+            final NBTTagList citizenList = visitorManagerNBT.getTagList(TAG_VISITORS, NBTBase.TAG_COMPOUND);
             for (final NBTBase citizen : citizenList)
             {
                 final IVisitorData data = VisitorData.loadVisitorFromNBT(colony, (NBTTagCompound) citizen);

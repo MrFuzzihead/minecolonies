@@ -1,4 +1,5 @@
 package com.minecolonies.core.quests.sideeffects;
+import net.minecraftforge.common.util.INBTSerializable;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;

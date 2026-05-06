@@ -63,7 +63,7 @@ public class BasicStateMachine<T extends IStateMachineTransition<S>, S extends I
     /**
      * State history allows tracking of state changes over time, enabled by default in dev
      */
-    private boolean     historyEnabled = !FMLEnvironment.production;
+    private boolean     historyEnabled = true; // [1.7.10] FMLEnvironment not available; default to enabled
     private int         historyIndex   = -1;
     private String[] stateHistory   = new String[20];
 
@@ -232,10 +232,7 @@ public class BasicStateMachine<T extends IStateMachineTransition<S>, S extends I
                 if (historyEnabled)
                 {
                     historyIndex = (historyIndex + 1) % stateHistory.length;
-                    stateHistory[historyIndex] = String.literal(LocalTime.now().format(SIMPLE_TIME) + " ")
-                        .withStyle(ChatFormatting.GRAY)
-                        .append(transition.getName())
-                        .append(String.literal("->").append(String.literal(newState.toString()).withStyle(ChatFormatting.LIGHT_PURPLE)));
+                    stateHistory[historyIndex] = LocalTime.now().format(SIMPLE_TIME) + " " + transition.getName() + "->" + newState; // [1.7.10] plain String
                 }
             }
 
@@ -292,7 +289,7 @@ public class BasicStateMachine<T extends IStateMachineTransition<S>, S extends I
     @Override
     public String getHistory()
     {
-        String history = String.literal("Current state:").append(String.literal(state + "\n").withStyle(ChatFormatting.GOLD));
+        String history = "Current state: " + state + "\n"; // [1.7.10] plain String, no Component
         int index = historyIndex;
         for (int i = 0; i < stateHistory.length; i++)
         {
@@ -303,7 +300,7 @@ public class BasicStateMachine<T extends IStateMachineTransition<S>, S extends I
                 continue;
             }
 
-            history.append(entry).append("\n");
+            history = history + entry + "\n"; // [1.7.10] String.append -> concatenation
         }
 
         return history;

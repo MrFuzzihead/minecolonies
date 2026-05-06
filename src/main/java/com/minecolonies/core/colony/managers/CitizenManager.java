@@ -1,5 +1,6 @@
 package com.minecolonies.core.colony.managers;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -176,7 +177,7 @@ public class CitizenManager implements ICitizenManager
         citizens.forEach((id, citizen) -> citizen.getEntity().ifPresent(e -> e.remove(Entity.RemovalReason.DISCARDED)));
         citizens.clear();
         //  Citizens before Buildings, because Buildings track the Citizens
-        citizens.putAll(NBTUtils.streamCompound(compound.getList(TAG_CITIZENS, NBTBase.TAG_COMPOUND))
+        citizens.putAll(NBTUtils.streamCompound(compound.getTagList(TAG_CITIZENS, NBTBase.TAG_COMPOUND))
                           .map(this::deserializeCitizen)
                           .collect(Collectors.toMap(ICitizenData::getId, Function.identity())));
 

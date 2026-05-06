@@ -114,10 +114,10 @@ public class BuildingComposter extends AbstractBuilding
     public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
-        final NBTTagList compostBinTagList = compound.getList(TAG_BARRELS, NBTBase.TAG_COMPOUND);
+        final NBTTagList compostBinTagList = compound.getTagList(TAG_BARRELS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < compostBinTagList.size(); ++i)
         {
-            barrels.add(NbtUtils.readBlockPos(compostBinTagList.getCompound(i).getCompound(TAG_POS)));
+            barrels.add(NbtUtils.readBlockPos(compostBinTagList.getCompoundTagAt(i).getCompoundTag(TAG_POS)));
         }
     }
 
@@ -129,10 +129,10 @@ public class BuildingComposter extends AbstractBuilding
         for (@NotNull final int[] entry : barrels)
         {
             @NotNull final NBTTagCompound compostBinCompound = new NBTTagCompound();
-            compostBinCompound.put(TAG_POS, NbtUtils.writeBlockPos(entry));
+            compostBincompound.setTag(TAG_POS, NbtUtils.writeBlockPos(entry));
             compostBinTagList.add(compostBinCompound);
         }
-        compound.put(TAG_BARRELS, compostBinTagList);
+        compound.setTag(TAG_BARRELS, compostBinTagList);
         return compound;
     }
 }

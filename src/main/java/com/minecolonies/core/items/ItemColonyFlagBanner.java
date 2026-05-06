@@ -1,4 +1,7 @@
 package com.minecolonies.core.items;
+import net.minecraft.core.Holder;
+import net.minecraft.world.item.InteractionResult;
+import net.minecraft.world.item.Properties;
 
 import com.minecolonies.api.blocks.ModBlocks;
 import com.minecolonies.core.tileentities.TileEntityColonyFlag;

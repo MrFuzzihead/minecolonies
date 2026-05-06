@@ -122,9 +122,9 @@ public class StandardRequestSystemCrafterJobDataStore implements IRequestSystemC
         {
             final NBTTagCompound compound = new NBTTagCompound();
 
-            compound.put(TAG_TOKEN, controller.serialize(standardRequestSystemCrafterJobDataStore.id));
-            compound.put(TAG_LIST, standardRequestSystemCrafterJobDataStore.queue.stream().map(controller::serialize).collect(NBTUtils.toListNBT()));
-            compound.put(TAG_ASSIGNED_LIST, standardRequestSystemCrafterJobDataStore.tasks.stream().map(controller::serialize).collect(NBTUtils.toListNBT()));
+            compound.setTag(TAG_TOKEN, controller.serialize(standardRequestSystemCrafterJobDataStore.id));
+            compound.setTag(TAG_LIST, standardRequestSystemCrafterJobDataStore.queue.stream().map(controller::serialize).collect(NBTUtils.toListNBT()));
+            compound.setTag(TAG_ASSIGNED_LIST, standardRequestSystemCrafterJobDataStore.tasks.stream().map(controller::serialize).collect(NBTUtils.toListNBT()));
 
             return compound;
         }
@@ -133,11 +133,11 @@ public class StandardRequestSystemCrafterJobDataStore implements IRequestSystemC
         @Override
         public StandardRequestSystemCrafterJobDataStore deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound nbt) throws Throwable
         {
-            final IToken<?> token = controller.deserialize(nbt.getCompound(TAG_TOKEN));
-            final LinkedList<IToken<?>> queue = NBTUtils.streamCompound(nbt.getList(TAG_LIST, NBTBase.TAG_COMPOUND))
+            final IToken<?> token = controller.deserialize(nbt.getCompoundTag(TAG_TOKEN));
+            final LinkedList<IToken<?>> queue = NBTUtils.streamCompound(nbt.getTagList(TAG_LIST, NBTBase.TAG_COMPOUND))
                                                   .map(NBTTagCompound -> (IToken<?>) controller.deserialize(NBTTagCompound))
                                                   .collect(Collectors.toCollection(LinkedList::new));
-            final List<IToken<?>> taskList = NBTUtils.streamCompound(nbt.getList(TAG_ASSIGNED_LIST, NBTBase.TAG_COMPOUND))
+            final List<IToken<?>> taskList = NBTUtils.streamCompound(nbt.getTagList(TAG_ASSIGNED_LIST, NBTBase.TAG_COMPOUND))
                                                .map(NBTTagCompound -> (IToken<?>) controller.deserialize(NBTTagCompound))
                                                .collect(Collectors.toList());
 

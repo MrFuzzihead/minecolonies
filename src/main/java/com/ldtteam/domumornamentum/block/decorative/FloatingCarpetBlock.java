@@ -5,6 +5,6 @@ import net.minecraft.block.Block;
 /** [1.7.10 stub] FloatingCarpetBlock - domumornamentum decorative floating carpet */
 public class FloatingCarpetBlock extends Block
 {
-    public FloatingCarpetBlock() { super(0, net.minecraft.block.material.Material.carpet); }
+    public FloatingCarpetBlock() { super(net.minecraft.block.material.Material.carpet); }
 }
 

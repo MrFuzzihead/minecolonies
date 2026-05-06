@@ -1,4 +1,6 @@
 package com.minecolonies.core.items;
+import net.minecraft.world.item.Properties;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.items.IMinecoloniesFoodItem;
 import com.minecolonies.api.util.ItemStackUtils;

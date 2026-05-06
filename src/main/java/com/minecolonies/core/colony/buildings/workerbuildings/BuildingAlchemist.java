@@ -1,5 +1,6 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -111,22 +112,22 @@ public class BuildingAlchemist extends AbstractBuilding
     public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
-        final NBTTagList sandPos = compound.getList(TAG_PLANTGROUND, NBTTagCompound.TAG_COMPOUND);
+        final NBTTagList sandPos = compound.getTagList(TAG_PLANTGROUND, NBTTagCompound.TAG_COMPOUND);
         for (int i = 0; i < sandPos.size(); ++i)
         {
-            soulsand.add(NbtUtils.readBlockPos(sandPos.getCompound(i).getCompound(TAG_POS)));
+            soulsand.add(NbtUtils.readBlockPos(sandPos.getCompoundTagAt(i).getCompoundTag(TAG_POS)));
         }
 
-        final NBTTagList leavesPos = compound.getList(TAG_LEAVES, NBTTagCompound.TAG_COMPOUND);
+        final NBTTagList leavesPos = compound.getTagList(TAG_LEAVES, NBTTagCompound.TAG_COMPOUND);
         for (int i = 0; i < leavesPos.size(); ++i)
         {
-            leaves.add(NbtUtils.readBlockPos(leavesPos.getCompound(i).getCompound(TAG_POS)));
+            leaves.add(NbtUtils.readBlockPos(leavesPos.getCompoundTagAt(i).getCompoundTag(TAG_POS)));
         }
 
-        final NBTTagList brewingStandPos = compound.getList(TAG_BREWING_STAND, NBTTagCompound.TAG_COMPOUND);
+        final NBTTagList brewingStandPos = compound.getTagList(TAG_BREWING_STAND, NBTTagCompound.TAG_COMPOUND);
         for (int i = 0; i < brewingStandPos.size(); ++i)
         {
-            brewingStands.add(NbtUtils.readBlockPos(brewingStandPos.getCompound(i).getCompound(TAG_POS)));
+            brewingStands.add(NbtUtils.readBlockPos(brewingStandPos.getCompoundTagAt(i).getCompoundTag(TAG_POS)));
         }
     }
 
@@ -138,28 +139,28 @@ public class BuildingAlchemist extends AbstractBuilding
         for (@NotNull final int[] entry : soulsand)
         {
             @NotNull final NBTTagCompound sandCompound = new NBTTagCompound();
-            sandCompound.put(TAG_POS, NbtUtils.writeBlockPos(entry));
+            sandcompound.setTag(TAG_POS, NbtUtils.writeBlockPos(entry));
             sandCompoundList.add(sandCompound);
         }
-        compound.put(TAG_PLANTGROUND, sandCompoundList);
+        compound.setTag(TAG_PLANTGROUND, sandCompoundList);
 
         @NotNull final NBTTagList leavesCompoundList = new NBTTagList();
         for (@NotNull final int[] entry : leaves)
         {
             @NotNull final NBTTagCompound leaveCompound = new NBTTagCompound();
-            leaveCompound.put(TAG_POS, NbtUtils.writeBlockPos(entry));
+            leavecompound.setTag(TAG_POS, NbtUtils.writeBlockPos(entry));
             leavesCompoundList.add(leaveCompound);
         }
-        compound.put(TAG_LEAVES, leavesCompoundList);
+        compound.setTag(TAG_LEAVES, leavesCompoundList);
 
         @NotNull final NBTTagList brewingStandCompoundList = new NBTTagList();
         for (@NotNull final int[] entry : brewingStands)
         {
             @NotNull final NBTTagCompound brewingStandCompound = new NBTTagCompound();
-            brewingStandCompound.put(TAG_POS, NbtUtils.writeBlockPos(entry));
+            brewingStandcompound.setTag(TAG_POS, NbtUtils.writeBlockPos(entry));
             brewingStandCompoundList.add(brewingStandCompound);
         }
-        compound.put(TAG_BREWING_STAND, brewingStandCompoundList);
+        compound.setTag(TAG_BREWING_STAND, brewingStandCompoundList);
 
         return compound;
     }

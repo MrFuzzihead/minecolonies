@@ -1,4 +1,5 @@
 package com.minecolonies.core.blocks;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.blocks.AbstractBlockMinecoloniesHorizontal;
 import com.minecolonies.api.blocks.interfaces.ITickableBlockMinecolonies;

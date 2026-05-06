@@ -1,4 +1,5 @@
 package com.minecolonies.api.colony.buildings.workerbuildings;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.colony.colonyEvents.descriptions.IColonyEventDescription;

@@ -1,4 +1,5 @@
 package com.minecolonies.core.items;
+import net.minecraft.world.item.Properties;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyManager;

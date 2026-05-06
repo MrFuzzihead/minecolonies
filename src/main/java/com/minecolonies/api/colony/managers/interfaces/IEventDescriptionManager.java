@@ -1,4 +1,5 @@
 package com.minecolonies.api.colony.managers.interfaces;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.colonyEvents.descriptions.IColonyEventDescription;
 import net.minecraft.nbt.NBTTagCompound;

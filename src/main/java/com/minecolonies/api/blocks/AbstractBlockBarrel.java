@@ -1,4 +1,5 @@
 package com.minecolonies.api.blocks;
+import net.minecraft.world.level.block.state.BlockState;
 
 import com.minecolonies.api.blocks.interfaces.ITickableBlockMinecolonies;
 import com.minecolonies.api.blocks.types.BarrelType;

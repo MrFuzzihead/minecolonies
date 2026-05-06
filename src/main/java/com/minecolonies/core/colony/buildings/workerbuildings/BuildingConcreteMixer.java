@@ -1,5 +1,6 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -104,10 +105,10 @@ public class BuildingConcreteMixer extends AbstractBuilding
             {
                 waterList.add(NbtUtils.writeBlockPos(pos));
             }
-            waterCompound.put(TAG_WATER, waterList);
+            watercompound.setTag(TAG_WATER, waterList);
             waterMap.add(waterCompound);
         }
-        compound.put(TAG_WATER, waterMap);
+        compound.setTag(TAG_WATER, waterMap);
         return compound;
     }
 
@@ -117,17 +118,17 @@ public class BuildingConcreteMixer extends AbstractBuilding
         super.deserializeNBT(compound);
 
         waterPos.clear();
-        final NBTTagList waterMapList = compound.getList(TAG_WATER, NBTBase.TAG_COMPOUND);
+        final NBTTagList waterMapList = compound.getTagList(TAG_WATER, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < waterMapList.size(); ++i)
         {
-            final NBTTagCompound waterCompound = waterMapList.getCompound(i);
+            final NBTTagCompound waterCompound = waterMapList.getCompoundTagAt(i);
             final int World = waterCompound.getInt(TAG_LEVEL);
 
-            final NBTTagList waterTagList = waterCompound.getList(TAG_WATER, NBTBase.TAG_COMPOUND);
+            final NBTTagList waterTagList = waterCompound.getTagList(TAG_WATER, NBTBase.TAG_COMPOUND);
             final List<int[]> water = new ArrayList<>();
             for (int j = 0; j < waterTagList.size(); ++j)
             {
-                final NBTTagCompound waterSubCompound = waterTagList.getCompound(j);
+                final NBTTagCompound waterSubCompound = waterTagList.getCompoundTagAt(j);
 
                 final int[] waterPos = NbtUtils.readBlockPos(waterSubCompound);
                 if (!water.contains(waterPos))

@@ -79,7 +79,7 @@ public class QuarryModule extends AbstractAssignedCitizenModule implements IAssi
 
         if (compound.contains(getModuleSerializationIdentifier()))
         {
-            compound = compound.getCompound(getModuleSerializationIdentifier());
+            compound = compound.getCompoundTag(getModuleSerializationIdentifier());
         }
 
         final int[] residentIds = compound.getIntArray(TAG_MINERS);

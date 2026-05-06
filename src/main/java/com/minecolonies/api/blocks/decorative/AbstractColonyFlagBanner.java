@@ -1,4 +1,5 @@
 package com.minecolonies.api.blocks.decorative;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.blocks.interfaces.IBlockMinecolonies;
 import com.minecolonies.api.colony.IColony;
@@ -70,7 +71,7 @@ public abstract class AbstractColonyFlagBanner<B extends AbstractColonyFlagBanne
 
     @Override
     @SuppressWarnings("unchecked")
-    public B registerBlock(final Object registry)
+    public B registerBlock()
     {
         return (B) this;
     }

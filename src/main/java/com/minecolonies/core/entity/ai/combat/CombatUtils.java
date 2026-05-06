@@ -13,6 +13,7 @@ import net.minecraft.util.MathHelper;
 // [1.7.10] int /* InteractionHand */ removed
 // [1.7.10] world.entity removed
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 // [1.7.10] world.entity removed
 import net.minecraft.world.item.BowItem;
 import net.minecraft.item.Item;

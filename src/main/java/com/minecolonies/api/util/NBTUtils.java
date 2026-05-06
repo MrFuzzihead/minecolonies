@@ -54,7 +54,7 @@ public class NBTUtils
         @Override
         public NBTBase next()
         {
-            return list.getCompound(currentIndex++);
+            return list.getCompoundTag(currentIndex++);
         }
     }
 }

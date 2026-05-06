@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.ai.workers.production.agriculture;
+import net.minecraft.world.level.block.state.BlockState;
 
 import com.ldtteam.structurize.util.BlockUtils;
 import com.minecolonies.api.colony.buildingextensions.IBuildingExtension;

@@ -110,7 +110,7 @@ public abstract class AbstractJobCrafter<AI extends AbstractEntityAIBasic<J, ? e
     public NBTTagCompound serializeNBT()
     {
         final NBTTagCompound compound = super.serializeNBT();
-        compound.put(NbtTagConstants.TAG_RS_DMANJOB_DATASTORE, StandardFactoryController.getInstance().serialize(rsDataStoreToken));
+        compound.setTag(NbtTagConstants.TAG_RS_DMANJOB_DATASTORE, StandardFactoryController.getInstance().serialize(rsDataStoreToken));
         compound.putInt(NbtTagConstants.TAG_PROGRESS, progress);
         compound.putInt(NbtTagConstants.TAG_MAX_COUNTER, maxCraftingCount);
         compound.putInt(NbtTagConstants.TAG_CRAFT_COUNTER, craftCounter);
@@ -119,7 +119,7 @@ public abstract class AbstractJobCrafter<AI extends AbstractEntityAIBasic<J, ? e
         {
             items.add(item.getKey().getItemStack().copyWithCount(item.getValue()).serializeNBT());
         }
-        compound.put(NbtTagConstants.TAG_SECONDARY_OUTPUTS, items);
+        compound.setTag(NbtTagConstants.TAG_SECONDARY_OUTPUTS, items);
         return compound;
     }
 
@@ -131,7 +131,7 @@ public abstract class AbstractJobCrafter<AI extends AbstractEntityAIBasic<J, ? e
         if (compound.contains(NbtTagConstants.TAG_RS_DMANJOB_DATASTORE))
         {
             rsDataStoreToken = StandardFactoryController.getInstance()
-                .deserialize(compound.getCompound(NbtTagConstants.TAG_RS_DMANJOB_DATASTORE));
+                .deserialize(compound.getCompoundTag(NbtTagConstants.TAG_RS_DMANJOB_DATASTORE));
         }
         else
         {
@@ -156,7 +156,7 @@ public abstract class AbstractJobCrafter<AI extends AbstractEntityAIBasic<J, ? e
         if (compound.contains(NbtTagConstants.TAG_SECONDARY_OUTPUTS))
         {
             final HashMap<ItemStorage, Integer> newItems = new HashMap<>();
-            final NBTTagList list = compound.getList(NbtTagConstants.TAG_SECONDARY_OUTPUTS, NBTTagList.TAG_COMPOUND);
+            final NBTTagList list = compound.getTagList(NbtTagConstants.TAG_SECONDARY_OUTPUTS, NBTTagList.TAG_COMPOUND);
             for (final NBTBase NBTBase : list)
             {
                 if (NBTBase instanceof NBTTagCompound NBTTagCompound)

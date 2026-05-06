@@ -1,5 +1,9 @@
 package com.minecolonies.core.colony.events.raid;
-import net.minecraft.core.Direction;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.core.Holder;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -64,8 +68,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.minecolonies.api.util.BlockPosUtil.DOUBLE_AIR_POS_SELECTOR;
-import static com.minecolonies.api.util.BlockPosUtil.SOLID_AIR_POS_SELECTOR;
+// [1.7.10] removed: import static com.minecolonies.api.util.BlockPosUtil.DOUBLE_AIR_POS_SELECTOR;
+// [1.7.10] removed: import static com.minecolonies.api.util.BlockPosUtil.SOLID_AIR_POS_SELECTOR;
 import static com.minecolonies.api.util.constant.ColonyConstants.BIG_HORDE_SIZE;
 import static com.minecolonies.api.util.constant.ColonyConstants.SMALL_HORDE_SIZE;
 import static com.minecolonies.api.util.constant.ColonyManagerConstants.NO_COLONY_ID;
@@ -979,7 +983,7 @@ public class RaidManager implements IRaiderManager
         {
             nbtList.add(history.write());
         }
-        compound.put(TAG_RAID_HISTORY, nbtList);
+        compound.setTag(TAG_RAID_HISTORY, nbtList);
     }
 
     @Override
@@ -1009,7 +1013,7 @@ public class RaidManager implements IRaiderManager
         if (compound.contains(TAG_RAID_HISTORY))
         {
             raidHistories.clear();
-            NBTTagList nbtList = compound.getList(TAG_RAID_HISTORY, NBTBase.TAG_COMPOUND);
+            NBTTagList nbtList = compound.getTagList(TAG_RAID_HISTORY, NBTBase.TAG_COMPOUND);
             for (final NBTBase NBTBase : nbtList)
             {
                 raidHistories.add(RaidHistory.fromNBT((NBTTagCompound) NBTBase));
@@ -1177,7 +1181,7 @@ public class RaidManager implements IRaiderManager
             RaidHistory history = new RaidHistory(NBTBase.getInt(TAG_RAIDERAMOUNT), NBTBase.getLong(TAG_RAIDTIME));
             history.lostCitizens = NBTBase.getInt(TAG_LOST_CITIZENS);
             history.difficulty = NBTBase.getDouble(TAG_DIFFICULTY);
-            NBTTagList nbtList = NBTBase.getList(TAG_SPAWNINFO, NBTBase.TAG_COMPOUND);
+            NBTTagList nbtList = NBTBase.getTagList(TAG_SPAWNINFO, NBTBase.TAG_COMPOUND);
             for (final NBTBase entry : nbtList)
             {
                 history.spawnData.add(RaidSpawnInfo.fromNBT((NBTTagCompound) entry));

@@ -1094,27 +1094,27 @@ public final class StandardRequestFactories
             childrenCompound.add(controller.serialize(token));
         }
 
-        compound.put(NBT_REQUESTER, requesterCompound);
-        compound.put(NBT_TOKEN, tokenCompound);
-        compound.put(NBT_STATE, stateCompound);
-        compound.put(NBT_REQUESTED, requestedCompound);
+        compound.setTag(NBT_REQUESTER, requesterCompound);
+        compound.setTag(NBT_TOKEN, tokenCompound);
+        compound.setTag(NBT_STATE, stateCompound);
+        compound.setTag(NBT_REQUESTED, requestedCompound);
 
         if (request.hasResult())
         {
-            compound.put(NBT_RESULT, typeSerialization.apply(controller, request.getResult()));
+            compound.setTag(NBT_RESULT, typeSerialization.apply(controller, request.getResult()));
         }
 
         if (request.hasParent())
         {
-            compound.put(NBT_PARENT, controller.serialize(request.getParent()));
+            compound.setTag(NBT_PARENT, controller.serialize(request.getParent()));
         }
 
-        compound.put(NBT_CHILDREN, childrenCompound);
+        compound.setTag(NBT_CHILDREN, childrenCompound);
 
         final NBTTagList deliveriesList = new NBTTagList();
         request.getDeliveries().forEach(itemStack -> deliveriesList.add(itemStack.save(new NBTTagCompound())));
 
-        compound.put(NBT_DELIVERIES, deliveriesList);
+        compound.setTag(NBT_DELIVERIES, deliveriesList);
 
         return compound;
     }
@@ -1159,16 +1159,16 @@ public final class StandardRequestFactories
       final INBTToObjectConverter<T> typeDeserialization,
       final IObjectConstructor<T, R> objectConstructor)
     {
-        final IRequester requester = controller.deserialize(compound.getCompound(NBT_REQUESTER));
-        final IToken<?> token = controller.deserialize(compound.getCompound(NBT_TOKEN));
+        final IRequester requester = controller.deserialize(compound.getCompoundTag(NBT_REQUESTER));
+        final IToken<?> token = controller.deserialize(compound.getCompoundTag(NBT_TOKEN));
         final RequestState state = RequestState.deserialize((NBTTagInt) compound.get(NBT_STATE));
-        final T requested = typeDeserialization.apply(controller, compound.getCompound(NBT_REQUESTED));
+        final T requested = typeDeserialization.apply(controller, compound.getCompoundTag(NBT_REQUESTED));
 
         final List<IToken<?>> childTokens = new ArrayList<>();
-        final NBTTagList childCompound = compound.getList(NBT_CHILDREN, NBTBase.TAG_COMPOUND);
+        final NBTTagList childCompound = compound.getTagList(NBT_CHILDREN, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < childCompound.size(); i++)
         {
-            childTokens.add(controller.deserialize(childCompound.getCompound(i)));
+            childTokens.add(controller.deserialize(childCompound.getCompoundTagAt(i)));
         }
 
         @SuppressWarnings(Suppression.LEFT_CURLY_BRACE) final R request = objectConstructor.construct(requested, token, requester, state);
@@ -1177,18 +1177,18 @@ public final class StandardRequestFactories
 
         if (compound.contains(NBT_PARENT))
         {
-            request.setParent(controller.deserialize(compound.getCompound(NBT_PARENT)));
+            request.setParent(controller.deserialize(compound.getCompoundTag(NBT_PARENT)));
         }
 
         if (compound.contains(NBT_RESULT))
         {
-            request.setResult(typeDeserialization.apply(controller, compound.getCompound(NBT_RESULT)));
+            request.setResult(typeDeserialization.apply(controller, compound.getCompoundTag(NBT_RESULT)));
         }
 
         if (compound.contains(NBT_DELIVERIES))
         {
             final ImmutableList.Builder<ItemStack> stackBuilder = ImmutableList.builder();
-            final NBTTagList deliveriesList = compound.getList(NBT_DELIVERIES, NBTBase.TAG_COMPOUND);
+            final NBTTagList deliveriesList = compound.getTagList(NBT_DELIVERIES, NBTBase.TAG_COMPOUND);
             NBTUtils.streamCompound(deliveriesList).forEach(itemStackCompound -> stackBuilder.add(ItemStack.of(itemStackCompound)));
 
             request.overrideCurrentDeliveries(stackBuilder.build());

@@ -1,4 +1,5 @@
 package com.minecolonies.core.colony.crafting;
+import net.minecraft.world.entity.animal.Animal;
 
 import com.google.common.collect.ImmutableMap;
 import com.minecolonies.api.MinecoloniesAPIProxy;

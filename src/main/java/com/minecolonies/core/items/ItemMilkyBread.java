@@ -1,4 +1,7 @@
 package com.minecolonies.core.items;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.item.FoodProperties;
+import net.minecraft.world.item.Properties;
 
 import com.minecolonies.api.util.constant.TranslationConstants;
 import net.minecraft.util.IChatComponent;
@@ -38,7 +41,7 @@ public class ItemMilkyBread extends ItemFood
      */
     public ItemMilkyBread(final Properties properties)
     {
-        super((new Item.Properties()).food(milkBread), 1);
+        super((new Properties()).food(milkBread), 1);
     }
 
    /**

@@ -1,4 +1,8 @@
 package com.minecolonies.core.items;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.InteractionResult;
+import net.minecraft.world.item.Properties;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.blocks.MinecoloniesCropBlock;
@@ -26,7 +30,7 @@ public class ItemCompost extends AbstractItemMinecolonies
      * Constructor for the ItemCompost
      * @param properties the properties.
      */
-    public ItemCompost(final Item.Properties properties)
+    public ItemCompost(final Properties properties)
     {
         super("compost", properties.stacksTo(Constants.STACKSIZE));
     }

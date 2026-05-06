@@ -138,11 +138,11 @@ public abstract class AbstractAssignedCitizenModule extends AbstractBuildingModu
     {
         if (compound.contains(TAG_ASSIGNED))
         {
-            this.hiringMode = HiringMode.values()[compound.getCompound(TAG_ASSIGNED).getInt(TAG_HIRING_MODE)];
+            this.hiringMode = HiringMode.values()[compound.getCompoundTag(TAG_ASSIGNED).getInt(TAG_HIRING_MODE)];
         }
         else if (compound.contains(getModuleSerializationIdentifier()))
         {
-            this.hiringMode = HiringMode.values()[compound.getCompound(getModuleSerializationIdentifier()).getInt(TAG_HIRING_MODE)];
+            this.hiringMode = HiringMode.values()[compound.getCompoundTag(getModuleSerializationIdentifier()).getInt(TAG_HIRING_MODE)];
         }
         else
         {

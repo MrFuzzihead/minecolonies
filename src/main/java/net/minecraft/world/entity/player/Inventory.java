@@ -8,9 +8,13 @@ import net.minecraft.item.ItemStack;
  */
 public class Inventory
 {
+    public net.minecraft.entity.player.EntityPlayer player;
+
     public Inventory() {}
 
-    public ItemStack getItem(final int index)
+    public Inventory(net.minecraft.entity.player.EntityPlayer player) { this.player = player; }
+
+    public net.minecraft.item.ItemStack getItem(final int index)
     {
         return null;
     }

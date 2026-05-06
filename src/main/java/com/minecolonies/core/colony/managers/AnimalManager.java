@@ -1,5 +1,7 @@
 package com.minecolonies.core.colony.managers;
-import net.minecraft.core.Direction;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -224,7 +226,7 @@ public class AnimalManager implements IAnimalManager
             return;
         }
 
-        final NBTTagCompound animalManagerNBT = compound.getCompound(TAG_ANIMAL_MANAGER);
+        final NBTTagCompound animalManagerNBT = compound.getCompoundTag(TAG_ANIMAL_MANAGER);
 
         // Start from a clean slate so reloads don't accumulate stale entries.
         animalMap.clear();
@@ -242,11 +244,11 @@ public class AnimalManager implements IAnimalManager
         // Read animals list (if present). If missing, we still keep nextAnimalID restored.
         if (animalManagerNBT.contains(TAG_ANIMALS, NBTBase.TAG_LIST))
         {
-            final NBTTagList animalList = animalManagerNBT.getList(TAG_ANIMALS, NBTBase.TAG_COMPOUND);
+            final NBTTagList animalList = animalManagerNBT.getTagList(TAG_ANIMALS, NBTBase.TAG_COMPOUND);
 
             for (int i = 0; i < animalList.size(); i++)
             {
-                final NBTTagCompound animalTag = animalList.getCompound(i);
+                final NBTTagCompound animalTag = animalList.getCompoundTagAt(i);
 
                 try
                 {

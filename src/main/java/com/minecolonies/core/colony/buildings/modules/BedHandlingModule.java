@@ -1,5 +1,6 @@
 package com.minecolonies.core.colony.buildings.modules;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -39,10 +40,10 @@ public class BedHandlingModule extends AbstractBuildingModule implements IModule
     @Override
     public void deserializeNBT(final NBTTagCompound compound)
     {
-        final NBTTagList bedTagList = compound.getList(TAG_BEDS, NBTBase.TAG_COMPOUND);
+        final NBTTagList bedTagList = compound.getTagList(TAG_BEDS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < bedTagList.size(); ++i)
         {
-            final NBTTagCompound bedCompound = bedTagList.getCompound(i);
+            final NBTTagCompound bedCompound = bedTagList.getCompoundTagAt(i);
             final int[] bedPos = NbtUtils.readBlockPos(bedCompound);
             bedList.add(bedPos);
         }
@@ -58,7 +59,7 @@ public class BedHandlingModule extends AbstractBuildingModule implements IModule
             {
                 bedTagList.add(NbtUtils.writeBlockPos(pos));
             }
-            compound.put(TAG_BEDS, bedTagList);
+            compound.setTag(TAG_BEDS, bedTagList);
         }
     }
 

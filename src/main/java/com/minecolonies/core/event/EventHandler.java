@@ -1,4 +1,12 @@
 package com.minecolonies.core.event;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.tileentity.BlockEntity; // [1.7.10] alias -> TileEntity
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.blocks.AbstractBlockHut;
 import com.minecolonies.api.blocks.ModBlocks;
@@ -61,7 +69,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.world.World.ChunkPos;
+import net.minecraft.world.chunk.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.block.Block;
@@ -87,6 +95,19 @@ import net.minecraft.world.chunk.Chunk;
 // [1.7.10] forge event removed
 // [1.7.10] forge event removed
 // [1.7.10] forge event removed
+import cpw.mods.fml.common.gameevent.TickEvent;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.LootTableLoadEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
+import net.minecraftforge.event.entity.living.LivingConversionEvent;
+import net.minecraftforge.event.entity.living.MobSpawnEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.world.ChunkEvent;
+import net.minecraftforge.event.world.LevelEvent;
 // [1.7.10] eventbus removed
 // [1.7.10] eventbus removed
 import org.jetbrains.annotations.NotNull;
@@ -349,7 +370,7 @@ public class EventHandler
     @SubscribeEvent
     public static void onEnteringChunk(final TickEvent.PlayerTickEvent event)
     {
-        if (event.phase != TickEvent.Phase.END || event.player.World.isClientSide() || event.player.World.getGameTime() % 100 != 0)
+        if (event.phase != TickEvent.Phase.END || event.player.World.isClientSide() || event.player.world.getTotalWorldTime() % 100 != 0)
         {
             return;
         }

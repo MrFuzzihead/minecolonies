@@ -1,4 +1,5 @@
 package com.minecolonies.api.entity.other;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.entity.pathfinding.IStuckHandlerEntity;
 import com.minecolonies.api.util.constant.ColonyConstants;
@@ -67,8 +68,8 @@ public abstract class AbstractFastMinecoloniesEntity extends EntityCreature impl
         this.canBeStuck = canBeStuck;
     }
 
-    @Override
-    public boolean canBeLeashedTo(final EntityPlayer player)
+    // [1.7.10] canBeLeashedBy - not in EntityLivingBase hierarchy, no @Override
+    public boolean canBeLeashedBy(final EntityPlayer player)
     {
         return false;
     }
@@ -97,9 +98,10 @@ public abstract class AbstractFastMinecoloniesEntity extends EntityCreature impl
      * Prevent dimension changes through portals.
      */
     @Override
-    public void handleWaterMovement()
+    public boolean handleWaterMovement()
     {
         // Noop — our entities don't do water movement optimisation per-tick; can override if needed
+        return false;
     }
 
     @Override
@@ -133,7 +135,7 @@ public abstract class AbstractFastMinecoloniesEntity extends EntityCreature impl
      */
     public abstract int getTeamId();
 
-    @Override
+    // [1.7.10] canChangeDimension: not a standard override in 1.7.10, disabled
     public boolean canChangeDimension()
     {
         return false;

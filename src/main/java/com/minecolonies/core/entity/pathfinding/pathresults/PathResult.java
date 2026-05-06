@@ -6,11 +6,8 @@ import com.minecolonies.core.debug.messages.DebugOutputMessage;
 import com.minecolonies.core.entity.pathfinding.PathFindingStatus;
 import com.minecolonies.core.entity.pathfinding.PathfindingUtils;
 import com.minecolonies.core.entity.pathfinding.pathjobs.AbstractPathJob;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.IChatComponent;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.pathfinding.Path;
+import net.minecraft.pathfinding.PathEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -36,12 +33,12 @@ public class PathResult<T extends AbstractPathJob>
     /**
      * Finished path reference
      */
-    private Path path = null;
+    private PathEntity path = null;
 
     /**
      * The calculation future for this result and job
      */
-    private Future<Path> pathCalculation = null;
+    private Future<PathEntity> pathCalculation = null;
 
     /**
      * The job to execute for this result
@@ -140,7 +137,7 @@ public class PathResult<T extends AbstractPathJob>
      */
     public int getPathLength()
     {
-        return path.getNodeCount();
+        return path.getCurrentPathLength();
     }
 
     /**
@@ -157,7 +154,7 @@ public class PathResult<T extends AbstractPathJob>
      * @return path
      */
     @Nullable
-    public Path getPath()
+    public PathEntity getPath()
     {
         return path;
     }
@@ -226,46 +223,7 @@ public class PathResult<T extends AbstractPathJob>
      */
     private void checkDebugging()
     {
-        if (!PathfindingUtils.trackByType.isEmpty())
-        {
-            for (Iterator<Map.Entry<String, UUID>> iterator = PathfindingUtils.trackByType.entrySet().iterator(); iterator.hasNext(); )
-            {
-                final Map.Entry<String, UUID> entry = iterator.next();
-                final Player player = job.getActualWorld().getPlayerByUUID(entry.getValue());
-                if (player == null)
-                {
-                    iterator.remove();
-                    continue;
-                }
-
-                // Exclude stuff thats not visible
-                if (player.blockPosition().distManhattan(job.getStart()) > 400)
-                {
-                    continue;
-                }
-
-                if (job.getClass().getSimpleName().toLowerCase().contains(entry.getKey().toLowerCase()))
-                {
-                    addTrackingPlayer(entry.getValue());
-                }
-            }
-        }
-
-        if (job.getEntity() != null && PathfindingUtils.trackingMap.containsValue(job.getEntity().getUUID()))
-        {
-            for (final Map.Entry<UUID, UUID> entry : PathfindingUtils.trackingMap.entrySet())
-            {
-                if (entry.getValue().equals(job.getEntity().getUUID()))
-                {
-                    addTrackingPlayer(entry.getKey());
-                }
-            }
-        }
-
-        if (debugWatchers != null)
-        {
-            job.initDebug();
-        }
+        // [1.7.10] Debug tracking skipped; getPlayerByUUID / Player API not available in 1.7.10
     }
 
     /**
@@ -288,13 +246,8 @@ public class PathResult<T extends AbstractPathJob>
 
             if (!watchers.isEmpty())
             {
-                final String debugInfo = String.literal(" Finished pathjob:")
-                    .withStyle(ChatFormatting.GRAY)
-                    .append(String.literal(job.toString()))
-                    .append(String.literal(" reaches: " + path.canReach())
-                        .withStyle(path.canReach() ? ChatFormatting.GREEN : ChatFormatting.RED)
-                        .append(String.literal(" path target:" + path.getTarget().toShortString()).withStyle(ChatFormatting.BLUE)));
-                Log.getLogger().info(debugInfo.getString());
+                final String debugInfo = " Finished pathjob: " + job.toString();
+                Log.getLogger().info(debugInfo);
 
                 for (final EntityPlayerMP player : watchers)
                 {
@@ -364,11 +317,7 @@ public class PathResult<T extends AbstractPathJob>
         {
             for (final UUID playerID : debugWatchers)
             {
-                final Player player = job.getActualWorld().getPlayerByUUID(playerID);
-                if (player instanceof EntityPlayerMP EntityPlayerMP)
-                {
-                    newList.add(EntityPlayerMP);
-                }
+                // [1.7.10] getPlayerByUUID not available; skip debug watcher lookup
             }
         }
 

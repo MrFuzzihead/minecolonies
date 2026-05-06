@@ -1,4 +1,7 @@
 package com.minecolonies.core.entity.ai.workers.crafting;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.util.Direction;
+import net.minecraft.world.entity.player.Player;
 
 import com.google.common.collect.ImmutableList;
 import com.minecolonies.api.colony.buildings.IBuilding;

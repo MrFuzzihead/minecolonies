@@ -1,4 +1,5 @@
 package com.minecolonies.core.network.messages.client;
+import net.minecraft.world.entity.player.Player;
 
 import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
@@ -58,7 +59,7 @@ public class SaveStructureNBTMessage implements IMessage
         try (ByteBufInputStream stream = new ByteBufInputStream(buffer))
         {
             final NBTTagCompound wrapperCompound = NbtIo.readCompressed(stream);
-            this.compoundNBT = wrapperCompound.getCompound(TAG_SCHEMATIC);
+            this.compoundNBT = wrapperCompound.getCompoundTag(TAG_SCHEMATIC);
             this.fileName = wrapperCompound.getString(TAG_MILLIS);
         }
         catch (final RuntimeException e)
@@ -76,7 +77,7 @@ public class SaveStructureNBTMessage implements IMessage
     {
         final NBTTagCompound wrapperCompound = new NBTTagCompound();
         wrapperCompound.putString(TAG_MILLIS, fileName);
-        wrapperCompound.put(TAG_SCHEMATIC, compoundNBT);
+        wrappercompound.setTag(TAG_SCHEMATIC, compoundNBT);
 
         final PacketBuffer buffer = new PacketBuffer(buf);
         try (ByteBufOutputStream stream = new ByteBufOutputStream(buffer))

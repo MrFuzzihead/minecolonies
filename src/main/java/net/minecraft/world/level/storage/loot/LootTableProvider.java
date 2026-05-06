@@ -4,18 +4,20 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
+import net.minecraft.data.loot.LootTableSubProvider;
 import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 /** [1.7.10 bridge] LootTableProvider - no 1.7.10 equivalent */
 public class LootTableProvider implements DataProvider
 {
-    public interface SubProviderEntry
+    public static class SubProviderEntry
     {
+        public SubProviderEntry(final Supplier<LootTableSubProvider> provider, final LootContextParamSet paramSet) {}
     }
 
     public LootTableProvider(final PackOutput output, final Set<ResourceLocation> requiredTables, final List<?> subProviders) {}
@@ -31,4 +33,3 @@ public class LootTableProvider implements DataProvider
     @Override
     public CompletableFuture<?> run(@NotNull final CachedOutput cache) { return CompletableFuture.completedFuture(null); }
 }
-

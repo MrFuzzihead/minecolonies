@@ -53,7 +53,7 @@ public final class SortingUtils
                         continue;
                     }
                     final ExactMatchItemStorage storage = new ExactMatchItemStorage(inv.getStackInSlot(i));
-                    inv.setStackInSlot(i, ItemStack.EMPTY);
+                    inv.setStackInSlot(i, null);
                     int amount = storage.getAmount();
                     if (map.containsKey(storage))
                     {

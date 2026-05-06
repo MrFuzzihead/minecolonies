@@ -8,6 +8,7 @@ import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
 // [1.7.10] int[] -> int x,y,z
 // [1.7.10] world.entity removed
 import net.minecraft.world.World;
+import net.minecraft.init.Blocks;
 import net.minecraft.entity.EntityCreature;
 // [1.7.10] block import removed
 import org.jetbrains.annotations.NotNull;
@@ -56,20 +57,20 @@ public class PathJobMoveCloseToXNearY extends AbstractPathJob implements IDestin
     @Override
     protected boolean isAtDestination(@NotNull final MNode n)
     {
-        if (desiredPosition.getX() == n.x && desiredPosition.getZ() == n.z)
+        if (desiredPosition[0] == n.x && desiredPosition[2] == n.z)
         {
             return false;
         }
 
         return BlockPosUtil.distManhattan(desiredPosition, n.x, n.y, n.z) <= distToDesired
-                 && SurfaceType.getSurfaceType(world, cachedBlockLookup.getBlockState(n.x, n.y - 1, n.z), tempWorldPos.set(n.x, n.y - 1, n.z), getPathingOptions())
+                 && SurfaceType.getSurfaceType(world, cachedBlockLookup.getBlockState(n.x, n.y - 1, n.z), setPos(n.x, n.y - 1, n.z), getPathingOptions())
                       == SurfaceType.WALKABLE;
     }
 
     @Override
     protected double getEndNodeScore(@NotNull final MNode n)
     {
-        if (desiredPosition.getX() == n.x && desiredPosition.getZ() == n.z)
+        if (desiredPosition[0] == n.x && desiredPosition[2] == n.z)
         {
             return 1000;
         }
@@ -79,7 +80,7 @@ public class PathJobMoveCloseToXNearY extends AbstractPathJob implements IDestin
         {
             dist += 50;
         }
-        else if (cachedBlockLookup.getBlockState(n.x, n.y - 1, n.z) == Blocks.WATER.defaultBlockState())
+        else if (cachedBlockLookup.getBlockState(n.x, n.y - 1, n.z).getBlock() == Blocks.water)
         {
             dist += 50;
         }

@@ -1,4 +1,5 @@
 package com.minecolonies.core.compatibility.jei.transfer;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.inventory.container.ContainerCraftingBrewingstand;
 import com.minecolonies.core.Network;
@@ -70,8 +71,8 @@ public class PrivateBrewingTeachingTransferHandler implements IRecipeTransferHan
         final IRecipeSlotView inputSlot = recipeSlots.getSlotViews(RecipeIngredientRole.INPUT).get(3);
 
         final Map<Integer, ItemStack> guiIngredients = new HashMap<>();
-        guiIngredients.put(0, inputSlot.getDisplayedIngredient(VanillaTypes.ITEM_STACK).orElse(ItemStack.EMPTY));
-        guiIngredients.put(1, potionSlot.getDisplayedIngredient(VanillaTypes.ITEM_STACK).orElse(ItemStack.EMPTY));
+        guiIngredients.put(0, inputSlot.getDisplayedIngredient(VanillaTypes.ITEM_STACK).orElse(null));
+        guiIngredients.put(1, potionSlot.getDisplayedIngredient(VanillaTypes.ITEM_STACK).orElse(null));
 
         if (doTransfer)
         {

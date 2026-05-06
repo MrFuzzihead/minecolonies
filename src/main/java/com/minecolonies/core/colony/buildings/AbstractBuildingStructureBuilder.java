@@ -1,4 +1,5 @@
 package com.minecolonies.core.colony.buildings;
+import net.minecraft.block.state.BlockState;
 
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
@@ -256,7 +257,7 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuilding
             fluidsRemove.putInt(TAG_FLUIDS_REMOVE_Y, y);
             fluidsToRemove.add(fluidsRemove);
         });
-        compound.put(TAG_FLUIDS_REMOVE, fluidsToRemove);
+        compound.setTag(TAG_FLUIDS_REMOVE, fluidsToRemove);
 
         if (workOrderId != 0)
         {

@@ -1,4 +1,6 @@
 package com.minecolonies.core.network.messages.server.colony.building.fields;
+import net.minecraft.util.Direction;
+import net.minecraft.tileentity.BlockEntity; // [1.7.10] alias -> TileEntity
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildingextensions.registry.BuildingExtensionRegistries;

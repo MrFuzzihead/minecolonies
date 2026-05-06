@@ -217,7 +217,7 @@ public abstract class AbstractCraftingBuildingModule extends AbstractBuildingMod
         @NotNull final NBTTagList recipesTagList = recipes.stream()
                                                   .map(iToken -> StandardFactoryController.getInstance().serialize(iToken))
                                                   .collect(NBTUtils.toListNBT());
-        compound.put(TAG_RECIPES, recipesTagList);
+        compound.setTag(TAG_RECIPES, recipesTagList);
 
         @NotNull final NBTTagList disabledRecipesTag = new NBTTagList();
         for (@NotNull final IToken<?> recipe : disabledRecipes)
@@ -227,7 +227,7 @@ public abstract class AbstractCraftingBuildingModule extends AbstractBuildingMod
                 disabledRecipesTag.add(StandardFactoryController.getInstance().serialize(recipe));
             }
         }
-        compound.put(TAG_DISABLED_RECIPES, disabledRecipesTag);
+        compound.setTag(TAG_DISABLED_RECIPES, disabledRecipesTag);
     }
 
     @Override
@@ -235,18 +235,18 @@ public abstract class AbstractCraftingBuildingModule extends AbstractBuildingMod
     {
         if (compound.contains(getId()))
         {
-            compound = compound.getCompound(getId());
+            compound = compound.getCompoundTag(getId());
         }
 
         NBTTagList recipesTags = new NBTTagList();
         if (compound.contains(TAG_RECIPES))
         {
-            recipesTags = compound.getList(TAG_RECIPES, NBTBase.TAG_COMPOUND);
+            recipesTags = compound.getTagList(TAG_RECIPES, NBTBase.TAG_COMPOUND);
         }
 
         for (int i = 0; i < recipesTags.size(); i++)
         {
-            final IToken<?> token = StandardFactoryController.getInstance().deserialize(recipesTags.getCompound(i));
+            final IToken<?> token = StandardFactoryController.getInstance().deserialize(recipesTags.getCompoundTagAt(i));
             if (!recipes.contains(token))
             {
                 recipes.add(token);
@@ -256,10 +256,10 @@ public abstract class AbstractCraftingBuildingModule extends AbstractBuildingMod
 
         if (compound.contains(TAG_DISABLED_RECIPES))
         {
-            final NBTTagList disabledRecipeTag = compound.getList(TAG_DISABLED_RECIPES, NBTBase.TAG_COMPOUND);
+            final NBTTagList disabledRecipeTag = compound.getTagList(TAG_DISABLED_RECIPES, NBTBase.TAG_COMPOUND);
             for (int i = 0; i < disabledRecipeTag.size(); i++)
             {
-                final IToken<?> token = StandardFactoryController.getInstance().deserialize(disabledRecipeTag.getCompound(i));
+                final IToken<?> token = StandardFactoryController.getInstance().deserialize(disabledRecipeTag.getCompoundTagAt(i));
                 if (!disabledRecipes.contains(token))
                 {
                     disabledRecipes.add(token);
@@ -814,7 +814,7 @@ public abstract class AbstractCraftingBuildingModule extends AbstractBuildingMod
     @Override
     public ItemStack getCraftingTool(final AbstractEntityCitizen worker)
     {
-        return worker != null ? worker.getMainHandItem() : ItemStack.EMPTY;
+        return worker != null ? worker.getMainHandItem() : null;
     }
 
     @Override

@@ -1,4 +1,6 @@
 package com.minecolonies.core.compatibility.jei;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.entity.animal.Animal;
 
 import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.blocks.ModBlocks;
@@ -35,6 +37,7 @@ import net.minecraft.util.IChatComponent;
 import net.minecraft.util.ResourceLocation;
 // [1.7.10] world.entity removed
 import net.minecraft.item.ItemStack;
+import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

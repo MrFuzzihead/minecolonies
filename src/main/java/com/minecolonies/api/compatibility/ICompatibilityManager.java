@@ -1,4 +1,6 @@
 package com.minecolonies.api.compatibility;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.level.block.state.BlockState;
 
 import com.google.common.collect.ImmutableSet;
 import com.minecolonies.api.crafting.CompostRecipe;

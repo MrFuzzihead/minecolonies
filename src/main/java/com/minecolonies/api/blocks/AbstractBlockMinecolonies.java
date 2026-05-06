@@ -43,7 +43,7 @@ public abstract class AbstractBlockMinecolonies<B extends AbstractBlockMinecolon
     @SuppressWarnings("unchecked")
     public B registerBlock()
     {
-        GameRegistry.registerBlock(this, getItemClass(), getRegistryName().getPath());
+        GameRegistry.registerBlock(this, getItemClass(), getRegistryName().getResourcePath());
         return (B) this;
     }
 

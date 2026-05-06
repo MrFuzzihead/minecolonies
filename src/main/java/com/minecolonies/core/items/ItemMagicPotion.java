@@ -1,4 +1,5 @@
 package com.minecolonies.core.items;
+import net.minecraft.world.item.Properties;
 
 /**
  * Class describing the magic potion item.

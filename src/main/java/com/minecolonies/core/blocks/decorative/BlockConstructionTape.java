@@ -1,4 +1,6 @@
 package com.minecolonies.core.blocks.decorative;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.util.Direction;
 
 import com.minecolonies.api.blocks.decorative.AbstractBlockMinecoloniesConstructionTape;
 import com.minecolonies.api.util.constant.Constants;

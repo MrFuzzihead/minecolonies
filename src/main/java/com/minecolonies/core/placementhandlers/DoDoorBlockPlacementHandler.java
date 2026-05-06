@@ -1,4 +1,6 @@
 package com.minecolonies.core.placementhandlers;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.tileentity.BlockEntity; // [1.7.10] alias -> TileEntity
 
 import com.ldtteam.domumornamentum.block.AbstractBlockDoor;
 import com.ldtteam.domumornamentum.block.IMateriallyTexturedBlock;

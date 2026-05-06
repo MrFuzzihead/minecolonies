@@ -52,7 +52,7 @@ public class InteractionValidatorInitializer
     {
         InteractionValidatorRegistry.registerStandardPredicate(String.translatable(FURNACE_USER_NO_FUEL),
           citizen -> citizen.getWorkBuilding() != null && citizen.getWorkBuilding().hasModule(BuildingModules.FURNACE) && citizen.getWorkBuilding().hasModule(BuildingModules.ITEMLIST_FUEL)
-                       && citizen.getWorkBuilding().getModule(BuildingModules.ITEMLIST_FUEL).getList().isEmpty());
+                       && citizen.getWorkBuilding().getModule(BuildingModules.ITEMLIST_FUEL).getTagList().isEmpty());
         InteractionValidatorRegistry.registerStandardPredicate(String.translatable(BAKER_HAS_NO_FURNACES_MESSAGE),
           citizen -> citizen.getWorkBuilding() != null && citizen.getWorkBuilding().hasModule(BuildingModules.FURNACE) && citizen.getWorkBuilding().getModule(BuildingModules.FURNACE).getFurnaces().isEmpty());
         InteractionValidatorRegistry.registerStandardPredicate(String.translatable(RAW_FOOD),
@@ -145,7 +145,7 @@ public class InteractionValidatorInitializer
           citizen -> {
             if (citizen.getWorkBuilding() instanceof BuildingSmeltery)
             {
-                final List<ItemStorage> oreList = ((BuildingSmeltery) citizen.getWorkBuilding()).getModuleMatching(ItemListModule.class, m -> m.getId().equals(ORE_LIST)).getList();
+                final List<ItemStorage> oreList = ((BuildingSmeltery) citizen.getWorkBuilding()).getModuleMatching(ItemListModule.class, m -> m.getId().equals(ORE_LIST)).getTagList();
                 for (final ItemStorage storage : IColonyManager.getInstance().getCompatibilityManager().getSmeltableOres())
                 {
                     if (!oreList.contains(storage))
@@ -176,7 +176,7 @@ public class InteractionValidatorInitializer
           });
 
         InteractionValidatorRegistry.registerStandardPredicate(String.translatable(FURNACE_USER_NO_FUEL),
-          citizen -> citizen.getWorkBuilding() != null && citizen.getWorkBuilding().hasModule(BuildingModules.FURNACE) && citizen.getWorkBuilding().hasModule(BuildingModules.ITEMLIST_FUEL) && citizen.getWorkBuilding().getModule(BuildingModules.ITEMLIST_FUEL).getList().isEmpty());
+          citizen -> citizen.getWorkBuilding() != null && citizen.getWorkBuilding().hasModule(BuildingModules.FURNACE) && citizen.getWorkBuilding().hasModule(BuildingModules.ITEMLIST_FUEL) && citizen.getWorkBuilding().getModule(BuildingModules.ITEMLIST_FUEL).getTagList().isEmpty());
         InteractionValidatorRegistry.registerStandardPredicate(String.translatable(FURNACE_USER_NO_FOOD),
           citizen -> {
             if (!(citizen.getWorkBuilding() instanceof BuildingCook))
@@ -332,7 +332,7 @@ public class InteractionValidatorInitializer
 
         InteractionValidatorRegistry.registerStandardPredicate(String.translatable(COM_MINECOLONIES_COREMOD_BEEKEEPER_NOFLOWERS),
           citizen -> citizen.getWorkBuilding() instanceof BuildingBeekeeper
-                       && ((BuildingBeekeeper) citizen.getWorkBuilding()).getModuleMatching(ItemListModule.class, m -> m.getId().equals(BUILDING_FLOWER_LIST)).getList().isEmpty());
+                       && ((BuildingBeekeeper) citizen.getWorkBuilding()).getModuleMatching(ItemListModule.class, m -> m.getId().equals(BUILDING_FLOWER_LIST)).getTagList().isEmpty());
 
         InteractionValidatorRegistry.registerStandardPredicate(String.translatable(COM_MINECOLONIES_COREMOD_ENTITY_CITIZEN_RAINING),
           citizen -> citizen.getEntity().isPresent() && citizen.getEntity().get().getCommandSenderWorld().isRaining()

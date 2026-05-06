@@ -1,4 +1,5 @@
 package com.ldtteam.structurize.placement.handlers.placement;
+import net.minecraft.block.state.BlockState;
 
 import com.minecolonies.api.util.Tuple;
 import net.minecraft.item.ItemStack;
@@ -24,7 +25,7 @@ public interface IPlacementHandler
     {
         /** The handler processed and succeeded. */
         SUCCESS,
-        /** The handler did not handle this block — pass to the next handler. */
+        /** The handler did not handle this block â€” pass to the next handler. */
         PASS,
         /** The handler failed or wants to deny placement. */
         DENY

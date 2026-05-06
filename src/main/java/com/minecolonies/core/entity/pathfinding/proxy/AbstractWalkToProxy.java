@@ -5,6 +5,7 @@ import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.EntityUtils;
 // [1.7.10] int[] -> int x,y,z
 // [1.7.10] world.entity removed
+import net.minecraft.entity.EntityCreature;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

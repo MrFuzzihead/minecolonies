@@ -1,5 +1,6 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -194,7 +195,7 @@ public class BuildingBarracks extends AbstractBuilding
     {
         super.deserializeNBT(compound);
         towers.clear();
-        towers.addAll(NBTUtils.streamCompound(compound.getList(TAG_TOWERS, NBTBase.TAG_COMPOUND))
+        towers.addAll(NBTUtils.streamCompound(compound.getTagList(TAG_TOWERS, NBTBase.TAG_COMPOUND))
                         .map(resultCompound -> BlockPosUtil.read(resultCompound, TAG_POS))
                         .collect(Collectors.toList()));
     }
@@ -204,7 +205,7 @@ public class BuildingBarracks extends AbstractBuilding
     {
         final NBTTagCompound compound = super.serializeNBT();
         final NBTTagList towerTagList = towers.stream().map(pos -> BlockPosUtil.write(new NBTTagCompound(), TAG_POS, pos)).collect(NBTUtils.toListNBT());
-        compound.put(TAG_TOWERS, towerTagList);
+        compound.setTag(TAG_TOWERS, towerTagList);
 
         return compound;
     }

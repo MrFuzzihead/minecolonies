@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.other.cavalry;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.IAnimalData;
 import com.minecolonies.api.colony.IColony;

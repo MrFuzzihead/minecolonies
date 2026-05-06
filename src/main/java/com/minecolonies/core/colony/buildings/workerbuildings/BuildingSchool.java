@@ -90,10 +90,10 @@ public class BuildingSchool extends AbstractBuilding
     public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
-        final NBTTagList carpetTagList = compound.getList(TAG_CARPET, NBTBase.TAG_COMPOUND);
+        final NBTTagList carpetTagList = compound.getTagList(TAG_CARPET, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < carpetTagList.size(); ++i)
         {
-            final NBTTagCompound bedCompound = carpetTagList.getCompound(i);
+            final NBTTagCompound bedCompound = carpetTagList.getCompoundTagAt(i);
             final int[] pos = BlockPosUtil.read(bedCompound, TAG_POS);
             if (!carpet.contains(pos))
             {
@@ -115,7 +115,7 @@ public class BuildingSchool extends AbstractBuilding
                 BlockPosUtil.write(carpetCompound, NbtTagConstants.TAG_POS, pos);
                 carpetTagList.add(carpetCompound);
             }
-            compound.put(TAG_CARPET, carpetTagList);
+            compound.setTag(TAG_CARPET, carpetTagList);
         }
 
         return compound;

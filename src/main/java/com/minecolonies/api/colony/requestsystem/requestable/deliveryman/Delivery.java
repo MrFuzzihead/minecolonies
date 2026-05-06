@@ -59,10 +59,10 @@ public class Delivery extends AbstractDeliverymanRequestable
     {
         final NBTTagCompound compound = new NBTTagCompound();
 
-        compound.put(NBT_START, controller.serialize(delivery.getStart()));
-        compound.put(NBT_TARGET, controller.serialize(delivery.getTarget()));
-        compound.put(NBT_STACK, delivery.getStack().serializeNBT());
-        compound.put(NBT_PRIORITY, controller.serialize(delivery.getPriority()));
+        compound.setTag(NBT_START, controller.serialize(delivery.getStart()));
+        compound.setTag(NBT_TARGET, controller.serialize(delivery.getTarget()));
+        compound.setTag(NBT_STACK, delivery.getStack().writeToNBT(new net.minecraft.nbt.NBTTagCompound()));
+        compound.setTag(NBT_PRIORITY, controller.serialize(delivery.getPriority()));
 
         return compound;
     }
@@ -70,10 +70,10 @@ public class Delivery extends AbstractDeliverymanRequestable
     @NotNull
     public static Delivery deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound compound)
     {
-        final ILocation start = controller.deserialize(compound.getCompound(NBT_START));
-        final ILocation target = controller.deserialize(compound.getCompound(NBT_TARGET));
-        final ItemStack stack = ItemStackUtils.deserializeFromNBT(compound.getCompound(NBT_STACK));
-        final int priority = controller.deserialize(compound.getCompound(NBT_PRIORITY));
+        final ILocation start = controller.deserialize(compound.getCompoundTag(NBT_START));
+        final ILocation target = controller.deserialize(compound.getCompoundTag(NBT_TARGET));
+        final ItemStack stack = ItemStackUtils.deserializeFromNBT(compound.getCompoundTag(NBT_STACK));
+        final int priority = controller.deserialize(compound.getCompoundTag(NBT_PRIORITY));
 
         return new Delivery(start, target, stack, priority);
     }
@@ -89,7 +89,7 @@ public class Delivery extends AbstractDeliverymanRequestable
     {
         controller.serialize(buffer, input.getStart());
         controller.serialize(buffer, input.getTarget());
-        buffer.writeItem(input.getStack());
+        try { buffer.writeItemStackToBuffer(input.getStack()); } catch (java.io.IOException e) { throw new RuntimeException(e); }
         buffer.writeInt(input.getPriority());
     }
 
@@ -104,7 +104,7 @@ public class Delivery extends AbstractDeliverymanRequestable
     {
         final ILocation start = controller.deserialize(buffer);
         final ILocation target = controller.deserialize(buffer);
-        final ItemStack stack = buffer.readItem();
+        final ItemStack stack = buffer.readItemStackFromBuffer();
         final int priority = buffer.readInt();
 
         return new Delivery(start, target, stack, priority);

@@ -1,4 +1,7 @@
 package com.minecolonies.core.client.gui.townhall;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.tileentity.BlockEntity; // [1.7.10] alias -> TileEntity
+import net.minecraft.world.entity.player.Player;
 
 // [1.7.10] blockui replaced by ModularUI2
 // [1.7.10] blockui replaced by ModularUI2
@@ -71,7 +74,7 @@ public class WindowTownHallColonyManage extends AbstractWindowSkeleton
         registerButton(BUTTON_CREATE, this::onCreate);
 
         this.findPaneOfTypeByID("colonyname", TextField.class).setText(preName.isEmpty() ? String.translatable(DEFAULT_COLONY_NAME, mc.player.getName()).getString() : preName);
-        this.findPaneOfTypeByID("text1", Text.class).setText(String.translatable("com.minecolonies.core.settlementcovenant1", Math.max(13, Minecraft.getInstance().World.getGameTime() / TICKS_SECOND / 60 / 100)));
+        this.findPaneOfTypeByID("text1", Text.class).setText(String.translatable("com.minecolonies.core.settlementcovenant1", Math.max(13, Minecraft.getInstance().world.getTotalWorldTime() / TICKS_SECOND / 60 / 100)));
         if (closestDistance < 1000)
         {
             this.findPaneOfTypeByID("text3", Text.class).setText(String.translatable("com.minecolonies.core.settlementcovenant3.hasclose", String.literal(closestName).withStyle(ChatFormatting.RED) , String.literal(String.valueOf(closestDistance)).withStyle(ChatFormatting.RED)));

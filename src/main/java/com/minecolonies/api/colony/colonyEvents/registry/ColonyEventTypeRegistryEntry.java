@@ -53,7 +53,7 @@ public class ColonyEventTypeRegistryEntry
         @NotNull final ResourceLocation registryID,
         final boolean isRaidEvent)
     {
-        if (registryID.getPath().isEmpty())
+        if (registryID.getResourcePath().isEmpty())
         {
             Log.getLogger().warn("Created empty registry empty for event, supply a name for it!");
         }

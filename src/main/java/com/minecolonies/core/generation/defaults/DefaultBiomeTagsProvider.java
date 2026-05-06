@@ -1,12 +1,11 @@
 package com.minecolonies.core.generation.defaults;
 
 import com.minecolonies.api.items.ModTags;
-// [1.7.10] HolderLookup removed
-// [1.7.10] data removed
-// [1.7.10] data removed
-// [1.7.10] tags removed
-import net.minecraft.world.World.biome.Biomes;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.data.PackOutput;
+import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.Tags;
+import net.minecraftforge.common.data.BiomeTagsProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 

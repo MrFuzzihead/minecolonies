@@ -1,4 +1,5 @@
 package com.minecolonies.core.client.gui.modules.building;
+import net.minecraft.util.Direction;
 
 // [1.7.10] blockui replaced by ModularUI2
 // [1.7.10] blockui replaced by ModularUI2

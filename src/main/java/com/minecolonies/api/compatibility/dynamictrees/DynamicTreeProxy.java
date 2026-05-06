@@ -1,4 +1,5 @@
 package com.minecolonies.api.compatibility.dynamictrees;
+import net.minecraft.world.level.block.state.BlockState;
 
 // [1.7.10] int[] -> int x,y,z
 import java.util.List;

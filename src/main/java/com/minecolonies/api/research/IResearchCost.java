@@ -34,7 +34,10 @@ public interface IResearchCost
      */
     default String getTranslatedName()
     {
-        return ComponentUtils.formatList(getItems().stream().map(Item::getDescription).toList(), String.literal(" / "));
+        // [1.7.10] Use item display names joined with " / "
+        return getItems().stream()
+            .map(item -> item.getItemStackDisplayName(new net.minecraft.item.ItemStack(item)))
+            .collect(java.util.stream.Collectors.joining(" / "));
     }
 
     /**

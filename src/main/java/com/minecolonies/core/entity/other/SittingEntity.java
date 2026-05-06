@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.other;
+import net.minecraft.util.Direction;
 
 import com.minecolonies.api.entity.ModEntities;
 import com.minecolonies.api.entity.other.AbstractFastMinecoloniesEntity;

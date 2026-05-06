@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.pathfinding.pathjobs;
+import net.minecraft.util.Direction;
 
 import com.ldtteam.structurize.util.BlockUtils;
 import com.minecolonies.api.colony.buildings.IBuilding;
@@ -14,6 +15,7 @@ import net.minecraft.world.World;
 // [1.7.10] block import removed
 // [1.7.10] block import removed
 // [1.7.10] BlockState -> int metadata
+import net.minecraft.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

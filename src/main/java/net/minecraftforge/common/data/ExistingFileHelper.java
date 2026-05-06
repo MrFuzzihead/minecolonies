@@ -1,11 +1,13 @@
 package net.minecraftforge.common.data;
 
+import net.minecraft.util.ResourceLocation;
+
 /** [1.7.10 bridge] ExistingFileHelper - no 1.7.10 equivalent (data generation) */
 public class ExistingFileHelper
 {
-    public net.minecraft.server.packs.resources.Resource getResource(
-        final net.minecraft.util.ResourceLocation location,
-        final net.minecraft.server.packs.PackType type,
+    public Object getResource(
+        final ResourceLocation location,
+        final Object type,
         final String suffix,
         final String pathPrefix)
     {
@@ -13,12 +15,11 @@ public class ExistingFileHelper
     }
 
     public boolean exists(
-        final net.minecraft.util.ResourceLocation location,
-        final net.minecraft.server.packs.PackType type,
+        final ResourceLocation location,
+        final Object type,
         final String suffix,
         final String pathPrefix)
     {
         return false;
     }
 }
-

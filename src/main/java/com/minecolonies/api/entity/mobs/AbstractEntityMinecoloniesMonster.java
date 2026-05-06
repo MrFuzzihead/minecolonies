@@ -1,4 +1,5 @@
 package com.minecolonies.api.entity.mobs;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.MinecoloniesAPIProxy;
@@ -245,14 +246,14 @@ public abstract class AbstractEntityMinecoloniesMonster extends AbstractFastMine
     @Override
     public boolean attackEntityFrom(@NotNull final net.minecraft.util.DamageSource source, final float damage)
     {
-        if (net.minecraft.util.DamageSource.getEntity() instanceof AbstractEntityMinecoloniesMonster)
+        if (source.getEntity() instanceof AbstractEntityMinecoloniesMonster) // [1.7.10] use instance method
         {
             return false;
         }
 
-        if (net.minecraft.util.DamageSource.getEntity() instanceof EntityLivingBase)
+        if (source.getEntity() instanceof EntityLivingBase) // [1.7.10] use instance method
         {
-            final EntityLivingBase attacker = (EntityLivingBase) net.minecraft.util.DamageSource.getEntity();
+            final EntityLivingBase attacker = (EntityLivingBase) source.getEntity(); // [1.7.10] use instance method
             if (threatTable.getThreatFor(attacker) == -1)
             {
                 final AxisAlignedBB area = AxisAlignedBB.getBoundingBox(posX - 10, posY - 2.5, posZ - 10, posX + 10, posY + 2.5, posZ + 10);
@@ -266,7 +267,7 @@ public abstract class AbstractEntityMinecoloniesMonster extends AbstractFastMine
             threatTable.addThreat(attacker, (int) damage);
         }
 
-        return super.attackEntityFrom(net.minecraft.util.DamageSource, damage);
+        return super.attackEntityFrom(source, damage); // [1.7.10] use source variable
     }
 
     @Override

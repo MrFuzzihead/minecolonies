@@ -9,7 +9,8 @@ import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.entity.Entity;
-import net.minecraft.world.World.entity.EntityTypeTest;
+// [1.7.10] world.entity removed
+// import net.minecraft.world.entity.EntityTypeTest; // [1.7.10] not available
 
 public class CommandKillRaider implements IMCOPCommand
 {

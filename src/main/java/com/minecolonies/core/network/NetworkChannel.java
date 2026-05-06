@@ -1,4 +1,5 @@
 package com.minecolonies.core.network;
+import net.minecraft.world.entity.player.Player;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -461,10 +462,10 @@ public class NetworkChannel
      * Universal message handler that dispatches to IMessage.onExecute().
      * [1.7.10] All registered messages share this handler.
      */
-    public static final class UniversalMessageHandler implements IMessageHandler<IMessage, net.minecraftforge.fml.common.network.simpleimpl.IMessage>
+    public static final class UniversalMessageHandler implements IMessageHandler<IMessage, cpw.mods.fml.common.network.simpleimpl.IMessage>
     {
         @Override
-        public net.minecraftforge.fml.common.network.simpleimpl.IMessage onMessage(final IMessage message, final MessageContext ctx)
+        public cpw.mods.fml.common.network.simpleimpl.IMessage onMessage(final IMessage message, final MessageContext ctx)
         {
             final boolean isLogicalServer = ctx.side.isServer();
             message.onExecute(ctx, isLogicalServer);

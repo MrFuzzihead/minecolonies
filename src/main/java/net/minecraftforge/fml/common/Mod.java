@@ -28,6 +28,8 @@ public @interface Mod
         }
 
         Bus bus() default Bus.FORGE;
+        net.minecraftforge.api.distmarker.Dist[] value() default {};
+        String modid() default "";
         boolean client() default false;
         boolean dedicated_server() default false;
     }

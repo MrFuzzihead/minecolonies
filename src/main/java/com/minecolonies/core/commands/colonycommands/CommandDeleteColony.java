@@ -1,4 +1,7 @@
 package com.minecolonies.core.commands.colonycommands;
+import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyManager;
@@ -18,10 +21,12 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.synchronization.ArgumentTypeInfos;
-import net.minecraft.commands.synchronization.SingletonArgumentInfo;
+// [1.7.10] commands.synchronization removed
+// import net.minecraft.commands.synchronization.ArgumentTypeInfos; // [1.7.10] removed
+// import net.minecraft.commands.synchronization.SingletonArgumentInfo; // [1.7.10] removed
 // [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ClickEvent;
 // [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 // [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 // [1.7.10] chat.String replaced by IChatComponent/ChatComponentText

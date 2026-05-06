@@ -1,4 +1,10 @@
 package com.minecolonies.core.generation.defaults;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraftforge.common.data.TagsProvider;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.data.PackOutput;
 
 import com.minecolonies.api.util.DamageSourceKeys;
 import com.minecolonies.api.util.constant.Constants;

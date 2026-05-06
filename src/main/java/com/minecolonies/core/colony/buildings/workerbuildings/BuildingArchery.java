@@ -1,7 +1,8 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
+import net.minecraft.util.Direction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.core.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.BoneMealItem;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -80,10 +81,10 @@ public class BuildingArchery extends AbstractBuilding
         shootingTargets.clear();
         shootingStands.clear();
 
-        final NBTTagList targetList = compound.getList(TAG_ARCHERY_TARGETS, NBTBase.TAG_COMPOUND);
+        final NBTTagList targetList = compound.getTagList(TAG_ARCHERY_TARGETS, NBTBase.TAG_COMPOUND);
         shootingTargets.addAll(NBTUtils.streamCompound(targetList).map(targetCompound -> BlockPosUtil.read(targetCompound, TAG_TARGET)).collect(Collectors.toList()));
 
-        final NBTTagList standTagList = compound.getList(TAG_ARCHERY_STANDS, NBTBase.TAG_COMPOUND);
+        final NBTTagList standTagList = compound.getTagList(TAG_ARCHERY_STANDS, NBTBase.TAG_COMPOUND);
         shootingStands.addAll(NBTUtils.streamCompound(standTagList).map(targetCompound -> BlockPosUtil.read(targetCompound, TAG_STAND)).collect(Collectors.toList()));
     }
 
@@ -93,10 +94,10 @@ public class BuildingArchery extends AbstractBuilding
         final NBTTagCompound compound = super.serializeNBT();
 
         final NBTTagList targetList = shootingTargets.stream().map(target -> BlockPosUtil.write(new NBTTagCompound(), TAG_TARGET, target)).collect(NBTUtils.toListNBT());
-        compound.put(TAG_ARCHERY_TARGETS, targetList);
+        compound.setTag(TAG_ARCHERY_TARGETS, targetList);
 
         final NBTTagList standTagList = shootingStands.stream().map(target -> BlockPosUtil.write(new NBTTagCompound(), TAG_STAND, target)).collect(NBTUtils.toListNBT());
-        compound.put(TAG_ARCHERY_STANDS, standTagList);
+        compound.setTag(TAG_ARCHERY_STANDS, standTagList);
 
         return compound;
     }

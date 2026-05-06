@@ -164,10 +164,10 @@ public class MinimumStockModule extends AbstractBuildingModule implements IMinim
     public void deserializeNBT(final NBTTagCompound compound)
     {
         minimumStock.clear();
-        final NBTTagList minimumStockTagList = compound.getList(TAG_MINIMUM_STOCK, NBTBase.TAG_COMPOUND);
+        final NBTTagList minimumStockTagList = compound.getTagList(TAG_MINIMUM_STOCK, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < minimumStockTagList.size(); i++)
         {
-            final NBTTagCompound compoundNBT = minimumStockTagList.getCompound(i);
+            final NBTTagCompound compoundNBT = minimumStockTagList.getCompoundTagAt(i);
             minimumStock.put(new ItemStorage(ItemStack.of(compoundNBT)), compoundNBT.getInt(TAG_QUANTITY));
         }
     }
@@ -183,7 +183,7 @@ public class MinimumStockModule extends AbstractBuildingModule implements IMinim
             compoundNBT.putInt(TAG_QUANTITY, entry.getValue());
             minimumStockTagList.add(compoundNBT);
         }
-        compound.put(TAG_MINIMUM_STOCK, minimumStockTagList);
+        compound.setTag(TAG_MINIMUM_STOCK, minimumStockTagList);
     }
 
     @Override

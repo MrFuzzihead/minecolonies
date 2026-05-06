@@ -39,11 +39,12 @@ minecraft {
 }
 
 dependencies {
-    runtimeOnlyNonPublishable("com.github.GTNewHorizons:NotEnoughItems:2.7.69-GTNH:dev")
+    implementation("com.github.GTNewHorizons:NotEnoughItems:2.7.69-GTNH:dev")
     api(project.files("libs/structurize-v1.20.1-1.0.812-snapshot-feature-Backport.3+6f699066f7-dirty-dev.jar"))
     implementation("com.falsepattern:endlessids-mc1.7.10:1.7.1")
     implementation("com.falsepattern:chunkapi-mc1.7.10:0.8.2")
     implementation("com.github.GTNewHorizons:lwjgl3ify:3.0.16:dev")
     implementation("com.github.GTNewHorizons:ModularUI2:2.3.58-1.7.10:dev")
     compileOnly("org.jetbrains:annotations:24.1.0")
+    implementation("maven.modrinth:journeymap:v5.2.13")
 }

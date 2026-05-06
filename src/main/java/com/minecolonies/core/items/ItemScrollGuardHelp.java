@@ -1,4 +1,8 @@
 package com.minecolonies.core.items;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.item.InteractionResult;
+import net.minecraft.world.item.Properties;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
@@ -74,14 +78,14 @@ public class ItemScrollGuardHelp extends AbstractItemScroll
         itemStack.shrink(1);
         final List<ICitizenData> guards = new ArrayList<>(building.getAllAssignedCitizen());
 
-        if (world.random.nextInt(10) == 0 || colony.getWorld() != world)
+        if (world.rand.nextInt(10) == 0 || colony.getWorld() != world)
         {
             // Fail
             final Llama entity = EntityType.LLAMA.create(world);
             entity.setPos(player.getX(), player.getY(), player.getZ());
             world.addFreshEntity(entity);
 
-            player.displayClientMessage(String.translatable("minecolonies.scroll.failed" + (world.random.nextInt(FAIL_RESPONSES_TOTAL) + 1)).setStyle(Style.EMPTY.withColor(
+            player.displayClientMessage(String.translatable("minecolonies.scroll.failed" + (world.rand.nextInt(FAIL_RESPONSES_TOTAL) + 1)).setStyle(Style.EMPTY.withColor(
               ChatFormatting.GOLD)), true);
 
             SoundUtils.playSoundForPlayer(player, SoundEvents.EVOKER_CAST_SPELL, 0.5f, 1.0f);
@@ -124,12 +128,12 @@ public class ItemScrollGuardHelp extends AbstractItemScroll
 
                 if (job != null && job.getWorkerAI() != null)
                 {
-                    final long spawnTime = world.getGameTime() + TICKS_SECOND * 900;
+                    final long spawnTime = world.getTotalWorldTime() + TICKS_SECOND * 900;
 
                     // Timed despawn
                     job.getWorkerAI().registerTarget(new AIOneTimeEventTarget(() ->
                     {
-                        if (world.getGameTime() - spawnTime > 0)
+                        if (world.getTotalWorldTime() - spawnTime > 0)
                         {
                             ((AbstractBuildingGuards) building).getSetting(AbstractBuildingGuards.GUARD_TASK).set(GuardTaskSetting.PATROL);
                             citizenData.getEntity().ifPresent(e -> e.remove(Entity.RemovalReason.DISCARDED));

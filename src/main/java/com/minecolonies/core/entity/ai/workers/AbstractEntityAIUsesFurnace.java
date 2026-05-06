@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.ai.workers;
+import net.minecraft.tileentity.BlockEntity; // [1.7.10] alias -> TileEntity
 
 import com.minecolonies.api.colony.interactionhandling.ChatPriority;
 import com.minecolonies.api.colony.requestsystem.requestable.IRequestable;
@@ -189,7 +190,7 @@ public abstract class AbstractEntityAIUsesFurnace<J extends AbstractJob<?, J>, B
         final ItemListModule itemListModule = building.getModuleMatching(ItemListModule.class, m -> m.getId().equals(FUEL_LIST));
         worker.getCitizenData().setVisibleStatus(VisibleCitizenStatus.WORKING);
 
-        if (itemListModule.getList().isEmpty())
+        if (itemListModule.getTagList().isEmpty())
         {
             if (worker.getCitizenData() != null)
             {
@@ -231,7 +232,7 @@ public abstract class AbstractEntityAIUsesFurnace<J extends AbstractJob<?, J>, B
         final int amountOfSmeltableInBuilding = InventoryUtils.getCountFromBuilding(building, this::isSmeltable);
         final int amountOfSmeltableInInv = InventoryUtils.getItemCountInItemHandler((worker.getInventoryCitizen()), this::isSmeltable);
 
-        final int amountOfFuelInBuilding = InventoryUtils.getCountFromBuilding(building, itemListModule.getList());
+        final int amountOfFuelInBuilding = InventoryUtils.getCountFromBuilding(building, itemListModule.getTagList());
         final int amountOfFuelInInv =
           InventoryUtils.getItemCountInItemHandler((worker.getInventoryCitizen()), stack -> itemListModule.isItemInList(new ItemStorage(stack)));
 
@@ -269,7 +270,7 @@ public abstract class AbstractEntityAIUsesFurnace<J extends AbstractJob<?, J>, B
     private List<ItemStack> getAllowedFuel()
     {
         final List<ItemStack> list = new ArrayList<>();
-        for (final ItemStorage storage : building.getModuleMatching(ItemListModule.class, m -> m.getId().equals(FUEL_LIST)).getList())
+        for (final ItemStorage storage : building.getModuleMatching(ItemListModule.class, m -> m.getId().equals(FUEL_LIST)).getTagList())
         {
             final ItemStack stack = storage.getItemStack().copy();
             stack.setCount(stack.getMaxStackSize());

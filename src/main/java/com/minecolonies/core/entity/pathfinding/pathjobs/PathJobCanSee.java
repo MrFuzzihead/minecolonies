@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.pathfinding.pathjobs;
+import net.minecraft.world.phys.Vec3;
 
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.core.entity.pathfinding.MNode;
@@ -9,7 +10,7 @@ import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
 // [1.7.10] world.entity removed
-import net.minecraft.world.World.ClipContext;
+// [1.7.10] removed: import net.minecraft.world.World.ClipContext;
 import net.minecraft.world.World;
 // [1.7.10] world.phys removed
 // [1.7.10] world.phys removed

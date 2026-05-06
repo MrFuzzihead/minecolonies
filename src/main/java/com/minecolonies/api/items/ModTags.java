@@ -1,4 +1,5 @@
 package com.minecolonies.api.items;
+import net.minecraft.tags.TagKey;
 
 // [1.7.10 BACKPORT] NBTBase system (TagKey, BlockTags, ItemTags, etc.) does not exist in 1.7.10. Class stubbed.
 // TODO: no 1.7.10 equivalent — use OreDictionary or manual block/item lists instead.

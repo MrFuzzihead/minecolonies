@@ -1,4 +1,6 @@
 package com.minecolonies.core.items;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.block.state.BlockState;
 
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
@@ -109,13 +111,13 @@ public class ItemScanAnalyzer extends AbstractItemWithPosSelector
         int[] firstPos = null;
         if (compound.contains(FIRST_POS_STRING))
         {
-            firstPos = NbtUtils.readBlockPos(compound.getCompound(FIRST_POS_STRING));
+            firstPos = NbtUtils.readBlockPos(compound.getCompoundTag(FIRST_POS_STRING));
         }
 
         int[] secondPos = null;
         if (compound.contains(SECOND_POS_STRING))
         {
-            secondPos = NbtUtils.readBlockPos(compound.getCompound(SECOND_POS_STRING));
+            secondPos = NbtUtils.readBlockPos(compound.getCompoundTag(SECOND_POS_STRING));
         }
 
         return new InteractionResultHolder<>(
@@ -162,8 +164,8 @@ public class ItemScanAnalyzer extends AbstractItemWithPosSelector
         final NBTTagCompound NBTBase = tool.getOrCreateTag();
         if (NBTBase.contains(FIRST_POS_STRING) && NBTBase.contains(SECOND_POS_STRING))
         {
-            final int[] start = NbtUtils.readBlockPos(NBTBase.getCompound(FIRST_POS_STRING));
-            final int[] end = NbtUtils.readBlockPos(NBTBase.getCompound(SECOND_POS_STRING));
+            final int[] start = NbtUtils.readBlockPos(NBTBase.getCompoundTag(FIRST_POS_STRING));
+            final int[] end = NbtUtils.readBlockPos(NBTBase.getCompoundTag(SECOND_POS_STRING));
             RenderTaskManager.addRenderTask("analyzer", new BoxPreviewRenderTask("analyzer",
                 new BoxPreviewData(start, end, Optional.empty()), 10 * 60));
         }
@@ -182,14 +184,14 @@ public class ItemScanAnalyzer extends AbstractItemWithPosSelector
         if (stack.getOrCreateTag().contains(LAST_TIME))
         {
             final long prevTime = stack.getOrCreateTag().getLong(LAST_TIME);
-            if ((World.getGameTime() - prevTime) > TIMEOUT_DELAY)
+            if ((world.getTotalWorldTime() - prevTime) > TIMEOUT_DELAY)
             {
                 stack.getOrCreateTag().remove(FIRST_POS_STRING);
                 stack.getOrCreateTag().remove(SECOND_POS_STRING);
             }
         }
 
-        stack.getOrCreateTag().putLong(LAST_TIME, World.getGameTime());
+        stack.getOrCreateTag().putLong(LAST_TIME, world.getTotalWorldTime());
     }
 
     /**

@@ -190,7 +190,7 @@ public abstract class AbstractJob<AI extends AbstractAISkeleton<J> & ITickingSta
         final NBTTagCompound compound = new NBTTagCompound();
 
         compound.putString(TAG_JOB_TYPE, getJobRegistryEntry().getKey().toString());
-        compound.put(TAG_ASYNC_REQUESTS,
+        compound.setTag(TAG_ASYNC_REQUESTS,
           getAsyncRequests().stream()
             .filter(token -> getColony().getRequestManager().getRequestForToken(token) != null)
             .map(StandardFactoryController.getInstance()::serialize)
@@ -211,7 +211,7 @@ public abstract class AbstractJob<AI extends AbstractAISkeleton<J> & ITickingSta
         this.asyncRequests.clear();
         if (compound.contains(TAG_ASYNC_REQUESTS))
         {
-            this.asyncRequests.addAll(NBTUtils.streamCompound(compound.getList(TAG_ASYNC_REQUESTS, NBTBase.TAG_COMPOUND))
+            this.asyncRequests.addAll(NBTUtils.streamCompound(compound.getTagList(TAG_ASYNC_REQUESTS, NBTBase.TAG_COMPOUND))
                                         .map(StandardFactoryController.getInstance()::deserialize)
                                         .map(o -> (IToken<?>) o)
                                         .collect(Collectors.toSet()));

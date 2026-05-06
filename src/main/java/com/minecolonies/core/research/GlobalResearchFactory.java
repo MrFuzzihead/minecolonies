@@ -1,4 +1,5 @@
 package com.minecolonies.core.research;
+import net.minecraft.network.chat.contents.TranslatableContents;
 
 import com.google.common.reflect.TypeToken;
 import com.minecolonies.api.IMinecoloniesAPI;
@@ -84,28 +85,28 @@ public class GlobalResearchFactory implements IGlobalResearchFactory
         {
             final NBTTagCompound costCompound = new NBTTagCompound();
             costCompound.putString(TAG_COST_TYPE, cost.getType().getRegistryName().toString());
-            costCompound.put(TAG_COST_NBT, cost.writeToNBT());
+            costcompound.setTag(TAG_COST_NBT, cost.writeToNBT());
             return compound;
         }).collect(NBTUtils.toListNBT());
-        compound.put(TAG_COSTS, costTagList);
+        compound.setTag(TAG_COSTS, costTagList);
 
         @NotNull final NBTTagList reqTagList = research.getResearchRequirements().stream().map(req ->
         {
             final NBTTagCompound reqCompound = new NBTTagCompound();
             reqCompound.putString(TAG_REQ_TYPE, req.getRegistryEntry().getRegistryName().toString());
-            reqCompound.put(TAG_REQ_ITEM, req.writeToNBT());
+            reqcompound.setTag(TAG_REQ_ITEM, req.writeToNBT());
             return reqCompound;
         }).collect(NBTUtils.toListNBT());
-        compound.put(TAG_REQS, reqTagList);
+        compound.setTag(TAG_REQS, reqTagList);
 
         @NotNull final NBTTagList effectTagList = research.getEffects().stream().map(eff ->
         {
             final NBTTagCompound effectCompound = new NBTTagCompound();
             effectCompound.putString(TAG_EFFECT_TYPE, eff.getRegistryEntry().getRegistryName().toString());
-            effectCompound.put(TAG_EFFECT_ITEM, eff.writeToNBT());
+            effectcompound.setTag(TAG_EFFECT_ITEM, eff.writeToNBT());
             return effectCompound;
         }).collect(NBTUtils.toListNBT());
-        compound.put(TAG_EFFECTS, effectTagList);
+        compound.setTag(TAG_EFFECTS, effectTagList);
 
         @NotNull final NBTTagList childTagList = research.getChildren().stream().map(child ->
         {
@@ -113,7 +114,7 @@ public class GlobalResearchFactory implements IGlobalResearchFactory
             childCompound.putString(TAG_RESEARCH_CHILD, child.toString());
             return childCompound;
         }).collect(NBTUtils.toListNBT());
-        compound.put(TAG_CHILDS, childTagList);
+        compound.setTag(TAG_CHILDS, childTagList);
 
         return compound;
     }
@@ -137,20 +138,20 @@ public class GlobalResearchFactory implements IGlobalResearchFactory
 
         final IGlobalResearch research = getNewInstance(id, parent, branch, name, subtitle, depth, sortOrder, onlyChild, hidden, autostart, instant, immutable);
 
-        NBTUtils.streamCompound(nbt.getList(TAG_COSTS, NBTBase.TAG_COMPOUND)).forEach(compound -> {
+        NBTUtils.streamCompound(nbt.getTagList(TAG_COSTS, NBTBase.TAG_COMPOUND)).forEach(compound -> {
             final ModResearchCosts.ResearchCostEntry researchCostType = IMinecoloniesAPI.getInstance().getResearchCostRegistry().getValue(new ResourceLocation(compound.getString(TAG_COST_TYPE)));
-            research.addCost(researchCostType.readFromNBT(compound.getCompound(TAG_COST_NBT)));
+            research.addCost(researchCostType.readFromNBT(compound.getCompoundTag(TAG_COST_NBT)));
         });
-        NBTUtils.streamCompound(nbt.getList(TAG_REQS, NBTBase.TAG_COMPOUND))
+        NBTUtils.streamCompound(nbt.getTagList(TAG_REQS, NBTBase.TAG_COMPOUND))
             .forEach(compound -> research.addRequirement(Objects.requireNonNull(IMinecoloniesAPI.getInstance()
                 .getResearchRequirementRegistry()
-                .getValue(ResourceLocation.tryParse(compound.getString(TAG_REQ_TYPE)))).readFromNBT(compound.getCompound(TAG_REQ_ITEM))));
+                .getValue(ResourceLocation.tryParse(compound.getString(TAG_REQ_TYPE)))).readFromNBT(compound.getCompoundTag(TAG_REQ_ITEM))));
 
-        NBTUtils.streamCompound(nbt.getList(TAG_EFFECTS, NBTBase.TAG_COMPOUND))
+        NBTUtils.streamCompound(nbt.getTagList(TAG_EFFECTS, NBTBase.TAG_COMPOUND))
             .forEach(compound -> research.addEffect(Objects.requireNonNull(IMinecoloniesAPI.getInstance().getResearchEffectRegistry()
-                .getValue(ResourceLocation.tryParse(compound.getString(TAG_EFFECT_TYPE)))).readFromNBT(compound.getCompound(TAG_EFFECT_ITEM))));
+                .getValue(ResourceLocation.tryParse(compound.getString(TAG_EFFECT_TYPE)))).readFromNBT(compound.getCompoundTag(TAG_EFFECT_ITEM))));
 
-        NBTUtils.streamCompound(nbt.getList(TAG_CHILDS, NBTBase.TAG_COMPOUND)).forEach(compound -> research.addChild(new ResourceLocation(compound.getString(TAG_RESEARCH_CHILD))));
+        NBTUtils.streamCompound(nbt.getTagList(TAG_CHILDS, NBTBase.TAG_COMPOUND)).forEach(compound -> research.addChild(new ResourceLocation(compound.getString(TAG_RESEARCH_CHILD))));
         return research;
     }
 

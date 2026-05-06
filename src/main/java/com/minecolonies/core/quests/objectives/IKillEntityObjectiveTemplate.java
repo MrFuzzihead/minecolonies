@@ -1,5 +1,6 @@
 package com.minecolonies.core.quests.objectives;
 
+
 import com.minecolonies.api.quests.IQuestInstance;
 import com.minecolonies.api.quests.IObjectiveInstance;
 import net.minecraft.entity.player.EntityPlayer;
@@ -15,6 +16,6 @@ public interface IKillEntityObjectiveTemplate
      * @param progressData the objective data.
      * @param player the involved player.
      */
-    void onEntityKill(IObjectiveInstance progressData, final IQuestInstance colonyQuest, final Player player);
+    void onEntityKill(IObjectiveInstance progressData, final IQuestInstance colonyQuest, final EntityPlayer player);
 }
 

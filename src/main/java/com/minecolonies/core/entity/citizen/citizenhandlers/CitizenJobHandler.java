@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.citizen.citizenhandlers;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.advancements.AdvancementTriggers;
 import com.minecolonies.api.client.render.modeltype.ModModelTypes;

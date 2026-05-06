@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.ai.workers.util;
+import net.minecraft.network.chat.Style;
 
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.Log;
@@ -155,10 +156,10 @@ public class MinerLevel
             this.levelSign = null;
         }
 
-        final NBTTagList nodeTagList = compound.getList(TAG_NODES, NBTBase.TAG_COMPOUND);
+        final NBTTagList nodeTagList = compound.getTagList(TAG_NODES, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < nodeTagList.size(); i++)
         {
-            @NotNull final MineNode node = MineNode.createFromNBT(nodeTagList.getCompound(i));
+            @NotNull final MineNode node = MineNode.createFromNBT(nodeTagList.getCompoundTagAt(i));
             this.nodes.put(new Vec2i(node.getX(), node.getZ()), node);
         }
 
@@ -180,10 +181,10 @@ public class MinerLevel
         this.ladderNode = this.nodes.get(new Vec2i(ladderX, ladderZ));
 
 
-        final NBTTagList openNodeTagList = compound.getList(TAG_OPEN_NODES, NBTBase.TAG_COMPOUND);
+        final NBTTagList openNodeTagList = compound.getTagList(TAG_OPEN_NODES, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < openNodeTagList.size(); i++)
         {
-            @NotNull final MineNode node = MineNode.createFromNBT(openNodeTagList.getCompound(i));
+            @NotNull final MineNode node = MineNode.createFromNBT(openNodeTagList.getCompoundTagAt(i));
             this.openNodes.add(node);
         }
     }
@@ -359,7 +360,7 @@ public class MinerLevel
             node.write(nodeCompound);
             nodeTagList.add(nodeCompound);
         }
-        compound.put(TAG_NODES, nodeTagList);
+        compound.setTag(TAG_NODES, nodeTagList);
 
         compound.putInt(TAG_LADDERX, ladderNode.getX());
         compound.putInt(TAG_LADDERZ, ladderNode.getZ());
@@ -371,7 +372,7 @@ public class MinerLevel
             node.write(nodeCompound);
             openNodeTagList.add(nodeCompound);
         }
-        compound.put(TAG_OPEN_NODES, openNodeTagList);
+        compound.setTag(TAG_OPEN_NODES, openNodeTagList);
     }
 
     @NotNull

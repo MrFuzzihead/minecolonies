@@ -1,4 +1,5 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
+import net.minecraft.network.chat.Style;
 
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.minecolonies.api.colony.IColony;

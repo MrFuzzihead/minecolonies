@@ -1,4 +1,5 @@
 package com.minecolonies.api.compatibility.newstruct;
+import net.minecraft.network.chat.Style;
 
 import java.util.Arrays;
 import java.util.HashMap;

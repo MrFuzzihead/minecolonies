@@ -1,4 +1,5 @@
 package com.minecolonies.core.commands.colonycommands;
+import net.minecraft.world.level.chunk.LevelChunk;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyManager;
@@ -15,6 +16,7 @@ import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.util.IChatComponent;
 // [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 import net.minecraft.world.WorldServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.chunk.Chunk;
 
 import java.util.List;

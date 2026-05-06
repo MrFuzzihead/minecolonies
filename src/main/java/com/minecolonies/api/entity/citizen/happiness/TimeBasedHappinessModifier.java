@@ -125,15 +125,15 @@ public final class TimeBasedHappinessModifier extends AbstractHappinessModifier 
     public void read(final NBTTagCompound compoundNBT, final boolean persist)
     {
         super.read(compoundNBT, persist);
-        this.days = compoundNBT.getInt(TAG_DAY);
+        this.days = compoundNBT.getInteger(TAG_DAY); // [1.7.10]
         if (!persist)
         {
-            final NBTTagList NBTTagList = compoundNBT.getList(TAG_LIST, Constants.TAG_COMPOUND);
+            final NBTTagList NBTTagList = compoundNBT.getTagList(TAG_LIST, Constants.TAG_COMPOUND); // [1.7.10]
             final List<Tuple<Integer, Double>> list = new ArrayList<>();
-            for (int i = 0; i < NBTTagList.size(); i++)
+            for (int i = 0; i < NBTTagList.tagCount(); i++) // [1.7.10]
             {
-                final NBTTagCompound entryTag = NBTTagList.getCompound(i);
-                list.add(new Tuple<>(entryTag.getInt(TAG_DAY), entryTag.getDouble(TAG_VALUE)));
+                final NBTTagCompound entryTag = NBTTagList.getCompoundTagAt(i); // [1.7.10]
+                list.add(new Tuple<>(entryTag.getInteger(TAG_DAY), entryTag.getDouble(TAG_VALUE))); // [1.7.10]
             }
             this.timeBasedFactor = list;
         }
@@ -143,19 +143,19 @@ public final class TimeBasedHappinessModifier extends AbstractHappinessModifier 
     public void write(final NBTTagCompound compoundNBT, final boolean persist)
     {
         super.write(compoundNBT, persist);
-        compoundNBT.putString(NbtTagConstants.TAG_MODIFIER_TYPE, HappinessRegistry.TIME_PERIOD_MODIFIER.toString());
-        compoundNBT.putInt(TAG_DAY, days);
+        compoundNBT.setString(NbtTagConstants.TAG_MODIFIER_TYPE, HappinessRegistry.TIME_PERIOD_MODIFIER.toString()); // [1.7.10]
+        compoundNBT.setInteger(TAG_DAY, days); // [1.7.10]
         if (!persist)
         {
             final NBTTagList NBTTagList = new NBTTagList();
             for (final Tuple<Integer, Double> entry : timeBasedFactor)
             {
                 final NBTTagCompound listEntry = new NBTTagCompound();
-                listEntry.putInt(TAG_DAY, entry.getA());
-                listEntry.putDouble(TAG_VALUE, entry.getB());
-                NBTTagList.add(listEntry);
+                listEntry.setInteger(TAG_DAY, entry.getA()); // [1.7.10]
+                listEntry.setDouble(TAG_VALUE, entry.getB()); // [1.7.10]
+                NBTTagList.appendTag(listEntry); // [1.7.10] add -> appendTag
             }
-            compoundNBT.put(TAG_LIST, NBTTagList);
+            compoundNBT.setTag(TAG_LIST, NBTTagList); // [1.7.10] put -> setTag
         }
     }
 }

@@ -1,4 +1,8 @@
 package com.minecolonies.core.items;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.item.FoodProperties;
+import net.minecraft.world.item.Properties;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.util.WorldUtil;
 import com.minecolonies.api.util.constant.TranslationConstants;
@@ -41,7 +45,7 @@ public class ItemChorusBread extends ItemFood
      */
     public ItemChorusBread(final Properties properties)
     {
-        super((new Item.Properties()).food(chorusBread), 2);
+        super((new Properties()).food(chorusBread), 2);
     }
 
    /**

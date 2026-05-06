@@ -1,4 +1,5 @@
 package com.minecolonies.core.commands.generalcommands;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.core.commands.commandTypes.IMCCommand;
 import com.mojang.brigadier.context.CommandContext;

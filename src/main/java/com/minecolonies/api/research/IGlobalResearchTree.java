@@ -1,4 +1,5 @@
 package com.minecolonies.api.research;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.MinecoloniesAPIProxy;
 import com.minecolonies.api.colony.IColony;

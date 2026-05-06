@@ -1,4 +1,5 @@
 package com.minecolonies.api.compatibility.candb;
+import net.minecraft.world.level.block.state.BlockState;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;

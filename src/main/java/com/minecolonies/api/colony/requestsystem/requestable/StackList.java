@@ -1,4 +1,6 @@
 package com.minecolonies.api.colony.requestsystem.requestable;
+import net.minecraft.tags.TagKey;
+import net.minecraft.core.Holder;
 
 import com.google.common.reflect.TypeToken;
 import com.minecolonies.api.colony.requestsystem.factory.IFactoryController;
@@ -162,7 +164,7 @@ public class StackList implements IConcreteDeliverable, INonExhaustiveDeliverabl
         for (final ItemStack stack : stacks)
         {
             final ItemStack tempStack = stack.copy();
-            tempStack.setCount(Math.min(tempStack.getCount(), tempStack.getMaxStackSize()));
+            tempStack.stackSize = Math.min(tempStack.stackSize, tempStack.getMaxStackSize());
 
             this.theStacks.add(tempStack);
         }
@@ -189,22 +191,22 @@ public class StackList implements IConcreteDeliverable, INonExhaustiveDeliverabl
         @NotNull final NBTTagList neededResTagList = new NBTTagList();
         for (@NotNull final ItemStack resource : input.theStacks)
         {
-            neededResTagList.add(resource.serializeNBT());
+            neededResTagList.appendTag(resource.writeToNBT(new net.minecraft.nbt.NBTTagCompound()));
         }
-        compound.put(NBT_STACK_LIST, neededResTagList);
+        compound.setTag(NBT_STACK_LIST, neededResTagList);
 
-        compound.putBoolean(NBT_MATCHMETA, input.matchMeta);
-        compound.putBoolean(NBT_MATCHNBT, input.matchNBT);
-        compound.putBoolean(NBT_MATCHOREDIC, input.matchOreDic);
+        compound.setBoolean(NBT_MATCHMETA, input.matchMeta);
+        compound.setBoolean(NBT_MATCHNBT, input.matchNBT);
+        compound.setBoolean(NBT_MATCHOREDIC, input.matchOreDic);
 
         if (!ItemStackUtils.isEmpty(input.result))
         {
-            compound.put(NBT_RESULT, input.result.serializeNBT());
+            compound.setTag(NBT_RESULT, input.result.writeToNBT(new net.minecraft.nbt.NBTTagCompound()));
         }
-        compound.putString(TAG_DESCRIPTION, input.description);
-        compound.putInt(NBT_COUNT, input.getCount());
-        compound.putInt(NBT_MINCOUNT, input.getMinimumCount());
-        compound.putInt(NBT_LEFTOVER, input.getLeftOver());
+        compound.setString(TAG_DESCRIPTION, input.description);
+        compound.setInteger(NBT_COUNT, input.getCount());
+        compound.setInteger(NBT_MINCOUNT, input.getMinimumCount());
+        compound.setInteger(NBT_LEFTOVER, input.getLeftOver());
 
         return compound;
     }
@@ -220,26 +222,26 @@ public class StackList implements IConcreteDeliverable, INonExhaustiveDeliverabl
     {
         final List<ItemStack> stacks = new ArrayList<>();
 
-        final NBTTagList neededResTagList = compound.getList(NBT_STACK_LIST, NBTBase.TAG_COMPOUND);
-        for (int i = 0; i < neededResTagList.size(); ++i)
+        final NBTTagList neededResTagList = compound.getTagList(NBT_STACK_LIST, 10);
+        for (int i = 0; i < neededResTagList.tagCount(); ++i)
         {
-            final NBTTagCompound neededRes = neededResTagList.getCompound(i);
-            stacks.add(ItemStack.of(neededRes));
+            final NBTTagCompound neededRes = neededResTagList.getCompoundTagAt(i);
+            stacks.add(ItemStack.loadItemStackFromNBT(neededRes));
         }
 
         final boolean matchMeta = compound.getBoolean(NBT_MATCHMETA);
         final boolean matchNBT = compound.getBoolean(NBT_MATCHNBT);
         final boolean matchOreDic = compound.getBoolean(NBT_MATCHOREDIC);
-        final ItemStack result = compound.contains(NBT_RESULT) ? ItemStackUtils.deserializeFromNBT(compound.getCompound(NBT_RESULT)) : ItemStackUtils.EMPTY;
-        final String desc = compound.contains(TAG_DESCRIPTION) ? compound.getString(TAG_DESCRIPTION) : REQUEST_SYSTEM_STACK_LIST;
-        int count = stacks.isEmpty() ? 0 : stacks.get(0).getCount();
+        final ItemStack result = compound.hasKey(NBT_RESULT) ? ItemStackUtils.deserializeFromNBT(compound.getCompoundTag(NBT_RESULT)) : ItemStackUtils.EMPTY;
+        final String desc = compound.hasKey(TAG_DESCRIPTION) ? compound.getString(TAG_DESCRIPTION) : REQUEST_SYSTEM_STACK_LIST;
+        int count = stacks.isEmpty() ? 0 : stacks.get(0).stackSize;
         int minCount = count;
-        if (compound.contains(NBT_COUNT))
+        if (compound.hasKey(NBT_COUNT))
         {
-            count = compound.getInt(NBT_COUNT);
-            minCount = compound.getInt(NBT_MINCOUNT);
+            count = compound.getInteger(NBT_COUNT);
+            minCount = compound.getInteger(NBT_MINCOUNT);
         }
-        int leftOver = compound.getInt(NBT_LEFTOVER);
+        int leftOver = compound.getInteger(NBT_LEFTOVER);
 
         return new StackList(stacks, matchMeta, matchNBT, matchOreDic, result, desc, count, minCount, leftOver);
     }
@@ -254,7 +256,7 @@ public class StackList implements IConcreteDeliverable, INonExhaustiveDeliverabl
     public static void serialize(final IFactoryController controller, final PacketBuffer buffer, final StackList input)
     {
         buffer.writeInt(input.theStacks.size());
-        input.theStacks.forEach(res -> buffer.writeItem(res));
+        for (ItemStack res : input.theStacks) { try { buffer.writeItemStackToBuffer(res); } catch (java.io.IOException e) { throw new RuntimeException(e); } }
 
         buffer.writeBoolean(input.matchMeta);
         buffer.writeBoolean(input.matchNBT);
@@ -263,9 +265,9 @@ public class StackList implements IConcreteDeliverable, INonExhaustiveDeliverabl
         buffer.writeBoolean(!ItemStackUtils.isEmpty(input.result));
         if (!ItemStackUtils.isEmpty(input.result))
         {
-            buffer.writeItem(input.result);
+            try { buffer.writeItemStackToBuffer(input.result); } catch (java.io.IOException e) { throw new RuntimeException(e); }
         }
-        buffer.writeUtf(input.description);
+        try { buffer.writeStringToBuffer(input.description); } catch (java.io.IOException e) { throw new RuntimeException(e); }
         buffer.writeInt(input.getCount());
         buffer.writeInt(input.getMinimumCount());
         buffer.writeInt(input.getLeftOver());
@@ -285,14 +287,18 @@ public class StackList implements IConcreteDeliverable, INonExhaustiveDeliverabl
         final int stacksSize = buffer.readInt();
         for (int i = 0; i < stacksSize; ++i)
         {
-            stacks.add(buffer.readItem());
+            stacks.add(buffer.readItemStackFromBuffer());
         }
 
         final boolean matchMeta = buffer.readBoolean();
         final boolean matchNBT = buffer.readBoolean();
         final boolean matchOreDic = buffer.readBoolean();
-        final ItemStack result = buffer.readBoolean() ? buffer.readItem() : ItemStack.EMPTY;
-        final String desc = buffer.readUtf(32767);
+        ItemStack result = null;
+        String desc = REQUEST_SYSTEM_STACK_LIST;
+        try {
+            result = buffer.readBoolean() ? buffer.readItemStackFromBuffer() : null;
+            desc = buffer.readStringFromBuffer(32767);
+        } catch (java.io.IOException e) { throw new RuntimeException(e); }
         int count = buffer.readInt();
         int minCount = buffer.readInt();
         int leftOver = buffer.readInt();
@@ -307,7 +313,7 @@ public class StackList implements IConcreteDeliverable, INonExhaustiveDeliverabl
         {
             for (final ItemStack tempStack : theStacks)
             {
-                if (!Collections.disjoint(stack.getTags().toList(), tempStack.getTags().toList()))
+                if (false) // [1.7.10] Tags do not exist; this check is skipped
                 {
                     return true;
                 }
@@ -437,7 +443,7 @@ public class StackList implements IConcreteDeliverable, INonExhaustiveDeliverabl
         return TYPE_TOKENS;
     }
 
-    // [1.7.10] TagKey/ServerLevel/RegistryAccess constructor removed — tags not available in 1.7.10
+    // [1.7.10] TagKey/ServerLevel/RegistryAccess constructor removed â€” tags not available in 1.7.10
     /*
     public StackList(@NotNull final TagKey<Item> NBTBase,
         @NotNull final ServerLevel World,

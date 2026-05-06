@@ -1,4 +1,5 @@
 package com.minecolonies.core.client.gui;
+import net.minecraft.network.chat.contents.TranslatableContents;
 
 import com.ldtteam.blockui.controls.Button;
 import com.ldtteam.blockui.controls.Text;

@@ -14,4 +14,5 @@ public class CitizenEatFoodTrigger extends AbstractCriterionTrigger<CriterionLis
         super(ID, CriterionListeners::new);
     }
     // [1.7.10 BACKPORT] trigger(...) methods are no-ops; no advancements system.
+    public void trigger(final net.minecraft.entity.player.EntityPlayerMP player, final net.minecraft.item.ItemStack foodStack) { /* no-op */ }
 }

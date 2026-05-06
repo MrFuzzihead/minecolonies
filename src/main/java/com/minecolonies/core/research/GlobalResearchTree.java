@@ -17,8 +17,8 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.TagParser;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.tags.TagParser;
 import net.minecraft.util.ResourceLocation;
 // [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;

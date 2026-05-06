@@ -1,5 +1,10 @@
 package com.minecolonies.core.colony.interactionhandling;
-import net.minecraft.core.Direction;
+import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -103,7 +108,7 @@ public abstract class ServerCitizenInteraction extends AbstractInteractionRespon
     @Override
     public boolean isVisible(final World world)
     {
-        return displayAtWorldTick == 0 || displayAtWorldTick < world.getGameTime();
+        return displayAtWorldTick == 0 || displayAtWorldTick < world.getTotalWorldTime();
     }
 
     @Override
@@ -151,17 +156,17 @@ public abstract class ServerCitizenInteraction extends AbstractInteractionRespon
             if (((TranslatableContents) response.getContents()).getKey().equals(INTERACTION_R_IGNORE))
             {
                 // 6 hours later
-                displayAtWorldTick = (int) (player.World.getGameTime() + (TICKS_SECOND * 60 * 60 * 6));
+                displayAtWorldTick = (int) (player.world.getTotalWorldTime() + (TICKS_SECOND * 60 * 60 * 6));
             }
             else if (((TranslatableContents) response.getContents()).getKey().equals(INTERACTION_R_REMIND))
             {
                 // 1 hour later
-                displayAtWorldTick = (int) (player.World.getGameTime() + (TICKS_SECOND * 60 * 60));
+                displayAtWorldTick = (int) (player.world.getTotalWorldTime() + (TICKS_SECOND * 60 * 60));
             }
             else if (((TranslatableContents) response.getContents()).getKey().equals(INTERACTION_R_OKAY) || ((TranslatableContents) response.getContents()).getKey().equals(INTERACTION_R_SKIP))
             {
                 // 5 minutes
-                displayAtWorldTick = (int) (player.World.getGameTime() + (TICKS_SECOND * 60 * 5));
+                displayAtWorldTick = (int) (player.world.getTotalWorldTime() + (TICKS_SECOND * 60 * 5));
             }
         }
     }
@@ -205,7 +210,7 @@ public abstract class ServerCitizenInteraction extends AbstractInteractionRespon
         super.deserializeNBT(compoundNBT);
         this.displayAtWorldTick = compoundNBT.getInt(TAG_DELAY);
         this.parents.clear();
-        final NBTTagList list = compoundNBT.getList(TAG_PARENTS, NBTBase.TAG_COMPOUND);
+        final NBTTagList list = compoundNBT.getTagList(TAG_PARENTS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++)
         {
             this.parents.add(String.Serializer.fromJson(compoundNBT.getString(TAG_PARENT)));

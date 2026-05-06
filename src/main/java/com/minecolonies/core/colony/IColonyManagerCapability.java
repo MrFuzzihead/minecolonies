@@ -150,13 +150,13 @@ public interface IColonyManagerCapability
                 }
             }
 
-            compound.put(TAG_COLONIES, colonies);
+            compound.setTag(TAG_COLONIES, colonies);
 
             if (overworld)
             {
                 final NBTTagCompound managerCompound = new NBTTagCompound();
                 IColonyManager.getInstance().write(managerCompound);
-                compound.put(TAG_COLONY_MANAGER, managerCompound);
+                compound.setTag(TAG_COLONY_MANAGER, managerCompound);
             }
             return compound;
         }
@@ -187,7 +187,7 @@ public interface IColonyManagerCapability
 
                 // Load all colonies from Nbt
                 Multimap<int[], IColony> tempColonies = ArrayListMultimap.create();
-                for (final NBTBase NBTBase : compound.getList(TAG_COLONIES, NBTBase.TAG_COMPOUND))
+                for (final NBTBase NBTBase : compound.getTagList(TAG_COLONIES, NBTBase.TAG_COMPOUND))
                 {
                     final IColony colony = Colony.loadColony((NBTTagCompound) NBTBase, null);
                     if (colony != null)
@@ -219,7 +219,7 @@ public interface IColonyManagerCapability
 
                 if (compound.contains(TAG_COLONY_MANAGER) && overworld)
                 {
-                    IColonyManager.getInstance().read(compound.getCompound(TAG_COLONY_MANAGER));
+                    IColonyManager.getInstance().read(compound.getCompoundTag(TAG_COLONY_MANAGER));
                 }
             }
             else

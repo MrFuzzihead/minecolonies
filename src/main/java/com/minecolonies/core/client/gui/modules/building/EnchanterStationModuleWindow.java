@@ -1,4 +1,5 @@
 package com.minecolonies.core.client.gui.modules.building;
+import net.minecraft.network.chat.contents.TranslatableContents;
 
 // [1.7.10] blockui replaced by ModularUI2
 import com.ldtteam.blockui.controls.Button;

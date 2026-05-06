@@ -1,4 +1,5 @@
 package com.minecolonies.api.colony;
+import net.minecraft.util.Direction;
 
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.Log;
@@ -13,6 +14,7 @@ import com.minecolonies.api.util.NBTUtils;
 //   net.minecraftforge.common.capabilities.Capability → removed (no capabilities in 1.7.10)
 // [1.7.10] int[] -> int x,y,z
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.Direction;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.world.ChunkCoordIntPair; // [1.7.10] ChunkCoordIntPair ? ChunkCoordIntPair
 import net.minecraft.world.chunk.Chunk;
@@ -133,19 +135,19 @@ public interface IColonyTagCapability
         @Override
         public void addColony(final int id, final Chunk chunk)
         {
-            final IColony colony = IColonyManager.getInstance().getColonyByDimension(id, chunk.getLevel().dimension());
+            final IColony colony = IColonyManager.getInstance().getColonyByDimension(id, chunk.worldObj.provider.dimensionId);
             if (colony == null)
             {
                 return;
             }
 
             colonies.add(id);
-            if (owningColony == NO_COLONY_ID || IColonyManager.getInstance().getColonyByDimension(owningColony, chunk.getLevel().dimension()) == null)
+            if (owningColony == NO_COLONY_ID || IColonyManager.getInstance().getColonyByDimension(owningColony, chunk.worldObj.provider.dimensionId) == null)
             {
-                colony.addLoadedChunk(ChunkCoordIntPair.asLong(chunk.getPos().x, chunk.getPos().z), chunk);
+                colony.addLoadedChunk(((long)chunk.xPosition << 32) | (chunk.zPosition & 0xFFFFFFFFL), chunk);
                 owningColony = id;
             }
-            chunk.setUnsaved(true);
+            chunk.isModified = true;
         }
 
         @Override
@@ -169,43 +171,42 @@ public interface IColonyTagCapability
                 }
             }
 
-            chunk.setUnsaved(true);
+            chunk.isModified = true;
         }
 
-        @Override
-        public void setStaticColonyClaim(final List<Integer> colonies)
-        {
-            this.colonies = new HashSet<>(colonies);
-        }
-
+        /**
+         * Reset the capability.
+         *
+         * @param chunk the chunk to reset.
+         */
         @Override
         public void reset(final Chunk chunk)
         {
             colonies.clear();
             owningColony = NO_COLONY_ID;
             claimingBuildings.clear();
-            chunk.setUnsaved(true);
+            chunk.isModified = true;
         }
 
         @Override
         public void addBuildingClaim(final int colonyId, final int[] pos, final Chunk chunk)
         {
-            if (chunk.getPos().equals(ChunkCoordIntPair.ZERO))
+            if (chunk.xPosition == 0 && chunk.zPosition == 0)
             {
-                final IColony colony = IColonyManager.getInstance().getColonyByDimension(colonyId, chunk.getLevel().dimension());
+                final IColony colony = IColonyManager.getInstance().getColonyByDimension(colonyId, chunk.worldObj.provider.dimensionId);
                 if (colony == null || BlockPosUtil.getDistance2D(colony.getCenter(), new int[]{0,0,0}) > 200)
                 {
-                    Log.getLogger().warn("Claiming id:" + colonyId + " building at zero pos!" + pos, new Exception());
+                    Log.getLogger().warn("Claiming id:" + colonyId + " building at zero pos!" + java.util.Arrays.toString(pos), new Exception());
                 }
             }
 
             if (owningColony == NO_COLONY_ID)
             {
                 setOwningColony(colonyId, chunk);
-                final IColony colony = IColonyManager.getInstance().getColonyByDimension(colonyId, chunk.getLevel().dimension());
+                final IColony colony = IColonyManager.getInstance().getColonyByDimension(colonyId, chunk.worldObj.provider.dimensionId);
                 if (colony != null)
                 {
-                    colony.addLoadedChunk(ChunkCoordIntPair.asLong(chunk.getPos().x, chunk.getPos().z), chunk);
+                    colony.addLoadedChunk(((long)chunk.xPosition << 32) | (chunk.zPosition & 0xFFFFFFFFL), chunk);
                 }
             }
 
@@ -219,7 +220,7 @@ public interface IColonyTagCapability
                 newList.add(pos);
                 claimingBuildings.put(colonyId, newList);
             }
-            chunk.setUnsaved(true);
+            chunk.isModified = true;
         }
 
         @Override
@@ -230,7 +231,7 @@ public interface IColonyTagCapability
                 return;
             }
 
-            chunk.setUnsaved(true);
+            chunk.isModified = true;
             final Set<int[]> buildings = claimingBuildings.get(colonyId);
             buildings.remove(pos);
 
@@ -253,21 +254,21 @@ public interface IColonyTagCapability
                     }
                     else
                     {
-                        for (final Iterator<Map.Entry<Integer, Set<int[]>>> colonyIt = claimingBuildings.entrySet().iterator(); colonyIt.hasNext(); )
+                        for (final java.util.Iterator<java.util.Map.Entry<Integer, Set<int[]>>> colonyIt = claimingBuildings.entrySet().iterator(); colonyIt.hasNext(); )
                         {
-                            final Map.Entry<Integer, Set<int[]>> colonyEntry = colonyIt.next();
-                            final IColony colony = IColonyManager.getInstance().getColonyByDimension(colonyEntry.getKey(), chunk.getLevel().dimension());
+                            final java.util.Map.Entry<Integer, Set<int[]>> colonyEntry = colonyIt.next();
+                            final IColony colony = IColonyManager.getInstance().getColonyByDimension(colonyEntry.getKey(), chunk.worldObj.provider.dimensionId);
                             if (colony == null)
                             {
                                 continue;
                             }
 
-                            for (final Iterator<int[]> buildingIt = colonyEntry.getValue().iterator(); buildingIt.hasNext(); )
+                            for (final java.util.Iterator<int[]> buildingIt = colonyEntry.getValue().iterator(); buildingIt.hasNext(); )
                             {
                                 final int[] buildingPos = buildingIt.next();
                                 if (colony.getServerBuildingManager().getBuilding(buildingPos) != null)
                                 {
-                                    colony.addLoadedChunk(ChunkCoordIntPair.asLong(chunk.getPos().x, chunk.getPos().z), chunk);
+                                    colony.addLoadedChunk(((long)chunk.xPosition << 32) | (chunk.zPosition & 0xFFFFFFFFL), chunk);
                                     setOwningColony(colonyEntry.getKey(), chunk);
                                     return;
                                 }
@@ -291,7 +292,7 @@ public interface IColonyTagCapability
         public void setOwningColony(final int id, final Chunk chunk)
         {
             this.owningColony = id;
-            chunk.setUnsaved(true);
+            chunk.isModified = true;
         }
 
         @Override
@@ -307,6 +308,12 @@ public interface IColonyTagCapability
             return new ArrayList<>(colonies);
         }
 
+        @Override
+        public void setStaticColonyClaim(final List<Integer> colonies)
+        {
+            this.colonies = new HashSet<>(colonies);
+        }
+
         @NotNull
         @Override
         public Map<Integer, Set<int[]>> getAllClaimingBuildings()
@@ -318,14 +325,14 @@ public interface IColonyTagCapability
         public void readFromNBT(final NBTTagCompound compound)
         {
             // Set owning
-            owningColony = compound.getInt(TAG_ID);
+            owningColony = compound.getInteger(TAG_ID);
 
             // Fill colonies list
-            NBTUtils.streamCompound(compound.getList(TAG_COLONIES, NBTBase.TAG_COMPOUND))
-              .map(c -> c.getInt(TAG_ID)).forEach(colonies::add);
+            NBTUtils.streamCompound(compound.getTagList(TAG_COLONIES, 10))
+              .map(c -> c.getInteger(TAG_ID)).forEach(colonies::add);
 
             // Fill claim buildings list
-            NBTUtils.streamCompound(compound.getList(TAG_BUILDINGS_CLAIM, NBTBase.TAG_COMPOUND)).forEach(this::readClaims);
+            NBTUtils.streamCompound(compound.getTagList(TAG_BUILDINGS_CLAIM, 10)).forEach(this::readClaims);
             if (owningColony == NO_COLONY_ID && !getStaticClaimColonies().isEmpty())
             {
                 owningColony = getStaticClaimColonies().get(0);
@@ -339,10 +346,10 @@ public interface IColonyTagCapability
          */
         private void readClaims(final NBTTagCompound compound)
         {
-            final int id = compound.getInt(TAG_ID);
-            NBTUtils.streamCompound(compound.getList(TAG_BUILDINGS, NBTBase.TAG_COMPOUND)).forEach(
-              NBTBase -> {
-                  final int[] pos = BlockPosUtil.read((NBTBase), TAG_BUILDING);
+            final int id = compound.getInteger(TAG_ID);
+            NBTUtils.streamCompound(compound.getTagList(TAG_BUILDINGS, 10)).forEach(
+              nbtCompound -> {
+                  final int[] pos = BlockPosUtil.read(nbtCompound, TAG_BUILDING);
                   if (claimingBuildings.containsKey(id))
                   {
                       claimingBuildings.get(id).add(pos);
@@ -372,10 +379,15 @@ public interface IColonyTagCapability
             @SuppressWarnings("unused") final Object side)
         {
             final NBTTagCompound compound = new NBTTagCompound();
-            compound.putInt(TAG_ID, instance.getOwningColony());
-            compound.put(TAG_COLONIES, instance.getStaticClaimColonies().stream().map(Storage::write).collect(NBTUtils.toListNBT()));
-            compound.put(TAG_BUILDINGS_CLAIM, instance.getAllClaimingBuildings().entrySet().stream().map(Storage::writeClaims).collect(NBTUtils.toListNBT()));
+            compound.setInteger(TAG_ID, instance.getOwningColony());
 
+            net.minecraft.nbt.NBTTagList coloniesList = new net.minecraft.nbt.NBTTagList();
+            instance.getStaticClaimColonies().stream().map(Storage::write).forEach(coloniesList::appendTag);
+            compound.setTag(TAG_COLONIES, coloniesList);
+
+            net.minecraft.nbt.NBTTagList claimsList = new net.minecraft.nbt.NBTTagList();
+            instance.getAllClaimingBuildings().entrySet().stream().map(Storage::writeClaims).forEach(claimsList::appendTag);
+            compound.setTag(TAG_BUILDINGS_CLAIM, claimsList);
 
             return compound;
         }
@@ -387,7 +399,7 @@ public interface IColonyTagCapability
             @SuppressWarnings("unused") final Object side,
             @NotNull final NBTBase nbt)
         {
-            if (nbt instanceof NBTTagCompound && ((NBTTagCompound) nbt).contains(TAG_ID))
+            if (nbt instanceof NBTTagCompound && ((NBTTagCompound) nbt).hasKey(TAG_ID))
             {
                 instance.readFromNBT((NBTTagCompound) nbt);
             }
@@ -402,7 +414,7 @@ public interface IColonyTagCapability
         private static NBTTagCompound write(final int id)
         {
             final NBTTagCompound compound = new NBTTagCompound();
-            compound.putInt(TAG_ID, id);
+            compound.setInteger(TAG_ID, id);
             return compound;
         }
 
@@ -415,12 +427,18 @@ public interface IColonyTagCapability
         private static NBTTagCompound writeClaims(@NotNull final Map.Entry<Integer, Set<int[]>> entry)
         {
             final NBTTagCompound compound = new NBTTagCompound();
-            compound.putInt(TAG_ID, entry.getKey());
-            compound.put(TAG_BUILDINGS, entry.getValue().stream().map(pos -> BlockPosUtil.write(new NBTTagCompound(), TAG_BUILDING, pos)).collect(NBTUtils.toListNBT()));
+            compound.setInteger(TAG_ID, entry.getKey());
+
+            net.minecraft.nbt.NBTTagList buildingsList = new net.minecraft.nbt.NBTTagList();
+            entry.getValue().stream().map(pos -> BlockPosUtil.write(new NBTTagCompound(), TAG_BUILDING, pos)).forEach(buildingsList::appendTag);
+            compound.setTag(TAG_BUILDINGS, buildingsList);
+
             return compound;
         }
     }
 }
+
+
 
 
 

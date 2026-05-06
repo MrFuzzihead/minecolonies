@@ -1,4 +1,5 @@
 package com.minecolonies.core.quests.rewards;
+import net.minecraft.tags.TagParser;
 
 import com.google.gson.JsonObject;
 import com.minecolonies.api.colony.IColony;
@@ -6,7 +7,6 @@ import com.minecolonies.api.quests.IQuestInstance;
 import com.minecolonies.api.quests.IQuestRewardTemplate;
 import com.minecolonies.api.util.Log;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.nbt.TagParser;
 import net.minecraft.util.ResourceLocation;
 // [1.7.10] GsonHelper removed
 import net.minecraft.entity.player.EntityPlayer;
@@ -60,7 +60,7 @@ public class ItemRewardTemplate implements IQuestRewardTemplate
         return new ItemRewardTemplate(item);
     }
     @Override
-    public void applyReward(final IColony colony, final Player player, final IQuestInstance colonyQuest)
+    public void applyReward(final IColony colony, final EntityPlayer player, final IQuestInstance colonyQuest)
     {
         player.getInventory().add(item);
     }

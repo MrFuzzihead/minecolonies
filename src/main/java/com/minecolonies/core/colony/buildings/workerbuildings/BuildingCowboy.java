@@ -1,4 +1,5 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
+import net.minecraft.world.entity.animal.Animal;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.modules.IBuildingEventsModule;

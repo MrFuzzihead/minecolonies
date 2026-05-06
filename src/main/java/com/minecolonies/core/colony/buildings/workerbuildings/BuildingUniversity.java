@@ -74,10 +74,10 @@ public class BuildingUniversity extends AbstractBuilding
     public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
-        final NBTTagList furnaceTagList = compound.getList(TAG_BOOKCASES, NBTBase.TAG_COMPOUND);
-        for (int i = 0; i < furnaceTagList.size(); ++i)
+        final NBTTagList furnaceTagList = compound.getTagList(TAG_BOOKCASES, 10); // 10 = TAG_Compound
+        for (int i = 0; i < furnaceTagList.tagCount(); ++i)
         {
-            bookCases.add(NbtUtils.readBlockPos(furnaceTagList.getCompound(i).getCompound(TAG_POS)));
+            bookCases.add(com.minecolonies.api.util.BlockPosUtil.read(furnaceTagList.getCompoundTagAt(i), TAG_POS));
         }
     }
 
@@ -89,10 +89,10 @@ public class BuildingUniversity extends AbstractBuilding
         for (@NotNull final int[] entry : bookCases)
         {
             @NotNull final NBTTagCompound bookCompound = new NBTTagCompound();
-            bookCompound.put(TAG_POS, NbtUtils.writeBlockPos(entry));
-            bookcaseTagList.add(bookCompound);
+            com.minecolonies.api.util.BlockPosUtil.write(bookCompound, TAG_POS, entry);
+            bookcaseTagList.appendTag(bookCompound);
         }
-        compound.put(TAG_BOOKCASES, bookcaseTagList);
+        compound.setTag(TAG_BOOKCASES, bookcaseTagList);
 
         return compound;
     }
@@ -101,7 +101,7 @@ public class BuildingUniversity extends AbstractBuilding
     public void registerBlockPosition(@NotNull final Block block, @NotNull final int[] pos, @NotNull final World world)
     {
         super.registerBlockPosition(block, pos, world);
-        if (block.defaultBlockState().is(Object /* Tags */.Blocks.BOOKSHELVES))
+        if (block == net.minecraft.init.Blocks.bookshelf)
         {
             bookCases.add(pos);
         }
@@ -119,7 +119,7 @@ public class BuildingUniversity extends AbstractBuilding
             return getPosition();
         }
         final int[] returnPos = bookCases.get(MathUtils.RANDOM.nextInt(bookCases.size()));
-        if (colony.getWorld().getBlockState(returnPos).is(Object /* Tags */.Blocks.BOOKSHELVES))
+        if (colony.getWorld().getBlock(returnPos[0], returnPos[1], returnPos[2]) == net.minecraft.init.Blocks.bookshelf)
         {
             return returnPos;
         }
@@ -133,7 +133,7 @@ public class BuildingUniversity extends AbstractBuilding
         super.onColonyTick(colony);
 
         final List<ILocalResearch> inProgress = colony.getResearchManager().getResearchTree().getResearchInProgress();
-        final WorkerBuildingModule module = getModuleMatching(WorkerBuildingModule.class, m -> m.getJobEntry() == ModJobs.researcher.get());
+        final WorkerBuildingModule module = getModuleMatching(WorkerBuildingModule.class, m -> m.getJobEntry() == ModJobs.researcher);
 
         int i = 1;
         for (final ILocalResearch research : inProgress)
@@ -169,10 +169,10 @@ public class BuildingUniversity extends AbstractBuilding
 
         StatsUtil.trackStat(this, RESEARCH_COMPLETED, 1);
 
-        final String message = String.translatable(RESEARCH_CONCLUDED + ThreadLocalRandom.current().nextInt(3),
-          String.create(IGlobalResearchTree.getInstance().getResearch(research.getBranch(), research.getId()).getName()));
+        final String researchName = IGlobalResearchTree.getInstance().getResearch(research.getBranch(), research.getId()).getName();
+        final String message = RESEARCH_CONCLUDED + ThreadLocalRandom.current().nextInt(3);
 
-        MessageUtils.format(message).sendTo(colony).forManagers();
+        MessageUtils.format(message, researchName).sendTo(colony).forManagers();
         colony.getResearchManager().checkAutoStartResearch();
         this.markDirty();
     }

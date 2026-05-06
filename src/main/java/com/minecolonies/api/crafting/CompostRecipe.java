@@ -90,7 +90,7 @@ public class CompostRecipe
         {
             buffer.writeInt(Item.getIdFromItem(item));
         }
-        buffer.writeVarInt(strength);
+        buffer.writeInt(strength);
     }
 
     @Nullable
@@ -102,7 +102,7 @@ public class CompostRecipe
         {
             items[i] = Item.getItemById(buffer.readInt());
         }
-        final int strength = buffer.readVarInt();
+        final int strength = buffer.readInt();
         return new CompostRecipe(recipeId, items, strength);
     }
 

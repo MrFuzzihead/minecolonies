@@ -122,7 +122,7 @@ public class TravellingManager implements ITravellingManager
     @Override
     public void deserializeNBT(final NBTTagCompound nbt)
     {
-        final NBTTagList travelerData = nbt.getList(NbtTagConstants.TRAVELER_DATA, NBTBase.TAG_COMPOUND);
+        final NBTTagList travelerData = nbt.getTagList(NbtTagConstants.TRAVELER_DATA, NBTBase.TAG_COMPOUND);
         travelerDataMap.clear();
 
         for (NBTBase travelerDatum : travelerData)
@@ -215,7 +215,7 @@ public class TravellingManager implements ITravellingManager
         public void deserializeNBT(final NBTTagCompound nbt)
         {
             this.citizenId = nbt.getInt(NbtTagConstants.TAG_CITIZEN);
-            this.target = NbtUtils.readBlockPos(nbt.getCompound(NbtTagConstants.TAG_TARGET));
+            this.target = NbtUtils.readBlockPos(nbt.getCompoundTag(NbtTagConstants.TAG_TARGET));
             this.initialTravelTime = nbt.getInt(NbtTagConstants.TAG_INITIAL_TRAVEL_TIME);
             this.remainingTravelTime = nbt.getInt(NbtTagConstants.TAG_REMAINING_TRAVEL_TIME);
         }

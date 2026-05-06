@@ -1,4 +1,5 @@
 package com.minecolonies.core.research;
+import net.minecraft.world.entity.player.Player;
 
 import com.google.common.collect.ImmutableList;
 import com.minecolonies.api.colony.buildings.IBuilding;

@@ -1,24 +1,14 @@
 package com.minecolonies.core.generation;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.resources.Resource;
-// [1.7.10] GsonHelper removed
-// [1.7.10] world.World.storage removed
-// [1.7.10] world.World.storage removed
-// [1.7.10] world.World.storage removed
-import net.minecraftforge.common.ForgeHooks;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.LootDataManager;
+import net.minecraft.world.level.storage.loot.Deserializers;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +24,7 @@ public class DatagenLootTableManager extends LootDataManager
 
     public DatagenLootTableManager(@NotNull final ExistingFileHelper existingFileHelper)
     {
-        super();  // in theory we should load these too; in practice vanilla doesn't seem to use it
+        super();
         this.existingFileHelper = existingFileHelper;
     }
 
@@ -42,34 +32,7 @@ public class DatagenLootTableManager extends LootDataManager
     @Override
     public LootTable getLootTable(@NotNull final ResourceLocation location)
     {
-        final LootTable table = this.tables.get(location);
-        if (table != null) return table;
-
-        try
-        {
-            final Resource resource = existingFileHelper.getResource(location, PackType.SERVER_DATA, ".json", "loot_tables");
-            try (final InputStream inputstream = resource.open();
-                 final Reader reader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8));
-            )
-            {
-                final JsonElement jsonobject = GsonHelper.fromJson(GSON, reader, JsonObject.class);
-                final LootTable loottable = ForgeHooks.loadLootTable(GSON, location, jsonobject, false);
-                if (loottable != null)
-                {
-                    this.tables.put(location, loottable);
-                    return loottable;
-                }
-            }
-        }
-        catch (final Throwable e)
-        {
-            e.printStackTrace();
-        }
-
+        // [1.7.10] loot tables not supported; always return empty
         return LootTable.EMPTY;
     }
 }
-
-
-
-

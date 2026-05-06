@@ -1,5 +1,7 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+import net.minecraft.tileentity.BlockEntity; // [1.7.10] alias -> TileEntity
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -137,10 +139,10 @@ public class BuildingGraveyard extends AbstractBuilding
         }
 
         visualGravePositions.clear();
-        final NBTTagList visualGraveTagList = compound.getList(TAG_VISUAL_GRAVES, NBTBase.TAG_COMPOUND);
+        final NBTTagList visualGraveTagList = compound.getTagList(TAG_VISUAL_GRAVES, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < visualGraveTagList.size(); ++i)
         {
-            final NBTTagCompound graveCompound = visualGraveTagList.getCompound(i);
+            final NBTTagCompound graveCompound = visualGraveTagList.getCompoundTagAt(i);
             final int[] graveLocation = BlockPosUtil.read(graveCompound, TAG_VISUAL_GRAVES_BLOCKPOS);
             final Direction graveFacing = Direction.byName(graveCompound.getString(TAG_VISUAL_GRAVES_FACING));
             visualGravePositions.add(new Tuple<>(graveLocation, graveFacing));
@@ -165,7 +167,7 @@ public class BuildingGraveyard extends AbstractBuilding
             graveCompound.putString(TAG_VISUAL_GRAVES_FACING, vgp.getB().getName());
             visualGraveTagList.add(graveCompound);
         }
-        compound.put(TAG_VISUAL_GRAVES, visualGraveTagList);
+        compound.setTag(TAG_VISUAL_GRAVES, visualGraveTagList);
         return compound;
     }
 

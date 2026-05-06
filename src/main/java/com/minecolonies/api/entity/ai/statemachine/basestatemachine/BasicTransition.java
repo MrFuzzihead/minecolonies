@@ -5,8 +5,7 @@ import com.minecolonies.api.entity.ai.statemachine.tickratestatemachine.IBoolean
 import com.minecolonies.api.entity.ai.statemachine.tickratestatemachine.IStateSupplier;
 import com.minecolonies.api.entity.ai.statemachine.transitions.IStateMachineTransition;
 import com.minecolonies.api.util.Log;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.IChatComponent;
+// [1.7.10] EnumChatFormatting / IChatComponent removed; name is plain String
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,11 +55,8 @@ public class BasicTransition<S extends IState> implements IStateMachineTransitio
         this.condition = condition;
         this.nextState = nextState;
 
-        name = String.literal(state.toString()).withStyle(ChatFormatting.GOLD).append(String.literal(":"))
-            .append(String.literal(getMethodName(condition))
-                .withStyle(ChatFormatting.BLUE)
-                .append(String.literal(":"))
-                .append(String.literal(getMethodName(nextState)).withStyle(ChatFormatting.AQUA)));
+        // [1.7.10] Component.literal/withStyle not available; use plain string
+        name = state.toString() + ":" + getMethodName(condition) + ":" + getMethodName(nextState);
     }
 
     /**
@@ -75,11 +71,8 @@ public class BasicTransition<S extends IState> implements IStateMachineTransitio
         this.condition = condition;
         this.nextState = nextState;
 
-        name = String.literal(getClass().getSimpleName()).withStyle(ChatFormatting.RED).append(String.literal(":"))
-            .append(String.literal(getMethodName(condition))
-                .withStyle(ChatFormatting.BLUE)
-                .append(String.literal(":"))
-                .append(String.literal(getMethodName(nextState)).withStyle(ChatFormatting.AQUA)));
+        // [1.7.10] Component.literal/withStyle not available; use plain string
+        name = getClass().getSimpleName() + ":" + getMethodName(condition) + ":" + getMethodName(nextState);
     }
 
     /**
@@ -149,7 +142,7 @@ public class BasicTransition<S extends IState> implements IStateMachineTransitio
     @Override
     public BasicTransition<S> withName(final String name)
     {
-        this.name = String.literal(name);
+        this.name = name; // [1.7.10] name is plain String, no Component.literal
         return this;
     }
 }

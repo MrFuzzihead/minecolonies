@@ -1,4 +1,5 @@
 package com.minecolonies.api.research.costs;
+import net.minecraft.tags.TagKey;
 
 import com.google.gson.JsonObject;
 import com.minecolonies.api.research.IResearchCost;

@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.ai.combat;
+import net.minecraft.util.Direction;
 
 import com.minecolonies.api.entity.ai.IStateAI;
 import com.minecolonies.api.entity.ai.combat.CombatAIStates;
@@ -8,7 +9,9 @@ import com.minecolonies.api.entity.ai.statemachine.tickratestatemachine.ITickRat
 import com.minecolonies.api.entity.ai.statemachine.tickratestatemachine.TickingTransition;
 // [1.7.10] int[] -> int x,y,z
 // [1.7.10] Direction -> net.minecraft.util.EnumFacing
+import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.world.phys.AABB;
 // [1.7.10] world.entity removed
 // [1.7.10] world.entity removed
 // [1.7.10] world.phys removed

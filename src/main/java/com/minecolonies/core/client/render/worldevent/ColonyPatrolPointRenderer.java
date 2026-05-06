@@ -1,4 +1,5 @@
 package com.minecolonies.core.client.render.worldevent;
+import net.minecraft.client.multiplayer.ClientLevel;
 
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.client.BlueprintHandler;

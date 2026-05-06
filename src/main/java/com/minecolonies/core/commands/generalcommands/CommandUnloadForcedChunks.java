@@ -1,4 +1,6 @@
 package com.minecolonies.core.commands.generalcommands;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.util.MessageUtils;
 import com.minecolonies.core.commands.commandTypes.IMCCommand;
@@ -8,9 +10,11 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.World.ChunkPos;
+// [1.7.10] ChunkPos not at world.World.ChunkPos - using world.ChunkCoordIntPair equivalent
+// import net.minecraft.world.World.ChunkPos; // [1.7.10] removed
 import net.minecraft.world.World;
-import net.minecraft.server.World.ServerChunkCache;
+// [1.7.10] server.World.ServerChunkCache not available
+// import net.minecraft.server.World.ServerChunkCache; // [1.7.10] removed
 import net.minecraft.world.WorldServer;
 
 /**

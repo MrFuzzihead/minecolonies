@@ -1,4 +1,5 @@
 package com.minecolonies.core.tileentities;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.blocks.AbstractBlockBarrel;
 import com.minecolonies.api.blocks.ModBlocks;

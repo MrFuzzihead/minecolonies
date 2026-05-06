@@ -88,7 +88,7 @@ public class MinecoloniesFarmland extends AbstractBlockMinecolonies<Minecolonies
             cropBlock.attemptGrow(world, x, y + 1, z);
             // [1.7.10] particle notification via network message
             Network.getNetwork().sendToPosition(
-                new VanillaParticleMessage(x + 0.5F, y + 0.5F, z + 0.5F, 0 /* HAPPY_VILLAGER */),
+                new VanillaParticleMessage(x + 0.5F, y + 0.5F, z + 0.5F, "happyVillager"),
                 new cpw.mods.fml.common.network.NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, BLOCK_BREAK_SOUND_RANGE));
         }
     }
@@ -117,7 +117,7 @@ public class MinecoloniesFarmland extends AbstractBlockMinecolonies<Minecolonies
     private static boolean shouldMaintainFarmland(final World world, final int x, final int y, final int z)
     {
         final Block plant = world.getBlock(x, y + 1, z);
-        return plant instanceof IPlantable && Blocks.farmland.canSustainPlant(world, x, y, z, net.minecraft.util.EnumFacing.UP, (IPlantable) plant);
+        return plant instanceof IPlantable && Blocks.farmland.canSustainPlant(world, x, y, z, net.minecraftforge.common.util.ForgeDirection.UP, (IPlantable) plant);
     }
 
     /**
@@ -142,7 +142,6 @@ public class MinecoloniesFarmland extends AbstractBlockMinecolonies<Minecolonies
         return false;
     }
 
-    @Override
     public String getHutName()
     {
         return blockId.getResourcePath();

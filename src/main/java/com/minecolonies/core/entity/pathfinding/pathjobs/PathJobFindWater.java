@@ -1,4 +1,6 @@
 package com.minecolonies.core.entity.pathfinding.pathjobs;
+import net.minecraft.util.Direction;
+import net.minecraft.block.state.BlockState;
 
 import com.ldtteam.structurize.util.BlockUtils;
 import com.minecolonies.api.util.BlockPosUtil;

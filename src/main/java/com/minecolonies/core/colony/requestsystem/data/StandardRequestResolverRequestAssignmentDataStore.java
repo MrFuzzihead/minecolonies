@@ -92,12 +92,12 @@ public class StandardRequestResolverRequestAssignmentDataStore implements IReque
         {
             final NBTTagCompound compound = new NBTTagCompound();
 
-            compound.put(NbtTagConstants.TAG_TOKEN, controller.serialize(standardProviderRequestResolverAssignmentDataStore.id));
-            compound.put(NbtTagConstants.TAG_LIST, standardProviderRequestResolverAssignmentDataStore.assignments.keySet().stream().map(t -> {
+            compound.setTag(NbtTagConstants.TAG_TOKEN, controller.serialize(standardProviderRequestResolverAssignmentDataStore.id));
+            compound.setTag(NbtTagConstants.TAG_LIST, standardProviderRequestResolverAssignmentDataStore.assignments.keySet().stream().map(t -> {
                 final NBTTagCompound entryCompound = new NBTTagCompound();
 
-                entryCompound.put(NbtTagConstants.TAG_TOKEN, controller.serialize(t));
-                entryCompound.put(NbtTagConstants.TAG_LIST, standardProviderRequestResolverAssignmentDataStore.assignments.get(t).stream()
+                entrycompound.setTag(NbtTagConstants.TAG_TOKEN, controller.serialize(t));
+                entrycompound.setTag(NbtTagConstants.TAG_LIST, standardProviderRequestResolverAssignmentDataStore.assignments.get(t).stream()
                                                               .map(StandardFactoryController.getInstance()::serialize)
                                                               .collect(NBTUtils.toListNBT()));
 
@@ -111,11 +111,11 @@ public class StandardRequestResolverRequestAssignmentDataStore implements IReque
         @Override
         public StandardRequestResolverRequestAssignmentDataStore deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound nbt) throws Throwable
         {
-            final IToken<?> token = controller.deserialize(nbt.getCompound(NbtTagConstants.TAG_TOKEN));
-            final Map<IToken<?>, Collection<IToken<?>>> map = NBTUtils.streamCompound(nbt.getList(NbtTagConstants.TAG_LIST, NBTBase.TAG_COMPOUND))
+            final IToken<?> token = controller.deserialize(nbt.getCompoundTag(NbtTagConstants.TAG_TOKEN));
+            final Map<IToken<?>, Collection<IToken<?>>> map = NBTUtils.streamCompound(nbt.getTagList(NbtTagConstants.TAG_LIST, NBTBase.TAG_COMPOUND))
                                                                 .map(NBTTagCompound -> {
-                                                                    final IToken<?> elementToken = controller.deserialize(NBTTagCompound.getCompound(NbtTagConstants.TAG_TOKEN));
-                                                                    final Collection<IToken<?>> elements = NBTUtils.streamCompound(NBTTagCompound.getList(NbtTagConstants.TAG_LIST,
+                                                                    final IToken<?> elementToken = controller.deserialize(NBTTagCompound.getCompoundTag(NbtTagConstants.TAG_TOKEN));
+                                                                    final Collection<IToken<?>> elements = NBTUtils.streamCompound(NBTTagCompound.getTagList(NbtTagConstants.TAG_LIST,
                                                                       NBTBase.TAG_COMPOUND)).map(elementCompound -> (IToken<?>) controller.deserialize(elementCompound))
                                                                                                              .collect(Collectors.toList());
 

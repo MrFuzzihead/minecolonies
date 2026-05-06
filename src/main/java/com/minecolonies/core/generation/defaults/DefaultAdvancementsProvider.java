@@ -23,16 +23,18 @@ import com.minecolonies.api.util.constant.WindowConstants;
 import com.minecolonies.core.client.gui.WindowHutGuide;
 import com.minecolonies.core.client.gui.WindowRequestDetail;
 import com.minecolonies.core.client.gui.citizen.RequestWindowCitizen;
-// [1.7.10] advancements removed
-// [1.7.10] advancements removed
-// [1.7.10] advancements removed
-// [1.7.10] HolderLookup removed
-// [1.7.10] data removed
+import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.CriterionTriggerInstance;
+import net.minecraft.advancements.DisplayInfo;
+import net.minecraft.advancements.FrameType;
+import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.data.PackOutput;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.World.ItemLike;
+import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.common.data.ForgeAdvancementProvider;
 import org.jetbrains.annotations.NotNull;

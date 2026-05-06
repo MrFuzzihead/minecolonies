@@ -53,7 +53,7 @@ public class CourierAssignmentModule extends AbstractAssignedCitizenModule imple
 
         if (compound.contains(getModuleSerializationIdentifier()))
         {
-            compound = compound.getCompound(getModuleSerializationIdentifier());
+            compound = compound.getCompoundTag(getModuleSerializationIdentifier());
         }
 
         final int[] residentIds = compound.getIntArray(TAG_COURIERS);

@@ -1,4 +1,6 @@
 package com.minecolonies.api.util.constant;
+import net.minecraft.util.Direction;
+import net.minecraft.world.entity.player.Player;
 
 import org.jetbrains.annotations.NonNls;
 

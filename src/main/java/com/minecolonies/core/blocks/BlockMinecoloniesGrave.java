@@ -1,4 +1,6 @@
 package com.minecolonies.core.blocks;
+import net.minecraft.util.Direction;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.blocks.AbstractBlockMinecoloniesGrave;
 import com.minecolonies.api.colony.IColony;

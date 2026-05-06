@@ -39,7 +39,7 @@ public interface IModuleContainer<T>
     @NotNull
     default <T2 extends T> List<T2> getModules(final Class<T2> clazz)
     {
-        return getModules(clazz, Predicates.alwaysTrue());
+        return getModules(clazz, t -> true);
     }
 
     /**
@@ -139,7 +139,7 @@ public interface IModuleContainer<T>
      */
     default <T2 extends T> boolean hasModule(final Class<T2> clazz)
     {
-        return hasModule(clazz, Predicates.alwaysTrue());
+        return hasModule(clazz, t -> true);
     }
 
     /**

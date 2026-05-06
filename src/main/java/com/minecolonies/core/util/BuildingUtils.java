@@ -1,4 +1,7 @@
 package com.minecolonies.core.util;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
 
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
@@ -25,7 +28,6 @@ import net.minecraft.world.level.block.DirectionalBlock;
 // [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.stringtemplate.v4.compiler.STParser.region_return;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -62,7 +64,7 @@ public final class BuildingUtils
         {
             return inventory.getItem(slot);
         }
-        return ItemStack.EMPTY;
+        return null;
     }
 
     /**

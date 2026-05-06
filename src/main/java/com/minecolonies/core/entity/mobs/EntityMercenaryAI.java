@@ -13,6 +13,7 @@ import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
 // [1.7.10] int /* InteractionHand */ removed
 // [1.7.10] world.entity removed
 import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.ai.goal.Goal;
 // [1.7.10] items shim in com.minecolonies.api.shim
 
 import java.util.ArrayList;

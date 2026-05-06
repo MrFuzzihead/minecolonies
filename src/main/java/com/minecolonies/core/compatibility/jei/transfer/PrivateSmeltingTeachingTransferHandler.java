@@ -1,4 +1,5 @@
 package com.minecolonies.core.compatibility.jei.transfer;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.inventory.container.ContainerCraftingFurnace;
 import com.minecolonies.core.Network;
@@ -69,7 +70,7 @@ public class PrivateSmeltingTeachingTransferHandler implements IRecipeTransferHa
         final ItemStack input = recipeSlots.getSlotViews(RecipeIngredientRole.INPUT).stream()
                 .flatMap(slot -> slot.getDisplayedIngredient(VanillaTypes.ITEM_STACK).stream())
                 .findFirst()
-                .orElse(ItemStack.EMPTY);
+                .orElse(null);
 
         if (!input.isEmpty() && doTransfer)
         {

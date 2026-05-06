@@ -1,4 +1,5 @@
 package com.minecolonies.core.commands.colonycommands;
+import net.minecraft.network.chat.Style;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;

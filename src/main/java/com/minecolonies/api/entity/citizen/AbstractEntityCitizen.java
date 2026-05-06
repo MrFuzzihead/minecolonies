@@ -1,4 +1,5 @@
 package com.minecolonies.api.entity.citizen;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.client.render.modeltype.ModModelTypes;
 import com.minecolonies.api.client.render.modeltype.registry.IModelTypeRegistry;
@@ -62,6 +63,12 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity
     public static final int DW_BED_Z         = 28;
     public static final int DW_STYLE         = 29;
     public static final int DW_JOB           = 30;
+
+    // Aliases matching 1.21 EntityDataAccessor field names used in handler classes
+    public static final int DATA_MODEL     = DW_MODEL;
+    public static final int DATA_IS_ASLEEP = DW_IS_ASLEEP;
+    /** DATA_BED_POS is used as a composite key; bed position stored via DW_BED_X/Y/Z */
+    public static final int DATA_BED_POS   = DW_BED_X;
 
     /** The default model. */
     private ResourceLocation modelId = ModModelTypes.SETTLER_ID;
@@ -151,7 +158,8 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity
      */
     public float calculateDamageAfterAbsorbs(final net.minecraft.util.DamageSource source, final float damage)
     {
-        float newDamage = ISpecialArmor.ArmorProperties.applyArmor(this, getCurrentArmor(), source, damage);
+        // [1.7.10] ISpecialArmor not available as a stub; approximate with base damage
+        float newDamage = damage;
         // no magic absorb equivalent in 1.7.10 base, return as is
         return newDamage;
     }
@@ -169,11 +177,11 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity
         {
             if (getCitizenData() != null && getCitizenData().isIdleAtJob())
             {
-                SoundUtils.playSoundAtCitizenWith(worldObj, (int) posX, (int) posY, (int) posZ, EventType.MISSING_EQUIPMENT, getCitizenData(), 100);
+                SoundUtils.playSoundAtCitizenWith(worldObj, new int[]{(int) posX, (int) posY, (int) posZ}, EventType.MISSING_EQUIPMENT, getCitizenData(), 100);
             }
             else
             {
-                SoundUtils.playSoundAtCitizenWith(worldObj, (int) posX, (int) posY, (int) posZ, EventType.INTERACTION, getCitizenData(), 100);
+                SoundUtils.playSoundAtCitizenWith(worldObj, new int[]{(int) posX, (int) posY, (int) posZ}, EventType.INTERACTION, getCitizenData(), 100);
             }
         }
         return super.interact(player);
@@ -267,7 +275,6 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity
         if (this.pathNavigate == null)
         {
             this.pathNavigate = IPathNavigateRegistry.getInstance().getNavigateFor(this);
-            this.pathNavigate.setCanFloat(true);
             this.pathNavigate.setSwimSpeedFactor(CITIZEN_SWIM_BONUS);
             this.pathNavigate.getPathingOptions().setEnterDoors(true);
             this.pathNavigate.getPathingOptions().setCanOpenDoors(true);
@@ -528,7 +535,7 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity
         return entityStateController;
     }
 
-    @Override
+    // [1.7.10] isSleeping is not in EntityLivingBase, not overriding
     public boolean isSleeping()
     {
         return getCitizenSleepHandler().isAsleep();

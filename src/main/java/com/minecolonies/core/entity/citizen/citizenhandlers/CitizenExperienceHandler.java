@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.citizen.citizenhandlers;
+import net.minecraft.world.phys.Vec3;
 
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.buildings.IBuilding;

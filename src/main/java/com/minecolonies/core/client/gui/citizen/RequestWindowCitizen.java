@@ -1,4 +1,5 @@
 package com.minecolonies.core.client.gui.citizen;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.ICitizenDataView;
 import net.minecraft.world.entity.player.Inventory;
@@ -166,7 +167,7 @@ public class RequestWindowCitizen extends AbstractWindowCitizen
             final ItemStack itemStack;
             if (isCreative)
             {
-                itemStack = request.getDisplayStacks().stream().findFirst().orElse(ItemStack.EMPTY);
+                itemStack = request.getDisplayStacks().stream().findFirst().orElse(null);
             }
             else
             {

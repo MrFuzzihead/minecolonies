@@ -1,4 +1,7 @@
 package com.minecolonies.core.commands.generalcommands;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
 
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;

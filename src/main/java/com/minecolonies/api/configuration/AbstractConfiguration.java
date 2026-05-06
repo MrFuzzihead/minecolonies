@@ -1,4 +1,5 @@
 package com.minecolonies.api.configuration;
+import net.minecraft.core.Holder;
 
 import com.ldtteam.structurize.util.LanguageHandler;
 import com.minecolonies.api.util.constant.Constants;

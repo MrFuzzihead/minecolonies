@@ -1,4 +1,7 @@
 package com.minecolonies.core.entity.citizen.citizenhandlers;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.Direction;
 
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.interactionhandling.ChatPriority;

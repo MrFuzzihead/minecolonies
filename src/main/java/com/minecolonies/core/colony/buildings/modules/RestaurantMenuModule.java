@@ -136,7 +136,7 @@ public class RestaurantMenuModule extends AbstractBuildingModule implements IPer
                     continue;
                 }
                 ItemStack requestStack = originalStack;
-                ItemStack rawStack = ItemStack.EMPTY;
+                ItemStack rawStack = null;
                 if (canCook && MinecoloniesAPIProxy.getInstance().getFurnaceRecipes().getFirstSmeltingRecipeByResult(menuItem) instanceof RecipeStorage recipeStorage)
                 {
                     // Smelting Recipes only got 1 input. Request sometimes the input if this is a smeltable.
@@ -218,10 +218,10 @@ public class RestaurantMenuModule extends AbstractBuildingModule implements IPer
     public void deserializeNBT(final NBTTagCompound compound)
     {
         menu.clear();
-        final NBTTagList minimumStockTagList = compound.getList(TAG_MENU, NBTBase.TAG_COMPOUND);
+        final NBTTagList minimumStockTagList = compound.getTagList(TAG_MENU, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < minimumStockTagList.size(); i++)
         {
-            final ItemStack itemStack = ItemStack.of(minimumStockTagList.getCompound(i));
+            final ItemStack itemStack = ItemStack.of(minimumStockTagList.getCompoundTagAt(i));
             if (FoodUtils.EDIBLE.test(itemStack))
             {
                 menu.add(new ItemStorage(itemStack));
@@ -237,7 +237,7 @@ public class RestaurantMenuModule extends AbstractBuildingModule implements IPer
         {
             minimumStockTagList.add(menuItem.getItemStack().save(new NBTTagCompound()));
         }
-        compound.put(TAG_MENU, minimumStockTagList);
+        compound.setTag(TAG_MENU, minimumStockTagList);
     }
 
     @Override

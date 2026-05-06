@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.ai.workers.service;
+import net.minecraft.world.phys.Vec3;
 
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColonyManager;
@@ -120,7 +121,7 @@ public class EntityAIWorkEnchanter extends AbstractEntityAICrafting<JobEnchanter
     @Override
     protected IAIState decide()
     {
-        worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, ItemStack.EMPTY);
+        worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, null);
         if (!walkToBuilding())
         {
             return START_WORKING;

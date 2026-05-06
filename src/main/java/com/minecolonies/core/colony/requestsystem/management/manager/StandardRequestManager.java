@@ -1,5 +1,6 @@
 package com.minecolonies.core.colony.requestsystem.management.manager;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -440,15 +441,15 @@ public class StandardRequestManager implements IStandardRequestManager
         final NBTTagCompound systemCompound = new NBTTagCompound();
         systemCompound.putInt(NBT_VERSION, version);
 
-        systemCompound.put(NBT_DATASTORE, getFactoryController().serialize(dataStoreManager));
-        systemCompound.put(NBT_ID_REQUEST_IDENTITIES, getFactoryController().serialize(requestIdentitiesDataStoreId));
-        systemCompound.put(NBT_ID_REQUEST_RESOLVER_IDENTITIES, getFactoryController().serialize(requestResolverIdentitiesDataStoreId));
-        systemCompound.put(NBT_ID_PROVIDER_ASSIGNMENTS, getFactoryController().serialize(providerRequestResolverAssignmentDataStoreId));
-        systemCompound.put(NBT_ID_REQUEST_RESOLVER_ASSIGNMENTS, getFactoryController().serialize(requestResolverRequestAssignmentDataStoreId));
-        systemCompound.put(NBT_ID_REQUESTABLE_TYPE_ASSIGNMENTS, getFactoryController().serialize(requestableTypeRequestResolverAssignmentDataStoreId));
+        systemcompound.setTag(NBT_DATASTORE, getFactoryController().serialize(dataStoreManager));
+        systemcompound.setTag(NBT_ID_REQUEST_IDENTITIES, getFactoryController().serialize(requestIdentitiesDataStoreId));
+        systemcompound.setTag(NBT_ID_REQUEST_RESOLVER_IDENTITIES, getFactoryController().serialize(requestResolverIdentitiesDataStoreId));
+        systemcompound.setTag(NBT_ID_PROVIDER_ASSIGNMENTS, getFactoryController().serialize(providerRequestResolverAssignmentDataStoreId));
+        systemcompound.setTag(NBT_ID_REQUEST_RESOLVER_ASSIGNMENTS, getFactoryController().serialize(requestResolverRequestAssignmentDataStoreId));
+        systemcompound.setTag(NBT_ID_REQUESTABLE_TYPE_ASSIGNMENTS, getFactoryController().serialize(requestableTypeRequestResolverAssignmentDataStoreId));
 
-        systemCompound.put(NBT_ID_PLAYER, getFactoryController().serialize(playerRequestResolverId));
-        systemCompound.put(NBT_ID_RETRYING, getFactoryController().serialize(retryingRequestResolverId));
+        systemcompound.setTag(NBT_ID_PLAYER, getFactoryController().serialize(playerRequestResolverId));
+        systemcompound.setTag(NBT_ID_RETRYING, getFactoryController().serialize(retryingRequestResolverId));
 
         return systemCompound;
     }

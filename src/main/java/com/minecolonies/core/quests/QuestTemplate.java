@@ -1,4 +1,5 @@
 package com.minecolonies.core.quests;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.quests.*;

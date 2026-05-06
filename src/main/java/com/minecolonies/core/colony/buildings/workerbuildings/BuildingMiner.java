@@ -1,4 +1,5 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
+import net.minecraft.network.chat.Style;
 
 import com.google.common.collect.ImmutableList;
 import com.minecolonies.api.colony.ICitizenData;

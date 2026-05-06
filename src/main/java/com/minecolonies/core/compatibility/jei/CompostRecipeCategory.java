@@ -1,4 +1,5 @@
 package com.minecolonies.core.compatibility.jei;
+import net.minecraft.util.Direction;
 
 import com.minecolonies.api.blocks.AbstractBlockBarrel;
 import com.minecolonies.api.blocks.ModBlocks;
@@ -19,6 +20,8 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 // [1.7.10] Direction -> net.minecraft.util.EnumFacing
 import net.minecraft.util.IChatComponent;
 import net.minecraft.item.ItemStack;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.level.block.state.BlockState;
 // [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.NotNull;
 

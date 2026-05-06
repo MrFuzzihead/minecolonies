@@ -1,4 +1,7 @@
 package com.minecolonies.core.entity.pathfinding.navigation;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.Direction;
 
 import com.ldtteam.structurize.util.BlockUtils;
 import com.minecolonies.api.entity.ai.workers.util.IBuilderUndestroyable;
@@ -21,6 +24,7 @@ import net.minecraft.block.Block;
 // [1.7.10] block import removed
 // [1.7.10] BlockState -> int metadata
 import net.minecraft.pathfinding.PathPoint;
+import net.minecraft.pathfinding.PathNavigate;
 // [1.7.10] world.phys removed
 // [1.7.10] fml.loading removed
 

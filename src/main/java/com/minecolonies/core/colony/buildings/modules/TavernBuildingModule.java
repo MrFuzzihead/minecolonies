@@ -1,5 +1,6 @@
 package com.minecolonies.core.colony.buildings.modules;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -253,7 +254,7 @@ public class TavernBuildingModule extends AbstractBuildingModule implements IDef
     @Override
     public void deserializeNBT(final NBTTagCompound nbt)
     {
-        final NBTTagList visitorlist = nbt.getList(TAG_VISITORS, TAG_COMPOUND);
+        final NBTTagList visitorlist = nbt.getTagList(TAG_VISITORS, TAG_COMPOUND);
         for (final NBTBase data : visitorlist)
         {
             final int id = ((NBTTagCompound) data).getInt(TAG_VISITOR_ID);

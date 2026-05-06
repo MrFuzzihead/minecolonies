@@ -1,4 +1,5 @@
 package com.minecolonies.core.client.gui.citizen;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.ICitizenDataView;
 import com.minecolonies.api.util.constant.Constants;

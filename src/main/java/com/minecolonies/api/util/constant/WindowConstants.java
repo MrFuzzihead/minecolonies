@@ -1,4 +1,6 @@
 package com.minecolonies.api.util.constant;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.entity.player.Player;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.Size2i;

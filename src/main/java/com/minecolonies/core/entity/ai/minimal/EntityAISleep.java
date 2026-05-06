@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.ai.minimal;
+import net.minecraft.world.level.block.state.BlockState;
 
 import com.ldtteam.domumornamentum.block.decorative.PanelBlock;
 import com.minecolonies.api.colony.IColony;

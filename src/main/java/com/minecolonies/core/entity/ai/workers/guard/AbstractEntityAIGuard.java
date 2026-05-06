@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.ai.workers.guard;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;

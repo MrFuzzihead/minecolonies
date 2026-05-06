@@ -171,8 +171,8 @@ public class EventStructureManager implements IEventStructureManager
         if (compound.contains(TAG_EVENT_STRUCTURE_MANAGER))
         {
             backupSchematics.clear();
-            final NBTTagCompound structureManagerCompound = compound.getCompound(TAG_EVENT_STRUCTURE_MANAGER);
-            final NBTTagList schematicTags = structureManagerCompound.getList(TAG_SCHEMATIC_LIST, NBTBase.TAG_COMPOUND);
+            final NBTTagCompound structureManagerCompound = compound.getCompoundTag(TAG_EVENT_STRUCTURE_MANAGER);
+            final NBTTagList schematicTags = structureManagerCompound.getTagList(TAG_SCHEMATIC_LIST, NBTBase.TAG_COMPOUND);
 
             for (final NBTBase base : schematicTags)
             {
@@ -206,8 +206,8 @@ public class EventStructureManager implements IEventStructureManager
             schematicTagList.add(entryCompound);
         }
 
-        structureManagerCompound.put(TAG_SCHEMATIC_LIST, schematicTagList);
-        compound.put(TAG_EVENT_STRUCTURE_MANAGER, structureManagerCompound);
+        structureManagercompound.setTag(TAG_SCHEMATIC_LIST, schematicTagList);
+        compound.setTag(TAG_EVENT_STRUCTURE_MANAGER, structureManagerCompound);
     }
 }
 

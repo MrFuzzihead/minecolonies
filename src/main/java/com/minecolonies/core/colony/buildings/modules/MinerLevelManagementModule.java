@@ -59,19 +59,19 @@ public class MinerLevelManagementModule extends AbstractBuildingModule implement
     {
         startingLevelShaft = compound.getInt(TAG_STARTING_LEVEL);
         currentLevel = compound.getInt(TAG_CURRENT_LEVEL);
-        final NBTTagList levelTagList = compound.getList(TAG_LEVELS, NBTBase.TAG_COMPOUND);
+        final NBTTagList levelTagList = compound.getTagList(TAG_LEVELS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < levelTagList.size(); i++)
         {
-            this.levels.add(new MinerLevel(levelTagList.getCompound(i)));
+            this.levels.add(new MinerLevel(levelTagList.getCompoundTagAt(i)));
         }
 
         if (compound.contains(TAG_ACTIVE))
         {
-            activeNode = MineNode.createFromNBT(compound.getCompound(TAG_ACTIVE));
+            activeNode = MineNode.createFromNBT(compound.getCompoundTag(TAG_ACTIVE));
         }
         else if (compound.contains(TAG_OLD))
         {
-            oldNode = MineNode.createFromNBT(compound.getCompound(TAG_OLD));
+            oldNode = MineNode.createFromNBT(compound.getCompoundTag(TAG_OLD));
         }
     }
 
@@ -87,20 +87,20 @@ public class MinerLevelManagementModule extends AbstractBuildingModule implement
             World.write(levelCompound);
             levelTagList.add(levelCompound);
         }
-        compound.put(TAG_LEVELS, levelTagList);
+        compound.setTag(TAG_LEVELS, levelTagList);
 
         if (activeNode != null)
         {
             final NBTTagCompound nodeCompound = new NBTTagCompound();
             activeNode.write(nodeCompound);
-            compound.put(TAG_ACTIVE, nodeCompound);
+            compound.setTag(TAG_ACTIVE, nodeCompound);
         }
 
         if (oldNode != null)
         {
             final NBTTagCompound nodeCompound = new NBTTagCompound();
             oldNode.write(nodeCompound);
-            compound.put(TAG_OLD, nodeCompound);
+            compound.setTag(TAG_OLD, nodeCompound);
         }
     }
 

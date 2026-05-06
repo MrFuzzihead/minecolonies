@@ -2,6 +2,7 @@ package com.minecolonies.api.util;
 
 import net.minecraft.item.ItemStack;
 // [1.7.10] capabilities removed - ICapabilityProvider shim provided
+import net.minecraft.inventory.IInventory;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 // [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.NotNull;
@@ -35,6 +36,23 @@ public final class InventoryFunctions
     public static boolean matchFirstInProvider(final ICapabilityProvider provider, @NotNull final Predicate<ItemStack> tester)
     {
         return matchInProvider(provider, inv -> slot -> tester, true);
+    }
+
+    /**
+     * [1.7.10] Overload for IInventory provider.
+     */
+    public static boolean matchFirstInProvider(final IInventory provider, @NotNull final Predicate<ItemStack> tester)
+    {
+        if (provider == null) return false;
+        for (int i = 0; i < provider.getSizeInventory(); i++)
+        {
+            final ItemStack stack = provider.getStackInSlot(i);
+            if (stack != null && tester.test(stack))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.minecolonies.core.colony.buildings.modules;
-import net.minecraft.core.Direction;
+import net.minecraft.tileentity.BlockEntity; // [1.7.10] alias -> TileEntity
+// [1.7.10] net.minecraft.core.Direction removed — using net.minecraft.util.Direction
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -69,7 +70,7 @@ public class GraveyardManagementModule extends AbstractBuildingModule implements
         restingCitizen.clear();
         if (compound.contains(TAG_RIP_CITIZEN_LIST))
         {
-            final NBTTagList ripCitizen = compound.getList(TAG_RIP_CITIZEN_LIST, TAG_STRING);
+            final NBTTagList ripCitizen = compound.getTagList(TAG_RIP_CITIZEN_LIST, TAG_STRING);
             for (int i = 0; i < ripCitizen.size(); i++)
             {
                 final String citizenName = ripCitizen.getString(i);
@@ -80,7 +81,7 @@ public class GraveyardManagementModule extends AbstractBuildingModule implements
         if (compound.contains(TAG_GRAVE_DATA))
         {
             lastGraveData = new GraveData();
-            lastGraveData.read(compound.getCompound(TAG_GRAVE_DATA));
+            lastGraveData.read(compound.getCompoundTag(TAG_GRAVE_DATA));
         }
         else lastGraveData = null;
     }
@@ -93,11 +94,11 @@ public class GraveyardManagementModule extends AbstractBuildingModule implements
         {
             ripCitizen.add(NBTTagString.valueOf(citizenName));
         }
-        compound.put(TAG_RIP_CITIZEN_LIST, ripCitizen);
+        compound.setTag(TAG_RIP_CITIZEN_LIST, ripCitizen);
 
         if(lastGraveData != null)
         {
-            compound.put(TAG_GRAVE_DATA, lastGraveData.write());
+            compound.setTag(TAG_GRAVE_DATA, lastGraveData.write());
         }
     }
 

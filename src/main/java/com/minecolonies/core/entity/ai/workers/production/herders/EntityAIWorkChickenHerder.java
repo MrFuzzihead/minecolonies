@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.ai.workers.production.herders;
+import net.minecraft.world.entity.animal.Animal;
 
 import com.minecolonies.api.entity.ai.statemachine.states.IAIState;
 import com.minecolonies.api.entity.citizen.VisibleCitizenStatus;

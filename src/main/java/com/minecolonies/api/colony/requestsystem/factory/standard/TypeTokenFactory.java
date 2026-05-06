@@ -42,7 +42,7 @@ public class TypeTokenFactory implements IFactory<Class<?>, TypeToken<?>>
     {
         NBTTagCompound compound = new NBTTagCompound();
 
-        compound.putString(NbtTagConstants.TAG_VALUE, typeToken.getRawType().getName());
+        compound.setString(NbtTagConstants.TAG_VALUE, typeToken.getRawType().getName());
 
         return compound;
     }
@@ -80,7 +80,7 @@ public class TypeTokenFactory implements IFactory<Class<?>, TypeToken<?>>
     @Override
     public void serialize(IFactoryController controller, TypeToken<?> input, PacketBuffer packetBuffer)
     {
-        packetBuffer.writeUtf(input.getRawType().getName());
+        try { packetBuffer.writeStringToBuffer(input.getRawType().getName()); } catch (java.io.IOException e) { throw new RuntimeException(e); }
     }
 
     @Override
@@ -88,7 +88,7 @@ public class TypeTokenFactory implements IFactory<Class<?>, TypeToken<?>>
     {
         try
         {
-            return TypeToken.of(Class.forName(buffer.readUtf(32767).replace("coremod", "core")));
+            return TypeToken.of(Class.forName(buffer.readStringFromBuffer(32767).replace("coremod", "core")));
         }
         catch (ClassNotFoundException e)
         {

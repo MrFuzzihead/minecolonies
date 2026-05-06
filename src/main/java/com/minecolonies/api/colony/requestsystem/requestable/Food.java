@@ -80,11 +80,11 @@ public class Food implements IDeliverable
     public static NBTTagCompound serialize(final IFactoryController controller, final Food food)
     {
         final NBTTagCompound compound = new NBTTagCompound();
-        compound.putInt(NBT_COUNT, food.count);
+        compound.setInteger(NBT_COUNT, food.count);
 
         if (!ItemStackUtils.isEmpty(food.result))
         {
-            compound.put(NBT_RESULT, food.result.serializeNBT());
+            compound.setTag(NBT_RESULT, food.result.writeToNBT(new net.minecraft.nbt.NBTTagCompound()));
         }
         if (!food.exclusionList.isEmpty())
         {
@@ -92,12 +92,12 @@ public class Food implements IDeliverable
             for (@NotNull final ItemStorage item : food.exclusionList)
             {
                 @NotNull final NBTTagCompound itemCompound = new NBTTagCompound();
-                item.getItemStack().save(itemCompound);
-                items.add(itemCompound);
+                item.getItemStack().writeToNBT(itemCompound);
+                items.appendTag(itemCompound);
             }
-            compound.put(NBT_EXCLUSION, items);
+            compound.setTag(NBT_EXCLUSION, items);
         }
-        compound.putInt(NBT_MIN_NUTRITION, food.minNutrition);
+        compound.setInteger(NBT_MIN_NUTRITION, food.minNutrition);
         return compound;
     }
 
@@ -110,19 +110,19 @@ public class Food implements IDeliverable
      */
     public static Food deserialize(final IFactoryController controller, final NBTTagCompound compound)
     {
-        final int count = compound.getInt(NBT_COUNT);
-        final ItemStack result = compound.contains(NBT_RESULT) ? ItemStackUtils.deserializeFromNBT(compound.getCompound(NBT_RESULT)) : ItemStackUtils.EMPTY;
+        final int count = compound.getInteger(NBT_COUNT);
+        final ItemStack result = compound.hasKey(NBT_RESULT) ? ItemStackUtils.deserializeFromNBT(compound.getCompoundTag(NBT_RESULT)) : ItemStackUtils.EMPTY;
         final List<ItemStorage> items = new ArrayList<>();
 
-        if (compound.contains(NBT_EXCLUSION))
+        if (compound.hasKey(NBT_EXCLUSION))
         {
-            final NBTTagList filterableItems = compound.getList(NBT_EXCLUSION, NBTBase.TAG_COMPOUND);
-            for (int i = 0; i < filterableItems.size(); ++i)
+            final NBTTagList filterableItems = compound.getTagList(NBT_EXCLUSION, 10);
+            for (int i = 0; i < filterableItems.tagCount(); ++i)
             {
-                items.add(new ItemStorage(ItemStack.of(filterableItems.getCompound(i))));
+                items.add(new ItemStorage(ItemStack.loadItemStackFromNBT(filterableItems.getCompoundTagAt(i))));
             }
         }
-        final int minNutrition = compound.getInt(NBT_MIN_NUTRITION);
+        final int minNutrition = compound.getInteger(NBT_MIN_NUTRITION);
         return new Food(count, result, items, minNutrition);
     }
 
@@ -140,13 +140,13 @@ public class Food implements IDeliverable
         buffer.writeBoolean(!ItemStackUtils.isEmpty(input.result));
         if (!ItemStackUtils.isEmpty(input.result))
         {
-            buffer.writeItem(input.result);
+            try { buffer.writeItemStackToBuffer(input.result); } catch (java.io.IOException e) { throw new RuntimeException(e); }
         }
 
         buffer.writeInt(input.exclusionList.size());
         for (ItemStorage item : input.exclusionList)
         {
-            buffer.writeItem(item.getItemStack());
+            try { buffer.writeItemStackToBuffer(item.getItemStack()); } catch (java.io.IOException e) { throw new RuntimeException(e); }
         }
         buffer.writeInt(input.minNutrition);
     }
@@ -161,13 +161,13 @@ public class Food implements IDeliverable
     public static Food deserialize(final IFactoryController controller, final PacketBuffer buffer)
     {
         final int count = buffer.readInt();
-        final ItemStack result = buffer.readBoolean() ? buffer.readItem() : ItemStack.EMPTY;
+        final ItemStack result = buffer.readBoolean() ? buffer.readItemStackFromBuffer() : null;
 
         List<ItemStorage> items = new ArrayList<>();
         final int itemsCount = buffer.readInt();
         for (int i = 0; i < itemsCount; ++i)
         {
-            items.add(new ItemStorage(buffer.readItem()));
+            items.add(new ItemStorage(buffer.readItemStackFromBuffer()));
         }
         final int minNutrition = buffer.readInt();
         if (!items.isEmpty())
@@ -183,7 +183,7 @@ public class Food implements IDeliverable
         return ItemStackUtils.ISFOOD.test(stack)
                  && !exclusionList.contains(new ItemStorage(stack))
                  && !(ItemStackUtils.ISCOOKABLE.test(stack) && exclusionList.contains(new ItemStorage(MinecoloniesAPIProxy.getInstance().getFurnaceRecipes().getSmeltingResult(stack))))
-                 && (ItemStackUtils.ISCOOKABLE.test(stack) || stack.getItem().getFoodProperties(stack, null).getNutrition() >= minNutrition);
+                 && (ItemStackUtils.ISCOOKABLE.test(stack) || (stack.getItem() instanceof net.minecraft.item.ItemFood && ((net.minecraft.item.ItemFood) stack.getItem()).func_150905_g(stack) >= minNutrition));
     }
 
     @Override

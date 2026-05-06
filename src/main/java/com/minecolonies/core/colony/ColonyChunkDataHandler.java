@@ -1,24 +1,17 @@
 package com.minecolonies.core.colony;
+import net.minecraft.world.level.chunk.LevelChunk;
 
 // [1.7.10 BACKPORT] Replacement for MinecoloniesChunkCapabilityProvider + IColonyTagCapability
 // chunk capability attachment.
 //
-// In 1.21, per-chunk colony data was stored as a Forge capability attached to LevelChunk:
-//   chunk.getCapability(CLOSE_COLONY_CAP, null).resolve().orElse(null)
+// In 1.21, per-chunk colony data was stored as a Forge capability attached to LevelChunk.
+// In 1.7.10, ChunkAPI (com.falsepattern:chunkapi-mc1.7.10:0.8.2) provides
+// DataManager.ChunkDataManager that reads/writes extra NBT data per chunk.
 //
-// In 1.7.10, ChunkAPI (com.falsepattern:chunkapi-mc1.7.10:0.8.2) provides an
-// IChunkDataHandler that reads/writes extra NBT data for each chunk. We use this to store
-// and retrieve the IColonyTagCapability data.
-//
-// The per-chunk IColonyTagCapability.Impl instances are kept in a static WeakHashMap keyed
-// by the Chunk object so that existing colony logic (ColonyUtils.getOwningColony, etc.) can
-// access them without changing every call-site.
-//
-// Usage:
-//   IColonyTagCapability cap = ColonyChunkDataHandler.getColonyTagCapability(chunk);
+// Register with: DataRegistry.registerDataManager(new ColonyChunkDataHandler());
 
-import com.falsepattern.chunk.api.ArrayUtil;
-import com.falsepattern.chunk.api.ChunkDataHandler;
+import com.falsepattern.chunk.api.DataManager;
+import com.falsepattern.chunk.api.DataRegistry;
 import com.minecolonies.api.colony.IColonyTagCapability;
 import com.minecolonies.api.util.Log;
 import net.minecraft.nbt.NBTTagCompound;
@@ -29,20 +22,23 @@ import org.jetbrains.annotations.Nullable;
 import java.util.WeakHashMap;
 
 /**
- * ChunkAPI data handler that attaches {@link IColonyTagCapability} data to each chunk.
+ * ChunkAPI data manager that attaches {@link IColonyTagCapability} data to each chunk.
  *
  * <p>Register this handler during {@code FMLPreInitializationEvent}:
  * <pre>{@code
- * ChunkDataManager.registerDataHandler(new ColonyChunkDataHandler());
+ * DataRegistry.registerDataManager(new ColonyChunkDataHandler());
  * }</pre></p>
  *
  * <p><b>1.7.10 Backport:</b> Replaces {@code MinecoloniesChunkCapabilityProvider} and the
  * entire Forge chunk capability system for per-chunk colony data.</p>
  */
-public class ColonyChunkDataHandler implements ChunkDataHandler
+public class ColonyChunkDataHandler implements DataManager.ChunkDataManager
 {
-    /** Unique identifier used by ChunkAPI to key the NBT subtag. */
-    public static final String HANDLER_ID = "minecolonies_colony_tag";
+    /** Domain used by ChunkAPI to namespace the NBT subtag. */
+    public static final String HANDLER_DOMAIN = "minecolonies";
+
+    /** ID within the domain. */
+    public static final String HANDLER_ID = "colony_tag";
 
     /**
      * Per-chunk capability instances.
@@ -57,31 +53,32 @@ public class ColonyChunkDataHandler implements ChunkDataHandler
     // -----------------------------------------------------------------------
 
     /**
-     * Returns the {@link IColonyTagCapability} for the given chunk, or {@code null} if the
-     * chunk has not been loaded / initialised yet.
-     *
-     * <p>This is the primary replacement for all former
-     * {@code chunk.getCapability(CLOSE_COLONY_CAP, null).resolve().orElse(null)} call-sites.</p>
-     */
-    @Nullable
-    public static IColonyTagCapability getColonyTagCapability(@NotNull final Chunk chunk)
-    {
-        return CHUNK_CAP_MAP.get(chunk);
-    }
-
-    /**
-     * Returns the {@link IColonyTagCapability} for the given chunk, creating a new (empty)
-     * instance if one does not yet exist.
+     * Returns the {@link IColonyTagCapability} for the given chunk, or a new empty instance.
      */
     @NotNull
-    public static IColonyTagCapability getOrCreateColonyTagCapability(@NotNull final Chunk chunk)
+    public static IColonyTagCapability getColonyTagCapability(@NotNull final Chunk chunk)
     {
         return CHUNK_CAP_MAP.computeIfAbsent(chunk, c -> new IColonyTagCapability.Impl());
     }
 
+    /**
+     * Returns the {@link IColonyTagCapability} for the given chunk, or {@code null} if not loaded.
+     */
+    @Nullable
+    public static IColonyTagCapability getColonyTagCapabilityIfPresent(@NotNull final Chunk chunk)
+    {
+        return CHUNK_CAP_MAP.get(chunk);
+    }
+
     // -----------------------------------------------------------------------
-    // ChunkDataHandler implementation
+    // DataManager implementation
     // -----------------------------------------------------------------------
+
+    @Override
+    public String domain()
+    {
+        return HANDLER_DOMAIN;
+    }
 
     @Override
     public String id()
@@ -90,51 +87,59 @@ public class ColonyChunkDataHandler implements ChunkDataHandler
     }
 
     @Override
-    public boolean chunkPrivileged()
+    public String version()
     {
-        // Not privileged — no unsafe class-patcher operations needed.
-        return false;
+        return "1";
     }
 
-    /**
-     * Called by ChunkAPI when a chunk is loaded from disk.
-     * Deserialises the {@link IColonyTagCapability} from the chunk's NBT subtag.
-     */
     @Override
-    public void readFromNBT(@NotNull final Chunk chunk, @NotNull final NBTTagCompound nbt)
+    public String newInstallDescription()
+    {
+        return "MineColonies colony chunk data initialised.";
+    }
+
+    @Override
+    public String uninstallMessage()
+    {
+        return "MineColonies colony chunk data removed.";
+    }
+
+    @Override
+    public String versionChangeMessage(final String previousVersion)
+    {
+        return "MineColonies colony chunk data updated from " + previousVersion + " to " + version();
+    }
+
+    // -----------------------------------------------------------------------
+    // DataManager.ChunkDataManager implementation
+    // -----------------------------------------------------------------------
+
+    @Override
+    public void readChunkFromNBT(@NotNull final Chunk chunk, @NotNull final NBTTagCompound nbt)
     {
         final IColonyTagCapability cap = new IColonyTagCapability.Impl();
         try
         {
-            // [1.7.10 BACKPORT] In 1.21 this was done via
-            //   IColonyTagCapability.Storage.readNBT(CLOSE_COLONY_CAP, impl, null, NBTBase)
-            // The Capability<> parameter is null here since it doesn't exist in 1.7.10.
             IColonyTagCapability.Storage.readNBT(null, cap, null, nbt);
         }
         catch (final Exception e)
         {
-            Log.getLogger().error("ColonyChunkDataHandler: error reading colony NBTBase for chunk "
+            Log.getLogger().error("ColonyChunkDataHandler: error reading colony NBT for chunk "
                 + chunk.xPosition + "," + chunk.zPosition, e);
         }
         CHUNK_CAP_MAP.put(chunk, cap);
     }
 
-    /**
-     * Called by ChunkAPI when a chunk is saved to disk.
-     * Serialises the {@link IColonyTagCapability} into the chunk's NBT subtag.
-     */
     @Override
-    public void writeToNBT(@NotNull final Chunk chunk, @NotNull final NBTTagCompound nbt)
+    public void writeChunkToNBT(@NotNull final Chunk chunk, @NotNull final NBTTagCompound nbt)
     {
         final IColonyTagCapability cap = CHUNK_CAP_MAP.get(chunk);
         if (cap == null)
         {
-            return; // Nothing to save for this chunk.
+            return;
         }
         try
         {
-            // [1.7.10 BACKPORT] In 1.21 this was done via
-            //   IColonyTagCapability.Storage.writeNBT(CLOSE_COLONY_CAP, impl, null)
             final net.minecraft.nbt.NBTBase written = IColonyTagCapability.Storage.writeNBT(null, cap, null);
             if (written instanceof NBTTagCompound)
             {
@@ -147,31 +152,22 @@ public class ColonyChunkDataHandler implements ChunkDataHandler
         }
         catch (final Exception e)
         {
-            Log.getLogger().error("ColonyChunkDataHandler: error writing colony NBTBase for chunk "
+            Log.getLogger().error("ColonyChunkDataHandler: error writing colony NBT for chunk "
                 + chunk.xPosition + "," + chunk.zPosition, e);
         }
     }
 
-    /**
-     * Called when the chunk is unloaded / discarded.
-     * We remove the entry from the map so the Chunk can be GC'd.
-     */
     @Override
-    public void onChunkUnloaded(@NotNull final Chunk chunk)
+    public void cloneChunk(@NotNull final Chunk from, @NotNull final Chunk to)
     {
-        CHUNK_CAP_MAP.remove(chunk);
-    }
-
-    /**
-     * Called when a new, empty chunk is generated.
-     * Pre-populate with an empty capability so getColonyTagCapability() never returns null
-     * for freshly generated chunks.
-     */
-    @Override
-    public void onChunkGenerated(@NotNull final Chunk chunk)
-    {
-        CHUNK_CAP_MAP.putIfAbsent(chunk, new IColonyTagCapability.Impl());
+        final IColonyTagCapability cap = CHUNK_CAP_MAP.get(from);
+        if (cap != null)
+        {
+            // Deep-copy via NBT round-trip
+            final NBTTagCompound tmp = new NBTTagCompound();
+            writeChunkToNBT(from, tmp);
+            readChunkFromNBT(to, tmp);
+        }
     }
 }
-
 

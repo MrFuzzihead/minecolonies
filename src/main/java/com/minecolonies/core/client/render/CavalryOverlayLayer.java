@@ -1,4 +1,5 @@
 package com.minecolonies.core.client.render;
+import net.minecraft.world.entity.animal.Animal;
 import com.mojang.math.Axis;
 import com.mojang.math.Pose;
 import net.minecraft.client.renderer.RenderType;

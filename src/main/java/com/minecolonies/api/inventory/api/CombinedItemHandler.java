@@ -88,19 +88,25 @@ public class CombinedItemHandler implements IItemHandlerModifiable, INBTSerializ
             if (handlerModifiable instanceof INBTSerializable)
             {
                 final INBTSerializable<?> serializable = (INBTSerializable<?>) handlerModifiable;
-                handlerList.add(serializable.serializeNBT());
-                indexList.add(NBTTagInt.valueOf(index));
+                final net.minecraft.nbt.NBTBase serialized = (net.minecraft.nbt.NBTBase) ((INBTSerializable) serializable).serializeNBT();
+                if (serialized instanceof NBTTagCompound)
+                {
+                    handlerList.appendTag(serialized);
+                }
+                final NBTTagCompound idxCompound = new NBTTagCompound();
+                idxCompound.setInteger("idx", index);
+                indexList.appendTag(idxCompound);
             }
 
             index++;
         }
 
-        compound.put(NBT_KEY_HANDLERS, handlerList);
-        compound.put(NBT_KEY_HANDLERS_INDEXLIST, indexList);
+        compound.setTag(NBT_KEY_HANDLERS, handlerList);
+        compound.setTag(NBT_KEY_HANDLERS_INDEXLIST, indexList);
 
         if (customName != null)
         {
-            compound.putString(NBT_KEY_NAME, customName);
+            compound.setString(NBT_KEY_NAME, customName);
         }
 
         return compound;
@@ -110,15 +116,15 @@ public class CombinedItemHandler implements IItemHandlerModifiable, INBTSerializ
     @Override
     public void deserializeNBT(final NBTTagCompound nbt)
     {
-        final NBTTagList handlerList = nbt.getList(NBT_KEY_HANDLERS, NBTBase.TAG_COMPOUND);
-        final NBTTagList indexList = nbt.getList(NBT_KEY_HANDLERS_INDEXLIST, NBTBase.TAG_INT);
+        final NBTTagList handlerList = nbt.getTagList(NBT_KEY_HANDLERS, 10); // 10 = TAG_Compound
+        final NBTTagList indexList = nbt.getTagList(NBT_KEY_HANDLERS_INDEXLIST, 10); // 10 = TAG_Compound
 
-        if (handlerList.size() == handlers.length)
+        if (handlerList.tagCount() == handlers.length)
         {
-            for (int i = 0; i < handlerList.size(); i++)
+            for (int i = 0; i < handlerList.tagCount(); i++)
             {
-                final NBTTagCompound handlerCompound = handlerList.getCompound(i);
-                final IItemHandlerModifiable modifiable = handlers[indexList.getInt(i)];
+                final NBTTagCompound handlerCompound = handlerList.getCompoundTagAt(i);
+                final IItemHandlerModifiable modifiable = handlers[indexList.getCompoundTagAt(i).getInteger("idx")];
                 if (modifiable instanceof INBTSerializable)
                 {
                     final INBTSerializable<NBTTagCompound> serializable = (INBTSerializable<NBTTagCompound>) modifiable;
@@ -127,7 +133,7 @@ public class CombinedItemHandler implements IItemHandlerModifiable, INBTSerializ
             }
         }
 
-        setName(nbt.contains(NBT_KEY_NAME) ? nbt.getString(NBT_KEY_NAME) : null);
+        setName(nbt.hasKey(NBT_KEY_NAME) ? nbt.getString(NBT_KEY_NAME) : null);
     }
 
     /**
@@ -221,7 +227,7 @@ public class CombinedItemHandler implements IItemHandlerModifiable, INBTSerializ
             activeSlot -= modifiable.getSlots();
         }
 
-        return ItemStack.EMPTY;
+        return null;
     }
 
     /**
@@ -281,7 +287,7 @@ public class CombinedItemHandler implements IItemHandlerModifiable, INBTSerializ
             }
         }
 
-        return ItemStack.EMPTY;
+        return null;
     }
 
     @Override
@@ -335,9 +341,15 @@ public class CombinedItemHandler implements IItemHandlerModifiable, INBTSerializ
 
     @NotNull
     @Override
-    public String getName()
+    public String getInventoryName()
     {
-        return String.literal(customName.isEmpty() ? defaultName : customName);
+        return customName.isEmpty() ? defaultName : customName;
+    }
+
+    @Override
+    public boolean hasCustomInventoryName()
+    {
+        return !customName.isEmpty();
     }
 
     @Override

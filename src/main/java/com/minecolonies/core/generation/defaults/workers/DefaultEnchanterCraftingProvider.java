@@ -1,4 +1,9 @@
 package com.minecolonies.core.generation.defaults.workers;
+import net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.item.crafting.FinishedRecipe;
+import net.minecraft.data.PackOutput;
 
 import com.minecolonies.api.colony.jobs.ModJobs;
 import com.minecolonies.api.crafting.ItemStorage;

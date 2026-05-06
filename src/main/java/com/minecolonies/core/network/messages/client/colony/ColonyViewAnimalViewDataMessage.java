@@ -1,4 +1,5 @@
 package com.minecolonies.core.network.messages.client.colony;
+import net.minecraft.world.entity.animal.Animal;
 
 import com.minecolonies.api.colony.IAnimalData;
 import com.minecolonies.api.colony.IColony;

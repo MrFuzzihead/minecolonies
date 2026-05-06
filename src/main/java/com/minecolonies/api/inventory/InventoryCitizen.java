@@ -27,7 +27,7 @@ import static com.minecolonies.api.util.constant.NbtTagConstants.*;
 /**
  * Basic inventory for the citizens.
  */
-public class InventoryCitizen implements net.minecraft.command.ICommandSender /* Nameable */
+public class InventoryCitizen implements net.minecraftforge.items.IItemHandlerModifiable
 {
     /**
      * The returned slot if a slot hasn't been found.
@@ -48,8 +48,8 @@ public class InventoryCitizen implements net.minecraft.command.ICommandSender /*
     /**
      * The inventory. (27 main inventory, 4 armor slots)
      */
-    private java.util.List<ItemStack> mainInventory = java.util.List.withSize(DEFAULT_INV_SIZE, ItemStackUtils.EMPTY);
-    private java.util.List<ItemStack> armorInventory = java.util.List.withSize(4, ItemStackUtils.EMPTY);
+    private java.util.List<ItemStack> mainInventory = new java.util.ArrayList<>(java.util.Collections.nCopies(DEFAULT_INV_SIZE, ItemStackUtils.EMPTY));
+    private java.util.List<ItemStack> armorInventory = new java.util.ArrayList<>(java.util.Collections.nCopies(4, ItemStackUtils.EMPTY));
 
     /**
      * The index of the currently held items (0-8).
@@ -115,7 +115,7 @@ public class InventoryCitizen implements net.minecraft.command.ICommandSender /*
      */
     public ItemStack getHeldItem(final int /* InteractionHand */ hand)
     {
-        if (hand.equals(0 /* InteractionHand.MAIN_HAND */))
+        if (hand == 0 /* InteractionHand.MAIN_HAND */)
         {
             return getStackInSlot(mainItem);
         }
@@ -131,7 +131,7 @@ public class InventoryCitizen implements net.minecraft.command.ICommandSender /*
      */
     public void setHeldItem(final int /* InteractionHand */ hand, final int slot)
     {
-        if (hand.equals(0 /* InteractionHand.MAIN_HAND */))
+        if (hand == 0 /* InteractionHand.MAIN_HAND */)
         {
             this.mainItem = slot;
         }
@@ -147,7 +147,7 @@ public class InventoryCitizen implements net.minecraft.command.ICommandSender /*
      */
     public int getHeldItemSlot(final int /* InteractionHand */ hand)
     {
-        if (hand.equals(0 /* InteractionHand.MAIN_HAND */))
+        if (hand == 0 /* InteractionHand.MAIN_HAND */)
         {
             return mainItem;
         }
@@ -201,7 +201,7 @@ public class InventoryCitizen implements net.minecraft.command.ICommandSender /*
     {
         if (size < futureSize)
         {
-            final java.util.List<ItemStack> inv = java.util.List.withSize(futureSize, ItemStackUtils.EMPTY);
+            final java.util.List<ItemStack> inv = new java.util.ArrayList<>(java.util.Collections.nCopies(futureSize, ItemStackUtils.EMPTY));
 
             for (int i = 0; i < mainInventory.size(); i++)
             {
@@ -219,10 +219,9 @@ public class InventoryCitizen implements net.minecraft.command.ICommandSender /*
      * @return the name of the inventory.
      */
     @NotNull
-    @Override
     public String getName()
     {
-        return String.translatable(this.hasCustomName() ? this.customName : "citizen.inventory");
+        return this.hasCustomName() ? this.customName : "citizen.inventory";
     }
 
     /**
@@ -230,7 +229,6 @@ public class InventoryCitizen implements net.minecraft.command.ICommandSender /*
      *
      * @return true if the inventory has a custom name.
      */
-    @Override
     public boolean hasCustomName()
     {
         return this.customName != null;
@@ -248,11 +246,11 @@ public class InventoryCitizen implements net.minecraft.command.ICommandSender /*
     {
         if (index == NO_SLOT)
         {
-            return ItemStack.EMPTY;
+            return null;
         }
         if (index >= mainInventory.size())
         {
-            return ItemStack.EMPTY;
+            return null;
         }
         else
         {
@@ -271,7 +269,7 @@ public class InventoryCitizen implements net.minecraft.command.ICommandSender /*
         {
             return armorInventory.get(slot);
         }
-        return ItemStack.EMPTY;
+        return null;
     }
 
     /**
@@ -301,7 +299,7 @@ public class InventoryCitizen implements net.minecraft.command.ICommandSender /*
     {
         if (slot >= 0 && slot < armorInventory.size())
         {
-            armorInventory.set(slot, ItemStack.EMPTY);
+            armorInventory.set(slot, null);
             if (citizen != null)
             {
                 // [1.7.10] onArmorRemove not available
@@ -340,7 +338,7 @@ public class InventoryCitizen implements net.minecraft.command.ICommandSender /*
             if (InventoryUtils.addItemStackToItemHandler(this, armorStack))
             {
                 markDirty();
-                armorInventory.set(slot, ItemStack.EMPTY);
+                armorInventory.set(slot, null);
                 // [1.7.10] onArmorRemove not available
             }
         }
@@ -362,7 +360,7 @@ public class InventoryCitizen implements net.minecraft.command.ICommandSender /*
         {
             // The 4 parameter inner call from forge is for adding a callback to alter the damage caused,
             // but unlike its description does not actually damage the item(despite the same function name). So used to just calculate the damage.
-            stack.hurtAndBreak(stack.getItem().damageItem(stack, amount, entityIn, onBroken), entityIn, onBroken);
+            stack.damageItem(amount, entityIn);
 
             if (ItemStackUtils.isEmpty(stack))
             {
@@ -384,7 +382,7 @@ public class InventoryCitizen implements net.minecraft.command.ICommandSender /*
         final ItemStack stack = mainInventory.get(slot);
         if (!ItemStackUtils.isEmpty(stack))
         {
-            stack.setCount(stack.getCount() - 1);
+            stack.stackSize = stack.stackSize - 1;
 
             if (ItemStackUtils.isEmpty(stack))
             {
@@ -399,51 +397,51 @@ public class InventoryCitizen implements net.minecraft.command.ICommandSender /*
     @Override
     public ItemStack insertItem(final int slot, @Nonnull final ItemStack stack, final boolean simulate)
     {
-        if (stack.isEmpty())
+        if (ItemStackUtils.isEmpty(stack))
         {
             return stack;
         }
 
         final ItemStack copy = stack.copy();
         final ItemStack inSlot = mainInventory.get(slot);
-        if (inSlot.getCount() >= inSlot.getMaxStackSize() || (!inSlot.isEmpty() && !ItemStackUtils.compareItemStacksIgnoreStackSize(inSlot, copy)))
+        if (inSlot.stackSize >= inSlot.getMaxStackSize() || (!ItemStackUtils.isEmpty(inSlot) && !ItemStackUtils.compareItemStacksIgnoreStackSize(inSlot, copy)))
         {
             return copy;
         }
 
-        if (inSlot.isEmpty())
+        if (ItemStackUtils.isEmpty(inSlot))
         {
             if (!simulate)
             {
                 markDirty();
                 freeSlots--;
                 mainInventory.set(slot, copy);
-                return ItemStack.EMPTY;
+                return null;
             }
             else
             {
-                return ItemStack.EMPTY;
+                return null;
             }
         }
 
-        final int avail = inSlot.getMaxStackSize() - inSlot.getCount();
-        if (avail >= copy.getCount())
+        final int avail = inSlot.getMaxStackSize() - inSlot.stackSize;
+        if (avail >= copy.stackSize)
         {
             if (!simulate)
             {
                 markDirty();
-                inSlot.setCount(inSlot.getCount() + copy.getCount());
+                inSlot.stackSize = inSlot.stackSize + copy.stackSize;
             }
-            return ItemStack.EMPTY;
+            return null;
         }
         else
         {
             if (!simulate)
             {
                 markDirty();
-                inSlot.setCount(inSlot.getCount() + avail);
+                inSlot.stackSize = inSlot.stackSize + avail;
             }
-            copy.setCount(copy.getCount() - avail);
+            copy.stackSize = copy.stackSize - avail;
             return copy;
         }
     }
@@ -453,17 +451,17 @@ public class InventoryCitizen implements net.minecraft.command.ICommandSender /*
     public ItemStack extractItem(final int slot, final int amount, final boolean simulate)
     {
         final ItemStack inSlot = mainInventory.get(slot);
-        if (inSlot.isEmpty())
+        if (ItemStackUtils.isEmpty(inSlot))
         {
-            return ItemStack.EMPTY;
+            return null;
         }
-        if (amount >= inSlot.getCount())
+        if (amount >= inSlot.stackSize)
         {
             if (!simulate)
             {
                 markDirty();
                 freeSlots++;
-                mainInventory.set(slot, ItemStack.EMPTY);
+                mainInventory.set(slot, null);
             }
             return inSlot;
         }
@@ -471,11 +469,11 @@ public class InventoryCitizen implements net.minecraft.command.ICommandSender /*
         {
 
             final ItemStack copy = inSlot.copy();
-            copy.setCount(amount);
+            copy.stackSize = amount;
             if (!simulate)
             {
                 markDirty();
-                inSlot.setCount(inSlot.getCount() - amount);
+                inSlot.stackSize = inSlot.stackSize - amount;
                 if (ItemStackUtils.isEmpty(inSlot))
                 {
                     freeSlots++;
@@ -512,10 +510,9 @@ public class InventoryCitizen implements net.minecraft.command.ICommandSender /*
      * Get the formatted TextComponent that will be used for the sender's username in chat.
      */
     @NotNull
-    @Override
     public String getDisplayName()
     {
-        return this.hasCustomName() ? String.literal(customName) : String.literal(citizen.getName());
+        return this.hasCustomName() ? customName : citizen.getName();
     }
 
     /**
@@ -534,35 +531,35 @@ public class InventoryCitizen implements net.minecraft.command.ICommandSender /*
             }
         }
 
-        nbtTagCompound.putInt(TAG_INV_SIZE, this.mainInventory.size());
+        nbtTagCompound.setInteger(TAG_INV_SIZE, this.mainInventory.size());
 
         final NBTTagList invTagList = new NBTTagList();
         freeSlots = mainInventory.size();
         for (int i = 0; i < this.mainInventory.size(); ++i)
         {
-            if (!(this.mainInventory.get(i)).isEmpty())
+            if (!ItemStackUtils.isEmpty(this.mainInventory.get(i)))
             {
                 final NBTTagCompound compoundNBT = new NBTTagCompound();
-                compoundNBT.putByte("Slot", (byte) i);
-                (this.mainInventory.get(i)).save(compoundNBT);
-                invTagList.add(compoundNBT);
+                compoundNBT.setByte("Slot", (byte) i);
+                (this.mainInventory.get(i)).writeToNBT(compoundNBT);
+                invTagList.appendTag(compoundNBT);
                 freeSlots--;
             }
         }
-        nbtTagCompound.put(TAG_INVENTORY, invTagList);
+        nbtTagCompound.setTag(TAG_INVENTORY, invTagList);
 
         final NBTTagList armorTagList = new NBTTagList();
         for (int i = 0; i < this.armorInventory.size(); ++i)
         {
-            if (!(this.armorInventory.get(i)).isEmpty())
+            if (!ItemStackUtils.isEmpty(this.armorInventory.get(i)))
             {
                 final NBTTagCompound compoundNBT = new NBTTagCompound();
-                compoundNBT.putByte("Slot", (byte) i);
-                (this.armorInventory.get(i)).save(compoundNBT);
-                armorTagList.add(compoundNBT);
+                compoundNBT.setByte("Slot", (byte) i);
+                (this.armorInventory.get(i)).writeToNBT(compoundNBT);
+                armorTagList.appendTag(compoundNBT);
             }
         }
-        nbtTagCompound.put(TAG_ARMOR_INVENTORY, armorTagList);
+        nbtTagCompound.setTag(TAG_ARMOR_INVENTORY, armorTagList);
     }
 
     /**
@@ -572,25 +569,25 @@ public class InventoryCitizen implements net.minecraft.command.ICommandSender /*
      */
     public void read(final NBTTagCompound nbtTagCompound)
     {
-        if (nbtTagCompound.contains(TAG_ARMOR_INVENTORY))
+        if (nbtTagCompound.hasKey(TAG_ARMOR_INVENTORY))
         {
-            int size = nbtTagCompound.getInt(TAG_INV_SIZE);
+            int size = nbtTagCompound.getInteger(TAG_INV_SIZE);
             if (this.mainInventory.size() < size)
             {
                 size -= size % ROW_SIZE;
-                this.mainInventory = java.util.List.withSize(size, ItemStackUtils.EMPTY);
+                this.mainInventory = new java.util.ArrayList<>(java.util.Collections.nCopies(size, ItemStackUtils.EMPTY));
             }
 
             freeSlots = mainInventory.size();
 
-            final NBTTagList nbtTagList = nbtTagCompound.getList(TAG_INVENTORY, 10);
-            for (int i = 0; i < nbtTagList.size(); i++)
+            final NBTTagList nbtTagList = nbtTagCompound.getTagList(TAG_INVENTORY, 10);
+            for (int i = 0; i < nbtTagList.tagCount(); i++)
             {
-                final NBTTagCompound compoundNBT = nbtTagList.getCompound(i);
+                final NBTTagCompound compoundNBT = nbtTagList.getCompoundTagAt(i);
                 final int j = compoundNBT.getByte("Slot") & 255;
-                final ItemStack itemstack = ItemStack.of(compoundNBT);
+                final ItemStack itemstack = ItemStack.loadItemStackFromNBT(compoundNBT);
 
-                if (!itemstack.isEmpty())
+                if (!ItemStackUtils.isEmpty(itemstack))
                 {
                     if (j < this.mainInventory.size())
                     {
@@ -600,14 +597,14 @@ public class InventoryCitizen implements net.minecraft.command.ICommandSender /*
                 }
             }
 
-            final NBTTagList armorTagList = nbtTagCompound.getList(TAG_ARMOR_INVENTORY, 10);
-            for (int i = 0; i < armorTagList.size(); ++i)
+            final NBTTagList armorTagList = nbtTagCompound.getTagList(TAG_ARMOR_INVENTORY, 10);
+            for (int i = 0; i < armorTagList.tagCount(); ++i)
             {
-                final NBTTagCompound compoundNBT = armorTagList.getCompound(i);
+                final NBTTagCompound compoundNBT = armorTagList.getCompoundTagAt(i);
                 final int j = compoundNBT.getByte("Slot") & 255;
-                final ItemStack itemstack = ItemStack.of(compoundNBT);
+                final ItemStack itemstack = ItemStack.loadItemStackFromNBT(compoundNBT);
 
-                if (!itemstack.isEmpty())
+                if (!ItemStackUtils.isEmpty(itemstack))
                 {
                     if (j < this.armorInventory.size())
                     {
@@ -618,24 +615,24 @@ public class InventoryCitizen implements net.minecraft.command.ICommandSender /*
         }
         else
         {
-            final NBTTagList nbtTagList = nbtTagCompound.getList(TAG_INVENTORY, 10);
-            if (this.mainInventory.size() < nbtTagList.getCompound(0).getInt(TAG_SIZE))
+            final NBTTagList nbtTagList = nbtTagCompound.getTagList(TAG_INVENTORY, 10);
+            if (this.mainInventory.size() < nbtTagList.getCompoundTagAt(0).getInteger(TAG_SIZE))
             {
-                int size = nbtTagList.getCompound(0).getInt(TAG_SIZE);
+                int size = nbtTagList.getCompoundTagAt(0).getInteger(TAG_SIZE);
                 size -= size % ROW_SIZE;
-                this.mainInventory = java.util.List.withSize(size, ItemStackUtils.EMPTY);
+                this.mainInventory = new java.util.ArrayList<>(java.util.Collections.nCopies(size, ItemStackUtils.EMPTY));
             }
 
             freeSlots = mainInventory.size();
 
-            for (int i = 1; i < nbtTagList.size(); i++)
+            for (int i = 1; i < nbtTagList.tagCount(); i++)
             {
-                final NBTTagCompound compoundNBT = nbtTagList.getCompound(i);
+                final NBTTagCompound compoundNBT = nbtTagList.getCompoundTagAt(i);
 
                 final int j = compoundNBT.getByte("Slot") & 255;
-                final ItemStack itemstack = ItemStack.of(compoundNBT);
+                final ItemStack itemstack = ItemStack.loadItemStackFromNBT(compoundNBT);
 
-                if (!itemstack.isEmpty())
+                if (!ItemStackUtils.isEmpty(itemstack))
                 {
                     if (j < this.mainInventory.size())
                     {

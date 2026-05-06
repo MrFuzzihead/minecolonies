@@ -39,7 +39,7 @@ public class EnchanterStationsModule extends AbstractBuildingModule implements I
     public void deserializeNBT(final NBTTagCompound compound)
     {
         buildingToGatherFrom.clear();
-        NBTUtils.streamCompound(compound.getList(TAG_GATHER_LIST, NBTBase.TAG_COMPOUND))
+        NBTUtils.streamCompound(compound.getTagList(TAG_GATHER_LIST, NBTBase.TAG_COMPOUND))
           .map(this::deserializeListElement)
           .forEach(t -> buildingToGatherFrom.put(t.getA(), t.getB()));
     }
@@ -47,7 +47,7 @@ public class EnchanterStationsModule extends AbstractBuildingModule implements I
     @Override
     public void serializeNBT(final NBTTagCompound compound)
     {
-        compound.put(TAG_GATHER_LIST, buildingToGatherFrom.entrySet().stream().map(this::serializeListElement).collect(NBTUtils.toListNBT()));
+        compound.setTag(TAG_GATHER_LIST, buildingToGatherFrom.entrySet().stream().map(this::serializeListElement).collect(NBTUtils.toListNBT()));
     }
 
     @Override

@@ -1,7 +1,7 @@
 package net.minecraftforge.items;
 import net.minecraft.item.ItemStack;
 /** [1.7.10 shim] IItemHandlerModifiable - replaces Forge 1.8+ capability-based item handler. */
-public interface IItemHandlerModifiable {
+public interface IItemHandlerModifiable extends IItemHandler {
     int getSlots();
     ItemStack getStackInSlot(int slot);
     ItemStack insertItem(int slot, ItemStack stack, boolean simulate);

@@ -1,4 +1,6 @@
 package com.minecolonies.core.entity.pathfinding.world;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.block.state.BlockState;
 
 // [1.7.10] int[] -> int x,y,z
 import net.minecraft.world.IBlockAccess;
@@ -142,8 +144,14 @@ public class CachingBlockLookup implements IBlockAccess
     }
 
     @Override
-    public boolean isSideSolid(final int x, final int y, final int z, final net.minecraft.util.Direction side, final boolean def)
+    public boolean isSideSolid(final int x, final int y, final int z, final ForgeDirection side, final boolean def)
     {
         return def;
+    }
+
+    @Override
+    public int getLightBrightnessForSkyBlocks(final int x, final int y, final int z, final int minLight)
+    {
+        return world.getLightBrightnessForSkyBlocks(x, y, z, minLight);
     }
 }

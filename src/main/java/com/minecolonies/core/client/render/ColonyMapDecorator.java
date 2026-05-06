@@ -27,7 +27,7 @@ public class ColonyMapDecorator implements IItemDecorator
     @Override
     public boolean render(GuiGraphics graphics, Font font, ItemStack stack, int xOffset, int yOffset)
     {
-        final long gametime = Minecraft.getInstance().World.getGameTime();
+        final long gametime = Minecraft.getInstance().world.getTotalWorldTime();
 
         if (lastChange != gametime && gametime % 40 == 0)
         {

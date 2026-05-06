@@ -1,4 +1,7 @@
 package com.minecolonies.core.entity.ai.workers.production.agriculture;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Direction;
+import net.minecraft.world.entity.player.Player;
 
 import com.ldtteam.structurize.util.BlockUtils;
 import com.minecolonies.api.colony.interactionhandling.ChatPriority;

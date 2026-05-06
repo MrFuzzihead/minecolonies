@@ -122,7 +122,7 @@ public class BuildingEntry
 
     public String getTranslationKey()
     {
-        return "com." + registryName.getNamespace() + ".building." + registryName.getPath();
+        return "com." + registryName.getResourceDomain() + ".building." + registryName.getResourcePath();
     }
 
     private final Supplier<BiFunction<IColonyView, int[], IBuildingView>> buildingViewProducer;

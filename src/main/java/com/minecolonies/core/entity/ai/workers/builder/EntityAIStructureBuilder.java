@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.ai.workers.builder;
+import net.minecraft.network.chat.Style;
 
 import com.ldtteam.structurize.placement.StructurePlacer;
 import com.minecolonies.api.colony.IColonyManager;
@@ -29,6 +30,7 @@ import net.minecraft.entity.Entity;
 // [1.7.10] world.entity removed
 import net.minecraft.block.Block;
 // [1.7.10] BlockState -> int metadata
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState.*;

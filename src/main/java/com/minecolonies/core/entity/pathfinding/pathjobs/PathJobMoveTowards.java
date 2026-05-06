@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.pathfinding.pathjobs;
+import net.minecraft.util.Direction;
 
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.core.entity.pathfinding.MNode;
@@ -6,6 +7,7 @@ import com.minecolonies.core.entity.pathfinding.SurfaceType;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
 // [1.7.10] int[] -> int x,y,z
 // [1.7.10] world.entity removed
+import net.minecraft.entity.EntityCreature;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 

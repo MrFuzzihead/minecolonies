@@ -1,4 +1,8 @@
 package com.minecolonies.core.util;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.Direction;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.block.state.BlockState;
 
 // [1.7.10] DomumOrnamentum removed
 import com.ldtteam.structurize.blueprints.v1.Blueprint;

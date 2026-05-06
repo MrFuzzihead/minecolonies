@@ -114,7 +114,7 @@ public class ColonyConnectionNode
         BlockPosUtil.write(compound, TAG_POS, position);
         BlockPosUtil.write(compound, TAG_PREV_POS, previousNode);
         BlockPosUtil.write(compound, TAG_NEXT_POS, nextNode);
-        compound.putInt(TAG_TARGET_COLONY_ID, targetColonyId);
+        compound.setInteger(TAG_TARGET_COLONY_ID, targetColonyId);
         return compound;
     }
 
@@ -127,7 +127,7 @@ public class ColonyConnectionNode
     {
         this.previousNode = BlockPosUtil.read(compound, TAG_PREV_POS);
         this.nextNode = BlockPosUtil.read(compound, TAG_NEXT_POS);
-        this.targetColonyId = compound.getInt(TAG_TARGET_COLONY_ID);
+        this.targetColonyId = compound.getInteger(TAG_TARGET_COLONY_ID); // [1.7.10]
     }
 
     /**

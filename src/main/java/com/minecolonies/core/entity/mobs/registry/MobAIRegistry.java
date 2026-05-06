@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.mobs.registry;
+import net.minecraft.world.entity.player.Player;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -18,6 +19,7 @@ import net.minecraft.entity.Entity;
 // [1.7.10] world.entity removed
 // [1.7.10] world.entity removed
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.entity.ai.goal.Goal;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

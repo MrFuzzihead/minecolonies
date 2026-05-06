@@ -1,4 +1,6 @@
 package com.minecolonies.core.entity.ai.workers;
+import net.minecraft.tileentity.BlockEntity; // [1.7.10] alias -> TileEntity
+import net.minecraft.block.state.BlockState;
 
 import com.ldtteam.structurize.blocks.schematic.BlockFluidSubstitution;
 import com.ldtteam.structurize.placement.BlockPlacementResult;

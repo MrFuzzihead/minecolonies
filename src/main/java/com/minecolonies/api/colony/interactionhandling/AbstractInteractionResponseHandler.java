@@ -102,20 +102,20 @@ public abstract class AbstractInteractionResponseHandler implements IInteraction
     public NBTTagCompound serializeNBT()
     {
         final NBTTagCompound NBTBase = new NBTTagCompound();
-        NBTBase.putString(TAG_INQUIRY, String.Serializer.toJson(this.inquiry));
+        NBTBase.setString(TAG_INQUIRY, this.inquiry);
         final NBTTagList list = new NBTTagList();
         for (final Map.Entry<String, String> element : responses.entrySet())
         {
             final NBTTagCompound elementTag = new NBTTagCompound();
-            elementTag.putString(TAG_RESPONSE, String.Serializer.toJson(element.getKey()));
-            elementTag.putString(TAG_NEXT_INQUIRY, String.Serializer.toJson(element.getValue()));
+            elementTag.setString(TAG_RESPONSE, element.getKey());
+            elementTag.setString(TAG_NEXT_INQUIRY, element.getValue());
 
-            list.add(elementTag);
+            list.appendTag(elementTag);
         }
-        NBTBase.put(TAG_RESPONSES, list);
-        NBTBase.putBoolean(TAG_PRIMARY, isPrimary());
-        NBTBase.putInt(TAG_PRIORITY, priority.getPriority());
-        NBTBase.putString(NbtTagConstants.TAG_HANDLER_TYPE, getType());
+        NBTBase.setTag(TAG_RESPONSES, list);
+        NBTBase.setBoolean(TAG_PRIMARY, isPrimary());
+        NBTBase.setInteger(TAG_PRIORITY, priority.getPriority());
+        NBTBase.setString(NbtTagConstants.TAG_HANDLER_TYPE, getType());
         return NBTBase;
     }
 
@@ -124,15 +124,15 @@ public abstract class AbstractInteractionResponseHandler implements IInteraction
      */
     public void deserializeNBT(@NotNull final NBTTagCompound compoundNBT)
     {
-        this.inquiry = String.Serializer.fromJson(compoundNBT.getString(TAG_INQUIRY));
-        final NBTTagList list = compoundNBT.getList(TAG_RESPONSES, NBTBase.TAG_COMPOUND);
-        for (int i = 0; i < list.size(); i++)
+        this.inquiry = compoundNBT.getString(TAG_INQUIRY);
+        final NBTTagList list = compoundNBT.getTagList(TAG_RESPONSES, 10);
+        for (int i = 0; i < list.tagCount(); i++)
         {
-            final NBTTagCompound nbt = list.getCompound(i);
-            this.responses.put(String.Serializer.fromJson(nbt.getString(TAG_RESPONSE)), String.Serializer.fromJson(nbt.getString(TAG_NEXT_INQUIRY)));
+            final NBTTagCompound nbt = list.getCompoundTagAt(i);
+            this.responses.put(nbt.getString(TAG_RESPONSE), nbt.getString(TAG_NEXT_INQUIRY));
         }
         this.primary = compoundNBT.getBoolean(TAG_PRIMARY);
-        this.priority = ChatPriority.values()[compoundNBT.getInt(TAG_PRIORITY)];
+        this.priority = ChatPriority.values()[compoundNBT.getInteger(TAG_PRIORITY)];
     }
 
     @Override

@@ -100,10 +100,10 @@ public class WorkerBuildingModule extends AbstractAssignedCitizenModule
         super.deserializeNBT(compound);
         if (compound.contains(TAG_WORKER))
         {
-            final NBTTagList workersTagList = compound.getList(TAG_WORKER, NBTBase.TAG_COMPOUND);
+            final NBTTagList workersTagList = compound.getTagList(TAG_WORKER, NBTBase.TAG_COMPOUND);
             for (int i = 0; i < workersTagList.size(); ++i)
             {
-                final ICitizenData data = building.getColony().getCitizenManager().getCivilian(workersTagList.getCompound(i).getInt(TAG_WORKER_ID));
+                final ICitizenData data = building.getColony().getCitizenManager().getCivilian(workersTagList.getCompoundTagAt(i).getInt(TAG_WORKER_ID));
                 if (data != null && data.getJob() != null && data.getJob().getJobRegistryEntry() == jobEntry)
                 {
                     assignCitizen(data);
@@ -112,7 +112,7 @@ public class WorkerBuildingModule extends AbstractAssignedCitizenModule
         }
         else if (compound.contains(getModuleSerializationIdentifier()))
         {
-            final NBTTagCompound jobCompound = compound.getCompound(jobEntry.getKey().toString());
+            final NBTTagCompound jobCompound = compound.getCompoundTag(jobEntry.getKey().toString());
             final int[] residentIds = jobCompound.getIntArray(TAG_WORKING_RESIDENTS);
             for (final int citizenId : residentIds)
             {

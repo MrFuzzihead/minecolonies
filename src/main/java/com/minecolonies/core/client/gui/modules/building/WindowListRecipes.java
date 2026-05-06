@@ -259,7 +259,7 @@ public class WindowListRecipes extends AbstractModuleWindow<CraftingModuleView>
                         }
                         else
                         {
-                            rowPane.findPaneOfTypeByID(String.format(RESOURCE, i + 1), ItemIcon.class).setItem(ItemStack.EMPTY);
+                            rowPane.findPaneOfTypeByID(String.format(RESOURCE, i + 1), ItemIcon.class).setItem(null);
                         }
                     }
                 }
@@ -267,12 +267,12 @@ public class WindowListRecipes extends AbstractModuleWindow<CraftingModuleView>
                 {
                     rowPane.findPaneOfTypeByID(String.format(RESOURCE, 1), ItemIcon.class).setItem(getStackWithCount(recipe.getInput().get(0)));
                     rowPane.findPaneOfTypeByID(String.format(RESOURCE, 2), ItemIcon.class).setItem(getStackWithCount(recipe.getInput().get(1)));
-                    rowPane.findPaneOfTypeByID(String.format(RESOURCE, 3), ItemIcon.class).setItem(ItemStack.EMPTY);
+                    rowPane.findPaneOfTypeByID(String.format(RESOURCE, 3), ItemIcon.class).setItem(null);
                     rowPane.findPaneOfTypeByID(String.format(RESOURCE, 4), ItemIcon.class).setItem(getStackWithCount(recipe.getInput().get(2)));
                     rowPane.findPaneOfTypeByID(String.format(RESOURCE, 5), ItemIcon.class).setItem(getStackWithCount(recipe.getInput().get(3)));
                     for (int i = 6; i < 9; i++)
                     {
-                        rowPane.findPaneOfTypeByID(String.format(RESOURCE, i + 1), ItemIcon.class).setItem(ItemStack.EMPTY);
+                        rowPane.findPaneOfTypeByID(String.format(RESOURCE, i + 1), ItemIcon.class).setItem(null);
                     }
                 }
                 else

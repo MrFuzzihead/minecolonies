@@ -65,7 +65,7 @@ public class PendingConnectionNode extends ColonyConnectionNode
     public NBTTagCompound write()
     {
         final NBTTagCompound compound = super.write();
-        compound.putInt(TAG_CONNECTION_TYPE, connectionType.ordinal());
+        compound.setInteger(TAG_CONNECTION_TYPE, connectionType.ordinal());
         return compound;
     }
 
@@ -77,7 +77,7 @@ public class PendingConnectionNode extends ColonyConnectionNode
     public void read(@NotNull final NBTTagCompound compound)
     {
         super.read(compound);
-        this.connectionType = PendingConnectionType.values()[compound.getInt(TAG_CONNECTION_TYPE)];
+        this.connectionType = PendingConnectionType.values()[compound.getInteger(TAG_CONNECTION_TYPE)];
     }
 
     /**

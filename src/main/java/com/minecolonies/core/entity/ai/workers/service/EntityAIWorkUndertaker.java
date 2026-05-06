@@ -1,4 +1,6 @@
 package com.minecolonies.core.entity.ai.workers.service;
+import net.minecraft.util.Direction;
+import net.minecraft.tileentity.BlockEntity; // [1.7.10] alias -> TileEntity
 
 import com.minecolonies.api.advancements.AdvancementTriggers;
 import com.minecolonies.api.colony.GraveData;

@@ -2,6 +2,7 @@ package net.minecraft.block.state;
 
 import net.minecraft.block.Block;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.util.AxisAlignedBB;
 
 /**
  * [1.7.10] Shim replacing the 1.21 net.minecraft.world.level.block.state.BlockState.
@@ -59,6 +60,12 @@ public class BlockState
     public Object getFluidState()
     {
         return null;
+    }
+
+    /** [1.7.10] Stub for getCollisionShape – returns full block AABB */
+    public AxisAlignedBB getCollisionShape(final IBlockAccess world, final int[] pos)
+    {
+        return AxisAlignedBB.getBoundingBox(0, 0, 0, 1, 1, 1);
     }
 
     /** Stub for getShape() */
@@ -127,4 +134,6 @@ public class BlockState
         return "BlockState{block=" + block + ", meta=" + meta + "}";
     }
 }
+
+
 

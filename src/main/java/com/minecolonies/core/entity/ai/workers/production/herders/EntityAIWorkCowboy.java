@@ -1,4 +1,7 @@
 package com.minecolonies.core.entity.ai.workers.production.herders;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.item.InteractionResult;
+import net.minecraft.world.entity.animal.Animal;
 
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.entity.ai.statemachine.AITarget;
@@ -235,7 +238,7 @@ public class EntityAIWorkCowboy extends AbstractEntityAIHerder<JobCowboy, Buildi
                     InventoryUtils.tryRemoveStackFromItemHandler(worker.getInventoryCitizen(), new ItemStack(Items.BOWL));
                     worker.queueSound(SoundEvents.MOOSHROOM_MILK, mooshroom.blockPosition(), 10, 0, 0.9f, worker.getRandom().nextFloat());
                 }
-                fakePlayer.setItemInHand(0 /* InteractionHand.MAIN_HAND */, ItemStack.EMPTY);
+                fakePlayer.setItemInHand(0 /* InteractionHand.MAIN_HAND */, null);
             }
 
             this.incrementActionsDone();

@@ -1,4 +1,5 @@
 package com.minecolonies.api.research;
+import net.minecraft.network.chat.Style;
 
 import net.minecraft.nbt.NBTTagCompound;
 // [1.7.10] chat.String replaced by IChatComponent/ChatComponentText

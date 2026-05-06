@@ -1,4 +1,11 @@
 package com.minecolonies.core.event;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+
+import net.minecraft.client.gui.screens.recipebook.RecipeBookCategories;
 
 import com.minecolonies.api.blocks.ModBlocks;
 import com.minecolonies.api.client.ModKeyMappings;
@@ -43,6 +50,7 @@ import com.minecolonies.core.client.render.worldevent.ColonyBlueprintRenderer;
 // [1.7.10] client removed (use @SideOnly)
 // [1.7.10] client removed (use @SideOnly)
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.model.geom.ModelLayerLocation;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraftforge.client.event.*;
@@ -338,9 +346,9 @@ public class ClientRegistryHandler
         event.registerEntityRenderer(ModEntities.MERCENARY, RenderMercenary::new);
         event.registerEntityRenderer(ModEntities.SITTINGENTITY, RenderSitting::new);
         event.registerEntityRenderer(ModEntities.MINECART, (context) -> new MinecartRenderer<>(context, ModelLayers.MINECART));
-        event.registerEntityRenderer(ModEntities.CAVALRY_HORSE, ctx -> 
+        event.registerEntityRenderer(ModEntities.CAVALRY_HORSE, ctx ->
         {
-            HorseRenderer renderer = new HorseRenderer(ctx); 
+            HorseRenderer renderer = new HorseRenderer(ctx);
             renderer.addLayer(new CavalryOverlayLayer(renderer));
             return renderer;
         });

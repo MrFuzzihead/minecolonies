@@ -1,4 +1,5 @@
 package com.minecolonies.core.blocks;
+import net.minecraft.world.entity.player.Player;
 
 import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
 import com.ldtteam.structurize.blocks.interfaces.ILeveledBlueprintAnchorBlock;

@@ -732,7 +732,7 @@ public abstract class AbstractWorkOrder implements IBuilderWorkOrder
             NBTBase.putInt("maxx", (int) box.maxX);
             NBTBase.putInt("maxy", (int) box.maxY);
             NBTBase.putInt("maxz", (int) box.maxZ);
-            compound.put(TAG_BB, NBTBase);
+            compound.setTag(TAG_BB, NBTBase);
         }
     }
 
@@ -826,7 +826,7 @@ public abstract class AbstractWorkOrder implements IBuilderWorkOrder
                             final BlockEntity te = colony.getWorld().getBlockEntity(tePos);
                             if (te instanceof IBlueprintDataProviderBE blueprintDataProviderBE)
                             {
-                                final NBTTagCompound tagData = compoundNBT.getCompound(TAG_BLUEPRINTDATA);
+                                final NBTTagCompound tagData = compoundNBT.getCompoundTag(TAG_BLUEPRINTDATA);
                                 tagData.putString(NbtTagConstants.TAG_PACK, blueprint.getPackName());
                                 if (blueprint.getPrimaryBlockOffset().equals(offset))
                                 {

@@ -12,6 +12,7 @@ import com.minecolonies.core.entity.pathfinding.navigation.EntityNavigationUtils
 import com.minecolonies.core.entity.pathfinding.navigation.MinecoloniesAdvancedPathNavigate;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
 // [1.7.10] int /* InteractionHand */ removed
+import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
 // [1.7.10] world.entity removed
 
@@ -68,9 +69,9 @@ public class AttackMoveAI<T extends EntityCreature & IThreatTableEntity> extends
         final boolean canSeeTarget = user.getSensing().hasLineOfSight(target);
         if (canSeeTarget)
         {
-            nextTarget.setLastSeen(user.World.getGameTime());
+            nextTarget.setLastSeen(user.world.getTotalWorldTime());
         }
-        else if ((user.World.getGameTime() - nextTarget.getLastSeen()) > STOP_PERSECUTION_AFTER)
+        else if ((user.world.getTotalWorldTime() - nextTarget.getLastSeen()) > STOP_PERSECUTION_AFTER)
         {
             resetTarget();
             return null;
@@ -137,7 +138,7 @@ public class AttackMoveAI<T extends EntityCreature & IThreatTableEntity> extends
             return CombatAIStates.NO_TARGET;
         }
 
-        if (nextAttackTime >= user.World.getGameTime() || !isInDistanceForAttack(target))
+        if (nextAttackTime >= user.world.getTotalWorldTime() || !isInDistanceForAttack(target))
         {
             return null;
         }
@@ -147,7 +148,7 @@ public class AttackMoveAI<T extends EntityCreature & IThreatTableEntity> extends
             pathAttempts = 0;
             user.getLookControl().setLookAt(target);
             doAttack(target);
-            nextAttackTime = user.World.getGameTime() + getAttackDelay();
+            nextAttackTime = user.world.getTotalWorldTime() + getAttackDelay();
         }
 
         return null;

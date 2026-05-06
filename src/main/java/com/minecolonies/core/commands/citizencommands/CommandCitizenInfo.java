@@ -17,6 +17,8 @@ import net.minecraft.commands.CommandSourceStack;
 // [1.7.10] int[] -> int x,y,z
 // [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 import net.minecraft.util.IChatComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.util.ClickEvent;
 // [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

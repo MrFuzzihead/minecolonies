@@ -1,4 +1,6 @@
 package com.minecolonies.api.colony.buildingextensions.plantation;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.buildingextensions.modules.IBuildingExtensionModule;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;

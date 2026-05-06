@@ -1,4 +1,5 @@
 package com.minecolonies.core.blocks;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.blocks.AbstractBlockMinecoloniesRack;
 import com.minecolonies.api.colony.IColony;

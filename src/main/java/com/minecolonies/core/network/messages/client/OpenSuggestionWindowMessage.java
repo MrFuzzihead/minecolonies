@@ -1,4 +1,5 @@
 package com.minecolonies.core.network.messages.client;
+import net.minecraft.world.level.block.state.BlockState;
 
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.core.MineColonies;

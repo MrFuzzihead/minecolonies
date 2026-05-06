@@ -13,6 +13,7 @@ import mezz.jei.api.registration.IGuiHandlerRegistration;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

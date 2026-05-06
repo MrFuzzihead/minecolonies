@@ -1,5 +1,7 @@
 package com.minecolonies.core.colony.managers;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+import net.minecraft.tileentity.BlockEntity; // [1.7.10] alias -> TileEntity
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -76,10 +78,10 @@ public class GraveManager implements IGraveManager
     public void read(@NotNull final NBTTagCompound compound)
     {
         graves.clear();
-        final NBTTagList gravesTagList = compound.getList(TAG_GRAVE, NBTBase.TAG_COMPOUND);
+        final NBTTagList gravesTagList = compound.getTagList(TAG_GRAVE, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < gravesTagList.size(); ++i)
         {
-            final NBTTagCompound graveCompound = gravesTagList.getCompound(i);
+            final NBTTagCompound graveCompound = gravesTagList.getCompoundTagAt(i);
             if (graveCompound.contains(TAG_POS) && graveCompound.contains(TAG_RESERVED))
             {
                 graves.put(BlockPosUtil.read(graveCompound, TAG_POS), graveCompound.getBoolean(TAG_RESERVED));
@@ -103,7 +105,7 @@ public class GraveManager implements IGraveManager
             graveCompound.putBoolean(TAG_RESERVED, graves.get(blockPos));
             gravesTagList.add(graveCompound);
         }
-        compound.put(TAG_GRAVE, gravesTagList);
+        compound.setTag(TAG_GRAVE, gravesTagList);
     }
 
     /**

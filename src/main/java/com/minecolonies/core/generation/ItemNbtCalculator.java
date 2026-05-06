@@ -1,4 +1,8 @@
 package com.minecolonies.core.generation;
+import net.minecraft.data.DataProvider;
+import net.minecraft.data.CachedOutput;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.data.PackOutput;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
@@ -216,7 +220,7 @@ public class ItemNbtCalculator implements DataProvider
     {
         if (NBTBase.get(key) instanceof NBTTagCompound)
         {
-            final NBTTagCompound subTag = NBTBase.getCompound(key);
+            final NBTTagCompound subTag = NBTBase.getCompoundTag(key);
             Set<CheckedNbtKey> set = new HashSet<>();
             for (String subKey : subTag.getAllKeys())
             {

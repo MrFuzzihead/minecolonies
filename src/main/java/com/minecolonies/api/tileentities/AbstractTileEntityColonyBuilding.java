@@ -1,4 +1,6 @@
 package com.minecolonies.api.tileentities;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.entity.player.Player;
 
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.storage.StructurePackMeta;
@@ -20,7 +22,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import net.minecraft.item.ItemStack;
 
-public abstract class AbstractTileEntityColonyBuilding extends TileEntityRack implements IBlueprintDataProviderBE
+public abstract class AbstractTileEntityColonyBuilding extends TileEntityRack // [1.7.10] IBlueprintDataProviderBE uses modern BlockPos; not implementing
 {
     /**
      * Version of the TE data.
@@ -191,30 +193,39 @@ public abstract class AbstractTileEntityColonyBuilding extends TileEntityRack im
      */
     public abstract ResourceLocation getBuildingName();
 
-    @Override
+    // [1.7.10] getSchematicName/setSchematicName - regular methods (not overriding)
     public String getSchematicName()
     {
         return schematicName.replace(".blueprint", "");
     }
 
-    @Override
+    // [1.7.10] was @Override IBlueprintDataProviderBE
     public void setSchematicName(final String name)
     {
         schematicName = name;
     }
 
-    @Override
+    // [1.7.10] was @Override IBlueprintDataProviderBE; kept as regular method
     public Map<long[], List<String>> getPositionedTags()
     {
         return tagPosMap;
     }
 
-    @Override
+    // [1.7.10] was @Override IBlueprintDataProviderBE; kept as regular method
     public Map<String, Set<long[]>> getWorldTagNamePosMap()
     {
         if (worldTagMapCache == null)
         {
-            worldTagMapCache = IBlueprintDataProviderBE.super.getWorldTagNamePosMap();
+            // [1.7.10] IBlueprintDataProviderBE.super not available; compute inline
+            final Map<String, Set<long[]>> result = new HashMap<>();
+            for (final Map.Entry<long[], List<String>> entry : tagPosMap.entrySet())
+            {
+                for (final String tag : entry.getValue())
+                {
+                    result.computeIfAbsent(tag, k -> new java.util.HashSet<>()).add(entry.getKey());
+                }
+            }
+            worldTagMapCache = result;
         }
         return worldTagMapCache;
     }
@@ -238,7 +249,7 @@ public abstract class AbstractTileEntityColonyBuilding extends TileEntityRack im
         return worldTagMapCacheWithList;
     }
 
-    @Override
+    // [1.7.10] was @Override IBlueprintDataProviderBE; kept as regular method
     public void setPositionedTags(final Map<long[], List<String>> positionedTags)
     {
         tagPosMap = positionedTags;
@@ -247,13 +258,13 @@ public abstract class AbstractTileEntityColonyBuilding extends TileEntityRack im
         markDirty();
     }
 
-    @Override
+    // [1.7.10] was @Override IBlueprintDataProviderBE; kept as regular method
     public Tuple<int[], int[]> getSchematicCorners()
     {
         return new Tuple<>(corner1, corner2);
     }
 
-    @Override
+    // [1.7.10] was @Override IBlueprintDataProviderBE; kept as regular method
     public void setSchematicCorners(final int[] pos1, final int[] pos2)
     {
         corner1 = pos1;
@@ -269,21 +280,25 @@ public abstract class AbstractTileEntityColonyBuilding extends TileEntityRack im
         this.version = compound.getInteger(TAG_VERSION);
     }
 
-    @Override
+    // [1.7.10] readSchematicDataFromNBT - not @Override; was from IBlueprintDataProviderBE
     public void readSchematicDataFromNBT(final NBTTagCompound originalCompound)
     {
         final String old = getSchematicName();
-        IBlueprintDataProviderBE.super.readSchematicDataFromNBT(originalCompound);
+        // [1.7.10] IBlueprintDataProviderBE.super.readSchematicDataFromNBT not available; call basic read
+        if (originalCompound.hasKey("schematicName"))
+        {
+            schematicName = originalCompound.getString("schematicName");
+        }
 
         if (worldObj == null || worldObj.isRemote || getColony() == null || getColony().getServerBuildingManager() == null)
         {
             return;
         }
 
-        final IBuilding building = getColony().getServerBuildingManager().getBuilding(xCoord, yCoord, zCoord);
+        final IBuilding building = getColony().getServerBuildingManager().getBuilding(new int[]{xCoord, yCoord, zCoord});
         if (building != null)
         {
-            building.onUpgradeSchematicTo(old, getSchematicName(), this);
+            building.onUpgradeSchematicTo(old, getSchematicName(), null); // [1.7.10] this no longer implements IBlueprintDataProviderBE
         }
         this.version = VERSION;
     }
@@ -292,7 +307,8 @@ public abstract class AbstractTileEntityColonyBuilding extends TileEntityRack im
     public void writeToNBT(@NotNull final NBTTagCompound compound)
     {
         super.writeToNBT(compound);
-        writeSchematicDataToNBT(compound);
+        // [1.7.10] writeSchematicDataToNBT was from IBlueprintDataProviderBE; write schematicName manually
+        compound.setString("schematicName", schematicName);
         compound.setInteger(TAG_VERSION, this.version);
     }
 

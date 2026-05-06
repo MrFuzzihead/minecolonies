@@ -143,7 +143,7 @@ public class SettingsFactories
                 compoundNBT.putString(TAG_VALUE, setting);
                 list.add(compoundNBT);
             }
-            compound.put(TAG_LIST, list);
+            compound.setTag(TAG_LIST, list);
             return compound;
         }
 
@@ -153,10 +153,10 @@ public class SettingsFactories
         {
             final int current = nbt.getInt(TAG_VALUE);
             final List<String> settings = new ArrayList<>();
-            final NBTTagList list = nbt.getList(TAG_LIST, NBTBase.TAG_COMPOUND);
+            final NBTTagList list = nbt.getTagList(TAG_LIST, NBTBase.TAG_COMPOUND);
             for (int i = 0; i < list.size(); i++)
             {
-                settings.add(list.getCompound(i).getString(TAG_VALUE));
+                settings.add(list.getCompoundTagAt(i).getString(TAG_VALUE));
             }
 
             return this.getNewInstance(settings, current);
@@ -619,7 +619,7 @@ public class SettingsFactories
             final NBTTagCompound compound = new NBTTagCompound();
             if (storage.selectedRecipe != null)
             {
-                compound.put(TAG_TOKEN, StandardFactoryController.getInstance().serialize(storage.selectedRecipe));
+                compound.setTag(TAG_TOKEN, StandardFactoryController.getInstance().serialize(storage.selectedRecipe));
             }
             compound.putString(TAG_MODULE, storage.craftingModuleId);
             return compound;
@@ -632,7 +632,7 @@ public class SettingsFactories
             IToken<?> token = null;
             if (nbt.contains(TAG_TOKEN))
             {
-                token = StandardFactoryController.getInstance().deserialize(nbt.getCompound(TAG_TOKEN));
+                token = StandardFactoryController.getInstance().deserialize(nbt.getCompoundTag(TAG_TOKEN));
             }
             final String moduleId = nbt.getString(TAG_MODULE);
             return this.getNewInstance(token, moduleId);

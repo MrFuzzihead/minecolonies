@@ -34,7 +34,7 @@ public abstract class AbstractBlockMinecoloniesDefault<B extends AbstractBlockMi
 
     @Override
     @SuppressWarnings("unchecked")
-    public B registerBlock(final Object registry)
+    public B registerBlock()
     {
         // [1.7.10] registration handled via GameRegistry elsewhere
         return (B) this;

@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.pathfinding.proxy;
+import net.minecraft.util.Direction;
 
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
@@ -16,6 +17,7 @@ import com.minecolonies.core.entity.ai.workers.util.MinerLevel;
 // [1.7.10] int[] -> int x,y,z
 // [1.7.10] Direction -> net.minecraft.util.EnumFacing
 // [1.7.10] world.entity removed
+import net.minecraft.entity.EntityCreature;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;

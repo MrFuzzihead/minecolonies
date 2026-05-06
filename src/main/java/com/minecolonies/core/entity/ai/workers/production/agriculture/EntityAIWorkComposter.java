@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.ai.workers.production.agriculture;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.requestsystem.requestable.StackList;
 import com.minecolonies.api.crafting.ItemStorage;
@@ -144,7 +145,7 @@ public class EntityAIWorkComposter extends AbstractEntityAIInteract<JobComposter
             return getState();
         }
 
-        final List<ItemStorage> list = building.getModuleMatching(ItemListModule.class, m -> m.getId().equals(COMPOSTABLE_LIST)).getList();
+        final List<ItemStorage> list = building.getModuleMatching(ItemListModule.class, m -> m.getId().equals(COMPOSTABLE_LIST)).getTagList();
         if (list.isEmpty())
         {
             complain();
@@ -169,7 +170,7 @@ public class EntityAIWorkComposter extends AbstractEntityAIInteract<JobComposter
             return START_WORKING;
         }
 
-        worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, ItemStack.EMPTY);
+        worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, null);
 
         if (!building.hasWorkerOpenRequests(worker.getCitizenData().getId()))
         {
@@ -251,7 +252,7 @@ public class EntityAIWorkComposter extends AbstractEntityAIInteract<JobComposter
      */
     private IAIState fillBarrels()
     {
-        if (worker.getItemInHand(0 /* InteractionHand.MAIN_HAND */) == ItemStack.EMPTY)
+        if (worker.getItemInHand(0 /* InteractionHand.MAIN_HAND */) == null)
         {
             final int slot = InventoryUtils.findFirstSlotInItemHandlerWith(
               worker.getInventoryCitizen(),

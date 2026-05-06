@@ -155,8 +155,8 @@ public class DOCraftingWindow extends AbstractModuleWindow<DOCraftingModuleView>
                 }
                 for (; slot < inputInventory.getContainerSize(); ++slot)
                 {
-                    inputInventory.setItem(slot, ItemStack.EMPTY);
-                    inputIcons.get(slot).setItem(ItemStack.EMPTY);
+                    inputInventory.setItem(slot, null);
+                    inputIcons.get(slot).setItem(null);
                 }
                 updateStockList();
             }

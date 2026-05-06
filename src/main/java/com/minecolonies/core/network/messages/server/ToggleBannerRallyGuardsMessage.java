@@ -1,4 +1,5 @@
 package com.minecolonies.core.network.messages.server;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.api.util.InventoryUtils;

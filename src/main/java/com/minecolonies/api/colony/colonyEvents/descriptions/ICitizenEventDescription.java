@@ -7,14 +7,14 @@ public interface ICitizenEventDescription extends IColonyEventDescription
 {
     /**
      * Gets the name of the citizen causing this event.
-     * 
+     *
      * @return the name of the citizen causing this event.
      */
     String getCitizenName();
 
     /**
      * Sets the name of the citizen causing this event.
-     * 
+     *
      * @param name the name of the citizen causing this event.
      */
     void setCitizenName(String name);
@@ -22,6 +22,6 @@ public interface ICitizenEventDescription extends IColonyEventDescription
     @Override
     default String toDisplayString()
     {
-        return String.format("%s %s at %d %d %d.%n", getCitizenName(), getName(), getEventPos().getX(), getEventPos().getY(), getEventPos().getZ());
+        return String.format("%s %s at %d %d %d.%n", getCitizenName(), getName(), getEventPos()[0], getEventPos()[1], getEventPos()[2]);
     }
 }

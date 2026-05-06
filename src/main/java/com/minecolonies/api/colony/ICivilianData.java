@@ -1,4 +1,5 @@
 package com.minecolonies.api.colony;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.interactionhandling.IInteractionResponseHandler;
 import com.minecolonies.api.colony.requestsystem.requestable.IRequestable;

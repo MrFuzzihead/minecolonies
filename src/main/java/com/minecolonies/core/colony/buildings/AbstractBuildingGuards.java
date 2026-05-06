@@ -1,5 +1,6 @@
 package com.minecolonies.core.colony.buildings;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -226,18 +227,18 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
     {
         super.deserializeNBT(compound);
 
-        final NBTTagList wayPointTagList = compound.getList(NBT_PATROL_TARGETS, NBTBase.TAG_COMPOUND);
+        final NBTTagList wayPointTagList = compound.getTagList(NBT_PATROL_TARGETS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < wayPointTagList.size(); ++i)
         {
-            final NBTTagCompound blockAtPos = wayPointTagList.getCompound(i);
+            final NBTTagCompound blockAtPos = wayPointTagList.getCompoundTagAt(i);
             final int[] pos = BlockPosUtil.read(blockAtPos, NBT_TARGET);
             patrolTargets.add(pos);
         }
 
-        guardPos = NbtUtils.readBlockPos(compound.getCompound(NBT_GUARD));
+        guardPos = NbtUtils.readBlockPos(compound.getCompoundTag(NBT_GUARD));
         if (compound.contains(NBT_MINE_POS))
         {
-            minePos = NbtUtils.readBlockPos(compound.getCompound(NBT_MINE_POS));
+            minePos = NbtUtils.readBlockPos(compound.getCompoundTag(NBT_MINE_POS));
         }
 
         if (compound.contains(NBT_PLAYER_UUID))
@@ -260,11 +261,11 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
 
             wayPointTagList.add(wayPointCompound);
         }
-        compound.put(NBT_PATROL_TARGETS, wayPointTagList);
-        compound.put(NBT_GUARD, NbtUtils.writeBlockPos(guardPos));
+        compound.setTag(NBT_PATROL_TARGETS, wayPointTagList);
+        compound.setTag(NBT_GUARD, NbtUtils.writeBlockPos(guardPos));
         if (minePos != null)
         {
-            compound.put(NBT_MINE_POS, NbtUtils.writeBlockPos(minePos));
+            compound.setTag(NBT_MINE_POS, NbtUtils.writeBlockPos(minePos));
         }
 
         if (followPlayerUUID != null)

@@ -9,6 +9,7 @@ import com.mojang.math.Axis;
 // [1.7.10] client removed (use @SideOnly)
 // [1.7.10] client removed (use @SideOnly)
 import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.level.block.state.BlockState;
 // [1.7.10] BlockState -> int metadata
 import net.minecraftforge.client.model.data.ModelData;
 

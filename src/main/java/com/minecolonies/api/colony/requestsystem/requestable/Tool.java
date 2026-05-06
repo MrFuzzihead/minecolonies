@@ -71,10 +71,10 @@ public class Tool implements IDeliverable
     {
         final NBTTagCompound compound = new NBTTagCompound();
 
-        compound.putString(NBT_TYPE, equipment.getEquipmentType().getRegistryName().toString());
-        compound.putInt(NBT_MIN_LEVEL, equipment.getMinLevel());
-        compound.putInt(NBT_MAX_LEVEL, equipment.getMaxLevel());
-        compound.put(NBT_RESULT, equipment.getResult().serializeNBT());
+        compound.setString(NBT_TYPE, equipment.getEquipmentType().getRegistryName().toString());
+        compound.setInteger(NBT_MIN_LEVEL, equipment.getMinLevel());
+        compound.setInteger(NBT_MAX_LEVEL, equipment.getMaxLevel());
+        compound.setTag(NBT_RESULT, equipment.getResult().writeToNBT(new net.minecraft.nbt.NBTTagCompound()));
 
         return compound;
     }
@@ -124,10 +124,10 @@ public class Tool implements IDeliverable
     {
         //API:Map the given strings a proper way.
         String resLoc = nbt.getString(NBT_TYPE);
-        final EquipmentTypeEntry type = ModEquipmentTypes.getRegistry().getValue(EquipmentTypeEntry.parseResourceLocation(resLoc));
-        final Integer minLevel = nbt.getInt(NBT_MIN_LEVEL);
-        final Integer maxLevel = nbt.getInt(NBT_MAX_LEVEL);
-        final ItemStack result = ItemStack.of(nbt.getCompound(NBT_RESULT));
+        final EquipmentTypeEntry type = ModEquipmentTypes.lookup(EquipmentTypeEntry.parseResourceLocation(resLoc));
+        final Integer minLevel = nbt.getInteger(NBT_MIN_LEVEL);
+        final Integer maxLevel = nbt.getInteger(NBT_MAX_LEVEL);
+        final ItemStack result = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag(NBT_RESULT));
 
         return new Tool(type, minLevel, maxLevel, result);
     }
@@ -141,13 +141,13 @@ public class Tool implements IDeliverable
      */
     public static void serialize(final IFactoryController controller, final PacketBuffer buffer, final Tool input)
     {
-        buffer.writeResourceLocation(input.getEquipmentType().getRegistryName());
+        try { buffer.writeStringToBuffer(input.getEquipmentType().getRegistryName().toString()); } catch (java.io.IOException e) { throw new RuntimeException(e); }
         buffer.writeInt(input.getMinLevel());
         buffer.writeInt(input.getMaxLevel());
         buffer.writeBoolean(!ItemStackUtils.isEmpty(input.result));
         if (!ItemStackUtils.isEmpty(input.result))
         {
-            buffer.writeItem(input.result);
+            try { buffer.writeItemStackToBuffer(input.result); } catch (java.io.IOException e) { throw new RuntimeException(e); }
         }
     }
 
@@ -160,12 +160,14 @@ public class Tool implements IDeliverable
      */
     public static Tool deserialize(final IFactoryController controller, final PacketBuffer buffer)
     {
-        final EquipmentTypeEntry type = ModEquipmentTypes.getRegistry().getValue(buffer.readResourceLocation());
-        final int minLevel = buffer.readInt();
-        final int maxLevel = buffer.readInt();
-        final ItemStack result = buffer.readBoolean() ? buffer.readItem() : ItemStack.EMPTY;
+        try {
+            final EquipmentTypeEntry type = ModEquipmentTypes.lookup(new net.minecraft.util.ResourceLocation(buffer.readStringFromBuffer(32767)));
+            final int minLevel = buffer.readInt();
+            final int maxLevel = buffer.readInt();
+            final ItemStack result = buffer.readBoolean() ? buffer.readItemStackFromBuffer() : null;
 
-        return new Tool(type, minLevel, maxLevel, result);
+            return new Tool(type, minLevel, maxLevel, result);
+        } catch (java.io.IOException e) { throw new RuntimeException(e); }
     }
 
     @Override
@@ -182,7 +184,7 @@ public class Tool implements IDeliverable
         }
         catch (final Exception e)
         {
-            Log.getLogger().warn("Got exception for Itemstack when trying to match equipment World: " + stack.getDisplayName() + " - " + stack.getItem().getCreatorModId(stack), e);
+            Log.getLogger().warn("Got exception for Itemstack when trying to match equipment World: " + stack.getDisplayName() + " - " + stack.getItem().getClass().getName(), e);
             return false;
         }
     }

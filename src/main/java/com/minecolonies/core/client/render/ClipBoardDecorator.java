@@ -1,5 +1,6 @@
 package com.minecolonies.core.client.render;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -40,7 +41,7 @@ public class ClipBoardDecorator implements IItemDecorator
     @Override
     public boolean render(GuiGraphics graphics, Font font, ItemStack stack, int xOffset, int yOffset)
     {
-        final long gametime = Minecraft.getInstance().World.getGameTime();
+        final long gametime = Minecraft.getInstance().world.getTotalWorldTime();
 
         if (lastChange != gametime && gametime % 40 == 0)
         {

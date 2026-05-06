@@ -1,4 +1,6 @@
 package com.minecolonies.core.items;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.item.Properties;
 
 import com.minecolonies.api.blocks.decorative.AbstractBlockGate;
 import com.minecolonies.api.util.constant.TranslationConstants;

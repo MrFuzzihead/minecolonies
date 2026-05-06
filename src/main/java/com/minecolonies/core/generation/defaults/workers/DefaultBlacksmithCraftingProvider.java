@@ -1,4 +1,7 @@
 package com.minecolonies.core.generation.defaults.workers;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.item.crafting.FinishedRecipe;
+import net.minecraft.data.PackOutput;
 
 import com.minecolonies.api.colony.jobs.ModJobs;
 import com.minecolonies.api.crafting.ItemStorage;
@@ -9,7 +12,7 @@ import com.minecolonies.core.generation.CustomRecipeProvider;
 // [1.7.10] data removed
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.World.ItemLike;
+// [1.7.10] // [1.7.10] // [1.7.10] import net.minecraft.world.World.ItemLike; // wrong package // wrong package // wrong package - using net.minecraft.world.level.ItemLike instead
 // [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 

@@ -40,8 +40,8 @@ public class BuildingBasedRequester implements IBuildingBasedRequester
 
     public static BuildingBasedRequester deserialize(final IFactoryController controller, final NBTTagCompound compound)
     {
-        final ILocation location = controller.deserialize(compound.getCompound(NBT_LOCATION));
-        final IToken<?> token = controller.deserialize(compound.getCompound(NBT_ID));
+        final ILocation location = controller.deserialize(compound.getCompoundTag(NBT_LOCATION));
+        final IToken<?> token = controller.deserialize(compound.getCompoundTag(NBT_ID));
 
         return new BuildingBasedRequester(location, token);
     }
@@ -50,8 +50,8 @@ public class BuildingBasedRequester implements IBuildingBasedRequester
     {
         final NBTTagCompound compound = new NBTTagCompound();
 
-        compound.put(NBT_LOCATION, controller.serialize(getLocation()));
-        compound.put(NBT_ID, controller.serialize(getId()));
+        compound.setTag(NBT_LOCATION, controller.serialize(getLocation()));
+        compound.setTag(NBT_ID, controller.serialize(getId()));
 
         return compound;
     }

@@ -1,4 +1,5 @@
 package com.minecolonies.api.colony.managers.interfaces;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildingextensions.registry.BuildingExtensionRegistries;

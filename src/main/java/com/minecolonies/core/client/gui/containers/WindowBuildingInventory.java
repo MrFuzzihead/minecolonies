@@ -1,4 +1,5 @@
 package com.minecolonies.core.client.gui.containers;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.inventory.container.ContainerBuildingInventory;
 import com.minecolonies.api.util.constant.Constants;

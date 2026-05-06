@@ -1,4 +1,6 @@
 package com.minecolonies.core.client.render.worldevent;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.chunk.ChunkPos;
 
 import com.ldtteam.structurize.client.rendertask.util.WorldRenderMacros;

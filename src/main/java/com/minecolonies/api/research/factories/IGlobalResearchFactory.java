@@ -1,4 +1,5 @@
 package com.minecolonies.api.research.factories;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.requestsystem.factory.FactoryVoidInput;
 import com.minecolonies.api.colony.requestsystem.factory.IFactory;

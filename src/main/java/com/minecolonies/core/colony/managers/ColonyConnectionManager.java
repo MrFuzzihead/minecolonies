@@ -1,5 +1,6 @@
 package com.minecolonies.core.colony.managers;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -621,7 +622,7 @@ public class ColonyConnectionManager implements IColonyConnectionManager
     @Override
     public void deserializeNBT(final NBTTagCompound compound)
     {
-        final NBTTagList connectionTagList = compound.getList(TAG_CONNECTIONS, NBTBase.TAG_COMPOUND);
+        final NBTTagList connectionTagList = compound.getTagList(TAG_CONNECTIONS, NBTBase.TAG_COMPOUND);
         for (final NBTBase NBTBase : connectionTagList)
         {
             final int[] pos = BlockPosUtil.read((NBTTagCompound) NBTBase, TAG_POS);
@@ -630,7 +631,7 @@ public class ColonyConnectionManager implements IColonyConnectionManager
             colonyConnections.put(pos, connectionPoint);
         }
 
-        final NBTTagList connectedColonyTagList = compound.getList(TAG_COLONIES, NBTBase.TAG_COMPOUND);
+        final NBTTagList connectedColonyTagList = compound.getTagList(TAG_COLONIES, NBTBase.TAG_COMPOUND);
         for (final NBTBase NBTBase : connectedColonyTagList)
         {
             final ColonyConnection colonyConnectionData = new ColonyConnection().deserializeNBT((NBTTagCompound) NBTBase);
@@ -638,21 +639,21 @@ public class ColonyConnectionManager implements IColonyConnectionManager
         }
 
         gateHouses.clear();
-        final NBTTagList gateHouseTagList = compound.getList(TAG_GATEHOUSES, NBTBase.TAG_COMPOUND);
+        final NBTTagList gateHouseTagList = compound.getTagList(TAG_GATEHOUSES, NBTBase.TAG_COMPOUND);
         for (final NBTBase NBTBase : gateHouseTagList)
         {
             gateHouses.add(BlockPosUtil.read((NBTTagCompound) NBTBase, TAG_POS));
         }
 
         connectionEvents.clear();
-        final NBTTagList connectionEventList = compound.getList(TAG_CONNECTION_EVENTS, NBTBase.TAG_COMPOUND);
+        final NBTTagList connectionEventList = compound.getTagList(TAG_CONNECTION_EVENTS, NBTBase.TAG_COMPOUND);
         for (final NBTBase NBTBase : connectionEventList)
         {
             final ConnectionEvent connectionEventData = ConnectionEvent.deserializeNBT((NBTTagCompound) NBTBase);
             connectionEvents.put(connectionEventData.id(), connectionEventData);
         }
 
-        final NBTTagList pendingConnectionTagList = compound.getList(TAG_PENDING, NBTBase.TAG_COMPOUND);
+        final NBTTagList pendingConnectionTagList = compound.getTagList(TAG_PENDING, NBTBase.TAG_COMPOUND);
         for (final NBTBase NBTBase : pendingConnectionTagList)
         {
             final int[] pos = BlockPosUtil.read((NBTTagCompound) NBTBase, TAG_POS);
@@ -671,35 +672,35 @@ public class ColonyConnectionManager implements IColonyConnectionManager
         {
             connectionTagList.add(connectionPoint.write());
         }
-        NBTTagCompound.put(TAG_CONNECTIONS, connectionTagList);
+        NBTTagcompound.setTag(TAG_CONNECTIONS, connectionTagList);
 
         @NotNull final NBTTagList connectedColonyTagList = new NBTTagList();
         for (final Map.Entry<Integer, ColonyConnection> entry : directlyConnectedColonies.entrySet())
         {
             connectedColonyTagList.add(entry.getValue().serializeNBT());
         }
-        NBTTagCompound.put(TAG_COLONIES, connectedColonyTagList);
+        NBTTagcompound.setTag(TAG_COLONIES, connectedColonyTagList);
 
         @NotNull final NBTTagList gateHouseTagList = new NBTTagList();
         for (final int[] gateHouse : gateHouses)
         {
             gateHouseTagList.add(BlockPosUtil.write(new NBTTagCompound(), TAG_POS, gateHouse));
         }
-        NBTTagCompound.put(TAG_GATEHOUSES, gateHouseTagList);
+        NBTTagcompound.setTag(TAG_GATEHOUSES, gateHouseTagList);
 
         @NotNull final NBTTagList connectionEventTagList = new NBTTagList();
         for (final ConnectionEvent connectionEvent : connectionEvents.values())
         {
             connectionEventTagList.add(connectionEvent.serializeNBT());
         }
-        NBTTagCompound.put(TAG_CONNECTION_EVENTS, connectionEventTagList);
+        NBTTagcompound.setTag(TAG_CONNECTION_EVENTS, connectionEventTagList);
 
         @NotNull final NBTTagList pendingConnectionTagList = new NBTTagList();
         for (final PendingConnectionNode connectionEvent : pendingColonyConnections.values())
         {
             pendingConnectionTagList.add(connectionEvent.write());
         }
-        NBTTagCompound.put(TAG_PENDING, pendingConnectionTagList);
+        NBTTagcompound.setTag(TAG_PENDING, pendingConnectionTagList);
         return NBTTagCompound;
     }
 

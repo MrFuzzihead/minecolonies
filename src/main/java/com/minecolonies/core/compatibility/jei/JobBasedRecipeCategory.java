@@ -1,4 +1,7 @@
 package com.minecolonies.core.compatibility.jei;
+import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.entity.animal.Animal;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -49,6 +52,9 @@ import net.minecraft.util.ResourceLocation;
 // [1.7.10] world.entity removed
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.network.chat.FormattedText;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -363,7 +369,7 @@ public abstract class JobBasedRecipeCategory<T> implements IRecipeCategory<T>
         public void onTooltip(@NotNull final IRecipeSlotView recipeSlotView,
                               @NotNull final List<String> tooltip)
         {
-            final ItemStack ingredient = recipeSlotView.getDisplayedIngredient().flatMap(d -> d.getIngredient(VanillaTypes.ITEM_STACK)).orElse(ItemStack.EMPTY);
+            final ItemStack ingredient = recipeSlotView.getDisplayedIngredient().flatMap(d -> d.getIngredient(VanillaTypes.ITEM_STACK)).orElse(null);
 
             if (modIdHelper.isDisplayingModNameEnabled())
             {

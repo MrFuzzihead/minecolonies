@@ -1,4 +1,12 @@
 package com.minecolonies.core.event;
+import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.network.chat.Style;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+
+import net.minecraft.world.item.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 
 import com.google.common.collect.ImmutableMap;
 import com.ldtteam.structurize.items.ModItems;
@@ -49,9 +57,10 @@ import net.minecraft.block.Block;
 // [1.7.10] world.phys removed
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
-import net.minecraftforge.client.event.CustomizeGuiOverlayEvent;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
+import net.minecraft.item.Item;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.event.sound.PlaySoundEvent;
 import net.minecraftforge.common.util.Lazy;
 import cpw.mods.fml.common.gameevent.TickEvent;
@@ -91,7 +100,7 @@ public class ClientEventHandler
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onwWorldTick(@NotNull final TickEvent.LevelTickEvent event)
+    public static void onwWorldTick(@NotNull final TickEvent.WorldTickEvent event)
     {
         if (event.World.isClientSide && event.phase == TickEvent.Phase.END && ColonyConstants.rand.nextInt(20) == 0)
         {

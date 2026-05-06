@@ -1,4 +1,5 @@
 package com.minecolonies.api.tileentities;
+import net.minecraft.world.level.block.state.BlockState;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyManager;
@@ -77,10 +78,9 @@ public abstract class AbstractTileEntityRack extends TileEntity
         @Override
         public void setStackInSlot(final int slot, final @Nonnull ItemStack stack)
         {
-            validateSlotIndex(slot);
-            final ItemStack existing = stacks.get(slot);
-            final boolean changed = !ItemStack.areItemStacksEqual(stack, existing);
-            stacks.set(slot, stack);
+            final ItemStack existing = stacks[slot];
+            final boolean changed = !net.minecraft.item.ItemStack.areItemStackTagsEqual(stack, existing);
+            stacks[slot] = stack;
             if (changed)
             {
                 onContentsChanged(slot);
@@ -120,9 +120,9 @@ public abstract class AbstractTileEntityRack extends TileEntity
         {
             if (inWarehouse || (buildingPosX != 0 || buildingPosY != 0 || buildingPosZ != 0))
             {
-                if (IColonyManager.getInstance().isCoordinateInAnyColony(worldObj, xCoord, yCoord, zCoord))
+                if (IColonyManager.getInstance().isCoordinateInAnyColony(worldObj, new int[]{xCoord, yCoord, zCoord}))
                 {
-                    final IColony colony = IColonyManager.getInstance().getClosestColony(worldObj, xCoord, yCoord, zCoord);
+                    final IColony colony = IColonyManager.getInstance().getClosestColony(worldObj, new int[]{xCoord, yCoord, zCoord});
                     if (colony == null)
                     {
                         return;
@@ -135,7 +135,7 @@ public abstract class AbstractTileEntityRack extends TileEntity
                     }
                     else
                     {
-                        final IBuilding building = colony.getServerBuildingManager().getBuilding(buildingPosX, buildingPosY, buildingPosZ);
+                        final IBuilding building = colony.getServerBuildingManager().getBuilding(new int[]{buildingPosX, buildingPosY, buildingPosZ});
                         if (building != null)
                         {
                             building.overruleNextOpenRequestWithStack(stack);

@@ -1,4 +1,7 @@
 package com.minecolonies.core.items;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.tileentity.BlockEntity; // [1.7.10] alias -> TileEntity
 
 import com.minecolonies.api.blocks.ModBlocks;
 import com.minecolonies.api.colony.IColony;
@@ -163,6 +166,9 @@ public class ItemColonySign extends BlockItem
         return super.useOn(ctx);
     }
 
+    // [1.7.10 TODO] canPlace(BlockPlaceContext, BlockState) does not exist in 1.7.10 — ItemBlock.canPlace is different
+    // This method is stubbed out; sign placement validation is done in onItemUse instead.
+    /*
     @Override
     protected boolean canPlace(final BlockPlaceContext ctx, final BlockState state)
     {
@@ -202,7 +208,7 @@ public class ItemColonySign extends BlockItem
 
         return true;
     }
-
+    */
     @Override
     public void appendHoverText(@NotNull final ItemStack stack, @Nullable final World worldIn, @NotNull final List<String> tooltip, @NotNull final TooltipFlag flagIn)
     {

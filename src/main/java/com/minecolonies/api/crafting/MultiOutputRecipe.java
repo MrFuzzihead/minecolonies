@@ -30,7 +30,7 @@ public class MultiOutputRecipe extends AbstractRecipeType<IRecipeStorage>
     {
         if(outputDisplayStacks.isEmpty())
         {
-            if (!recipe.getPrimaryOutput().isEmpty())
+            if (!com.minecolonies.api.util.ItemStackUtils.isEmpty(recipe.getPrimaryOutput()))
             {
                 outputDisplayStacks.add(recipe.getPrimaryOutput());
             }

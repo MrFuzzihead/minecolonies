@@ -29,10 +29,10 @@ public class WarehouseRequestQueueModule extends AbstractBuildingModule implemen
     @Override
     public void deserializeNBT(final NBTTagCompound compound)
     {
-        final NBTTagList requestTagList = compound.getList(TAG_REQUEST, NBTBase.TAG_COMPOUND);
+        final NBTTagList requestTagList = compound.getTagList(TAG_REQUEST, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < requestTagList.size(); ++i)
         {
-            requestList.add(StandardFactoryController.getInstance().deserialize(requestTagList.getCompound(i)));
+            requestList.add(StandardFactoryController.getInstance().deserialize(requestTagList.getCompoundTagAt(i)));
         }
     }
 
@@ -46,7 +46,7 @@ public class WarehouseRequestQueueModule extends AbstractBuildingModule implemen
             {
                 requestTagList.add(StandardFactoryController.getInstance().serialize(token));
             }
-            compound.put(TAG_REQUEST, requestTagList);
+            compound.setTag(TAG_REQUEST, requestTagList);
         }
     }
 

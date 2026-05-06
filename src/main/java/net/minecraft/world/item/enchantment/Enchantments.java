@@ -1,34 +1,43 @@
 package net.minecraft.world.item.enchantment;
-
-/** [1.7.10 stub] Common enchantment constants */
-public class Enchantments
-{
-    public static final Enchantment LOOTING = new Enchantment();
-    public static final Enchantment FIRE_ASPECT = new Enchantment();
+/** [1.7.10 bridge] Enchantments */
+public class Enchantments {
     public static final Enchantment SHARPNESS = new Enchantment();
-    public static final Enchantment SILK_TOUCH = new Enchantment();
-    public static final Enchantment FORTUNE = new Enchantment();
-    public static final Enchantment EFFICIENCY = new Enchantment();
-    public static final Enchantment UNBREAKING = new Enchantment();
-    public static final Enchantment MENDING = new Enchantment();
     public static final Enchantment POWER = new Enchantment();
-    public static final Enchantment PUNCH = new Enchantment();
-    public static final Enchantment INFINITY = new Enchantment();
-    public static final Enchantment FLAME = new Enchantment();
-    public static final Enchantment SMITE = new Enchantment();
-    public static final Enchantment BANE_OF_ARTHROPODS = new Enchantment();
-    public static final Enchantment KNOCKBACK = new Enchantment();
     public static final Enchantment PROTECTION = new Enchantment();
     public static final Enchantment FIRE_PROTECTION = new Enchantment();
+    public static final Enchantment FEATHER_FALLING = new Enchantment();
     public static final Enchantment BLAST_PROTECTION = new Enchantment();
     public static final Enchantment PROJECTILE_PROTECTION = new Enchantment();
     public static final Enchantment RESPIRATION = new Enchantment();
     public static final Enchantment AQUA_AFFINITY = new Enchantment();
+    public static final Enchantment THORNS = new Enchantment();
     public static final Enchantment DEPTH_STRIDER = new Enchantment();
+    public static final Enchantment EFFICIENCY = new Enchantment();
+    public static final Enchantment SILK_TOUCH = new Enchantment();
+    public static final Enchantment UNBREAKING = new Enchantment();
+    public static final Enchantment FORTUNE = new Enchantment();
+    public static final Enchantment FLAME = new Enchantment();
+    public static final Enchantment INFINITY = new Enchantment();
+    public static final Enchantment LUCK_OF_THE_SEA = new Enchantment();
+    public static final Enchantment LURE = new Enchantment();
+    public static final Enchantment MENDING = new Enchantment();
+    public static final Enchantment SWEEPING_EDGE = new Enchantment();
+    public static final Enchantment KNOCKBACK = new Enchantment();
+    public static final Enchantment FIRE_ASPECT = new Enchantment();
+    public static final Enchantment LOOTING = new Enchantment();
+    public static final Enchantment SMITE = new Enchantment();
+    public static final Enchantment BANE_OF_ARTHROPODS = new Enchantment();
+    public static final Enchantment PUNCH = new Enchantment();
+    public static final Enchantment IMPALING = new Enchantment();
+    public static final Enchantment RIPTIDE = new Enchantment();
+    public static final Enchantment LOYALTY = new Enchantment();
+    public static final Enchantment CHANNELING = new Enchantment();
+    public static final Enchantment MULTISHOT = new Enchantment();
+    public static final Enchantment PIERCING = new Enchantment();
+    public static final Enchantment QUICK_CHARGE = new Enchantment();
+    public static final Enchantment SOUL_SPEED = new Enchantment();
+    public static final Enchantment SWIFT_SNEAK = new Enchantment();
     public static final Enchantment FROST_WALKER = new Enchantment();
     public static final Enchantment BINDING_CURSE = new Enchantment();
     public static final Enchantment VANISHING_CURSE = new Enchantment();
-    public static final Enchantment FEATHER_FALLING = new Enchantment();
-    public static final Enchantment THORNS = new Enchantment();
 }
-

@@ -159,7 +159,7 @@ public class EntityAIWorkPupil extends AbstractEntityAIInteract<JobPupil, Buildi
         }
         else
         {
-            worker.setItemSlot(null /* EquipmentSlot. */, ItemStack.EMPTY);
+            worker.setItemSlot(null /* EquipmentSlot. */, null);
             Network.getNetwork().sendToTrackingEntity(new CircleParticleEffectMessage(worker.position().add(0, 1, 0), ParticleTypes.HAPPY_VILLAGER, sittingTicks), worker);
         }
 
@@ -169,7 +169,7 @@ public class EntityAIWorkPupil extends AbstractEntityAIInteract<JobPupil, Buildi
             return getState();
         }
 
-        worker.setItemSlot(null /* EquipmentSlot. */, ItemStack.EMPTY);
+        worker.setItemSlot(null /* EquipmentSlot. */, null);
         if (worker.vehicle != null)
         {
             worker.stopRiding();

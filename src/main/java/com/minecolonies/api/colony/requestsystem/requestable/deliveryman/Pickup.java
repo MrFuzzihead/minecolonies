@@ -36,14 +36,14 @@ public class Pickup extends AbstractDeliverymanRequestable
     public static NBTTagCompound serialize(@NotNull final IFactoryController controller, final Pickup pickup)
     {
         final NBTTagCompound compound = new NBTTagCompound();
-        compound.put(NBT_PRIORITY, controller.serialize(pickup.getPriority()));
+        compound.setTag(NBT_PRIORITY, controller.serialize(pickup.getPriority()));
         return compound;
     }
 
     @NotNull
     public static Pickup deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound compound)
     {
-        final int priority = controller.deserialize(compound.getCompound(NBT_PRIORITY));
+        final int priority = controller.deserialize(compound.getCompoundTag(NBT_PRIORITY));
         return new Pickup(priority);
     }
 

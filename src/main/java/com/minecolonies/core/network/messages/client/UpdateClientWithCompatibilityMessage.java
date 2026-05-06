@@ -1,4 +1,5 @@
 package com.minecolonies.core.network.messages.client;
+import net.minecraft.client.multiplayer.ClientLevel;
 
 import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.network.IMessage;

@@ -1,4 +1,5 @@
 package com.minecolonies.api.colony.permissions;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.network.PacketUtils;
 // [1.7.10] int[] -> int x,y,z
@@ -66,9 +67,16 @@ public class PermissionEvent
         {
             this.id = uuid;
         }
-        this.name = buf.readUtf(32767);
-        this.action = Action.valueOf(buf.readUtf(32767));
-        this.position = buf.readBlockPos();
+        try
+        {
+            this.name = buf.readStringFromBuffer(32767);
+            this.action = Action.valueOf(buf.readStringFromBuffer(32767));
+        }
+        catch (java.io.IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+        this.position = new int[]{buf.readInt(), buf.readInt(), buf.readInt()};
     }
 
     /**
@@ -127,9 +135,16 @@ public class PermissionEvent
         {
             PacketUtils.writeUUID(buf, id);
         }
-        buf.writeUtf(name);
-        buf.writeUtf(action.toString());
-        buf.writeBlockPos(position);
+        try
+        {
+            buf.writeStringToBuffer(name);
+            buf.writeStringToBuffer(action.toString());
+        }
+        catch (java.io.IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+        buf.writeInt(position[0]); buf.writeInt(position[1]); buf.writeInt(position[2]);
     }
 
     @Override

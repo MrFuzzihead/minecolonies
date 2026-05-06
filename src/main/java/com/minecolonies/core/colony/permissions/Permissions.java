@@ -1,5 +1,7 @@
 package com.minecolonies.core.colony.permissions;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+import net.minecraft.world.level.chunk.LevelChunk;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -341,10 +343,10 @@ public class Permissions implements IPermissions
         {
             ranks.clear();
 
-            final NBTTagList rankTagList = compound.getList(TAG_RANKS, NBTBase.TAG_COMPOUND);
+            final NBTTagList rankTagList = compound.getTagList(TAG_RANKS, NBTBase.TAG_COMPOUND);
             for (int i = 0; i < rankTagList.size(); ++i)
             {
-                final NBTTagCompound rankCompound = rankTagList.getCompound(i);
+                final NBTTagCompound rankCompound = rankTagList.getCompoundTagAt(i);
                 final int id = rankCompound.getInt(TAG_ID);
                 final String name = rankCompound.getString(TAG_NAME);
                 final boolean isInitial = rankCompound.getBoolean(TAG_INITIAL);
@@ -356,10 +358,10 @@ public class Permissions implements IPermissions
                 upgradePermissions(version, rank);
             }
 
-            final NBTTagList permissionsTagList = compound.getList(TAG_PERMISSIONS, NBTBase.TAG_COMPOUND);
+            final NBTTagList permissionsTagList = compound.getTagList(TAG_PERMISSIONS, NBTBase.TAG_COMPOUND);
             for (int i = 0; i < permissionsTagList.size(); ++i)
             {
-                final NBTTagCompound permissionsCompound = permissionsTagList.getCompound(i);
+                final NBTTagCompound permissionsCompound = permissionsTagList.getCompoundTagAt(i);
 
                 final Rank rank = ranks.get(permissionsCompound.getInt(TAG_RANK));
                 if (rank == null)
@@ -367,7 +369,7 @@ public class Permissions implements IPermissions
                     continue;
                 }
 
-                final NBTTagList flagsTagList = permissionsCompound.getList(TAG_FLAGS, NBTBase.TAG_STRING);
+                final NBTTagList flagsTagList = permissionsCompound.getTagList(TAG_FLAGS, NBTBase.TAG_STRING);
 
                 for (int j = 0; j < flagsTagList.size(); ++j)
                 {
@@ -390,10 +392,10 @@ public class Permissions implements IPermissions
 
         players.clear();
         //  Owners
-        final NBTTagList ownerTagList = compound.getList(TAG_OWNERS, NBTBase.TAG_COMPOUND);
+        final NBTTagList ownerTagList = compound.getTagList(TAG_OWNERS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < ownerTagList.size(); ++i)
         {
-            final NBTTagCompound ownerCompound = ownerTagList.getCompound(i);
+            final NBTTagCompound ownerCompound = ownerTagList.getCompoundTagAt(i);
             @NotNull final UUID id = UUID.fromString(ownerCompound.getString(TAG_ID));
             String name = "";
             if (ownerCompound.contains(TAG_NAME))
@@ -577,7 +579,7 @@ public class Permissions implements IPermissions
             rankCompound.putBoolean(TAG_HOSTILE, rank.isHostile());
             rankTagList.add(rankCompound);
         }
-        compound.put(TAG_RANKS, rankTagList);
+        compound.setTag(TAG_RANKS, rankTagList);
 
         //  Owners
         @NotNull final NBTTagList ownerTagList = new NBTTagList();
@@ -589,7 +591,7 @@ public class Permissions implements IPermissions
             ownersCompound.putInt(TAG_RANK, player.getRank().getId());
             ownerTagList.add(ownersCompound);
         }
-        compound.put(TAG_OWNERS, ownerTagList);
+        compound.setTag(TAG_OWNERS, ownerTagList);
 
         // Permissions
         @NotNull final NBTTagList permissionsTagList = new NBTTagList();
@@ -606,12 +608,12 @@ public class Permissions implements IPermissions
                     flagsTagList.add(NBTTagString.valueOf(action.name()));
                 }
             }
-            permissionsCompound.put(TAG_FLAGS, flagsTagList);
+            permissionscompound.setTag(TAG_FLAGS, flagsTagList);
 
             permissionsTagList.add(permissionsCompound);
         }
 
-        compound.put(TAG_PERMISSIONS, permissionsTagList);
+        compound.setTag(TAG_PERMISSIONS, permissionsTagList);
 
         if (!ownerName.isEmpty())
         {

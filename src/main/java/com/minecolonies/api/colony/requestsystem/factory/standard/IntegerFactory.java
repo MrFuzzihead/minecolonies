@@ -41,7 +41,7 @@ public class IntegerFactory implements IFactory<FactoryVoidInput, Integer>
     {
         NBTTagCompound compound = new NBTTagCompound();
 
-        compound.putInt(NbtTagConstants.TAG_VALUE, integer);
+        compound.setInteger(NbtTagConstants.TAG_VALUE, integer);
 
         return compound;
     }
@@ -50,7 +50,7 @@ public class IntegerFactory implements IFactory<FactoryVoidInput, Integer>
     @Override
     public Integer deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound nbt)
     {
-        return nbt.getInt(NbtTagConstants.TAG_VALUE);
+        return nbt.getInteger(NbtTagConstants.TAG_VALUE);
     }
 
     @Override

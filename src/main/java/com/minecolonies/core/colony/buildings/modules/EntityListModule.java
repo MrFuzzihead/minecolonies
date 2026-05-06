@@ -54,10 +54,10 @@ public class EntityListModule extends AbstractBuildingModule implements IEntityL
     {
         if (compound.contains(id))
         {
-            compound = compound.getCompound(id);
+            compound = compound.getCompoundTag(id);
         }
 
-        final NBTTagList filterableList = compound.getList(TAG_MOBLIST, NBTBase.TAG_STRING);
+        final NBTTagList filterableList = compound.getTagList(TAG_MOBLIST, NBTBase.TAG_STRING);
         for (int i = 0; i < filterableList.size(); ++i)
         {
             final ResourceLocation res = new ResourceLocation(filterableList.getString(i));
@@ -76,7 +76,7 @@ public class EntityListModule extends AbstractBuildingModule implements IEntityL
         {
             filteredMobs.add(NBTTagString.valueOf(EntityCreature.toString()));
         }
-        compound.put(TAG_MOBLIST, filteredMobs);
+        compound.setTag(TAG_MOBLIST, filteredMobs);
     }
 
     @Override

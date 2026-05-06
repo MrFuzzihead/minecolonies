@@ -1,4 +1,5 @@
 package com.minecolonies.api.util;
+import net.minecraft.core.Holder;
 
 import com.minecolonies.api.crafting.IGenericRecipe;
 import com.minecolonies.api.crafting.IRecipeStorage;

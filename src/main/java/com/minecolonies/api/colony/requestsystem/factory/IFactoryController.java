@@ -167,7 +167,7 @@ public interface IFactoryController
         final NBTTagList NBTBase = new NBTTagList();
         for (final Output value : list)
         {
-            NBTBase.add(this.serialize(value));
+            NBTBase.appendTag(this.serialize(value));
         }
         return NBTBase;
     }
@@ -191,8 +191,9 @@ public interface IFactoryController
     default <Output> Collection<Output> deserializeList(NBTTagList NBTTagList)
     {
         final Collection<Output> values = new ArrayList<>();
-        for (final NBTBase subCompound : NBTTagList)
+        for (int _i = 0; _i < NBTTagList.tagCount(); _i++)
         {
+            final NBTBase subCompound = NBTTagList.getCompoundTagAt(_i);
             values.add(this.deserialize(((NBTTagCompound) subCompound)));
         }
         return values;

@@ -13,5 +13,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface SubscribeEvent
 {
+    EventPriority priority() default EventPriority.NORMAL;
+    boolean receiveCanceled() default false;
 }
-

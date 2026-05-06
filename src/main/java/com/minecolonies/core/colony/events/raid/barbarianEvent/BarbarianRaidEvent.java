@@ -1,4 +1,5 @@
 package com.minecolonies.core.colony.events.raid.barbarianEvent;
+import net.minecraft.world.entity.EntityType;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.colonyEvents.EventStatus;

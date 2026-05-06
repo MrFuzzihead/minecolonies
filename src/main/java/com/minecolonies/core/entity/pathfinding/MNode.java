@@ -103,11 +103,11 @@ public class MNode implements Comparable<MNode>
     {
         if (byteBuf.readBoolean())
         {
-            this.parent = new MNode(null, byteBuf.readVarInt(), byteBuf.readVarInt(), byteBuf.readVarInt(), 0, 0);
+            this.parent = new MNode(null, byteBuf.readVarIntFromBuffer(), byteBuf.readVarIntFromBuffer(), byteBuf.readVarIntFromBuffer(), 0, 0);
         }
-        this.x = byteBuf.readVarInt();
-        this.y = byteBuf.readVarInt();
-        this.z = byteBuf.readVarInt();
+        this.x = byteBuf.readVarIntFromBuffer();
+        this.y = byteBuf.readVarIntFromBuffer();
+        this.z = byteBuf.readVarIntFromBuffer();
         this.cost = byteBuf.readDouble();
         this.heuristic = byteBuf.readDouble();
         this.isReachedByWorker = byteBuf.readBoolean();
@@ -123,13 +123,13 @@ public class MNode implements Comparable<MNode>
         if (this.parent != null)
         {
             // For debug display only position is used
-            byteBuf.writeVarInt(this.parent.x);
-            byteBuf.writeVarInt(this.parent.y);
-            byteBuf.writeVarInt(this.parent.z);
+            byteBuf.writeVarIntToBuffer(this.parent.x);
+            byteBuf.writeVarIntToBuffer(this.parent.y);
+            byteBuf.writeVarIntToBuffer(this.parent.z);
         }
-        byteBuf.writeVarInt(this.x);
-        byteBuf.writeVarInt(this.y);
-        byteBuf.writeVarInt(this.z);
+        byteBuf.writeVarIntToBuffer(this.x);
+        byteBuf.writeVarIntToBuffer(this.y);
+        byteBuf.writeVarIntToBuffer(this.z);
         byteBuf.writeDouble(this.cost);
         byteBuf.writeDouble(this.heuristic);
         byteBuf.writeBoolean(this.isReachedByWorker);

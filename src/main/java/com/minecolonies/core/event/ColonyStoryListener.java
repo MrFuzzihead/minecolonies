@@ -1,4 +1,11 @@
 package com.minecolonies.core.event;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+
+import net.minecraft.tags.TagKey;
 
 import com.google.gson.*;
 import com.minecolonies.api.util.Log;
@@ -7,6 +14,7 @@ import com.minecolonies.api.util.constant.Constants;
 // [1.7.10] RegistryAccess removed
 // [1.7.10] Registries removed
 // [1.7.10] int /* ResourceKey */ -> int dimensionId
+import net.minecraft.core.Holder;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;

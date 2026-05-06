@@ -1,4 +1,5 @@
 package com.minecolonies.core.event;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
@@ -13,10 +14,11 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.block.Block;
-// [1.7.10] forge event removed
-// [1.7.10] forge event removed
-// [1.7.10] eventbus removed
-// [1.7.10] eventbus removed
+import net.minecraft.world.entity.EntityType;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 

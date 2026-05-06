@@ -1,5 +1,6 @@
 package com.minecolonies.core.entity.pathfinding.pathjobs;
 
+
 // [1.7.10] domumornamentum removed
 // [1.7.10] domumornamentum removed
 // [1.7.10] domumornamentum removed
@@ -24,6 +25,9 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 // [1.7.10] int[] -> int x,y,z
 // [1.7.10] Direction -> net.minecraft.util.EnumFacing
 import net.minecraft.entity.EntityCreature;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.init.Blocks;
 import net.minecraft.entity.player.EntityPlayerMP;
 // [1.7.10] tags removed
 // [1.7.10] world.entity removed
@@ -89,6 +93,9 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
      * Mutable pos used ot retrieve world info directly
      */
     protected int[] tempWorldPos = new int[]{0,0,0};
+
+    /** [1.7.10] Helper to mutate and return tempWorldPos */
+    protected int[] setPos(final int x, final int y, final int z) { tempWorldPos[0] = x; tempWorldPos[1] = y; tempWorldPos[2] = z; return tempWorldPos; }
 
     /**
      * The result of the path calculation.
@@ -182,16 +189,16 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
         range = Math.max(10, range);
 
         // 30% Extra range to account for heuristics/cost based less circular exploring
-        final int minX = (int) (start.getX() - range * 1.3);
-        final int minZ = (int) (start.getZ() - range * 1.3);
-        final int maxX = (int) (start.getX() + range * 1.3);
-        final int maxZ = (int) (start.getZ() + range * 1.3);
+        final int minX = (int) (start[0] - range * 1.3);
+        final int minZ = (int) (start[2] - range * 1.3);
+        final int maxX = (int) (start[0] + range * 1.3);
+        final int maxZ = (int) (start[2] + range * 1.3);
         this.world = new ChunkCache(world, new int[]{minX, 0, minZ}, new int[]{maxX, 0, maxZ});
         this.actualWorld = world;
 
         this.maxNodes = Math.min(MAX_NODES, range * range);
         nodesToVisit = new PriorityQueue<>(range * 2);
-        this.start = new int[]{start};
+        this.start = start;
 
         cachedBlockLookup = new CachingBlockLookup(start, this.world);
 
@@ -199,7 +206,7 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
         result.setJob(this);
 
         this.entity = entity;
-        if (entity != null && entity.getNavigation() instanceof IDynamicHeuristicNavigator navigator)
+        if (entity != null && entity.getNavigator() instanceof IDynamicHeuristicNavigator navigator)
         {
             heuristicMod = 1 + navigator.getAvgHeuristicModifier();
         }
@@ -219,7 +226,7 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
         range = Math.max(10, range);
         this.maxNodes = Math.min(MAX_NODES, range * range);
         nodesToVisit = new PriorityQueue<>(range * 2);
-        this.start = new int[]{start};
+        this.start = start;
 
         world = chunkCache;
         cachedBlockLookup = new CachingBlockLookup(start, this.world);
@@ -229,7 +236,7 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
         result.setJob(this);
 
         this.entity = entity;
-        if (entity != null && entity.getNavigation() instanceof IDynamicHeuristicNavigator navigator)
+        if (entity != null && entity.getNavigator() instanceof IDynamicHeuristicNavigator navigator)
         {
             heuristicMod = 1 + navigator.getAvgHeuristicModifier();
         }
@@ -248,22 +255,22 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
         // Load at least 2 chunks further around start+end, extended with more distance
         final int expandedRange = (2 * 16) + BlockPosUtil.distManhattan(start, end) / 2;
 
-        final int minX = Math.min(start.getX(), end.getX()) - expandedRange;
-        final int minZ = Math.min(start.getZ(), end.getZ()) - expandedRange;
-        final int maxX = Math.max(start.getX(), end.getX()) + expandedRange;
-        final int maxZ = Math.max(start.getZ(), end.getZ()) + expandedRange;
+        final int minX = Math.min(start[0], end[0]) - expandedRange;
+        final int minZ = Math.min(start[2], end[2]) - expandedRange;
+        final int maxX = Math.max(start[0], end[0]) + expandedRange;
+        final int maxZ = Math.max(start[2], end[2]) + expandedRange;
         this.world = new ChunkCache(world, new int[]{minX, 0, minZ}, new int[]{maxX, 0, maxZ});
 
         // Max nodes in relation to the box area
-        final int xDiff = Math.max(1, Math.abs(start.getX() - end.getX()));
+        final int xDiff = Math.max(1, Math.abs(start[0] - end[0]));
         // Higher limit for Y changes, as Y is more difficult to traverse(jump/drop costs)
-        final int yDiff = Math.max(1, Math.abs((start.getY() - end.getY()))) * 5;
-        final int zDiff = Math.max(1, Math.abs((start.getZ() - end.getZ())));
+        final int yDiff = Math.max(1, Math.abs((start[1] - end[1]))) * 5;
+        final int zDiff = Math.max(1, Math.abs((start[2] - end[2])));
 
         this.maxNodes =
           Math.min(MAX_NODES, 300 + Math.max(Math.max(Math.max(2, xDiff / 10) * yDiff * zDiff, xDiff * Math.max(2, yDiff / 10) * zDiff), xDiff * yDiff * Math.max(2, zDiff / 10)));
         nodesToVisit = new PriorityQueue<>(maxNodes / 4);
-        this.start = new int[]{start};
+        this.start = start;
 
         cachedBlockLookup = new CachingBlockLookup(start, this.world);
         actualWorld = world;
@@ -271,7 +278,7 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
         this.result = result;
         result.setJob(this);
         this.entity = entity;
-        if (entity != null && entity.getNavigation() instanceof IDynamicHeuristicNavigator navigator)
+        if (entity != null && entity.getNavigator() instanceof IDynamicHeuristicNavigator navigator)
         {
             heuristicMod = 1 + navigator.getAvgHeuristicModifier();
         }
@@ -315,7 +322,7 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
             startNode.setSwimming();
         }
 
-        startNode.setOnRails(pathingOptions.canUseRails() && cachedBlockLookup.getBlockState(start[0], start[1], start[2]).getBlock() instanceof BaseRailBlock);
+        startNode.setOnRails(pathingOptions.canUseRails() && cachedBlockLookup.getBlockState(start[0], start[1], start[2]).getBlock() instanceof BlockRailBase);
 
         nodesToVisit.offer(startNode);
         nodes.put(MNode.computeNodeKey(start[0], start[1], start[2]), startNode);
@@ -604,7 +611,7 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
             // Overshoot a bit
             costPerEstimation *= costPerEstimation < 1 ? 0.9 : 1.1;
 
-            if (reaches && entity != null && entity.getNavigation() instanceof IDynamicHeuristicNavigator navigator)
+            if (reaches && entity != null && entity.getNavigator() instanceof IDynamicHeuristicNavigator navigator)
             {
                 double foundPathCostPerDist = node.getCost() / Math.max(1, BlockPosUtil.distManhattan(start, node.x, node.y, node.z));
 
@@ -741,14 +748,14 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
             }
 
             final Block target = cachedBlockLookup.getBlockState(nextX, nextY, nextZ).getBlock();
-            if (target instanceof PanelBlock || target instanceof TrapDoorBlock)
+            if (target instanceof BlockPane || target instanceof BlockTrapDoor)
             {
                 newY = getGroundHeight(node, nextX, nextY, nextZ);
             }
             else
             {
                 final Block origin = cachedBlockLookup.getBlockState(node.x, node.y, node.z).getBlock();
-                if (origin instanceof PanelBlock || origin instanceof TrapDoorBlock)
+                if (origin instanceof BlockPane || origin instanceof BlockTrapDoor)
                 {
                     newY = getGroundHeight(node, nextX, nextY, nextZ);
                 }
@@ -763,7 +770,7 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
             newY = getGroundHeight(node, nextX, nextY, nextZ);
         }
 
-        if (newY < world.getMinBuildHeight())
+        if (newY < 0)
         {
             return;
         }
@@ -858,10 +865,10 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
 
         final boolean swimStart = isSwimming && !node.isSwimming();
         final boolean onRoad = WorkerUtil.isPathBlock(belowState.getBlock());
-        final boolean onRails = pathingOptions.canUseRails() && (corner ? belowState : state).getBlock() instanceof BaseRailBlock;
+        final boolean onRails = pathingOptions.canUseRails() && (corner ? belowState : state).getBlock() instanceof BlockRailBase;
         final boolean railsExit = !onRails && node != null && node.isOnRails();
         final boolean ladder = PathfindingUtils.isLadder(state, pathingOptions, nextX, nextY, nextZ, cachedBlockLookup);
-        final boolean isDiving = isSwimming && PathfindingUtils.isWater(world, null, aboveState, null);
+        final boolean isDiving = isSwimming && PathfindingUtils.isWater(world, null, aboveState);
 
         double nextCost = 0;
         if (!corner)
@@ -982,7 +989,7 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
      */
     private double getEndNodeScoreWithExtraCost(MNode n)
     {
-        tempWorldPos.set(n.x, n.y, n.z);
+        setPos(n.x, n.y, n.z);
         return getEndNodeScore(n) + RecentTargetCache.getExtraCost(tempWorldPos);
     }
 
@@ -1041,14 +1048,14 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
             }
         }
 
-        if (state.getBlock() == Blocks.CAVE_AIR)
+        if (state.getBlock() == Blocks.air)
         {
             cost += pathingOptions.caveAirCost;
         }
 
         if (!isDiving)
         {
-            if (dY != 0 && !(ladder && parent.isLadder()) && !(Math.abs(dY) == 1 && below.is(BlockTags.STAIRS)))
+            if (dY != 0 && !(ladder && parent.isLadder()) && !(Math.abs(dY) == 1 && false))
             {
                 if (dY > 0)
                 {
@@ -1061,16 +1068,16 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
             }
         }
 
-        if (state.hasProperty(BlockStateProperties.OPEN) && !(state.getBlock() instanceof PanelBlock))
+        if (false && !(state.getBlock() instanceof BlockPane))
         {
             cost += pathingOptions.traverseToggleAbleCost;
         }
-        else if (!onPath && ShapeUtil.hasCollision(cachedBlockLookup, tempWorldPos.set(x, y, z), state))
+        else if (!onPath && ShapeUtil.hasCollision(cachedBlockLookup, setPos(x, y, z), state))
         {
             cost += pathingOptions.walkInShapesCost;
         }
 
-        if (below.getBlock() instanceof ShingleBlock || below.getBlock() instanceof ShingleSlabBlock)
+        if (false)
         {
             cost += 3;
         }
@@ -1080,7 +1087,7 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
             cost += pathingOptions.railsExitCost;
         }
 
-        if (!isDiving && ladder && !parent.isLadder() && !(state.getBlock() instanceof LadderBlock))
+        if (!isDiving && ladder && !parent.isLadder() && !(state.getBlock() instanceof BlockLadder))
         {
             cost += pathingOptions.nonLadderClimbableCost;
         }
@@ -1257,7 +1264,7 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
 
         //  Do we have something to stand on in the target space?
         final BlockState below = cachedBlockLookup.getBlockState(x, y - 1, z);
-        final SurfaceType walkability = SurfaceType.getSurfaceType(world, below, tempWorldPos.set(x, y - 1, z), pathingOptions);
+        final SurfaceType walkability = SurfaceType.getSurfaceType(world, below, setPos(x, y - 1, z), pathingOptions);
         if (walkability == SurfaceType.WALKABLE)
         {
             //  World path
@@ -1290,21 +1297,21 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
         if (!isPassable(x, y + 1, z, true, parent))
         {
             // TODO: Checking +1 and -1 seems odd? probably one intended to be current instead
-            VoxelShape bb1 = cachedBlockLookup.getBlockState(x, y - 1, z).getCollisionShape(world, tempWorldPos.set(x, y - 1, z));
+            AxisAlignedBB bb1 = cachedBlockLookup.getBlockState(x, y - 1, z).getCollisionShape(world, tempWorldPos);
             if (PathfindingUtils.isLiquid(cachedBlockLookup.getBlockState(x, y - 1, z)))
             {
-                bb1 = Shapes.block();
+                bb1 = AxisAlignedBB.getBoundingBox(0, 0, 0, 1, 1, 1);
             }
 
-            final VoxelShape bb2 = cachedBlockLookup.getBlockState(x, y + 1, z).getCollisionShape(world, tempWorldPos.set(x, y + 1, z));
+            final AxisAlignedBB bb2 = cachedBlockLookup.getBlockState(x, y + 1, z).getCollisionShape(world, tempWorldPos);
             if ((y + 1 + ShapeUtil.getStartY(bb2, 1)) - (y - 1 + ShapeUtil.getEndY(bb1, 0)) < 2)
             {
                 return true;
             }
             if (parent != null)
             {
-                final VoxelShape bb3 =
-                  cachedBlockLookup.getBlockState(parent.x, parent.y - 1, parent.z).getCollisionShape(world, tempWorldPos.set(parent.x, parent.y - 1, parent.z));
+                final AxisAlignedBB bb3 =
+                  cachedBlockLookup.getBlockState(parent.x, parent.y - 1, parent.z).getCollisionShape(world, tempWorldPos);
                 if ((y + 1 + ShapeUtil.getStartY(bb2, 1)) - (parent.y - 1 + ShapeUtil.getEndY(bb3, 0)) < 1.75)
                 {
                     return true;
@@ -1315,8 +1322,8 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
         if (parent != null)
         {
             final BlockState belowState = cachedBlockLookup.getBlockState(x, y - 1, z);
-            final VoxelShape bb2 = cachedBlockLookup.getBlockState(x, y + 1, z).getCollisionShape(world, tempWorldPos.set(x, y + 1, z));
-            final VoxelShape bb = cachedBlockLookup.getBlockState(x, y, z).getCollisionShape(world, tempWorldPos.set(x, y, z));
+            final AxisAlignedBB bb2 = cachedBlockLookup.getBlockState(x, y + 1, z).getCollisionShape(world, tempWorldPos);
+            final AxisAlignedBB bb = cachedBlockLookup.getBlockState(x, y, z).getCollisionShape(world, tempWorldPos);
             if ((y + 1 + ShapeUtil.getStartY(bb2, 1)) - (y + ShapeUtil.getEndY(bb, 0)) >= 2)
             {
                 return false;
@@ -1344,16 +1351,16 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
 
         if (!block.isAir())
         {
-            final VoxelShape shape = block.getCollisionShape(world, tempWorldPos.set(x, y, z));
-            if (!pathingOptions.canPassDanger() && ShapeUtil.max(shape, Direction.Axis.Y) < 0.5 && PathfindingUtils.isDangerous(cachedBlockLookup.getBlockState(x, y - 1, z)))
+            final AxisAlignedBB shape = block.getCollisionShape(world, tempWorldPos);
+            if (!pathingOptions.canPassDanger() && 0.5 < 0.5 && PathfindingUtils.isDangerous(cachedBlockLookup.getBlockState(x, y - 1, z)))
             {
                 return false;
             }
-            if (block.blocksMotion() && !(ShapeUtil.isEmpty(shape) || ShapeUtil.max(shape, Direction.Axis.Y) <= 0.1))
+            if ((block.getBlock() != null && block.getBlock().isOpaqueCube()) && !(false || 0.5 <= 0.1))
             {
-                if (block.getBlock() instanceof TrapDoorBlock || block.getBlock() instanceof PanelBlock)
+                if (block.getBlock() instanceof BlockTrapDoor || block.getBlock() instanceof BlockPane)
                 {
-                    int parentY = parent == null ? start.getY() : parent.y;
+                    int parentY = parent == null ? start[1] : parent.y;
                     if (head)
                     {
                         parentY++;
@@ -1361,22 +1368,22 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
 
                     final int dY = y - parentY;
 
-                    final Direction direction = BlockPosUtil.getXZFacing(parent == null ? start.getX() : parent.x, parent == null ? start.getZ() : parent.z, x, z);
-                    final Direction facing = block.getValue(TrapDoorBlock.FACING);
+                    // [1.7.10] direction removed
+                    // [1.7.10] facing removed
 
-                    if (block.getBlock() instanceof PanelBlock && !block.getValue(PanelBlock.OPEN))
+                    if (block.getBlock() instanceof BlockPane && !false)
                     {
                         if (dY == 0)
                         {
-                            return (head && block.getValue(PanelBlock.HALF) == Half.TOP);
+                            return (head && null == null);
                         }
 
-                        if (head && dY == 1 && block.getValue(PanelBlock.HALF) == Half.TOP)
+                        if (head && dY == 1 && null == null)
                         {
                             return true;
                         }
 
-                        if (!head && dY == -1 && block.getValue(PanelBlock.HALF) == Half.BOTTOM)
+                        if (!head && dY == -1 && null == null)
                         {
                             return true;
                         }
@@ -1385,13 +1392,13 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
                     }
 
                     // We can enter a space of a trapdoor if it's facing the same direction
-                    if (direction == facing.getOpposite())
+                    if (false)
                     {
                         return true;
                     }
 
                     // We cannot enter a space of a trapdoor if its facing the opposite direction, unless we are above it
-                    if (direction == facing)
+                    if (false)
                     {
                         return dY < 0;
                     }
@@ -1400,14 +1407,14 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
                 }
                 else
                 {
-                    return (pathingOptions.canEnterDoors() && block.getBlock() instanceof DoorBlock)
-                             || (pathingOptions.canEnterGates() && block.getBlock() instanceof FenceGateBlock)
+                    return (pathingOptions.canEnterDoors() && block.getBlock() instanceof BlockDoor)
+                             || (pathingOptions.canEnterGates() && block.getBlock() instanceof BlockFenceGate)
                              || block.getBlock() instanceof AbstractBlockMinecoloniesConstructionTape
-                             || block.getBlock() instanceof PressurePlateBlock
+                             || block.getBlock() instanceof BlockPressurePlate
                              || block.getBlock() instanceof BlockDecorationController
-                             || block.getBlock() instanceof SignBlock
-                             || block.getBlock() instanceof AbstractBannerBlock
-                             || !block.getBlock().properties.hasCollision;
+                             || block.getBlock() instanceof BlockSign
+
+                             || !false;
                 }
             }
             else if (!pathingOptions.canPassDanger() && PathfindingUtils.isDangerous(block))
@@ -1421,14 +1428,11 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
                     return true;
                 }
 
-                if (ShapeUtil.isEmpty(shape) || ShapeUtil.max(shape, Direction.Axis.Y) <= 0.1
-                    && !PathfindingUtils.isLiquid((block)) && (block.getBlock() != Blocks.SNOW || block.getValue(SnowLayerBlock.LAYERS) == 1))
+                if (false || 0.5 <= 0.1
+                    && !PathfindingUtils.isLiquid((block)) && (block.getBlock() != Blocks.snow_layer))
                 {
-                    final BlockPathTypes pathType = block.getBlockPathType(world, tempWorldPos.set(x, y, z), entity);
-                    if (pathType == null || pathType.getDanger() == null)
-                    {
-                        return true;
-                    }
+                    // [1.7.10] BlockPathTypes not available; pathType not available
+                    return true;
                 }
                 return false;
             }
@@ -1450,11 +1454,11 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
     protected boolean isPassable(final int x, final int y, final int z, final boolean head, final MNode parent)
     {
         final BlockState state = cachedBlockLookup.getBlockState(x, y, z);
-        final VoxelShape shape = state.getCollisionShape(world, tempWorldPos.set(x, y, z));
-        if (ShapeUtil.isEmpty(shape) || ShapeUtil.max(shape, Direction.Axis.Y) <= 0.1)
+        final AxisAlignedBB shape = state.getCollisionShape(world, tempWorldPos);
+        if (false || 0.5 <= 0.1)
         {
             return !head
-                     || !(state.getBlock() instanceof WoolCarpetBlock || state.getBlock() instanceof FloatingCarpetBlock || state.getBlock() instanceof WaterlilyBlock)
+
                      || PathfindingUtils.isLadder(state, pathingOptions);
         }
         return isPassable(state, x, y, z, parent, head);
@@ -1474,7 +1478,7 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
     {
         final boolean canJump = parent != null && !parent.isLadder() && !parent.isSwimming();
         //  Need to try jumping up one, if we can
-        if (!canJump || SurfaceType.getSurfaceType(world, target, tempWorldPos.set(x, y, z), getPathingOptions()) != SurfaceType.WALKABLE)
+        if (!canJump || SurfaceType.getSurfaceType(world, target, setPos(x, y, z), getPathingOptions()) != SurfaceType.WALKABLE)
         {
             return Integer.MIN_VALUE;
         }
@@ -1482,8 +1486,8 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
         //  Check for headroom in the target space
         if (!isPassable(x, y + 2, z, true, parent))
         {
-            final VoxelShape bb1 = cachedBlockLookup.getBlockState(x, y, z).getCollisionShape(world, tempWorldPos.set(x, y, z));
-            final VoxelShape bb2 = cachedBlockLookup.getBlockState(x, y + 2, z).getCollisionShape(world, tempWorldPos.set(x, y + 2, z));
+            final AxisAlignedBB bb1 = cachedBlockLookup.getBlockState(x, y, z).getCollisionShape(world, tempWorldPos);
+            final AxisAlignedBB bb2 = cachedBlockLookup.getBlockState(x, y + 2, z).getCollisionShape(world, tempWorldPos);
             if ((y + 2 + ShapeUtil.getStartY(bb2, 1)) - (y + ShapeUtil.getEndY(bb1, 0)) < 2)
             {
                 return Integer.MIN_VALUE;
@@ -1498,8 +1502,8 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
         //  Check for jump room from the origin space
         if (!isPassable(parent.x, parent.y + 2, parent.z, true, parent))
         {
-            final VoxelShape bb1 = cachedBlockLookup.getBlockState(x, y, z).getCollisionShape(world, tempWorldPos.set(x, y, z));
-            final VoxelShape bb2 = cachedBlockLookup.getBlockState(parent.x, parent.y + 2, parent.z).getCollisionShape(world, tempWorldPos.set(parent.x, parent.y + 2, parent.z));
+            final AxisAlignedBB bb1 = cachedBlockLookup.getBlockState(x, y, z).getCollisionShape(world, tempWorldPos);
+            final AxisAlignedBB bb2 = cachedBlockLookup.getBlockState(parent.x, parent.y + 2, parent.z).getCollisionShape(world, tempWorldPos);
             if ((parent.y + 2 + ShapeUtil.getStartY(bb2, 1)) - (y + ShapeUtil.getEndY(bb1, 0)) < 2)
             {
                 return Integer.MIN_VALUE;
@@ -1507,19 +1511,17 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
         }
 
         final BlockState parentBelow = cachedBlockLookup.getBlockState(parent.x, parent.y - 1, parent.z);
-        final VoxelShape parentBB = parentBelow.getCollisionShape(world, tempWorldPos.set(parent.x, parent.y - 1, parent.z));
+        final AxisAlignedBB parentBB = parentBelow.getCollisionShape(world, tempWorldPos);
 
-        double parentY = ShapeUtil.max(parentBB, Direction.Axis.Y);
+        double parentY = 0.5;
         double parentMaxY = parentY + parent.y - 1;
-        final double targetMaxY = ShapeUtil.max(target.getCollisionShape(world, tempWorldPos.set(x, y, z)), Direction.Axis.Y) + y;
+        final double targetMaxY = ShapeUtil.max(target.getCollisionShape(world, tempWorldPos), 1.0) + y;
         if (targetMaxY - parentMaxY < MAX_JUMP_HEIGHT)
         {
             return y + 1;
         }
-        if (target.is(BlockTags.STAIRS)
-              && parentY - HALF_A_BLOCK < MAX_JUMP_HEIGHT
-              && target.getValue(StairBlock.HALF) == Half.BOTTOM
-              && BlockPosUtil.getXZFacing(parent.x, parent.z, x, z) == target.getValue(StairBlock.FACING))
+        if (false // [1.7.10] BlockTags.STAIRS / StairBlock not available
+            && parentY - HALF_A_BLOCK < MAX_JUMP_HEIGHT)
         {
             return y + 1;
         }
@@ -1571,7 +1573,7 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
                            &&
                            SurfaceType.getSurfaceType(world,
                              cachedBlockLookup.getBlockState(parent.x, parent.y - 1, parent.z),
-                             tempWorldPos.set(parent.x, parent.y - 1, parent.z),
+                             setPos(parent.x, parent.y - 1, parent.z),
                              getPathingOptions())
                              == SurfaceType.DROPABLE))
         {
@@ -1585,7 +1587,7 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
             {
                 return Integer.MIN_VALUE;
             }
-            if (SurfaceType.getSurfaceType(world, below, tempWorldPos.set(x, y - i, z), getPathingOptions()) == SurfaceType.WALKABLE)
+            if (SurfaceType.getSurfaceType(world, below, setPos(x, y - i, z), getPathingOptions()) == SurfaceType.WALKABLE)
             {
                 //  World path
                 return y - i + 1;
@@ -1617,7 +1619,7 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
             return y;
         }
 
-        if (pathingOptions.canSwim() && PathfindingUtils.isWater(world, tempWorldPos.set(x, y - 1, z)))
+        if (pathingOptions.canSwim() && PathfindingUtils.isWater(world, setPos(x, y - 1, z)))
         {
             //  This is water, and we are allowed to swim
             return y;
@@ -1635,9 +1637,9 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
      */
     private boolean canLeaveBlock(final int x, final int y, final int z, final MNode parent, final boolean head)
     {
-        int parentX = parent == null ? start.getX() : parent.x;
-        int parentY = parent == null ? start.getY() : parent.y;
-        int parentZ = parent == null ? start.getZ() : parent.z;
+        int parentX = parent == null ? start[0] : parent.x;
+        int parentY = parent == null ? start[1] : parent.y;
+        int parentZ = parent == null ? start[2] : parent.z;
         return canLeaveBlock(x, y, z, parentX, head ? parentY + 1 : parentY, parentZ, head);
     }
 
@@ -1652,33 +1654,33 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
 
         final BlockState parentBlockState = cachedBlockLookup.getBlockState(parentX, parentY, parentZ);
         final Block parentBlock = parentBlockState.getBlock();
-        if (parentBlock instanceof TrapDoorBlock || parentBlock instanceof PanelBlock)
+        if (parentBlock instanceof BlockTrapDoor || parentBlock instanceof BlockPane)
         {
-            if (!parentBlockState.getValue(TrapDoorBlock.OPEN))
+            if (false) // [1.7.10] BlockTrapDoor.OPEN property not available; always consider open
             {
                 if (dY != 0)
                 {
-                    if (parentBlock instanceof TrapDoorBlock)
+                    if (parentBlock instanceof BlockTrapDoor)
                     {
                         return true;
                     }
-                    return (head && parentBlockState.getValue(PanelBlock.HALF) == Half.TOP && dY < 0)
-                        || (!head && parentBlockState.getValue(PanelBlock.HALF) == Half.BOTTOM && dY > 0);
+                    return (head && parentBlockState.getValue(null) == null && dY < 0)
+                        || (!head && parentBlockState.getValue(null) == null && dY > 0);
                 }
                 return true;
             }
             if (x - parentX != 0 || z - parentZ != 0)
             {
                 // Check if we can leave the current block, there might be a trapdoor or panel blocking us.
-                final Direction direction = BlockPosUtil.getXZFacing(parentX, parentZ, x, z);
-                final Direction facing = parentBlockState.getValue(TrapDoorBlock.FACING);
-                if (direction == facing.getOpposite())
+                // [1.7.10] direction removed
+                // [1.7.10] facing removed
+                if (false)
                 {
                     return false;
                 }
             }
         }
-        else if (parentBlock instanceof FloatingCarpetBlock || parentBlock instanceof WaterlilyBlock)
+        else if (parentBlock instanceof BlockLilyPad) // [1.7.10] FloatingCarpetBlock/WaterlilyBlock → BlockLilyPad
         {
             if (dY < 0)
             {
@@ -1699,9 +1701,9 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
             return node.isSwimming();
         }
 
-        return PathfindingUtils.isWater(cachedBlockLookup, null, below, null)
-                 || PathfindingUtils.isWater(cachedBlockLookup, null, state, null)
-                 || PathfindingUtils.isWater(cachedBlockLookup, null, above, null);
+        return PathfindingUtils.isWater(cachedBlockLookup, null, below)
+                 || PathfindingUtils.isWater(cachedBlockLookup, null, state)
+                 || PathfindingUtils.isWater(cachedBlockLookup, null, above);
     }
 
     /**
@@ -1789,7 +1791,7 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
 
                 for (@NotNull final PathPoint p : points)
                 {
-                    Log.getLogger().info(String.format("Step: [%d,%d,%d]", p.x, p.y, p.z));
+                    Log.getLogger().info(String.format("Step: [%d,%d,%d]", p.xCoord, p.yCoord, p.zCoord));
                 }
 
                 Log.getLogger().info(String.format("Total Nodes Visited %d / %d", totalNodesVisited, totalNodesAdded));
@@ -1894,11 +1896,11 @@ public abstract class AbstractPathJob implements Callable<PathEntity>, IPathJob
     @Override
     public String toString()
     {
-        return getClass().getSimpleName() + " start:" + start.toShortString() + " entity:" + entity + " maxNodes:" + maxNodes + " totalNodesVisited:" + totalNodesVisited
+        return getClass().getSimpleName() + " start:" + Arrays.toString(start) + " entity:" + entity + " maxNodes:" + maxNodes + " totalNodesVisited:" + totalNodesVisited
             + " bestNodeCost:"
             + bestNode.getCost() + " heuristicCostEstimate:" + startNode.getHeuristic() + " h-rebalances:" + (
             visitedLevel - 1) + " reaches:"
-            + reachesDestination + (this instanceof IDestinationPathJob ? " dest:" + ((IDestinationPathJob) this).getDestination().toShortString() : "");
+            + reachesDestination + (this instanceof IDestinationPathJob ? " dest:" + Arrays.toString(((IDestinationPathJob) this).getDestination()) : "");
     }
 }
 

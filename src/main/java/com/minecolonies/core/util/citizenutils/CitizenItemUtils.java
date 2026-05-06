@@ -1,4 +1,8 @@
 package com.minecolonies.core.util.citizenutils;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Direction;
 
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.util.*;

@@ -2,6 +2,7 @@ package com.minecolonies.api.research.util;
 
 // [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.util.constant.Constants;
+import com.ldtteam.blockui.controls.Color;
 // [1.7.10] int /* ResourceKey */ -> int dimensionId
 import net.minecraft.util.ResourceLocation;
 // [1.7.10] net.minecraft.util.DamageSource removed

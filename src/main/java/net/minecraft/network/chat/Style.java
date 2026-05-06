@@ -1,4 +1,5 @@
 package net.minecraft.network.chat;
+import net.minecraft.network.chat.Style;
 
 /** [1.7.10 stub] Style - text formatting style */
 public class Style
@@ -6,6 +7,8 @@ public class Style
     public static final Style EMPTY = new Style();
 
     public Style withColor(int color) { return this; }
+    public Style withColor(net.minecraft.util.EnumChatFormatting format) { return this; }
+    public Style withColor(TextColor color) { return this; }
     public Style withBold(boolean bold) { return this; }
     public Style withItalic(boolean italic) { return this; }
     public Style withUnderlined(boolean underlined) { return this; }

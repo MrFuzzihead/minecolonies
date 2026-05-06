@@ -1,4 +1,6 @@
 package com.minecolonies.core.tileentities;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.entity.player.Player;
 
 import com.ldtteam.structurize.storage.StructurePackMeta;
 import com.ldtteam.structurize.storage.StructurePacks;
@@ -122,7 +124,7 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
         {
             if (colonyId == 0)
             {
-                colony = IColonyManager.getInstance().getColonyByPosFromWorld(worldObj, xCoord, yCoord, zCoord);
+                colony = IColonyManager.getInstance().getColonyByPosFromWorld(worldObj, new int[]{xCoord, yCoord, zCoord}); // [1.7.10]
             }
             else if (worldObj.isRemote)
             {
@@ -136,7 +138,7 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
 
         if (building == null && colony != null && !worldObj.isRemote)
         {
-            building = colony.getServerBuildingManager().getBuilding(xCoord, yCoord, zCoord);
+            building = colony.getServerBuildingManager().getBuilding(new int[]{xCoord, yCoord, zCoord}); // [1.7.10]
             if (building != null)
             {
                 registryName = building.getBuildingType().getRegistryName();
@@ -248,7 +250,7 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
     public IBuildingView getBuildingView()
     {
         final IColonyView c = IColonyManager.getInstance().getColonyView(colonyId, worldObj.provider.dimensionId);
-        return c == null ? null : c.getClientBuildingManager().getBuilding(xCoord, yCoord, zCoord);
+        return c == null ? null : c.getClientBuildingManager().getBuilding(new int[]{xCoord, yCoord, zCoord}); // [1.7.10]
     }
 
     @Override
@@ -292,7 +294,7 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
     {
         if (!worldObj.isRemote && colonyId == 0)
         {
-            final IColony tempColony = IColonyManager.getInstance().getColonyByPosFromWorld(worldObj, xCoord, yCoord, zCoord);
+            final IColony tempColony = IColonyManager.getInstance().getColonyByPosFromWorld(worldObj, new int[]{xCoord, yCoord, zCoord}); // [1.7.10]
             if (tempColony != null)
             {
                 colonyId = tempColony.getID();
@@ -357,7 +359,8 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
     @Override
     public StructurePackMeta getStructurePack()
     {
-        return StructurePacks.getStructurePack(this.packMeta);
+        // [1.7.10] StructurePacks.getStructurePack API not available in backport - return null
+        return null;
     }
 
     /**
@@ -368,7 +371,8 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
     @Override
     public void setStructurePack(final StructurePackMeta style)
     {
-        this.packMeta = style.getName();
+        // [1.7.10] StructurePackMeta.getName() API not available in backport - no-op
+        // this.packMeta = style.getName();
     }
 
     @Override

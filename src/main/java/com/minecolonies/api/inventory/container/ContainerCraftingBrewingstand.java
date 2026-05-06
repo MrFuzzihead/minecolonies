@@ -1,4 +1,5 @@
 package com.minecolonies.api.inventory.container;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.items.SlotItemHandler;
 import com.minecolonies.api.inventory.ModContainers;
 import com.minecolonies.api.util.ItemStackUtils;

@@ -1,5 +1,8 @@
 package com.minecolonies.core.colony.requestsystem.requests;
-import net.minecraft.core.Direction;
+import net.minecraft.tags.TagKey;
+import net.minecraft.tileentity.TileEntityFurnace;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -772,7 +775,7 @@ public final class StandardRequests
                                                           .getCompatibilityManager()
                                                           .getListOfAllItems()
                                                           .stream()
-                                                          .filter(FurnaceBlockEntity::isFuel)
+                                                          .filter(TileEntityFurnace::isFuel)
                                                           .collect(Collectors.toList()));
             }
 

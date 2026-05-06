@@ -1,4 +1,6 @@
 package com.minecolonies.core.network.messages.server.colony;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.core.network.messages.server.AbstractColonyServerMessage;

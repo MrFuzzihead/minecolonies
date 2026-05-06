@@ -1,4 +1,7 @@
 package com.minecolonies.api.util;
+// [1.7.10] TagParser, FoodProperties, net.minecraft.world.* removed
+import net.minecraft.tileentity.TileEntityBrewingStand;
+import net.minecraft.tileentity.TileEntityFurnace;
 
 import com.minecolonies.api.advancements.AdvancementTriggers;
 import com.minecolonies.api.colony.ICitizenData;
@@ -38,6 +41,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 // [1.7.10] food removed
 import net.minecraft.item.Item; import net.minecraft.item.ItemStack; import net.minecraft.item.ItemBlock; import net.minecraft.item.ItemArmor;
+import net.minecraft.init.Items;
 // [1.7.10] block.entity removed
 // [1.7.10] block.entity removed
 // [1.7.10] world.phys removed
@@ -53,7 +57,6 @@ import java.util.stream.Collectors;
 
 import static com.minecolonies.api.util.constant.Constants.*;
 import static com.minecolonies.api.util.constant.HappinessConstants.HADGREATFOOD;
-import static java.util.Map.entry;
 
 /**
  * Utility methods for the inventories.
@@ -65,41 +68,45 @@ public final class ItemStackUtils
      */
     private static final Pattern TEMPLATE_PATH_PATTERN = Pattern.compile("\\[PATH(?::([^=]*)=([^]]*))?]");
 
-    private static final Map<Item, Integer> VANILLA_ARMOR_DISTRIBUTION = Map.ofEntries(entry(Items.LEATHER_HELMET, 1),
-      entry(Items.LEATHER_CHESTPLATE, 1),
-      entry(Items.LEATHER_LEGGINGS, 1),
-      entry(Items.LEATHER_BOOTS, 1),
-      entry(Items.GOLDEN_HELMET, 1),
-      entry(Items.GOLDEN_CHESTPLATE, 1),
-      entry(Items.GOLDEN_LEGGINGS, 1),
-      entry(Items.GOLDEN_BOOTS, 1),
-      entry(Items.CHAINMAIL_HELMET, 2),
-      entry(Items.CHAINMAIL_CHESTPLATE, 2),
-      entry(Items.CHAINMAIL_LEGGINGS, 2),
-      entry(Items.CHAINMAIL_BOOTS, 2),
-      entry(Items.IRON_HELMET, 3),
-      entry(Items.IRON_CHESTPLATE, 3),
-      entry(Items.IRON_LEGGINGS, 3),
-      entry(Items.IRON_BOOTS, 3),
-      entry(Items.DIAMOND_HELMET, 4),
-      entry(Items.DIAMOND_CHESTPLATE, 4),
-      entry(Items.DIAMOND_LEGGINGS, 4),
-      entry(Items.DIAMOND_BOOTS, 4),
-      entry(Items.NETHERITE_HELMET, 5),
-      entry(Items.NETHERITE_CHESTPLATE, 5),
-      entry(Items.NETHERITE_LEGGINGS, 5),
-      entry(Items.NETHERITE_BOOTS, 5));
+    private static final Map<Item, Integer> VANILLA_ARMOR_DISTRIBUTION;
+    static {
+        VANILLA_ARMOR_DISTRIBUTION = new java.util.HashMap<>();
+        VANILLA_ARMOR_DISTRIBUTION.put(Items.leather_helmet, 1);
+        VANILLA_ARMOR_DISTRIBUTION.put(Items.leather_chestplate, 1);
+        VANILLA_ARMOR_DISTRIBUTION.put(Items.leather_leggings, 1);
+        VANILLA_ARMOR_DISTRIBUTION.put(Items.leather_boots, 1);
+        VANILLA_ARMOR_DISTRIBUTION.put(Items.golden_helmet, 1);
+        VANILLA_ARMOR_DISTRIBUTION.put(Items.golden_chestplate, 1);
+        VANILLA_ARMOR_DISTRIBUTION.put(Items.golden_leggings, 1);
+        VANILLA_ARMOR_DISTRIBUTION.put(Items.golden_boots, 1);
+        VANILLA_ARMOR_DISTRIBUTION.put(Items.chainmail_helmet, 2);
+        VANILLA_ARMOR_DISTRIBUTION.put(Items.chainmail_chestplate, 2);
+        VANILLA_ARMOR_DISTRIBUTION.put(Items.chainmail_leggings, 2);
+        VANILLA_ARMOR_DISTRIBUTION.put(Items.chainmail_boots, 2);
+        VANILLA_ARMOR_DISTRIBUTION.put(Items.iron_helmet, 3);
+        VANILLA_ARMOR_DISTRIBUTION.put(Items.iron_chestplate, 3);
+        VANILLA_ARMOR_DISTRIBUTION.put(Items.iron_leggings, 3);
+        VANILLA_ARMOR_DISTRIBUTION.put(Items.iron_boots, 3);
+        VANILLA_ARMOR_DISTRIBUTION.put(Items.diamond_helmet, 4);
+        VANILLA_ARMOR_DISTRIBUTION.put(Items.diamond_chestplate, 4);
+        VANILLA_ARMOR_DISTRIBUTION.put(Items.diamond_leggings, 4);
+        VANILLA_ARMOR_DISTRIBUTION.put(Items.diamond_boots, 4);
+        // [1.7.10] Netherite does not exist
+    }
 
-    private static final Map<Integer, List<Item>> VANILLA_ARMOR_MAPPING =
-      Map.ofEntries(entry(0, List.of(Items.LEATHER_HELMET, Items.CHAINMAIL_HELMET, Items.IRON_HELMET, Items.DIAMOND_HELMET)),
-        entry(1, List.of(Items.LEATHER_CHESTPLATE, Items.CHAINMAIL_CHESTPLATE, Items.IRON_CHESTPLATE, Items.DIAMOND_CHESTPLATE)),
-        entry(2, List.of(Items.LEATHER_LEGGINGS, Items.CHAINMAIL_LEGGINGS, Items.IRON_LEGGINGS, Items.DIAMOND_LEGGINGS)),
-        entry(3, List.of(Items.LEATHER_BOOTS, Items.CHAINMAIL_BOOTS, Items.IRON_BOOTS, Items.DIAMOND_BOOTS)));
+    private static final Map<Integer, List<Item>> VANILLA_ARMOR_MAPPING;
+    static {
+        VANILLA_ARMOR_MAPPING = new java.util.HashMap<>();
+        VANILLA_ARMOR_MAPPING.put(0, java.util.Arrays.asList(Items.leather_helmet, Items.chainmail_helmet, Items.iron_helmet, Items.diamond_helmet));
+        VANILLA_ARMOR_MAPPING.put(1, java.util.Arrays.asList(Items.leather_chestplate, Items.chainmail_chestplate, Items.iron_chestplate, Items.diamond_chestplate));
+        VANILLA_ARMOR_MAPPING.put(2, java.util.Arrays.asList(Items.leather_leggings, Items.chainmail_leggings, Items.iron_leggings, Items.diamond_leggings));
+        VANILLA_ARMOR_MAPPING.put(3, java.util.Arrays.asList(Items.leather_boots, Items.chainmail_boots, Items.iron_boots, Items.diamond_boots));
+    }
 
     /**
      * Variable representing the empty itemstack in 1.10. Used for easy updating to 1.11
      */
-    public static final ItemStack EMPTY = ItemStack.EMPTY;
+    public static final ItemStack EMPTY = null;
 
     /**
      * Predicate to check if an itemStack is empty.
@@ -144,9 +151,9 @@ public final class ItemStackUtils
     public static final Predicate<ItemStack> ISFOOD =
       stack ->
       {
-          final FoodProperties foodProperties = stack.isEdible() ? stack.getFoodProperties(null) : null;
-          return ItemStackUtils.isNotEmpty(stack) && foodProperties != null && foodProperties.getNutrition() > 0
-                     && foodProperties.getSaturationModifier() > 0 && !stack.is(ModTags.excludedFood);
+          // [1.7.10] FoodProperties API replaced with ItemFood check
+          return ItemStackUtils.isNotEmpty(stack) && stack.getItem() instanceof net.minecraft.item.ItemFood
+                     && ((net.minecraft.item.ItemFood) stack.getItem()).func_150905_g(stack) > 0;
       };
 
     /**
@@ -162,7 +169,7 @@ public final class ItemStackUtils
     /**
      * Predicate to check for compost items.
      */
-    public static final Predicate<ItemStack> IS_COMPOST = stack -> !stack.isEmpty() && stack.getItem() == ModItems.compost;
+    public static final Predicate<ItemStack> IS_COMPOST = stack -> !ItemStackUtils.isEmpty(stack) && stack.getItem() == ModItems.compost;
 
     /**
      * Private constructor to hide the implicit one.
@@ -186,31 +193,19 @@ public final class ItemStackUtils
         if (entity != null)
         {
             final List<ItemStorage> request = new ArrayList<>();
-            if (entity instanceof ItemFrame)
+            if (entity instanceof net.minecraft.entity.item.EntityItemFrame)
             {
-                final ItemStack stack = ((ItemFrame) entity).getItem();
+                final ItemStack stack = ((net.minecraft.entity.item.EntityItemFrame) entity).getDisplayedItem();
                 if (!ItemStackUtils.isEmpty(stack))
                 {
                     ItemStackUtils.setSize(stack, 1);
                     request.add(new ItemStorage(stack));
                 }
-                request.add(new ItemStorage(new ItemStack(Items.ITEM_FRAME, 1)));
+                request.add(new ItemStorage(new ItemStack(Items.item_frame, 1)));
             }
-            else if (entity instanceof ArmorStand)
-            {
-                request.add(new ItemStorage(entity.getPickedResult(new EntityHitResult(placer))));
-                entity.getArmorSlots().forEach(item -> request.add(new ItemStorage(item)));
-                entity.getHandSlots().forEach(item -> request.add(new ItemStorage(item)));
-            }
+            // [1.7.10] EntityArmorStand does not exist; skipped
 
-            /*
-            todo: deactivated until forge fixes this problem.
-            else if (!(entity instanceof MobEntity))
-            {
-                request.add(new ItemStorage(entity.getPickedResult(new EntityRayTraceResult(placer))));
-            }*/
-
-            return request.stream().filter(stack -> !stack.getItemStack().isEmpty()).collect(Collectors.toList());
+            return request.stream().filter(stack -> !ItemStackUtils.isEmpty(stack.getItemStack())).collect(Collectors.toList());
         }
         return Collections.emptyList();
     }
@@ -242,7 +237,7 @@ public final class ItemStackUtils
      */
     public static boolean isEmpty(@Nullable final ItemStack stack)
     {
-        return stack == null || stack.isEmpty();
+        return stack == null || stack.stackSize <= 0;
     }
 
     public static boolean isNotEmpty(@Nullable final ItemStack stack)
@@ -283,13 +278,15 @@ public final class ItemStackUtils
         int maxLevel = 0;
         if (itemStack != null)
         {
-            final NBTTagList ListNBT = itemStack.getEnchantmentTags();
+            // [1.7.10] getEnchantmentTags -> getTagList("ench", 10); size() -> tagCount(); getCompound -> getCompoundTagAt
+            final net.minecraft.nbt.NBTTagList ListNBT = itemStack.hasTagCompound()
+                ? itemStack.getTagCompound().getTagList("ench", 10) : null;
 
             if (ListNBT != null)
             {
-                for (int j = 0; j < ListNBT.size(); ++j)
+                for (int j = 0; j < ListNBT.tagCount(); ++j)
                 {
-                    final int World = ListNBT.getCompound(j).getShort("lvl");
+                    final int World = ListNBT.getCompoundTagAt(j).getShort("lvl");
                     maxLevel = World > maxLevel ? World : maxLevel;
                 }
             }
@@ -312,7 +309,16 @@ public final class ItemStackUtils
             return value;
         }
 
-        final int /* EquipmentSlot */ targetEquipmentSlot = EntityLivingBase.getEquipmentSlotForItem(itemStack);
+        // [1.7.10] getEquipmentSlotForItem via ItemArmor.armorType
+        final int targetEquipmentSlot;
+        if (itemStack.getItem() instanceof net.minecraft.item.ItemArmor)
+        {
+            targetEquipmentSlot = ((net.minecraft.item.ItemArmor) itemStack.getItem()).armorType;
+        }
+        else
+        {
+            return 5;
+        }
         final List<Item> armorItems = VANILLA_ARMOR_MAPPING.get(targetEquipmentSlot);
         if (armorItems == null)
         {
@@ -323,7 +329,7 @@ public final class ItemStackUtils
 
         for (final Item armorItem : armorItems)
         {
-            final double armorValue = getArmorValue(armorItem.getDefaultInstance());
+            final double armorValue = getArmorValue(new ItemStack(armorItem)); // [1.7.10] no getDefaultInstance
             if (targetArmorLevel <= armorValue)
             {
                 return VANILLA_ARMOR_DISTRIBUTION.get(armorItem);
@@ -342,10 +348,12 @@ public final class ItemStackUtils
      */
     private static double getArmorValue(final ItemStack itemStack)
     {
-        final double armor = getItemStackAttributeValue(itemStack, Attributes.ARMOR);
-        final double toughness = getItemStackAttributeValue(itemStack, Attributes.ARMOR_TOUGHNESS);
-
-        return armor + (toughness * 4);
+        // [1.7.10] Attributes.ARMOR not available; use ItemArmor.damageReduceAmount as approximation
+        if (itemStack.getItem() instanceof ItemArmor)
+        {
+            return ((ItemArmor) itemStack.getItem()).damageReduceAmount;
+        }
+        return 0;
     }
 
     /**
@@ -357,7 +365,7 @@ public final class ItemStackUtils
      */
     public static boolean isBetterEquipment(final ItemStack stack1, final ItemStack stack2)
     {
-        for (EquipmentTypeEntry equipmentType : ModEquipmentTypes.getRegistry())
+        for (final EquipmentTypeEntry equipmentType : com.minecolonies.api.equipment.ModEquipmentTypes.getAllEntries())
         {
             if (equipmentType.checkIsEquipment(stack1) && equipmentType.checkIsEquipment(stack2) && equipmentType.getMiningLevel(stack1) > equipmentType.getMiningLevel(stack2))
             {
@@ -381,16 +389,16 @@ public final class ItemStackUtils
         }
         //calculate fortune enchantment
         int fortune = 0;
-        if (tool.isEnchanted())
+        if (tool.isItemEnchanted())
         {
-            final NBTTagList t = tool.getEnchantmentTags();
+            final NBTTagList t = tool.getEnchantmentTagList();
 
-            for (int i = 0; i < t.size(); i++)
+            for (int i = 0; i < t.tagCount(); i++)
             {
-                final int id = t.getCompound(i).getShort(NBT_TAG_ENCHANT_ID);
+                final int id = t.getCompoundTagAt(i).getShort(NBT_TAG_ENCHANT_ID);
                 if (id == FORTUNE_ENCHANT_ID)
                 {
-                    fortune = t.getCompound(i).getShort(NBT_TAG_ENCHANT_LEVEL);
+                    fortune = t.getCompoundTagAt(i).getShort(NBT_TAG_ENCHANT_LEVEL);
                 }
             }
         }
@@ -405,7 +413,7 @@ public final class ItemStackUtils
      */
     public static boolean doesItemServeAsWeapon(@NotNull final ItemStack stack)
     {
-        return stack.getItem() instanceof SwordItem || stack.getItem() instanceof DiggerItem || Compatibility.isTinkersWeapon(stack);
+        return stack.getItem() instanceof net.minecraft.item.ItemSword || stack.getItem() instanceof net.minecraft.item.ItemTool || Compatibility.isTinkersWeapon(stack);
     }
 
     /**
@@ -418,11 +426,11 @@ public final class ItemStackUtils
     {
         if (toolGrade >= 0 && toolGrade <= 4)
         {
-            return String.translatable("com.minecolonies.coremod.armorlevel." + toolGrade);
+            return net.minecraft.util.StatCollector.translateToLocal("com.minecolonies.coremod.armorlevel." + toolGrade);
         }
 
         // this shouldn't really ever happen, but just in case...
-        return String.translatable("com.minecolonies.coremod.armorlevel.etc");
+        return net.minecraft.util.StatCollector.translateToLocal("com.minecolonies.coremod.armorlevel.etc");
     }
 
     /**
@@ -435,10 +443,10 @@ public final class ItemStackUtils
     {
         if (toolGrade >= 0 && toolGrade <= 4)
         {
-            return String.translatable("com.minecolonies.coremod.toollevel." + toolGrade);
+            return net.minecraft.util.StatCollector.translateToLocal("com.minecolonies.coremod.toollevel." + toolGrade);
         }
 
-        return String.translatable("com.minecolonies.coremod.toollevel.etc");
+        return net.minecraft.util.StatCollector.translateToLocal("com.minecolonies.coremod.toollevel.etc");
     }
 
     /**
@@ -480,7 +488,7 @@ public final class ItemStackUtils
      */
     public static int getSize(@NotNull final ItemStack stack)
     {
-        return stack.getCount();
+        return stack.stackSize;
     }
 
     /**
@@ -496,7 +504,7 @@ public final class ItemStackUtils
             return 0;
         }
 
-        return stack.getMaxDamage() - stack.getDamageValue();
+        return stack.getMaxDamage() - stack.getItemDamage();
     }
 
     /**
@@ -556,7 +564,7 @@ public final class ItemStackUtils
             return false;
         }
 
-        if (itemStack1.getItem() == itemStack2.getItem() && (!matchDamage || itemStack1.getDamageValue() == itemStack2.getDamageValue()))
+        if (itemStack1.getItem() == itemStack2.getItem() && (!matchDamage || itemStack1.getItemDamage() == itemStack2.getItemDamage()))
         {
             if (!matchNBT)
             {
@@ -564,23 +572,23 @@ public final class ItemStackUtils
                 return true;
             }
 
-            if (min && itemStack1.getCount() > itemStack2.getCount())
+            if (min && itemStack1.stackSize > itemStack2.stackSize)
             {
                 return false;
             }
 
-            if (itemStack1.hasTag() || itemStack2.hasTag())
+            if (itemStack1.hasTagCompound() || itemStack2.hasTagCompound())
             {
                 if (matchNBTExactly)
                 {
-                    return Objects.equals(itemStack1.getTag(), itemStack2.getTag());
+                    return Objects.equals(itemStack1.getTagCompound(), itemStack2.getTagCompound());
                 }
                 final Set<CheckedNbtKey> checkedKeys = CHECKED_NBT_KEYS.getOrDefault(itemStack1.getItem(), null);
                 if (checkedKeys == null)
                 {
-                    return itemStack1.hasTag() && itemStack2.hasTag() && itemStack1.getTag().equals(itemStack2.getTag());
+                    return itemStack1.hasTagCompound() && itemStack2.hasTagCompound() && itemStack1.getTagCompound().equals(itemStack2.getTagCompound());
                 }
-                if (itemStack1.hasTag() != itemStack2.hasTag() && !checkedKeys.isEmpty())
+                if (itemStack1.hasTagCompound() != itemStack2.hasTagCompound() && !checkedKeys.isEmpty())
                 {
                     return false;
                 }
@@ -590,8 +598,8 @@ public final class ItemStackUtils
                     return true;
                 }
 
-                NBTTagCompound nbt1 = itemStack1.getTag();
-                NBTTagCompound nbt2 = itemStack2.getTag();
+                NBTTagCompound nbt1 = itemStack1.getTagCompound();
+                NBTTagCompound nbt2 = itemStack2.getTagCompound();
 
                 for (final CheckedNbtKey key : checkedKeys)
                 {
@@ -666,7 +674,7 @@ public final class ItemStackUtils
      */
     public static void setSize(@NotNull final ItemStack stack, final int size)
     {
-        stack.setCount(size);
+        stack.stackSize = size;
     }
 
     /**
@@ -677,7 +685,7 @@ public final class ItemStackUtils
      */
     public static void changeSize(@NotNull final ItemStack stack, final int amount)
     {
-        stack.setCount(stack.getCount() + amount);
+        stack.stackSize = stack.stackSize + amount;
     }
 
     /**
@@ -689,7 +697,7 @@ public final class ItemStackUtils
     @NotNull
     public static ItemStack deserializeFromNBT(@NotNull final NBTTagCompound compound)
     {
-        return ItemStack.of(compound);
+        return ItemStack.loadItemStackFromNBT(compound);
     }
 
     /**
@@ -805,21 +813,21 @@ public final class ItemStackUtils
                 Log.getLogger().error("Unable to parse item definition: " + itemData);
             }
         }
-        final Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(split[0], split[1]));
+        final Item item = (Item) cpw.mods.fml.common.registry.GameRegistry.findItem(split[0], split[1]);
         final ItemStack stack = new ItemStack(item);
         if (NBTBase != null)
         {
             try
             {
-                stack.setTag(TagParser.parseTag(NBTBase));
+                stack.setTagCompound((NBTTagCompound) net.minecraft.nbt.JsonToNBT.func_150315_a(NBTBase));
             }
-            catch (CommandSyntaxException e1)
+            catch (net.minecraft.nbt.NBTException e1)
             {
                 //Unable to parse tags, drop them.
                 Log.getLogger().error("Unable to parse item definition: " + itemData);
             }
         }
-        if (stack.isEmpty())
+        if (ItemStackUtils.isEmpty(stack))
         {
             Log.getLogger().warn("Parsed item definition returned empty: " + itemData);
         }
@@ -851,17 +859,18 @@ public final class ItemStackUtils
         final int nbtIndex = value.indexOf('{');
         String itemId = nbtIndex < 0 ? value : value.substring(0, nbtIndex);
 
-        itemId = itemId.replace("[NS]", baseItemId.getNamespace());
+        itemId = itemId.replace("[NS]", baseItemId.getResourceDomain());
         itemId = TEMPLATE_PATH_PATTERN.matcher(itemId).replaceAll(m ->
         {
             if (m.group(1) != null && m.group(2) != null)
             {
-                return baseItemId.getPath().replace(m.group(1), m.group(2));
+                return baseItemId.getResourcePath().replace(m.group(1), m.group(2));
             }
-            return baseItemId.getPath();
+            return baseItemId.getResourcePath();
         });
 
-        return new Tuple<>(ForgeRegistries.ITEMS.containsKey(new ResourceLocation(itemId)),
+        // [1.7.10] ForgeRegistries replaced with cpw registry
+        return new Tuple<>(cpw.mods.fml.common.registry.GameRegistry.findItem(baseItemId.getResourceDomain(), itemId.contains(":") ? itemId.split(":")[1] : itemId) != null,
                 itemId + (nbtIndex >= 0 ? value.substring(nbtIndex) : ""));
     }
 
@@ -872,7 +881,8 @@ public final class ItemStackUtils
      */
     public static boolean hasTag(@NotNull final ItemStack stack)
     {
-        return stack.getTag() != null && stack.getTag().size() > (stack.isDamageableItem() ? 1 : 0);
+        // [1.7.10] getKeySet() may not exist; use hasTagCompound() as simplified check
+        return stack.hasTagCompound();
     }
 
     /**
@@ -888,9 +898,9 @@ public final class ItemStackUtils
         final Set<ItemStorage> allItems = new HashSet<>(IColonyManager.getInstance().getCompatibilityManager().getSetOfAllItems());
 
         // plus all items from the player's inventory not already listed (adds items with extra NBT)
-        for (final ItemStack stack : player.getInventory().items)
+        for (final ItemStack stack : player.inventory.mainInventory)
         {
-            if (stack.isEmpty())
+            if (ItemStackUtils.isEmpty(stack))
             {
                 continue;
             }
@@ -901,10 +911,10 @@ public final class ItemStackUtils
             }
 
             final ItemStack pristine = stack.copy();
-            pristine.setCount(1);
-            if (stack.isDamageableItem() && stack.isDamaged())
+            pristine.stackSize = 1;
+            if (stack.isItemStackDamageable() && stack.isItemDamaged())
             {
-                pristine.setDamageValue(0);
+                pristine.setItemDamage(0);
                 // in case the item wasn't already in the set, we want to only store a pristine one!
             }
             allItems.add(new ItemStorage(pristine, true));
@@ -932,26 +942,24 @@ public final class ItemStackUtils
         final double satIncrease = FoodUtils.getFoodValue(foodStack, citizen);
         citizenData.increaseSaturation(satIncrease);
 
-        ItemStack itemUseReturn = foodStack.finishUsingItem(citizen.World(), citizen);
-        // Special handling for these as those are stackable + have a return per item.
-        if (foodStack.getItem() instanceof HoneyBottleItem)
+        // [1.7.10] getContainerItem returns ItemStack directly
+        ItemStack itemUseReturn = foodStack.getItem().getContainerItem(foodStack);
+        if (itemUseReturn == null) itemUseReturn = ItemStackUtils.EMPTY;
+        // Special handling for items that return a container per use
+        if (foodStack.getItem() instanceof ItemBowlFood)
         {
-            itemUseReturn = new ItemStack(Items.GLASS_BOTTLE);
-        }
-        else if (foodStack.getItem() instanceof ItemBowlFood)
-        {
-            itemUseReturn = new ItemStack(Items.BOWL);
+            itemUseReturn = new ItemStack(Items.bowl);
         }
 
-        if (!itemUseReturn.isEmpty() && itemUseReturn.getItem() != foodStack.getItem())
+        if (!ItemStackUtils.isEmpty(itemUseReturn) && itemUseReturn.getItem() != foodStack.getItem())
         {
-            if (citizenData.getInventory().isFull() || (inventory != null && !inventory.add(itemUseReturn)))
+            if (citizenData.getInventory().isFull())
             {
                 InventoryUtils.spawnItemStack(
-                  citizen.World,
-                  citizen.getX(),
-                  citizen.getY(),
-                  citizen.getZ(),
+                  citizen.worldObj,
+                  citizen.posX,
+                  citizen.posY,
+                  citizen.posZ,
                   itemUseReturn
                 );
             }
@@ -961,7 +969,7 @@ public final class ItemStackUtils
             }
         }
 
-        if (foodStack.getItem() instanceof IMinecoloniesFoodItem foodItem && foodItem.getTier() >= 3)
+        if (foodStack.getItem() instanceof IMinecoloniesFoodItem && ((IMinecoloniesFoodItem) foodStack.getItem()).getTier() >= 3)
         {
             citizen.getCitizenData().getCitizenHappinessHandler().addModifier(new ExpirationBasedHappinessModifier(HADGREATFOOD, 2.0, new StaticHappinessSupplier(2.0), 5));
         }

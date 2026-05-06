@@ -1,5 +1,6 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -93,10 +94,10 @@ public class BuildingHospital extends AbstractBuilding
     public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
-        final NBTTagList bedTagList = compound.getList(TAG_BEDS, NBTBase.TAG_COMPOUND);
+        final NBTTagList bedTagList = compound.getTagList(TAG_BEDS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < bedTagList.size(); ++i)
         {
-            final NBTTagCompound bedCompound = bedTagList.getCompound(i);
+            final NBTTagCompound bedCompound = bedTagList.getCompoundTagAt(i);
             final int[] bedPos = BlockPosUtil.read(bedCompound, TAG_POS);
             if (!bedMap.containsKey(bedPos))
             {
@@ -104,10 +105,10 @@ public class BuildingHospital extends AbstractBuilding
             }
         }
 
-        final NBTTagList patientTagList = compound.getList(TAG_PATIENTS, NBTBase.TAG_COMPOUND);
+        final NBTTagList patientTagList = compound.getTagList(TAG_PATIENTS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < patientTagList.size(); ++i)
         {
-            final NBTTagCompound patientCompound = patientTagList.getCompound(i);
+            final NBTTagCompound patientCompound = patientTagList.getCompoundTagAt(i);
             final int patientId = patientCompound.getInt(TAG_ID);
             if (!patients.containsKey(patientId))
             {
@@ -130,7 +131,7 @@ public class BuildingHospital extends AbstractBuilding
                 bedCompound.putInt(TAG_ID, entry.getValue());
                 bedTagList.add(bedCompound);
             }
-            compound.put(TAG_BEDS, bedTagList);
+            compound.setTag(TAG_BEDS, bedTagList);
         }
 
         if (!patients.isEmpty())
@@ -142,7 +143,7 @@ public class BuildingHospital extends AbstractBuilding
                 patient.write(patientCompound);
                 patientTagList.add(patientCompound);
             }
-            compound.put(TAG_PATIENTS, patientTagList);
+            compound.setTag(TAG_PATIENTS, patientTagList);
         }
 
         return compound;

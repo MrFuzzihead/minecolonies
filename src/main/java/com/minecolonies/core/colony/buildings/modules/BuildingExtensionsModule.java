@@ -57,15 +57,15 @@ public abstract class BuildingExtensionsModule extends AbstractBuildingModule im
     public void deserializeNBT(final NBTTagCompound compound)
     {
         shouldAssignManually = compound.getBoolean(TAG_ASSIGN_MANUALLY);
-        final NBTTagList NBTTagList = compound.getList(TAG_BUILDING_EXTENSIONS, NBTBase.TAG_COMPOUND);
+        final NBTTagList NBTTagList = compound.getTagList(TAG_BUILDING_EXTENSIONS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < NBTTagList.size(); ++i)
         {
-            final NBTTagCompound NBTBase = NBTTagList.getCompound(i);
-            checkedExtensions.put(IBuildingExtension.ExtensionId.deserializeNBT(NBTBase.getCompound(TAG_ID)), compound.getInt(TAG_DAY));
+            final NBTTagCompound NBTBase = NBTTagList.getCompoundTagAt(i);
+            checkedExtensions.put(IBuildingExtension.ExtensionId.deserializeNBT(NBTBase.getCompoundTag(TAG_ID)), compound.getInt(TAG_DAY));
         }
         if (compound.contains(TAG_CURRENT_EXTENSION))
         {
-            currentExtensionId = IBuildingExtension.ExtensionId.deserializeNBT(compound.getCompound(TAG_CURRENT_EXTENSION));
+            currentExtensionId = IBuildingExtension.ExtensionId.deserializeNBT(compound.getCompoundTag(TAG_CURRENT_EXTENSION));
         }
     }
 
@@ -78,14 +78,14 @@ public abstract class BuildingExtensionsModule extends AbstractBuildingModule im
         for (final Map.Entry<IBuildingExtension.ExtensionId, Integer> entry : checkedExtensions.entrySet())
         {
             final NBTTagCompound listEntry = new NBTTagCompound();
-            compound.put(TAG_ID, entry.getKey().serializeNBT());
+            compound.setTag(TAG_ID, entry.getKey().serializeNBT());
             listEntry.putLong(TAG_DAY, entry.getValue());
             NBTTagList.add(listEntry);
         }
-        compound.put(TAG_LIST, NBTTagList);
+        compound.setTag(TAG_LIST, NBTTagList);
         if (currentExtensionId != null)
         {
-            compound.put(TAG_CURRENT_EXTENSION, currentExtensionId.serializeNBT());
+            compound.setTag(TAG_CURRENT_EXTENSION, currentExtensionId.serializeNBT());
         }
     }
 

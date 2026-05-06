@@ -1,4 +1,5 @@
 package com.minecolonies.api.colony.permissions;
+import net.minecraft.world.entity.player.Player;
 
 /**
  * Actions that can be performed in a colony.

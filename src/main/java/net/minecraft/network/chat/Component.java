@@ -1,4 +1,5 @@
 package net.minecraft.network.chat;
+import net.minecraft.network.chat.Style;
 
 /**
  * [1.7.10] Compatibility stub for 1.21 Component (text component).

@@ -653,13 +653,13 @@ public class CitizenDataView implements ICitizenDataView
             }
             else
             {
-                cachedDisplaySantaHat = ItemStack.EMPTY;
+                cachedDisplaySantaHat = null;
             }
         }
 
         final ItemStack currentHat = getInventory().getArmorInSlot(slot);
         // [1.7.10] slot 3 == helmet slot; show santa hat if helmet slot is empty in December
-        if (currentHat.isEmpty() && cachedDisplaySantaHat != null && cachedDisplaySantaHat != ItemStack.EMPTY && slot == 3 /* HELMET */)
+        if (currentHat.isEmpty() && cachedDisplaySantaHat != null && cachedDisplaySantaHat != null && slot == 3 /* HELMET */)
         {
             return cachedDisplaySantaHat;
         }

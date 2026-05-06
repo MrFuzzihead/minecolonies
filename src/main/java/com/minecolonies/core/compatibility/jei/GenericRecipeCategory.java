@@ -1,4 +1,6 @@
 package com.minecolonies.core.compatibility.jei;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.animal.Animal;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -31,14 +33,18 @@ import mezz.jei.api.recipe.RecipeType;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.entity.Entity;
+import net.minecraft.client.gui.GuiGraphics;
 // [1.7.10] world.entity removed
 // [1.7.10] world.entity removed
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraft.init.Blocks;
+import net.minecraft.world.entity.EntityType;
 // [1.7.10] BlockState -> int metadata
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
 // [1.7.10] registries removed
 import org.jetbrains.annotations.NotNull;
 

@@ -1,4 +1,5 @@
 package com.minecolonies.core.research;
+import net.minecraft.world.entity.player.Player;
 
 import com.google.common.collect.ImmutableList;
 import com.minecolonies.api.MinecoloniesAPIProxy;
@@ -352,7 +353,7 @@ public class LocalResearchTree implements ILocalResearchTree
             }
         }
 
-        compound.put(TAG_RESEARCH_TREE, researchList);
+        compound.setTag(TAG_RESEARCH_TREE, researchList);
     }
 
     @Override
@@ -362,7 +363,7 @@ public class LocalResearchTree implements ILocalResearchTree
         inProgress.clear();
         isComplete.clear();
         maxLevelResearchCompleted.clear();
-        NBTUtils.streamCompound(compound.getList(TAG_RESEARCH_TREE, NBTBase.TAG_COMPOUND))
+        NBTUtils.streamCompound(compound.getTagList(TAG_RESEARCH_TREE, NBTBase.TAG_COMPOUND))
           .map(researchCompound -> (ILocalResearch) StandardFactoryController.getInstance().deserialize(researchCompound))
           .forEach(research -> {
               /// region Updated ID helper.

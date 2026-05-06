@@ -176,7 +176,7 @@ public class CitizenDiseaseHandler implements ICitizenDiseaseHandler
             diseaseTag.putString(TAG_DISEASE_ID, disease.id().toString());
         }
         diseaseTag.putInt(TAG_IMMUNITY, immunityTicks);
-        compound.put(TAG_DISEASE, diseaseTag);
+        compound.setTag(TAG_DISEASE, diseaseTag);
     }
 
     @Override
@@ -187,7 +187,7 @@ public class CitizenDiseaseHandler implements ICitizenDiseaseHandler
             return;
         }
 
-        NBTTagCompound diseaseTag = compound.getCompound(TAG_DISEASE);
+        NBTTagCompound diseaseTag = compound.getCompoundTag(TAG_DISEASE);
         if (diseaseTag.contains(TAG_DISEASE_ID))
         {
             this.disease = DiseasesListener.getDisease(new ResourceLocation(diseaseTag.getString(TAG_DISEASE_ID)));

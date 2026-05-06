@@ -1,5 +1,6 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -135,7 +136,7 @@ public class BuildingBarracksTower extends AbstractBuildingGuards
     public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
-        barracks = NbtUtils.readBlockPos(compound.getCompound(TAG_POS));
+        barracks = NbtUtils.readBlockPos(compound.getCompoundTag(TAG_POS));
     }
 
     @Override
@@ -144,7 +145,7 @@ public class BuildingBarracksTower extends AbstractBuildingGuards
         final NBTTagCompound compound = super.serializeNBT();
         if (barracks != null)
         {
-            compound.put(TAG_POS, NbtUtils.writeBlockPos(barracks));
+            compound.setTag(TAG_POS, NbtUtils.writeBlockPos(barracks));
         }
 
         return compound;

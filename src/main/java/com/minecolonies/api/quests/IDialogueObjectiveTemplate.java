@@ -1,4 +1,5 @@
 package com.minecolonies.api.quests;
+import net.minecraft.world.entity.player.Player;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

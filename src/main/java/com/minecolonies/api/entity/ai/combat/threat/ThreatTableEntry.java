@@ -27,7 +27,7 @@ public class ThreatTableEntry
     public ThreatTableEntry(final EntityLivingBase entity)
     {
         this.entity = Objects.requireNonNull(entity);
-        this.lastSeen = entity.World().getGameTime();
+        this.lastSeen = entity.worldObj.getTotalWorldTime();
     }
 
     /**
@@ -41,7 +41,7 @@ public class ThreatTableEntry
         }
 
         this.threat = Math.max(0, this.threat + threat);
-        lastSeen = entity.World().getGameTime();
+        lastSeen = entity.worldObj.getTotalWorldTime(); // [1.7.10]
     }
 
     /**

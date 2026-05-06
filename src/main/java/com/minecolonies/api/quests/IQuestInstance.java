@@ -1,4 +1,6 @@
 package com.minecolonies.api.quests;
+import net.minecraft.core.Holder;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.IColony;
 import net.minecraft.nbt.NBTTagCompound;

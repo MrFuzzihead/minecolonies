@@ -1,4 +1,5 @@
 package com.minecolonies.api.quests;
+import net.minecraft.world.entity.player.Player;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;

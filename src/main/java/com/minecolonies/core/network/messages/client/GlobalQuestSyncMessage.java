@@ -1,4 +1,7 @@
 package com.minecolonies.core.network.messages.client;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+
 
 import com.minecolonies.api.network.IMessage;
 import com.minecolonies.core.datalistener.QuestJsonListener;

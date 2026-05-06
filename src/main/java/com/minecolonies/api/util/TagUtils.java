@@ -1,4 +1,5 @@
 package com.minecolonies.api.util;
+import net.minecraft.tags.TagKey;
 
 import net.minecraft.util.ResourceLocation;
 // [1.7.10] tags removed

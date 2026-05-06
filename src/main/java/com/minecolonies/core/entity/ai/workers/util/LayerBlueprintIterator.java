@@ -12,6 +12,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 // [1.7.10] BlockState -> int metadata
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.util.TriPredicate;
 // [1.7.10] items shim in com.minecolonies.api.shim
 import org.jetbrains.annotations.Nullable;

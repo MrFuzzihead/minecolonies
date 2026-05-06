@@ -45,8 +45,8 @@ public class DynamicHappinessSupplier implements IHappinessSupplierWrapper
     public NBTTagCompound serializeNBT()
     {
         final NBTTagCompound NBTTagCompound = new NBTTagCompound();
-        NBTTagCompound.putString(TAG_ID, key.toString());
-        NBTTagCompound.putDouble(TAG_VALUE, lastValue);
+        NBTTagCompound.setString(TAG_ID, key.toString()); // [1.7.10]
+        NBTTagCompound.setDouble(TAG_VALUE, lastValue); // [1.7.10]
         return NBTTagCompound;
     }
 

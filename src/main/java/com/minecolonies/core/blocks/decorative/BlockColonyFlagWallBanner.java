@@ -1,4 +1,5 @@
 package com.minecolonies.core.blocks.decorative;
+import net.minecraft.world.level.block.state.BlockState;
 
 import com.minecolonies.api.blocks.decorative.AbstractColonyFlagBanner;
 import com.minecolonies.api.util.constant.Constants;

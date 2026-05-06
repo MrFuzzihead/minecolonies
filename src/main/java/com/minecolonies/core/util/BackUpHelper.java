@@ -1,4 +1,5 @@
 package com.minecolonies.core.util;
+import net.minecraft.world.level.chunk.LevelChunk;
 
 import com.google.common.io.Files;
 import com.minecolonies.api.colony.IColony;

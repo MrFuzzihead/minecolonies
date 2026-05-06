@@ -1,4 +1,5 @@
 package com.minecolonies.core.client.gui;
+import net.minecraft.world.entity.player.Player;
 
 import com.google.common.collect.ImmutableList;
 // [1.7.10] blockui replaced by ModularUI2
@@ -437,7 +438,7 @@ public class WindowBuildingBrowser extends AbstractWindowSkeleton
             assert !anchor.hasTileEntityData() || anchor.getTileEntityData() != null;   // quiet warnings
             if (anchor.hasTileEntityData() && anchor.getTileEntityData().contains(TAG_BLUEPRINTDATA))
             {
-                final Map<int[], List<String>> tagMap = IBlueprintDataProviderBE.readTagPosMapFrom(anchor.getTileEntityData().getCompound(TAG_BLUEPRINTDATA));
+                final Map<int[], List<String>> tagMap = IBlueprintDataProviderBE.readTagPosMapFrom(anchor.getTileEntityData().getCompoundTag(TAG_BLUEPRINTDATA));
                 final List<String> anchorTags = tagMap.computeIfAbsent(new int[]{0,0,0}, k -> new ArrayList<>());
                 if (anchorTags.contains(INVISIBLE_TAG))
                 {

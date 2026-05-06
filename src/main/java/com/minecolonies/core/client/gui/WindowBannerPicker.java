@@ -1,4 +1,5 @@
 package com.minecolonies.core.client.gui;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.util.Log;

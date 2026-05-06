@@ -1,4 +1,5 @@
 package com.minecolonies.core.quests.rewards;
+import net.minecraft.world.entity.player.Player;
 
 import com.google.gson.JsonObject;
 import com.minecolonies.api.colony.ICitizenData;

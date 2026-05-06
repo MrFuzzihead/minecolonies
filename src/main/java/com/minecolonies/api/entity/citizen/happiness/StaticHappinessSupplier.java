@@ -36,7 +36,7 @@ public class StaticHappinessSupplier implements IHappinessSupplierWrapper
     public NBTTagCompound serializeNBT()
     {
         final NBTTagCompound NBTTagCompound = new NBTTagCompound();
-        NBTTagCompound.putDouble(TAG_VALUE, this.value);
+        NBTTagCompound.setDouble(TAG_VALUE, this.value); // [1.7.10]
         return NBTTagCompound;
     }
 

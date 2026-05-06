@@ -1,4 +1,5 @@
 package com.minecolonies.core.quests;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
@@ -294,7 +295,7 @@ public class QuestInstance implements IQuestInstance
         objectiveProgress = nbt.getInt(TAG_PROGRESS);
         questGiver = nbt.getInt(TAG_QUEST_GIVER);
 
-        final NBTTagList participantList = nbt.getList(TAG_PARTICIPANTS, NBTBase.TAG_INT);
+        final NBTTagList participantList = nbt.getTagList(TAG_PARTICIPANTS, NBTBase.TAG_INT);
         for (final NBTBase NBTBase : participantList)
         {
             questParticipants.add(((NBTTagInt) NBTBase).getAsInt());
@@ -303,7 +304,7 @@ public class QuestInstance implements IQuestInstance
         if (nbt.contains(TAG_OBJECTIVE))
         {
             final IObjectiveInstance data = IQuestManager.GLOBAL_SERVER_QUESTS.get(questTemplateID).getObjective(objectiveProgress).createObjectiveInstance();
-            data.deserializeNBT(nbt.getCompound(TAG_OBJECTIVE));
+            data.deserializeNBT(nbt.getCompoundTag(TAG_OBJECTIVE));
             this.currentObjectiveInstance = data;
         }
 

@@ -3,8 +3,10 @@ package com.minecolonies.core.entity.pathfinding.pathjobs;
 import com.minecolonies.core.entity.pathfinding.MNode;
 // [1.7.10] int[] -> int x,y,z
 // [1.7.10] world.entity removed
+import net.minecraft.entity.EntityCreature;
 import net.minecraft.world.World;
 // [1.7.10] BlockState -> int metadata
+import net.minecraft.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;

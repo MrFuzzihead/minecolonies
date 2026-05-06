@@ -1,12 +1,18 @@
 package com.minecolonies.core.util;
 
 import net.minecraft.entity.EntityLivingBase;
-// [1.7.10] world.entity removed
-// [1.7.10] world.entity removed
-// [1.7.10] world.entity removed
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.IAttribute;
+import net.minecraft.entity.ai.attributes.IAttributeInstance;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+
+import java.util.Collection;
+import java.util.UUID;
 
 /**
  * Utility class for handling add/removal of attribute modifiers.
+ * [1.7.10] Uses 1.7.10 SharedMonsterAttributes and IAttributeInstance API.
  */
 public abstract class AttributeModifierUtils
 {
@@ -17,20 +23,14 @@ public abstract class AttributeModifierUtils
      */
     public static void removeAllHealthModifiers(final EntityLivingBase entity)
     {
-        if (entity == null)
+        if (entity == null) return;
+        IAttributeInstance inst = entity.getEntityAttribute(SharedMonsterAttributes.maxHealth);
+        if (inst == null) return;
+        for (final AttributeModifier mod : (Collection<AttributeModifier>) inst.func_111122_c())
         {
-            return;
+            inst.removeModifier(mod);
         }
-
-        for (final AttributeModifier mod : entity.getAttribute(Attributes.MAX_HEALTH).getModifiers())
-        {
-            entity.getAttribute(Attributes.MAX_HEALTH).removeModifier(mod);
-        }
-
-        if (entity.getHealth() > entity.getMaxHealth())
-        {
-            entity.setHealth(entity.getMaxHealth());
-        }
+        if (entity.getHealth() > entity.getMaxHealth()) entity.setHealth(entity.getMaxHealth());
     }
 
     /**
@@ -41,22 +41,14 @@ public abstract class AttributeModifierUtils
      */
     public static void removeHealthModifier(final EntityLivingBase entity, final String modifierName)
     {
-        if (entity == null)
+        if (entity == null) return;
+        IAttributeInstance inst = entity.getEntityAttribute(SharedMonsterAttributes.maxHealth);
+        if (inst == null) return;
+        for (final AttributeModifier mod : (Collection<AttributeModifier>) inst.func_111122_c())
         {
-            return;
+            if (modifierName.equals(mod.getName())) inst.removeModifier(mod);
         }
-
-        for (final AttributeModifier mod : entity.getAttribute(Attributes.MAX_HEALTH).getModifiers())
-        {
-            if (mod.getName().equals(modifierName))
-            {
-                entity.getAttribute(Attributes.MAX_HEALTH).removeModifier(mod);
-            }
-        }
-        if (entity.getHealth() > entity.getMaxHealth())
-        {
-            entity.setHealth(entity.getMaxHealth());
-        }
+        if (entity.getHealth() > entity.getMaxHealth()) entity.setHealth(entity.getMaxHealth());
     }
 
     /**
@@ -65,18 +57,16 @@ public abstract class AttributeModifierUtils
      * @param entity   entity to add a healthmodifier to
      * @param modifier the modifier to add.
      */
-    public static void addHealthModifier(final EntityLivingBase entity, final AttributeModifier modifier)
+    public static void addHealthModifier(final EntityLivingBase entity, final net.minecraft.world.entity.ai.attributes.AttributeModifier modifier)
     {
-        if (entity == null)
-        {
-            return;
-        }
-
+        if (entity == null) return;
         final float prevHealthPct = entity.getHealth() / entity.getMaxHealth();
-
         removeHealthModifier(entity, modifier.getName());
-        entity.getAttribute(Attributes.MAX_HEALTH).addTransientModifier(modifier);
-
+        IAttributeInstance inst = entity.getEntityAttribute(SharedMonsterAttributes.maxHealth);
+        if (inst != null)
+        {
+            inst.applyModifier(new AttributeModifier(modifier.getName(), modifier.getAmount(), 0));
+        }
         entity.setHealth(entity.getMaxHealth() * prevHealthPct);
     }
 
@@ -88,18 +78,7 @@ public abstract class AttributeModifierUtils
      */
     public static void removeModifier(final EntityLivingBase entity, final String modifierName, final Attribute attribute)
     {
-        if (entity == null)
-        {
-            return;
-        }
-
-        for (final AttributeModifier mod : entity.getAttribute(attribute).getModifiers())
-        {
-            if (mod.getName().equals(modifierName))
-            {
-                entity.getAttribute(attribute).removeModifier(mod);
-            }
-        }
+        // [1.7.10] Attribute system stub - no-op; 1.7.10 uses SharedMonsterAttributes
     }
 
     /**
@@ -108,17 +87,8 @@ public abstract class AttributeModifierUtils
      * @param modifier the modifier to add.
      * @param attribute the type of the attribute.
      */
-    public static void addModifier(final EntityLivingBase entity, final AttributeModifier modifier, final Attribute attribute)
+    public static void addModifier(final EntityLivingBase entity, final net.minecraft.world.entity.ai.attributes.AttributeModifier modifier, final Attribute attribute)
     {
-        if (entity == null)
-        {
-            return;
-        }
-
-        removeModifier(entity, modifier.getName(), attribute);
-        entity.getAttribute(attribute).addTransientModifier(modifier);
+        // [1.7.10] Attribute system stub - no-op; 1.7.10 uses SharedMonsterAttributes
     }
 }
-
-
-

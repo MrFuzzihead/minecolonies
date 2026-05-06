@@ -1,5 +1,6 @@
 package com.minecolonies.core.colony.buildings.modules;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -69,16 +70,16 @@ public class FurnaceUserModule extends AbstractBuildingModule implements IPersis
     @Override
     public void deserializeNBT(final NBTTagCompound compound)
     {
-        final NBTTagList furnaceTagList = compound.getList(TAG_FURNACES, NBTBase.TAG_COMPOUND);
+        final NBTTagList furnaceTagList = compound.getTagList(TAG_FURNACES, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < furnaceTagList.size(); ++i)
         {
-            if(furnaceTagList.getCompound(i).contains(TAG_POS))
+            if(furnaceTagList.getCompoundTagAt(i).contains(TAG_POS))
             {
-                furnaces.add(NbtUtils.readBlockPos(furnaceTagList.getCompound(i).getCompound(TAG_POS)));
+                furnaces.add(NbtUtils.readBlockPos(furnaceTagList.getCompoundTagAt(i).getCompoundTag(TAG_POS)));
             }
-            if(furnaceTagList.getCompound(i).contains(TAG_POS_COMPAT))
+            if(furnaceTagList.getCompoundTagAt(i).contains(TAG_POS_COMPAT))
             {
-                furnaces.add(NbtUtils.readBlockPos(furnaceTagList.getCompound(i).getCompound(TAG_POS_COMPAT)));
+                furnaces.add(NbtUtils.readBlockPos(furnaceTagList.getCompoundTagAt(i).getCompoundTag(TAG_POS_COMPAT)));
             }
         }
     }
@@ -90,10 +91,10 @@ public class FurnaceUserModule extends AbstractBuildingModule implements IPersis
         for (@NotNull final int[] entry : furnaces)
         {
             @NotNull final NBTTagCompound furnaceCompound = new NBTTagCompound();
-            furnaceCompound.put(TAG_POS, NbtUtils.writeBlockPos(entry));
+            furnacecompound.setTag(TAG_POS, NbtUtils.writeBlockPos(entry));
             furnacesTagList.add(furnaceCompound);
         }
-        compound.put(TAG_FURNACES, furnacesTagList);
+        compound.setTag(TAG_FURNACES, furnacesTagList);
     }
 
     @Override

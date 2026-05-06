@@ -41,7 +41,7 @@ public class CitizenMournHandler implements ICitizenMournHandler
     public void read(final NBTTagCompound compound)
     {
         isMourning = compound.getBoolean(TAG_MOURNING);
-        final NBTTagList NBTBase = compound.getList(TAG_DECEASED, NBTBase.TAG_STRING);
+        final NBTTagList NBTBase = compound.getTagList(TAG_DECEASED, NBTBase.TAG_STRING);
         for (int i = 0; i < NBTBase.size(); i++)
         {
             deceasedCitizens.add(NBTBase.getString(i));
@@ -57,7 +57,7 @@ public class CitizenMournHandler implements ICitizenMournHandler
         {
             deceasedNbt.add(NBTTagString.valueOf(deceased));
         }
-        compound.put(TAG_DECEASED, deceasedNbt);
+        compound.setTag(TAG_DECEASED, deceasedNbt);
     }
 
     @Override

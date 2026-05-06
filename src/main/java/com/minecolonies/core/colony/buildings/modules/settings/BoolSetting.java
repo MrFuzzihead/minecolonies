@@ -1,8 +1,9 @@
 package com.minecolonies.core.colony.buildings.modules.settings;
+// [1.7.10] replaced OnlyIn/Dist with SideOnly/Side
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
-// [1.7.10] blockui replaced by ModularUI2
-// [1.7.10] blockui replaced by ModularUI2
-// [1.7.10] blockui replaced by ModularUI2
+import com.ldtteam.blockui.controls.ButtonImage;
 import com.minecolonies.api.colony.buildings.modules.ICommonSettingsModule;
 import com.minecolonies.api.colony.buildings.modules.ISettingsModule;
 import com.minecolonies.api.colony.buildings.modules.settings.ISetting;
@@ -81,28 +82,28 @@ public class BoolSetting implements ISetting<Boolean>
         return new ResourceLocation("minecolonies:gui/layouthuts/layoutboolsetting.xml");
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @SideOnly(Side.CLIENT)
     @Override
     public void setupHandler(
       final ISettingKey<?> key,
-      final Object Object,
+      final Object rowPane,
       final ICommonSettingsModule settingsModuleView,
       final IBuildingView building, final Object window)
     {
-        Object.findPaneOfTypeByID("trigger", ButtonImage.class).setHandler(button -> settingsModuleView.trigger(key));
+        ((com.ldtteam.blockui.Pane) rowPane).findPaneOfTypeByID("trigger", ButtonImage.class).setHandler(button -> settingsModuleView.trigger(key));
     }
 
     @Override
     public void render(
       final ISettingKey<?> key,
-      final Object Object,
+      final Object rowPane,
       final ICommonSettingsModule settingsModuleView,
       final IBuildingView building,
       final Object window)
     {
-        ButtonImage triggerButton = Object.findPaneOfTypeByID("trigger", ButtonImage.class);
+        ButtonImage triggerButton = ((com.ldtteam.blockui.Pane) rowPane).findPaneOfTypeByID("trigger", ButtonImage.class);
         triggerButton.setEnabled(isActive((ISettingsModuleView) settingsModuleView));
-        triggerButton.setText(String.translatable(value ? ON : OFF));
+        triggerButton.setText(value ? ON : OFF); // [1.7.10] use key directly
         setHoverPane(key, triggerButton, settingsModuleView);
     }
 

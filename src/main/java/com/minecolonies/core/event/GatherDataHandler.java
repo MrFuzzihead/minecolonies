@@ -5,7 +5,7 @@ import com.minecolonies.core.generation.ItemNbtCalculator;
 import com.minecolonies.core.generation.defaults.*;
 import com.minecolonies.core.generation.defaults.workers.*;
 import com.minecolonies.core.util.SchemFixerUtil;
-// [1.7.10] data removed
+import net.minecraft.data.DataGenerator;
 import net.minecraftforge.common.data.BlockTagsProvider;
 import net.minecraftforge.data.event.GatherDataEvent;
 

@@ -1,4 +1,9 @@
 package com.minecolonies.core.network.messages.client.colony;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 
 import com.minecolonies.api.entity.citizen.AbstractCivilianEntity;
 import com.minecolonies.api.network.IMessage;

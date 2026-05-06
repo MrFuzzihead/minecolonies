@@ -1,4 +1,6 @@
 package com.minecolonies.core.entity.ai.minimal;
+import net.minecraft.util.Direction;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.entity.ai.IStateAI;
 import com.minecolonies.api.entity.ai.statemachine.AITarget;

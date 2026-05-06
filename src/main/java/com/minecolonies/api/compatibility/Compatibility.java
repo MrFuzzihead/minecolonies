@@ -1,4 +1,5 @@
 package com.minecolonies.api.compatibility;
+import net.minecraft.world.level.block.state.BlockState;
 
 import com.minecolonies.api.compatibility.dynamictrees.DynamicTreeProxy;
 import com.minecolonies.api.compatibility.resourcefulbees.IBeehiveCompat;

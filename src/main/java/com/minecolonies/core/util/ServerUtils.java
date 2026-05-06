@@ -1,4 +1,5 @@
 package com.minecolonies.core.util;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.permissions.ColonyPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;

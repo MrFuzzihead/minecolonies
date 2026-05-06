@@ -1,4 +1,9 @@
 package com.minecolonies.core.entity.ai.workers;
+import net.minecraft.tags.TagKey;
+import net.minecraft.util.Direction;
+import net.minecraft.tileentity.BlockEntity; // [1.7.10] alias -> TileEntity
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.block.state.BlockState;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -1287,12 +1292,12 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
                 if (getInventory().getHeldItemSlot(0 /* InteractionHand.MAIN_HAND */) == slotAt)
                 {
                     getInventory().setHeldItem(0 /* InteractionHand.MAIN_HAND */, -1);
-                    worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, ItemStack.EMPTY);
+                    worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, null);
                 }
                 if (getInventory().getHeldItemSlot(1 /* InteractionHand.OFF_HAND */) == slotAt)
                 {
                     getInventory().setHeldItem(1 /* InteractionHand.OFF_HAND */, -1);
-                    worker.setItemInHand(1 /* InteractionHand.OFF_HAND */, ItemStack.EMPTY);
+                    worker.setItemInHand(1 /* InteractionHand.OFF_HAND */, null);
                 }
 
                 dumpedItems += amount;

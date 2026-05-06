@@ -1,4 +1,6 @@
 package com.minecolonies.core.util;
+import net.minecraft.tileentity.BlockEntity; // [1.7.10] alias -> TileEntity
+import net.minecraft.world.entity.player.Player;
 
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;

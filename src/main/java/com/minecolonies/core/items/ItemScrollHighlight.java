@@ -1,4 +1,8 @@
 package com.minecolonies.core.items;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.item.InteractionResult;
+import net.minecraft.world.item.Properties;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.core.tileentities.TileEntityColonyBuilding;

@@ -35,10 +35,10 @@ public final class GuardGearBuilder
       final Tuple<Integer, Integer> buildingLevelRange)
     {
         final List<GuardGear> armorList = new ArrayList<>();
-        armorList.add(new GuardGear(ModEquipmentTypes.boots.get(), null /* EquipmentSlot. */, minArmorLevel, maxArmorLevel, levelRange, buildingLevelRange));
-        armorList.add(new GuardGear(ModEquipmentTypes.chestplate.get(), null /* EquipmentSlot. */, minArmorLevel, maxArmorLevel, levelRange, buildingLevelRange));
-        armorList.add(new GuardGear(ModEquipmentTypes.helmet.get(), null /* EquipmentSlot. */, minArmorLevel, maxArmorLevel, levelRange, buildingLevelRange));
-        armorList.add(new GuardGear(ModEquipmentTypes.leggings.get(), null /* EquipmentSlot. */, minArmorLevel, maxArmorLevel, levelRange, buildingLevelRange));
+        armorList.add(new GuardGear(ModEquipmentTypes.boots.get(), 0 /* EquipmentSlot.FEET */, minArmorLevel, maxArmorLevel, levelRange, buildingLevelRange));
+        armorList.add(new GuardGear(ModEquipmentTypes.chestplate.get(), 1 /* EquipmentSlot.CHEST */, minArmorLevel, maxArmorLevel, levelRange, buildingLevelRange));
+        armorList.add(new GuardGear(ModEquipmentTypes.helmet.get(), 2 /* EquipmentSlot.HEAD */, minArmorLevel, maxArmorLevel, levelRange, buildingLevelRange));
+        armorList.add(new GuardGear(ModEquipmentTypes.leggings.get(), 3 /* EquipmentSlot.LEGS */, minArmorLevel, maxArmorLevel, levelRange, buildingLevelRange));
         return armorList;
     }
 }

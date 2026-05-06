@@ -39,7 +39,7 @@ public class ColonyEventDescriptionTypeRegistryEntry
      */
     public ColonyEventDescriptionTypeRegistryEntry(@NotNull final Function<NBTTagCompound, IColonyEventDescription> nbtEventCreator, @NotNull final Function<PacketBuffer, IColonyEventDescription> packetBufferEventCreator, @NotNull final ResourceLocation registryID)
     {
-        if (registryID.getPath().isEmpty())
+        if (registryID.getResourcePath().isEmpty())
         {
             Log.getLogger().warn("Created empty registry empty for event, supply a name for it!");
         }
@@ -51,7 +51,7 @@ public class ColonyEventDescriptionTypeRegistryEntry
 
     /**
      * Deserializes the event description from nbt.
-     * 
+     *
      * @param compound the nbt to deserialize the event description from.
      * @return the deserialized event description.
      */
@@ -62,7 +62,7 @@ public class ColonyEventDescriptionTypeRegistryEntry
 
     /**
      * Deserializes the event description from the given {@link PacketBuffer}.
-     * 
+     *
      * @param buffer the {@link PacketBuffer} to deserialize the event description from.
      * @return the deserialized event description.
      */

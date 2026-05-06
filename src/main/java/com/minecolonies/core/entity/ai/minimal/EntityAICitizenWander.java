@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.ai.minimal;
+import net.minecraft.tileentity.BlockEntity; // [1.7.10] alias -> TileEntity
 
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.minecolonies.api.entity.ai.IStateAI;
@@ -102,7 +103,7 @@ public class EntityAICitizenWander implements IStateAI
 
             if (citizen.getRandom().nextInt(100) < 5)
             {
-                citizen.setItemSlot(null /* EquipmentSlot. */, ItemStack.EMPTY);
+                citizen.setItemSlot(null /* EquipmentSlot. */, null);
                 walkTo = null;
                 leisureSite = null;
                 citizen.getCitizenData()

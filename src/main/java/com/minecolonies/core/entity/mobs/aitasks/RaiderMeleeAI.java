@@ -1,4 +1,6 @@
 package com.minecolonies.core.entity.mobs.aitasks;
+import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.entity.ai.combat.threat.IThreatTableEntity;
 import com.minecolonies.api.entity.ai.statemachine.states.IState;

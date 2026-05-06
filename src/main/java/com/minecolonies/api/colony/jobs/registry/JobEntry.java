@@ -126,7 +126,7 @@ public final class JobEntry
         this.jobProducer = jobProducer;
         this.jobViewProducer = jobViewProducer;
         this.key = key;
-        this.translationKey = "com." + key.getNamespace() + ".job." + key.getPath();
+        this.translationKey = "com." + key.getResourceDomain() + ".job." + key.getResourcePath();
     }
 
     public String getTranslationKey()

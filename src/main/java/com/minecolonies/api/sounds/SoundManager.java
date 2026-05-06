@@ -1,4 +1,6 @@
 package com.minecolonies.api.sounds;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.player.Player;
 
 // [1.7.10] client removed (use @SideOnly)
 // [1.7.10] int[] -> int x,y,z

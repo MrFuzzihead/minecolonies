@@ -80,17 +80,17 @@ public final class ExpirationBasedHappinessModifier extends AbstractHappinessMod
     public void read(final NBTTagCompound compoundNBT, final boolean persist)
     {
         super.read(compoundNBT, persist);
-        this.days = compoundNBT.getInt(TAG_DAY);
-        this.period = compoundNBT.getInt(TAG_PERIOD);
+        this.days = compoundNBT.getInteger(TAG_DAY); // [1.7.10]
+        this.period = compoundNBT.getInteger(TAG_PERIOD); // [1.7.10]
     }
 
     @Override
     public void write(final NBTTagCompound compoundNBT, final boolean persist)
     {
         super.write(compoundNBT, persist);
-        compoundNBT.putString(NbtTagConstants.TAG_MODIFIER_TYPE, HappinessRegistry.EXPIRATION_MODIFIER.toString());
-        compoundNBT.putInt(TAG_DAY, days);
-        compoundNBT.putInt(TAG_PERIOD, period);
+        compoundNBT.setString(NbtTagConstants.TAG_MODIFIER_TYPE, HappinessRegistry.EXPIRATION_MODIFIER.toString()); // [1.7.10]
+        compoundNBT.setInteger(TAG_DAY, days); // [1.7.10]
+        compoundNBT.setInteger(TAG_PERIOD, period); // [1.7.10]
     }
 }
 

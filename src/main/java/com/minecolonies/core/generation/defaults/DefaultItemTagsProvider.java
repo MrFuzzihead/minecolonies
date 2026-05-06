@@ -1,4 +1,8 @@
 package com.minecolonies.core.generation.defaults;
+import net.minecraft.tags.TagKey;
+import net.minecraftforge.common.data.ItemTagsProvider;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.data.PackOutput;
 
 import com.ldtteam.domumornamentum.block.types.ExtraBlockType;
 import com.minecolonies.api.blocks.ModBlocks;

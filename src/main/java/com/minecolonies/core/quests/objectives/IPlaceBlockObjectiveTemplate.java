@@ -1,4 +1,5 @@
 package com.minecolonies.core.quests.objectives;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.quests.IObjectiveInstance;
 import com.minecolonies.api.quests.IQuestInstance;

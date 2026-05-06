@@ -1,4 +1,5 @@
 package com.minecolonies.core.commands.citizencommands;
+import net.minecraft.network.chat.Style;
 
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;

@@ -96,9 +96,9 @@ public class StandardRequestSystemDeliveryManJobDataStore implements IRequestSys
           @NotNull final IFactoryController controller, @NotNull final StandardRequestSystemDeliveryManJobDataStore standardRequestSystemDeliveryManJobDataStore)
         {
             final NBTTagCompound compound = new NBTTagCompound();
-            compound.put(TAG_TOKEN, controller.serialize(standardRequestSystemDeliveryManJobDataStore.id));
-            compound.put(TAG_LIST, standardRequestSystemDeliveryManJobDataStore.queue.stream().map(controller::serialize).collect(NBTUtils.toListNBT()));
-            compound.put(TAG_ONGOING_LIST, standardRequestSystemDeliveryManJobDataStore.ongoingDeliveries.stream().map(controller::serialize).collect(NBTUtils.toListNBT()));
+            compound.setTag(TAG_TOKEN, controller.serialize(standardRequestSystemDeliveryManJobDataStore.id));
+            compound.setTag(TAG_LIST, standardRequestSystemDeliveryManJobDataStore.queue.stream().map(controller::serialize).collect(NBTUtils.toListNBT()));
+            compound.setTag(TAG_ONGOING_LIST, standardRequestSystemDeliveryManJobDataStore.ongoingDeliveries.stream().map(controller::serialize).collect(NBTUtils.toListNBT()));
             return compound;
         }
 
@@ -106,11 +106,11 @@ public class StandardRequestSystemDeliveryManJobDataStore implements IRequestSys
         @Override
         public StandardRequestSystemDeliveryManJobDataStore deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound nbt) throws Throwable
         {
-            final IToken<?> token = controller.deserialize(nbt.getCompound(TAG_TOKEN));
-            final LinkedList<IToken<?>> queue = NBTUtils.streamCompound(nbt.getList(TAG_LIST, NBTBase.TAG_COMPOUND))
+            final IToken<?> token = controller.deserialize(nbt.getCompoundTag(TAG_TOKEN));
+            final LinkedList<IToken<?>> queue = NBTUtils.streamCompound(nbt.getTagList(TAG_LIST, NBTBase.TAG_COMPOUND))
                                                   .map(NBTTagCompound -> (IToken<?>) controller.deserialize(NBTTagCompound))
                                                   .collect(Collectors.toCollection(LinkedList::new));
-            final HashSet<IToken<?>> ongoingDeliveries = NBTUtils.streamCompound(nbt.getList(TAG_ONGOING_LIST, NBTBase.TAG_COMPOUND))
+            final HashSet<IToken<?>> ongoingDeliveries = NBTUtils.streamCompound(nbt.getTagList(TAG_ONGOING_LIST, NBTBase.TAG_COMPOUND))
                                                   .map(NBTTagCompound -> (IToken<?>) controller.deserialize(NBTTagCompound))
                                                   .collect(Collectors.toCollection(HashSet::new));
             return new StandardRequestSystemDeliveryManJobDataStore(token, queue, ongoingDeliveries);

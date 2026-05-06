@@ -1,4 +1,8 @@
 package com.minecolonies.core.generation.defaults;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.damagesource.DamageScaling;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.data.PackOutput;
 
 import com.minecolonies.api.entity.ModEntities;
 import com.minecolonies.api.util.DamageSourceKeys;

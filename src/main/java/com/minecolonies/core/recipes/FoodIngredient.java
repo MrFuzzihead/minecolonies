@@ -1,4 +1,5 @@
 package com.minecolonies.core.recipes;
+import net.minecraft.world.item.FoodProperties;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

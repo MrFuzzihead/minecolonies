@@ -1,315 +1,145 @@
 package com.minecolonies.core.entity.pathfinding.world;
 
 import com.minecolonies.api.util.WorldUtil;
-// [1.7.10] int[] -> int x,y,z
-// [1.7.10] Direction -> net.minecraft.util.EnumFacing
-// [1.7.10] Holder removed
-// [1.7.10] RegistryAccess removed
-import net.minecraft.server.World.ChunkHolder;
-import net.minecraft.server.World.ServerChunkCache;
-import net.minecraft.entity.Entity;
-import net.minecraft.world.flag.FeatureFlagSet;
-import net.minecraft.world.World.ChunkPos;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraft.world.World.LevelReader;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.World.biome.BiomeManager;
-// [1.7.10] block import removed
-// [1.7.10] block.entity removed
-// [1.7.10] BlockState -> int metadata
-import net.minecraft.world.World.border.WorldBorder;
-import net.minecraft.world.World.chunk.ChunkAccess;
-import net.minecraft.world.World.chunk.ChunkStatus;
 import net.minecraft.world.chunk.Chunk;
-// [1.7.10] dimension removed
-// [1.7.10] levelgen removed
-import net.minecraft.world.World.lighting.LevelLightEngine;
-// [1.7.10] World.material removed
-// [1.7.10] World.material removed
-// [1.7.10] world.phys removed
-// [1.7.10] world.phys removed
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.init.Blocks;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
-import java.util.List;
 
-public class ChunkCache implements LevelReader
+/**
+ * A caching block reader backed by loaded chunks, used by the pathfinding system.
+ * [1.7.10] reimplemented against real Chunk/IBlockAccess instead of 1.21 LevelReader.
+ */
+public class ChunkCache implements BlockGetter
 {
-    /**
-     * Dimensiontype.
-     */
-    private final DimensionType  dimType;
-    protected     int            chunkX;
-    protected     int            chunkZ;
-    protected     LevelChunk[][] chunkArray;
-    /**
-     * set by !chunk.getAreLevelsEmpty
-     */
-    protected     boolean        empty;
-    /**
-     * Reference to the World object.
-     */
-    protected     World          world;
-
-    /**
-     * Dimension limits
-     */
-    private final int minBuildHeight;
-    private final int maxBuildHeight;
+    protected int     chunkX;
+    protected int     chunkZ;
+    protected Chunk[][] chunkArray;
+    protected boolean empty;
+    protected World   world;
 
     public ChunkCache(World worldIn, int[] posFromIn, int[] posToIn)
     {
-        this.world = worldIn;
-        this.chunkX = posFromIn.getX() >> 4;
-        this.chunkZ = posFromIn.getZ() >> 4;
-        int i = posToIn.getX() >> 4;
-        int j = posToIn.getZ() >> 4;
-        this.chunkArray = new LevelChunk[i - this.chunkX + 1][j - this.chunkZ + 1];
+        this.world  = worldIn;
+        this.chunkX = posFromIn[0] >> 4;
+        this.chunkZ = posFromIn[2] >> 4;
+        int i = posToIn[0] >> 4;
+        int j = posToIn[2] >> 4;
+        this.chunkArray = new Chunk[i - this.chunkX + 1][j - this.chunkZ + 1];
         this.empty = true;
 
         for (int k = this.chunkX; k <= i; ++k)
         {
             for (int l = this.chunkZ; l <= j; ++l)
             {
-                if (WorldUtil.isEntityChunkLoaded(world, new ChunkPos(k, l)) && worldIn.getChunkSource() instanceof ServerChunkCache serverChunkCache)
+                if (worldIn.getChunkProvider().chunkExists(k, l))
                 {
-                    final ChunkHolder holder = serverChunkCache.chunkMap.visibleChunkMap.get(ChunkPos.asLong(k, l));
-                    if (holder != null)
+                    Chunk chunk = worldIn.getChunkFromChunkCoords(k, l);
+                    this.chunkArray[k - this.chunkX][l - this.chunkZ] = chunk;
+                    if (!chunk.isEmpty())
                     {
-                        this.chunkArray[k - this.chunkX][l - this.chunkZ] = holder.getFullChunkFuture().getNow(ChunkHolder.UNLOADED_LEVEL_CHUNK).left().orElse(null);
+                        this.empty = false;
                     }
                 }
             }
         }
-        this.dimType = worldIn.dimensionType();
-
-        minBuildHeight = worldIn.getMinBuildHeight();
-        maxBuildHeight = worldIn.getMaxBuildHeight();
     }
 
-    /**
-     * set by !chunk.getAreLevelsEmpty
-     *
-     * @return if so.
-     */
-    @OnlyIn(Dist.CLIENT)
+    @SideOnly(Side.CLIENT)
     public boolean isEmpty()
     {
         return this.empty;
     }
 
-    @Nullable
-    @Override
-    public BlockEntity getBlockEntity(@NotNull int[] pos)
-    {
-        return this.getTileEntity(pos, LevelChunk.EntityCreationType.CHECK); // Forge: don't modify world from other threads
-    }
+    // ---- IBlockAccess ----
 
-    @Nullable
-    public BlockEntity getTileEntity(int[] pos, LevelChunk.EntityCreationType createType)
+    @Override
+    public Block getBlock(final int x, final int y, final int z)
     {
-        int i = (pos.getX() >> 4) - this.chunkX;
-        int j = (pos.getZ() >> 4) - this.chunkZ;
-        if (!withinBounds(i, j))
+        int ci = (x >> 4) - this.chunkX;
+        int cj = (z >> 4) - this.chunkZ;
+        if (ci >= 0 && ci < chunkArray.length && cj >= 0 && cj < chunkArray[ci].length && chunkArray[ci][cj] != null)
         {
-            return null;
+            return chunkArray[ci][cj].getBlock(x & 15, y, z & 15);
         }
-        return this.chunkArray[i][j].getBlockEntity(pos, createType);
+        return Blocks.air;
     }
 
     @Override
-    public int getMinBuildHeight()
+    public int getBlockMetadata(final int x, final int y, final int z)
     {
-        return minBuildHeight;
-    }
-
-    @Override
-    public int getMaxBuildHeight()
-    {
-        return maxBuildHeight;
-    }
-
-    @NotNull
-    @Override
-    public BlockState getBlockState(int[] pos)
-    {
-        if (pos.getY() >= getMinBuildHeight() && pos.getY() < getMaxBuildHeight())
+        int ci = (x >> 4) - this.chunkX;
+        int cj = (z >> 4) - this.chunkZ;
+        if (ci >= 0 && ci < chunkArray.length && cj >= 0 && cj < chunkArray[ci].length && chunkArray[ci][cj] != null)
         {
-            int i = (pos.getX() >> 4) - this.chunkX;
-            int j = (pos.getZ() >> 4) - this.chunkZ;
-
-            if (i >= 0 && i < this.chunkArray.length && j >= 0 && j < this.chunkArray[i].length)
-            {
-                LevelChunk chunk = this.chunkArray[i][j];
-
-                if (chunk != null)
-                {
-                    return chunk.getBlockState(pos);
-                }
-            }
+            return chunkArray[ci][cj].getBlockMetadata(x & 15, y, z & 15);
         }
+        return 0;
+    }
 
-        // TODO: Raiders can path through air with leaves, potential issue
-        return Blocks.AIR.defaultBlockState();
+    @Override
+    public TileEntity getTileEntity(final int x, final int y, final int z)
+    {
+        int ci = (x >> 4) - this.chunkX;
+        int cj = (z >> 4) - this.chunkZ;
+        if (ci >= 0 && ci < chunkArray.length && cj >= 0 && cj < chunkArray[ci].length && chunkArray[ci][cj] != null)
+        {
+            return chunkArray[ci][cj].func_150806_e(x & 15, y, z & 15);
+        }
+        return null;
+    }
+
+    @Override
+    public int getLightBrightnessForSkyBlocks(final int x, final int y, final int z, final int minLight)
+    {
+        return world.getLightBrightnessForSkyBlocks(x, y, z, minLight);
+    }
+
+    @Override
+    public boolean isAirBlock(final int x, final int y, final int z)
+    {
+        return getBlock(x, y, z).isAir(this, x, y, z);
+    }
+
+    @Override
+    public int isBlockProvidingPowerTo(final int x, final int y, final int z, final int side)
+    {
+        return getBlock(x, y, z).isProvidingWeakPower(this, x, y, z, side);
+    }
+
+    // ---- BlockGetter bridge ----
+
+    @Override
+    public BlockState getBlockState(final int[] pos)
+    {
+        return new BlockState(getBlock(pos[0], pos[1], pos[2]), getBlockMetadata(pos[0], pos[1], pos[2]));
     }
 
     @Override
     public FluidState getFluidState(final int[] pos)
     {
-        if (pos.getY() >= getMinBuildHeight() && pos.getY() < getMaxBuildHeight())
-        {
-            int i = (pos.getX() >> 4) - this.chunkX;
-            int j = (pos.getZ() >> 4) - this.chunkZ;
-
-            if (i >= 0 && i < this.chunkArray.length && j >= 0 && j < this.chunkArray[i].length)
-            {
-                LevelChunk chunk = this.chunkArray[i][j];
-
-                if (chunk != null)
-                {
-                    return chunk.getFluidState(pos);
-                }
-            }
-        }
-
-        return Fluids.EMPTY.defaultFluidState();
+        Block b = getBlock(pos[0], pos[1], pos[2]);
+        boolean isWater = b == Blocks.water || b == Blocks.flowing_water;
+        boolean isLava  = b == Blocks.lava  || b == Blocks.flowing_lava;
+        return new FluidState(!isWater && !isLava);
     }
 
-    @Override
-    public Holder<Biome> getUncachedNoiseBiome(final int x, final int y, final int z)
-    {
-        return null;
-    }
-
-    /**
-     * Checks to see if an air block exists at the provided location. Note that this only checks to see if the blocks material is set to air, meaning it is possible for non-vanilla
-     * blocks to still pass this check.
-     */
-    @Override
     public boolean isEmptyBlock(int[] pos)
     {
-        BlockState state = this.getBlockState(pos);
-        return state.isAir();
+        return isAirBlock(pos[0], pos[1], pos[2]);
     }
 
-    @Nullable
-    @Override
-    public ChunkAccess getChunk(final int x, final int z, final ChunkStatus requiredStatus, final boolean nonnull)
-    {
-        int i = x - this.chunkX;
-        int j = z - this.chunkZ;
-
-        if (i >= 0 && i < this.chunkArray.length && j >= 0 && j < this.chunkArray[i].length)
-        {
-            return this.chunkArray[i][j];
-        }
-        return null;
-    }
-
-    @Override
-    public boolean hasChunk(final int chunkX, final int chunkZ)
-    {
-        return false;
-    }
-
-    @Override
-    public int[] getHeightmapPos(final Heightmap.Types heightmapType, final int[] pos)
-    {
-        return null;
-    }
-
-    @Override
-    public int getHeight(final Heightmap.Types heightmapType, final int x, final int z)
-    {
-        return 0;
-    }
-
-    @Override
-    public int getSkyDarken()
-    {
-        return 0;
-    }
-
-    @Override
-    public BiomeManager getBiomeManager()
-    {
-        return null;
-    }
-
-    @Override
-    public WorldBorder getWorldBorder()
-    {
-        return null;
-    }
-
-    @Override
-    public boolean isUnobstructed(@Nullable final Entity entityIn, final VoxelShape shape)
-    {
-        return false;
-    }
-
-    @Override
-    public List<VoxelShape> getEntityCollisions(@org.jetbrains.annotations.Nullable final Entity p_186427_, final AABB p_186428_)
-    {
-        return null;
-    }
-
-    @Override
-    public int getDirectSignal(int[] pos, Direction direction)
-    {
-        return this.getBlockState(pos).getDirectSignal(this, pos, direction);
-    }
-
-    @Override
-    public RegistryAccess registryAccess()
-    {
-        return RegistryAccess.EMPTY;
-    }
-
-    @Override
-    public FeatureFlagSet enabledFeatures()
-    {
-        return FeatureFlagSet.of();
-    }
-
-    @Override
-    public boolean isClientSide()
-    {
-        return false;
-    }
-
-    @Override
-    public int getSeaLevel()
-    {
-        return 0;
-    }
-
-    @Override
-    public @NotNull DimensionType dimensionType()
-    {
-        return dimType;
-    }
-
-    private boolean withinBounds(int x, int z)
-    {
-        return x >= 0 && x < chunkArray.length && z >= 0 && z < chunkArray[x].length && chunkArray[x][z] != null;
-    }
-
-    @Override
-    public float getShade(final Direction direction, final boolean b)
-    {
-        return 0;
-    }
-
-    @Override
-    public LevelLightEngine getLightEngine()
-    {
-        return null;
-    }
+    // Minimum/maximum build height (1.7.10 always 0–255)
+    public int getMinBuildHeight() { return 0; }
+    public int getMaxBuildHeight() { return 256; }
 }
-
-
-
-

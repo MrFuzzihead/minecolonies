@@ -1,4 +1,5 @@
 package net.minecraft.client.multiplayer;
+import net.minecraft.client.multiplayer.ClientLevel;
 
 import net.minecraft.world.World;
 

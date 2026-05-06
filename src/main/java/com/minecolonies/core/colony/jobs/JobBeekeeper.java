@@ -1,5 +1,7 @@
 package com.minecolonies.core.colony.jobs;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+// [1.7.10] Bee: no equivalent. Class stub used.
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;

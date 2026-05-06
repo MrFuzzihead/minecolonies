@@ -1,4 +1,8 @@
 package com.minecolonies.core.items;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.item.Properties;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.items.ModItems;
 // [1.7.10] sounds removed

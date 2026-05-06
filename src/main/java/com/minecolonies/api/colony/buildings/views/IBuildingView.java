@@ -1,4 +1,6 @@
 package com.minecolonies.api.colony.buildings.views;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.entity.player.Player;
 
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;

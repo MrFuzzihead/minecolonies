@@ -1,4 +1,5 @@
 package com.minecolonies.api.crafting;
+import net.minecraft.world.entity.player.Player;
 
 import com.google.common.collect.ImmutableList;
 import com.ldtteam.structurize.items.ModItems;
@@ -129,10 +130,10 @@ public class RecipeStorage implements IRecipeStorage
         private ResourceLocation recipeType = null;
         private ResourceLocation recipeSource = null;
         @NotNull private List<ItemStorage> input = List.of();
-        @NotNull private ItemStack primaryOutput = ItemStack.EMPTY;
+        @NotNull private ItemStack primaryOutput = null;
         @NotNull private List<ItemStack> alternateOutputs = List.of();
         @NotNull private List<ItemStack> secondaryOutputs = List.of();
-        private Block intermediate = Blocks.AIR;
+        private Block intermediate = net.minecraft.init.Blocks.air;
         private int gridSize = 1;
         private IToken<?> token = null;
         private ResourceLocation Object /* LootTable */ = null;
@@ -329,8 +330,9 @@ public class RecipeStorage implements IRecipeStorage
 
         final ResourceLocation type = builder.recipeType != null ? builder.recipeType
                 : builder.alternateOutputs.isEmpty() ? ModRecipeTypes.CLASSIC_ID : ModRecipeTypes.MULTI_OUTPUT_ID;
-        final IForgeRegistry<RecipeTypeEntry> recipeTypes = MinecoloniesAPIProxy.getInstance().getRecipeTypeRegistry();
-        this.recipeType = recipeTypes.getValue(type).getHandlerProducer().apply(this);
+        // [1.7.10] IForgeRegistry not available; use direct registry lookup
+        final RecipeTypeEntry recipeTypeEntry = MinecoloniesAPIProxy.getInstance().getRecipeTypeRegistry().getValue(type);
+        this.recipeType = recipeTypeEntry.getHandlerProducer().apply(this);
 
         this.processInputsAndTools(builder.secondaryOutputs);
     }
@@ -349,7 +351,7 @@ public class RecipeStorage implements IRecipeStorage
         {
             for (final ItemStack secOutput : secOutputs)
             {
-                if (!secOutput.isEmpty() && secOutput.getItem() != ModItems.buildTool.get())
+                if (!ItemStackUtils.isEmpty(secOutput) && secOutput.getItem() != ModItems.buildTool)
                 {
                     this.secondaryOutputs.add(secOutput);
                 }
@@ -360,15 +362,15 @@ public class RecipeStorage implements IRecipeStorage
         for (final ItemStorage input : input)
         {
             ItemStorage inputItem = input;
-            if (inputItem.isEmpty() || inputItem.getItem() == ModItems.buildTool.get())
+            if (inputItem.isEmpty() || inputItem.getItem() == ModItems.buildTool)
             {
                 continue;
             }
 
-            final ItemStack container = inputItem.getItemStack().getCraftingRemainingItem();
+            final ItemStack container = inputItem.getItemStack().getItem().getContainerItem(inputItem.getItemStack());
             if (secOutputs == null && !ItemStackUtils.isEmpty(container))
             {
-                container.setCount(inputItem.getAmount());
+                container.stackSize = inputItem.getAmount();
                 this.secondaryOutputs.add(container);
             }
 
@@ -505,7 +507,7 @@ public class RecipeStorage implements IRecipeStorage
         }
         else
         {
-            final ItemStack container = stack.getCraftingRemainingItem();
+            final ItemStack container = stack.getItem().getContainerItem(stack);
             if(ItemStackUtils.isEmpty(container) || !ItemStackUtils.compareItemStacksIgnoreStackSize(stack, container, false, !storage.ignoreNBT()))
             {
                 neededCount = storage.getAmount() * qty;
@@ -559,7 +561,7 @@ public class RecipeStorage implements IRecipeStorage
         {
             final ItemStack left = alternateOutputs.get(i);
             final ItemStack right = that.alternateOutputs.get(i);
-            if(!ItemStackUtils.compareItemStacksIgnoreStackSize(left, right, false, true) || left.getCount() != right.getCount())
+            if(!ItemStackUtils.compareItemStacksIgnoreStackSize(left, right, false, true) || left.stackSize != right.stackSize)
             {
                 return false;
             }
@@ -569,7 +571,7 @@ public class RecipeStorage implements IRecipeStorage
         {
             final ItemStack left = secondaryOutputs.get(i);
             final ItemStack right = that.secondaryOutputs.get(i);
-            if (!ItemStackUtils.compareItemStacksIgnoreStackSize(left, right, false, true) || left.getCount() != right.getCount())
+            if (!ItemStackUtils.compareItemStacksIgnoreStackSize(left, right, false, true) || left.stackSize != right.stackSize)
             {
                 return false;
             }
@@ -579,7 +581,7 @@ public class RecipeStorage implements IRecipeStorage
         {
             final ItemStack left = tools.get(i);
             final ItemStack right = that.tools.get(i);
-            if (!ItemStackUtils.compareItemStacksIgnoreStackSize(left, right, false, true) || left.getCount() != right.getCount())
+            if (!ItemStackUtils.compareItemStacksIgnoreStackSize(left, right, false, true) || left.stackSize != right.stackSize)
             {
                 return false;
             }
@@ -595,7 +597,7 @@ public class RecipeStorage implements IRecipeStorage
         {
             hash = Objects.hash(cleanedInput,
             primaryOutput.getItem(),
-            primaryOutput.getCount(),
+            primaryOutput.stackSize,
             intermediate,
             gridSize,
             requiredTool,
@@ -617,7 +619,7 @@ public class RecipeStorage implements IRecipeStorage
         Map<Item, Integer> hashableList = new HashMap<>();
         for(ItemStack item: items)
         {
-            hashableList.put(item.getItem(), item.getCount());
+            hashableList.put(item.getItem(), item.stackSize);
         }
         return hashableList;
     }
@@ -640,10 +642,10 @@ public class RecipeStorage implements IRecipeStorage
         {
             for (final ItemStorage stack : input)
             {
-                final ItemStack container = stack.getItemStack().getCraftingRemainingItem();
+                final ItemStack container = stack.getItemStack().getItem().getContainerItem(stack.getItemStack());
                 if (!ItemStackUtils.isEmpty(container))
                 {
-                    container.setCount(stack.getAmount());
+                    container.stackSize = stack.getAmount();
                     resultStacks.add(container);
                 }
             }
@@ -678,7 +680,8 @@ public class RecipeStorage implements IRecipeStorage
             return null;
         }
 
-        final AbstractEntityCitizen citizen = (AbstractEntityCitizen) context.getParamOrNull(LootContextParams.THIS_ENTITY);
+        // [1.7.10] LootParams not available; citizen reference not obtained from context
+        final AbstractEntityCitizen citizen = null;
 
         for (final ItemStorage storage : getCleanedInput())
         {
@@ -695,21 +698,20 @@ public class RecipeStorage implements IRecipeStorage
                 boolean isTool = ItemStackUtils.compareItemStackListIgnoreStackSize(tools, stack, false, !storage.ignoreNBT());
                 int slotOfStack =
                   InventoryUtils.findFirstSlotInItemHandlerNotEmptyWith(handler, itemStack ->
-                          ItemStackUtils.compareItemStacksIgnoreStackSize(itemStack, stack, false, !storage.ignoreNBT()) &&
-                                  (!isTool || !stack.isDamageableItem() || ItemStackUtils.getDurability(itemStack) > 0));
+                           ItemStackUtils.compareItemStacksIgnoreStackSize(itemStack, stack, false, !storage.ignoreNBT()) &&
+                                   (!isTool || !stack.isItemStackDamageable() || ItemStackUtils.getDurability(itemStack) > 0));
 
                 while (slotOfStack != -1 && amountNeeded > 0)
                 {
                     if(citizen != null && isTool)
                     {
-                        if (stack.isDamageableItem())
+                        if (stack.isItemStackDamageable()) // [1.7.10]
                         {
                             ItemStack toDamage = handler.extractItem(slotOfStack, 1, false);
                             if (!ItemStackUtils.isEmpty(toDamage))
                             {
-                                // The 4 parameter inner call from forge is for adding a callback to alter the damage caused,
-                                // but unlike its description does not actually damage the item(despite the same function name). So used to just calculate the damage.
-                                toDamage.hurtAndBreak(toDamage.getItem().damageItem(stack, 1, citizen, item -> item.broadcastBreakEvent(0 /* InteractionHand.MAIN_HAND */)), citizen, item -> item.broadcastBreakEvent(0 /* InteractionHand.MAIN_HAND */));
+                                // [1.7.10] use damageItem instead of hurtAndBreak
+                                toDamage.damageItem(1, citizen);
                             }
                             if (!ItemStackUtils.isEmpty(toDamage))
                             {
@@ -788,14 +790,15 @@ public class RecipeStorage implements IRecipeStorage
             secondaryStacks.addAll(secondaryOutputs);
         }
 
-        if (loot == null && Object /* LootTable */ != null)
+        // [1.7.10] Loot tables not supported
+        if (false && loot == null && Object /* LootTable */ != null)
         {
-            loot = context.getLevel().getServer().getLootData().getLootTable(Object /* LootTable */);
+            loot = null; // context.getLevel().getServer().getLootData().getLootTable(Object /* LootTable */);
         }
 
         if(loot != null && context != null)
         {
-            secondaryStacks.addAll(loot.getRandomItems(context));
+            // secondaryStacks.addAll(loot.getRandomItems(context)); // [1.7.10] not supported
         }
 
         resultStacks.addAll(secondaryStacks.stream().map(ItemStack::copy).collect(Collectors.toList()));
@@ -829,7 +832,7 @@ public class RecipeStorage implements IRecipeStorage
     @Override
     public RecipeStorage getClassicForMultiOutput(final Predicate<ItemStack> stackPredicate)
     {
-        if(!getPrimaryOutput().isEmpty() && stackPredicate.test(getPrimaryOutput()))
+        if(!ItemStackUtils.isEmpty(getPrimaryOutput()) && stackPredicate.test(getPrimaryOutput())) // [1.7.10]
         {
             return getClassicForMultiOutput(getPrimaryOutput());
         }
@@ -901,6 +904,16 @@ public class RecipeStorage implements IRecipeStorage
         return ImmutableList.copyOf(secondaryOutputs);
     }
 }
+
+
+
+
+
+
+
+
+
+
 
 
 

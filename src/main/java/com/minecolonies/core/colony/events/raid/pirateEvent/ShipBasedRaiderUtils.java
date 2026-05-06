@@ -1,5 +1,7 @@
 package com.minecolonies.core.colony.events.raid.pirateEvent;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+import net.minecraft.world.entity.EntityType;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -26,7 +28,7 @@ import net.minecraft.world.Mirror;
 // [1.7.10] block.entity removed
 import net.minecraft.world.level.block.state.BlockBehaviour;
 // [1.7.10] BlockState -> int metadata
-import net.minecraft.world.World.pathfinder.Path;
+import net.minecraft.pathfinding.PathEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -410,7 +412,7 @@ public final class ShipBasedRaiderUtils
      * @param spacing min distance between waypoints
      * @return list of waypoints
      */
-    public static List<int[]> createWaypoints(final World world, final Path path, final int spacing)
+    public static List<int[]> createWaypoints(final World world, final PathEntity path, final int spacing)
     {
         List<int[]> wayPoints = new ArrayList<>();
         if (path == null)

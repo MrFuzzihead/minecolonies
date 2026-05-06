@@ -1,4 +1,5 @@
 package com.minecolonies.api.util.constant.translation;
+import net.minecraft.util.Direction;
 
 import org.jetbrains.annotations.NonNls;
 

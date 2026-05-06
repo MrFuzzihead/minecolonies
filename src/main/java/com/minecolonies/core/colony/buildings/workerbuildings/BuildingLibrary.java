@@ -64,10 +64,10 @@ public class BuildingLibrary extends AbstractBuilding
     public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
-        final NBTTagList furnaceTagList = compound.getList(TAG_BOOKCASES, NBTBase.TAG_COMPOUND);
+        final NBTTagList furnaceTagList = compound.getTagList(TAG_BOOKCASES, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < furnaceTagList.size(); ++i)
         {
-            bookCases.add(NbtUtils.readBlockPos(furnaceTagList.getCompound(i).getCompound(TAG_POS)));
+            bookCases.add(NbtUtils.readBlockPos(furnaceTagList.getCompoundTagAt(i).getCompoundTag(TAG_POS)));
         }
     }
 
@@ -79,10 +79,10 @@ public class BuildingLibrary extends AbstractBuilding
         for (@NotNull final int[] entry : bookCases)
         {
             @NotNull final NBTTagCompound bookCompound = new NBTTagCompound();
-            bookCompound.put(TAG_POS, NbtUtils.writeBlockPos(entry));
+            bookcompound.setTag(TAG_POS, NbtUtils.writeBlockPos(entry));
             bookcaseTagList.add(bookCompound);
         }
-        compound.put(TAG_BOOKCASES, bookcaseTagList);
+        compound.setTag(TAG_BOOKCASES, bookcaseTagList);
 
         return compound;
     }

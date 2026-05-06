@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.ai.workers.production.herders;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.entity.ai.statemachine.AITarget;
@@ -535,7 +536,7 @@ public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B exte
 
         for (final Animal animal : animals)
         {
-            if (worker.World.getGameTime() - fedRecently.getOrDefault(animal.getUUID(), 0L) > TICKS_SECOND * 60 * 5)
+            if (worker.world.getTotalWorldTime() - fedRecently.getOrDefault(animal.getUUID(), 0L) > TICKS_SECOND * 60 * 5)
             {
                 toFeed = animal;
                 break;
@@ -562,7 +563,7 @@ public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B exte
             worker.World.broadcastEntityEvent(toFeed, (byte) 18);
             toFeed.playSound(SoundEvents.GENERIC_EAT, 1.0F, 1.0F);
             CitizenItemUtils.removeHeldItem(worker);
-            fedRecently.put(toFeed.getUUID(), worker.World.getGameTime());
+            fedRecently.put(toFeed.getUUID(), worker.world.getTotalWorldTime());
 
             return DECIDE;
         }

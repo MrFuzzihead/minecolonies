@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.ai.minimal;
+import net.minecraft.block.state.BlockState;
 
 import com.minecolonies.api.entity.other.AbstractFastMinecoloniesEntity;
 import com.minecolonies.api.util.BlockPosUtil;
@@ -157,7 +158,7 @@ public class EntityAIInteractToggleAble extends net.minecraft.entity.ai.EntityAI
         final BlockState state = BlockState.of(entity.worldObj, pos[0], pos[1], pos[2]);
         if (this.entity.getDistanceSq(pos[0] + 0.5, this.entity.posY, pos[2] + 0.5) <= MIN_DISTANCE && isValidBlockState(state))
         {
-            // [1.7.10] VoxelShape not available — skip shape check, just register
+            // [1.7.10] VoxelShape not available â€” skip shape check, just register
             toggleAblePositions.put(pos, (state.meta & 4) != 0);
         }
     }
@@ -339,7 +340,7 @@ public class EntityAIInteractToggleAble extends net.minecraft.entity.ai.EntityAI
         }
     }
 
-    // ─────────────────────────── ToggleAble hierarchy ─────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ ToggleAble hierarchy â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     public static abstract class ToggleAble
     {

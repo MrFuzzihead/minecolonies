@@ -1,4 +1,7 @@
 package com.minecolonies.core.entity.ai.workers.production;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Direction;
+import net.minecraft.block.state.BlockState;
 
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.compatibility.Compatibility;
@@ -240,7 +243,7 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
             return getState();
         }
 
-        if (building.getModule(BuildingModules.ITEMLIST_SAPLING).getList().size()
+        if (building.getModule(BuildingModules.ITEMLIST_SAPLING).getTagList().size()
             < IColonyManager.getInstance().getCompatibilityManager().getNumberOfSaplings())
         {
             // This got moved downwards compared to the AICrafting-implementation,
@@ -410,7 +413,7 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
                     .walkToTree(startPos,
                                  endPos,
                                  1.0D,
-                                 building.getModuleMatching(ItemListModule.class, m -> m.getId().equals(SAPLINGS_LIST)).getList(),
+                                 building.getModuleMatching(ItemListModule.class, m -> m.getId().equals(SAPLINGS_LIST)).getTagList(),
                                  building.getSetting(BuildingLumberjack.DYNAMIC_TREES_SIZE).getValue(),
                                  worker.getCitizenColonyHandler().getColonyOrRegister());
             }
@@ -419,7 +422,7 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
                 pathResult = worker.getNavigation()
                     .walkToTree(SEARCH_RANGE + searchIncrement,
                                  1.0D,
-                                 building.getModuleMatching(ItemListModule.class, m -> m.getId().equals(SAPLINGS_LIST)).getList(),
+                                 building.getModuleMatching(ItemListModule.class, m -> m.getId().equals(SAPLINGS_LIST)).getTagList(),
                                  building.getSetting(BuildingLumberjack.DYNAMIC_TREES_SIZE).getValue(),
                                  worker.getCitizenColonyHandler().getColonyOrRegister());
             }
@@ -680,7 +683,7 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
      */
     private Boolean isPassable(final BlockState blockState)
     {
-        // [1.7.10] BlockTags.LEAVES → instanceof BlockLeaves; ModTags.hugeMushroomBlocks → explicit mushroom blocks
+        // [1.7.10] BlockTags.LEAVES â†’ instanceof BlockLeaves; ModTags.hugeMushroomBlocks â†’ explicit mushroom blocks
         return blockState.getBlock() instanceof net.minecraft.block.BlockLeaves
             || blockState.getBlock() == net.minecraft.init.Blocks.brown_mushroom_block
             || blockState.getBlock() == net.minecraft.init.Blocks.red_mushroom_block;

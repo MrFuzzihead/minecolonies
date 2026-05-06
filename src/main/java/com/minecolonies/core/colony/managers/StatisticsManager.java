@@ -185,11 +185,11 @@ public class StatisticsManager implements IStatisticsManager
                 statNBT.add(timeStampTag);
             }
 
-            statCompound.put(TAG_STAT, statNBT);
+            statcompound.setTag(TAG_STAT, statNBT);
             statManagerNBT.add(statCompound);
         }
 
-        compound.put(TAG_STAT_MANAGER, statManagerNBT);
+        compound.setTag(TAG_STAT_MANAGER, statManagerNBT);
     }
 
     @Override
@@ -198,16 +198,16 @@ public class StatisticsManager implements IStatisticsManager
         stats.clear();
         if (compound.contains(TAG_STAT_MANAGER))
         {
-            final NBTTagList statsNbts = compound.getList(TAG_STAT_MANAGER, NBTBase.TAG_COMPOUND);
+            final NBTTagList statsNbts = compound.getTagList(TAG_STAT_MANAGER, NBTBase.TAG_COMPOUND);
             for (int i = 0; i < statsNbts.size(); i++)
             {
-                final NBTTagCompound statCompound = statsNbts.getCompound(i);
+                final NBTTagCompound statCompound = statsNbts.getCompoundTagAt(i);
                 final String id = statCompound.getString(TAG_ID);
-                final NBTTagList timeStampNbts = statCompound.getList(TAG_STAT, NBTBase.TAG_COMPOUND);
+                final NBTTagList timeStampNbts = statCompound.getTagList(TAG_STAT, NBTBase.TAG_COMPOUND);
                 final Int2IntLinkedOpenHashMap timeStamps = new Int2IntLinkedOpenHashMap();
                 for (int j = 0; j < timeStampNbts.size(); j++)
                 {
-                    final NBTTagCompound NBTTagCompound = timeStampNbts.getCompound(j);
+                    final NBTTagCompound NBTTagCompound = timeStampNbts.getCompoundTagAt(j);
                     final int day = NBTTagCompound.getInt(TAG_TIME);
                     final int qty = NBTTagCompound.getInt(TAG_QUANTITY);
 

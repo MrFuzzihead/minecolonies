@@ -1,5 +1,6 @@
 package com.minecolonies.core.colony.buildingextensions;
-import net.minecraft.core.Direction;
+import net.minecraft.tileentity.BlockEntity; // [1.7.10] alias -> TileEntity
+// [1.7.10] net.minecraft.core.Direction removed â€” using net.minecraft.util.Direction
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -55,7 +56,7 @@ public class FarmField extends AbstractBuildingExtensionModule
     /**
      * The currently selected seed on the field, if any.
      */
-    private ItemStack seed = ItemStack.EMPTY;
+    private ItemStack seed = null;
 
     /**
      * The size of the field in all four directions
@@ -111,7 +112,7 @@ public class FarmField extends AbstractBuildingExtensionModule
     public @NotNull NBTTagCompound serializeNBT()
     {
         NBTTagCompound compound = super.serializeNBT();
-        compound.put(TAG_SEED, seed.serializeNBT());
+        compound.setTag(TAG_SEED, seed.serializeNBT());
         compound.putIntArray(TAG_RADIUS, radii);
         compound.putString(TAG_STAGE, fieldStage.name());
         return compound;
@@ -121,7 +122,7 @@ public class FarmField extends AbstractBuildingExtensionModule
     public void deserializeNBT(final @NotNull NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
-        setSeed(ItemStack.of(compound.getCompound(TAG_SEED)));
+        setSeed(ItemStack.of(compound.getCompoundTag(TAG_SEED)));
         radii = compound.getIntArray(TAG_RADIUS);
         fieldStage = Stage.valueOf(compound.getString(TAG_STAGE));
     }

@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.pathfinding.pathjobs;
+import net.minecraft.block.state.BlockState;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
@@ -115,7 +116,7 @@ public class PathJobMoveAwayFromLocation extends AbstractPathJob implements IDes
     protected boolean isAtDestination(@NotNull final MNode n)
     {
         return BlockPosUtil.dist(avoid, n.x, n.y, n.z) > avoidDistance
-                 && SurfaceType.getSurfaceType(world, cachedBlockLookup.getBlockState(n.x, n.y - 1, n.z), tempWorldPos.set(n.x, n.y - 1, n.z), getPathingOptions())
+                   && SurfaceType.getSurfaceType(world, cachedBlockLookup.getBlockState(n.x, n.y - 1, n.z), setPos(n.x, n.y - 1, n.z), getPathingOptions())
                       == SurfaceType.WALKABLE;
     }
 

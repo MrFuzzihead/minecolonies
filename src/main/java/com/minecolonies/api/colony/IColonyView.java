@@ -1,4 +1,7 @@
 package com.minecolonies.api.colony;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.managers.interfaces.IAnimalDataView;
 import com.minecolonies.api.colony.managers.interfaces.views.IRegisteredStructureManagerView;

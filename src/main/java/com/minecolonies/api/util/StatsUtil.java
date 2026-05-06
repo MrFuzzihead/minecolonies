@@ -1,4 +1,5 @@
 package com.minecolonies.api.util;
+import net.minecraft.tileentity.TileEntityFurnace;
 
 import static com.minecolonies.core.colony.buildings.modules.BuildingModules.STATS_MODULE;
 
@@ -29,7 +30,7 @@ public class StatsUtil
      */
     public static void trackStatFromFurnace(final IBuilding building, final String statName, final Object furnace, final int slot)
     {
-        // [1.7.10] FurnaceBlockEntity -> TileEntityFurnace - use IInventory.getStackInSlot instead
+        // [1.7.10] TileEntityFurnace -> TileEntityFurnace - use IInventory.getStackInSlot instead
         // TODO: port to 1.7.10 TileEntityFurnace
     }
 

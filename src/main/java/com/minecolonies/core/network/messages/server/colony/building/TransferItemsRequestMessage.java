@@ -1,4 +1,5 @@
 package com.minecolonies.core.network.messages.server.colony.building;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
@@ -117,7 +118,7 @@ public class TransferItemsRequestMessage extends AbstractBuildingServerMessage<I
               stack -> ItemStackUtils.compareItemStacksIgnoreStackSize(stack, itemStack, true, true)));
         }
 
-        ItemStack remainingItemStack = ItemStack.EMPTY;
+        ItemStack remainingItemStack = null;
         int tempAmount = amountToTake;
         for (int i = 0; i < Math.max(1, Math.ceil((double) amountToTake/itemStack.getMaxStackSize())); i++)
         {

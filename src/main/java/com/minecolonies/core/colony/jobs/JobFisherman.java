@@ -83,7 +83,7 @@ public class JobFisherman extends AbstractJob<EntityAIWorkFisherman, JobFisherma
             BlockPosUtil.write(compoundNBT, TAG_PARENT_POND, pond.getB());
             lakes.add(compoundNBT);
         }
-        compound.put(TAG_PONDS, lakes);
+        compound.setTag(TAG_PONDS, lakes);
 
         return compound;
     }
@@ -102,10 +102,10 @@ public class JobFisherman extends AbstractJob<EntityAIWorkFisherman, JobFisherma
 
         if (compound.contains(TAG_PONDS))
         {
-            final NBTTagList listOfPonds = compound.getList(TAG_PONDS, NBTBase.TAG_COMPOUND);
+            final NBTTagList listOfPonds = compound.getTagList(TAG_PONDS, NBTBase.TAG_COMPOUND);
             for (int i = 0; i < listOfPonds.size(); i++)
             {
-                ponds.add(new Tuple<>(BlockPosUtil.read(listOfPonds.getCompound(i), TAG_WATER_POND), BlockPosUtil.read(listOfPonds.getCompound(i), TAG_PARENT_POND)));
+                ponds.add(new Tuple<>(BlockPosUtil.read(listOfPonds.getCompoundTagAt(i), TAG_WATER_POND), BlockPosUtil.read(listOfPonds.getCompoundTagAt(i), TAG_PARENT_POND)));
             }
         }
     }

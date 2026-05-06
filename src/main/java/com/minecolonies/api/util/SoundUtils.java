@@ -1,4 +1,7 @@
 package com.minecolonies.api.util;
+import net.minecraft.core.Holder;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.ICivilianData;
@@ -257,7 +260,7 @@ public final class SoundUtils
         else if (citizenData instanceof ICitizenData)
         {
             final IJob<?> job = ((ICitizenData) citizenData).getJob();
-            jobDesc = job == null ? "unemployed" : job.getJobRegistryEntry().getKey().getPath();
+            jobDesc = job == null ? "unemployed" : job.getJobRegistryEntry().getKey().getResourcePath();
         }
         else
         {
@@ -267,18 +270,15 @@ public final class SoundUtils
         final SoundEvent event = citizenData.isFemale() ? CITIZEN_SOUND_EVENTS.get(jobDesc).get(type).get(citizenData.getVoiceProfile()).getB() : CITIZEN_SOUND_EVENTS.get(jobDesc).get(type).get(citizenData.getVoiceProfile()).getA();
         if (chance > rand.nextDouble() * ONE_HUNDRED)
         {
-            if (worldIn.isClientSide || !citizenData.getEntity().isPresent())
+            if (worldIn.isRemote || !citizenData.getEntity().isPresent())
             {
-                worldIn.playSound(null,
-                  position,
-                  event,
-                  SoundSource.NEUTRAL,
-                  (float) volume,
-                  PITCH);
+                worldIn.playSoundEffect(
+                  position[0] + 0.5, position[1] + 0.5, position[2] + 0.5,
+                  event.getSoundName(), (float) volume, PITCH);
             }
             else
             {
-              citizenData.getEntity().get().queueSound(event, position, 60, 0, (float) volume, PITCH);
+              citizenData.getEntity().get().queueSound(event.getSoundName(), position[0], position[1], position[2], 60, 0);
             }
         }
     }

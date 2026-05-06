@@ -1,4 +1,5 @@
 package com.minecolonies.core.datalistener;
+import net.minecraft.network.chat.contents.TranslatableContents;
 
 import com.google.gson.*;
 import com.minecolonies.api.IMinecoloniesAPI;

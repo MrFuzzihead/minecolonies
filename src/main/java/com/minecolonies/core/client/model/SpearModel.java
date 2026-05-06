@@ -1,4 +1,7 @@
 package com.minecolonies.core.client.model;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+
 
 import net.minecraft.client.model.CubeDeformation;
 import net.minecraft.client.model.CubeListBuilder;

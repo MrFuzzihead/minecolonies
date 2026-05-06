@@ -1,4 +1,7 @@
 package com.minecolonies.api.util.constant;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.player.Player;
 
 /**
  * Some constants needed to store things to NBT.

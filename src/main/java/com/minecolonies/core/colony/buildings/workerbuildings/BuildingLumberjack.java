@@ -1,5 +1,6 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -164,7 +165,7 @@ public class BuildingLumberjack extends AbstractBuilding
 
         if (compound.contains(TAG_RESTRICT_START))
         {
-            startRestriction = NbtUtils.readBlockPos(compound.getCompound(TAG_RESTRICT_START));
+            startRestriction = NbtUtils.readBlockPos(compound.getCompoundTag(TAG_RESTRICT_START));
         }
         else
         {
@@ -173,14 +174,14 @@ public class BuildingLumberjack extends AbstractBuilding
 
         if (compound.contains(TAG_RESTRICT_END))
         {
-            endRestriction = NbtUtils.readBlockPos(compound.getCompound(TAG_RESTRICT_END));
+            endRestriction = NbtUtils.readBlockPos(compound.getCompoundTag(TAG_RESTRICT_END));
         }
         else
         {
             endRestriction = null;
         }
 
-        final NBTTagList netherTreeBinTagList = compound.getList(TAG_NETHER_TREE_LIST, NBTBase.TAG_COMPOUND);
+        final NBTTagList netherTreeBinTagList = compound.getTagList(TAG_NETHER_TREE_LIST, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < netherTreeBinTagList.size(); i++)
         {
             netherTrees.add(BlockPosUtil.readFromListNBT(netherTreeBinTagList, i));
@@ -194,12 +195,12 @@ public class BuildingLumberjack extends AbstractBuilding
 
         if (startRestriction != null)
         {
-            compound.put(TAG_RESTRICT_START, NbtUtils.writeBlockPos(startRestriction));
+            compound.setTag(TAG_RESTRICT_START, NbtUtils.writeBlockPos(startRestriction));
         }
 
         if (endRestriction != null)
         {
-            compound.put(TAG_RESTRICT_END, NbtUtils.writeBlockPos(endRestriction));
+            compound.setTag(TAG_RESTRICT_END, NbtUtils.writeBlockPos(endRestriction));
         }
 
         @NotNull final NBTTagList netherTreeBinCompoundList = new NBTTagList();
@@ -207,7 +208,7 @@ public class BuildingLumberjack extends AbstractBuilding
         {
             BlockPosUtil.writeToListNBT(netherTreeBinCompoundList, pos);
         }
-        compound.put(TAG_NETHER_TREE_LIST, netherTreeBinCompoundList);
+        compound.setTag(TAG_NETHER_TREE_LIST, netherTreeBinCompoundList);
         return compound;
     }
 

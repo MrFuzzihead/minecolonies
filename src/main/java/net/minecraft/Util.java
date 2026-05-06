@@ -1,17 +1,7 @@
 package net.minecraft;
-
-/**
- * [1.7.10] Compatibility stub for 1.21 net.minecraft.Util.
- */
-public class Util
-{
-    public static <T> T make(T object, java.util.function.Consumer<T> initializer)
-    {
-        initializer.accept(object);
-        return object;
-    }
-
-    public static long getMillis() { return System.currentTimeMillis(); }
-    public static long getNanos() { return System.nanoTime(); }
+import java.util.concurrent.ExecutorService;
+/** [1.7.10 bridge] Util */
+public class Util {
+    public static ExecutorService backgroundExecutor() { return java.util.concurrent.ForkJoinPool.commonPool(); }
+    public static <T> T make(java.util.function.Supplier<T> supplier) { return supplier.get(); }
 }
-

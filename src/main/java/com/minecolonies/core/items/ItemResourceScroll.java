@@ -1,4 +1,11 @@
 package com.minecolonies.core.items;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+
+import net.minecraft.world.item.InteractionResult;
+import net.minecraft.world.item.Properties;
+import net.minecraft.tileentity.BlockEntity; // [1.7.10] alias -> TileEntity
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.IColonyView;
@@ -54,7 +61,7 @@ public class ItemResourceScroll extends AbstractItemMinecolonies
      *
      * @param properties the properties.
      */
-    public ItemResourceScroll(final Item.Properties properties)
+    public ItemResourceScroll(final Properties properties)
     {
         super("resourcescroll", properties.stacksTo(STACKSIZE));
     }
@@ -91,7 +98,7 @@ public class ItemResourceScroll extends AbstractItemMinecolonies
                     // If the hashes are still up-to-date, load the old snapshot data from the NBT, if any exists.
                     if (compound.contains(TAG_WAREHOUSE_SNAPSHOT))
                     {
-                        final NBTTagCompound warehouseSnapshotCompound = compound.getCompound(TAG_WAREHOUSE_SNAPSHOT);
+                        final NBTTagCompound warehouseSnapshotCompound = compound.getCompoundTag(TAG_WAREHOUSE_SNAPSHOT);
                         warehouseSnapshot = warehouseSnapshotCompound.getAllKeys().stream()
                                               .collect(Collectors.toMap(k -> k, warehouseSnapshotCompound::getInt));
                     }

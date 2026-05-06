@@ -1,4 +1,6 @@
 package com.minecolonies.core.items;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.entity.player.Player;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
@@ -109,7 +111,7 @@ public class ItemBannerRallyGuards extends AbstractItemMinecolonies
                 }
                 else
                 {
-                    final NBTTagList guardTowers = compound.getList(TAG_RALLIED_GUARDTOWERS, TAG_COMPOUND);
+                    final NBTTagList guardTowers = compound.getTagList(TAG_RALLIED_GUARDTOWERS, TAG_COMPOUND);
                     guardTowers.add(StandardFactoryController.getInstance().serialize(location));
                     MessageUtils.format(COM_MINECOLONIES_BANNER_RALLY_GUARDS_SELECTED, building.getSchematicName(), location.toString()).sendTo(player);
                 }
@@ -160,7 +162,7 @@ public class ItemBannerRallyGuards extends AbstractItemMinecolonies
     @Nullable
     private static IColony getColony(final NBTTagCompound compound, final World world)
     {
-        final NBTTagList guardTowersListNBT = compound.getList(TAG_RALLIED_GUARDTOWERS, TAG_COMPOUND);
+        final NBTTagList guardTowersListNBT = compound.getTagList(TAG_RALLIED_GUARDTOWERS, TAG_COMPOUND);
         if (guardTowersListNBT == null)
         {
             Log.getLogger().error("Compound corrupt, missing TAG_RALLIED_GUARDTOWERS");
@@ -336,7 +338,7 @@ public class ItemBannerRallyGuards extends AbstractItemMinecolonies
     public static ImmutableList<ILocation> getGuardTowerLocations(final ItemStack banner)
     {
         final NBTTagCompound compound = checkForCompound(banner);
-        final NBTTagList guardTowersListNBT = compound.getList(TAG_RALLIED_GUARDTOWERS, TAG_COMPOUND);
+        final NBTTagList guardTowersListNBT = compound.getTagList(TAG_RALLIED_GUARDTOWERS, TAG_COMPOUND);
         if (guardTowersListNBT == null)
         {
             Log.getLogger().error("Compound corrupt, missing TAG_RALLIED_GUARDTOWERS");
@@ -474,7 +476,7 @@ public class ItemBannerRallyGuards extends AbstractItemMinecolonies
     public static boolean removeGuardTowerAtLocation(final ItemStack banner, final ILocation guardTowerLocation)
     {
         final NBTTagCompound compound = checkForCompound(banner);
-        final NBTTagList guardTowers = compound.getList(TAG_RALLIED_GUARDTOWERS, TAG_COMPOUND);
+        final NBTTagList guardTowers = compound.getTagList(TAG_RALLIED_GUARDTOWERS, TAG_COMPOUND);
 
         for (int i = 0; i < guardTowers.size(); i++)
         {
@@ -508,7 +510,7 @@ public class ItemBannerRallyGuards extends AbstractItemMinecolonies
         {
             compound.putBoolean(TAG_IS_ACTIVE, false);
             @NotNull final NBTTagList guardTowerList = new NBTTagList();
-            compound.put(TAG_RALLIED_GUARDTOWERS, guardTowerList);
+            compound.setTag(TAG_RALLIED_GUARDTOWERS, guardTowerList);
         }
         else if (compound.contains(TAG_ID))
         {

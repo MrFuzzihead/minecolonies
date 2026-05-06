@@ -1,4 +1,5 @@
 package com.minecolonies.api.util;
+import net.minecraft.world.level.block.state.BlockState;
 
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.placement.structure.CreativeStructureHandler;

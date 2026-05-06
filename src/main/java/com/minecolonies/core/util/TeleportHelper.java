@@ -1,4 +1,6 @@
 package com.minecolonies.core.util;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyManager;
@@ -10,8 +12,6 @@ import com.minecolonies.api.util.MessageUtils;
 // [1.7.10] int /* ResourceKey */ -> int dimensionId
 import net.minecraft.world.WorldServer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.server.World.TicketType;
-import net.minecraft.world.World.ChunkPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 

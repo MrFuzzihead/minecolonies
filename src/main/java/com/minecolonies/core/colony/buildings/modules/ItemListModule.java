@@ -68,14 +68,14 @@ public class ItemListModule extends AbstractBuildingModule implements IItemListM
     {
         if (compound.contains(id))
         {
-            compound = compound.getCompound(id);
+            compound = compound.getCompoundTag(id);
         }
 
         final List<ItemStorage> allowedItems = new ArrayList<>();
-            final NBTTagList filterableList = compound.getList(TAG_ITEMLIST, NBTBase.TAG_COMPOUND);
+            final NBTTagList filterableList = compound.getTagList(TAG_ITEMLIST, NBTBase.TAG_COMPOUND);
             for (int i = 0; i < filterableList.size(); ++i)
             {
-                allowedItems.add(new ItemStorage(ItemStack.of(filterableList.getCompound(i))));
+                allowedItems.add(new ItemStorage(ItemStack.of(filterableList.getCompoundTagAt(i))));
             }
 
         this.itemsAllowed = ImmutableList.copyOf(allowedItems);
@@ -91,7 +91,7 @@ public class ItemListModule extends AbstractBuildingModule implements IItemListM
             item.getItemStack().save(itemCompound);
             filteredItems.add(itemCompound);
         }
-        compound.put(TAG_ITEMLIST, filteredItems);
+        compound.setTag(TAG_ITEMLIST, filteredItems);
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.minecolonies.api.colony.buildings.ICommonBuilding;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.WorldUtil;
+import com.minecolonies.api.util.BlockPosUtil;
 // [1.7.10] int[] -> int x,y,z
 import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
@@ -93,7 +94,7 @@ public interface ICommonRegisteredStructureManager<B extends ICommonBuilding,T>
      */
     default int[] getBestBuilding(final AbstractEntityCitizen citizen, final Class<? extends B> building)
     {
-        return getBestBuilding(citizen.blockPosition(), building);
+        return getBestBuilding(new int[]{(int)citizen.posX, (int)citizen.posY, (int)citizen.posZ}, building);
     }
 
     /**
@@ -106,7 +107,7 @@ public interface ICommonRegisteredStructureManager<B extends ICommonBuilding,T>
      */
     default <BB extends B> int[] getBestBuilding(final AbstractEntityCitizen citizen, final Class<BB> building, @NotNull final Predicate<BB> filter)
     {
-        return getBestBuilding(citizen.blockPosition(), building, filter);
+        return getBestBuilding(new int[]{(int)citizen.posX, (int)citizen.posY, (int)citizen.posZ}, building, filter);
     }
 
     /**
@@ -137,10 +138,10 @@ public interface ICommonRegisteredStructureManager<B extends ICommonBuilding,T>
         {
             if (building.isInstance(currentBuilding)
                 && currentBuilding.getBuildingLevel() > 0
-                && WorldUtil.isBlockLoaded(getColony().getWorld(), currentBuilding.getPosition())
+                && WorldUtil.isBlockLoaded(getColony().getWorld(), currentBuilding.getPosition()[0], currentBuilding.getPosition()[2])
                 && filter.test((BB) currentBuilding))
             {
-                final double localDistance = currentBuilding.getPosition().distSqr(pos);
+                final double localDistance = BlockPosUtil.distSqr(currentBuilding.getPosition(), pos[0], pos[1], pos[2]);
                 if (localDistance < distance)
                 {
                     distance = localDistance;

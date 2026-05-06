@@ -1,4 +1,8 @@
 package com.minecolonies.core.entity.ai.workers.production.agriculture;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.animal.Animal;
+// [1.7.10] Bee: no equivalent. Class stub used.
+import net.minecraft.world.entity.animal.Bee;
 
 import com.google.common.reflect.TypeToken;
 import com.minecolonies.api.colony.interactionhandling.ChatPriority;
@@ -211,7 +215,7 @@ public class EntityAIWorkBeekeeper extends AbstractEntityAIInteract<JobBeekeeper
         }
 
         ItemListModule flowersModule = building.getModuleMatching(ItemListModule.class, m -> m.getId().equals(BUILDING_FLOWER_LIST));
-        if (flowersModule.getList().isEmpty() && building.getSetting(BuildingBeekeeper.BREEDING).getValue())
+        if (flowersModule.getTagList().isEmpty() && building.getSetting(BuildingBeekeeper.BREEDING).getValue())
         {
             worker.getCitizenData().triggerInteraction(new StandardInteraction(String.translatable(COM_MINECOLONIES_COREMOD_BEEKEEPER_NOFLOWERS), ChatPriority.BLOCKING));
             setDelay(NO_FLOWERS_DELAY);
@@ -454,11 +458,11 @@ public class EntityAIWorkBeekeeper extends AbstractEntityAIInteract<JobBeekeeper
         if (canBreed)
         {
             int flowerCount = InventoryUtils.getItemCountInItemHandler(worker.getInventoryCitizen(), (stack) -> flowersModule.isItemInList(new ItemStorage(stack)))
-                                + InventoryUtils.getCountFromBuilding(building, flowersModule.getList());
+                                + InventoryUtils.getCountFromBuilding(building, flowersModule.getTagList());
 
             if (flowerCount < NUM_OF_FLOWERS_TO_BREED && !building.hasWorkerOpenRequestsOfType(worker.getCitizenData().getId(), TypeToken.of(StackList.class)))
             {
-                worker.getCitizenData().createRequestAsync(new StackList(flowersModule.getList().stream()
+                worker.getCitizenData().createRequestAsync(new StackList(flowersModule.getTagList().stream()
                                                                            .map(ItemStorage::getItemStack)
                                                                            .peek((stack) -> stack.setCount(NUM_OF_WANTED_FLOWERS))
                                                                            .collect(Collectors.toList()),

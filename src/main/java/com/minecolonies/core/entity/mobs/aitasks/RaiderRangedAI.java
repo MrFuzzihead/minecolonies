@@ -1,4 +1,6 @@
 package com.minecolonies.core.entity.mobs.aitasks;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.entity.ai.combat.threat.IThreatTableEntity;
 import com.minecolonies.api.entity.ai.statemachine.states.IState;
@@ -163,7 +165,7 @@ public class RaiderRangedAI<T extends AbstractEntityMinecoloniesMonster & IThrea
     @Override
     public boolean canAttack()
     {
-        if (nextAttackTime - BOW_HOLDING_DELAY >= user.World.getGameTime() && !user.isUsingItem() && !user.getMainHandItem().isEmpty())
+        if (nextAttackTime - BOW_HOLDING_DELAY >= user.world.getTotalWorldTime() && !user.isUsingItem() && !user.getMainHandItem().isEmpty())
         {
             user.startUsingItem(0 /* InteractionHand.MAIN_HAND */);
         }

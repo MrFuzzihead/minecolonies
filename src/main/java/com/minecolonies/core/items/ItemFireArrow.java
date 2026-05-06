@@ -1,4 +1,6 @@
 package com.minecolonies.core.items;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.item.Properties;
 
 import com.minecolonies.api.entity.ModEntities;
 import net.minecraft.entity.Entity;

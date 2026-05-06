@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.ai.minimal;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.entity.ai.IStateAI;

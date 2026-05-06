@@ -1,4 +1,5 @@
 package com.minecolonies.api.blocks;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.blocks.interfaces.IBlockMinecolonies;
 // [1.7.10 BACKPORT] net.minecraft.block.Block replaces net.minecraft.world.level.block.Block
@@ -59,7 +60,7 @@ public abstract class AbstractBlockMinecoloniesHorizontal<B extends AbstractBloc
     @SuppressWarnings("unchecked")
     public B registerBlock()
     {
-        GameRegistry.registerBlock(this, getItemClass(), getRegistryName().getPath());
+        GameRegistry.registerBlock(this, getItemClass(), getRegistryName().getResourcePath());
         return (B) this;
     }
 

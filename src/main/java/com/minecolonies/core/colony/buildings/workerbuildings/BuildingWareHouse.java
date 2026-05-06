@@ -1,4 +1,5 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
+import net.minecraft.tileentity.BlockEntity; // [1.7.10] alias -> TileEntity
 
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;

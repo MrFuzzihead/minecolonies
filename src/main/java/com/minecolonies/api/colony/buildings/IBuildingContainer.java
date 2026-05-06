@@ -1,4 +1,5 @@
 package com.minecolonies.api.colony.buildings;
+import net.minecraft.block.state.BlockState;
 
 import com.minecolonies.api.tileentities.AbstractTileEntityColonyBuilding;
 // [1.7.10] int[] -> int x,y,z
@@ -17,10 +18,8 @@ import java.util.List;
 
 public interface IBuildingContainer extends ISchematicProvider
 {
-    @Override
     void deserializeNBT(NBTTagCompound compound);
 
-    @Override
     NBTTagCompound serializeNBT();
 
     /**

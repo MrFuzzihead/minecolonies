@@ -1,4 +1,5 @@
 package com.minecolonies.api.util.constant;
+import net.minecraft.world.entity.player.Player;
 
 import com.google.common.reflect.TypeToken;
 import com.minecolonies.api.colony.requestsystem.data.*;

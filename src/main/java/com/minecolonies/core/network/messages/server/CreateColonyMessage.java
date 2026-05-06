@@ -1,4 +1,6 @@
 package com.minecolonies.core.network.messages.server;
+import net.minecraft.tileentity.BlockEntity; // [1.7.10] alias -> TileEntity
+import net.minecraft.world.entity.player.Player;
 
 import com.ldtteam.structurize.storage.StructurePacks;
 import com.minecolonies.api.IMinecoloniesAPI;

@@ -1,4 +1,5 @@
 package com.minecolonies.api.util;
+import net.minecraft.world.phys.Vec3;
 
 import net.minecraft.util.MathHelper;
 

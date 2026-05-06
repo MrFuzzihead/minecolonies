@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.ai.workers.production;
+import net.minecraft.util.Direction;
 
 import com.ldtteam.structurize.placement.BlockPlacementResult;
 import com.ldtteam.structurize.placement.StructurePhasePlacementResult;
@@ -36,6 +37,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.block.Block;
 // [1.7.10] BlockState -> int metadata
+import net.minecraft.world.level.block.state.BlockState;
 // [1.7.10] World.material removed
 import net.minecraftforge.common.ToolActions;
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +45,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
 import java.util.List;
 
-import static com.ldtteam.structurize.placement.AbstractBlueprintIterator.NULL_POS;
+// [1.7.10] AbstractBlueprintIterator.NULL_POS not available; defined locally
+// import static com.ldtteam.structurize.placement.AbstractBlueprintIterator.NULL_POS;
 import static com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState.*;
 import static com.minecolonies.api.util.constant.StatisticsConstants.*;
 import static com.minecolonies.api.util.constant.TranslationConstants.QUARRY_MINER_FINISHED_QUARRY;
@@ -62,6 +65,9 @@ public class EntityAIQuarrier extends AbstractEntityAIStructureWithWorkOrder<Job
 {
     private static final String RENDER_META_TORCH = "torch";
     private static final String RENDER_META_STONE = "stone";
+
+    /** [1.7.10] Sentinel value for no progress position. */
+    private static final int[] NULL_POS = new int[]{Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE};
 
     /**
      * Return to chest after 2x building World stacks.

@@ -1,4 +1,7 @@
 package com.minecolonies.core.generation.defaults;
+import net.minecraft.data.CachedOutput;
+import net.minecraft.data.DataProvider;
+import net.minecraft.data.PackOutput;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

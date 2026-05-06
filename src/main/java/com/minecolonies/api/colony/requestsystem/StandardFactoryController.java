@@ -264,8 +264,8 @@ public final class StandardFactoryController implements IFactoryController
         final NBTTagCompound compound = new NBTTagCompound();
 
         final IFactory<?, OUTPUT> factory = getFactoryForOutput((TypeToken<? extends OUTPUT>) TypeToken.of(object.getClass()));
-        compound.putShort(NEW_NBT_TYPE, factory.getSerializationId());
-        compound.put(NBT_DATA, factory.serialize(this, object));
+        compound.setShort(NEW_NBT_TYPE, factory.getSerializationId());
+        compound.setTag(NBT_DATA, factory.serialize(this, object));
 
         return compound;
     }
@@ -274,7 +274,7 @@ public final class StandardFactoryController implements IFactoryController
     public <OUTPUT> OUTPUT deserialize(@NotNull final NBTTagCompound compound) throws IllegalArgumentException
     {
         final IFactory<?, OUTPUT> factory;
-        if (compound.contains(NEW_NBT_TYPE))
+        if (compound.hasKey(NEW_NBT_TYPE))
         {
             short classId = compound.getShort(NEW_NBT_TYPE);
             try
@@ -302,7 +302,7 @@ public final class StandardFactoryController implements IFactoryController
 
         try
         {
-            return factory.deserialize(this, compound.getCompound(NBT_DATA));
+            return factory.deserialize(this, compound.getCompoundTag(NBT_DATA));
         }
         catch (Throwable throwable)
         {

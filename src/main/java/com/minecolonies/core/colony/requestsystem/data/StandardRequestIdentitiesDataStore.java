@@ -100,15 +100,15 @@ public class StandardRequestIdentitiesDataStore implements IRequestIdentitiesDat
         {
             final NBTTagCompound systemCompound = new NBTTagCompound();
 
-            systemCompound.put(TAG_TOKEN, controller.serialize(standardRequestIdentitiesDataStore.getId()));
+            systemcompound.setTag(TAG_TOKEN, controller.serialize(standardRequestIdentitiesDataStore.getId()));
             final NBTTagList NBTTagList = new NBTTagList();
             for (final Map.Entry<IToken<?>, IRequest<?>> entry : new HashSet<>(standardRequestIdentitiesDataStore.getIdentities().entrySet()))
             {
                 try
                 {
                     NBTTagCompound mapCompound = new NBTTagCompound();
-                    mapCompound.put(TAG_TOKEN, controller.serialize(entry.getKey()));
-                    mapCompound.put(TAG_REQUEST, controller.serialize(entry.getValue()));
+                    mapcompound.setTag(TAG_TOKEN, controller.serialize(entry.getKey()));
+                    mapcompound.setTag(TAG_REQUEST, controller.serialize(entry.getValue()));
                     NBTTagList.add(mapCompound);
                 }
                 catch (final Exception e)
@@ -117,7 +117,7 @@ public class StandardRequestIdentitiesDataStore implements IRequestIdentitiesDat
                     Log.getLogger().error(e);
                 }
             }
-            systemCompound.put(TAG_LIST, NBTTagList);
+            systemcompound.setTag(TAG_LIST, NBTTagList);
             return systemCompound;
         }
 
@@ -125,17 +125,17 @@ public class StandardRequestIdentitiesDataStore implements IRequestIdentitiesDat
         @Override
         public StandardRequestIdentitiesDataStore deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound nbt)
         {
-            final IToken<?> token = controller.deserialize(nbt.getCompound(TAG_TOKEN));
-            final NBTTagList list = nbt.getList(TAG_LIST, NBTBase.TAG_COMPOUND);
+            final IToken<?> token = controller.deserialize(nbt.getCompoundTag(TAG_TOKEN));
+            final NBTTagList list = nbt.getTagList(TAG_LIST, NBTBase.TAG_COMPOUND);
 
             final BiMap<IToken<?>, IRequest<?>> map = HashBiMap.create();
             for (int i = 0; i < list.size(); i++)
             {
-                final NBTTagCompound NBTBase = list.getCompound(i);
+                final NBTTagCompound NBTBase = list.getCompoundTagAt(i);
                 try
                 {
-                    final IToken<?> id = controller.deserialize(NBTBase.getCompound(TAG_TOKEN));
-                    final IRequest<?> request = controller.deserialize(NBTBase.getCompound(TAG_REQUEST));
+                    final IToken<?> id = controller.deserialize(NBTBase.getCompoundTag(TAG_TOKEN));
+                    final IRequest<?> request = controller.deserialize(NBTBase.getCompoundTag(TAG_REQUEST));
                     map.put(id, request);
                 }
                 catch (final Exception ex)

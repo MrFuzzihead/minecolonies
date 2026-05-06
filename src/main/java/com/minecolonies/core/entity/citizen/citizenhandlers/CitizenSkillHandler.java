@@ -125,13 +125,13 @@ public class CitizenSkillHandler implements ICitizenSkillHandler
             if (entry.getKey() != null && entry.getValue() != null)
             {
                 @NotNull final NBTTagCompound levelCompound = new NBTTagCompound();
-                levelCompound.putInt(TAG_SKILL, entry.getKey().ordinal());
-                levelCompound.putInt(TAG_LEVEL, entry.getValue().World);
-                levelCompound.putDouble(TAG_EXPERIENCE, entry.getValue().experience);
-                levelTagList.add(levelCompound);
+                levelCompound.setInteger(TAG_SKILL, entry.getKey().ordinal());
+                levelCompound.setInteger(TAG_LEVEL, entry.getValue().getLevel());
+                levelCompound.setDouble(TAG_EXPERIENCE, entry.getValue().experience);
+                levelTagList.appendTag(levelCompound);
             }
         }
-        compoundNBT.put(TAG_LEVEL_MAP, levelTagList);
+        compoundNBT.setTag(TAG_LEVEL_MAP, levelTagList);
 
         return compoundNBT;
     }
@@ -139,12 +139,12 @@ public class CitizenSkillHandler implements ICitizenSkillHandler
     @Override
     public void read(@NotNull final NBTTagCompound compoundNBT)
     {
-        final NBTTagList levelTagList = compoundNBT.getList(TAG_LEVEL_MAP, NBTBase.TAG_COMPOUND);
-        for (int i = 0; i < levelTagList.size(); ++i)
+        final NBTTagList levelTagList = compoundNBT.getTagList(TAG_LEVEL_MAP, 10); // 10 = TAG_Compound
+        for (int i = 0; i < levelTagList.tagCount(); ++i)
         {
-            final NBTTagCompound levelExperienceAtJob = levelTagList.getCompound(i);
-            skillMap.put(Skill.values()[levelExperienceAtJob.getInt(TAG_SKILL)],
-              new SkillData(Math.max(1, Math.min(levelExperienceAtJob.getInt(TAG_LEVEL), MAX_CITIZEN_LEVEL)), levelExperienceAtJob.getDouble(TAG_EXPERIENCE)));
+            final NBTTagCompound levelExperienceAtJob = levelTagList.getCompoundTagAt(i);
+            skillMap.put(Skill.values()[levelExperienceAtJob.getInteger(TAG_SKILL)],
+              new SkillData(Math.max(1, Math.min(levelExperienceAtJob.getInteger(TAG_LEVEL), MAX_CITIZEN_LEVEL)), levelExperienceAtJob.getDouble(TAG_EXPERIENCE)));
         }
     }
 
@@ -247,10 +247,9 @@ public class CitizenSkillHandler implements ICitizenSkillHandler
         if (data.getEntity().isPresent())
         {
             final AbstractEntityCitizen citizen = data.getEntity().get();
-            playSoundAtCitizenWith(citizen.World, citizen.blockPosition(), SUCCESS, data);
-            Network.getNetwork()
-              .sendToTrackingEntity(new VanillaParticleMessage(citizen.getX(), citizen.getY(), citizen.getZ(), ParticleTypes.HAPPY_VILLAGER),
-                data.getEntity().get());
+            playSoundAtCitizenWith(citizen.worldObj, new int[]{(int)citizen.posX, (int)citizen.posY, (int)citizen.posZ}, SUCCESS, data);
+            // [1.7.10] VanillaParticleMessage/ParticleTypes not available; skip particle sending
+            // Network.getNetwork().sendToTrackingEntity(new VanillaParticleMessage(...), data.getEntity().get());
         }
 
         if (data.getJob() != null)
@@ -308,7 +307,4 @@ public class CitizenSkillHandler implements ICitizenSkillHandler
         }
     }
 }
-
-
-
 

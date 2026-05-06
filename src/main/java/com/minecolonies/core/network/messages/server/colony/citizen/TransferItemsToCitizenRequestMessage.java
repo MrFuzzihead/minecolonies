@@ -1,4 +1,5 @@
 package com.minecolonies.core.network.messages.server.colony.citizen;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.ICitizenDataView;

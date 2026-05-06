@@ -13,4 +13,6 @@ public class ButtonImage extends Button
     public void setImageDisabled(ResourceLocation location, boolean tiled) {}
     public void setImageHighlight(ResourceLocation location, boolean tiled) {}
     public void setText(Object text) {}
+    public void setEnabled(boolean enabled) {}
+    public void setHandler(java.util.function.Consumer<ButtonImage> handler) {}
 }

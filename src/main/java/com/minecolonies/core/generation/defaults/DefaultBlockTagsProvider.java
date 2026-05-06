@@ -2,10 +2,9 @@ package com.minecolonies.core.generation.defaults;
 
 import com.minecolonies.api.blocks.ModBlocks;
 import com.minecolonies.api.items.ModTags;
-// [1.7.10] HolderLookup removed
-// [1.7.10] data removed
+import net.minecraft.core.HolderLookup;
+import net.minecraft.data.PackOutput;
 import net.minecraft.util.ResourceLocation;
-// [1.7.10] tags removed
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraftforge.common.Tags;

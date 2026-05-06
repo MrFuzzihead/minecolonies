@@ -1,5 +1,6 @@
 package com.minecolonies.core.colony.workorders;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -239,7 +240,7 @@ public class WorkManager implements IWorkManager
             o.write(orderCompound);
             list.add(orderCompound);
         }
-        compound.put(TAG_WORK_ORDERS, list);
+        compound.setTag(TAG_WORK_ORDERS, list);
         compound.putBoolean(TAG_NEW_SYSTEM, true);
     }
 
@@ -260,10 +261,10 @@ public class WorkManager implements IWorkManager
         }
 
         //  Work Orders
-        final NBTTagList list = compound.getList(TAG_WORK_ORDERS, NBTBase.TAG_COMPOUND);
+        final NBTTagList list = compound.getTagList(TAG_WORK_ORDERS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < list.size(); ++i)
         {
-            final NBTTagCompound orderCompound = list.getCompound(i);
+            final NBTTagCompound orderCompound = list.getCompoundTagAt(i);
             @Nullable final IServerWorkOrder o = AbstractWorkOrder.createFromNBT(orderCompound, this);
             if (o != null)
             {

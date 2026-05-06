@@ -1,4 +1,5 @@
 package com.minecolonies.api.colony.permissions;
+import net.minecraft.world.entity.player.Player;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.entity.player.EntityPlayer;

@@ -9,9 +9,10 @@ import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.util.IChatComponent;
-import net.minecraft.server.World.Ticket;
-import net.minecraft.server.World.TicketType;
-import net.minecraft.util.SortedArraySet;
+// [1.7.10] server chunk ticket system removed
+// import net.minecraft.server.World.Ticket; // [1.7.10] removed
+// import net.minecraft.server.World.TicketType; // [1.7.10] removed
+// import net.minecraft.util.SortedArraySet; // [1.7.10] removed
 
 import java.util.HashSet;
 import java.util.Set;

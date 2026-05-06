@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.pathfinding.pathjobs;
+import net.minecraft.world.level.chunk.LevelChunk;
 
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.util.BlockPosUtil;
@@ -10,6 +11,7 @@ import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
 // [1.7.10] int[] -> int x,y,z
 import net.minecraft.world.World;
 // [1.7.10] BlockState -> int metadata
+import net.minecraft.block.state.BlockState;
 import net.minecraft.world.chunk.Chunk;
 import org.jetbrains.annotations.NotNull;
 

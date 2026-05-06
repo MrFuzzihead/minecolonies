@@ -1,4 +1,8 @@
 package com.minecolonies.core.generation.defaults;
+import net.minecraft.data.DataGenerator;
+import net.minecraft.data.CachedOutput;
+import net.minecraft.data.DataProvider;
+import net.minecraft.data.PackOutput;
 
 import com.minecolonies.api.util.Log;
 import com.google.common.hash.Hashing;

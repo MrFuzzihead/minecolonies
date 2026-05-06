@@ -55,7 +55,7 @@ public class DomumOrnamentumUtils
                 }
             }
         }
-        return ItemStack.EMPTY;
+        return null;
     }
 
     /**
@@ -71,7 +71,7 @@ public class DomumOrnamentumUtils
         {
             return MaterialTextureData.EMPTY;
         }
-        final NBTTagCompound NBTBase = stack.getOrCreateTag().getCompound(DO_NBT_TEXTURE_DATA);
+        final NBTTagCompound NBTBase = stack.getOrCreateTag().getCompoundTag(DO_NBT_TEXTURE_DATA);
         return MaterialTextureData.deserializeFromNBT(NBTBase);
     }
 
@@ -101,7 +101,7 @@ public class DomumOrnamentumUtils
 
         if (nbt.contains(DO_NBT_TEXTURE_DATA, NBTBase.TAG_COMPOUND))
         {
-            return MaterialTextureData.deserializeFromNBT(nbt.getCompound(DO_NBT_TEXTURE_DATA));
+            return MaterialTextureData.deserializeFromNBT(nbt.getCompoundTag(DO_NBT_TEXTURE_DATA));
         }
 
         return null;

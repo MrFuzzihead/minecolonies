@@ -1,5 +1,7 @@
 package com.minecolonies.core.colony.buildings.views;
-import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Style;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -469,7 +471,7 @@ public abstract class AbstractBuildingView implements IBuildingView
 
     private void loadRequestSystemFromNBT(final NBTTagCompound compound)
     {
-        this.rsDataStoreToken = StandardFactoryController.getInstance().deserialize(compound.getCompound(TAG_RS_BUILDING_DATASTORE));
+        this.rsDataStoreToken = StandardFactoryController.getInstance().deserialize(compound.getCompoundTag(TAG_RS_BUILDING_DATASTORE));
     }
 
     private IRequestSystemBuildingDataStore getDataStore()

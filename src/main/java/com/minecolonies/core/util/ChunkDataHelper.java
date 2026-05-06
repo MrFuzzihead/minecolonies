@@ -1,4 +1,6 @@
 package com.minecolonies.core.util;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.chunk.LevelChunk;
 
 // [1.7.10 BACKPORT] Ported capability accesses to ChunkAPI / WorldSavedData replacements.
 // - world.getCapability(CHUNK_STORAGE_UPDATE_CAP, ...) â†’ ChunkManagerWorldSavedData.getOrCreate(world).getCapability()

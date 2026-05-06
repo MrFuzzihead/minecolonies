@@ -1,4 +1,5 @@
 package com.minecolonies.core.blocks.huts;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.blocks.AbstractColonyBlock;
 import com.minecolonies.api.blocks.interfaces.IRSComponentBlock;

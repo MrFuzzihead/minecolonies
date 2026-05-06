@@ -1,4 +1,6 @@
 package com.minecolonies.core.entity.mobs.aitasks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 import com.minecolonies.api.blocks.decorative.AbstractBlockGate;
 import com.minecolonies.api.colony.ICitizenData;
@@ -14,6 +16,8 @@ import com.minecolonies.core.entity.ai.workers.guard.AbstractEntityAIGuard;
 // [1.7.10] world.entity removed
 // [1.7.10] world.entity removed
 // [1.7.10] BlockState -> int metadata
+import net.minecraft.entity.EntityCreature;
+import net.minecraft.world.entity.ai.goal.BreakDoorGoal;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 // [1.7.10] world.phys removed
 

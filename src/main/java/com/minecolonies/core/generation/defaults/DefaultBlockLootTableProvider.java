@@ -1,4 +1,7 @@
 package com.minecolonies.core.generation.defaults;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootPool.Builder;
+import net.minecraft.data.PackOutput;
 
 import com.minecolonies.api.blocks.AbstractBlockHut;
 import com.minecolonies.api.blocks.ModBlocks;

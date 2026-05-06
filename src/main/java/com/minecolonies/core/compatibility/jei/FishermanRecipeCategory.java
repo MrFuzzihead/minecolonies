@@ -15,6 +15,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.item.ItemStack;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

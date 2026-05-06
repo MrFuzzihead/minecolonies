@@ -1,4 +1,5 @@
 package com.minecolonies.core.client.gui.huts;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.AbstractWindowWorkerModuleBuilding;

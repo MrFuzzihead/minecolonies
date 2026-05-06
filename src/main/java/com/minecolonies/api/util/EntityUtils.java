@@ -1,4 +1,7 @@
 package com.minecolonies.api.util;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.util.Direction;
+import net.minecraft.world.entity.player.Player;
 
 import com.ldtteam.structurize.util.BlockUtils;
 import com.minecolonies.api.entity.other.AbstractFastMinecoloniesEntity;

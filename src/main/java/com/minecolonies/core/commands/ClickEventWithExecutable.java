@@ -1,6 +1,7 @@
 package com.minecolonies.core.commands;
 
 // [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
+import net.minecraft.util.ClickEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**

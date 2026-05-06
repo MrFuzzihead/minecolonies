@@ -36,7 +36,7 @@ public class VisitorData extends CitizenData implements IVisitorData
     /**
      * The recruitment World, used for stats/equipment and costs
      */
-    private ItemStack recruitCost = ItemStack.EMPTY;
+    private ItemStack recruitCost = null;
 
     /**
      * Create a CitizenData given an ID. Used as a super-constructor or during loading.
@@ -66,7 +66,7 @@ public class VisitorData extends CitizenData implements IVisitorData
     {
         super.deserializeNBT(nbtTagCompound);
         sittingPosition = BlockPosUtil.read(nbtTagCompound, TAG_SITTING);
-        recruitCost = ItemStack.of(nbtTagCompound.getCompound(TAG_RECRUIT_COST));
+        recruitCost = ItemStack.of(nbtTagCompound.getCompoundTag(TAG_RECRUIT_COST));
         recruitCost.setCount(nbtTagCompound.getInt(TAG_RECRUIT_COST_QTY));
     }
 

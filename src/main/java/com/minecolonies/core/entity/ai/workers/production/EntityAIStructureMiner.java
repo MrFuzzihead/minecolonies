@@ -1,4 +1,7 @@
 package com.minecolonies.core.entity.ai.workers.production;
+import net.minecraft.util.Direction;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.block.state.BlockState;
 
 import com.ldtteam.structurize.util.BlockUtils;
 import com.minecolonies.api.MinecoloniesAPIProxy;

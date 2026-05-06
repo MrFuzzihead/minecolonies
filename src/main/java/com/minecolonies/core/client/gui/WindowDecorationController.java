@@ -1,4 +1,6 @@
 package com.minecolonies.core.client.gui;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
 
 // [1.7.10] blockui replaced by ModularUI2
 // [1.7.10] blockui replaced by ModularUI2

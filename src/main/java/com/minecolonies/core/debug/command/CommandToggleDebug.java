@@ -1,4 +1,5 @@
 package com.minecolonies.core.debug.command;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.core.Network;
 import com.minecolonies.core.commands.commandTypes.IMCCommand;

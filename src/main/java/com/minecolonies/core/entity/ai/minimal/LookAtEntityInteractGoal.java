@@ -1,5 +1,6 @@
 package com.minecolonies.core.entity.ai.minimal;
 
+import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
 // [1.7.10] world.entity removed
 // [1.7.10] world.entity removed

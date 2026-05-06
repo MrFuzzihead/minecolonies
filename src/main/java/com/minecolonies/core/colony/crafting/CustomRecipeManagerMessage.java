@@ -1,4 +1,7 @@
 package com.minecolonies.core.colony.crafting;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+
 
 import com.minecolonies.api.network.IMessage;
 // [1.7.10] client removed (use @SideOnly)

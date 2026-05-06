@@ -9,6 +9,7 @@ import com.minecolonies.api.quests.IObjectiveInstance;
 import com.minecolonies.api.quests.IQuestInstance;
 import com.minecolonies.api.quests.IQuestObjectiveTemplate;
 import net.minecraft.util.IChatComponent;
+import net.minecraft.network.chat.Style;
 // [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 
 import java.util.ArrayList;

@@ -54,8 +54,8 @@ public class PrivateWorkerCraftingRequestResolverFactory implements IRequestReso
       @NotNull final IFactoryController controller, @NotNull final PrivateWorkerCraftingRequestResolver privateWorkerCraftingRequestResolverFactory)
     {
         final NBTTagCompound compound = new NBTTagCompound();
-        compound.put(NBT_TOKEN, controller.serialize(privateWorkerCraftingRequestResolverFactory.getId()));
-        compound.put(NBT_LOCATION, controller.serialize(privateWorkerCraftingRequestResolverFactory.getLocation()));
+        compound.setTag(NBT_TOKEN, controller.serialize(privateWorkerCraftingRequestResolverFactory.getId()));
+        compound.setTag(NBT_LOCATION, controller.serialize(privateWorkerCraftingRequestResolverFactory.getLocation()));
         compound.putString(NBT_JOB, IJobRegistry.getInstance().getKey(privateWorkerCraftingRequestResolverFactory.getJobEntry()).toString());
         return compound;
     }
@@ -64,8 +64,8 @@ public class PrivateWorkerCraftingRequestResolverFactory implements IRequestReso
     @Override
     public PrivateWorkerCraftingRequestResolver deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound nbt)
     {
-        final IToken<?> token = controller.deserialize(nbt.getCompound(NBT_TOKEN));
-        final ILocation location = controller.deserialize(nbt.getCompound(NBT_LOCATION));
+        final IToken<?> token = controller.deserialize(nbt.getCompoundTag(NBT_TOKEN));
+        final ILocation location = controller.deserialize(nbt.getCompoundTag(NBT_LOCATION));
         final JobEntry entry = IJobRegistry.getInstance().getValue(new ResourceLocation(nbt.getString(NBT_JOB)));
 
         return new PrivateWorkerCraftingRequestResolver(location, token, entry);

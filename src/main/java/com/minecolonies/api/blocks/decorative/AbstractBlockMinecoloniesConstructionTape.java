@@ -1,4 +1,5 @@
 package com.minecolonies.api.blocks.decorative;
+import net.minecraft.world.level.block.state.BlockState;
 
 import com.minecolonies.api.blocks.AbstractBlockMinecoloniesFalling;
 import net.minecraft.block.material.Material;

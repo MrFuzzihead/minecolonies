@@ -1,4 +1,6 @@
 package com.minecolonies.api.util;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
 
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
@@ -103,7 +105,7 @@ public final class CreativeBuildingStructureHandler extends CreativeStructureHan
             final BlockEntity te = getWorld().getBlockEntity(worldPos);
             if (te instanceof IBlueprintDataProviderBE blueprintDataProviderBE)
             {
-                final NBTTagCompound tagData = teData.getCompound(TAG_BLUEPRINTDATA);
+                final NBTTagCompound tagData = teData.getCompoundTag(TAG_BLUEPRINTDATA);
                 final String schematicPath = tagData.getString(TAG_NAME);
                 final String location = StructurePacks.getStructurePack(blueprint.getPackName()).getSubPath(Utils.resolvePath(blueprint.getFilePath(), schematicPath));
 

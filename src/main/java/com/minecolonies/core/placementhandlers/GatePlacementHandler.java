@@ -1,4 +1,5 @@
 package com.minecolonies.core.placementhandlers;
+import net.minecraft.world.level.block.state.BlockState;
 
 import com.minecolonies.api.blocks.decorative.AbstractBlockGate;
 // [1.7.10] BlockState -> int metadata

@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.ai.workers.util;
+import net.minecraft.block.state.BlockState;
 
 import com.ldtteam.structurize.placement.structure.AbstractStructureHandler;
 import com.ldtteam.structurize.util.BlockUtils;

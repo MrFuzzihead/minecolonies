@@ -1,4 +1,5 @@
 package com.minecolonies.api.client.render.modeltype;
+import net.minecraft.network.chat.Style;
 
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import net.minecraft.util.ResourceLocation;
@@ -54,7 +55,7 @@ public class SimpleModelType implements ISimpleModelType
     @Override
     public String getTextureBase()
     {
-        return name.getPath();
+        return name.getResourcePath();
     }
 
     @Override

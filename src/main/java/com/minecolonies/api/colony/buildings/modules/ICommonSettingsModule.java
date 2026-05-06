@@ -1,4 +1,5 @@
 package com.minecolonies.api.colony.buildings.modules;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.buildings.modules.settings.ISetting;
 import com.minecolonies.api.colony.buildings.modules.settings.ISettingKey;

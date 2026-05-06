@@ -1,4 +1,5 @@
 package com.minecolonies.core.compatibility.jei;
+import net.minecraft.network.chat.Style;
 
 import com.minecolonies.api.items.ModItems;
 import com.minecolonies.api.util.constant.TranslationConstants;
@@ -19,6 +20,8 @@ import net.minecraft.util.IChatComponent;
 // [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 // [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 import net.minecraft.item.ItemStack;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

@@ -1,4 +1,5 @@
 package com.minecolonies.api.inventory.container;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.inventory.ModContainers;
 // [1.7.10] int[] -> int x,y,z
@@ -146,7 +147,7 @@ public class ContainerCrafting extends Container
                     @Override
                     public ItemStack decrStackSize(final int par1)
                     {
-                        return ItemStack.EMPTY;
+                        return null;
                     }
 
                     @Override
@@ -287,7 +288,7 @@ public class ContainerCrafting extends Container
         }
         else if (slot.getStack().getCount() > 0)
         {
-            slot.putStack(ItemStack.EMPTY);
+            slot.putStack(null);
         }
 
         return slot.getStack().copy();
@@ -300,12 +301,12 @@ public class ContainerCrafting extends Container
         final int total_crafting_slots = CRAFTING_SLOTS + (complete ? ADDITIONAL_SLOTS : 0);
         if (index <= total_crafting_slots)
         {
-            return ItemStack.EMPTY;
+            return null;
         }
 
         final int total_slots = TOTAL_SLOTS + (complete ? ADDITIONAL_SLOTS : 0);
 
-        ItemStack itemstack = ItemStack.EMPTY;
+        ItemStack itemstack = null;
         final Slot slot = this.slots.get(index);
         if (slot != null && slot.getHasStack())
         {
@@ -315,7 +316,7 @@ public class ContainerCrafting extends Container
             {
                 if (!this.moveItemStackTo(itemstack1, total_crafting_slots, total_slots, true))
                 {
-                    return ItemStack.EMPTY;
+                    return null;
                 }
                 slot.onCrafting(itemstack1, itemstack);
             }
@@ -323,18 +324,18 @@ public class ContainerCrafting extends Container
             {
                 if (!this.moveItemStackTo(itemstack1, HOTBAR_START, total_slots, false))
                 {
-                    return ItemStack.EMPTY;
+                    return null;
                 }
             }
             else if ((index < total_slots
                         && !this.moveItemStackTo(itemstack1, total_crafting_slots, HOTBAR_START, false))
                        || !this.moveItemStackTo(itemstack1, total_crafting_slots, total_slots, false))
             {
-                return ItemStack.EMPTY;
+                return null;
             }
             if (itemstack1.getCount() == 0)
             {
-                slot.putStack(ItemStack.EMPTY);
+                slot.putStack(null);
             }
             else
             {
@@ -342,7 +343,7 @@ public class ContainerCrafting extends Container
             }
             if (itemstack1.getCount() == itemstack.getCount())
             {
-                return ItemStack.EMPTY;
+                return null;
             }
         }
         return itemstack;

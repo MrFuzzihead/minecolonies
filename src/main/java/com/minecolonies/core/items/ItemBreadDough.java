@@ -1,4 +1,5 @@
 package com.minecolonies.core.items;
+import net.minecraft.world.item.Properties;
 
 import static com.minecolonies.api.util.constant.Constants.STACKSIZE;
 

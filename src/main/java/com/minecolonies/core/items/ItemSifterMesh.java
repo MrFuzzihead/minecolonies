@@ -1,4 +1,5 @@
 package com.minecolonies.core.items;
+import net.minecraft.world.item.Properties;
 
 import org.jetbrains.annotations.NotNull;
 

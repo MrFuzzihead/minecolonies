@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.ai.workers.production.herders;
+import net.minecraft.entity.passive.EntitySheep;
 
 import com.minecolonies.api.entity.ai.statemachine.AITarget;
 import com.minecolonies.api.entity.ai.statemachine.states.IAIState;
@@ -26,17 +27,30 @@ import static com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState.*
 import static com.minecolonies.api.util.constant.Constants.TICKS_SECOND;
 import static com.minecolonies.api.util.constant.StatisticsConstants.ITEM_OBTAINED;
 import static com.minecolonies.core.colony.buildings.modules.BuildingModules.STATS_MODULE;
-import static net.minecraft.world.entity.animal.Sheep.ITEM_BY_DYE;
+// [1.7.10] EntitySheep.field_175512_bO (ITEM_BY_DYE) does not exist; using local fallback
+// import static net.minecraft.entity.passive.EntitySheep.field_175512_bO; // [1.7.10] ITEM_BY_DYE field
 
 /**
- * The AI behind the {@link JobShepherd} for Breeding, Killing and Shearing sheep.
+ * The AI behind the {@link JobShepherd} for Breeding, Killing and Shearing EntitySheep.
  */
 public class EntityAIWorkShepherd extends AbstractEntityAIHerder<JobShepherd, BuildingShepherd>
 {
     /**
-     * Constants used for sheep dying calculations.
+     * Constants used for EntitySheep dying calculations.
      */
     private static final int HUNDRED_PERCENT_CHANCE = 100;
+
+    /**
+     * [1.7.10] Replacement for EntitySheep.ITEM_BY_DYE (field_175512_bO).
+     * Maps DyeColor (int ordinal) to the wool Item. In 1.7.10, wool is Blocks.wool with meta = dye ordinal.
+     */
+    private static final java.util.Map<net.minecraft.world.item.DyeColor, net.minecraft.item.Item> ITEM_BY_DYE;
+    static {
+        ITEM_BY_DYE = new java.util.HashMap<>();
+        for (net.minecraft.world.item.DyeColor color : net.minecraft.world.item.DyeColor.values()) {
+            ITEM_BY_DYE.put(color, net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.wool));
+        }
+    }
 
     /**
      * Creates the abstract part of the AI. Always use this constructor!
@@ -74,14 +88,14 @@ public class EntityAIWorkShepherd extends AbstractEntityAIHerder<JobShepherd, Bu
     {
         final IAIState result = super.decideWhatToDo();
 
-        final Sheep shearingSheep = findShearableSheep();
+        final EntitySheep shearingSheep = findShearableSheep();
 
         if (building.getSetting(BuildingShepherd.SHEARING).getValue() && result.equals(START_WORKING) && shearingSheep != null)
         {
             return SHEPHERD_SHEAR;
         }
 
-        worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, ItemStack.EMPTY);
+        worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, null);
 
         return result;
     }
@@ -93,26 +107,26 @@ public class EntityAIWorkShepherd extends AbstractEntityAIHerder<JobShepherd, Bu
     }
 
     /**
-     * @return a shearable {@link Sheep} or null.
+     * @return a shearable {@link EntitySheep} or null.
      */
     @Nullable
-    private Sheep findShearableSheep()
+    private EntitySheep findShearableSheep()
     {
-        return searchForAnimals(a -> a instanceof Sheep sheepie && !sheepie.isSheared() && !sheepie.isBaby())
-                 .stream().map(a -> (Sheep) a).findAny().orElse(null);
+        return searchForAnimals(a -> a instanceof EntitySheep sheepie && !sheepie.isSheared() && !sheepie.isBaby())
+                 .stream().map(a -> (EntitySheep) a).findAny().orElse(null);
     }
 
     /**
-     * Shears a sheep, with a chance of dying it!
+     * Shears a EntitySheep, with a chance of dying it!
      *
      * @return The next {@link IAIState}
      */
     private IAIState shearSheep()
     {
 
-        final Sheep sheep = findShearableSheep();
+        final EntitySheep EntitySheep = findShearableSheep();
 
-        if (sheep == null)
+        if (EntitySheep == null)
         {
             return DECIDE;
         }
@@ -124,7 +138,7 @@ public class EntityAIWorkShepherd extends AbstractEntityAIHerder<JobShepherd, Bu
 
         if (worker.getMainHandItem() != null)
         {
-            if (walkingToAnimal(sheep))
+            if (walkingToAnimal(EntitySheep))
             {
                 return getState();
             }
@@ -137,18 +151,18 @@ public class EntityAIWorkShepherd extends AbstractEntityAIHerder<JobShepherd, Bu
             final List<ItemStack> items = new ArrayList<>();
             if (!this.world.isClientSide)
             {
-                sheep.setSheared(true);
+                EntitySheep.setSheared(true);
                 int qty = 1 + worker.getRandom().nextInt(enchantmentLevel + 1);
 
                 for (int j = 0; j < qty; ++j)
                 {
-                    items.add(new ItemStack(ITEM_BY_DYE.get(sheep.getColor())));
+                    items.add(new ItemStack(ITEM_BY_DYE.get(EntitySheep.getColor())));
                 }
             }
 
-            sheep.playSound(SoundEvents.SHEEP_SHEAR, 1.0F, 1.0F);
-            Network.getNetwork().sendToTrackingEntity(new LocalizedParticleEffectMessage(new ItemStack(ITEM_BY_DYE.get(sheep.getColor())), sheep.getOnPos().above()), worker);
-            dyeSheepChance(sheep);
+            EntitySheep.playSound(SoundEvents.SHEEP_SHEAR, 1.0F, 1.0F);
+            Network.getNetwork().sendToTrackingEntity(new LocalizedParticleEffectMessage(new ItemStack(ITEM_BY_DYE.get(EntitySheep.getColor())), EntitySheep.getOnPos().above()), worker);
+            dyeSheepChance(EntitySheep);
 
             CitizenItemUtils.damageItemInHand(worker, 0 /* InteractionHand.MAIN_HAND */, 1);
 
@@ -166,11 +180,11 @@ public class EntityAIWorkShepherd extends AbstractEntityAIHerder<JobShepherd, Bu
     }
 
     /**
-     * Possibly dyes a sheep based on their Worker Hut World
+     * Possibly dyes a EntitySheep based on their Worker Hut World
      *
-     * @param sheep the {@link Sheep} to possibly dye.
+     * @param EntitySheep the {@link EntitySheep} to possibly dye.
      */
-    private void dyeSheepChance(final Sheep sheep)
+    private void dyeSheepChance(final EntitySheep EntitySheep)
     {
         if (building != null && building.getSetting(BuildingShepherd.DYEING).getValue())
         {
@@ -181,7 +195,7 @@ public class EntityAIWorkShepherd extends AbstractEntityAIHerder<JobShepherd, Bu
             {
                 final DyeColor[] colors = DyeColor.values();
                 final int dyeIndex = worker.getRandom().nextInt(colors.length);
-                sheep.setColor(colors[dyeIndex]);
+                EntitySheep.setColor(colors[dyeIndex]);
             }
         }
     }

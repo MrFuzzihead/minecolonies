@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.ai.workers.production.agriculture;
+import net.minecraft.tileentity.BlockEntity; // [1.7.10] alias -> TileEntity
 
 import com.minecolonies.api.colony.interactionhandling.ChatPriority;
 import com.minecolonies.api.entity.ai.statemachine.AITarget;
@@ -168,7 +169,7 @@ public class EntityAIWorkFlorist extends AbstractEntityAIInteract<JobFlorist, Bu
             return IDLE;
         }
 
-        worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, ItemStack.EMPTY);
+        worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, null);
         final long distance = BlockPosUtil.getDistance2D(worker.blockPosition(), building.getPosition());
         if (distance > MAX_DISTANCE && !walkToBuilding())
         {

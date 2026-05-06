@@ -191,7 +191,7 @@ public abstract class AbstractCraftingProductionResolver<C extends AbstractCraft
     @Nullable
     protected IToken<?> createNewRequestForStack(@NotNull final IRequestManager manager, final ItemStack stack, final int count, final int minCount, final boolean matchMeta)
     {
-        final Stack stackRequest = new Stack(stack, matchMeta, true, ItemStack.EMPTY, count, minCount);
+        final Stack stackRequest = new Stack(stack, matchMeta, true, null, count, minCount);
         return manager.createRequest(this, stackRequest);
     }
 

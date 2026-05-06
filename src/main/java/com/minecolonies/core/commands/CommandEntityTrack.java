@@ -1,4 +1,5 @@
 package com.minecolonies.core.commands;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.constant.translation.CommandTranslationConstants;

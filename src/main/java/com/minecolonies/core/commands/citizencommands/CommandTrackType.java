@@ -1,4 +1,5 @@
 package com.minecolonies.core.commands.citizencommands;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.core.commands.commandTypes.IMCCommand;
 import com.minecolonies.core.commands.commandTypes.IMCOPCommand;

@@ -64,14 +64,14 @@ public class JobNetherWorker extends AbstractJobCrafter<EntityAIWorkNether, JobN
             @NotNull final NBTTagCompound itemCompound = item.serializeNBT();
             craftedList.add(itemCompound);
         });
-        compound.put(TAG_CRAFTED, craftedList);
+        compound.setTag(TAG_CRAFTED, craftedList);
 
         @NotNull final NBTTagList processedList = new NBTTagList();
         processedResults.forEach(item -> {
             @NotNull final NBTTagCompound itemCompound = item.serializeNBT();
             processedList.add(itemCompound);
         });
-        compound.put(TAG_PROCESSED, processedList);
+        compound.setTag(TAG_PROCESSED, processedList);
 
         compound.putBoolean(TAG_IN_NETHER, citizenInNether);
         return compound;
@@ -82,17 +82,17 @@ public class JobNetherWorker extends AbstractJobCrafter<EntityAIWorkNether, JobN
     {
         super.deserializeNBT(compound);
 
-        final NBTTagList craftedList = compound.getList(TAG_CRAFTED, NBTTagCompound.TAG_COMPOUND);
+        final NBTTagList craftedList = compound.getTagList(TAG_CRAFTED, NBTTagCompound.TAG_COMPOUND);
         for (int i = 0; i < craftedList.size(); ++i)
         {
-            final NBTTagCompound itemCompound = craftedList.getCompound(i);
+            final NBTTagCompound itemCompound = craftedList.getCompoundTagAt(i);
             craftedResults.add(ItemStack.of(itemCompound));
         }
 
-        final NBTTagList processedList = compound.getList(TAG_PROCESSED, NBTTagCompound.TAG_COMPOUND);
+        final NBTTagList processedList = compound.getTagList(TAG_PROCESSED, NBTTagCompound.TAG_COMPOUND);
         for (int i = 0; i < processedList.size(); ++i)
         {
-            final NBTTagCompound itemCompound = processedList.getCompound(i);
+            final NBTTagCompound itemCompound = processedList.getCompoundTagAt(i);
             processedResults.add(ItemStack.of(itemCompound));
         }
 

@@ -1,4 +1,5 @@
 package com.minecolonies.core.client.render.worldevent;
+import net.minecraft.client.multiplayer.ClientLevel;
 
 import com.minecolonies.core.client.render.worldevent.highlightmanager.IHighlightRenderData;
 

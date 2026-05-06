@@ -10,3 +10,4 @@
  * or as natively supported products.
  */
 package com.minecolonies.core.compatibility.jei;
+import net.minecraft.world.entity.player.Player;

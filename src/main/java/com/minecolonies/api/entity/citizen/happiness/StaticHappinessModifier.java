@@ -32,7 +32,7 @@ public final class StaticHappinessModifier extends AbstractHappinessModifier
     public void write(final NBTTagCompound compoundNBT, final boolean persist)
     {
         super.write(compoundNBT, persist);
-        compoundNBT.putString(NbtTagConstants.TAG_MODIFIER_TYPE, HappinessRegistry.STATIC_MODIFIER.toString());
+        compoundNBT.setString(NbtTagConstants.TAG_MODIFIER_TYPE, HappinessRegistry.STATIC_MODIFIER.toString()); // [1.7.10]
     }
 }
 

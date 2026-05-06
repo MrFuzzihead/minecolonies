@@ -20,9 +20,8 @@ public interface IBeehiveCompat
      */
     default List<ItemStack> getCombsFromHive(int[] pos, World world, int amount)
     {
-        List<ItemStack> list = new ArrayList<>();
-        list.add(new ItemStack(Items.HONEYCOMB, amount));
-        return list;
+        // [1.7.10] HONEYCOMB does not exist in vanilla 1.7.10 – return empty list as default
+        return new ArrayList<>();
     }
 }
 

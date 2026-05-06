@@ -8,6 +8,6 @@ public class TrapdoorBlock extends Block
 {
     public static final BooleanProperty OPEN = BooleanProperty.create("open");
 
-    public TrapdoorBlock() { super(0, net.minecraft.block.material.Material.wood); }
+    public TrapdoorBlock() { super(net.minecraft.block.material.Material.wood); }
 }
 

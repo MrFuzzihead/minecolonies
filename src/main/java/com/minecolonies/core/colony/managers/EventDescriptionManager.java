@@ -82,7 +82,7 @@ public class EventDescriptionManager implements IEventDescriptionManager
     @Override
     public void deserializeNBT(@NotNull final NBTTagCompound eventManagerNBT)
     {
-        final NBTTagList eventDescListNBT = eventManagerNBT.getList(TAG_EVENT_DESC_LIST, NBTBase.TAG_COMPOUND);
+        final NBTTagList eventDescListNBT = eventManagerNBT.getTagList(TAG_EVENT_DESC_LIST, NBTBase.TAG_COMPOUND);
         for (final NBTBase event : eventDescListNBT)
         {
             final NBTTagCompound eventCompound = (NBTTagCompound) event;

@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.ai.workers.util;
+import net.minecraft.network.chat.Style;
 
 import com.google.common.collect.ImmutableList;
 import com.minecolonies.api.util.Log;

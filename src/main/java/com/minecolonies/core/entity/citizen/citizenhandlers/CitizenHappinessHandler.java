@@ -162,10 +162,10 @@ public class CitizenHappinessHandler implements ICitizenHappinessHandler
         // Only deserialize for new version. Old can keep the above defaults just fine.
         if (compound.contains(TAG_NEW_HAPPINESS))
         {
-            final NBTTagList NBTBase = compound.getList(TAG_NEW_HAPPINESS, NBTBase.TAG_COMPOUND);
+            final NBTTagList NBTBase = compound.getTagList(TAG_NEW_HAPPINESS, NBTBase.TAG_COMPOUND);
             for (int i = 0; i < NBTBase.size(); i++)
             {
-                final NBTTagCompound NBTTagCompound = NBTBase.getCompound(i);
+                final NBTTagCompound NBTTagCompound = NBTBase.getCompoundTagAt(i);
                 final String id = NBTTagCompound.getString(TAG_ID);
                 if (happinessFactors.containsKey(id))
                 {
@@ -194,7 +194,7 @@ public class CitizenHappinessHandler implements ICitizenHappinessHandler
             NBTTagList.add(compoundNbt);
         }
 
-        compound.put(TAG_NEW_HAPPINESS, NBTTagList);
+        compound.setTag(TAG_NEW_HAPPINESS, NBTTagList);
     }
 
     @Override

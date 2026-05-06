@@ -1,5 +1,6 @@
 package com.minecolonies.core.colony.buildings.modules;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -61,15 +62,15 @@ public class SettingsModule extends AbstractBuildingModule implements IPersisten
     @Override
     public void deserializeNBT(final NBTTagCompound compound)
     {
-        final NBTTagCompound settingsCompound = compound.contains("settings") ? compound.getCompound("settings") : compound;
-        final NBTTagList list = settingsCompound.getList("settingslist", NBTBase.TAG_COMPOUND);
+        final NBTTagCompound settingsCompound = compound.contains("settings") ? compound.getCompoundTag("settings") : compound;
+        final NBTTagList list = settingsCompound.getTagList("settingslist", NBTBase.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++)
         {
-            final NBTTagCompound entryCompound = list.getCompound(i);
+            final NBTTagCompound entryCompound = list.getCompoundTagAt(i);
             final ResourceLocation key = new ResourceLocation(entryCompound.getString("key"));
             try
             {
-                final ISetting setting = StandardFactoryController.getInstance().deserialize(entryCompound.getCompound("value"));
+                final ISetting setting = StandardFactoryController.getInstance().deserialize(entryCompound.getCompoundTag("value"));
                 final ISettingKey<?> settingsKey = new SettingKey<>(setting.getClass(), key);
                 if (settings.containsKey(settingsKey))
                 {
@@ -92,10 +93,10 @@ public class SettingsModule extends AbstractBuildingModule implements IPersisten
         {
             final NBTTagCompound entryCompound = new NBTTagCompound();
             entryCompound.putString("key", setting.getKey().getUniqueId().toString());
-            entryCompound.put("value", StandardFactoryController.getInstance().serialize(setting.getValue()));
+            entrycompound.setTag("value", StandardFactoryController.getInstance().serialize(setting.getValue()));
             list.add(entryCompound);
         }
-        compound.put("settingslist", list);
+        compound.setTag("settingslist", list);
     }
 
     @Override

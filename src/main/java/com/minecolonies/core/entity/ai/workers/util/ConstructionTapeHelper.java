@@ -1,4 +1,6 @@
 package com.minecolonies.core.entity.ai.workers.util;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.util.Direction;
 
 import com.ldtteam.structurize.storage.ServerFutureProcessor;
 import com.ldtteam.structurize.storage.StructurePacks;

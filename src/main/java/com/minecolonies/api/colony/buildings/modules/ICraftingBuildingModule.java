@@ -1,4 +1,5 @@
 package com.minecolonies.api.colony.buildings.modules;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.jobs.IJob;
@@ -178,7 +179,7 @@ public interface ICraftingBuildingModule extends IBuildingModule
 
     /**
      * Get tool to use during fulFillRecipe
-     * 
+     *
      * @param worker the worker to query for tool
      */
     ItemStack getCraftingTool(final AbstractEntityCitizen worker);
@@ -186,7 +187,7 @@ public interface ICraftingBuildingModule extends IBuildingModule
 
     /**
      * Get luck to use during fulFillRecipe
-     * 
+     *
      * @param worker the worker to calculate luck for
      */
     float getCraftingLuck(final AbstractEntityCitizen worker);
@@ -312,7 +313,7 @@ public interface ICraftingBuildingModule extends IBuildingModule
     static ResourceLocation getUid(@NotNull final JobEntry job, @NotNull final String id)
     {
         final ResourceLocation jobId = job.getKey();
-        return new ResourceLocation(jobId.getNamespace(), jobId.getPath() + "/" + id);
+        return new ResourceLocation(jobId.getResourceDomain(), jobId.getResourcePath() + "/" + id);
     }
 
     /**

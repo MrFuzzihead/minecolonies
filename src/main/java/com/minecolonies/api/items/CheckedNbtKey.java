@@ -53,8 +53,8 @@ public class CheckedNbtKey
      */
     public boolean matches(final NBTTagCompound nbt1, final NBTTagCompound nbt2)
     {
-        final NBTBase tag1 = nbt1.get(key);
-        final NBTBase tag2 = nbt2.get(key);
+        final NBTBase tag1 = nbt1.getTag(key); // [1.7.10] get(String) -> getTag(String)
+        final NBTBase tag2 = nbt2.getTag(key);
 
         if (tag1 == null || tag2 == null)
         {

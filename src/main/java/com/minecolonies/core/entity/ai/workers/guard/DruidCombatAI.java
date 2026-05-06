@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.ai.workers.guard;
+import net.minecraft.world.entity.player.Player;
 
 import com.google.common.collect.ImmutableList;
 import com.minecolonies.api.colony.guardtype.registry.ModGuardTypes;
@@ -30,6 +31,7 @@ import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
 // [1.7.10] effect removed
 // [1.7.10] effect removed
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.world.effect.MobEffect;
 // [1.7.10] world.entity removed
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;

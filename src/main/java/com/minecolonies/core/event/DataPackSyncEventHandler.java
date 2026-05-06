@@ -1,4 +1,8 @@
 package com.minecolonies.core.event;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.research.IGlobalResearchTree;
@@ -19,6 +23,8 @@ import net.minecraftforge.client.event.RecipesUpdatedEvent;
 // [1.7.10] forge event removed
 // [1.7.10] forge event removed
 // [1.7.10] eventbus removed
+import net.minecraftforge.event.OnDatapackSyncEvent;
+import net.minecraftforge.event.server.ServerStartedEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**

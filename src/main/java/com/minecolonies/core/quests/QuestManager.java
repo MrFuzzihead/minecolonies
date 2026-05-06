@@ -1,4 +1,5 @@
 package com.minecolonies.core.quests;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.quests.FinishedQuest;
@@ -215,14 +216,14 @@ public class QuestManager implements IQuestManager
         {
             availableListTag.add(available.getValue().serializeNBT());
         }
-        managerCompound.put(TAG_AVAILABLE, availableListTag);
+        managercompound.setTag(TAG_AVAILABLE, availableListTag);
 
         final NBTTagList inProgressListTag = new NBTTagList();
         for (final Map.Entry<ResourceLocation, IQuestInstance> inProgress : inProgressQuests.entrySet())
         {
             inProgressListTag.add(inProgress.getValue().serializeNBT());
         }
-        managerCompound.put(TAG_IN_PROGRESS, inProgressListTag);
+        managercompound.setTag(TAG_IN_PROGRESS, inProgressListTag);
 
         final NBTTagList finishedListTag = new NBTTagList();
         for (final Map.Entry<ResourceLocation, Integer> finished : finishedQuests.entrySet())
@@ -232,7 +233,7 @@ public class QuestManager implements IQuestManager
             finishedTag.putInt(TAG_QUANTITY, finished.getValue());
             finishedListTag.add(finishedTag);
         }
-        managerCompound.put(TAG_FINISHED, finishedListTag);
+        managercompound.setTag(TAG_FINISHED, finishedListTag);
 
         final NBTTagList unlockedListTag = new NBTTagList();
         for (final ResourceLocation unlocked : unlockedQuests)
@@ -241,7 +242,7 @@ public class QuestManager implements IQuestManager
             unlockedTag.putString(TAG_ID, unlocked.toString());
             unlockedListTag.add(unlockedTag);
         }
-        managerCompound.put(TAG_UNLOCKED, unlockedListTag);
+        managercompound.setTag(TAG_UNLOCKED, unlockedListTag);
         managerCompound.putDouble(TAG_REPUTATION, questReputation);
 
         return managerCompound;
@@ -251,7 +252,7 @@ public class QuestManager implements IQuestManager
     public void deserializeNBT(final NBTTagCompound nbt)
     {
         final Map<ResourceLocation, IQuestInstance> localAvailableQuests = new HashMap<>();
-        final NBTTagList availableListTag = nbt.getList(TAG_AVAILABLE, NBTBase.TAG_COMPOUND);
+        final NBTTagList availableListTag = nbt.getTagList(TAG_AVAILABLE, NBTBase.TAG_COMPOUND);
         for (final NBTBase element : availableListTag)
         {
             final ResourceLocation key = new ResourceLocation(((NBTTagCompound) element).getString(TAG_ID));
@@ -267,7 +268,7 @@ public class QuestManager implements IQuestManager
         this.availableQuests.putAll(localAvailableQuests);
 
         final Map<ResourceLocation, IQuestInstance> localInProgressQuests = new HashMap<>();
-        final NBTTagList inProgressListTag = nbt.getList(TAG_IN_PROGRESS, NBTBase.TAG_COMPOUND);
+        final NBTTagList inProgressListTag = nbt.getTagList(TAG_IN_PROGRESS, NBTBase.TAG_COMPOUND);
         for (final NBTBase element : inProgressListTag)
         {
             final ResourceLocation key = new ResourceLocation(((NBTTagCompound) element).getString(TAG_ID));
@@ -284,7 +285,7 @@ public class QuestManager implements IQuestManager
 
 
         this.finishedQuests.clear();
-        final NBTTagList finishedListTag = nbt.getList(TAG_FINISHED, NBTBase.TAG_COMPOUND);
+        final NBTTagList finishedListTag = nbt.getTagList(TAG_FINISHED, NBTBase.TAG_COMPOUND);
         for (final NBTBase element : finishedListTag)
         {
             this.finishedQuests.put(new ResourceLocation(((NBTTagCompound) element).getString(TAG_ID)), ((NBTTagCompound) element).getInt(TAG_QUANTITY));
@@ -292,7 +293,7 @@ public class QuestManager implements IQuestManager
         finishedQuestsCache = null;
 
         this.unlockedQuests.clear();
-        final NBTTagList unlockedListTag = nbt.getList(TAG_UNLOCKED, NBTBase.TAG_COMPOUND);
+        final NBTTagList unlockedListTag = nbt.getTagList(TAG_UNLOCKED, NBTBase.TAG_COMPOUND);
         for (final NBTBase element : unlockedListTag)
         {
             this.unlockedQuests.add(new ResourceLocation(((NBTTagCompound) element).getString(TAG_ID)));

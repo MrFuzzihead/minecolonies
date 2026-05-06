@@ -1,9 +1,9 @@
 package com.minecolonies.core.generation;
 
-// [1.7.10] data removed
-// [1.7.10] data removed
-// [1.7.10] data removed
-// [1.7.10] data removed
+import net.minecraft.data.CachedOutput;
+import net.minecraft.data.DataProvider;
+import net.minecraft.data.PackOutput;
+import net.minecraft.world.item.crafting.FinishedRecipe;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;

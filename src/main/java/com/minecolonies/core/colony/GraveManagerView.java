@@ -33,10 +33,10 @@ public class GraveManagerView implements IGraveManager
     {
         final ImmutableMap.Builder<int[], Boolean> graves = ImmutableMap.builder();
 
-        final NBTTagList gravesTagList = compound.getList(TAG_GRAVE, NBTBase.TAG_COMPOUND);
+        final NBTTagList gravesTagList = compound.getTagList(TAG_GRAVE, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < gravesTagList.size(); ++i)
         {
-            final NBTTagCompound graveCompound = gravesTagList.getCompound(i);
+            final NBTTagCompound graveCompound = gravesTagList.getCompoundTagAt(i);
             if (graveCompound.contains(TAG_POS) && graveCompound.contains(TAG_RESERVED))
             {
                 graves.put(BlockPosUtil.read(graveCompound, TAG_POS), graveCompound.getBoolean(TAG_RESERVED));

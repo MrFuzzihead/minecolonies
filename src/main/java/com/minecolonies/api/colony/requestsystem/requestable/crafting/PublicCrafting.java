@@ -55,10 +55,10 @@ public class PublicCrafting extends AbstractCrafting
     public static NBTTagCompound serialize(final IFactoryController controller, final PublicCrafting input)
     {
         final NBTTagCompound compound = new NBTTagCompound();
-        compound.put(NBT_STACK, input.getStack().serializeNBT());
-        compound.putInt(NBT_COUNT, input.getCount());
+        compound.setTag(NBT_STACK, input.getStack().writeToNBT(new net.minecraft.nbt.NBTTagCompound()));
+        compound.setInteger(NBT_COUNT, input.getCount());
         final NBTTagCompound tokenCompound = StandardFactoryController.getInstance().serialize(input.getRecipeID());
-        compound.put(NBT_TOKEN, tokenCompound);
+        compound.setTag(NBT_TOKEN, tokenCompound);
         return compound;
     }
 
@@ -71,12 +71,12 @@ public class PublicCrafting extends AbstractCrafting
      */
     public static PublicCrafting deserialize(final IFactoryController controller, final NBTTagCompound compound)
     {
-        final ItemStack stack = ItemStackUtils.deserializeFromNBT(compound.getCompound(NBT_STACK));
-        final int count = compound.getInt(NBT_COUNT);
+        final ItemStack stack = ItemStackUtils.deserializeFromNBT(compound.getCompoundTag(NBT_STACK));
+        final int count = compound.getInteger(NBT_COUNT);
         IToken<?> token = null;
-        if (compound.contains(NBT_TOKEN))
+        if (compound.hasKey(NBT_TOKEN))
         {
-            token = StandardFactoryController.getInstance().deserialize(compound.getCompound(NBT_TOKEN));
+            token = StandardFactoryController.getInstance().deserialize(compound.getCompoundTag(NBT_TOKEN));
         }
         return new PublicCrafting(stack, count, token);
     }
@@ -90,7 +90,7 @@ public class PublicCrafting extends AbstractCrafting
      */
     public static void serialize(final IFactoryController controller, final PacketBuffer buffer, final PublicCrafting input)
     {
-        buffer.writeItem(input.getStack());
+        try { buffer.writeItemStackToBuffer(input.getStack()); } catch (java.io.IOException e) { throw new RuntimeException(e); }
         buffer.writeInt(input.getCount());
         StandardFactoryController.getInstance().serialize(buffer, input.getRecipeID());
     }
@@ -104,7 +104,7 @@ public class PublicCrafting extends AbstractCrafting
      */
     public static PublicCrafting deserialize(final IFactoryController controller, final PacketBuffer buffer)
     {
-        final ItemStack stack = buffer.readItem();
+        final ItemStack stack = buffer.readItemStackFromBuffer();
         final int count = buffer.readInt();
         final IToken<?> token = StandardFactoryController.getInstance().deserialize(buffer);
 

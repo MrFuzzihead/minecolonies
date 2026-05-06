@@ -1,4 +1,5 @@
 package com.minecolonies.api.compatibility.tinkers;
+import net.minecraft.world.level.block.state.BlockState;
 
 import net.minecraft.block.Block;
 // [1.7.10] int /*BlockState*/ -> int metadata

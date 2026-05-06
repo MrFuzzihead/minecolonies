@@ -1,4 +1,5 @@
 package com.minecolonies.core.client.gui;
+import net.minecraft.world.entity.player.Player;
 
 import com.ldtteam.structurize.client.gui.WindowExtendedBuildTool;
 import com.ldtteam.structurize.items.ModItems;

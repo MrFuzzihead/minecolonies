@@ -1,4 +1,5 @@
 package com.minecolonies.core.client.gui.questlog;
+import net.minecraft.network.chat.Style;
 
 // [1.7.10] blockui replaced by ModularUI2
 // [1.7.10] blockui replaced by ModularUI2

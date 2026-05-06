@@ -1,4 +1,5 @@
 package com.minecolonies.core.colony.buildings.modules;
+import net.minecraft.world.entity.animal.Animal;
 
 import com.minecolonies.api.colony.buildings.modules.AbstractBuildingModule;
 import com.minecolonies.api.colony.buildings.modules.IHasRequiredItemsModule;

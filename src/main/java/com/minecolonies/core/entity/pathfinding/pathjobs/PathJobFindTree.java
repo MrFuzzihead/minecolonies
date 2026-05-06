@@ -12,8 +12,11 @@ import com.minecolonies.core.entity.pathfinding.pathresults.TreePathResult;
 // [1.7.10] int[] -> int x,y,z
 // [1.7.10] tags removed
 // [1.7.10] world.entity removed
+import net.minecraft.entity.EntityCreature;
 import net.minecraft.world.World;
+import net.minecraft.world.phys.AABB;
 // [1.7.10] BlockState -> int metadata
+import net.minecraft.block.state.BlockState;
 // [1.7.10] world.phys removed
 import org.jetbrains.annotations.NotNull;
 

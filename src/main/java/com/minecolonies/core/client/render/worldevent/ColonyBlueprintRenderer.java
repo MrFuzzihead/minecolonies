@@ -1,5 +1,8 @@
 package com.minecolonies.core.client.render.worldevent;
-import net.minecraft.core.Direction;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -168,7 +171,7 @@ public class ColonyBlueprintRenderer
             lastCacheRebuild = activePosition;
         }
 
-        if (Minecraft.getInstance().World.getGameTime() % 20 == 0)
+        if (Minecraft.getInstance().world.getTotalWorldTime() % 20 == 0)
         {
             processPendingBlueprints();
         }

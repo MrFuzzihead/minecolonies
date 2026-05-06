@@ -1,4 +1,5 @@
 package com.minecolonies.api.entity.mobs;
+import net.minecraft.sounds.SoundEvent;
 
 // [1.7.10] SoundEvent does not exist in 1.7.10; replaced with String sound name.
 public interface ICustomAttackSound

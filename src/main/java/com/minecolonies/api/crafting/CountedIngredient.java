@@ -49,18 +49,26 @@ public class CountedIngredient
 
         public CountedIngredient parse(@NotNull final PacketBuffer buffer)
         {
-            final int count = buffer.readVarInt();
-            final int stackCount = buffer.readVarInt();
-            final ItemStack[] stacks = new ItemStack[stackCount];
-            for (int i = 0; i < stackCount; i++) stacks[i] = buffer.readItemStack();
-            return new CountedIngredient(stacks, count);
+            try
+            {
+                final int count = buffer.readVarIntFromBuffer();
+                final int stackCount = buffer.readVarIntFromBuffer();
+                final ItemStack[] stacks = new ItemStack[stackCount];
+                for (int i = 0; i < stackCount; i++) stacks[i] = buffer.readItemStackFromBuffer();
+                return new CountedIngredient(stacks, count);
+            }
+            catch (final java.io.IOException e) { throw new RuntimeException("Failed to read CountedIngredient", e); }
         }
 
         public void write(@NotNull final PacketBuffer buffer, @NotNull final CountedIngredient ingredient)
         {
-            buffer.writeVarInt(ingredient.getCount());
-            buffer.writeVarInt(ingredient.getItems().length);
-            for (final ItemStack s : ingredient.getItems()) buffer.writeItemStack(s);
+            try
+            {
+                buffer.writeVarIntToBuffer(ingredient.getCount());
+                buffer.writeVarIntToBuffer(ingredient.getItems().length);
+                for (final ItemStack s : ingredient.getItems()) buffer.writeItemStackToBuffer(s);
+            }
+            catch (final java.io.IOException e) { throw new RuntimeException("Failed to write CountedIngredient", e); }
         }
     }
 }

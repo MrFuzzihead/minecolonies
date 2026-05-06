@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.other;
+import net.minecraft.world.entity.player.Player;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;

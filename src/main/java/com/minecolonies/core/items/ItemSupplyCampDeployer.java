@@ -1,4 +1,8 @@
 package com.minecolonies.core.items;
+import net.minecraft.world.item.InteractionResult;
+import net.minecraft.world.item.Properties;
+import net.minecraft.util.Direction;
+import net.minecraft.world.entity.player.Player;
 
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
@@ -45,7 +49,7 @@ public class ItemSupplyCampDeployer extends AbstractItemMinecolonies implements 
      *
      * @param properties the properties.
      */
-    public ItemSupplyCampDeployer(final Item.Properties properties)
+    public ItemSupplyCampDeployer(final Properties properties)
     {
         super("supplycampdeployer", properties.stacksTo(1));
     }

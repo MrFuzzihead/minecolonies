@@ -1,5 +1,6 @@
 package com.minecolonies.core.colony.buildings.modules.expedition;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -251,14 +252,14 @@ public class ExpeditionLog
         {
             stats.putDouble(entry.getKey().name().toLowerCase(Locale.US), entry.getValue());
         }
-        compound.put(TAG_STATS, stats);
+        compound.setTag(TAG_STATS, stats);
 
         final NBTTagList equipment = new NBTTagList();
         for (final ItemStack stack : this.equipment)
         {
             equipment.add(stack.serializeNBT());
         }
-        compound.put(TAG_EQUIPMENT, equipment);
+        compound.setTag(TAG_EQUIPMENT, equipment);
 
         final NBTTagList mobs = new NBTTagList();
         for (final Map.Entry<Class<?>, Integer> entry : this.mobs.entrySet())
@@ -268,14 +269,14 @@ public class ExpeditionLog
             EntityCreature.putInt(TAG_COUNT, entry.getValue());
             mobs.add(EntityCreature);
         }
-        compound.put(TAG_MOBS, mobs);
+        compound.setTag(TAG_MOBS, mobs);
 
         final NBTTagList loot = new NBTTagList();
         for (final ItemStorage storage : this.loot.values())
         {
             loot.add(StandardFactoryController.getInstance().serialize(storage));
         }
-        compound.put(TAG_LOOT, loot);
+        compound.setTag(TAG_LOOT, loot);
     }
 
     /**
@@ -290,7 +291,7 @@ public class ExpeditionLog
         if (this.name.isEmpty()) this.name = null;
 
         this.stats.clear();
-        final NBTTagCompound stats = compound.getCompound(TAG_STATS);
+        final NBTTagCompound stats = compound.getCompoundTag(TAG_STATS);
         for (final StatType stat : StatType.values())
         {
             final String key = stat.name().toLowerCase(Locale.US);
@@ -301,17 +302,17 @@ public class ExpeditionLog
         }
 
         this.equipment.clear();
-        final NBTTagList equipment = compound.getList(TAG_EQUIPMENT, NBTBase.TAG_COMPOUND);
+        final NBTTagList equipment = compound.getTagList(TAG_EQUIPMENT, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < equipment.size(); i++)
         {
-            this.equipment.add(ItemStack.of(equipment.getCompound(i)));
+            this.equipment.add(ItemStack.of(equipment.getCompoundTagAt(i)));
         }
 
         this.mobs.clear();
-        final NBTTagList mobs = compound.getList(TAG_MOBS, NBTBase.TAG_COMPOUND);
+        final NBTTagList mobs = compound.getTagList(TAG_MOBS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < mobs.size(); ++i)
         {
-            final NBTTagCompound EntityCreature = mobs.getCompound(i);
+            final NBTTagCompound EntityCreature = mobs.getCompoundTagAt(i);
             final ResourceLocation type = new ResourceLocation(EntityCreature.getString(TAG_TYPE));
             final Class<?> entityType = ForgeRegistries.ENTITY_TYPES.getValue(type);
             if (entityType != null)
@@ -321,10 +322,10 @@ public class ExpeditionLog
         }
 
         this.loot.clear();
-        final NBTTagList loot = compound.getList(TAG_LOOT, NBTBase.TAG_COMPOUND);
+        final NBTTagList loot = compound.getTagList(TAG_LOOT, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < loot.size(); i++)
         {
-            final ItemStorage storage = StandardFactoryController.getInstance().deserialize(loot.getCompound(i));
+            final ItemStorage storage = StandardFactoryController.getInstance().deserialize(loot.getCompoundTagAt(i));
             this.loot.put(storage, storage);
         }
     }

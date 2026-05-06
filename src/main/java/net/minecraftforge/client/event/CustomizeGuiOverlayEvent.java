@@ -1,12 +1,10 @@
 package net.minecraftforge.client.event;
 
-import net.minecraftforge.fml.common.eventhandler.Event;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /** [1.7.10 stub] CustomizeGuiOverlayEvent - no 1.7.10 equivalent; used for F3 debug overlay */
-public class CustomizeGuiOverlayEvent extends Event
+public class CustomizeGuiOverlayEvent
 {
     public static class DebugText extends CustomizeGuiOverlayEvent
     {
@@ -17,4 +15,3 @@ public class CustomizeGuiOverlayEvent extends Event
         public List<String> getRight() { return right; }
     }
 }
-

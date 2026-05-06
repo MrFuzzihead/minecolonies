@@ -1,4 +1,5 @@
 package com.minecolonies.core.debug;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.core.entity.pathfinding.PathfindingUtils;
 import net.minecraft.entity.player.EntityPlayer;

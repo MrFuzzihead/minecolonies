@@ -73,10 +73,10 @@ public class RaiderWalkAI implements IStateAI
             }
             raider.setTempEnvDamageImmunity(false);
 
-            if (targetBlock == null || raider.World.getGameTime() > walkTimer)
+            if (targetBlock == null || raider.world.getTotalWorldTime() > walkTimer)
             {
                 targetBlock = raider.getColony().getRaiderManager().getRandomBuilding();
-                walkTimer = raider.World.getGameTime() + TICKS_SECOND * 240;
+                walkTimer = raider.world.getTotalWorldTime() + TICKS_SECOND * 240;
 
                 final List<int[]> wayPoints = ((IColonyRaidEvent) event).getWayPoints();
                 final int[] moveToPos = ShipBasedRaiderUtils.chooseWaypointFor(wayPoints, raider.blockPosition(), targetBlock);
@@ -99,7 +99,7 @@ public class RaiderWalkAI implements IStateAI
             }
             else if (raider.blockPosition().distSqr(targetBlock) < 25)
             {
-                walkTimer = raider.World.getGameTime() + TICKS_SECOND * 30;
+                walkTimer = raider.world.getTotalWorldTime() + TICKS_SECOND * 30;
                 walkInBuilding = raider.getColony().getServerBuildingManager().getBuilding(targetBlock);
             }
             else if (raider.getNavigation().isDone())
@@ -128,7 +128,7 @@ public class RaiderWalkAI implements IStateAI
      */
     private void walkToCampFire()
     {
-        if (raider.World.getGameTime() - walkTimer < 0)
+        if (raider.world.getTotalWorldTime() - walkTimer < 0)
         {
             return;
         }
@@ -140,7 +140,7 @@ public class RaiderWalkAI implements IStateAI
             return;
         }
 
-        walkTimer = raider.World.getGameTime() + raider.World.random.nextInt(1000);
+        walkTimer = raider.world.getTotalWorldTime() + raider.world.rand.nextInt(1000);
         EntityNavigationUtils.walkToRandomPosAround(raider, campFire, 10, 0.7);
     }
 }

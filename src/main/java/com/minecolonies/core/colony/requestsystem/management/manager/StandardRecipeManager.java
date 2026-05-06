@@ -101,17 +101,17 @@ public class StandardRecipeManager implements IRecipeManager
             nbtCache = recipes.entrySet().stream().filter(recipeEntry -> usedRecipes.contains(recipeEntry.getKey())).map(entry -> StandardFactoryController.getInstance().serialize(entry.getValue())).collect(NBTUtils.toListNBT());
         }
 
-        compound.put(TAG_RECIPES, nbtCache);
+        compound.setTag(TAG_RECIPES, nbtCache);
         dirty = false;
     }
 
     @Override
     public void read(@NotNull final NBTTagCompound compound)
     {
-        final NBTTagList list = compound.getList(TAG_RECIPES, NBTBase.TAG_COMPOUND);
+        final NBTTagList list = compound.getTagList(TAG_RECIPES, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++)
         {
-            IRecipeStorage recipe = StandardFactoryController.getInstance().deserialize(list.getCompound(i));
+            IRecipeStorage recipe = StandardFactoryController.getInstance().deserialize(list.getCompoundTagAt(i));
             if (recipe != null && !recipes.containsValue(recipe) && !recipe.getCleanedInput().isEmpty() && (!recipe.getPrimaryOutput().isEmpty() || recipe.getLootTable() != null || !recipe.getAlternateOutputs().isEmpty()))
             {
                 try

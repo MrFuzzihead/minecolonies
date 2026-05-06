@@ -1,4 +1,8 @@
 package com.minecolonies.core.compatibility;
+import net.minecraft.world.item.FoodProperties;
+import net.minecraft.core.Holder;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.colony.IColonyManager;
@@ -20,7 +24,7 @@ import com.minecolonies.core.colony.buildings.modules.SimpleCraftingModule;
 import com.minecolonies.core.colony.crafting.*;
 import com.minecolonies.core.util.SchemAnalyzerUtil;
 import net.minecraft.core.Registry;
-// [1.7.10] Registries removed
+// [1.7.10] Registries removed - using stub
 import net.minecraft.util.IChatComponent;
 // [1.7.10] int /* ResourceKey */ -> int dimensionId
 import net.minecraft.util.ResourceLocation;

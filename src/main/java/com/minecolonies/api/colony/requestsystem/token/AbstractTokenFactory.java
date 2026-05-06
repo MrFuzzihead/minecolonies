@@ -39,8 +39,8 @@ public abstract class AbstractTokenFactory<I> implements ITokenFactory<I, Standa
     {
         final NBTTagCompound compound = new NBTTagCompound();
 
-        compound.putLong(NBT_LSB, request.getIdentifier().getLeastSignificantBits());
-        compound.putLong(NBT_MSB, request.getIdentifier().getMostSignificantBits());
+        compound.setLong(NBT_LSB, request.getIdentifier().getLeastSignificantBits());
+        compound.setLong(NBT_MSB, request.getIdentifier().getMostSignificantBits());
 
         return compound;
     }

@@ -10,7 +10,7 @@ import com.minecolonies.api.util.constant.CitizenConstants;
 // [1.7.10] world.entity removed
 
 public interface IManagedAnimal<T extends EntityAnimal>
-{   
+{
     /**
      * @return the backing entity
      */
@@ -66,7 +66,7 @@ public interface IManagedAnimal<T extends EntityAnimal>
      */
     default int getOffsetTicks()
     {
-        return this.getEntity().tickCount + CitizenConstants.OFFSET_TICK_MULTIPLIER * this.getManagedAnimalId();
+        return this.getEntity().ticksExisted + CitizenConstants.OFFSET_TICK_MULTIPLIER * this.getManagedAnimalId();
     }
 }
 

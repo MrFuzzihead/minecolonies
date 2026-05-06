@@ -87,7 +87,7 @@ public class Stack implements IConcreteDeliverable
      */
     public Stack(@NotNull final ItemStack stack, boolean matchDurability)
     {
-        this(stack, matchDurability, true, ItemStackUtils.EMPTY, Math.min(stack.getCount(), stack.getMaxStackSize()), Math.min(stack.getCount(), stack.getMaxStackSize()));
+        this(stack, matchDurability, true, ItemStackUtils.EMPTY, Math.min(stack.stackSize, stack.getMaxStackSize()), Math.min(stack.stackSize, stack.getMaxStackSize()));
     }
 
 
@@ -164,12 +164,13 @@ public class Stack implements IConcreteDeliverable
             Log.getLogger().error("Created Empty Stack: {}", stack, new Exception());
         }
 
-        if (stack.getCount() != 1 && stack.getCount() != count)
+        if (stack.stackSize != 1 && stack.stackSize != count)
         {
             Log.getLogger().warn("Stack count mismatch (stack={}, count={}). ItemStack's count will be ignored.", stack, count, new Exception("Stack constructor"));
         }
 
-        this.theStack = stack.copyWithCount(1);
+        this.theStack = stack.copy();
+        this.theStack.stackSize = 1;
         this.matchDamage = matchDamage;
         this.matchNBT = matchNBT;
         this.result = result;
@@ -188,17 +189,17 @@ public class Stack implements IConcreteDeliverable
     public static NBTTagCompound serialize(final IFactoryController controller, final Stack input)
     {
         final NBTTagCompound compound = new NBTTagCompound();
-        compound.put(NBT_STACK, input.theStack.serializeNBT());
-        compound.putBoolean(NBT_MATCHMETA, input.matchDamage);
-        compound.putBoolean(NBT_MATCHNBT, input.matchNBT);
-        compound.putBoolean(NBT_BUILDING_RES, input.canBeResolvedByBuilding);
+        compound.setTag(NBT_STACK, input.theStack.writeToNBT(new net.minecraft.nbt.NBTTagCompound()));
+        compound.setBoolean(NBT_MATCHMETA, input.matchDamage);
+        compound.setBoolean(NBT_MATCHNBT, input.matchNBT);
+        compound.setBoolean(NBT_BUILDING_RES, input.canBeResolvedByBuilding);
 
         if (!ItemStackUtils.isEmpty(input.result))
         {
-            compound.put(NBT_RESULT, input.result.serializeNBT());
+            compound.setTag(NBT_RESULT, input.result.writeToNBT(new net.minecraft.nbt.NBTTagCompound()));
         }
-        compound.putInt(NBT_COUNT, input.getCount());
-        compound.putInt(NBT_MINCOUNT, input.getMinimumCount());
+        compound.setInteger(NBT_COUNT, input.getCount());
+        compound.setInteger(NBT_MINCOUNT, input.getMinimumCount());
 
         return compound;
     }
@@ -212,22 +213,22 @@ public class Stack implements IConcreteDeliverable
      */
     public static Stack deserialize(final IFactoryController controller, final NBTTagCompound compound)
     {
-        final ItemStack stack = ItemStackUtils.deserializeFromNBT(compound.getCompound(NBT_STACK));
+        final ItemStack stack = ItemStackUtils.deserializeFromNBT(compound.getCompoundTag(NBT_STACK));
         final boolean matchMeta = compound.getBoolean(NBT_MATCHMETA);
         final boolean matchNBT = compound.getBoolean(NBT_MATCHNBT);
-        final boolean canBeResolved = compound.contains(NBT_BUILDING_RES) ? compound.getBoolean(NBT_BUILDING_RES) : true;
+        final boolean canBeResolved = compound.hasKey(NBT_BUILDING_RES) ? compound.getBoolean(NBT_BUILDING_RES) : true;
 
-        final ItemStack result = compound.contains(NBT_RESULT) ? ItemStackUtils.deserializeFromNBT(compound.getCompound(NBT_RESULT)) : ItemStackUtils.EMPTY;
+        final ItemStack result = compound.hasKey(NBT_RESULT) ? ItemStackUtils.deserializeFromNBT(compound.getCompoundTag(NBT_RESULT)) : ItemStackUtils.EMPTY;
 
-        int count = compound.getInt("size");
+        int count = compound.getInteger("size");
         int minCount = count;
-        if (compound.contains(NBT_COUNT))
+        if (compound.hasKey(NBT_COUNT))
         {
-            count = compound.getInt(NBT_COUNT);
-            minCount = compound.getInt(NBT_MINCOUNT);
+            count = compound.getInteger(NBT_COUNT);
+            minCount = compound.getInteger(NBT_MINCOUNT);
         }
 
-        if (stack.isEmpty())
+        if (ItemStackUtils.isEmpty(stack))
         {
             Log.getLogger().error("Deserialized bad stack: {}", compound.toString());
         }
@@ -244,7 +245,7 @@ public class Stack implements IConcreteDeliverable
      */
     public static void serialize(final IFactoryController controller, final PacketBuffer buffer, final Stack input)
     {
-        buffer.writeItem(input.theStack);
+        try { buffer.writeItemStackToBuffer(input.theStack); } catch (java.io.IOException e) { throw new RuntimeException(e); }
         buffer.writeBoolean(input.matchDamage);
         buffer.writeBoolean(input.matchNBT);
         buffer.writeBoolean(input.canBeResolvedByBuilding);
@@ -252,7 +253,7 @@ public class Stack implements IConcreteDeliverable
         buffer.writeBoolean(!ItemStackUtils.isEmpty(input.result));
         if (!ItemStackUtils.isEmpty(input.result))
         {
-            buffer.writeItem(input.result);
+            try { buffer.writeItemStackToBuffer(input.result); } catch (java.io.IOException e) { throw new RuntimeException(e); }
         }
         buffer.writeInt(input.getCount());
         buffer.writeInt(input.getMinimumCount());
@@ -267,17 +268,17 @@ public class Stack implements IConcreteDeliverable
      */
     public static Stack deserialize(final IFactoryController controller, final PacketBuffer buffer)
     {
-        final ItemStack stack = buffer.readItem();
+        final ItemStack stack = buffer.readItemStackFromBuffer();
         final boolean matchMeta = buffer.readBoolean();
         final boolean matchNBT = buffer.readBoolean();
         final boolean canBeResolved = buffer.readBoolean();
 
-        final ItemStack result = buffer.readBoolean() ? buffer.readItem() : ItemStack.EMPTY;
+        final ItemStack result = buffer.readBoolean() ? buffer.readItemStackFromBuffer() : null;
 
         int count = buffer.readInt();
         int minCount = buffer.readInt();
 
-        if (stack.isEmpty())
+        if (ItemStackUtils.isEmpty(stack))
         {
             Log.getLogger().error("Deserialized bad stack {}", stack.toString());
         }

@@ -1,10 +1,13 @@
 package com.minecolonies.core.colony.events.raid;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+import net.minecraft.world.entity.EntityType;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.BoneMealItem;
+import net.minecraft.tileentity.BlockEntity;
 
 import com.ldtteam.structurize.storage.ServerFutureProcessor;
 import com.ldtteam.structurize.storage.StructurePacks;
@@ -32,7 +35,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.util.IChatComponent;
 // [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
-import net.minecraft.server.World.ServerBossEvent;
+import net.minecraft.server.ServerBossEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.BossEvent;
 // [1.7.10] effect removed
@@ -45,7 +48,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.world.Mirror;
 // [1.7.10] block.entity removed
 // [1.7.10] block.entity removed
-import net.minecraft.world.World.pathfinder.Path;
+import net.minecraft.pathfinding.PathEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -193,7 +196,7 @@ public abstract class AbstractShipRaidEvent implements IColonyRaidEvent, IColony
 
             if (spawnPathResult != null && spawnPathResult.isDone())
             {
-                final Path path = spawnPathResult.getPath();
+                final PathEntity path = spawnPathResult.getPath();
                 if (path != null && path.canReach())
                 {
                     final int[] endpoint = path.getEndNode().asBlockPos().below();
@@ -515,10 +518,10 @@ public abstract class AbstractShipRaidEvent implements IColonyRaidEvent, IColony
         for (@NotNull final int[] entry : spawners)
         {
             @NotNull final NBTTagCompound spawnerCompound = new NBTTagCompound();
-            spawnerCompound.put(TAG_POS, NbtUtils.writeBlockPos(entry));
+            spawnercompound.setTag(TAG_POS, NbtUtils.writeBlockPos(entry));
             spawnerListCompound.add(spawnerCompound);
         }
-        compound.put(TAG_SPAWNERS, spawnerListCompound);
+        compound.setTag(TAG_SPAWNERS, spawnerListCompound);
 
         compound.putInt(TAG_SPAWNER_COUNT, maxSpawners);
         BlockPosUtil.write(compound, TAG_SPAWN_POS, spawnPoint);
@@ -537,10 +540,10 @@ public abstract class AbstractShipRaidEvent implements IColonyRaidEvent, IColony
         status = EventStatus.values()[compound.getInt(TAG_EVENT_STATUS)];
         daysToGo = compound.getInt(TAG_DAYS_LEFT);
 
-        @NotNull final NBTTagList spawnerListCompound = compound.getList(TAG_SPAWNERS, NBTBase.TAG_COMPOUND);
+        @NotNull final NBTTagList spawnerListCompound = compound.getTagList(TAG_SPAWNERS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < spawnerListCompound.size(); i++)
         {
-            spawners.add(NbtUtils.readBlockPos(spawnerListCompound.getCompound(i).getCompound(TAG_POS)));
+            spawners.add(NbtUtils.readBlockPos(spawnerListCompound.getCompoundTagAt(i).getCompoundTag(TAG_POS)));
         }
 
         maxSpawners = compound.getInt(TAG_SPAWNER_COUNT);

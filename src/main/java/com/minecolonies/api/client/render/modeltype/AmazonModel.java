@@ -22,9 +22,9 @@ public class AmazonModel<T extends AbstractEntityMinecoloniesMonster> extends Mo
     {
         super.setRotationAngles(f1, f2, f3, f4, f5, f6, entity);
         bipedHead.rotationPointY -= 3;
-        bipedLegRight.rotationPointY -= 3.5f;
-        bipedLegLeft.rotationPointY -= 3.5f;
-        bipedArmRight.rotationPointY -= 2;
-        bipedArmLeft.rotationPointY -= 2;
+        bipedRightLeg.rotationPointY -= 3.5f;
+        bipedLeftLeg.rotationPointY -= 3.5f;
+        bipedRightArm.rotationPointY -= 2;
+        bipedLeftArm.rotationPointY -= 2;
     }
 }

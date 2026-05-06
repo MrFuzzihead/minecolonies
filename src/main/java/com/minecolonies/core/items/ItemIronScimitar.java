@@ -1,4 +1,5 @@
 package com.minecolonies.core.items;
+import net.minecraft.world.item.Properties;
 
 import net.minecraft.item.Item;
 import net.minecraft.world.item.Tiers;
@@ -14,7 +15,7 @@ public class ItemIronScimitar extends SwordItem
      *
      * @param properties the properties.
      */
-    public ItemIronScimitar(final Item.Properties properties)
+    public ItemIronScimitar(final Properties properties)
     {
         super(Tiers.IRON, 3, -2.4f, properties);
     }

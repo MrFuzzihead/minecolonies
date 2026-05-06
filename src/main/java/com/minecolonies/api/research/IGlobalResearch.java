@@ -1,4 +1,6 @@
 package com.minecolonies.api.research;
+import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.world.entity.player.Player;
 
 // [1.7.10] int[] -> int x,y,z
 // [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
@@ -204,13 +206,13 @@ public interface IGlobalResearch
      */
     public static boolean isPlayerResearchMatch(ItemStack stack, Item cost)
     {
-        if (stack.isEmpty() || stack.getItem() != cost)
+        if (stack == null || stack.stackSize == 0 || stack.getItem() != cost)
         {
             return false;
         }
 
         // Reject anything enchanted or custom-named
-        if (stack.isEnchanted() || stack.hasCustomHoverName())
+        if (stack.isItemEnchanted() || stack.hasDisplayName())
         {
             return false;
         }
@@ -224,7 +226,7 @@ public interface IGlobalResearch
      */
     public static boolean isUniversityResearchMatch(ItemStack stack, Item cost)
     {
-        if (stack.isEmpty() || stack.getItem() != cost)
+        if (stack == null || stack.stackSize == 0 || stack.getItem() != cost)
         {
             return false;
         }

@@ -1,4 +1,5 @@
 package com.minecolonies.core.items;
+import net.minecraft.world.item.Properties;
 
 import net.minecraft.Util;
 // [1.7.10] sounds removed
@@ -34,7 +35,7 @@ public class ItemSantaHead extends ArmorItem
       @NotNull final String name,
       @NotNull final ArmorMaterial materialIn,
       @NotNull final Type equipmentSlotIn,
-      final Item.Properties properties)
+      final Properties properties)
     {
         super(materialIn, equipmentSlotIn, properties);
     }

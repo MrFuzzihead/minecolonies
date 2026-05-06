@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.ai.minimal;
+import net.minecraft.world.level.block.state.BlockState;
 
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
@@ -299,7 +300,7 @@ public class EntityAISickTask implements IStateAI
             usedBed = null;
             citizen.getCitizenData().setBedPos(new int[]{0,0,0});
         }
-        citizen.setItemInHand(0 /* InteractionHand.MAIN_HAND */, ItemStack.EMPTY);
+        citizen.setItemInHand(0 /* InteractionHand.MAIN_HAND */, null);
         citizen.getCitizenData().getCitizenDiseaseHandler().cure();
         citizen.setHealth(citizen.getMaxHealth());
         reset();
@@ -479,7 +480,7 @@ public class EntityAISickTask implements IStateAI
         waitingTicks = 0;
         citizen.releaseUsingItem();
         citizen.stopUsingItem();
-        citizen.setItemInHand(0 /* InteractionHand.MAIN_HAND */, ItemStack.EMPTY);
+        citizen.setItemInHand(0 /* InteractionHand.MAIN_HAND */, null);
         bestHospital = null;
         citizen.getCitizenData().getCitizenDiseaseHandler().setSleepsAtHospital(false);
     }

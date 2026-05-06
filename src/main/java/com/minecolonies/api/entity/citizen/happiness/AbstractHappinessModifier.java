@@ -64,8 +64,8 @@ public abstract class AbstractHappinessModifier implements IHappinessModifier
     {
         this.id = compoundNBT.getString(TAG_ID);
         this.weight = compoundNBT.getDouble(TAG_WEIGHT);
-        final NBTTagCompound supplierCompound = compoundNBT.getCompound(TAG_SUPPLIER);
-        if (supplierCompound.contains(TAG_ID))
+        final NBTTagCompound supplierCompound = compoundNBT.getCompoundTag(TAG_SUPPLIER); // [1.7.10]
+        if (supplierCompound.hasKey(TAG_ID)) // [1.7.10]
         {
             supplier = new DynamicHappinessSupplier();
         }
@@ -79,9 +79,9 @@ public abstract class AbstractHappinessModifier implements IHappinessModifier
     @Override
     public void write(final NBTTagCompound compoundNBT, final boolean persist)
     {
-        compoundNBT.putString(TAG_ID, this.id);
-        compoundNBT.putDouble(TAG_WEIGHT, this.weight);
-        compoundNBT.put(TAG_SUPPLIER, this.supplier.serializeNBT());
+        compoundNBT.setString(TAG_ID, this.id); // [1.7.10]
+        compoundNBT.setDouble(TAG_WEIGHT, this.weight); // [1.7.10]
+        compoundNBT.setTag(TAG_SUPPLIER, this.supplier.serializeNBT()); // [1.7.10]
     }
 
     @Override

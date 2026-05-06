@@ -1,4 +1,5 @@
 package com.minecolonies.core.colony.events.raid.pirateEvent;
+import net.minecraft.world.entity.EntityType;
 
 import com.ldtteam.structurize.storage.ServerFutureProcessor;
 import com.ldtteam.structurize.storage.StructurePacks;
@@ -19,7 +20,7 @@ import net.minecraft.util.IChatComponent;
 import net.minecraft.util.ResourceLocation;
 // [1.7.10] world.entity removed
 import net.minecraft.world.Mirror;
-import net.minecraft.world.World.pathfinder.Path;
+import net.minecraft.pathfinding.PathEntity;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.Constants.STORAGE_STYLE;
@@ -79,7 +80,7 @@ public class DrownedPirateRaidEvent extends AbstractShipRaidEvent
 
             if (spawnPathResult != null && spawnPathResult.isDone())
             {
-                final Path path = spawnPathResult.getPath();
+                final PathEntity path = spawnPathResult.getPath();
                 if (path != null && path.canReach())
                 {
                     final int[] endpoint = path.getEndNode().asBlockPos().below();

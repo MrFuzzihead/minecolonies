@@ -1,10 +1,12 @@
 package com.minecolonies.core.colony.managers;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.BoneMealItem;
+import net.minecraft.tileentity.BlockEntity;
 
 import com.minecolonies.api.MinecoloniesAPIProxy;
 import com.minecolonies.api.colony.IColony;
@@ -228,8 +230,8 @@ public class EventManager implements IEventManager
     {
         if (compound.contains(TAG_EVENT_MANAGER))
         {
-            final NBTTagCompound eventManagerNBT = compound.getCompound(TAG_EVENT_MANAGER);
-            final NBTTagList eventListNBT = eventManagerNBT.getList(TAG_EVENT_LIST, NBTBase.TAG_COMPOUND);
+            final NBTTagCompound eventManagerNBT = compound.getCompoundTag(TAG_EVENT_MANAGER);
+            final NBTTagList eventListNBT = eventManagerNBT.getTagList(TAG_EVENT_LIST, NBTBase.TAG_COMPOUND);
             for (final NBTBase base : eventListNBT)
             {
                 final NBTTagCompound tagCompound = (NBTTagCompound) base;
@@ -265,7 +267,7 @@ public class EventManager implements IEventManager
 
         eventManagerNBT.putInt(TAG_EVENT_ID, currentEventID);
         eventManagerNBT.put(TAG_EVENT_LIST, eventListNBT);
-        compound.put(TAG_EVENT_MANAGER, eventManagerNBT);
+        compound.setTag(TAG_EVENT_MANAGER, eventManagerNBT);
         structureManager.writeToNBT(compound);
     }
 

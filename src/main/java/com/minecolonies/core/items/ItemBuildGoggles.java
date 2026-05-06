@@ -1,4 +1,5 @@
 package com.minecolonies.core.items;
+import net.minecraft.item.ItemStack;
 
 import com.minecolonies.core.client.render.worldevent.ColonyBlueprintRenderer;
 import net.minecraft.util.EnumChatFormatting;
@@ -44,14 +45,10 @@ public class ItemBuildGoggles extends ArmorItem
     {
         super.appendHoverText(stack, world, components, flags);
 
-        components.add(String.translatable("\"%s\"",
-                        String.translatable("item.minecolonies.build_goggles.lore")
-                                .withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.ITALIC))
-                .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
-
-        components.add(String.translatable(ColonyBlueprintRenderer.willRenderBlueprints()
-                ? "item.minecolonies.build_goggles.enabled" : "item.minecolonies.build_goggles.disabled")
-                .withStyle(ChatFormatting.GRAY));
+        // [1.7.10] Component.translatable replaced with plain string
+        components.add("\"" + "item.minecolonies.build_goggles.lore" + "\"");
+        components.add(ColonyBlueprintRenderer.willRenderBlueprints()
+                ? "item.minecolonies.build_goggles.enabled" : "item.minecolonies.build_goggles.disabled");
     }
 }
 

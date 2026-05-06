@@ -1,4 +1,6 @@
 package com.minecolonies.core.generation.defaults.workers;
+import net.minecraft.world.item.crafting.FinishedRecipe;
+import net.minecraft.data.PackOutput;
 
 import com.minecolonies.api.colony.jobs.ModJobs;
 import com.minecolonies.core.generation.CustomRecipeProvider;

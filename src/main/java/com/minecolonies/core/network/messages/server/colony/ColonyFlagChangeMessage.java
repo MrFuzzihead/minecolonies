@@ -1,4 +1,5 @@
 package com.minecolonies.core.network.messages.server.colony;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.colony.IColony;
@@ -61,7 +62,7 @@ public class ColonyFlagChangeMessage extends AbstractColonyServerMessage
         NBTTagCompound nbt = buf.readNbt();
         if (nbt != null)
         {
-            this.patterns = nbt.getList(TAG_BANNER_PATTERNS, Constants.TAG_COMPOUND);
+            this.patterns = nbt.getTagList(TAG_BANNER_PATTERNS, Constants.TAG_COMPOUND);
         }
     }
 }

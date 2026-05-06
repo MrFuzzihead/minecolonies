@@ -50,7 +50,7 @@ public class ListItemCost implements IResearchCost
      */
     public ListItemCost(final NBTTagCompound compound)
     {
-        this.items = NBTUtils.streamCompound(compound.getList(TAG_COST_ITEMS, NBTBase.TAG_COMPOUND))
+        this.items = NBTUtils.streamCompound(compound.getTagList(TAG_COST_ITEMS, NBTBase.TAG_COMPOUND))
             .map(itemCompound -> ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemCompound.getString(TAG_COST_ITEM))))
             .toList();
         this.count = compound.getInt(TAG_COST_COUNT);
@@ -98,7 +98,7 @@ public class ListItemCost implements IResearchCost
             itemCompound.putString(TAG_COST_ITEM, ForgeRegistries.ITEMS.getKey(item).toString());
             return itemCompound;
         }).collect(NBTUtils.toListNBT());
-        compound.put(TAG_COST_ITEMS, itemList);
+        compound.setTag(TAG_COST_ITEMS, itemList);
         compound.putInt(TAG_COST_COUNT, this.count);
         return compound;
     }

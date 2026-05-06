@@ -106,6 +106,25 @@ public class ModEquipmentTypes
         lead = build("lead", ToolTranslationConstants.TOOL_TYPE_LEAD,
           (itemStack, equipmentType) -> itemStack.getItem() == Items.lead,
           (itemStack, equipmentType) -> -1);
+
+        // populate lookup map
+        for (final RegistryObject<EquipmentTypeEntry> ro : new RegistryObject[] {none, pickaxe, shovel, axe, hoe, sword, bow, fishing_rod, shears, shield, helmet, leggings, chestplate, boots, flint_and_steel, lead})
+        {
+            REGISTRY_MAP.put(ro.get().getRegistryName(), ro.get());
+        }
+    }
+
+    private static final java.util.Map<ResourceLocation, EquipmentTypeEntry> REGISTRY_MAP = new java.util.HashMap<>();
+
+    /**
+     * Look up an EquipmentTypeEntry by its ResourceLocation.
+     *
+     * @param location the registry location.
+     * @return the entry, or null if not found.
+     */
+    public static EquipmentTypeEntry lookup(final ResourceLocation location)
+    {
+        return REGISTRY_MAP.get(location);
     }
 
     private static RegistryObject<EquipmentTypeEntry> build(
@@ -124,8 +143,14 @@ public class ModEquipmentTypes
     }
 
     /**
-     * Get the equipment World for vanilla tools.
+     * Get all registered equipment type entries.
+     *
+     * @return all entries.
      */
+    public static java.util.Collection<EquipmentTypeEntry> getAllEntries()
+    {
+        return REGISTRY_MAP.values();
+    }
     public static int vanillaToolLevel(final ItemStack itemStack, final EquipmentTypeEntry equipmentType)
     {
         if (Compatibility.isTinkersTool(itemStack, equipmentType))

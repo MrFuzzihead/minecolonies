@@ -87,7 +87,7 @@ public class EntityAIWorkSmelter extends AbstractEntityAIUsesFurnace<JobSmelter,
 
         final ItemStack inputItem = currentRecipeStorage.getCleanedInput().stream()
                                       .map(ItemStorage::getItemStack)
-                                      .findFirst().orElse(ItemStack.EMPTY);
+                                      .findFirst().orElse(null);
 
         if (inputItem.isEmpty())
         {
@@ -156,7 +156,7 @@ public class EntityAIWorkSmelter extends AbstractEntityAIUsesFurnace<JobSmelter,
     {
         if (!ItemStackUtils.isEmpty(worker.getMainHandItem()))
         {
-            worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, ItemStack.EMPTY);
+            worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, null);
         }
 
         if (!worker.getInventoryCitizen().hasSpace())
@@ -204,7 +204,7 @@ public class EntityAIWorkSmelter extends AbstractEntityAIUsesFurnace<JobSmelter,
             && !building.hasWorkerOpenRequestsFiltered(worker.getCitizenData().getId(),
                 req -> req.getShortDisplayString().getSiblings().contains(String.translatable(RequestSystemTranslationConstants.REQUESTS_TYPE_SMELTABLE_ORE))))
         {
-            final List<ItemStorage> allowedItems = building.getModuleMatching(ItemListModule.class, m -> m.getId().equals(ORE_LIST)).getList();
+            final List<ItemStorage> allowedItems = building.getModuleMatching(ItemListModule.class, m -> m.getId().equals(ORE_LIST)).getTagList();
             if (allowedItems.isEmpty())
             {
                 worker.getCitizenData().createRequestAsync(getSmeltAbleClass());

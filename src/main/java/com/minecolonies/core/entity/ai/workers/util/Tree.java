@@ -1,4 +1,7 @@
 package com.minecolonies.core.entity.ai.workers.util;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.util.Direction;
+import net.minecraft.block.state.BlockState;
 
 import com.ldtteam.structurize.util.BlockUtils;
 import com.minecolonies.api.colony.IColony;
@@ -188,7 +191,7 @@ public class Tree
     {
         if (topLog == null)
         {
-            return ItemStack.EMPTY;
+            return null;
         }
 
         ItemStack sapling;
@@ -529,14 +532,14 @@ public class Tree
         tree.location = BlockPosUtil.read(compound, TAG_LOCATION);
 
         tree.woodBlocks = new LinkedList<>();
-        final NBTTagList logs = compound.getList(TAG_LOGS, NBTBase.TAG_COMPOUND);
+        final NBTTagList logs = compound.getTagList(TAG_LOGS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < logs.size(); i++)
         {
             tree.woodBlocks.add(BlockPosUtil.readFromListNBT(logs, i));
         }
 
         tree.stumpLocations = new ArrayList<>();
-        final NBTTagList stumps = compound.getList(TAG_STUMPS, NBTBase.TAG_COMPOUND);
+        final NBTTagList stumps = compound.getTagList(TAG_STUMPS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < stumps.size(); i++)
         {
             tree.stumpLocations.add(BlockPosUtil.readFromListNBT(stumps, i));
@@ -549,7 +552,7 @@ public class Tree
 
         if (compound.contains(TAG_SAPLING))
         {
-            tree.sapling = ItemStack.of(compound.getCompound(TAG_SAPLING));
+            tree.sapling = ItemStack.of(compound.getCompoundTag(TAG_SAPLING));
         }
         else
         {
@@ -567,7 +570,7 @@ public class Tree
 
         if (compound.contains(TAG_LEAVES))
         {
-            final NBTTagList leavesBin = compound.getList(TAG_LEAVES, NBTBase.TAG_COMPOUND);
+            final NBTTagList leavesBin = compound.getTagList(TAG_LEAVES, NBTBase.TAG_COMPOUND);
             for (int i = 0; i < leavesBin.size(); i++)
             {
                 tree.leaves.add(BlockPosUtil.readFromListNBT(leavesBin, i));
@@ -979,14 +982,14 @@ public class Tree
         {
             BlockPosUtil.writeToListNBT(logs, log);
         }
-        compound.put(TAG_LOGS, logs);
+        compound.setTag(TAG_LOGS, logs);
 
         @NotNull final NBTTagList stumps = new NBTTagList();
         for (@NotNull final int[] stump : stumpLocations)
         {
             BlockPosUtil.writeToListNBT(stumps, stump);
         }
-        compound.put(TAG_STUMPS, stumps);
+        compound.setTag(TAG_STUMPS, stumps);
 
         BlockPosUtil.write(compound, TAG_TOP_LOG, topLog);
 
@@ -996,7 +999,7 @@ public class Tree
         NBTTagCompound saplingNBT = new NBTTagCompound();
         sapling.save(saplingNBT);
 
-        compound.put(TAG_SAPLING, saplingNBT);
+        compound.setTag(TAG_SAPLING, saplingNBT);
         compound.putBoolean(TAG_NETHER_TREE, netherTree);
 
         @NotNull final NBTTagList leavesBin = new NBTTagList();
@@ -1004,7 +1007,7 @@ public class Tree
         {
             BlockPosUtil.writeToListNBT(leavesBin, pos);
         }
-        compound.put(TAG_LEAVES, leavesBin);
+        compound.setTag(TAG_LEAVES, leavesBin);
     }
 
     /**

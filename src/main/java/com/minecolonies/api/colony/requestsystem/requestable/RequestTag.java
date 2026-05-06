@@ -1,4 +1,5 @@
 package com.minecolonies.api.colony.requestsystem.requestable;
+import net.minecraft.tags.TagKey;
 
 import com.google.common.reflect.TypeToken;
 import com.minecolonies.api.colony.requestsystem.factory.IFactoryController;
@@ -135,11 +136,11 @@ public class RequestTag implements IDeliverable
 
     public static void serialize(final IFactoryController controller, final PacketBuffer buffer, final RequestTag input)
     {
-        buffer.writeResourceLocation(input.getTag());
+        try { buffer.writeStringToBuffer(input.getTag().toString()); } catch (java.io.IOException e) { throw new RuntimeException(e); }
         buffer.writeBoolean(!ItemStackUtils.isEmpty(input.getResult()));
         if (!ItemStackUtils.isEmpty(input.getResult()))
         {
-            buffer.writeItemStack(input.getResult());
+            buffer.writeItemStackToBuffer(input.getResult());
         }
         buffer.writeInt(input.getCount());
         buffer.writeInt(input.getMinimumCount());
@@ -147,11 +148,13 @@ public class RequestTag implements IDeliverable
 
     public static RequestTag deserialize(final IFactoryController controller, final PacketBuffer buffer)
     {
-        final ResourceLocation theTag = buffer.readResourceLocation();
-        final ItemStack result = buffer.readBoolean() ? buffer.readItemStack() : ItemStackUtils.EMPTY;
-        final int count = buffer.readInt();
-        final int minCount = buffer.readInt();
-        return new RequestTag(theTag, result, count, minCount);
+        try {
+            final ResourceLocation theTag = new ResourceLocation(buffer.readStringFromBuffer(32767));
+            final ItemStack result = buffer.readBoolean() ? buffer.readItemStackFromBuffer() : ItemStackUtils.EMPTY;
+            final int count = buffer.readInt();
+            final int minCount = buffer.readInt();
+            return new RequestTag(theTag, result, count, minCount);
+        } catch (java.io.IOException e) { throw new RuntimeException(e); }
     }
 
     public static RequestTag deserialize(final IFactoryController controller, final NBTTagCompound compound)

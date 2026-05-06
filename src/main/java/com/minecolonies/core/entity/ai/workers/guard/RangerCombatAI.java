@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.ai.workers.guard;
+import net.minecraft.network.chat.contents.TranslatableContents;
 
 import com.minecolonies.api.entity.ai.combat.CombatAIStates;
 import com.minecolonies.api.entity.ai.statemachine.tickratestatemachine.ITickRateStateMachine;
@@ -34,6 +35,7 @@ import net.minecraft.util.ResourceLocation;
 // [1.7.10] sounds removed
 // [1.7.10] int /* InteractionHand */ removed
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 // [1.7.10] world.entity removed
 // [1.7.10] world.entity removed
 import net.minecraft.world.item.ArrowItem;
@@ -120,7 +122,7 @@ public class RangerCombatAI extends AttackMoveAI<EntityCitizen>
         if (weaponSlot != -1)
         {
             CitizenItemUtils.setHeldItem(user, 0 /* InteractionHand.MAIN_HAND */, weaponSlot);
-            if (nextAttackTime - BOW_HOLDING_DELAY >= user.World.getGameTime() && !user.isUsingItem())
+            if (nextAttackTime - BOW_HOLDING_DELAY >= user.world.getTotalWorldTime() && !user.isUsingItem())
             {
                 user.startUsingItem(0 /* InteractionHand.MAIN_HAND */);
             }

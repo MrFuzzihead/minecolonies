@@ -1,4 +1,8 @@
 package com.minecolonies.core.client.gui.containers;
+import net.minecraft.network.chat.Style;
+import net.minecraft.tags.TagKey;
+import net.minecraft.core.Holder;
+import net.minecraft.world.entity.player.Player;
 
 // [1.7.10] blockui replaced by ModularUI2
 import com.ldtteam.blockui.controls.Button;

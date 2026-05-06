@@ -20,5 +20,7 @@ public class GuiGraphics
     public void drawString(final Object font, final String text, final int x, final int y, final int color) {}
 
     public void fill(final int x1, final int y1, final int x2, final int y2, final int color) {}
+
+    public Object pose() { return null; }
 }
 

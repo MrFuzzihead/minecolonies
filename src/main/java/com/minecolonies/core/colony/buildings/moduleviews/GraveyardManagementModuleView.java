@@ -1,4 +1,8 @@
 package com.minecolonies.core.colony.buildings.moduleviews;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+
+import net.minecraft.tileentity.BlockEntity; // [1.7.10] alias -> TileEntity
 
 // [1.7.10] blockui replaced by ModularUI2
 import com.minecolonies.api.colony.buildings.modules.AbstractBuildingModuleView;

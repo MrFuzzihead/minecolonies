@@ -7,7 +7,7 @@ import net.minecraft.init.Blocks;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-@OnlyIn(Dist.CLIENT)
+@SideOnly(Side.CLIENT)
 public class JeiFakeLevel extends SingleBlockFakeLevel
 {
     public JeiFakeLevel()

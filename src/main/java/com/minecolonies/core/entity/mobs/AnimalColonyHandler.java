@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.mobs;
+import net.minecraft.world.entity.animal.Animal;
 
 import org.jetbrains.annotations.Nullable;
 

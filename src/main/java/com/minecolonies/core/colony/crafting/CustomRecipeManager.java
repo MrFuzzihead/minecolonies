@@ -1,5 +1,6 @@
 package com.minecolonies.core.colony.crafting;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -307,70 +308,14 @@ public class CustomRecipeManager
 
     /**
      * Analyses and builds an approximate list of possible loot drops from registered recipes.
-     * @param lootTableManager the loot table manager
+     * [1.7.10] LootDataManager does not exist — stubbed out.
+     * @param lootTableManager the loot table manager (unused in 1.7.10)
      */
-    public void buildLootData(@NotNull final LootDataManager lootTableManager,
+    public void buildLootData(@NotNull final Object lootTableManager,
                               @NotNull final World World)
     {
-        final List<Animal> animals = RecipeAnalyzer.createAnimals(World);
-
-        final List<ResourceLocation> lootIds = new ArrayList<>();
-        for (final Map<ResourceLocation, CustomRecipe> recipes : recipeMap.values())
-        {
-            for (final CustomRecipe recipe : recipes.values())
-            {
-                final ResourceLocation lootTable = recipe.getLootTable();
-                if (lootTable != null)
-                {
-                    lootIds.add(lootTable);
-                }
-            }
-        }
-
-        for (final MinecoloniesCropBlock crop : ModBlocks.getCrops())
-        {
-            for (final Block source : crop.getDroppedFrom())
-            {
-                lootIds.add(source.getLootTable());
-            }
-        }
-
-        for (final String producerKey : BuildingEntry.getALlModuleProducers().keySet())
-        {
-            final var module = BuildingEntry.produceModuleWithoutBuilding(producerKey);
-
-            if (module == null)
-            {
-                continue;
-            }
-
-            if (module instanceof AnimalHerdingModule herding)
-            {
-                for (final Animal animal : animals)
-                {
-                    if (herding.isCompatible(animal))
-                    {
-                        lootIds.addAll(herding.getLootTables(animal));
-                    }
-                }
-            }
-            else if (module instanceof ICraftingBuildingModule crafting)
-            {
-                lootIds.addAll(crafting.getAdditionalLootTables());
-            }
-        }
-
-        lootIds.add(ModLootTables.FISHING);
-        lootIds.addAll(ModLootTables.FISHERMAN_BONUS.values());
-
-        lootTables.clear();
-        lootTables.putAll(lootIds.stream()
-                .filter(Objects::nonNull)   // just in case
-                .distinct()
-                .collect(Collectors.toConcurrentMap(Function.identity(),
-                        id -> LootTableAnalyzer.toDrops(lootTableManager, id))));
+        // [1.7.10 TODO] Loot table analysis not supported in 1.7.10 — no-op
     }
-
     /**
      * Sends relevant Custom Recipes loaded from the Custom Recipe Manager to the client.
      * @param player the player to send the new data to.

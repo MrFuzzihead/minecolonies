@@ -1,4 +1,5 @@
 package com.minecolonies.core.quests.objectives;
+import net.minecraft.tags.TagParser;
 
 import com.google.gson.JsonObject;
 import com.minecolonies.api.quests.IQuestDeliveryObjective;
@@ -9,7 +10,6 @@ import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.Log;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.nbt.TagParser;
 import net.minecraft.util.IChatComponent;
 // [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
 import net.minecraft.util.ResourceLocation;
@@ -118,13 +118,13 @@ public class DeliveryObjectiveTemplateTemplate extends DialogueObjectiveTemplate
     }
 
     @Override
-    public boolean hasItem(final Player player, final IQuestInstance colonyQuest)
+    public boolean hasItem(final EntityPlayer player, final IQuestInstance colonyQuest)
     {
         return InventoryUtils.getItemCountInItemHandler(new InvWrapper(player.getInventory()), itemStack -> ItemStackUtils.compareItemStacksIgnoreStackSize(itemStack, item, !nbtMode.equals("any"), !nbtMode.equals("any"))) >= quantity;
     }
 
     @Override
-    public boolean tryDiscountItem(final Player player, final IQuestInstance colonyQuest)
+    public boolean tryDiscountItem(final EntityPlayer player, final IQuestInstance colonyQuest)
     {
         return InventoryUtils.attemptReduceStackInItemHandler(new InvWrapper(player.getInventory()), this.item, this.quantity, nbtMode.equals("any"), nbtMode.equals("any"));
     }
@@ -142,7 +142,7 @@ public class DeliveryObjectiveTemplateTemplate extends DialogueObjectiveTemplate
     }
 
     @Override
-    public String getProgressText(final IQuestInstance quest, final Style style)
+    public String getProgressText(final IQuestInstance quest, final net.minecraft.util.ChatStyle chatStyle)
     {
         return String.translatable("com.minecolonies.coremod.questobjectives.delivery.progress",
           0,

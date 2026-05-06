@@ -48,36 +48,40 @@ public class ColonyConnection
 
     public NBTTagCompound serializeNBT()
     {
-        final NBTTagCompound NBTTagCompound = new NBTTagCompound();
-        NBTTagCompound.putInt(TAG_ID, id);
-        NBTTagCompound.putString(TAG_NAME, name);
-        BlockPosUtil.write(NBTTagCompound, TAG_POS, pos);
-        NBTTagCompound.putInt(TAG_STATUS, diplomacyStatus.ordinal());
-        return NBTTagCompound;
+        final NBTTagCompound compound = new NBTTagCompound(); // [1.7.10] renamed to avoid shadowing class
+        compound.setInteger(TAG_ID, id);
+        compound.setString(TAG_NAME, name);
+        BlockPosUtil.write(compound, TAG_POS, pos);
+        compound.setInteger(TAG_STATUS, diplomacyStatus.ordinal());
+        return compound;
     }
 
-    public ColonyConnection deserializeNBT(final NBTTagCompound NBTTagCompound)
+    public ColonyConnection deserializeNBT(final NBTTagCompound compound) // [1.7.10] renamed parameter
     {
-        this.id = NBTTagCompound.getInt(TAG_ID);
-        this.name = NBTTagCompound.getString(TAG_NAME);
-        this.pos = BlockPosUtil.read(NBTTagCompound, TAG_POS);
-        this.diplomacyStatus = DiplomacyStatus.values()[NBTTagCompound.getInt(TAG_STATUS)];
+        this.id = compound.getInteger(TAG_ID);
+        this.name = compound.getString(TAG_NAME);
+        this.pos = BlockPosUtil.read(compound, TAG_POS);
+        this.diplomacyStatus = DiplomacyStatus.values()[compound.getInteger(TAG_STATUS)];
         return this;
     }
 
     public void serializeByteBuf(final PacketBuffer buf)
     {
         buf.writeInt(id);
-        buf.writeUtf(name);
-        buf.writeBlockPos(pos);
+        try { buf.writeStringToBuffer(name); } catch (java.io.IOException e) { throw new RuntimeException(e); }
+        // [1.7.10] writeBlockPos -> write x,y,z separately
+        buf.writeInt(pos != null ? pos[0] : 0);
+        buf.writeInt(pos != null ? pos[1] : 0);
+        buf.writeInt(pos != null ? pos[2] : 0);
         buf.writeInt(diplomacyStatus.ordinal());
     }
 
     public ColonyConnection deserializeByteBuf(final PacketBuffer buf)
     {
         this.id = buf.readInt();
-        this.name = buf.readUtf();
-        this.pos = buf.readBlockPos();
+        try { this.name = buf.readStringFromBuffer(32767); } catch (java.io.IOException e) { throw new RuntimeException(e); }
+        // [1.7.10] readBlockPos -> read x,y,z separately
+        this.pos = new int[]{buf.readInt(), buf.readInt(), buf.readInt()};
         this.diplomacyStatus = DiplomacyStatus.values()[buf.readInt()];
         return this;
     }

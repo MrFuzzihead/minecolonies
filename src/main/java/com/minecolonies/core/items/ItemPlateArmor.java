@@ -1,4 +1,5 @@
 package com.minecolonies.core.items;
+import net.minecraft.world.item.Properties;
 
 import net.minecraft.Util;
 // [1.7.10] sounds removed

@@ -1,4 +1,5 @@
 package com.minecolonies.api.colony.requestsystem.requestable;
+import net.minecraft.tileentity.TileEntityFurnace;
 
 import com.google.common.reflect.TypeToken;
 import com.minecolonies.api.colony.requestsystem.factory.IFactoryController;
@@ -52,11 +53,11 @@ public class Burnable implements IDeliverable
     public static NBTTagCompound serialize(final IFactoryController controller, final Burnable burnable)
     {
         final NBTTagCompound compound = new NBTTagCompound();
-        compound.putInt(NBT_COUNT, burnable.count);
+        compound.setInteger(NBT_COUNT, burnable.count);
 
         if (!ItemStackUtils.isEmpty(burnable.result))
         {
-            compound.put(NBT_RESULT, burnable.result.serializeNBT());
+            compound.setTag(NBT_RESULT, burnable.result.writeToNBT(new net.minecraft.nbt.NBTTagCompound()));
         }
 
         return compound;
@@ -71,8 +72,8 @@ public class Burnable implements IDeliverable
      */
     public static Burnable deserialize(final IFactoryController controller, final NBTTagCompound compound)
     {
-        final int count = compound.getInt(NBT_COUNT);
-        final ItemStack result = compound.contains(NBT_RESULT) ? ItemStackUtils.deserializeFromNBT(compound.getCompound(NBT_RESULT)) : ItemStackUtils.EMPTY;
+        final int count = compound.getInteger(NBT_COUNT);
+        final ItemStack result = compound.hasKey(NBT_RESULT) ? ItemStackUtils.deserializeFromNBT(compound.getCompoundTag(NBT_RESULT)) : ItemStackUtils.EMPTY;
 
         return new Burnable(count, result);
     }
@@ -91,7 +92,7 @@ public class Burnable implements IDeliverable
         buffer.writeBoolean(!ItemStackUtils.isEmpty(input.result));
         if (!ItemStackUtils.isEmpty(input.result))
         {
-            buffer.writeItem(input.result);
+            try { buffer.writeItemStackToBuffer(input.result); } catch (java.io.IOException e) { throw new RuntimeException(e); }
         }
     }
 
@@ -105,7 +106,16 @@ public class Burnable implements IDeliverable
     public static Burnable deserialize(final IFactoryController controller, final PacketBuffer buffer)
     {
         final int count = buffer.readInt();
-        final ItemStack result = buffer.readBoolean() ? buffer.readItem() : ItemStack.EMPTY;
+        final ItemStack result;
+        if (buffer.readBoolean())
+        {
+            try { result = buffer.readItemStackFromBuffer(); }
+            catch (final java.io.IOException e) { throw new RuntimeException("Failed to read ItemStack from buffer", e); }
+        }
+        else
+        {
+            result = null;
+        }
 
         return new Burnable(count, result);
     }
@@ -113,7 +123,7 @@ public class Burnable implements IDeliverable
     @Override
     public boolean matches(@NotNull final ItemStack stack)
     {
-        return FurnaceBlockEntity.isFuel(stack);
+        return TileEntityFurnace.isItemFuel(stack);
     }
 
     @Override

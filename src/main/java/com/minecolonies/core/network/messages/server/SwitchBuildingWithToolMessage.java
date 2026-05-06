@@ -1,4 +1,5 @@
 package com.minecolonies.core.network.messages.server;
+import net.minecraft.world.entity.player.Player;
 
 import com.ldtteam.structurize.items.ModItems;
 import com.minecolonies.api.network.IMessage;

@@ -1,4 +1,9 @@
 package com.minecolonies.core.generation.defaults;
+import net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.data.PackOutput;
 
 import com.minecolonies.core.generation.SimpleLootTableProvider;
 // [1.7.10] data removed
@@ -10,7 +15,6 @@ import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.core.entity.ai.workers.production.EntityAIStructureMiner.LUCKY_ORE_LOOT_TABLE;
-import static com.minecolonies.core.entity.ai.workers.production.EntityAIStructureMiner.LUCKY_ORE_PARAM_SET;
 
 /**
  * Loot table generator for lucky ores.

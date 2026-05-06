@@ -1,4 +1,5 @@
 package com.minecolonies.api.crafting;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.api.util.OptionalPredicate;

@@ -43,7 +43,7 @@ public class MinimumStack extends Stack
      */
     public MinimumStack(@NotNull final ItemStack stack, boolean matchDurability)
     {
-        this(stack, matchDurability, true, ItemStackUtils.EMPTY, Math.min(stack.getCount(), stack.getMaxStackSize()), Math.min(stack.getCount(), stack.getMaxStackSize()));
+        this(stack, matchDurability, true, ItemStackUtils.EMPTY, Math.min(stack.stackSize, stack.getMaxStackSize()), Math.min(stack.stackSize, stack.getMaxStackSize()));
     }
 
 

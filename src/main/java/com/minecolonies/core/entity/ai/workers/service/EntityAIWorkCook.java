@@ -1,4 +1,6 @@
 package com.minecolonies.core.entity.ai.workers.service;
+import net.minecraft.tileentity.TileEntityFurnace;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.MinecoloniesAPIProxy;
 import com.minecolonies.api.colony.ICitizenData;
@@ -111,7 +113,7 @@ public class EntityAIWorkCook extends AbstractEntityAIUsesFurnace<JobCook, Build
      * @param furnace the furnace to retrieve from.
      */
     @Override
-    protected void extractFromFurnace(final FurnaceBlockEntity furnace)
+    protected void extractFromFurnace(final TileEntityFurnace furnace)
     {
         InventoryUtils.transferItemStackIntoNextFreeSlotInItemHandler(
           new InvWrapper(furnace), RESULT_SLOT,

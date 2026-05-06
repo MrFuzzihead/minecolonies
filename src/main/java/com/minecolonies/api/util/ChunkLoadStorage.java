@@ -82,7 +82,7 @@ public class ChunkLoadStorage
      */
     public ChunkLoadStorage(final NBTTagCompound compound)
     {
-        if (compound.contains(TAG_ID))
+        if (compound.hasKey(TAG_ID))
         {
             this.owningChanges.add(compound.getShort(TAG_ID));
         }
@@ -90,16 +90,16 @@ public class ChunkLoadStorage
         this.xz = compound.getLong(TAG_POS);
         this.dimension = new ResourceLocation(compound.getString(TAG_DIMENSION));
 
-        owningChanges.addAll(NBTUtils.streamCompound(compound.getList(TAG_CLAIM_LIST, NBTBase.TAG_COMPOUND))
+        owningChanges.addAll(NBTUtils.streamCompound(compound.getTagList(TAG_CLAIM_LIST, 10))
           .map(tempCompound -> tempCompound.getShort(TAG_COLONY_ID)).collect(Collectors.toList()));
-        coloniesToAdd.addAll(NBTUtils.streamCompound(compound.getList(TAG_COLONIES_TO_ADD, NBTBase.TAG_COMPOUND))
+        coloniesToAdd.addAll(NBTUtils.streamCompound(compound.getTagList(TAG_COLONIES_TO_ADD, 10))
                                .map(tempCompound -> tempCompound.getShort(TAG_COLONY_ID)).collect(Collectors.toList()));
-        coloniesToRemove.addAll(NBTUtils.streamCompound(compound.getList(TAG_COLONIES_TO_REMOVE, NBTBase.TAG_COMPOUND))
+        coloniesToRemove.addAll(NBTUtils.streamCompound(compound.getTagList(TAG_COLONIES_TO_REMOVE, 10))
                                   .map(tempCompound -> tempCompound.getShort(TAG_COLONY_ID)).collect(Collectors.toList()));
 
-        claimingBuilding.addAll(NBTUtils.streamCompound(compound.getList(TAG_BUILDINGS_CLAIM, NBTBase.TAG_COMPOUND))
+        claimingBuilding.addAll(NBTUtils.streamCompound(compound.getTagList(TAG_BUILDINGS_CLAIM, 10))
                                   .map(ChunkLoadStorage::readTupleFromNbt).collect(Collectors.toList()));
-        unClaimingBuilding.addAll(NBTUtils.streamCompound(compound.getList(TAG_BUILDINGS_UNCLAIM, NBTBase.TAG_COMPOUND))
+        unClaimingBuilding.addAll(NBTUtils.streamCompound(compound.getTagList(TAG_BUILDINGS_UNCLAIM, 10))
                                     .map(ChunkLoadStorage::readTupleFromNbt).collect(Collectors.toList()));
     }
 
@@ -158,14 +158,28 @@ public class ChunkLoadStorage
     public NBTTagCompound toNBT()
     {
         final NBTTagCompound compound = new NBTTagCompound();
-        compound.putLong(TAG_POS, xz);
-        compound.putString(TAG_DIMENSION, dimension.toString());
+        compound.setLong(TAG_POS, xz);
+        compound.setString(TAG_DIMENSION, dimension.toString());
 
-        compound.put(TAG_CLAIM_LIST, owningChanges.stream().map(ChunkLoadStorage::getCompoundOfColonyId).collect(NBTUtils.toListNBT()));
-        compound.put(TAG_COLONIES_TO_ADD, coloniesToAdd.stream().map(ChunkLoadStorage::getCompoundOfColonyId).collect(NBTUtils.toListNBT()));
-        compound.put(TAG_COLONIES_TO_REMOVE, coloniesToRemove.stream().map(ChunkLoadStorage::getCompoundOfColonyId).collect(NBTUtils.toListNBT()));
-        compound.put(TAG_BUILDINGS, claimingBuilding.stream().map(ChunkLoadStorage::writeTupleToNBT).collect(NBTUtils.toListNBT()));
-        compound.put(TAG_BUILDINGS, unClaimingBuilding.stream().map(ChunkLoadStorage::writeTupleToNBT).collect(NBTUtils.toListNBT()));
+        net.minecraft.nbt.NBTTagList claimList = new net.minecraft.nbt.NBTTagList();
+        owningChanges.stream().map(ChunkLoadStorage::getCompoundOfColonyId).forEach(claimList::appendTag);
+        compound.setTag(TAG_CLAIM_LIST, claimList);
+
+        net.minecraft.nbt.NBTTagList addList = new net.minecraft.nbt.NBTTagList();
+        coloniesToAdd.stream().map(ChunkLoadStorage::getCompoundOfColonyId).forEach(addList::appendTag);
+        compound.setTag(TAG_COLONIES_TO_ADD, addList);
+
+        net.minecraft.nbt.NBTTagList removeList = new net.minecraft.nbt.NBTTagList();
+        coloniesToRemove.stream().map(ChunkLoadStorage::getCompoundOfColonyId).forEach(removeList::appendTag);
+        compound.setTag(TAG_COLONIES_TO_REMOVE, removeList);
+
+        net.minecraft.nbt.NBTTagList claimBuildingList = new net.minecraft.nbt.NBTTagList();
+        claimingBuilding.stream().map(ChunkLoadStorage::writeTupleToNBT).forEach(claimBuildingList::appendTag);
+        compound.setTag(TAG_BUILDINGS_CLAIM, claimBuildingList);
+
+        net.minecraft.nbt.NBTTagList unclaimBuildingList = new net.minecraft.nbt.NBTTagList();
+        unClaimingBuilding.stream().map(ChunkLoadStorage::writeTupleToNBT).forEach(unclaimBuildingList::appendTag);
+        compound.setTag(TAG_BUILDINGS_UNCLAIM, unclaimBuildingList);
 
         return compound;
     }
@@ -173,7 +187,7 @@ public class ChunkLoadStorage
     private static NBTTagCompound getCompoundOfColonyId(final int id)
     {
         final NBTTagCompound compound = new NBTTagCompound();
-        compound.putInt(TAG_COLONY_ID, id);
+        compound.setInteger(TAG_COLONY_ID, id);
         return compound;
     }
 
@@ -270,7 +284,7 @@ public class ChunkLoadStorage
                 cap.addBuildingClaim(tuple.getA(), tuple.getB(), chunk);
             }
         }
-        chunk.setUnsaved(true);
+        chunk.isModified = true;
     }
 
     /**
@@ -335,7 +349,7 @@ public class ChunkLoadStorage
     private static NBTTagCompound writeTupleToNBT(final Tuple<Short, int[]> tuple)
     {
         final NBTTagCompound compound = new NBTTagCompound();
-        compound.putShort(TAG_COLONY_ID, tuple.getA());
+        compound.setShort(TAG_COLONY_ID, tuple.getA());
         BlockPosUtil.write(compound, TAG_BUILDING, tuple.getB());
         return compound;
     }
@@ -351,6 +365,12 @@ public class ChunkLoadStorage
         return new Tuple<>(compound.getShort(TAG_COLONY_ID), BlockPosUtil.read(compound, TAG_BUILDING));
     }
 }
+
+
+
+
+
+
 
 
 

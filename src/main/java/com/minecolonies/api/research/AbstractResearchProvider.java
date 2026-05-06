@@ -1,4 +1,6 @@
 package com.minecolonies.api.research;
+import net.minecraft.network.chat.Style;
+import net.minecraft.tags.TagKey;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;

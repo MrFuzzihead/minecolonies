@@ -1,7 +1,8 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
+import net.minecraft.util.Direction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.core.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.BoneMealItem;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -88,10 +89,10 @@ public class BuildingCombatAcademy extends AbstractBuilding
 
         fightingPos.clear();
 
-        final NBTTagList targetList = compound.getList(TAG_COMBAT_TARGET, NBTBase.TAG_COMPOUND);
+        final NBTTagList targetList = compound.getTagList(TAG_COMBAT_TARGET, NBTBase.TAG_COMPOUND);
         fightingPos.addAll(NBTUtils.streamCompound(targetList).map(targetCompound -> BlockPosUtil.read(targetCompound, TAG_TARGET)).collect(Collectors.toList()));
 
-        final NBTTagList partnersTagList = compound.getList(TAG_COMBAT_PARTNER, NBTBase.TAG_COMPOUND);
+        final NBTTagList partnersTagList = compound.getTagList(TAG_COMBAT_PARTNER, NBTBase.TAG_COMPOUND);
         trainingPartners.putAll(NBTUtils.streamCompound(partnersTagList)
                                   .collect(Collectors.toMap(targetCompound -> targetCompound.getInt(TAG_PARTNER1), targetCompound -> targetCompound.getInt(TAG_PARTNER2))));
     }
@@ -102,10 +103,10 @@ public class BuildingCombatAcademy extends AbstractBuilding
         final NBTTagCompound compound = super.serializeNBT();
 
         final NBTTagList targetList = fightingPos.stream().map(target -> BlockPosUtil.write(new NBTTagCompound(), TAG_TARGET, target)).collect(NBTUtils.toListNBT());
-        compound.put(TAG_COMBAT_TARGET, targetList);
+        compound.setTag(TAG_COMBAT_TARGET, targetList);
 
         final NBTTagList partnersTagList = trainingPartners.entrySet().stream().map(BuildingCombatAcademy::writePartnerTupleToNBT).collect(NBTUtils.toListNBT());
-        compound.put(TAG_COMBAT_PARTNER, partnersTagList);
+        compound.setTag(TAG_COMBAT_PARTNER, partnersTagList);
 
         return compound;
     }

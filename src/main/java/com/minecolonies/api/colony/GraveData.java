@@ -96,18 +96,18 @@ public class GraveData implements IGraveData
     @Override
     public void read(NBTTagCompound compound)
     {
-        citizenDataNBT  = compound.contains(TAG_CITIZEN_NBT) ? compound.getCompound(TAG_CITIZEN_NBT) : null;
-        citizenName     = compound.contains(TAG_CITIZEN_NAME) ? compound.getString(TAG_CITIZEN_NAME) : null;
-        citizenJobName  = compound.contains(TAG_CITIZEN_JOB_NAME) ? compound.getString(TAG_CITIZEN_JOB_NAME) : null;
+        citizenDataNBT  = compound.hasKey(TAG_CITIZEN_NBT) ? compound.getCompoundTag(TAG_CITIZEN_NBT) : null;
+        citizenName     = compound.hasKey(TAG_CITIZEN_NAME) ? compound.getString(TAG_CITIZEN_NAME) : null;
+        citizenJobName  = compound.hasKey(TAG_CITIZEN_JOB_NAME) ? compound.getString(TAG_CITIZEN_JOB_NAME) : null;
     }
 
     @Override
     public NBTTagCompound write()
     {
         final NBTTagCompound compound = new NBTTagCompound();
-        if (citizenDataNBT != null) { compound.put(TAG_CITIZEN_NBT, citizenDataNBT); }
-        if (citizenName != null)    { compound.put(TAG_CITIZEN_NAME, NBTTagString.valueOf(citizenName)); }
-        if (citizenJobName != null) { compound.put(TAG_CITIZEN_JOB_NAME,NBTTagString.valueOf(citizenJobName)); }
+        if (citizenDataNBT != null) { compound.setTag(TAG_CITIZEN_NBT, citizenDataNBT); }
+        if (citizenName != null)    { compound.setString(TAG_CITIZEN_NAME, citizenName); }
+        if (citizenJobName != null) { compound.setString(TAG_CITIZEN_JOB_NAME, citizenJobName); }
 
         return compound;
     }

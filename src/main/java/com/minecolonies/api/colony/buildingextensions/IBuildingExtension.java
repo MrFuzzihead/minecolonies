@@ -138,13 +138,13 @@ public interface IBuildingExtension extends IModuleContainer<IBuildingExtensionM
         {
             final NBTTagCompound NBTBase = new NBTTagCompound();
             BlockPosUtil.write(NBTBase, TAG_POS, pos);
-            NBTBase.putString(TAG_ID, entry.getRegistryName().toString());
+            NBTBase.setString(TAG_ID, entry.getRegistryName().toString());
             return NBTBase;
         }
 
         public static ExtensionId deserializeNBT(final NBTTagCompound nbt)
         {
-            return new ExtensionId(BlockPosUtil.read(nbt, TAG_POS), BuildingExtensionRegistries.getBuildingExtensionRegistry().getValue(ResourceLocation.tryParse(nbt.getString(TAG_ID))));
+            return new ExtensionId(BlockPosUtil.read(nbt, TAG_POS), BuildingExtensionRegistries.getBuildingExtensionRegistry().getValue(new ResourceLocation(nbt.getString(TAG_ID))));
         }
     }
 }

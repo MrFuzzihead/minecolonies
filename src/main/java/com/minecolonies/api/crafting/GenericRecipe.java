@@ -34,7 +34,7 @@ public class GenericRecipe implements IGenericRecipe
         private List<ItemStack> additionalOutputs = List.of();
         private List<List<ItemStack>> inputs = List.of();
         private int gridSize = 1;
-        private Block intermediate = Blocks.AIR;
+        private Block intermediate = net.minecraft.init.Blocks.air; // [1.7.10] Blocks.AIR -> Blocks.air
         private ResourceLocation   lootTable = null;
         private EquipmentTypeEntry requiredTool = ModEquipmentTypes.none.get();
         private Class /* EntityType */ <?>      requiredEntity = null;
@@ -69,7 +69,7 @@ public class GenericRecipe implements IGenericRecipe
          */
         public Builder withRecipeId(@Nullable final ResourceLocation id)
         {
-            this.id = id == null || id.getPath().isEmpty() ? null : id;
+            this.id = id == null || id.getResourcePath().isEmpty() ? null : id; // [1.7.10] getPath() -> getResourcePath()
             return this;
         }
 
@@ -358,7 +358,7 @@ public class GenericRecipe implements IGenericRecipe
     @NotNull
     public ItemStack getPrimaryOutput()
     {
-        return this.mainOutputs.isEmpty() ? ItemStack.EMPTY : this.mainOutputs.get(0);
+        return this.mainOutputs.isEmpty() ? null : this.mainOutputs.get(0);
     }
 
     @NotNull
@@ -460,7 +460,7 @@ public class GenericRecipe implements IGenericRecipe
     private static ItemStack toItemStack(@NotNull final ItemStorage input)
     {
         final ItemStack result = input.getItemStack().copy();
-        result.setCount(input.getAmount());
+        result.stackSize = input.getAmount(); // [1.7.10] setCount() -> stackSize
         return result;
     }
 
@@ -510,7 +510,7 @@ public class GenericRecipe implements IGenericRecipe
         public IngredientStacks(final List<ItemStack> ingredient)
         {
             this.stacks = ingredient.stream()
-                    .filter(stack -> !stack.isEmpty())
+                    .filter(stack -> !com.minecolonies.api.util.ItemStackUtils.isEmpty(stack)) // [1.7.10]
                     .map(ItemStack::copy)
                     .collect(Collectors.toList());
 
@@ -522,7 +522,7 @@ public class GenericRecipe implements IGenericRecipe
         @NotNull
         public List<ItemStack> getStacks() { return this.stacks; }
 
-        public int getCount() { return this.stacks.isEmpty() ? 0 : this.stacks.get(0).getCount(); }
+        public int getCount() { return this.stacks.isEmpty() ? 0 : this.stacks.get(0).stackSize; } // [1.7.10] getCount() -> stackSize
 
         @Override
         public boolean equals(Object o)
@@ -557,7 +557,7 @@ public class GenericRecipe implements IGenericRecipe
             // assumes equals(other)
             for (int i = 0; i < this.stacks.size(); i++)
             {
-                this.stacks.get(i).grow(other.stacks.get(i).getCount());
+                this.stacks.get(i).stackSize += other.stacks.get(i).stackSize; // [1.7.10] grow/getCount -> stackSize
             }
         }
 

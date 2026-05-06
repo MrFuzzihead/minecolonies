@@ -1,4 +1,5 @@
 package com.minecolonies.api.research;
+import net.minecraft.world.entity.player.Player;
 
 /**
  * Different Research Branch types, along with descriptions of their behaviors.  Primarily related to display rendering internal to Minecolonies,

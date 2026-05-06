@@ -5,6 +5,8 @@ import com.minecolonies.api.util.Log;
 import com.minecolonies.core.entity.pathfinding.navigation.MinecoloniesAdvancedPathNavigate;
 import com.minecolonies.core.entity.pathfinding.pathjobs.PathJobEscapeWater;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
+import net.minecraft.entity.EntityCreature;
+import net.minecraft.world.entity.ai.goal.FloatGoal;
 // [1.7.10] int[] -> int x,y,z
 // [1.7.10] world.entity removed
 // [1.7.10] world.entity removed

@@ -158,7 +158,7 @@ public class SchemAnalyzerUtil
                     // Estimate for do recipes giving higher output per block usually, increased minimum of 2 due to added complexity for crafting
                     blockComplexity = Math.max(2, doComplexity / 3);
 
-                    result.getOrCreateTag().put(DO_NBT_TEXTURE_DATA, blockInfo.getTileEntityData().getCompound(DO_NBT_TEXTURE_DATA));
+                    result.getOrCreateTag().put(DO_NBT_TEXTURE_DATA, blockInfo.getTileEntityData().getCompoundTag(DO_NBT_TEXTURE_DATA));
                 }
 
                 storage = new ItemStorage(result);

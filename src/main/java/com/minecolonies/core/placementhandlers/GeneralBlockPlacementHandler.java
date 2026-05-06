@@ -8,22 +8,16 @@ import com.ldtteam.structurize.util.BlockUtils;
 import com.minecolonies.api.compatibility.candb.ChiselAndBitsCheck;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.WorldUtil;
-// [1.7.10] int[] -> int x,y,z
-// [1.7.10] Direction -> net.minecraft.util.EnumFacing
 import net.minecraft.nbt.NBTTagCompound;
 import com.minecolonies.api.util.Tuple;
-// [1.7.10] int /* InteractionHand */ removed
 import net.minecraft.item.ItemStack;
-import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import net.minecraft.world.level.block.FenceBlock;
-import net.minecraft.world.level.block.FenceGateBlock;
-import net.minecraft.world.level.block.IronBarsBlock;
-import net.minecraft.world.level.block.WallBlock;
-// [1.7.10] block.entity removed
-// [1.7.10] BlockState -> int metadata
-// [1.7.10] world.phys removed
-// [1.7.10] world.phys removed
+import net.minecraft.block.BlockFence;
+import net.minecraft.block.BlockFenceGate;
+import net.minecraft.block.BlockPane;
+import net.minecraft.block.BlockWall;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,12 +43,12 @@ public class GeneralBlockPlacementHandler implements IPlacementHandler
       @NotNull final IPlacementContext context)
     {
         BlockState placementState = blockState;
-        if (blockState.getBlock() instanceof WallBlock || blockState.getBlock() instanceof FenceBlock || blockState.getBlock() instanceof PillarBlock || blockState.getBlock() instanceof IronBarsBlock)
+        if (blockState.getBlock() instanceof BlockWall || blockState.getBlock() instanceof BlockFence || blockState.getBlock() instanceof PillarBlock || blockState.getBlock() instanceof BlockPane)
         {
             try
             {
                 final BlockState tempState = blockState.getBlock().getStateForPlacement(
-                  new BlockPlaceContext(world, null, 0 /* InteractionHand.MAIN_HAND */, ItemStack.EMPTY,
+                  new BlockPlaceContext(world, null, 0 /* InteractionHand.MAIN_HAND */, null,
                     new BlockHitResult(new Vec3(0, 0, 0), Direction.DOWN, pos, true)));
                 if (tempState != null)
                 {
@@ -119,7 +113,7 @@ public class GeneralBlockPlacementHandler implements IPlacementHandler
     public boolean doesWorldStateMatchBlueprintState(
         final BlockState blueprintState,
         final BlockState worldState,
-        final Tuple<BlockEntity, NBTTagCompound> tuple,
+        final Tuple<TileEntity, NBTTagCompound> tuple,
         @NotNull final IPlacementContext iPlacementContext)
     {
         if (worldState.equals(blueprintState))
@@ -127,10 +121,10 @@ public class GeneralBlockPlacementHandler implements IPlacementHandler
             return true;
         }
         return blueprintState.getBlock() == worldState.getBlock()
-            && (blueprintState.getBlock() instanceof WallBlock
-            || blueprintState.getBlock() instanceof FenceBlock
-            || blueprintState.getBlock() instanceof IronBarsBlock
-            || blueprintState.getBlock() instanceof FenceGateBlock);
+            && (blueprintState.getBlock() instanceof BlockWall
+            || blueprintState.getBlock() instanceof BlockFence
+            || blueprintState.getBlock() instanceof BlockPane
+            || blueprintState.getBlock() instanceof BlockFenceGate);
     }
 }
 

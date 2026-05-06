@@ -1,4 +1,7 @@
 package com.minecolonies.api.entity.ai.statemachine.states;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.util.Direction;
+import net.minecraft.world.entity.player.Player;
 
 /**
  * Basic state enclosing states all ai's use. Please extend this class with the states your ai needs. And please document each state on what it does.

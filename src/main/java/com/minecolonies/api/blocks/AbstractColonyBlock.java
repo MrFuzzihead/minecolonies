@@ -1,4 +1,10 @@
 package com.minecolonies.api.blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.InteractionResult;
+import net.minecraft.util.Direction;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.tileentity.BlockEntity; // [1.7.10] alias -> TileEntity
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.MinecoloniesAPIProxy;
 import com.minecolonies.api.blocks.interfaces.IBlockMinecolonies;
@@ -193,9 +199,16 @@ public abstract class AbstractColonyBlock<B extends AbstractColonyBlock<B>> exte
     @Override
     public TileEntity createTileEntity(final World world, final int meta)
     {
-        final TileEntityColonyBuilding building = (TileEntityColonyBuilding) MinecoloniesTileEntities.BUILDING.get().create();
-        building.registryName = this.getBuildingEntry().getRegistryName();
-        return building;
+        try
+        {
+            final TileEntityColonyBuilding building = (TileEntityColonyBuilding) MinecoloniesTileEntities.BUILDING.newInstance();
+            building.registryName = this.getBuildingEntry().getRegistryName();
+            return building;
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
     }
 
     // -----------------------------------------------------------------------
@@ -223,7 +236,7 @@ public abstract class AbstractColonyBlock<B extends AbstractColonyBlock<B>> exte
     @Override
     public float getPlayerRelativeBlockHardness(final EntityPlayer player, final World world, final int x, final int y, final int z)
     {
-        final IBuilding building = IColonyManager.getInstance().getBuilding(world, x, y, z);
+        final IBuilding building = IColonyManager.getInstance().getBuilding(world, new int[]{x, y, z});
         if (building != null && !building.getChildren().isEmpty() && (world.getTotalWorldTime() - lastBreakTickWarn) >= 100)
         {
             lastBreakTickWarn = world.getTotalWorldTime();
@@ -259,7 +272,7 @@ public abstract class AbstractColonyBlock<B extends AbstractColonyBlock<B>> exte
         // Only open the GUI on the client side (equivalent to worldIn.isClientSide check).
         if (worldIn.isRemote)
         {
-            @Nullable final IBuildingView building = IColonyManager.getInstance().getBuildingView(worldIn, x, y, z);
+            @Nullable final IBuildingView building = IColonyManager.getInstance().getBuildingView(worldIn.provider.dimensionId, new int[]{x, y, z});
             final TileEntity entity = worldIn.getTileEntity(x, y, z);
 
             if (entity instanceof final TileEntityColonyBuilding te
@@ -273,7 +286,7 @@ public abstract class AbstractColonyBlock<B extends AbstractColonyBlock<B>> exte
                     //  Replace with ChunkAPI-based colony ownership lookup.
                     if (building == null)
                     {
-                        IColonyManager.getInstance().openReactivationWindow(x, y, z);
+                        IColonyManager.getInstance().openReactivationWindow(new int[]{x, y, z});
                         return true;
                     }
                 }
@@ -342,7 +355,7 @@ public abstract class AbstractColonyBlock<B extends AbstractColonyBlock<B>> exte
 
             // TODO: [1.7.10 BACKPORT] hut.getPosition() returned int[]; replace with
             //  a ChunkCoordinates-based accessor once TileEntityColonyBuilding is ported.
-            @Nullable final IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(worldIn, x, y, z);
+            @Nullable final IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(worldIn, new int[]{x, y, z});
 
             if (colony != null)
             {

@@ -1,4 +1,7 @@
 package com.minecolonies.core.generation.defaults;
+import net.minecraftforge.common.data.EntityTypeTagsProvider;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.data.PackOutput;
 
 import com.minecolonies.api.entity.ModEntities;
 import com.minecolonies.api.items.ModTags;

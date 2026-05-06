@@ -1,4 +1,7 @@
 package com.minecolonies.core.event;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+
 
 import com.minecolonies.api.util.constant.Constants;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;

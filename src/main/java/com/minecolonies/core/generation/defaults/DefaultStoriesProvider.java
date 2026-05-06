@@ -1,4 +1,9 @@
 package com.minecolonies.core.generation.defaults;
+import net.minecraft.tags.TagKey;
+import net.minecraft.core.Holder;
+import net.minecraft.data.CachedOutput;
+import net.minecraft.data.DataProvider;
+import net.minecraft.data.PackOutput;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;

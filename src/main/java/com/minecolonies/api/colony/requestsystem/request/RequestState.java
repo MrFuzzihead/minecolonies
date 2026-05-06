@@ -1,4 +1,5 @@
 package com.minecolonies.api.colony.requestsystem.request;
+import net.minecraft.world.entity.player.Player;
 
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.network.PacketBuffer;
@@ -104,7 +105,7 @@ public enum RequestState
      */
     public static RequestState deserialize(final NBTTagInt nbt)
     {
-        return indexList.get(nbt.getAsInt());
+        return indexList.get(nbt.func_150287_d());
     }
 
     /**
@@ -114,7 +115,7 @@ public enum RequestState
      */
     public NBTTagInt serialize()
     {
-        return NBTTagInt.valueOf(indexList.indexOf(this));
+        return new NBTTagInt(indexList.indexOf(this));
     }
 
     /**

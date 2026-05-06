@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.pathfinding;
+import net.minecraft.util.Direction;
 
 import net.minecraft.pathfinding.PathPoint;
 import net.minecraft.util.EnumFacing;

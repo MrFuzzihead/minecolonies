@@ -1,4 +1,5 @@
 package com.minecolonies.core.commands.citizencommands;
+import net.minecraft.world.phys.Vec3;
 
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;

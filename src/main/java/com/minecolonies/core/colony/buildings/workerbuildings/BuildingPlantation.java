@@ -1,4 +1,7 @@
 package com.minecolonies.core.colony.buildings.workerbuildings;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+
 
 // [1.7.10] blockui replaced by ModularUI2
 import com.ldtteam.structurize.blueprints.v1.Blueprint;

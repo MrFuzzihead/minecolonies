@@ -42,10 +42,10 @@ public final class MathUtils
      */
     public static double twoDimDistance(@NotNull final int[] position, @NotNull final int[] target)
     {
-        final int x1 = position.getX();
-        final int x2 = target.getX();
-        final int z1 = position.getZ();
-        final int z2 = target.getZ();
+        final int x1 = position[0];
+        final int x2 = target[0];
+        final int z1 = position[2];
+        final int z2 = target[2];
 
         //Hypot returns sqrt(x²+ y²) without intermediate overflow or underflow.
         return Math.hypot((double) x2 - x1, (double) z2 - z1);

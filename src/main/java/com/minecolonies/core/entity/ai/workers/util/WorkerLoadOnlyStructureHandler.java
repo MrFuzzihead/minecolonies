@@ -7,6 +7,7 @@ import com.minecolonies.core.colony.buildings.AbstractBuildingStructureBuilder;
 import com.minecolonies.core.colony.jobs.AbstractJobStructure;
 import com.minecolonies.core.entity.ai.workers.AbstractEntityAIStructure;
 // [1.7.10] BlockState -> int metadata
+import net.minecraft.world.level.block.state.BlockState;
 // [1.7.10] int[] -> int x,y,z
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;

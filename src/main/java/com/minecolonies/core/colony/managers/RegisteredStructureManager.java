@@ -1,5 +1,8 @@
 package com.minecolonies.core.colony.managers;
-import net.minecraft.core.Direction;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.util.Direction;
+import net.minecraft.world.level.chunk.LevelChunk;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -144,17 +147,17 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
         final NBTTagList extensionsTagList;
         if (compound.contains(TAG_FIELDS))
         {
-            extensionsTagList = compound.getList(TAG_FIELDS, NBTBase.TAG_COMPOUND);
+            extensionsTagList = compound.getTagList(TAG_FIELDS, NBTBase.TAG_COMPOUND);
         }
         else
         {
-            extensionsTagList = compound.getList(TAG_BUILDING_EXTENSIONS, NBTBase.TAG_COMPOUND);
+            extensionsTagList = compound.getTagList(TAG_BUILDING_EXTENSIONS, NBTBase.TAG_COMPOUND);
         }
         for (int i = 0; i < extensionsTagList.size(); ++i)
         {
             try
             {
-                final NBTTagCompound extensionCompound = extensionsTagList.getCompound(i);
+                final NBTTagCompound extensionCompound = extensionsTagList.getCompoundTagAt(i);
                 final IBuildingExtension extension = BuildingExtensionDataManager.compoundToExtension(extensionCompound);
                 if (extension != null)
                 {
@@ -168,10 +171,10 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
         }
 
         //  Buildings
-        final NBTTagList buildingTagList = compound.getList(TAG_BUILDINGS, NBTBase.TAG_COMPOUND);
+        final NBTTagList buildingTagList = compound.getTagList(TAG_BUILDINGS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < buildingTagList.size(); ++i)
         {
-            final NBTTagCompound buildingCompound = buildingTagList.getCompound(i);
+            final NBTTagCompound buildingCompound = buildingTagList.getCompoundTagAt(i);
             @Nullable final IBuilding b = IBuildingDataManager.getInstance().createFrom(colony, buildingCompound);
             if (b != null)
             {
@@ -182,11 +185,11 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
 
         if (compound.contains(TAG_LEISURE))
         {
-            final NBTTagList leisureTagList = compound.getList(TAG_LEISURE, NBTBase.TAG_COMPOUND);
+            final NBTTagList leisureTagList = compound.getTagList(TAG_LEISURE, NBTBase.TAG_COMPOUND);
             final List<int[]> leisureSitesList = new ArrayList<>();
             for (int i = 0; i < leisureTagList.size(); ++i)
             {
-                final int[] pos = BlockPosUtil.read(leisureTagList.getCompound(i), TAG_POS);
+                final int[] pos = BlockPosUtil.read(leisureTagList.getCompoundTagAt(i), TAG_POS);
                 if (!leisureSitesList.contains(pos))
                 {
                     leisureSitesList.add(pos);
@@ -261,10 +264,10 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
             @NotNull final NBTTagCompound buildingCompound = b.serializeNBT();
             buildingTagList.add(buildingCompound);
         }
-        compound.put(TAG_BUILDINGS, buildingTagList);
+        compound.setTag(TAG_BUILDINGS, buildingTagList);
 
         // Building extensions
-        compound.put(TAG_BUILDING_EXTENSIONS, buildingExtensions.values().stream().map(BuildingExtensionDataManager::extensionToCompound).collect(NBTUtils.toListNBT()));
+        compound.setTag(TAG_BUILDING_EXTENSIONS, buildingExtensions.values().stream().map(BuildingExtensionDataManager::extensionToCompound).collect(NBTUtils.toListNBT()));
 
         // Leisure sites
         @NotNull final NBTTagList leisureTagList = new NBTTagList();
@@ -274,7 +277,7 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
             BlockPosUtil.write(leisureCompound, TAG_POS, pos);
             leisureTagList.add(leisureCompound);
         }
-        compound.put(TAG_LEISURE, leisureTagList);
+        compound.setTag(TAG_LEISURE, leisureTagList);
     }
 
     @Override

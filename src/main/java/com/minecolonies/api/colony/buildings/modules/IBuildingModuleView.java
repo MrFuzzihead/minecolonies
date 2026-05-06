@@ -1,4 +1,7 @@
 package com.minecolonies.api.colony.buildings.modules;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+
 
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.colony.buildings.registry.BuildingEntry;

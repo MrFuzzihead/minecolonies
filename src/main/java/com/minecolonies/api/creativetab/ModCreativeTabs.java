@@ -5,7 +5,6 @@ package com.minecolonies.api.creativetab;
 
 import com.minecolonies.api.blocks.ModBlocks;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.ItemStack;
 
 /**
  * Class used to handle the creative tabs of MineColonies.
@@ -16,9 +15,9 @@ public final class ModCreativeTabs
     public static final CreativeTabs HUTS = new CreativeTabs("minecolonies.huts")
     {
         @Override
-        public ItemStack getIconItemStack()
+        public net.minecraft.item.Item getTabIconItem()
         {
-            return new ItemStack(ModBlocks.blockHutTownHall);
+            return net.minecraft.item.Item.getItemFromBlock(ModBlocks.blockHutTownHall);
         }
     };
 
@@ -26,9 +25,9 @@ public final class ModCreativeTabs
     public static final CreativeTabs GENERAL = new CreativeTabs("minecolonies.general")
     {
         @Override
-        public ItemStack getIconItemStack()
+        public net.minecraft.item.Item getTabIconItem()
         {
-            return new ItemStack(ModBlocks.blockRack);
+            return net.minecraft.item.Item.getItemFromBlock(ModBlocks.blockRack);
         }
     };
 
@@ -36,9 +35,9 @@ public final class ModCreativeTabs
     public static final CreativeTabs FOOD = new CreativeTabs("minecolonies.food")
     {
         @Override
-        public ItemStack getIconItemStack()
+        public net.minecraft.item.Item getTabIconItem()
         {
-            return new ItemStack(ModBlocks.blockTomato);
+            return net.minecraft.item.Item.getItemFromBlock(ModBlocks.blockTomato);
         }
     };
 

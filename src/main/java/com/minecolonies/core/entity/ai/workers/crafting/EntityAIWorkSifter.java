@@ -146,11 +146,11 @@ public class EntityAIWorkSifter extends AbstractEntityAICrafting<JobSifter, Buil
             }
             if (!ItemStackUtils.isEmpty(worker.getMainHandItem()))
             {
-                worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, ItemStack.EMPTY);
+                worker.setItemInHand(0 /* InteractionHand.MAIN_HAND */, null);
             }
             if (!ItemStackUtils.isEmpty(worker.getOffhandItem()))
             {
-                worker.setItemInHand(1 /* InteractionHand.OFF_HAND */, ItemStack.EMPTY);
+                worker.setItemInHand(1 /* InteractionHand.OFF_HAND */, null);
             }
 
             progress = 0;
@@ -161,7 +161,7 @@ public class EntityAIWorkSifter extends AbstractEntityAICrafting<JobSifter, Buil
         final ItemStack inputItem = currentRecipeStorage.getCleanedInput().stream()
                                       .map(ItemStorage::getItemStack)
                                       .filter(item -> !ItemStackUtils.compareItemStacksIgnoreStackSize(item, meshItem, false, true))
-                                      .findFirst().orElse(ItemStack.EMPTY);
+                                      .findFirst().orElse(null);
 
         if (meshItem.isEmpty() || inputItem.isEmpty())
         {

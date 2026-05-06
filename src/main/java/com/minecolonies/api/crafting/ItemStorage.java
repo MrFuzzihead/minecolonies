@@ -141,12 +141,12 @@ public class ItemStorage
      */
     public ItemStorage(@NotNull final Item item)
     {
-        this(item.getDefaultInstance());
+        this(new ItemStack(item, 1));
     }
 
     /**
      * Creates an instance of the storage from JSON
-     * 
+     *
      * @param jObject the JSON Object to parse
      */
     public ItemStorage(@NotNull final JsonObject jObject)
@@ -154,13 +154,13 @@ public class ItemStorage
         if (jObject.has(ITEM_PROP))
         {
             this.stack = ItemStackUtils.idToItemStack(jObject.get(ITEM_PROP).getAsString());
-            this.amount = GsonHelper.getAsInt(jObject, COUNT_PROP, 1);
-            this.shouldIgnoreNBTValue = GsonHelper.getAsString(jObject, MATCHTYPE_PROP, "exact").equals(MATCH_NBTIGNORE);
+            this.amount = jObject.has(COUNT_PROP) ? jObject.get(COUNT_PROP).getAsInt() : 1;
+            this.shouldIgnoreNBTValue = (jObject.has(MATCHTYPE_PROP) ? jObject.get(MATCHTYPE_PROP).getAsString() : "exact").equals(MATCH_NBTIGNORE);
             this.shouldIgnoreDamageValue = true;
         }
         else
         {
-            this.stack = ItemStack.EMPTY;
+            this.stack = null;
             this.amount = 0;
             this.shouldIgnoreDamageValue = true;
             this.shouldIgnoreNBTValue = true;
@@ -240,7 +240,7 @@ public class ItemStorage
     public String toString()
     {
         final ItemStack stack = this.stack.copy();
-        stack.setCount(this.amount);
+        stack.stackSize = this.amount;
         return stack.toString();
     }
 
@@ -273,7 +273,7 @@ public class ItemStorage
      */
     public boolean matchDefinitionEquals(ItemStorage that)
     {
-        return this.shouldIgnoreDamageValue == that.shouldIgnoreDamageValue 
+        return this.shouldIgnoreDamageValue == that.shouldIgnoreDamageValue
         && this.shouldIgnoreNBTValue == that.shouldIgnoreNBTValue;
     }
 
@@ -295,7 +295,7 @@ public class ItemStorage
      */
     public int getDamageValue()
     {
-        return stack.getDamageValue();
+        return stack.getItemDamage();
     }
 
     /**
@@ -305,12 +305,12 @@ public class ItemStorage
      */
     public int getRemainingDurablityValue()
     {
-        return stack.getMaxDamage() - stack.getDamageValue();
+        return stack.getMaxDamage() - stack.getItemDamage();
     }
 
     /**
      * Is this an empty ItemStorage
-     * 
+     *
      * @return true if empty
      */
     public boolean isEmpty()

@@ -1,5 +1,8 @@
 package com.minecolonies.core.colony.events.raid;
-import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Direction;
+import net.minecraft.world.entity.EntityType;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -29,7 +32,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.util.IChatComponent;
 // [1.7.10] chat.String replaced by IChatComponent/ChatComponentText
-import net.minecraft.server.World.ServerBossEvent;
+import net.minecraft.server.ServerBossEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
 // [1.7.10] sounds removed
 import net.minecraft.world.BossEvent;
@@ -40,7 +43,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.world.World.pathfinder.Path;
+import net.minecraft.pathfinding.PathEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -330,7 +333,7 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
     {
         if (spawnPathResult != null && spawnPathResult.isDone())
         {
-            final Path path = spawnPathResult.getPath();
+            final PathEntity path = spawnPathResult.getPath();
             if (path != null && path.canReach())
             {
                 spawnPoint = path.getEndNode().asBlockPos();
@@ -513,7 +516,7 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
             campFiresNBT.add(BlockPosUtil.write(new NBTTagCompound(), NbtTagConstants.TAG_POS, pos));
         }
 
-        compound.put(TAG_CAMPFIRE_LIST, campFiresNBT);
+        compound.setTag(TAG_CAMPFIRE_LIST, campFiresNBT);
         compound.putInt(TAG_EVENT_STATUS, status.ordinal());
         compound.putInt(TAG_DAYS_LEFT, daysToGo);
         horde.writeToNbt(compound);
@@ -529,7 +532,7 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
         setHorde(Horde.loadFromNbt(compound));
         spawnPoint = BlockPosUtil.read(compound, TAG_SPAWN_POS);
 
-        for (final NBTBase posCompound : compound.getList(TAG_CAMPFIRE_LIST, TAG_COMPOUND))
+        for (final NBTBase posCompound : compound.getTagList(TAG_CAMPFIRE_LIST, TAG_COMPOUND))
         {
             campFires.add(BlockPosUtil.read((NBTTagCompound) posCompound, NbtTagConstants.TAG_POS));
         }

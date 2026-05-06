@@ -1,4 +1,6 @@
 package com.minecolonies.core.entity.ai.workers.guard.training;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.entity.projectile.EntityArrow;
 
 import com.minecolonies.api.entity.ModEntities;
 import com.minecolonies.api.entity.ai.statemachine.AITarget;
@@ -21,7 +23,7 @@ import net.minecraft.util.ResourceLocation;
 // [1.7.10] sounds removed
 // [1.7.10] int[] -> int x,y,z
 import net.minecraft.util.MathHelper;
-import net.minecraft.world.World.ClipContext;
+// [1.7.10] removed: import net.minecraft.world.World.ClipContext;
 // [1.7.10] world.phys removed
 import org.jetbrains.annotations.NotNull;
 
@@ -86,7 +88,7 @@ public class EntityAIArcherTraining extends AbstractEntityAITraining<JobArcherTr
     /**
      * Shooting arrow in progress.
      */
-    private Arrow arrowInProgress;
+    private EntityArrow arrowInProgress;
 
     /**
      * Creates the abstract part of the AI.inte Always use this constructor!

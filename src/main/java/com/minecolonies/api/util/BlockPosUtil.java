@@ -35,6 +35,13 @@ public final class BlockPosUtil
      */
     private static final int BLOCKPOS_LENGTH = 3;
 
+    /**
+     * Horizontal directions array (North, South, West, East), replacing Direction.Plane.HORIZONTAL stream in 1.7.10.
+     */
+    public static final Direction[] HORIZONTAL_DIRS = {
+        Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST
+    };
+
     private BlockPosUtil()
     {
         // Hide default constructor.
@@ -58,6 +65,34 @@ public final class BlockPosUtil
         coordsCompound.setInteger("z", z);
         compound.setTag(name, coordsCompound);
         return compound;
+    }
+
+    /**
+     * Writes a position int[] to an NBT compound.
+     */
+    public static NBTTagCompound write(@NotNull final NBTTagCompound compound, final String name, final int[] pos)
+    {
+        if (pos == null) return compound;
+        return write(compound, name, pos[0], pos[1], pos[2]);
+    }
+
+    /**
+     * Gets the corner of a restriction area farthest from start.
+     */
+    public static int[] getFurthestCorner(final int[] start, final int[] corner1, final int[] corner2)
+    {
+        final int x = (Math.abs(start[0] - corner1[0]) > Math.abs(start[0] - corner2[0])) ? corner1[0] : corner2[0];
+        final int y = (Math.abs(start[1] - corner1[1]) > Math.abs(start[1] - corner2[1])) ? corner1[1] : corner2[1];
+        final int z = (Math.abs(start[2] - corner1[2]) > Math.abs(start[2] - corner2[2])) ? corner1[2] : corner2[2];
+        return new int[]{x, y, z};
+    }
+
+    /**
+     * Get 2D distance between two int[] positions.
+     */
+    public static long getDistance2D(final int[] a, final int[] b)
+    {
+        return getDistance2D(a[0], a[2], b[0], b[2]);
     }
 
     /**
@@ -452,6 +487,16 @@ public final class BlockPosUtil
         return Math.abs(x1 - x2) + Math.abs(y1 - y2) + Math.abs(z1 - z2);
     }
 
+    public static int distManhattan(final int[] a, final int[] b)
+    {
+        return Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2]);
+    }
+
+    public static int distManhattan(final int[] a, final int x2, final int y2, final int z2)
+    {
+        return Math.abs(a[0] - x2) + Math.abs(a[1] - y2) + Math.abs(a[2] - z2);
+    }
+
     public static int distSqr(final int x1, final int y1, final int z1, final int x2, final int y2, final int z2)
     {
         final int xDist = x1 - x2;
@@ -460,9 +505,19 @@ public final class BlockPosUtil
         return xDist * xDist + yDist * yDist + zDist * zDist;
     }
 
+    public static int distSqr(final int[] a, final int x2, final int y2, final int z2)
+    {
+        return distSqr(a[0], a[1], a[2], x2, y2, z2);
+    }
+
     public static double dist(final int x1, final int y1, final int z1, final int x2, final int y2, final int z2)
     {
         return Math.sqrt(distSqr(x1, y1, z1, x2, y2, z2));
+    }
+
+    public static double dist(final int[] a, final int x2, final int y2, final int z2)
+    {
+        return dist(a[0], a[1], a[2], x2, y2, z2);
     }
 
     /**

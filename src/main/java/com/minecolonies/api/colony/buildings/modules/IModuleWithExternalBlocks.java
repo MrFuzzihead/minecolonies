@@ -1,4 +1,5 @@
 package com.minecolonies.api.colony.buildings.modules;
+import net.minecraft.world.level.block.state.BlockState;
 
 // [1.7.10] int[] -> int x,y,z
 import net.minecraft.world.World;

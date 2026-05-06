@@ -1,4 +1,6 @@
 package com.minecolonies.core.entity.ai.workers.production.agriculture;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.Direction;
 
 import com.google.common.reflect.TypeToken;
 import com.minecolonies.api.advancements.AdvancementTriggers;
@@ -47,6 +49,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.*;
 // [1.7.10] BlockState -> int metadata
+import net.minecraft.world.level.block.state.BlockState;
 // [1.7.10] world.phys removed
 // [1.7.10] world.phys removed
 import net.minecraftforge.common.ToolActions;

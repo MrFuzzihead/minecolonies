@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.ai.workers.production;
+import net.minecraft.util.Direction;
 
 import com.google.common.collect.ImmutableList;
 import com.minecolonies.api.colony.ICitizenData;
@@ -40,7 +41,9 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 // [1.7.10] BlockState -> int metadata
-import net.minecraft.world.World.portal.PortalShape;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.item.ItemStack;
+// [1.7.10] removed: import net.minecraft.world.World.portal.PortalShape;
 // [1.7.10] world.World.storage removed
 // [1.7.10] world.World.storage removed
 import net.minecraftforge.common.ToolActions;
@@ -78,7 +81,7 @@ public class EntityAIWorkNether extends AbstractEntityAICrafting<JobNetherWorker
     /**
      * Virtual slots for equipment, so we can track what is "equipped" without having it visible when the citizen is invisible.
      */
-    private final Map<int /* EquipmentSlot */, ItemStack> virtualEquipmentSlots = new HashMap<>();
+    private final Map<Integer /* EquipmentSlot */, ItemStack> virtualEquipmentSlots = new HashMap<>();
 
     /**
      * Edibles that the worker will attempt to eat while in the nether (unfiltered)
@@ -205,8 +208,8 @@ public class EntityAIWorkNether extends AbstractEntityAICrafting<JobNetherWorker
             return crafterState;
         }
 
-        // Get Armor if available. 
-        // This is async, so we could go to the nether without it. 
+        // Get Armor if available.
+        // This is async, so we could go to the nether without it.
         checkAndRequestArmor();
         // Get food if available.
         final IAIState tempState = checkAndRequestFood();
@@ -215,7 +218,7 @@ public class EntityAIWorkNether extends AbstractEntityAICrafting<JobNetherWorker
             return tempState;
         }
 
-        // Check for materials needed to go to the Nether: 
+        // Check for materials needed to go to the Nether:
         IRecipeStorage rs = building.getFirstModuleOccurance(BuildingNetherWorker.CraftingModule.class).getFirstRecipe(ItemStack::isEmpty);
         boolean hasItemsAvailable = true;
         if (rs != null)
@@ -243,7 +246,7 @@ public class EntityAIWorkNether extends AbstractEntityAICrafting<JobNetherWorker
             return IDLE;
         }
 
-        // Get other adventuring supplies. These are required. 
+        // Get other adventuring supplies. These are required.
         // Done this way to get all the requests in parallel
         boolean missingAxe = checkForToolOrWeapon(ModEquipmentTypes.axe.get());
         boolean missingPick = checkForToolOrWeapon(ModEquipmentTypes.pickaxe.get());
@@ -376,7 +379,7 @@ public class EntityAIWorkNether extends AbstractEntityAICrafting<JobNetherWorker
     {
         final ExpeditionLog expeditionLog = building.getFirstModuleOccurance(ExpeditionLogModule.class).getLog();
 
-        //This is the adventure loop. 
+        //This is the adventure loop.
         if (!job.getCraftedResults().isEmpty())
         {
             for (ItemStack currStack : job.getCraftedResults())
@@ -479,7 +482,7 @@ public class EntityAIWorkNether extends AbstractEntityAICrafting<JobNetherWorker
                             if (worker.isDeadOrDying())
                             {
                                 expeditionLog.setKilled();
-                                
+
                                 StatsUtil.trackStat(building, MINER_DEATHS, 1);
 
                                 // Stop processing loot table data, as the worker died before finishing the trip.
@@ -500,7 +503,7 @@ public class EntityAIWorkNether extends AbstractEntityAICrafting<JobNetherWorker
                                 expeditionLog.addLoot(mobLoot);
                             }
 
-                            worker.setItemSlot(null /* EquipmentSlot. */, ItemStack.EMPTY);
+                            worker.setItemSlot(null /* EquipmentSlot. */, null);
                             equipArmor(false);
                         }
 
@@ -543,7 +546,7 @@ public class EntityAIWorkNether extends AbstractEntityAICrafting<JobNetherWorker
                                 itemDelay += TICK_DELAY;
                             }
 
-                            worker.setItemSlot(null /* EquipmentSlot. */, ItemStack.EMPTY);
+                            worker.setItemSlot(null /* EquipmentSlot. */, null);
                             logAllEquipment(expeditionLog, false);
                         }
                         else
@@ -724,7 +727,7 @@ public class EntityAIWorkNether extends AbstractEntityAICrafting<JobNetherWorker
     private ItemStack findItem(@NotNull final Predicate<ItemStack> predicate)
     {
         int slotOfStack = InventoryUtils.findFirstSlotInItemHandlerNotEmptyWith(worker.getItemHandlerCitizen(), predicate);
-        return slotOfStack < 0 ? ItemStack.EMPTY : worker.getInventoryCitizen().getStackInSlot(slotOfStack);
+        return slotOfStack < 0 ? null : worker.getInventoryCitizen().getStackInSlot(slotOfStack);
     }
 
     private ItemStack findTool(@NotNull final EquipmentTypeEntry tool)
@@ -735,7 +738,7 @@ public class EntityAIWorkNether extends AbstractEntityAICrafting<JobNetherWorker
     private ItemStack findTool(@NotNull final BlockState target, final int[] pos)
     {
         int slotOfStack = getMostEfficientTool(target, pos);
-        return slotOfStack < 0 ? ItemStack.EMPTY : worker.getInventoryCitizen().getStackInSlot(slotOfStack);
+        return slotOfStack < 0 ? null : worker.getInventoryCitizen().getStackInSlot(slotOfStack);
     }
 
     /**
@@ -772,7 +775,7 @@ public class EntityAIWorkNether extends AbstractEntityAICrafting<JobNetherWorker
         else
         {
             worker.getInventoryCitizen().moveArmorToInventory(equipSlot);
-            virtualEquipmentSlots.put(equipSlot, ItemStack.EMPTY);
+            virtualEquipmentSlots.put(equipSlot, null);
         }
     }
 
@@ -873,7 +876,7 @@ public class EntityAIWorkNether extends AbstractEntityAICrafting<JobNetherWorker
                     }
                     else
                     {
-                        virtualEquipmentSlots.put(item.getType(), ItemStack.EMPTY);
+                        virtualEquipmentSlots.put(item.getType(), null);
                     }
                 }
 

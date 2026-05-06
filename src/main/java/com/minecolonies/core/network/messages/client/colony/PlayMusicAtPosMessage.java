@@ -1,4 +1,10 @@
 package com.minecolonies.core.network.messages.client.colony;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.network.IMessage;
 // [1.7.10] client removed (use @SideOnly)

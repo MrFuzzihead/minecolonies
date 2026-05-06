@@ -1,4 +1,5 @@
 package com.minecolonies.api.util.constant;
+import net.minecraft.world.entity.player.Player;
 
 /**
  * Some constants needed for the whole mod.

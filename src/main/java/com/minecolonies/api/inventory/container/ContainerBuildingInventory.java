@@ -1,4 +1,5 @@
 package com.minecolonies.api.inventory.container;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyManager;

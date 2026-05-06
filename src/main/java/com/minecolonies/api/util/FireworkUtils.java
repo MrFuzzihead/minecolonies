@@ -97,8 +97,8 @@ public final class FireworkUtils
             explosionTag.putIntArray(TAG_COLORS, colors);
             explosionsTagList.add(explosionTag);
         }
-        fireworksCompound.put(TAG_EXPLOSIONS, explosionsTagList);
-        itemStackCompound.put(TAG_FIREWORKS, fireworksCompound);
+        fireworkscompound.setTag(TAG_EXPLOSIONS, explosionsTagList);
+        itemStackcompound.setTag(TAG_FIREWORKS, fireworksCompound);
         fireworkItem.setTag(itemStackCompound);
         return fireworkItem;
     }

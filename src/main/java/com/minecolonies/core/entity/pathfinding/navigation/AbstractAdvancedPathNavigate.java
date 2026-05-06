@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.pathfinding.navigation;
+import net.minecraft.util.Direction;
 
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.crafting.ItemStorage;
@@ -40,8 +41,11 @@ public abstract class AbstractAdvancedPathNavigate extends PathNavigate
       final World worldIn)
     {
         super(entityLiving, worldIn);
-        this.ourEntity = EntityCreature;
+        this.ourEntity = entityLiving;
     }
+
+    /** [1.7.10] stub - PathNavigate has setAvoidsWater but not setCanFloat */
+    public void setCanFloat(final boolean canFloat) {}
 
     /**
      * Used to path away from a position.

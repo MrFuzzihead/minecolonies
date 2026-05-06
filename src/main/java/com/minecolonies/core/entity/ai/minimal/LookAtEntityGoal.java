@@ -1,11 +1,14 @@
 package com.minecolonies.core.entity.ai.minimal;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.util.WorldUtil;
 import com.minecolonies.api.util.constant.ColonyConstants;
 import com.minecolonies.core.colony.jobs.AbstractJobGuard;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.world.entity.ai.goal.Goal;
 // [1.7.10] world.entity removed
 // [1.7.10] world.entity removed
 import net.minecraft.entity.player.EntityPlayer;

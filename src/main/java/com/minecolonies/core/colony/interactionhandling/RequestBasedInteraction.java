@@ -1,5 +1,10 @@
 package com.minecolonies.core.colony.interactionhandling;
-import net.minecraft.core.Direction;
+import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -132,7 +137,7 @@ public class RequestBasedInteraction extends ServerCitizenInteraction
     public void deserializeNBT(@NotNull final NBTTagCompound compoundNBT)
     {
         super.deserializeNBT(compoundNBT);
-        this.token = StandardFactoryController.getInstance().deserialize(compoundNBT.getCompound(TOKEN_TAG));
+        this.token = StandardFactoryController.getInstance().deserialize(compoundNBT.getCompoundTag(TOKEN_TAG));
     }
 
     @Override

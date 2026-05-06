@@ -6,7 +6,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.entity.Entity;
 // [1.7.10] world.entity removed
-import net.minecraft.world.World.entity.EntityTypeTest;
+// import net.minecraft.world.entity.EntityTypeTest; // [1.7.10] not available
 
 public class CommandKillMonster implements IMCOPCommand
 {

@@ -1,4 +1,5 @@
 package com.minecolonies.core.client.gui.containers;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.crafting.ItemStorage;

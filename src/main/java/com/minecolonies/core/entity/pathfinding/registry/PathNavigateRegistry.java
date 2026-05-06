@@ -5,6 +5,7 @@ import com.minecolonies.core.entity.pathfinding.navigation.AbstractAdvancedPathN
 import com.minecolonies.api.entity.pathfinding.registry.IPathNavigateRegistry;
 import com.minecolonies.core.entity.pathfinding.navigation.MinecoloniesAdvancedPathNavigate;
 // [1.7.10] world.entity removed
+import net.minecraft.entity.EntityCreature;
 
 import java.util.ArrayList;
 import java.util.Collections;

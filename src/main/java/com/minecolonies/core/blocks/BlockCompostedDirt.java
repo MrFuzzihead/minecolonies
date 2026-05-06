@@ -1,4 +1,5 @@
 package com.minecolonies.core.blocks;
+import net.minecraft.util.Direction;
 
 import com.minecolonies.api.blocks.AbstractBlockMinecolonies;
 import com.minecolonies.api.blocks.interfaces.ITickableBlockMinecolonies;

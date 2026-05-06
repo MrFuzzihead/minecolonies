@@ -1,4 +1,6 @@
 package com.minecolonies.api.util;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.util.constant.ColonyConstants;
 import net.minecraft.block.Block;

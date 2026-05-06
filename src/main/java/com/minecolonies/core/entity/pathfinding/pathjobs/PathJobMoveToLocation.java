@@ -83,13 +83,13 @@ public class PathJobMoveToLocation extends AbstractPathJob implements IDestinati
         boolean atDest = false;
         if (destinationSlack <= DESTINATION_SLACK_NONE)
         {
-            atDest = n.x == destination.getX()
-                       && n.y == destination.getY()
-                       && n.z == destination.getZ();
+            atDest = n.x == destination[0]
+                       && n.y == destination[1]
+                       && n.z == destination[2];
         }
-        else if (n.y == destination.getY() - 1)
+        else if (n.y == destination[1] - 1)
         {
-            atDest = BlockPosUtil.distSqr(destination, n.x, destination.getY(), n.z) < DESTINATION_SLACK_ADJACENT * DESTINATION_SLACK_ADJACENT;
+            atDest = BlockPosUtil.distSqr(destination, n.x, destination[1], n.z) < DESTINATION_SLACK_ADJACENT * DESTINATION_SLACK_ADJACENT;
         }
         else
         {
@@ -98,7 +98,7 @@ public class PathJobMoveToLocation extends AbstractPathJob implements IDestinati
 
         if (atDest)
         {
-            atDest = SurfaceType.getSurfaceType(world, cachedBlockLookup.getBlockState(n.x, n.y - 1, n.z), tempWorldPos.set(n.x, n.y - 1, n.z), getPathingOptions())
+            atDest = SurfaceType.getSurfaceType(world, cachedBlockLookup.getBlockState(n.x, n.y - 1, n.z), setPos(n.x, n.y - 1, n.z), getPathingOptions())
                        == SurfaceType.WALKABLE;
         }
 
@@ -119,16 +119,15 @@ public class PathJobMoveToLocation extends AbstractPathJob implements IDestinati
             return BlockPosUtil.distManhattan(destination, n.x, n.y, n.z) + 30;
         }
 
-        if (!ShapeUtil.isEmpty(cachedBlockLookup.getBlockState(n.x, n.y, n.z).getCollisionShape(cachedBlockLookup, tempWorldPos.set(n.x, n.y, n.z))))
+        if (!ShapeUtil.isEmpty(cachedBlockLookup.getBlockState(n.x, n.y, n.z).getCollisionShape(cachedBlockLookup, setPos(n.x, n.y, n.z))))
         {
             return BlockPosUtil.distManhattan(destination, n.x, n.y, n.z) + 10;
         }
 
         //  For Result Score lower is better
-
-        int xDist = Math.abs(destination.getX() - n.x);
-        int yDist = Math.abs(destination.getY() - n.y);
-        int zDist = Math.abs(destination.getZ() - n.z);
+        int xDist = Math.abs(destination[0] - n.x);
+        int yDist = Math.abs(destination[1] - n.y);
+        int zDist = Math.abs(destination[2] - n.z);
         return xDist + yDist + zDist;
     }
 
@@ -178,6 +177,8 @@ public class PathJobMoveToLocation extends AbstractPathJob implements IDestinati
         return false;
     }
 }
+
+
 
 
 

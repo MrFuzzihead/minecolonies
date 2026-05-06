@@ -33,7 +33,7 @@ public final class ModSoundEvents
     static
     {
         final List<ResourceLocation> mainTypes = new ArrayList<>(ModJobs.getJobs());
-        mainTypes.remove(ModJobs.placeHolder.getId());
+        mainTypes.remove(ModJobs.placeHolder.getKey());
         mainTypes.add(new ResourceLocation(Constants.MOD_ID, "unemployed"));
         mainTypes.add(new ResourceLocation(Constants.MOD_ID, "visitor"));
 
@@ -46,15 +46,15 @@ public final class ModSoundEvents
                 for (int i = 1; i <= 4; i++)
                 {
                     final SoundEvent maleSoundEvent =
-                      ModSoundEvents.getSoundID(CITIZEN_SOUND_EVENT_PREFIX + job.getPath() + ".male" + i + "." + event.getId());
+                      ModSoundEvents.getSoundID(CITIZEN_SOUND_EVENT_PREFIX + job.getResourcePath() + ".male" + i + "." + event.getId());
                     final SoundEvent femaleSoundEvent =
-                      ModSoundEvents.getSoundID(CITIZEN_SOUND_EVENT_PREFIX + job.getPath() + ".female" + i + "." + event.getId());
+                      ModSoundEvents.getSoundID(CITIZEN_SOUND_EVENT_PREFIX + job.getResourcePath() + ".female" + i + "." + event.getId());
 
                     individualSounds.add(new Tuple<>(maleSoundEvent, femaleSoundEvent));
                 }
                 map.put(event, individualSounds);
             }
-            CITIZEN_SOUND_EVENTS.put(job.getPath(), map);
+            CITIZEN_SOUND_EVENTS.put(job.getResourcePath(), map);
         }
 
         final Map<EventType, List<Tuple<SoundEvent, SoundEvent>>> childMap = new HashMap<>();

@@ -39,7 +39,7 @@ public final class BuildingExtensionDataManager
         final IBuildingExtension extension = resourceLocationToExtension(name, position);
         if (extension != null)
         {
-            extension.deserializeNBT(compound.getCompound(TAG_EXTENSION_DATA));
+            extension.deserializeNBT(compound.getCompoundTag(TAG_EXTENSION_DATA));
         }
         return extension;
     }
@@ -105,7 +105,7 @@ public final class BuildingExtensionDataManager
         final NBTTagCompound compound = new NBTTagCompound();
         compound.putString(TAG_EXTENSION_NAME, extension.getBuildingExtensionType().getRegistryName().toString());
         BlockPosUtil.write(compound, TAG_EXTENSION_POSITION, extension.getPosition());
-        compound.put(TAG_EXTENSION_DATA, extension.serializeNBT());
+        compound.setTag(TAG_EXTENSION_DATA, extension.serializeNBT());
         return compound;
     }
 }

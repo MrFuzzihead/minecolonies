@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.ai.workers;
+import net.minecraft.block.state.BlockState;
 
 // [1.7.10] DomumOrnamentum removed - not available
 // import com.ldtteam.domumornamentum.item.interfaces.IDoItem;
@@ -230,7 +231,7 @@ public abstract class AbstractEntityAIInteract<J extends AbstractJob<?, J>, B ex
             blockBreakAction.run();
         }
 
-        if (tool != ItemStack.EMPTY && damageTool)
+        if (tool != null && damageTool)
         {
             tool.getItem().inventoryTick(tool, world, worker, worker.getCitizenInventoryHandler().findFirstSlotInInventoryWith(tool.getItem()), true);
         }

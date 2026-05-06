@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.minecolonies.api.compatibility.IFurnaceRecipes;
 import com.minecolonies.api.crafting.ItemStorage;
 import com.minecolonies.api.crafting.RecipeStorage;
-import net.minecraft.core.java.util.List;
+import java.util.List;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeManager;
@@ -73,7 +73,7 @@ public class FurnaceRecipes implements IFurnaceRecipes
         {
             return storage.getPrimaryOutput();
         }
-        return ItemStack.EMPTY;
+        return null;
     }
 
     @Nullable

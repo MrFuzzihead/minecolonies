@@ -1,4 +1,5 @@
 package com.minecolonies.core.compatibility.jei.transfer;
+import net.minecraft.world.entity.player.Player;
 
 import com.google.common.collect.ImmutableSet;
 import com.minecolonies.api.inventory.container.ContainerCrafting;
@@ -103,7 +104,7 @@ public class PrivateCraftingTeachingTransferHandler implements IRecipeTransferHa
                     final List<IRecipeSlotView> badSlots = badIndexes.stream().map(index -> slots.get(index)).toList();
                     return handlerHelper.createUserErrorForMissingSlots(tooltipMessage, badSlots);
                 }
-                guiIngredients.put(inputIndex, slot.getDisplayedIngredient(VanillaTypes.ITEM_STACK).orElse(ItemStack.EMPTY));
+                guiIngredients.put(inputIndex, slot.getDisplayedIngredient(VanillaTypes.ITEM_STACK).orElse(null));
             }
             inputIndex++;
         }

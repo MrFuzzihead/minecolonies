@@ -1,6 +1,7 @@
 package com.minecolonies.core.placementhandlers;
+import net.minecraft.block.state.BlockState;
 
-// [1.7.10] DomumOrnamentum not available in 1.7.10 — handler always returns PASS.
+// [1.7.10] DomumOrnamentum not available in 1.7.10 â€” handler always returns PASS.
 import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.placement.IPlacementContext;
 import com.ldtteam.structurize.placement.handlers.placement.IPlacementHandler;
@@ -18,14 +19,14 @@ import java.util.List;
 
 /**
  * Placement handler for DomumOrnamentum blocks.
- * [1.7.10] DomumOrnamentum is not available — handler always returns PASS.
+ * [1.7.10] DomumOrnamentum is not available â€” handler always returns PASS.
  */
 public class DoBlockPlacementHandler implements IPlacementHandler
 {
     @Override
     public boolean canHandle(@NotNull final World world, @NotNull final int[] pos, @NotNull final BlockState blockState)
     {
-        // [1.7.10] IMateriallyTexturedBlock not available — never handle
+        // [1.7.10] IMateriallyTexturedBlock not available â€” never handle
         return false;
     }
 
@@ -63,7 +64,7 @@ public class DoBlockPlacementHandler implements IPlacementHandler
 
     /**
      * [1.7.10] Stub: returns the appropriate DO item for the given blockstate.
-     * DomumOrnamentum is not available in 1.7.10 — always returns the original stack.
+     * DomumOrnamentum is not available in 1.7.10 â€” always returns the original stack.
      *
      * @param stack           original stack
      * @param state           block state

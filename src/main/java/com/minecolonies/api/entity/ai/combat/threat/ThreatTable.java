@@ -83,7 +83,7 @@ public class ThreatTable<T extends EntityLivingBase & IThreatTableEntity>
         {
             threatTableEntry = new ThreatTableEntry(attacker);
             threatList.add(threatTableEntry);
-            threatTableEntry.addThreat(Math.max(0, MAX_DIST_THREAT - (owner.blockPosition().distManhattan(attacker.blockPosition()) / 4)));
+            threatTableEntry.addThreat(Math.max(0, MAX_DIST_THREAT - ((int) owner.getDistanceToEntity(attacker) / 4)));
             threatTableEntry.addThreat((int) Math.max(0, MAX_HEALTH_THREAT - (3 * (attacker.getHealth() / attacker.getMaxHealth()))));
         }
 
@@ -160,7 +160,7 @@ public class ThreatTable<T extends EntityLivingBase & IThreatTableEntity>
         final ThreatTableEntry top = threatList.get(0);
         if (top.getThreat() > current.getThreat())
         {
-            if (top.getEntity().distanceToSqr(owner) > MELEE_RANGE)
+            if (top.getEntity().getDistanceSqToEntity(owner) > MELEE_RANGE)
             {
                 // Targets not in meleerange need 30% more threat than current to cause a target change
                 if (top.getThreat() > (current.getThreat() * 1.3))
@@ -180,7 +180,7 @@ public class ThreatTable<T extends EntityLivingBase & IThreatTableEntity>
             }
         }
 
-        if (Math.abs(owner.World().getGameTime() - current.getLastSeen()) > MAX_TRACKING_TICKS || !current.getEntity().canBeSeenAsEnemy())
+        if (Math.abs(owner.worldObj.getTotalWorldTime() - current.getLastSeen()) > MAX_TRACKING_TICKS || !current.getEntity().isEntityAlive())
         {
             removeCurrentTarget();
             return getTarget();
@@ -240,7 +240,7 @@ public class ThreatTable<T extends EntityLivingBase & IThreatTableEntity>
         }
 
         final ThreatTableEntry entry = threatList.get(currentTargetIndex);
-        if (!entry.getEntity().isAlive())
+        if (!entry.getEntity().isEntityAlive()) // [1.7.10] isAlive() -> isEntityAlive()
         {
             removeCurrentTarget();
             return;

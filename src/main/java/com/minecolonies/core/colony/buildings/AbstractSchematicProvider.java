@@ -1,4 +1,6 @@
 package com.minecolonies.core.colony.buildings;
+import net.minecraft.network.chat.Style;
+import net.minecraft.tileentity.BlockEntity; // [1.7.10] alias -> TileEntity
 
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
@@ -27,6 +29,7 @@ import net.minecraft.world.World;
 // [1.7.10] block.entity removed
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
@@ -124,13 +127,13 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
     @Override
     public int hashCode()
     {
-        return (int) (31 * this.getID().asLong());
+        return (int) (31 * Arrays.hashCode(this.getID()));
     }
 
     @Override
     public boolean equals(final Object o)
     {
-        return o instanceof AbstractBuilding && ((IBuilding) o).getID().equals(this.getID());
+        return o instanceof AbstractBuilding && Arrays.equals(((IBuilding) o).getID(), this.getID());
     }
 
     @Override
@@ -166,21 +169,21 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
         final NBTTagCompound compound = new NBTTagCompound();
         BlockPosUtil.write(compound, TAG_LOCATION, location);
 
-        compound.putString(TAG_PACK, structurePack);
-        compound.putString(TAG_PATH, getBlueprintPath());
+        compound.setString(TAG_PACK, structurePack);
+        compound.setString(TAG_PATH, getBlueprintPath());
 
-        compound.putInt(TAG_SCHEMATIC_LEVEL, buildingLevel);
-        compound.putBoolean(TAG_MIRROR, isBuildingMirrored);
+        compound.setInteger(TAG_SCHEMATIC_LEVEL, buildingLevel);
+        compound.setBoolean(TAG_MIRROR, isBuildingMirrored);
 
         getCorners();
         BlockPosUtil.write(compound, TAG_CORNER1, this.lowerCorner);
         BlockPosUtil.write(compound, TAG_CORNER2, this.higherCorner);
 
-        compound.putInt(TAG_HEIGHT, this.height);
+        compound.setInteger(TAG_HEIGHT, this.height);
 
-        compound.putInt(TAG_ROTATION, cachedRotation);
+        compound.setInteger(TAG_ROTATION, cachedRotation);
 
-        compound.putBoolean(TAG_DECONSTRUCTED, isDeconstructed);
+        compound.setBoolean(TAG_DECONSTRUCTED, isDeconstructed);
 
         BlockPosUtil.write(compound, TAG_PARENT_SCHEM, parentSchematic);
         return compound;
@@ -189,28 +192,28 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
     @Override
     public void deserializeNBT(final NBTTagCompound compound)
     {
-        buildingLevel = compound.getInt(TAG_SCHEMATIC_LEVEL);
+        buildingLevel = compound.getInteger(TAG_SCHEMATIC_LEVEL);
 
         deserializerStructureInformationFrom(compound);
 
         isBuildingMirrored = compound.getBoolean(TAG_MIRROR);
 
-        if (compound.contains(TAG_CORNER1) && compound.contains(TAG_CORNER2))
+        if (compound.hasKey(TAG_CORNER1) && compound.hasKey(TAG_CORNER2))
         {
             setCorners(BlockPosUtil.read(compound, TAG_CORNER1), BlockPosUtil.read(compound, TAG_CORNER2));
         }
 
-        if (compound.contains(TAG_HEIGHT))
+        if (compound.hasKey(TAG_HEIGHT))
         {
-            this.height = compound.getInt(TAG_HEIGHT);
+            this.height = compound.getInteger(TAG_HEIGHT);
         }
 
-        if (compound.contains(TAG_ROTATION))
+        if (compound.hasKey(TAG_ROTATION))
         {
-            this.cachedRotation = compound.getInt(TAG_ROTATION);
+            this.cachedRotation = compound.getInteger(TAG_ROTATION);
         }
 
-        if (compound.contains(TAG_DECONSTRUCTED))
+        if (compound.hasKey(TAG_DECONSTRUCTED))
         {
             this.isDeconstructed = compound.getBoolean(TAG_DECONSTRUCTED);
         }
@@ -226,7 +229,7 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
     {
         String packName;
         String path;
-        if (compound.contains(TAG_STYLE) && !compound.getString(TAG_STYLE).isEmpty())
+        if (compound.hasKey(TAG_STYLE) && !compound.getString(TAG_STYLE).isEmpty())
         {
             packName = BlueprintMapping.getStyleMapping(compound.getString(TAG_STYLE));
             path = BlueprintMapping.getPathMapping(compound.getString(TAG_STYLE), this.getSchematicName()) + buildingLevel + ".blueprint";
@@ -350,7 +353,7 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
             return;
         }
 
-        final TileEntityColonyBuilding te = (TileEntityColonyBuilding) colony.getWorld().getBlockEntity(getPosition());
+        final TileEntityColonyBuilding te = (TileEntityColonyBuilding) colony.getWorld().getTileEntity(getPosition()[0], getPosition()[1], getPosition()[2]);
 
         try
         {
@@ -369,7 +372,7 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
         }
         catch (final Exception ex)
         {
-            MessageUtils.format(WARNING_INVALID_BUILDING, getSchematicName(), getID().getX(), getID().getY(), getID().getZ(), getStructurePack()).sendTo(colony).forAllPlayers();
+            MessageUtils.format(WARNING_INVALID_BUILDING, getSchematicName(), getID()[0], getID()[1], getID()[2], getStructurePack()).sendTo(colony).forAllPlayers();
         }
     }
 
@@ -418,7 +421,8 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
         if (!recalcPrestige)
         {
             recalcPrestige = true;
-            blueprintFuture = StructurePacks.getBlueprintFuture(this.getStructurePack(), this.getBlueprintPath());
+            // [1.7.10] StructurePacks.getBlueprintFuture not available in 1.7.10 Structurize
+            // blueprintFuture = StructurePacks.getBlueprintFuture(this.getStructurePack(), this.getBlueprintPath());
         }
     }
 
@@ -438,10 +442,11 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
         else
         {
             structureName = te.getBlueprintPath();
-            packName = te.getStructurePack().getName();
+            packName = structurePack; // [1.7.10] te.getStructurePack() returns StructurePackMeta (1.20.1); use local field
         }
 
-        blueprintFuture = StructurePacks.getBlueprintFuture(packName, structureName);
+        // [1.7.10] StructurePacks.getBlueprintFuture not available; skip
+        // blueprintFuture = StructurePacks.getBlueprintFuture(packName, structureName);
         blueprintFuturePack = packName;
         blueprintFutureName = structureName;
     }
@@ -468,7 +473,8 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
         this.structurePack = pack;
         cachedRotation = -1;
         this.markDirty();
-        getTileEntity().setStructurePack(StructurePacks.getStructurePack(pack));
+        // [1.7.10] StructurePacks.getStructurePack not available; skip TE setStructurePack call
+        // getTileEntity().setStructurePack(StructurePacks.getStructurePack(pack));
     }
 
     @Override
@@ -512,32 +518,34 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
         if (this.hasModule(IAltersBuildingFootprint.class))
         {
             final Tuple<int[], int[]> extensions = this.getFirstModuleOccurance(IAltersBuildingFootprint.class).getAdditionalCorners();
-            cornerA = cornerA.offset(extensions.getA());
-            cornerB = cornerB.offset(extensions.getB());
+            // [1.7.10] int[] doesn't have offset(); add manually
+            cornerA = new int[]{cornerA[0] + extensions.getA()[0], cornerA[1] + extensions.getA()[1], cornerA[2] + extensions.getA()[2]};
+            cornerB = new int[]{cornerB[0] + extensions.getB()[0], cornerB[1] + extensions.getB()[1], cornerB[2] + extensions.getB()[2]};
         }
 
-        return positionVec.getX() >= cornerA.getX() - 1 && positionVec.getX() <= cornerB.getX() + 1
-                 && positionVec.getY() >= cornerA.getY() - 1 && positionVec.getY() <= cornerB.getY() + 1
-                 && positionVec.getZ() >= cornerA.getZ() - 1 && positionVec.getZ() <= cornerB.getZ() + 1;
+        return positionVec[0] >= cornerA[0] - 1 && positionVec[0] <= cornerB[0] + 1
+                 && positionVec[1] >= cornerA[1] - 1 && positionVec[1] <= cornerB[1] + 1
+                 && positionVec[2] >= cornerA[2] - 1 && positionVec[2] <= cornerB[2] + 1;
     }
 
     @Override
     public void upgradeBuildingLevelToSchematicData()
     {
-        final BlockEntity tileEntity = colony.getWorld().getBlockEntity(getID());
-        if (tileEntity instanceof IBlueprintDataProviderBE blueprintDataProvider)
+        final int[] id = getID();
+        final net.minecraft.tileentity.TileEntity tileEntity = colony.getWorld().getTileEntity(id[0], id[1], id[2]);
+        if (tileEntity instanceof AbstractTileEntityColonyBuilding te)
         {
-            if (blueprintDataProvider.getSchematicName().isEmpty())
+            if (te.getSchematicName().isEmpty())
             {
                 return;
             }
 
-            setCorners(blueprintDataProvider.getInWorldCorners().getA(), blueprintDataProvider.getInWorldCorners().getB());
-
+            // [1.7.10] IBlueprintDataProviderBE not implemented; use basic TE data
             int World = 0;
             try
             {
-                World = Integer.parseInt(blueprintDataProvider.getSchematicName().substring(blueprintDataProvider.getSchematicName().length() - 1));
+                final String sName = te.getSchematicName();
+                World = Integer.parseInt(sName.substring(sName.length() - 1));
             }
             catch (NumberFormatException e)
             {
@@ -547,15 +555,7 @@ public abstract class AbstractSchematicProvider implements ISchematicProvider, I
             {
                 if (World > getBuildingLevel())
                 {
-                    Tuple<int[], int[]> corners = getCorners();
-                    if (getParent() != new int[]{0,0,0})
-                    {
-                        final BlockEntity parentTileEntity = colony.getWorld().getBlockEntity(getParent());
-                        if (parentTileEntity instanceof AbstractTileEntityColonyBuilding parentBuildingTileEntity)
-                        {
-                            corners = parentBuildingTileEntity.getBuilding().getCorners();
-                        }
-                    }
+                    final Tuple<int[], int[]> corners = getCorners();
                     FireworkUtils.spawnFireworksAtAABBCorners(corners, colony.getWorld(), World);
                 }
 

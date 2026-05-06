@@ -1,4 +1,5 @@
 package com.minecolonies.core.entity.pathfinding.pathjobs;
+import net.minecraft.util.Direction;
 
 // [1.7.10] int[] -> int x,y,z
 

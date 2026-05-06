@@ -1,4 +1,5 @@
 package com.minecolonies.api.util.constant;
+import net.minecraft.world.level.ChunkPos;
 
 import com.minecolonies.api.colony.IColony;
 // [1.7.10] TicketType/ChunkPos/Scoreboard removed - chunk loading handled differently

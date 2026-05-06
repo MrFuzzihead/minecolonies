@@ -1,4 +1,9 @@
 package com.minecolonies.core.items;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.InteractionResult;
+import net.minecraft.world.item.Properties;
+import net.minecraft.util.Direction;
+import net.minecraft.world.entity.player.Player;
 
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
@@ -67,7 +72,7 @@ public class ItemSupplyChestDeployer extends AbstractItemMinecolonies implements
      *
      * @param properties the properties.
      */
-    public ItemSupplyChestDeployer(final Item.Properties properties)
+    public ItemSupplyChestDeployer(final Properties properties)
     {
         super("supplychestdeployer", properties.stacksTo(1));
     }

@@ -1,4 +1,6 @@
 package com.minecolonies.core.entity.ai.workers.guard;
+import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.world.entity.player.Player;
 
 import com.minecolonies.api.compatibility.tinkers.TinkersToolHelper;
 import com.minecolonies.api.entity.ai.combat.CombatAIStates;
@@ -114,7 +116,7 @@ public class KnightCombatAI extends AttackMoveAI<EntityCitizen>
     protected IAIState attackProtect()
     {
         final int shieldSlot = InventoryUtils.findFirstSlotInItemHandlerWith(user.getInventoryCitizen(), Items.SHIELD);
-        if (shieldSlot != -1 && target != null && target.isAlive() && nextAttackTime - user.World.getGameTime() >= MIN_TIME_TO_ATTACK &&
+        if (shieldSlot != -1 && target != null && target.isAlive() && nextAttackTime - user.world.getTotalWorldTime() >= MIN_TIME_TO_ATTACK &&
               user.getCitizenColonyHandler().getColonyOrRegister().getResearchManager().getResearchEffects().getEffectStrength(SHIELD_USAGE) > 0)
         {
             CitizenItemUtils.setHeldItem(user, 1 /* InteractionHand.OFF_HAND */, shieldSlot);
@@ -176,7 +178,7 @@ public class KnightCombatAI extends AttackMoveAI<EntityCitizen>
             target.setSecondsOnFire(fireLevel * 4);
         }
 
-        if (user.World.getGameTime() - lastAoeUseTime > KNOCKBACK_COOLDOWN)
+        if (user.world.getTotalWorldTime() - lastAoeUseTime > KNOCKBACK_COOLDOWN)
         {
             doAoeAttack(source, damageToBeDealt);
         }
@@ -251,7 +253,7 @@ public class KnightCombatAI extends AttackMoveAI<EntityCitizen>
                   0.0D);
             }
 
-            lastAoeUseTime = user.World.getGameTime();
+            lastAoeUseTime = user.world.getTotalWorldTime();
         }
     }
 

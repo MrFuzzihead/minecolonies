@@ -1,4 +1,8 @@
 package com.minecolonies.core.event.capabilityproviders;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+
+import net.minecraft.world.level.chunk.LevelChunk;
 
 // [1.7.10 BACKPORT] This class replaced by ColonyChunkDataHandler (ChunkAPI IChunkDataHandler).
 //

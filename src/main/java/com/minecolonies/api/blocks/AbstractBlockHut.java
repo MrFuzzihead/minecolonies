@@ -1,4 +1,11 @@
 package com.minecolonies.api.blocks;
+import net.minecraft.network.chat.Style;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.tileentity.BlockEntity; // [1.7.10] alias -> TileEntity
+import net.minecraft.world.entity.player.Player;
 
 // [1.7.10 BACKPORT] Structurize interfaces kept tentatively; may need adjustment to match 1.7.10 Structurize jar.
 import com.ldtteam.structurize.blocks.interfaces.*;
@@ -104,7 +111,8 @@ public abstract class AbstractBlockHut<B extends AbstractBlockHut<B>> extends Ab
         if (tileEntity instanceof AbstractTileEntityColonyBuilding)
         {
             ((AbstractTileEntityColonyBuilding) tileEntity).setMirror(mirror);
-            ((AbstractTileEntityColonyBuilding) tileEntity).setPackName(style);
+            // [1.7.10] setPackName is from IBlueprintDataProviderBE which is not implemented; skip
+            // ((AbstractTileEntityColonyBuilding) tileEntity).setPackName(style);
             ((AbstractTileEntityColonyBuilding) tileEntity).setBlueprintPath(blueprintPath);
         }
 
@@ -127,7 +135,7 @@ public abstract class AbstractBlockHut<B extends AbstractBlockHut<B>> extends Ab
     {
         final List<String> requirements = new ArrayList<>();
         // [1.7.10 BACKPORT] IColonyManager.getClosestColonyView — coordinates as ints
-        final IColonyView colonyView = IColonyManager.getInstance().getClosestColonyView(World, x, y, z);
+        final IColonyView colonyView = IColonyManager.getInstance().getClosestColonyView(World, new int[]{x, y, z});
         if (colonyView == null)
         {
             requirements.add("com.minecolonies.coremod.hut.incolony");
@@ -224,7 +232,7 @@ public abstract class AbstractBlockHut<B extends AbstractBlockHut<B>> extends Ab
       final boolean b)
     {
         // [1.7.10 BACKPORT] CreativeBuildingStructureHandler — signature may differ; depends on Structurize 1.7.10 API.
-        return new CreativeBuildingStructureHandler(World, x, y, z, blueprint, placementSettings, b);
+        return new CreativeBuildingStructureHandler(World, new int[]{x, y, z}, blueprint, placementSettings, b);
     }
 
     @Override
@@ -271,23 +279,23 @@ public abstract class AbstractBlockHut<B extends AbstractBlockHut<B>> extends Ab
             return true;
         }
 
-        @Nullable final IBuilding building = IColonyManager.getInstance().getBuilding(world, x, y, z);
+        @Nullable final IBuilding building = IColonyManager.getInstance().getBuilding(world, new int[]{x, y, z});
         if (building == null)
         {
             if (anchorBlock != ModBlocks.blockHutTownHall)
             {
                 // [1.7.10 BACKPORT] player.blockPosition() → x,y,z
-                SoundUtils.playErrorSound(player, x, y, z);
+                SoundUtils.playErrorSound(player, new int[]{x, y, z});
                 Log.getLogger().error("BuildTool: building is null!", new Exception());
                 return false;
             }
         }
         else
         {
-            SoundUtils.playSuccessSound(player, x, y, z);
+            SoundUtils.playSuccessSound(player, new int[]{x, y, z});
             if (building.getTileEntity() != null)
             {
-                final IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(world, x, y, z);
+                final IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(world, new int[]{x, y, z});
                 if (colony == null)
                 {
                     // [1.7.10 BACKPORT] player.getName().getString() → player.getCommandSenderName()
@@ -334,7 +342,7 @@ public abstract class AbstractBlockHut<B extends AbstractBlockHut<B>> extends Ab
     private boolean canPaste(final Block anchor, final EntityPlayer player, final int x, final int y, final int z)
     {
         // [1.7.10 BACKPORT] player.World() → player.worldObj
-        final IColony colony = IColonyManager.getInstance().getIColony(player.worldObj, x, y, z);
+        final IColony colony = IColonyManager.getInstance().getIColony(player.worldObj, new int[]{x, y, z});
 
         if (colony == null)
         {
@@ -361,7 +369,7 @@ public abstract class AbstractBlockHut<B extends AbstractBlockHut<B>> extends Ab
         }
         else
         {
-            return colony.getServerBuildingManager().canPlaceAt(anchor, x, y, z, player);
+            return colony.getServerBuildingManager().canPlaceAt(anchor, new int[]{x, y, z}, player);
         }
     }
 

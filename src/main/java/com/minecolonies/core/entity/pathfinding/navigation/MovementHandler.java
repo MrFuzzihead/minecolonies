@@ -1,4 +1,7 @@
 package com.minecolonies.core.entity.pathfinding.navigation;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.Holder;
+import net.minecraft.util.Direction;
 
 import com.minecolonies.api.util.ShapeUtil;
 import com.minecolonies.core.entity.pathfinding.PathfindingUtils;
@@ -14,7 +17,10 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.block.Block;
 // [1.7.10] BlockState -> int metadata
 // [1.7.10] BlockPathTypes removed
+import net.minecraft.entity.EntityCreature;
 import net.minecraft.pathfinding.PathPointEvaluator;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.control.MoveControl;
 // [1.7.10] world.phys removed
 
 /**

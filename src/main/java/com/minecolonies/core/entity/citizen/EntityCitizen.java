@@ -1,4 +1,6 @@
 package com.minecolonies.core.entity.citizen;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.level.ChunkPos;
 
 import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.blocks.AbstractBlockHut;

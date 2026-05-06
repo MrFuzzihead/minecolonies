@@ -1,4 +1,8 @@
 package com.minecolonies.core.generation.defaults.workers;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.item.crafting.FinishedRecipe;
+import net.minecraft.data.PackOutput;
 
 import com.minecolonies.api.colony.jobs.ModJobs;
 import com.minecolonies.api.crafting.ItemStorage;
@@ -15,7 +19,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.World.ItemLike;
+// [1.7.10] import net.minecraft.world.World.ItemLike; // wrong package
 // [1.7.10] world.World.storage removed
 // [1.7.10] world.World.storage removed
 // [1.7.10] world.World.storage removed

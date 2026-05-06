@@ -1,4 +1,6 @@
 package com.minecolonies.api.entity.pathfinding;
+import net.minecraft.core.Holder;
+// [1.7.10] Holder does not exist; import removed
 
 import com.minecolonies.core.entity.pathfinding.PathingOptions;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;

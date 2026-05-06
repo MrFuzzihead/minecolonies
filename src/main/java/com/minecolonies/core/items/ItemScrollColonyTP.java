@@ -1,4 +1,8 @@
 package com.minecolonies.core.items;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.item.Properties;
+import net.minecraft.util.Direction;
+import net.minecraft.world.entity.player.Player;
 
 import com.ldtteam.structurize.util.BlockUtils;
 import com.minecolonies.api.colony.IColony;
@@ -49,10 +53,10 @@ public class ItemScrollColonyTP extends AbstractItemScroll
     @Override
     protected ItemStack onItemUseSuccess(final ItemStack itemStack, final World world, final EntityPlayerMP player)
     {
-        if (world.random.nextInt(10) == 0)
+        if (world.rand.nextInt(10) == 0)
         {
             // Fail
-            player.displayClientMessage(String.translatable("minecolonies.scroll.failed" + (world.random.nextInt(FAIL_RESPONSES_TOTAL) + 1)).setStyle(Style.EMPTY.withColor(
+            player.displayClientMessage(String.translatable("minecolonies.scroll.failed" + (world.rand.nextInt(FAIL_RESPONSES_TOTAL) + 1)).setStyle(Style.EMPTY.withColor(
               ChatFormatting.GOLD)), true);
 
             int[] pos = null;
