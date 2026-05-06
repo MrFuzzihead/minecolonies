@@ -1,11 +1,11 @@
 package com.minecolonies.core.colony.managers;
-import net.minecraft.util.Direction;
-// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.BoneMealItem;
+// [1.7.10] removed bad 1.21 imports
+// import net.minecraft.util.Direction;
+// import net.minecraft.world.level.block.state.BlockState;
+// import net.minecraft.world.entity.player.Player;
+// import net.minecraft.world.phys.AABB;
+// import net.minecraft.util.RandomSource;
+// import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.blocks.ModBlocks;
 import com.minecolonies.api.colony.*;
@@ -23,6 +23,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.IChatComponent;
+import net.minecraft.util.StatCollector;
 // [1.7.10] tags removed
 // [1.7.10] BlockState -> int metadata
 import org.jetbrains.annotations.NotNull;
@@ -100,7 +101,8 @@ public class ColonyConnectionManager implements IColonyConnectionManager
             // Only connect to a node with correct distance.
             if (!node.hasNextNode())
             {
-                final int localDistance = (int) node.getPosition().distSqr(pos);
+                final int[] np = node.getPosition();
+                final int localDistance = (int) BlockPosUtil.getDistanceSquared(np[0], np[1], np[2], pos[0], pos[1], pos[2]); // [1.7.10] int[].distSqr -> BlockPosUtil helper
                 if (localDistance <= 50*50 && localDistance < distance)
                 {
                     distance = localDistance;
@@ -126,7 +128,7 @@ public class ColonyConnectionManager implements IColonyConnectionManager
 
         for (final int[] gateHousePos : gateHouses)
         {
-            if (gateHousePos.distSqr(connectionPoint) <= 50*50)
+            if (BlockPosUtil.getDistanceSquared(gateHousePos[0], gateHousePos[1], gateHousePos[2], connectionPoint[0], connectionPoint[1], connectionPoint[2]) <= 50*50) // [1.7.10] int[].distSqr -> BlockPosUtil helper
             {
                 final PendingConnectionNode newNode = new PendingConnectionNode(connectionPoint, createSignPath(connectionPoint, gateHousePos), PendingConnectionNode.PendingConnectionType.DEFAULT);
                 newNode.alterPreviousNode(gateHousePos);
@@ -176,13 +178,15 @@ public class ColonyConnectionManager implements IColonyConnectionManager
             if (previousNode != null)
             {
                 previousNode.alterNextNode(new int[]{0,0,0});
-                MessageUtils.format(String.translatable(COM_MINECOLONIES_SIGN_DISRUPTED, previousNode.getPosition())).sendTo(this.colony).forManagers();
+                final int[] pnPos = previousNode.getPosition();
+                MessageUtils.format(COM_MINECOLONIES_SIGN_DISRUPTED, "[" + pnPos[0] + "," + pnPos[1] + "," + pnPos[2] + "]").sendTo(this.colony).forManagers(); // [1.7.10] String.translatable
             }
             final ColonyConnectionNode nextNode = colonyConnections.get(colonyConnectionNode.getNextNode());
             if (nextNode != null)
             {
                 nextNode.alterPreviousNode(new int[]{0,0,0});
-                MessageUtils.format(String.translatable(COM_MINECOLONIES_SIGN_DISRUPTED, nextNode.getPosition())).sendTo(this.colony).forManagers();
+                final int[] nnPos = nextNode.getPosition();
+                MessageUtils.format(COM_MINECOLONIES_SIGN_DISRUPTED, "[" + nnPos[0] + "," + nnPos[1] + "," + nnPos[2] + "]").sendTo(this.colony).forManagers(); // [1.7.10] String.translatable
             }
         }
         pendingColonyConnections.remove(connectionPoint);
@@ -212,7 +216,7 @@ public class ColonyConnectionManager implements IColonyConnectionManager
         {
             if (pendingConnection.getValue().getCachedPathResult() == null)
             {
-                if (WorldUtil.isBlockLoaded(colony.getWorld(), pendingConnection.getKey()))
+                if (WorldUtil.isBlockLoaded(colony.getWorld(), pendingConnection.getKey()[0], pendingConnection.getKey()[2])) // [1.7.10] isBlockLoaded(world, int[]) -> (world, x, z)
                 {
                     pendingConnection.getValue().setCachedPathResult(createSignPath(pendingConnection.getValue().getPosition(), pendingConnection.getValue().getPreviousNode()));
                 }
@@ -230,16 +234,22 @@ public class ColonyConnectionManager implements IColonyConnectionManager
                     {
                         if (connection == null && !gateHouses.contains(pendingConnection.getValue().getPreviousNode()))
                         {
-                            colony.getWorld().destroyBlock(pendingConnection.getKey(), true);
+                            final int[] dk = pendingConnection.getKey();
+                            colony.getWorld().func_147480_a(dk[0], dk[1], dk[2], true); // [1.7.10] destroyBlock -> func_147480_a (destroy with drops)
+                            final int[] pn = pendingConnection.getValue().getPreviousNode();
                             MessageUtils.format(COM_MINECOLONIES_CONNECTION_PATH_FAILURE,
-                                pendingConnection.getKey().toShortString(),
-                                pendingConnection.getValue().getPreviousNode().toShortString()).withPriority(MessageUtils.MessagePriority.DANGER).sendTo(colony).forManagers();
+                                "[" + dk[0] + "," + dk[1] + "," + dk[2] + "]", // [1.7.10] toShortString not on int[]
+                                "[" + pn[0] + "," + pn[1] + "," + pn[2] + "]").withPriority(MessageUtils.MessagePriority.DANGER).sendTo(colony).forManagers();
                             continue;
                         }
                         colonyConnections.put(pendingConnection.getKey(), pendingConnection.getValue());
                     }
 
-                    MessageUtils.format(COM_MINECOLONIES_SIGN_CONNECTED, pendingConnection.getValue().getPosition().toShortString(), pendingConnection.getValue().getPreviousNode().toShortString())
+                    final int[] pos0 = pendingConnection.getValue().getPosition();
+                    final int[] pos1 = pendingConnection.getValue().getPreviousNode();
+                    MessageUtils.format(COM_MINECOLONIES_SIGN_CONNECTED,
+                            "[" + pos0[0] + "," + pos0[1] + "," + pos0[2] + "]", // [1.7.10] toShortString not on int[]
+                            "[" + pos1[0] + "," + pos1[1] + "," + pos1[2] + "]")
                         .withPriority(MessageUtils.MessagePriority.IMPORTANT)
                         .sendTo(colony)
                         .forManagers();
@@ -290,7 +300,9 @@ public class ColonyConnectionManager implements IColonyConnectionManager
                             // Only connect to a node with correct distance.
                             if (node.getPreviousNode().equals(new int[]{0,0,0}) && !node.getPosition().equals(pendingConnection.getKey()))
                             {
-                                final int localDistance = (int) node.getPosition().distSqr(pendingConnection.getKey());
+                                final int[] np2 = node.getPosition();
+                                final int[] ck2 = pendingConnection.getKey();
+                                final int localDistance = (int) BlockPosUtil.getDistanceSquared(np2[0], np2[1], np2[2], ck2[0], ck2[1], ck2[2]); // [1.7.10] int[].distSqr
                                 if (localDistance <= 50 * 50 && localDistance < distance && !node.getPosition().equals(pendingConnection.getKey()))
                                 {
                                     distance = localDistance;
@@ -322,9 +334,13 @@ public class ColonyConnectionManager implements IColonyConnectionManager
                     {
                         continue;
                     }
-                    colony.getWorld().destroyBlock(pendingConnection.getKey(), true);
+                    final int[] dk2 = pendingConnection.getKey();
+                    final int[] pn2 = pendingConnection.getValue().getPreviousNode();
+                    colony.getWorld().func_147480_a(dk2[0], dk2[1], dk2[2], true); // [1.7.10] destroyBlock -> func_147480_a
                     pendingColonyConnections.remove(pendingConnection.getKey());
-                    MessageUtils.format(COM_MINECOLONIES_CONNECTION_PATH_FAILURE, pendingConnection.getKey().toShortString(), pendingConnection.getValue().getPreviousNode().toShortString()).withPriority(MessageUtils.MessagePriority.DANGER).sendTo(colony).forManagers();
+                    MessageUtils.format(COM_MINECOLONIES_CONNECTION_PATH_FAILURE,
+                        "[" + dk2[0] + "," + dk2[1] + "," + dk2[2] + "]", // [1.7.10] toShortString
+                        "[" + pn2[0] + "," + pn2[1] + "," + pn2[2] + "]").withPriority(MessageUtils.MessagePriority.DANGER).sendTo(colony).forManagers();
                 }
             }
         }
@@ -345,7 +361,7 @@ public class ColonyConnectionManager implements IColonyConnectionManager
         final IColony targetColony = IColonyManager.getInstance().getColonyByDimension(targetColonyId, colony.getDimension());
         if (targetColony == null)
         {
-            MessageUtils.format(String.translatable(COM_MINECOLONIES_CONNECTION_NO_COLONY)).sendTo(this.colony).forManagers();
+            MessageUtils.format(COM_MINECOLONIES_CONNECTION_NO_COLONY).sendTo(this.colony).forManagers(); // [1.7.10] String.translatable
             return;
         }
         // Make sure we're connected until the gate.
@@ -364,7 +380,7 @@ public class ColonyConnectionManager implements IColonyConnectionManager
 
         if (thisColonyGatePos == null || !gateHouses.contains(thisColonyGatePos))
         {
-            MessageUtils.format(String.translatable(COM_MINECOLONIES_CONNECTION_BROKEN, lastPos.toShortString())).sendTo(this.colony).forManagers();
+            MessageUtils.format(StatCollector.translateToLocal(COM_MINECOLONIES_CONNECTION_BROKEN) + " [" + lastPos[0] + "," + lastPos[1] + "," + lastPos[2] + "]").sendTo(this.colony).forManagers(); // [1.7.10] String.translatable; toShortString
             return;
         }
 
@@ -372,7 +388,7 @@ public class ColonyConnectionManager implements IColonyConnectionManager
         final ColonyConnectionNode targetNode = targetManager.colonyConnections.get(targetColonyConnectionPos);
         if ((targetNode != null && targetNode.hasNextNode()) && !targetManager.gateHouses.contains(targetColonyConnectionPos))
         {
-            MessageUtils.format(String.translatable(COM_MINECOLONIES_CONNECTION_FAIL)).sendTo(this.colony).forManagers();
+            MessageUtils.format(COM_MINECOLONIES_CONNECTION_FAIL).sendTo(this.colony).forManagers(); // [1.7.10] String.translatable
             return;
         }
 
@@ -390,7 +406,7 @@ public class ColonyConnectionManager implements IColonyConnectionManager
 
         if (targetColonyGatePos == null || !targetManager.gateHouses.contains(targetColonyGatePos))
         {
-            MessageUtils.format(String.translatable(COM_MINECOLONIES_CONNECTION_FAIL)).sendTo(this.colony).forManagers();
+            MessageUtils.format(COM_MINECOLONIES_CONNECTION_FAIL).sendTo(this.colony).forManagers(); // [1.7.10] String.translatable
             return;
         }
 
@@ -457,11 +473,12 @@ public class ColonyConnectionManager implements IColonyConnectionManager
     {
         int range = 0;
         int[] lowestPoint = targetPos;
-        BlockState lowestState = colony.getWorld().getBlockState(lowestPoint.below());
-        while ((lowestState.is(BlockTags.FENCES) || lowestState.getBlock() == ModBlocks.blockColonySign) && range < MAX_SIGN_RANGE)
+        // [1.7.10] getBlockState/BlockState.is(BlockTags.FENCES) -> getBlock, instanceof BlockFence
+        net.minecraft.block.Block lowestBlock = colony.getWorld().getBlock(lowestPoint[0], lowestPoint[1] - 1, lowestPoint[2]);
+        while ((lowestBlock instanceof net.minecraft.block.BlockFence || lowestBlock == ModBlocks.blockColonySign) && range < MAX_SIGN_RANGE)
         {
-            lowestPoint = lowestPoint.below();
-            lowestState = colony.getWorld().getBlockState(lowestPoint.below());
+            lowestPoint = new int[]{lowestPoint[0], lowestPoint[1] - 1, lowestPoint[2]};
+            lowestBlock = colony.getWorld().getBlock(lowestPoint[0], lowestPoint[1] - 1, lowestPoint[2]);
             range++;
         }
         return lowestPoint;
@@ -531,7 +548,8 @@ public class ColonyConnectionManager implements IColonyConnectionManager
                 // Only connect to a node with correct distance.
                 if (node.getPreviousNode().equals(new int[]{0,0,0}))
                 {
-                    if (node.getPosition().distSqr(gateHouseConnectionNode) <= 50 * 50)
+                    final int[] gp = node.getPosition();
+                    if (BlockPosUtil.getDistanceSquared(gp[0], gp[1], gp[2], gateHouseConnectionNode[0], gateHouseConnectionNode[1], gateHouseConnectionNode[2]) <= 50 * 50) // [1.7.10] distSqr
                     {
                         final PendingConnectionNode newNode = new PendingConnectionNode(gateHouseConnectionNode,
                             createSignPath(gateHouseConnectionNode, node.getPosition()),
@@ -615,50 +633,54 @@ public class ColonyConnectionManager implements IColonyConnectionManager
         for (int i = 0; i < connectionEventSize; i++)
         {
             final ConnectionEvent connectionEventData = ConnectionEvent.deserializeByteBuf(buf);
-            connectionEvents.put(connectionEventData.id(), connectionEventData);
+            connectionEvents.put(connectionEventData.id, connectionEventData);
         }
     }
 
     @Override
     public void deserializeNBT(final NBTTagCompound compound)
     {
-        final NBTTagList connectionTagList = compound.getTagList(TAG_CONNECTIONS, NBTBase.TAG_COMPOUND);
-        for (final NBTBase NBTBase : connectionTagList)
+        final NBTTagList connectionTagList = compound.getTagList(TAG_CONNECTIONS, 10); // [1.7.10] NBTBase.TAG_COMPOUND -> 10
+        for (int i = 0; i < connectionTagList.tagCount(); i++) // [1.7.10] not iterable
         {
-            final int[] pos = BlockPosUtil.read((NBTTagCompound) NBTBase, TAG_POS);
+            final NBTTagCompound tag = connectionTagList.getCompoundTagAt(i);
+            final int[] pos = BlockPosUtil.read(tag, TAG_POS);
             final ColonyConnectionNode connectionPoint = new ColonyConnectionNode(pos);
-            connectionPoint.read((NBTTagCompound) NBTBase);
+            connectionPoint.read(tag);
             colonyConnections.put(pos, connectionPoint);
         }
 
-        final NBTTagList connectedColonyTagList = compound.getTagList(TAG_COLONIES, NBTBase.TAG_COMPOUND);
-        for (final NBTBase NBTBase : connectedColonyTagList)
+        final NBTTagList connectedColonyTagList = compound.getTagList(TAG_COLONIES, 10); // [1.7.10]
+        for (int i = 0; i < connectedColonyTagList.tagCount(); i++) // [1.7.10] not iterable
         {
-            final ColonyConnection colonyConnectionData = new ColonyConnection().deserializeNBT((NBTTagCompound) NBTBase);
+            final NBTTagCompound tag = connectedColonyTagList.getCompoundTagAt(i);
+            final ColonyConnection colonyConnectionData = new ColonyConnection().deserializeNBT(tag);
             directlyConnectedColonies.put(colonyConnectionData.id, colonyConnectionData);
         }
 
         gateHouses.clear();
-        final NBTTagList gateHouseTagList = compound.getTagList(TAG_GATEHOUSES, NBTBase.TAG_COMPOUND);
-        for (final NBTBase NBTBase : gateHouseTagList)
+        final NBTTagList gateHouseTagList = compound.getTagList(TAG_GATEHOUSES, 10); // [1.7.10]
+        for (int i = 0; i < gateHouseTagList.tagCount(); i++) // [1.7.10] not iterable
         {
-            gateHouses.add(BlockPosUtil.read((NBTTagCompound) NBTBase, TAG_POS));
+            gateHouses.add(BlockPosUtil.read(gateHouseTagList.getCompoundTagAt(i), TAG_POS));
         }
 
         connectionEvents.clear();
-        final NBTTagList connectionEventList = compound.getTagList(TAG_CONNECTION_EVENTS, NBTBase.TAG_COMPOUND);
-        for (final NBTBase NBTBase : connectionEventList)
+        final NBTTagList connectionEventList = compound.getTagList(TAG_CONNECTION_EVENTS, 10); // [1.7.10]
+        for (int i = 0; i < connectionEventList.tagCount(); i++) // [1.7.10] not iterable
         {
-            final ConnectionEvent connectionEventData = ConnectionEvent.deserializeNBT((NBTTagCompound) NBTBase);
-            connectionEvents.put(connectionEventData.id(), connectionEventData);
+            final NBTTagCompound tag = connectionEventList.getCompoundTagAt(i);
+            final ConnectionEvent connectionEventData = ConnectionEvent.deserializeNBT(tag);
+            connectionEvents.put(connectionEventData.id, connectionEventData);
         }
 
-        final NBTTagList pendingConnectionTagList = compound.getTagList(TAG_PENDING, NBTBase.TAG_COMPOUND);
-        for (final NBTBase NBTBase : pendingConnectionTagList)
+        final NBTTagList pendingConnectionTagList = compound.getTagList(TAG_PENDING, 10); // [1.7.10]
+        for (int i = 0; i < pendingConnectionTagList.tagCount(); i++) // [1.7.10] not iterable
         {
-            final int[] pos = BlockPosUtil.read((NBTTagCompound) NBTBase, TAG_POS);
+            final NBTTagCompound tag = pendingConnectionTagList.getCompoundTagAt(i);
+            final int[] pos = BlockPosUtil.read(tag, TAG_POS);
             final PendingConnectionNode colonyConnectionData = new PendingConnectionNode(pos);
-            colonyConnectionData.read((NBTTagCompound) NBTBase);
+            colonyConnectionData.read(tag);
             pendingColonyConnections.put(pos, colonyConnectionData);
         }
     }
@@ -666,55 +688,55 @@ public class ColonyConnectionManager implements IColonyConnectionManager
     @Override
     public NBTTagCompound serializeNBT()
     {
-        final NBTTagCompound NBTTagCompound = new NBTTagCompound();
+        final NBTTagCompound compound = new NBTTagCompound();
         @NotNull final NBTTagList connectionTagList = new NBTTagList();
         for (@NotNull final ColonyConnectionNode connectionPoint : colonyConnections.values())
         {
-            connectionTagList.add(connectionPoint.write());
+            connectionTagList.appendTag(connectionPoint.write()); // [1.7.10] add -> appendTag
         }
-        NBTTagcompound.setTag(TAG_CONNECTIONS, connectionTagList);
+        compound.setTag(TAG_CONNECTIONS, connectionTagList);
 
         @NotNull final NBTTagList connectedColonyTagList = new NBTTagList();
         for (final Map.Entry<Integer, ColonyConnection> entry : directlyConnectedColonies.entrySet())
         {
-            connectedColonyTagList.add(entry.getValue().serializeNBT());
+            connectedColonyTagList.appendTag(entry.getValue().serializeNBT()); // [1.7.10] add -> appendTag
         }
-        NBTTagcompound.setTag(TAG_COLONIES, connectedColonyTagList);
+        compound.setTag(TAG_COLONIES, connectedColonyTagList);
 
         @NotNull final NBTTagList gateHouseTagList = new NBTTagList();
         for (final int[] gateHouse : gateHouses)
         {
-            gateHouseTagList.add(BlockPosUtil.write(new NBTTagCompound(), TAG_POS, gateHouse));
+            gateHouseTagList.appendTag(BlockPosUtil.write(new NBTTagCompound(), TAG_POS, gateHouse)); // [1.7.10] add -> appendTag
         }
-        NBTTagcompound.setTag(TAG_GATEHOUSES, gateHouseTagList);
+        compound.setTag(TAG_GATEHOUSES, gateHouseTagList);
 
         @NotNull final NBTTagList connectionEventTagList = new NBTTagList();
         for (final ConnectionEvent connectionEvent : connectionEvents.values())
         {
-            connectionEventTagList.add(connectionEvent.serializeNBT());
+            connectionEventTagList.appendTag(connectionEvent.serializeNBT()); // [1.7.10] add -> appendTag
         }
-        NBTTagcompound.setTag(TAG_CONNECTION_EVENTS, connectionEventTagList);
+        compound.setTag(TAG_CONNECTION_EVENTS, connectionEventTagList);
 
         @NotNull final NBTTagList pendingConnectionTagList = new NBTTagList();
         for (final PendingConnectionNode connectionEvent : pendingColonyConnections.values())
         {
-            pendingConnectionTagList.add(connectionEvent.write());
+            pendingConnectionTagList.appendTag(connectionEvent.write()); // [1.7.10] add -> appendTag
         }
-        NBTTagcompound.setTag(TAG_PENDING, pendingConnectionTagList);
-        return NBTTagCompound;
+        compound.setTag(TAG_PENDING, pendingConnectionTagList);
+        return compound;
     }
 
     @Override
     public void triggerConnectionEvent(final ConnectionEvent connectionEventData)
     {
-        final int originColonyId = connectionEventData.id();
+        final int originColonyId = connectionEventData.id;
         final IColony originColony = IColonyManager.getInstance().getColonyByDimension(originColonyId, colony.getDimension());
         if (originColony == null)
         {
             return;
         }
 
-        connectionEvents.put(connectionEventData.id(), connectionEventData);
+        connectionEvents.put(connectionEventData.id, connectionEventData);
         final ColonyConnection connectedColonyData;
         final TreeMap<Integer, ColonyConnection> affectedMap;
         if (directlyConnectedColonies.containsKey(originColonyId))
@@ -732,7 +754,7 @@ public class ColonyConnectionManager implements IColonyConnectionManager
             return;
         }
 
-        final DiplomacyStatus diplomacyStatus = switch (connectionEventData.connectionEventType())
+        final DiplomacyStatus diplomacyStatus = switch (connectionEventData.connectionEventType)
         {
             case ALLY_CONFIRMED -> DiplomacyStatus.ALLIES;
             case FEUD_STARTED -> DiplomacyStatus.HOSTILE;

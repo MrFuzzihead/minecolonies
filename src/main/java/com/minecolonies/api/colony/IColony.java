@@ -4,7 +4,7 @@ package com.minecolonies.api.colony;
 // [1.7.10] Animal removed — EntityAnimal used if needed
 import net.minecraft.util.Direction;
 // [1.7.10] Player removed — EntityPlayer used below
-import net.minecraft.block.state.BlockState;
+// import net.minecraft.block.state.BlockState; // [1.7.10] not used
 
 import com.minecolonies.api.colony.buildings.modules.ICommonSettingsModule;
 import com.minecolonies.api.colony.connections.IColonyConnectionManager;
@@ -216,7 +216,7 @@ public interface IColony
 
     double getOverallHappiness();
 
-    Map<int[], BlockState> getWayPoints();
+    Map<int[], Integer> getWayPoints();
 
     String getStructurePack();
 
@@ -339,7 +339,7 @@ public interface IColony
 
     void setColonyFlag(NBTTagList patterns);
 
-    void addWayPoint(int[] pos, BlockState newWayPointState);
+    void addWayPoint(int[] pos, int blockId); // [1.7.10] BlockState -> int block ID
 
     void addGuardToAttackers(AbstractEntityCitizen entityCitizen, EntityPlayer followPlayer);
 

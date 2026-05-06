@@ -106,7 +106,7 @@ public class StringSetting implements IStringSetting<String>
       final ICommonSettingsModule settingsModuleView,
       final IBuildingView building, final Object /* BOWindow: todo ModularUI2 */ window)
     {
-        Object.findPaneOfTypeByID("trigger", Object.class).setHandler(button -> settingsModuleView.trigger(key));
+        // [1.7.10] UI (blockui/ModularUI2) not yet ported; no-op stub
     }
 
     @Override
@@ -117,12 +117,7 @@ public class StringSetting implements IStringSetting<String>
       final IBuildingView building,
       final Object /* BOWindow: todo ModularUI2 */ window)
     {
-        int buttonWidth = MathUtils.clamp(getButtonWidth((ISettingsModuleView) settingsModuleView), 0, MAX_BUTTON_WIDTH);
-        Object triggerButton = Object.findPaneOfTypeByID("trigger", Object.class);
-        triggerButton.setSize(buttonWidth, triggerButton.getHeight());
-        triggerButton.setEnabled(isActive((ISettingsModuleView) settingsModuleView));
-        triggerButton.setText(getDisplayText());
-        setHoverPane(key, triggerButton, settingsModuleView);
+        // [1.7.10] UI (blockui/ModularUI2) not yet ported; no-op stub
     }
 
     /**
@@ -132,7 +127,8 @@ public class StringSetting implements IStringSetting<String>
      */
     protected String getDisplayText()
     {
-        return String.translatable(settings.get(currentIndex));
+        // [1.7.10] String.translatable() → StatCollector.translateToLocal()
+        return net.minecraft.util.StatCollector.translateToLocal(settings.get(currentIndex));
     }
 
     @Override

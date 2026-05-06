@@ -51,7 +51,7 @@ public abstract class AbstractEntityNorsemenRaider extends AbstractEntityMinecol
     @Override
     public RaiderType getRaiderType()
     {
-        return RaiderType.VIKING;
+        return RaiderType.NORSEMAN;
     }
 
     @Override

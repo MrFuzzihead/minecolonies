@@ -220,7 +220,7 @@ public class ContainerBuildingInventory extends Container
     @Override
     public boolean canInteractWith(@NotNull final EntityPlayer playerIn)
     {
-        return this.tileEntityColonyBuilding.isUsableByPlayer(playerIn);
+        return this.tileEntityColonyBuilding.isUseableByPlayer(playerIn); // [1.7.10] isUsableByPlayer→isUseableByPlayer
     }
 
     /**

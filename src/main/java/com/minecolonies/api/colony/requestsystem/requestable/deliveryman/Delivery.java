@@ -104,7 +104,9 @@ public class Delivery extends AbstractDeliverymanRequestable
     {
         final ILocation start = controller.deserialize(buffer);
         final ILocation target = controller.deserialize(buffer);
-        final ItemStack stack = buffer.readItemStackFromBuffer();
+        final ItemStack stack;
+        try { stack = buffer.readItemStackFromBuffer(); } catch (java.io.IOException e) { throw new RuntimeException(e); }
+
         final int priority = buffer.readInt();
 
         return new Delivery(start, target, stack, priority);

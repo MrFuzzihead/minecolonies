@@ -287,7 +287,7 @@ public class StackList implements IConcreteDeliverable, INonExhaustiveDeliverabl
         final int stacksSize = buffer.readInt();
         for (int i = 0; i < stacksSize; ++i)
         {
-            stacks.add(buffer.readItemStackFromBuffer());
+            try { stacks.add(buffer.readItemStackFromBuffer()); } catch (java.io.IOException e) { throw new RuntimeException(e); }
         }
 
         final boolean matchMeta = buffer.readBoolean();

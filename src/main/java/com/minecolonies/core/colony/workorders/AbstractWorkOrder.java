@@ -291,7 +291,8 @@ public abstract class AbstractWorkOrder implements IBuilderWorkOrder
     public static IWorkOrderView createWorkOrderView(final PacketBuffer buf)
     {
         @Nullable AbstractWorkOrderView orderView = null;
-        String mappingName = buf.readUtf(32767);
+        String mappingName;
+        try { mappingName = buf.readStringFromBuffer(32767); } catch (java.io.IOException e) { throw new RuntimeException(e); } // [1.7.10] throws IOException
 
         try
         {
@@ -559,7 +560,7 @@ public abstract class AbstractWorkOrder implements IBuilderWorkOrder
     @Override
     public String getDisplayName()
     {
-        return String.translatable(getTranslationKey());
+        return net.minecraft.util.StatCollector.translateToLocal(getTranslationKey());
     }
 
     @Override
@@ -569,14 +570,15 @@ public abstract class AbstractWorkOrder implements IBuilderWorkOrder
         {
             this.blueprint = blueprint;
             changed = true;
-            final net.minecraft.util.Tuple<int[], int[]> corners
-                = ColonyUtils.calculateCorners(location,
+            final Tuple<int[], int[]> corners
+                = ColonyUtils.calculateCorners(location[0], location[1], location[2],
                 world,
                 blueprint,
                 getRotation(),
                 isMirrored());
 
-            box = new AxisAlignedBB(corners.getA(), corners.getB());
+            box = AxisAlignedBB.getBoundingBox(corners.getA()[0], corners.getA()[1], corners.getA()[2],
+                corners.getB()[0], corners.getB()[1], corners.getB()[2]);
         }
     }
 
@@ -648,15 +650,15 @@ public abstract class AbstractWorkOrder implements IBuilderWorkOrder
     @Override
     public void read(@NotNull final NBTTagCompound compound, final IWorkManager manager)
     {
-        id = compound.getInt(TAG_ID);
+        id = compound.getInteger(TAG_ID);
         if (compound.hasKey(TAG_TH_PRIORITY))
         {
-            priority = compound.getInt(TAG_TH_PRIORITY);
+            priority = compound.getInteger(TAG_TH_PRIORITY);
         }
 
         if (compound.hasKey(TAG_CLAIMED_BY))
         {
-            final int citizenId = compound.getInt(TAG_CLAIMED_BY);
+            final int citizenId = compound.getInteger(TAG_CLAIMED_BY);
             if (manager.getColony() != null)
             {
                 final ICitizenData data = manager.getColony().getCitizenManager().getCivilian(citizenId);
@@ -673,26 +675,26 @@ public abstract class AbstractWorkOrder implements IBuilderWorkOrder
         packName = compound.getString(TAG_STRUCTURE_PACK);
         path = compound.getString(TAG_STRUCTURE_PATH);
         translationKey = compound.getString(TAG_TRANSLATION_KEY);
-        workOrderType = WorkOrderType.values()[compound.getInt(TAG_WO_TYPE)];
+        workOrderType = WorkOrderType.values()[compound.getInteger(TAG_WO_TYPE)];
         location = BlockPosUtil.read(compound, TAG_LOCATION);
-        rotation = compound.getInt(TAG_ROTATION);
+        rotation = compound.getInteger(TAG_ROTATION);
         isMirrored = compound.getBoolean(TAG_IS_MIRRORED);
-        currentLevel = compound.getInt(TAG_CURRENT_LEVEL);
-        targetLevel = compound.getInt(TAG_TARGET_LEVEL);
-        amountOfResources = compound.getInt(TAG_AMOUNT_OF_RESOURCES);
+        currentLevel = compound.getInteger(TAG_CURRENT_LEVEL);
+        targetLevel = compound.getInteger(TAG_TARGET_LEVEL);
+        amountOfResources = compound.getInteger(TAG_AMOUNT_OF_RESOURCES);
         iteratorType = compound.getString(TAG_ITERATOR);
         cleared = compound.getBoolean(TAG_IS_CLEARED);
         requested = compound.getBoolean(TAG_IS_REQUESTED);
 
         if (compound.hasKey(TAG_STAGE))
         {
-            stage = BuildingProgressStage.values()[compound.getInt(TAG_STAGE)];
+            stage = BuildingProgressStage.values()[compound.getInteger(TAG_STAGE)];
         }
 
         if (compound.hasKey(TAG_BB))
         {
-            NBTTagCompound NBTBase = (NBTTagCompound) compound.get(TAG_BB);
-            box = new AxisAlignedBB(NBTBase.getInt("minx"), NBTBase.getInt("miny"), NBTBase.getInt("minz"), NBTBase.getInt("maxx"), NBTBase.getInt("maxy"), NBTBase.getInt("maxz"));
+            NBTTagCompound NBTBase = (NBTTagCompound) compound.getTag(TAG_BB);
+            box = AxisAlignedBB.getBoundingBox(NBTBase.getInteger("minx"), NBTBase.getInteger("miny"), NBTBase.getInteger("minz"), NBTBase.getInteger("maxx"), NBTBase.getInteger("maxy"), NBTBase.getInteger("maxz"));
         }
     }
 
@@ -726,12 +728,12 @@ public abstract class AbstractWorkOrder implements IBuilderWorkOrder
         if (box != Constants.EMPTY_AABB)
         {
             NBTTagCompound NBTBase = new NBTTagCompound();
-            NBTBase.putInt("minx", (int) box.minX);
-            NBTBase.putInt("miny", (int) box.minY);
-            NBTBase.putInt("minz", (int) box.minZ);
-            NBTBase.putInt("maxx", (int) box.maxX);
-            NBTBase.putInt("maxy", (int) box.maxY);
-            NBTBase.putInt("maxz", (int) box.maxZ);
+            NBTBase.setInteger("minx", (int) box.minX);
+            NBTBase.setInteger("miny", (int) box.minY);
+            NBTBase.setInteger("minz", (int) box.minZ);
+            NBTBase.setInteger("maxx", (int) box.maxX);
+            NBTBase.setInteger("maxy", (int) box.maxY);
+            NBTBase.setInteger("maxz", (int) box.maxZ);
             compound.setTag(TAG_BB, NBTBase);
         }
     }
@@ -744,26 +746,32 @@ public abstract class AbstractWorkOrder implements IBuilderWorkOrder
     @Override
     public void serializeViewNetworkData(@NotNull final PacketBuffer buf)
     {
-        buf.writeUtf(getMappingName());
-        buf.writeInt(id);
-        buf.writeInt(priority);
-        buf.writeBlockPos(claimedBy);
-        buf.writeUtf(packName);
-        buf.writeUtf(path);
-        buf.writeUtf(translationKey);
-        buf.writeInt(workOrderType.ordinal());
-        buf.writeBlockPos(location);
-        buf.writeInt(rotation);
-        buf.writeBoolean(isMirrored);
-        buf.writeInt(currentLevel);
-        buf.writeInt(targetLevel);
-        buf.writeInt(stage == null ? 0 : stage.ordinal());
-        buf.writeDouble(getBoundingBox().minX);
-        buf.writeDouble(getBoundingBox().minY);
-        buf.writeDouble(getBoundingBox().minZ);
-        buf.writeDouble(getBoundingBox().maxX);
-        buf.writeDouble(getBoundingBox().maxY);
-        buf.writeDouble(getBoundingBox().maxZ);
+        try
+        {
+            buf.writeStringToBuffer(getMappingName());
+            buf.writeInt(id);
+            buf.writeInt(priority);
+            // [1.7.10] writeBlockPos not available; write int[3] manually
+            buf.writeInt(claimedBy[0]); buf.writeInt(claimedBy[1]); buf.writeInt(claimedBy[2]);
+            buf.writeStringToBuffer(packName);
+            buf.writeStringToBuffer(path);
+            buf.writeStringToBuffer(translationKey);
+            buf.writeInt(workOrderType.ordinal());
+            // [1.7.10] writeBlockPos not available; write int[3] manually
+            buf.writeInt(location[0]); buf.writeInt(location[1]); buf.writeInt(location[2]);
+            buf.writeInt(rotation);
+            buf.writeBoolean(isMirrored);
+            buf.writeInt(currentLevel);
+            buf.writeInt(targetLevel);
+            buf.writeInt(stage == null ? 0 : stage.ordinal());
+            buf.writeDouble(getBoundingBox().minX);
+            buf.writeDouble(getBoundingBox().minY);
+            buf.writeDouble(getBoundingBox().minZ);
+            buf.writeDouble(getBoundingBox().maxX);
+            buf.writeDouble(getBoundingBox().maxY);
+            buf.writeDouble(getBoundingBox().maxZ);
+        }
+        catch (java.io.IOException e) { throw new RuntimeException(e); }
     }
 
     private String getMappingName()
@@ -811,43 +819,8 @@ public abstract class AbstractWorkOrder implements IBuilderWorkOrder
         final Blueprint blueprint = getBlueprint();
         if (blueprint != null)
         {
-            final NBTTagCompound[][][] tileEntityData = blueprint.getTileEntities();
-            for (short x = 0; x < blueprint.getSizeX(); x++)
-            {
-                for (short y = 0; y < blueprint.getSizeY(); y++)
-                {
-                    for (short z = 0; z < blueprint.getSizeZ(); z++)
-                    {
-                        final NBTTagCompound compoundNBT = tileEntityData[y][z][x];
-                        if (compoundNBT != null && compoundNBT.contains(TAG_BLUEPRINTDATA))
-                        {
-                            final int[] offset = new int[]{x, y, z};
-                            final int[] tePos = getLocation().subtract(blueprint.getPrimaryBlockOffset()).offset(offset);
-                            final BlockEntity te = colony.getWorld().getBlockEntity(tePos);
-                            if (te instanceof IBlueprintDataProviderBE blueprintDataProviderBE)
-                            {
-                                final NBTTagCompound tagData = compoundNBT.getCompoundTag(TAG_BLUEPRINTDATA);
-                                tagData.putString(NbtTagConstants.TAG_PACK, blueprint.getPackName());
-                                if (blueprint.getPrimaryBlockOffset().equals(offset))
-                                {
-                                    tagData.putString(NbtTagConstants.TAG_PATH, StructurePacks.getStructurePack(blueprint.getPackName()).getSubPath(Utils.resolvePath(blueprint.getFilePath(), tagData.getString(TAG_SCHEMATIC_NAME))) + ".blueprint");
-                                }
-
-                                try
-                                {
-                                    blueprintDataProviderBE.readSchematicDataFromNBT(compoundNBT);
-                                }
-                                catch (final Exception e)
-                                {
-                                    Log.getLogger().warn("Broken deco-controller at: {}", offset);
-                                }
-                                ((ServerLevel) colony.getWorld()).getChunkSource().blockChanged(tePos);
-                                te.setChanged();
-                            }
-                        }
-                    }
-                }
-            }
+            // [1.7.10] StructurePacks.getStructurePack and related APIs not available in this structurize version.
+            // TODO: Port blueprint data update logic when structurize API is available.
         }
         colony.getWorkManager().removeWorkOrder(this.getID());
     }

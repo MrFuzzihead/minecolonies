@@ -149,17 +149,8 @@ public abstract class AbstractAISkeleton<J extends IJob<?>> implements ITickingS
      */
     public void onRemoval()
     {
-        worker.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
-        worker.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
-        worker.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
-        worker.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
-        worker.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
-        worker.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
-
-        worker.getInventoryCitizen().moveArmorToInventory(null /* EquipmentSlot. */);
-        worker.getInventoryCitizen().moveArmorToInventory(null /* EquipmentSlot. */);
-        worker.getInventoryCitizen().moveArmorToInventory(null /* EquipmentSlot. */);
-        worker.getInventoryCitizen().moveArmorToInventory(null /* EquipmentSlot. */);
+        // [1.7.10] setItemSlot and moveArmorToInventory not available in 1.7.10 form; skipping equipment cleanup
+        // TODO: Port equipment slot clearing when EquipmentSlot API is ported
     }
 
     /**

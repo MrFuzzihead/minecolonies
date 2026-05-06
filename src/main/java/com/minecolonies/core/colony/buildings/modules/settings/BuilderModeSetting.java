@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.minecolonies.api.research.util.ResearchConstants.BUILDER_MODE;
 
@@ -30,8 +31,9 @@ public class BuilderModeSetting extends StringSetting
      */
     public BuilderModeSetting()
     {
-        super(StructureIterators.getKeySet().stream().sorted(String::compareToIgnoreCase).toList(), 0);
-        set(Structurize.getConfig().getServer().iteratorType.get());
+        // [1.7.10] StructureIterators.getKeySet() not available; use empty list stub
+        super(java.util.Collections.emptyList(), 0);
+        set(Structurize.getConfig().getServer().iteratorType); // [1.7.10] iteratorType is a String field
     }
 
     /**
@@ -42,26 +44,28 @@ public class BuilderModeSetting extends StringSetting
      */
     public BuilderModeSetting(final List<String> value, final int curr)
     {
-        super(StructureIterators.getKeySet().stream().sorted(String::compareToIgnoreCase).toList(), 0);
-        set(value.get(curr));
+        // [1.7.10] StructureIterators.getKeySet() not available; use empty list stub
+        super(java.util.Collections.emptyList(), 0);
+        set(value.isEmpty() ? Structurize.getConfig().getServer().iteratorType : value.get(curr));
     }
 
     @NotNull
     public static String getActualValue(@NotNull final IBuilding building)
     {
-        return building.getSettingValueOrDefault(BuildingBuilder.BUILDING_MODE, Structurize.getConfig().getServer().iteratorType.get());
+        return building.getSettingValueOrDefault(BuildingBuilder.BUILDING_MODE, Structurize.getConfig().getServer().iteratorType); // [1.7.10] iteratorType is String
     }
 
     @Override
     protected String getDisplayText()
     {
-        return String.translatable("com.ldtteam.structurize.iterators." + getSettings().get(getCurrentIndex()));
+        // [1.7.10] String.translatable → StatCollector.translateToLocal
+        return net.minecraft.util.StatCollector.translateToLocal("com.ldtteam.structurize.iterators." + getSettings().get(getCurrentIndex()));
     }
 
     @Override
     public String getToolTipText()
     {
-        return String.translatable("com.ldtteam.structurize.iterators." + getSettings().get(getCurrentIndex()) + ".tooltip");
+        return net.minecraft.util.StatCollector.translateToLocal("com.ldtteam.structurize.iterators." + getSettings().get(getCurrentIndex()) + ".tooltip");
     }
 
     @Override
@@ -79,8 +83,7 @@ public class BuilderModeSetting extends StringSetting
     @Override
     public @Nullable String getInactiveReason()
     {
-        return String.translatable(NEEDS_RESEARCH_REASON, String.translatable(BUILDER_MODES_RESEARCH));
+        return net.minecraft.util.StatCollector.translateToLocalFormatted(NEEDS_RESEARCH_REASON,
+          new Object[]{net.minecraft.util.StatCollector.translateToLocal(BUILDER_MODES_RESEARCH)}); // [1.7.10] String.translatable→StatCollector
     }
 }
-
-

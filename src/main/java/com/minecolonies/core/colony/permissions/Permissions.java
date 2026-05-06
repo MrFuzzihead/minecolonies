@@ -1,12 +1,12 @@
 package com.minecolonies.core.colony.permissions;
-import net.minecraft.util.Direction;
-import net.minecraft.world.level.chunk.LevelChunk;
-// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.BoneMealItem;
+// [1.7.10] removed 1.21 imports
+// import net.minecraft.util.Direction; (1.21)
+// import net.minecraft.world.level.chunk.LevelChunk; (1.21 → net.minecraft.world.chunk.Chunk)
+// import net.minecraft.world.level.block.state.BlockState; (1.21)
+// import net.minecraft.world.entity.player.Player; (1.21 → EntityPlayer)
+// import net.minecraft.world.phys.AABB; (1.21)
+// import net.minecraft.util.RandomSource; (1.21)
+// import net.minecraft.world.item.BoneMealItem; (1.21)
 
 import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.colony.permissions.*;
@@ -337,17 +337,17 @@ public class Permissions implements IPermissions
      */
     public void loadPermissions(@NotNull final NBTTagCompound compound)
     {
-        final int version = compound.getInt(TAG_VERSION);
+        final int version = compound.getInteger(TAG_VERSION); // [1.7.10] getInt→getInteger
         // Ranks
         if (compound.hasKey(TAG_RANKS))
         {
             ranks.clear();
 
-            final NBTTagList rankTagList = compound.getTagList(TAG_RANKS, NBTBase.TAG_COMPOUND);
-            for (int i = 0; i < rankTagList.size(); ++i)
+            final NBTTagList rankTagList = compound.getTagList(TAG_RANKS, 10 /* TAG_COMPOUND */);
+            for (int i = 0; i < rankTagList.tagCount(); ++i)
             {
                 final NBTTagCompound rankCompound = rankTagList.getCompoundTagAt(i);
-                final int id = rankCompound.getInt(TAG_ID);
+                final int id = rankCompound.getInteger(TAG_ID);
                 final String name = rankCompound.getString(TAG_NAME);
                 final boolean isInitial = rankCompound.getBoolean(TAG_INITIAL);
                 final boolean isColonyManager = rankCompound.getBoolean(TAG_COLONY_MANAGER);
@@ -358,22 +358,22 @@ public class Permissions implements IPermissions
                 upgradePermissions(version, rank);
             }
 
-            final NBTTagList permissionsTagList = compound.getTagList(TAG_PERMISSIONS, NBTBase.TAG_COMPOUND);
-            for (int i = 0; i < permissionsTagList.size(); ++i)
+            final NBTTagList permissionsTagList = compound.getTagList(TAG_PERMISSIONS, 10 /* TAG_COMPOUND */);
+            for (int i = 0; i < permissionsTagList.tagCount(); ++i)
             {
                 final NBTTagCompound permissionsCompound = permissionsTagList.getCompoundTagAt(i);
 
-                final Rank rank = ranks.get(permissionsCompound.getInt(TAG_RANK));
+                final Rank rank = ranks.get(permissionsCompound.getInteger(TAG_RANK));
                 if (rank == null)
                 {
                     continue;
                 }
 
-                final NBTTagList flagsTagList = permissionsCompound.getTagList(TAG_FLAGS, NBTBase.TAG_STRING);
+                final NBTTagList flagsTagList = permissionsCompound.getTagList(TAG_FLAGS, 8 /* TAG_STRING */);
 
-                for (int j = 0; j < flagsTagList.size(); ++j)
+                for (int j = 0; j < flagsTagList.tagCount(); ++j)
                 {
-                    final String flag = flagsTagList.getString(j);
+                    final String flag = flagsTagList.getStringTagAt(j);
                     try
                     {
                         rank.addPermission(Action.valueOf(flag));
@@ -392,20 +392,20 @@ public class Permissions implements IPermissions
 
         players.clear();
         //  Owners
-        final NBTTagList ownerTagList = compound.getTagList(TAG_OWNERS, NBTBase.TAG_COMPOUND);
-        for (int i = 0; i < ownerTagList.size(); ++i)
+        final NBTTagList ownerTagList = compound.getTagList(TAG_OWNERS, 10 /* TAG_COMPOUND */);
+        for (int i = 0; i < ownerTagList.tagCount(); ++i)
         {
             final NBTTagCompound ownerCompound = ownerTagList.getCompoundTagAt(i);
             @NotNull final UUID id = UUID.fromString(ownerCompound.getString(TAG_ID));
             String name = "";
-            if (ownerCompound.contains(TAG_NAME))
+            if (ownerCompound.hasKey(TAG_NAME))
             {
                 name = ownerCompound.getString(TAG_NAME);
             }
             Rank rank;
             if (version >= 3)
             {
-                rank = ranks.get(ownerCompound.getInt(TAG_RANK));
+                rank = ranks.get(ownerCompound.getInteger(TAG_RANK));
             }
             else
             {
@@ -413,7 +413,9 @@ public class Permissions implements IPermissions
                 rank = ranks.get(oldRank.ordinal());
             }
 
-            final GameProfile player = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerProfileCache().getGameProfileForUsername(id.toString());
+            // [1.7.10] No PlayerProfileCache API; look up online player by name or skip
+            final net.minecraft.entity.player.EntityPlayerMP onlineEp = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().func_152612_a(id.toString());
+            final GameProfile player = (onlineEp != null) ? onlineEp.getGameProfile() : null;
 
             if (player != null && rank != null)
             {
@@ -463,7 +465,9 @@ public class Permissions implements IPermissions
         final Map.Entry<UUID, ColonyPlayer> owner = getOwnerEntry();
         if (owner == null && ownerUUID != null)
         {
-            final GameProfile player = net.minecraftforge.server.FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerProfileCache().getGameProfileForUsername(ownerUUID.toString());
+            // [1.7.10] No PlayerProfileCache; look up online player
+            final net.minecraft.entity.player.EntityPlayerMP ownerEp = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().func_152612_a(ownerUUID.toString());
+            final GameProfile player = (ownerEp != null) ? ownerEp.getGameProfile() : null;
 
             if (player != null)
             {
@@ -508,10 +512,11 @@ public class Permissions implements IPermissions
     {
         players.remove(getOwner());
 
-        ownerName = player.getName();
+        // [1.7.10] EntityPlayer.getName() → getCommandSenderName()
+        ownerName = player.getCommandSenderName();
         ownerUUID = player.getGameProfile().getId();
 
-        players.put(ownerUUID, new ColonyPlayer(ownerUUID, player.getName(), ranks.get(OWNER_RANK_ID)));
+        players.put(ownerUUID, new ColonyPlayer(ownerUUID, player.getCommandSenderName(), ranks.get(OWNER_RANK_ID)));
 
         fullyAbandoned = false;
 
@@ -572,12 +577,13 @@ public class Permissions implements IPermissions
         for (@NotNull final Rank rank : ranks.values())
         {
             @NotNull final NBTTagCompound rankCompound = new NBTTagCompound();
-            rankCompound.putInt(TAG_ID, rank.getId());
-            rankCompound.putString(TAG_NAME, rank.getName());
-            rankCompound.putBoolean(TAG_INITIAL, rank.isInitial());
-            rankCompound.putBoolean(TAG_COLONY_MANAGER, rank.isColonyManager());
-            rankCompound.putBoolean(TAG_HOSTILE, rank.isHostile());
-            rankTagList.add(rankCompound);
+            // [1.7.10] putInt→setInteger, putString→setString, putBoolean→setBoolean
+            rankCompound.setInteger(TAG_ID, rank.getId());
+            rankCompound.setString(TAG_NAME, rank.getName());
+            rankCompound.setBoolean(TAG_INITIAL, rank.isInitial());
+            rankCompound.setBoolean(TAG_COLONY_MANAGER, rank.isColonyManager());
+            rankCompound.setBoolean(TAG_HOSTILE, rank.isHostile());
+            rankTagList.appendTag(rankCompound); // [1.7.10] add→appendTag
         }
         compound.setTag(TAG_RANKS, rankTagList);
 
@@ -586,10 +592,10 @@ public class Permissions implements IPermissions
         for (@NotNull final ColonyPlayer player : players.values())
         {
             @NotNull final NBTTagCompound ownersCompound = new NBTTagCompound();
-            ownersCompound.putString(TAG_ID, player.getID().toString());
-            ownersCompound.putString(TAG_NAME, player.getName());
-            ownersCompound.putInt(TAG_RANK, player.getRank().getId());
-            ownerTagList.add(ownersCompound);
+            ownersCompound.setString(TAG_ID, player.getID().toString());
+            ownersCompound.setString(TAG_NAME, player.getName());
+            ownersCompound.setInteger(TAG_RANK, player.getRank().getId());
+            ownerTagList.appendTag(ownersCompound);
         }
         compound.setTag(TAG_OWNERS, ownerTagList);
 
@@ -598,19 +604,19 @@ public class Permissions implements IPermissions
         for (@NotNull final Rank rank : ranks.values())
         {
             @NotNull final NBTTagCompound permissionsCompound = new NBTTagCompound();
-            permissionsCompound.putInt(TAG_RANK, rank.getId());
+            permissionsCompound.setInteger(TAG_RANK, rank.getId());
 
             @NotNull final NBTTagList flagsTagList = new NBTTagList();
             for (@NotNull final Action action : Action.values())
             {
                 if (Utils.testFlag(rank.getPermissions(), action.getFlag()))
                 {
-                    flagsTagList.add(new NBTTagString(action.name()));
+                    flagsTagList.appendTag(new NBTTagString(action.name()));
                 }
             }
-            permissionscompound.setTag(TAG_FLAGS, flagsTagList);
+            permissionsCompound.setTag(TAG_FLAGS, flagsTagList); // [1.7.10] fixed typo permissionscompound→permissionsCompound
 
-            permissionsTagList.add(permissionsCompound);
+            permissionsTagList.appendTag(permissionsCompound);
         }
 
         compound.setTag(TAG_PERMISSIONS, permissionsTagList);
@@ -705,9 +711,9 @@ public class Permissions implements IPermissions
         {
             return true;
         }
-        else if (player.hasPermissions(IMinecoloniesAPI.getInstance().getConfig().getServer().permissionEventMinBypassPermLevel.get()) && player.capabilities.isCreativeMode)
+        else if (player.capabilities.isCreativeMode) // [1.7.10] hasPermissions() not available; use creative mode check
         {
-            Log.getLogger().debug("Permission check got bypassed, original event was. Player: {}, Name: {}, Action: {}", player.getGameProfile().getId(), player.getName(), action);
+            Log.getLogger().debug("Permission check got bypassed, original event was. Player: {}, Name: {}, Action: {}", player.getGameProfile().getId(), player.getCommandSenderName(), action);
             return hasPermission(OP_RANK, action);
         }
         return false;
@@ -753,7 +759,9 @@ public class Permissions implements IPermissions
         else
         {
 
-            final GameProfile gameprofile = world.getServer().getPlayerProfileCache().getGameProfileForUsername(id.toString());
+            // [1.7.10] No PlayerProfileCache; look up online player by UUID string
+            final net.minecraft.entity.player.EntityPlayerMP epLookup = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().func_152612_a(id.toString());
+            final GameProfile gameprofile = (epLookup != null) ? epLookup.getGameProfile() : null;
 
             return gameprofile != null && addPlayer(gameprofile, rank);
         }
@@ -815,13 +823,18 @@ public class Permissions implements IPermissions
         {
             return false;
         }
-        final GameProfile gameprofile = world.getServer().getPlayerProfileCache().getGameProfileForUsername(player.toString());
+        // [1.7.10] No PlayerProfileCache; look up online player by name
+        final net.minecraft.entity.player.EntityPlayerMP epByName = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().func_152612_a(player);
+        final GameProfile gameprofile = (epByName != null) ? epByName.getGameProfile() : null;
         //Check if the EntityPlayer already exists so that their rank isn't overridden
 
         // Adds new subscribers
-        if (!world.isClientSide() && gameprofile != null)
+        if (!world.isRemote && gameprofile != null) // [1.7.10] isClientSide()→isRemote
         {
-            final EntityPlayerMP playerEntity = (EntityPlayerMP) world.getPlayerByUUID(gameprofile.getId());
+            // [1.7.10] getPlayerEntityByUUID not in World; look up by name via configManager
+            final EntityPlayerMP playerEntity = FMLCommonHandler.instance().getMinecraftServerInstance() != null
+                ? FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().func_152612_a(gameprofile.getName())
+                : null;
             if (playerEntity != null)
             {
                 if (rank.getId() == OFFICER_RANK_ID)
@@ -836,10 +849,10 @@ public class Permissions implements IPermissions
                 }
                 else
                 {
-                    // Check claim
-                    final LevelChunk chunk = world.getChunk(playerEntity.chunkPosition().x, playerEntity.chunkPosition().z);
+                    // [1.7.10] chunkPosition() → chunkCoordX/Z; LevelChunk → Chunk
+                    final net.minecraft.world.chunk.Chunk chunk = world.getChunkFromChunkCoords(playerEntity.chunkCoordX, playerEntity.chunkCoordZ);
                     final int owningColonyId = ColonyUtils.getOwningColony(chunk);
-                    if (owningColonyId == colony.getID() && world.dimension() == colony.getDimension())
+                    if (owningColonyId == colony.getID() && world.provider.dimensionId == colony.getDimension()) // [1.7.10] dimension()→dimensionId
                     {
                         colony.getPackageManager().addCloseSubscriber(playerEntity);
                         colony.getPackageManager().updateSubscribers();
@@ -940,26 +953,34 @@ public class Permissions implements IPermissions
      */
     public void serializeViewNetworkData(@NotNull final PacketBuffer buf, @NotNull final Rank viewerRank)
     {
-        buf.writeVarInt(ranks.size());
+        try
+        {
+        // [1.7.10] writeVarInt→writeVarIntToBuffer, writeUtf→writeStringToBuffer
+        buf.writeVarIntToBuffer(ranks.size());
         for (Rank rank : ranks.values())
         {
-            buf.writeVarInt(rank.getId());
+            buf.writeVarIntToBuffer(rank.getId());
             buf.writeLong(rank.getPermissions());
-            buf.writeUtf(rank.getName());
+            buf.writeStringToBuffer(rank.getName());
             buf.writeBoolean(rank.isInitial());
             buf.writeBoolean(rank.isColonyManager());
             buf.writeBoolean(rank.isHostile());
         }
 
-        buf.writeVarInt(viewerRank.getId());
+        buf.writeVarIntToBuffer(viewerRank.getId());
 
         //  Owners
-        buf.writeVarInt(players.size());
+        buf.writeVarIntToBuffer(players.size());
         for (@NotNull final Map.Entry<UUID, ColonyPlayer> player : players.entrySet())
         {
             PacketUtils.writeUUID(buf, player.getKey());
-            buf.writeUtf(player.getValue().getName());
-            buf.writeVarInt(player.getValue().getRank().getId());
+            buf.writeStringToBuffer(player.getValue().getName());
+            buf.writeVarIntToBuffer(player.getValue().getRank().getId());
+        }
+        }
+        catch (java.io.IOException e)
+        {
+            com.minecolonies.api.util.Log.getLogger().error("Error serializing permissions", e);
         }
     }
 
@@ -1097,6 +1118,9 @@ public class Permissions implements IPermissions
         markDirty();
     }
 }
+
+
+
 
 
 

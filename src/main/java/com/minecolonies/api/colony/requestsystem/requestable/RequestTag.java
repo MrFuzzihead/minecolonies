@@ -140,7 +140,7 @@ public class RequestTag implements IDeliverable
         buffer.writeBoolean(!ItemStackUtils.isEmpty(input.getResult()));
         if (!ItemStackUtils.isEmpty(input.getResult()))
         {
-            buffer.writeItemStackToBuffer(input.getResult());
+        try { buffer.writeItemStackToBuffer(input.getResult()); } catch (java.io.IOException e) { throw new RuntimeException(e); }
         }
         buffer.writeInt(input.getCount());
         buffer.writeInt(input.getMinimumCount());

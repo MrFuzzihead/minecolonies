@@ -108,6 +108,10 @@ public interface IColonyConnectionManager {
      * @return the diplomacy status.
      */
     DiplomacyStatus getColonyDiplomacyStatus(int id);
+
+    // [1.7.10] NBT persistence methods
+    NBTTagCompound serializeNBT();
+    void deserializeNBT(NBTTagCompound compound);
 }
 
 

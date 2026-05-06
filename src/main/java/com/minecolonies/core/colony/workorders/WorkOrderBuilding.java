@@ -1,25 +1,18 @@
 package com.minecolonies.core.colony.workorders;
-import net.minecraft.util.Direction;
-// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.BoneMealItem;
+// [1.7.10] removed unused 1.21 imports
 
-import com.minecolonies.api.advancements.AdvancementTriggers;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.workorders.IWorkManager;
 import com.minecolonies.api.colony.workorders.WorkOrderType;
+import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingBuilder;
 import com.minecolonies.core.entity.ai.workers.util.ConstructionTapeHelper;
 import com.minecolonies.core.util.AdvancementUtils;
 // [1.7.10] int[] -> int x,y,z
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.IChatComponent;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -144,7 +137,7 @@ public class WorkOrderBuilding extends AbstractWorkOrder
     {
         String customParentName = getCustomParentName();
         String customName = getCustomName();
-        String buildingComponent = customName.isEmpty() ? String.translatable(getTranslationKey()) : String.literal(customName);
+        String buildingComponent = customName.isEmpty() ? net.minecraft.util.StatCollector.translateToLocal(getTranslationKey()) : customName;
 
         if (parentTranslationKey.isEmpty())
         {
@@ -152,8 +145,8 @@ public class WorkOrderBuilding extends AbstractWorkOrder
         }
         else
         {
-            String parentComponent = customParentName.isEmpty() ? String.translatable(parentTranslationKey) : String.literal(customParentName);
-            return String.translatable("%s / %s", parentComponent, buildingComponent);
+            String parentComponent = customParentName.isEmpty() ? net.minecraft.util.StatCollector.translateToLocal(parentTranslationKey) : customParentName;
+            return parentComponent + " / " + buildingComponent;
         }
     }
 
@@ -168,7 +161,7 @@ public class WorkOrderBuilding extends AbstractWorkOrder
 
         return building instanceof BuildingBuilder
             && canBuildIgnoringDistance(building, building.getPosition(), building.getBuildingLevel())
-            && (building.getPosition().distSqr(getLocation()) <= MAX_DISTANCE_SQ);
+            && (BlockPosUtil.getDistanceSquared(building.getPosition()[0], building.getPosition()[1], building.getPosition()[2], getLocation()[0], getLocation()[1], getLocation()[2]) <= MAX_DISTANCE_SQ);
     }
 
     /**
@@ -196,7 +189,7 @@ public class WorkOrderBuilding extends AbstractWorkOrder
           .values()
           .stream()
           .noneMatch(building -> building instanceof BuildingBuilder && !building.getAllAssignedCitizen().isEmpty()
-                                   && building.getPosition().distSqr(getLocation()) <= MAX_DISTANCE_SQ);
+                                   && BlockPosUtil.getDistanceSquared(building.getPosition()[0], building.getPosition()[1], building.getPosition()[2], getLocation()[0], getLocation()[1], getLocation()[2]) <= MAX_DISTANCE_SQ);
     }
 
     /**
@@ -244,9 +237,13 @@ public class WorkOrderBuilding extends AbstractWorkOrder
     public void serializeViewNetworkData(@NotNull PacketBuffer buf)
     {
         super.serializeViewNetworkData(buf);
-        buf.writeUtf(customName);
-        buf.writeUtf(customParentName);
-        buf.writeUtf(parentTranslationKey);
+        try
+        {
+            buf.writeStringToBuffer(customName);
+            buf.writeStringToBuffer(customParentName);
+            buf.writeStringToBuffer(parentTranslationKey);
+        }
+        catch (java.io.IOException e) { throw new RuntimeException(e); }
     }
 
     @Override
@@ -259,8 +256,9 @@ public class WorkOrderBuilding extends AbstractWorkOrder
             final IBuilding building = colony.getServerBuildingManager().getBuilding(getLocation());
             if (building != null)
             {
-                AdvancementUtils.TriggerAdvancementPlayersForColony(colony,
-                        player -> AdvancementTriggers.COMPLETE_BUILD_REQUEST.trigger(player, building.getBuildingType().getRegistryName().getPath(), this.getTargetLevel()));
+                // [1.7.10] AdvancementTriggers not available in 1.7.10; skipped
+                // AdvancementUtils.TriggerAdvancementPlayersForColony(colony,
+                //   player -> AdvancementTriggers.COMPLETE_BUILD_REQUEST.trigger(player, building.getBuildingType().getRegistryName().getPath(), this.getTargetLevel()));
             }
         }
     }

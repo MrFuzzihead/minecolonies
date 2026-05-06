@@ -177,7 +177,7 @@ public abstract class AbstractBuildingView implements IBuildingView
     protected AbstractBuildingView(final IColonyView c, @NotNull final int[] l)
     {
         colony = c;
-        location = new int[]{l};
+        location = l;
     }
 
     /**
@@ -377,7 +377,8 @@ public abstract class AbstractBuildingView implements IBuildingView
             @Nullable final Object /* BOWindow: todo ModularUI2 */ window = getWindow();
             if (window != null)
             {
-                window.open();
+                // [1.7.10] TODO: open the window via client GUI system when ported
+                // window.open();
             }
         }
     }
@@ -406,14 +407,17 @@ public abstract class AbstractBuildingView implements IBuildingView
     @Override
     public void deserialize(@NotNull final PacketBuffer buf)
     {
+        try
+        {
         buildingLevel = buf.readInt();
         buildingMaxLevel = buf.readInt();
         buildingDmPrio = buf.readInt();
         workOrderLevel = buf.readInt();
-        pack = buf.readUtf(32767);
-        path = buf.readUtf(32767);
-        parent = buf.readBlockPos();
-        customName = buf.readUtf(32767);
+        pack = buf.readStringFromBuffer(32767);
+        path = buf.readStringFromBuffer(32767);
+        // [1.7.10] readBlockPos not available; read 3 ints
+        parent = new int[]{buf.readInt(), buf.readInt(), buf.readInt()};
+        customName = buf.readStringFromBuffer(32767);
         prestige = buf.readInt();
 
         rotation = buf.readInt();
@@ -424,7 +428,7 @@ public abstract class AbstractBuildingView implements IBuildingView
         final int resolverSize = buf.readInt();
         for (int i = 0; i < resolverSize; i++)
         {
-            final NBTTagCompound compound = buf.readNbt();
+            final NBTTagCompound compound = buf.readNBTTagCompoundFromBuffer();
             if (compound != null)
             {
                 list.add(StandardFactoryController.getInstance().deserialize(compound));
@@ -432,7 +436,7 @@ public abstract class AbstractBuildingView implements IBuildingView
         }
 
         resolvers = ImmutableList.copyOf(list);
-        final NBTTagCompound compound = buf.readNbt();
+        final NBTTagCompound compound = buf.readNBTTagCompoundFromBuffer();
         if (compound != null)
         {
             requesterId = StandardFactoryController.getInstance().deserialize(compound);
@@ -442,9 +446,10 @@ public abstract class AbstractBuildingView implements IBuildingView
         final int racks = buf.readInt();
         for (int i = 0; i < racks; i++)
         {
-            containerlist.add(buf.readBlockPos());
+            // [1.7.10] readBlockPos not available; read 3 ints
+            containerlist.add(new int[]{buf.readInt(), buf.readInt(), buf.readInt()});
         }
-        loadRequestSystemFromNBT(buf.readNbt());
+        loadRequestSystemFromNBT(buf.readNBTTagCompoundFromBuffer());
         isDeconstructed = buf.readBoolean();
         isAssignmentAllowed = buf.readBoolean();
 
@@ -461,6 +466,8 @@ public abstract class AbstractBuildingView implements IBuildingView
 
             moduleView.deserialize(buf);
         }
+        }
+        catch (java.io.IOException e) { throw new RuntimeException(e); }
     }
 
     @Override
@@ -495,7 +502,7 @@ public abstract class AbstractBuildingView implements IBuildingView
     public <R> ImmutableList<IRequest<? extends R>> getOpenRequestsOfType(@NotNull final ICitizenDataView citizenData, final Class<R> requestType)
     {
         return ImmutableList.copyOf(getOpenRequests(citizenData).stream()
-                                      .filter(request ->  request.getType().isSubtypeOf(requestType))
+                                      .filter(request ->  requestType.isAssignableFrom(request.getType().getRawType()))
                                       .map(request -> (IRequest<? extends R>) request)
                                       .iterator());
     }
@@ -541,12 +548,6 @@ public abstract class AbstractBuildingView implements IBuildingView
      * @return ColonyView, client side interpretations of Colony.
      */
     @Override
-    public IColonyView getColony()
-    {
-        return colony;
-    }
-
-    @Override
     @SuppressWarnings({GENERIC_WILDCARD, UNCHECKED})
     public <R> ImmutableList<IRequest<? extends R>> getOpenRequestsOfTypeFiltered(
       @NotNull final ICitizenDataView citizenData,
@@ -554,7 +555,7 @@ public abstract class AbstractBuildingView implements IBuildingView
       final Predicate<IRequest<? extends R>> filter)
     {
         return ImmutableList.copyOf(getOpenRequests(citizenData).stream()
-                                      .filter(request ->  request.getType().isSubtypeOf(requestType))
+                                      .filter(request ->  requestType.isAssignableFrom(request.getType().getRawType()))
                                       .map(request -> (IRequest<? extends R>) request)
                                       .filter(filter)
                                       .iterator());
@@ -589,11 +590,13 @@ public abstract class AbstractBuildingView implements IBuildingView
     {
         try
         {
-            final String String = String.literal("");
-            String.append(String.translatable(this.getCustomName().isEmpty() ? this.getBuildingType().getTranslationKey() : this.getCustomName()));
+            final String translatedName = this.getCustomName().isEmpty()
+                ? net.minecraft.util.StatCollector.translateToLocal(this.getBuildingType().getTranslationKey())
+                : this.getCustomName();
+            StringBuilder result = new StringBuilder(translatedName);
             if (getColony() == null || !getCitizensByRequest().containsKey(request.getId()))
             {
-                return String;
+                return result.toString();
             }
 
             int citizenId = getCitizensByRequest().get(request.getId());
@@ -604,21 +607,26 @@ public abstract class AbstractBuildingView implements IBuildingView
 
             if (citizenId == -1 || getColony().getCitizen(citizenId) == null)
             {
-                return String;
+                return result.toString();
             }
 
-            String.append(String.literal(": "));
-            String.append(String.literal(getColony().getCitizen(citizenId).getName()));
-            return String;
+            result.append(": ").append(getColony().getCitizen(citizenId).getName());
+            return result.toString();
         }
         catch (final Exception ex)
         {
             Log.getLogger().warn(ex);
-            return String.literal("");
+            return "";
         }
     }
 
     @NotNull
+    @Override
+    public IColonyView getColony()
+    {
+        return colony;
+    }
+
     @Override
     public ILocation getLocation()
     {

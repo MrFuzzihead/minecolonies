@@ -184,7 +184,7 @@ public abstract class AbstractJob<AI extends AbstractAISkeleton<J> & ITickingSta
         return this.entry;
     }
 
-    @Override
+    // [1.7.10] serializeNBT/deserializeNBT are not from IJob; removed @Override
     public NBTTagCompound serializeNBT()
     {
         final NBTTagCompound compound = new NBTTagCompound();
@@ -205,20 +205,20 @@ public abstract class AbstractJob<AI extends AbstractAISkeleton<J> & ITickingSta
         return compound;
     }
 
-    @Override
+    // [1.7.10] removed @Override
     public void deserializeNBT(final NBTTagCompound compound)
     {
         this.asyncRequests.clear();
         if (compound.hasKey(TAG_ASYNC_REQUESTS))
         {
-            this.asyncRequests.addAll(NBTUtils.streamCompound(compound.getTagList(TAG_ASYNC_REQUESTS, NBTBase.TAG_COMPOUND))
+            this.asyncRequests.addAll(NBTUtils.streamCompound(compound.getTagList(TAG_ASYNC_REQUESTS, 10)) // 10 = TAG_COMPOUND
                                         .map(StandardFactoryController.getInstance()::deserialize)
                                         .map(o -> (IToken<?>) o)
                                         .collect(Collectors.toSet()));
         }
         if (compound.hasKey(TAG_ACTIONS_DONE))
         {
-            actionsDone = compound.getInt(TAG_ACTIONS_DONE);
+            actionsDone = compound.getInteger(TAG_ACTIONS_DONE);
         }
 
         if (compound.hasKey(TAG_WORK_POS))
@@ -230,13 +230,18 @@ public abstract class AbstractJob<AI extends AbstractAISkeleton<J> & ITickingSta
     @Override
     public void serializeToView(final PacketBuffer buffer)
     {
-        buffer.writeUtf(getJobRegistryEntry().getKey().toString());
+        try
+        {
+            buffer.writeStringToBuffer(getJobRegistryEntry().getKey().toString());
+        }
+        catch (java.io.IOException e) { throw new RuntimeException(e); }
         buffer.writeInt(getAsyncRequests().size());
         for (final IToken<?> token : getAsyncRequests())
         {
             StandardFactoryController.getInstance().serialize(buffer, token);
         }
-        buffer.writeRegistryId(IJobRegistry.getInstance(), getJobRegistryEntry());
+        // [1.7.10] writeRegistryId not available; skip or use alternative
+        // buffer.writeRegistryId(IJobRegistry.getInstance(), getJobRegistryEntry());
     }
 
     /**
@@ -257,8 +262,9 @@ public abstract class AbstractJob<AI extends AbstractAISkeleton<J> & ITickingSta
 
         if (request != null)
         {
-            citizen.triggerInteraction(new RequestBasedInteraction(String.translatable(RequestSystemTranslationConstants.REQUEST_RESOLVER_NORMAL,
-              request.getLongDisplayString()), ChatPriority.BLOCKING, String.translatable(RequestSystemTranslationConstants.REQUEST_RESOLVER_NORMAL), request.getId()));
+            // [1.7.10] String.translatable not available; use plain key string
+            citizen.triggerInteraction(new RequestBasedInteraction(RequestSystemTranslationConstants.REQUEST_RESOLVER_NORMAL,
+              ChatPriority.BLOCKING, RequestSystemTranslationConstants.REQUEST_RESOLVER_NORMAL, request.getId()));
         }
 
         asyncRequests.remove(id);
@@ -446,23 +452,13 @@ public abstract class AbstractJob<AI extends AbstractAISkeleton<J> & ITickingSta
         workBuilding = null;
         workModule = null;
 
-        citizen.getInventory().moveArmorToInventory(null /* EquipmentSlot. */);
-        citizen.getInventory().moveArmorToInventory(null /* EquipmentSlot. */);
-        citizen.getInventory().moveArmorToInventory(null /* EquipmentSlot. */);
-        citizen.getInventory().moveArmorToInventory(null /* EquipmentSlot. */);
-        citizen.getInventory().moveArmorToInventory(null /* EquipmentSlot. */);
-        citizen.getInventory().moveArmorToInventory(null /* EquipmentSlot. */);
+        // [1.7.10] EquipmentSlot system doesn't exist; skipping armor inventory moves
+        // citizen.getInventory().moveArmorToInventory(null /* EquipmentSlot. */);
 
         if (this.getCitizen().getEntity().isPresent())
         {
-            final EntityCitizen citizenEntity = (EntityCitizen) getCitizen().getEntity().get();
-
-            citizenEntity.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
-            citizenEntity.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
-            citizenEntity.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
-            citizenEntity.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
-            citizenEntity.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
-            citizenEntity.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
+            // [1.7.10] setItemSlot not available; skip equipment clearing
+            // citizenEntity.setItemSlot(null /* EquipmentSlot. */, ItemStackUtils.EMPTY);
         }
     }
 

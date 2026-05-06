@@ -246,6 +246,10 @@ public interface IRequestManager extends ITickable
      * @param buffer     the {@link PacketBuffer} to deserialize from.
      */
     void deserialize(final IFactoryController controller, final PacketBuffer buffer);
+
+    // [1.7.10] NBT persistence methods
+    NBTTagCompound serializeNBT();
+    void deserializeNBT(NBTTagCompound nbt);
 }
 
 

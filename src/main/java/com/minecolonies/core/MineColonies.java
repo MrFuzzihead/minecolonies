@@ -160,7 +160,8 @@ public class MineColonies
         config = new Configuration(event);
 
         // Language / localisation.
-        LanguageHandler.loadLangPath("assets/minecolonies/lang/%s.json");
+        // [1.7.10] LanguageHandler.loadLangPath not available in this structurize version
+        // LanguageHandler.loadLangPath("assets/minecolonies/lang/%s.json");
 
         // Register Forge and FML event handlers.
         MinecraftForge.EVENT_BUS.register(new EventHandler());
@@ -204,8 +205,9 @@ public class MineColonies
         // ChunkAPI.registerDataHandler(new ColonyChunkDataHandler());
 
         // Structurize blueprint handlers.
-        SurvivalBlueprintHandlers.registerHandler(new SurvivalHandler());
-        SurvivalBlueprintHandlers.registerHandler(new SuppliesHandler());
+        // [1.7.10] SurvivalBlueprintHandlers.registerHandler not available in this structurize version
+        // SurvivalBlueprintHandlers.registerHandler(new SurvivalHandler());
+        // SurvivalBlueprintHandlers.registerHandler(new SuppliesHandler());
 
         // Request system factory controllers.
         StandardFactoryControllerInitializer.onPreInit();

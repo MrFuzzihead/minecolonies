@@ -8,6 +8,7 @@ import com.minecolonies.api.registry.RegistryObject;
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.api.util.constant.translation.ToolTranslationConstants;
+import net.minecraft.init.Items;
 import net.minecraft.item.*;
 import net.minecraft.util.ResourceLocation;
 
@@ -18,6 +19,8 @@ import java.util.function.Consumer;
  */
 public class ModEquipmentTypes
 {
+    private static final java.util.Map<ResourceLocation, EquipmentTypeEntry> REGISTRY_MAP = new java.util.HashMap<>();
+
     public static final RegistryObject<EquipmentTypeEntry> none;
     public static final RegistryObject<EquipmentTypeEntry> pickaxe;
     public static final RegistryObject<EquipmentTypeEntry> shovel;
@@ -114,7 +117,6 @@ public class ModEquipmentTypes
         }
     }
 
-    private static final java.util.Map<ResourceLocation, EquipmentTypeEntry> REGISTRY_MAP = new java.util.HashMap<>();
 
     /**
      * Look up an EquipmentTypeEntry by its ResourceLocation.
@@ -159,9 +161,9 @@ public class ModEquipmentTypes
         }
         else if (itemStack.getItem() instanceof ItemTool)
         {
-            // In 1.7.10 tool materials have levels 0-4 matching Wood=0,Stone=1,Iron=2,Diamond=3,Gold=0
+            // In 1.7.10 use func_150913_i() to get ToolMaterial (MCP: getToolMaterial not available)
             final ItemTool tool = (ItemTool) itemStack.getItem();
-            return tool.getToolMaterial().getHarvestLevel();
+            return tool.func_150913_i().getHarvestLevel();
         }
         return -1;
     }

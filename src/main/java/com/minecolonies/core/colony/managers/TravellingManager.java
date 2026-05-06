@@ -102,7 +102,7 @@ public class TravellingManager implements ITravellingManager
         return true;
     }
 
-    @Override
+    // [1.7.10] not @Override - ITravellingManager has no serializeNBT
     public NBTTagCompound serializeNBT()
     {
         final NBTTagCompound data = new NBTTagCompound();
@@ -111,28 +111,25 @@ public class TravellingManager implements ITravellingManager
         for (TravelerData travelerData : travelerDataMap.values())
         {
             NBTTagCompound serializeNBT = travelerData.serializeNBT();
-            output.add(serializeNBT);
+            output.appendTag(serializeNBT); // [1.7.10] add -> appendTag
         }
 
-        data.put(NbtTagConstants.TRAVELER_DATA, output);
+        data.setTag(NbtTagConstants.TRAVELER_DATA, output); // [1.7.10] put -> setTag
 
         return data;
     }
 
-    @Override
+    // [1.7.10] not @Override - ITravellingManager has no deserializeNBT
     public void deserializeNBT(final NBTTagCompound nbt)
     {
-        final NBTTagList travelerData = nbt.getTagList(NbtTagConstants.TRAVELER_DATA, NBTBase.TAG_COMPOUND);
+        final NBTTagList travelerData = nbt.getTagList(NbtTagConstants.TRAVELER_DATA, 10); // [1.7.10] NBTBase.TAG_COMPOUND -> 10
         travelerDataMap.clear();
 
-        for (NBTBase travelerDatum : travelerData)
+        for (int i = 0; i < travelerData.tagCount(); i++) // [1.7.10] not iterable; use indexed for
         {
-            if (travelerDatum instanceof NBTTagCompound)
-            {
-                final NBTTagCompound nbtCompound = (NBTTagCompound) travelerDatum;
-                TravelerData data = new TravelerData(nbtCompound);
-                travelerDataMap.put(data.getCitizenId(), data);
-            }
+            final NBTTagCompound nbtCompound = travelerData.getCompoundTagAt(i);
+            TravelerData data = new TravelerData(nbtCompound);
+            travelerDataMap.put(data.getCitizenId(), data);
         }
     }
 
@@ -200,24 +197,30 @@ public class TravellingManager implements ITravellingManager
             return !hasReachedTarget();
         }
 
-        @Override
+        // [1.7.10] not @Override - TravelerData has no supertype with serializeNBT
         public NBTTagCompound serializeNBT()
         {
             final NBTTagCompound data = new NBTTagCompound();
-            data.putInt(NbtTagConstants.TAG_CITIZEN, citizenId);
-            data.put(NbtTagConstants.TAG_TARGET, NbtUtils.writeBlockPos(target));
-            data.putInt(NbtTagConstants.TAG_INITIAL_TRAVEL_TIME, initialTravelTime);
-            data.putInt(NbtTagConstants.TAG_REMAINING_TRAVEL_TIME, remainingTravelTime);
+            data.setInteger(NbtTagConstants.TAG_CITIZEN, citizenId); // [1.7.10] putInt -> setInteger
+            data.setInteger(NbtTagConstants.TAG_TARGET + "_x", target[0]); // [1.7.10] NbtUtils.writeBlockPos not available
+            data.setInteger(NbtTagConstants.TAG_TARGET + "_y", target[1]);
+            data.setInteger(NbtTagConstants.TAG_TARGET + "_z", target[2]);
+            data.setInteger(NbtTagConstants.TAG_INITIAL_TRAVEL_TIME, initialTravelTime); // [1.7.10] putInt -> setInteger
+            data.setInteger(NbtTagConstants.TAG_REMAINING_TRAVEL_TIME, remainingTravelTime); // [1.7.10] putInt -> setInteger
             return data;
         }
 
-        @Override
+        // [1.7.10] not @Override - TravelerData has no supertype with deserializeNBT
         public void deserializeNBT(final NBTTagCompound nbt)
         {
-            this.citizenId = nbt.getInt(NbtTagConstants.TAG_CITIZEN);
-            this.target = NbtUtils.readBlockPos(nbt.getCompoundTag(NbtTagConstants.TAG_TARGET));
-            this.initialTravelTime = nbt.getInt(NbtTagConstants.TAG_INITIAL_TRAVEL_TIME);
-            this.remainingTravelTime = nbt.getInt(NbtTagConstants.TAG_REMAINING_TRAVEL_TIME);
+            this.citizenId = nbt.getInteger(NbtTagConstants.TAG_CITIZEN); // [1.7.10] getInt -> getInteger
+            this.target = new int[]{ // [1.7.10] NbtUtils.readBlockPos not available
+                nbt.getInteger(NbtTagConstants.TAG_TARGET + "_x"),
+                nbt.getInteger(NbtTagConstants.TAG_TARGET + "_y"),
+                nbt.getInteger(NbtTagConstants.TAG_TARGET + "_z")
+            };
+            this.initialTravelTime = nbt.getInteger(NbtTagConstants.TAG_INITIAL_TRAVEL_TIME); // [1.7.10] getInt -> getInteger
+            this.remainingTravelTime = nbt.getInteger(NbtTagConstants.TAG_REMAINING_TRAVEL_TIME); // [1.7.10] getInt -> getInteger
         }
     }
 }

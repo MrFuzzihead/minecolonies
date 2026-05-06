@@ -121,6 +121,10 @@ public interface IQuestManager {
      */
     void serialize(PacketBuffer buf, boolean hasNewSubscribers);
 
+    // [1.7.10] NBT persistence methods
+    NBTTagCompound serializeNBT();
+    void deserializeNBT(NBTTagCompound nbt);
+
     /**
      * Deserialize network data
      *

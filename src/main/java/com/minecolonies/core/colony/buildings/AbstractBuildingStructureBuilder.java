@@ -101,8 +101,8 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuilding
     {
         if (inventory)
         {
-            final int hashCode = stack.hasTag() ? stack.getTag().hashCode() : 0;
-            final String key = stack.getDescriptionId() + "-" + hashCode;
+            final int hashCode = stack.hasTagCompound() ? stack.getTagCompound().hashCode() : 0;
+            final String key = stack.getUnlocalizedName() + "-" + hashCode;
             if (getRequiredResources() != null && getRequiredResources().getResourceMap().containsKey(key))
             {
                 final int qtyToKeep = getRequiredResources().getResourceMap().get(key);
@@ -114,25 +114,25 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuilding
                         {
                             if (storage.getAmount() >= qtyToKeep)
                             {
-                                return stack.getCount();
+                                return stack.stackSize;
                             }
                             final int kept = storage.getAmount();
-                            if (qtyToKeep >= kept + stack.getCount())
+                            if (qtyToKeep >= kept + stack.stackSize)
                             {
-                                storage.setAmount(kept + stack.getCount());
+                                storage.setAmount(kept + stack.stackSize);
                                 return 0;
                             }
                             else
                             {
                                 storage.setAmount(qtyToKeep);
-                                return qtyToKeep - kept - stack.getCount();
+                                return qtyToKeep - kept - stack.stackSize;
                             }
                         }
                     }
                 }
                 else
                 {
-                    if (qtyToKeep >= stack.getCount())
+                    if (qtyToKeep >= stack.stackSize)
                     {
                         localAlreadyKept.add(new ItemStorage(stack));
                         return 0;
@@ -140,7 +140,7 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuilding
                     else
                     {
                         localAlreadyKept.add(new ItemStorage(stack, qtyToKeep, false));
-                        return stack.getCount() - qtyToKeep;
+                        return stack.stackSize - qtyToKeep;
                     }
                 }
             }
@@ -213,28 +213,30 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuilding
         if (compound.hasKey(TAG_PROGRESS_POS))
         {
             progressPos = BlockPosUtil.read(compound, TAG_PROGRESS_POS);
-            progressStage = BuildingProgressStage.values()[compound.getInt(TAG_PROGRESS_STAGE)];
+            progressStage = BuildingProgressStage.values()[compound.getInteger(TAG_PROGRESS_STAGE)];
         }
 
         if (compound.hasKey(TAG_FLUIDS_REMOVE))
         {
             fluidsToRemove.clear();
-            NBTTagList fluidsToRemove = (NBTTagList) compound.get(TAG_FLUIDS_REMOVE);
-            fluidsToRemove.forEach(fluidsRemove -> {
-                int y = ((NBTTagCompound) fluidsRemove).getInt(TAG_FLUIDS_REMOVE_Y);
-                NBTTagList positions = (NBTTagList) ((NBTTagCompound) fluidsRemove).get(TAG_FLUIDS_REMOVE_POSITIONS);
-                final List<int[]> fluids = new ArrayList<int[]>();
-                for (int i = 0; i < positions.size(); i++)
+            NBTTagList fluidsToRemoveList = (NBTTagList) compound.getTag(TAG_FLUIDS_REMOVE);
+            for (int fi = 0; fi < fluidsToRemoveList.tagCount(); fi++)
+            {
+                NBTTagCompound fluidsRemove = fluidsToRemoveList.getCompoundTagAt(fi);
+                int y = fluidsRemove.getInteger(TAG_FLUIDS_REMOVE_Y);
+                NBTTagList positions = (NBTTagList) fluidsRemove.getTag(TAG_FLUIDS_REMOVE_POSITIONS);
+                final List<int[]> fluids = new ArrayList<>();
+                for (int i = 0; i < positions.tagCount(); i++)
                 {
                     fluids.add(BlockPosUtil.readFromListNBT(positions, i));
                 }
                 this.fluidsToRemove.put(y, fluids);
-            });
+            }
         }
 
         if (compound.hasKey(TAG_WORK_ORDER))
         {
-            this.workOrderId = compound.getInt(TAG_WORK_ORDER);
+            this.workOrderId = compound.getInteger(TAG_WORK_ORDER);
         }
     }
 
@@ -252,10 +254,10 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuilding
         this.fluidsToRemove.forEach((y, fluids) -> {
             final NBTTagCompound fluidsRemove = new NBTTagCompound();
             final NBTTagList positions = new NBTTagList();
-            fluids.forEach(fluid -> BlockPosUtil.writeToListNBT(positions, fluid));
-            fluidsRemove.put(TAG_FLUIDS_REMOVE_POSITIONS, positions);
-            fluidsRemove.putInt(TAG_FLUIDS_REMOVE_Y, y);
-            fluidsToRemove.add(fluidsRemove);
+            fluids.forEach(fluid -> BlockPosUtil.writeToListNBT(positions, fluid[0], fluid[1], fluid[2]));
+            fluidsRemove.setTag(TAG_FLUIDS_REMOVE_POSITIONS, positions);
+            fluidsRemove.setInteger(TAG_FLUIDS_REMOVE_Y, y);
+            fluidsToRemove.appendTag(fluidsRemove);
         });
         compound.setTag(TAG_FLUIDS_REMOVE, fluidsToRemove);
 
@@ -278,7 +280,11 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuilding
         super.serializeToView(buf, fullSync);
 
         final WorkerBuildingModule module = getFirstModuleOccurance(WorkerBuildingModule.class);
-        buf.writeUtf(module.getFirstCitizen() != null ? module.getFirstCitizen().getName() : "");
+        try
+        {
+            buf.writeStringToBuffer(module.getFirstCitizen() != null ? module.getFirstCitizen().getName() : "");
+        }
+        catch (java.io.IOException e) { throw new RuntimeException(e); }
     }
 
     /**
@@ -310,8 +316,8 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuilding
      */
     public boolean hasResourceInBucket(final ItemStack stack)
     {
-        final int hashCode = stack.hasTag() ? stack.getTag().hashCode() : 0;
-        final String key = stack.getDescriptionId() + "-" + hashCode;
+        final int hashCode = stack.hasTagCompound() ? stack.getTagCompound().hashCode() : 0;
+        final String key = stack.getUnlocalizedName() + "-" + hashCode;
         return getRequiredResources() != null && getRequiredResources().getResourceMap().containsKey(key);
     }
 
@@ -326,7 +332,7 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuilding
         if (res != null)
         {
             final ItemStack copy = res.copy();
-            copy.setCount(1);
+            copy.stackSize = 1;
             getModule(BuildingModules.BUILDING_RESOURCES).addNeededResource(copy, amount);
             this.markDirty();
         }

@@ -48,7 +48,7 @@ public abstract class AbstractJobStructure<AI extends AbstractAISkeleton<J>, J e
         super.deserializeNBT(compound);
         if (compound.hasKey(TAG_WORK_ORDER) && workBuilding instanceof AbstractBuildingStructureBuilder abstractBuildingStructureBuilder)
         {
-            abstractBuildingStructureBuilder.setWorkOrderId(compound.getInt(TAG_WORK_ORDER));
+            abstractBuildingStructureBuilder.setWorkOrderId(compound.getInteger(TAG_WORK_ORDER));
         }
     }
 }

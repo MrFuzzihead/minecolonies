@@ -161,13 +161,14 @@ public class Food implements IDeliverable
     public static Food deserialize(final IFactoryController controller, final PacketBuffer buffer)
     {
         final int count = buffer.readInt();
-        final ItemStack result = buffer.readBoolean() ? buffer.readItemStackFromBuffer() : null;
+        final ItemStack result;
+        try { result = buffer.readBoolean() ? buffer.readItemStackFromBuffer() : null; } catch (java.io.IOException e) { throw new RuntimeException(e); }
 
         List<ItemStorage> items = new ArrayList<>();
         final int itemsCount = buffer.readInt();
         for (int i = 0; i < itemsCount; ++i)
         {
-            items.add(new ItemStorage(buffer.readItemStackFromBuffer()));
+            try { items.add(new ItemStorage(buffer.readItemStackFromBuffer())); } catch (java.io.IOException e) { throw new RuntimeException(e); }
         }
         final int minNutrition = buffer.readInt();
         if (!items.isEmpty())

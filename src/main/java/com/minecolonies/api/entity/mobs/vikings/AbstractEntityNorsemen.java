@@ -51,7 +51,7 @@ public abstract class AbstractEntityNorsemen extends AbstractEntityMinecoloniesM
     @Override
     public RaiderType getRaiderType()
     {
-        return RaiderType.VIKING;
+        return RaiderType.NORSEMAN;
     }
 
     @Override

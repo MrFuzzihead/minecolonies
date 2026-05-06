@@ -104,7 +104,9 @@ public class PublicCrafting extends AbstractCrafting
      */
     public static PublicCrafting deserialize(final IFactoryController controller, final PacketBuffer buffer)
     {
-        final ItemStack stack = buffer.readItemStackFromBuffer();
+        final ItemStack stack;
+        try { stack = buffer.readItemStackFromBuffer(); } catch (java.io.IOException e) { throw new RuntimeException(e); }
+
         final int count = buffer.readInt();
         final IToken<?> token = StandardFactoryController.getInstance().deserialize(buffer);
 

@@ -16,7 +16,7 @@ public interface IEventDescriptionManager
 {
     /**
      * Adds an event description.
-     * 
+     *
      * @param colonyEventDescription the event description to add.
      */
     void addEventDescription(IColonyEventDescription colonyEventDescription);
@@ -31,6 +31,10 @@ public interface IEventDescriptionManager
      * @param buf the buf to serialize it to.
      */
     void serialize(@NotNull PacketBuffer buf);
+
+    // [1.7.10] NBT persistence methods
+    NBTTagCompound serializeNBT();
+    void deserializeNBT(NBTTagCompound nbt);
 }
 
 

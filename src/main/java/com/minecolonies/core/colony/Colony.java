@@ -303,9 +303,7 @@ public class Colony implements IColony
     /**
      * The colony flag, as a list of patterns.
      */
-    private NBTTagList colonyFlag = new BannerPattern.Builder()
-        .addPattern(BannerPatterns.BASE, DyeColor.WHITE)
-        .toListTag();
+    private NBTTagList colonyFlag = new NBTTagList(); // [1.7.10] BannerPattern.Builder not available
 
     /**
      * The last time the mercenaries were used.
@@ -387,14 +385,14 @@ public class Colony implements IColony
         this.id = id;
         if (world != null)
         {
-            this.dimensionId = world.dimension();
+            this.dimensionId = world.provider.dimensionId; // [1.7.10] world.dimension() -> world.provider.dimensionId
             onWorldLoad(world);
         }
         this.permissions = new Permissions(this);
         researchManager = new ResearchManager(this);
         colonyStateMachine = new TickRateStateMachine<>(INACTIVE, e ->
         {
-            Log.getLogger().warn("Exception triggered in colony:{} in dimension:{} history:{}", getID(), getDimension().location(), colonyStateMachine.getHistory(), e);
+            Log.getLogger().warn("Exception triggered in colony:{} in dimension:{} history:{}", getID(), getDimension(), colonyStateMachine.getHistory(), e); // [1.7.10] dimensionId is int
             colonyStateMachine.setCurrentDelay(20 * 60 * 5);
         });
         colonyStateMachine.setHistoryEnabled(true, 10);
@@ -549,7 +547,7 @@ public class Colony implements IColony
                     pendingChunks.addAll(pendingToUnloadChunks);
                     for (final long pending : pendingChunks)
                     {
-                        checkChunkAndRegisterTicket(pending, world.getChunk(ChunkCoordIntPair.getX(pending), ChunkCoordIntPair.getZ(pending)));
+                    checkChunkAndRegisterTicket(pending, world.getChunkFromChunkCoords((int)(pending >> 32), (int)(pending & 0xFFFFFFFFL))); // [1.7.10] decode long as chunkX/Z
                     }
 
                     pendingToUnloadChunks.clear();
@@ -565,14 +563,10 @@ public class Colony implements IColony
                 {
                     for (final long chunkCoord : this.ticketedChunks)
                     {
-                        final int chunkX = ChunkCoordIntPair.getX(ChunkCoordIntPair);
-                        final int chunkZ = ChunkCoordIntPair.getZ(ChunkCoordIntPair);
-                        if (world instanceof ServerLevel)
-                        {
-                            final ChunkCoordIntPair pos = new ChunkCoordIntPair(chunkX, chunkZ);
-                            ((ServerChunkCache) world.getChunkSource()).removeRegionTicket(KEEP_LOADED_TYPE, pos, 2, pos);
-                            pendingToUnloadChunks.add(ChunkCoordIntPair);
-                        }
+                        final int chunkX = (int)(chunkCoord >> 32); // [1.7.10] decode long
+                        final int chunkZ = (int)(chunkCoord & 0xFFFFFFFFL); // [1.7.10] decode long
+                        // [1.7.10] ServerLevel/ServerChunkCache force-loading not available; just clear the set
+                        pendingToUnloadChunks.add(chunkCoord);
                     }
                     ticketedChunks.clear();
                     ticketedChunksDirty = true;
@@ -588,13 +582,13 @@ public class Colony implements IColony
      */
     private void checkChunkAndRegisterTicket(final long chunkCoord, final Chunk chunk)
     {
-        if (forceLoadTimer > 0 && world instanceof ServerLevel)
+        if (forceLoadTimer > 0)
         {
-            if (!ticketedChunks.contains(ChunkCoordIntPair) && buildingManager.keepChunkColonyLoaded(chunk))
+            // [1.7.10] ServerLevel/ServerChunkCache force-loading not available; just track the set
+            if (!ticketedChunks.contains(chunkCoord) && buildingManager.keepChunkColonyLoaded(chunk))
             {
-                ticketedChunks.add(ChunkCoordIntPair);
+                ticketedChunks.add(chunkCoord);
                 ticketedChunksDirty = true;
-                ((ServerChunkCache) world.getChunkSource()).addRegionTicket(KEEP_LOADED_TYPE, chunk.getPos(), 2, chunk.getPos(), true);
             }
         }
     }
@@ -679,7 +673,7 @@ public class Colony implements IColony
                 player.refreshList(this);
                 if (player.getGuards().isEmpty())
                 {
-                    MessageUtils.format(COLONY_DEFENDED_SUCCESS_MESSAGE, player.getPlayer().getName()).sendTo(this).forManagers();
+                    MessageUtils.format(COLONY_DEFENDED_SUCCESS_MESSAGE, player.getPlayer().getCommandSenderName()).sendTo(this).forManagers(); // [1.7.10] getName -> getCommandSenderName
                 }
             }
         }
@@ -727,11 +721,11 @@ public class Colony implements IColony
     {
         try
         {
-            final int id = compound.getInt(TAG_ID);
+            final int id = compound.getInteger(TAG_ID); // [1.7.10] getInt -> getInteger
             @NotNull final Colony c = new Colony(id, world);
             c.name = compound.getString(TAG_NAME);
             c.center = BlockPosUtil.read(compound, TAG_CENTER);
-            c.dimensionId = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(compound.getString(TAG_DIMENSION)));
+            c.dimensionId = compound.getInteger(TAG_DIMENSION); // [1.7.10] ResourceKey.create -> int dimension ID
 
             c.setRequestManager();
             c.read(compound);
@@ -760,10 +754,10 @@ public class Colony implements IColony
      */
     public void read(@NotNull final NBTTagCompound compound)
     {
-        dimensionId = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(compound.getString(TAG_DIMENSION)));
+        dimensionId = compound.getInteger(TAG_DIMENSION); // [1.7.10] ResourceKey.create -> int dimension ID
 
         mercenaryLastUse = compound.getLong(TAG_MERCENARY_TIME);
-        additionalChildTime = compound.getInt(TAG_CHILD_TIME);
+        additionalChildTime = compound.getInteger(TAG_CHILD_TIME); // [1.7.10] getInt -> getInteger
 
         // Permissions
         permissions.loadPermissions(compound);
@@ -797,8 +791,8 @@ public class Colony implements IColony
 
         wayPoints.clear();
         // Waypoints
-        final NBTTagList wayPointTagList = compound.getTagList(TAG_WAYPOINT, NBTBase.TAG_COMPOUND);
-        for (int i = 0; i < wayPointTagList.size(); ++i)
+        final NBTTagList wayPointTagList = compound.getTagList(TAG_WAYPOINT, 10); // [1.7.10] NBTBase.TAG_COMPOUND -> 10
+        for (int i = 0; i < wayPointTagList.tagCount(); ++i) // [1.7.10] size() -> tagCount()
         {
             final NBTTagCompound blockAtPos = wayPointTagList.getCompoundTagAt(i);
             final int[] pos = BlockPosUtil.read(blockAtPos, TAG_WAYPOINT);
@@ -808,17 +802,17 @@ public class Colony implements IColony
 
         // Free blocks
         final Set<Block> tempFreeBlocks = new HashSet<>();
-        final NBTTagList freeBlockTagList = compound.getTagList(TAG_FREE_BLOCKS, NBTBase.TAG_STRING);
-        for (int i = 0; i < freeBlockTagList.size(); ++i)
+        final NBTTagList freeBlockTagList = compound.getTagList(TAG_FREE_BLOCKS, 8); // [1.7.10] NBTBase.TAG_STRING -> 8
+        for (int i = 0; i < freeBlockTagList.tagCount(); ++i) // [1.7.10] size() -> tagCount()
         {
-            tempFreeBlocks.add(Block.getBlockFromName(freeBlockTagList.getString(i))); // [1.7.10] ForgeRegistries.BLOCKS.getValue -> Block.getBlockFromName
+            tempFreeBlocks.add(Block.getBlockFromName(freeBlockTagList.getStringTagAt(i))); // [1.7.10] getString -> getStringTagAt
         }
         freeBlocks = ImmutableSet.copyOf(tempFreeBlocks);
 
         final Set<int[]> tempFreePositions = new HashSet<>();
         // Free positions
-        final NBTTagList freePositionTagList = compound.getTagList(TAG_FREE_POSITIONS, NBTBase.TAG_COMPOUND);
-        for (int i = 0; i < freePositionTagList.size(); ++i)
+        final NBTTagList freePositionTagList = compound.getTagList(TAG_FREE_POSITIONS, 10); // [1.7.10] NBTBase.TAG_COMPOUND -> 10
+        for (int i = 0; i < freePositionTagList.tagCount(); ++i) // [1.7.10] size() -> tagCount()
         {
             final NBTTagCompound blockTag = freePositionTagList.getCompoundTagAt(i);
             final int[] block = BlockPosUtil.read(blockTag, TAG_FREE_POSITIONS);
@@ -826,7 +820,7 @@ public class Colony implements IColony
         }
         freePositions = ImmutableSet.copyOf(tempFreePositions);
 
-        packageManager.setLastContactInHours(compound.getInt(TAG_ABANDONED));
+        packageManager.setLastContactInHours(compound.getInteger(TAG_ABANDONED)); // [1.7.10] getInt -> getInteger
 
         if (compound.hasKey(TAG_STYLE))
         {
@@ -852,7 +846,7 @@ public class Colony implements IColony
         {
             // This read can occur before the world is non-null, due to Minecraft's order of operations for capabilities.
             // As a result, setColonyColor proper must wait until onWorldLoad fires.
-            this.colonyTeamColor = EnumChatFormatting.values()[compound.getInt(TAG_TEAM_COLOR)];
+            this.colonyTeamColor = EnumChatFormatting.values()[compound.getInteger(TAG_TEAM_COLOR)]; // [1.7.10] getInt -> getInteger
         }
 
         if (compound.hasKey(TAG_FLAG_PATTERNS))
@@ -880,7 +874,7 @@ public class Colony implements IColony
             settingsModule.deserializeNBT(compound.getCompoundTag(BuildingModules.TOWNHALL_SETTINGS.key));
         }
 
-        this.day = compound.getInt(COLONY_DAY);
+        this.day = compound.getInteger(COLONY_DAY); // [1.7.10] getInt -> getInteger
         this.colonyTag = compound;
 
         if (compound.hasKey(NbtTagConstants.TAG_TRAVELLING_DATA))
@@ -915,7 +909,7 @@ public class Colony implements IColony
 
         //  Core attributes
         compound.setInteger(TAG_ID, id);
-        compound.setString(TAG_DIMENSION, dimensionId.location().toString());
+        compound.setInteger(TAG_DIMENSION, dimensionId); // [1.7.10] dimensionId is int, not ResourceKey
 
         //  Basic data
         compound.setString(TAG_NAME, name);
@@ -969,7 +963,7 @@ public class Colony implements IColony
             @NotNull final NBTTagCompound wayPointCompound = new NBTTagCompound();
             BlockPosUtil.write(wayPointCompound, TAG_WAYPOINT, entry.getKey());
             wayPointCompound.setInteger(TAG_BLOCK, entry.getValue()); // [1.7.10] NbtUtils.writeBlockState -> setInteger block ID
-            wayPointTagList.add(wayPointCompound);
+            wayPointTagList.appendTag(wayPointCompound); // [1.7.10] add -> appendTag
         }
         compound.setTag(TAG_WAYPOINT, wayPointTagList);
 
@@ -987,7 +981,7 @@ public class Colony implements IColony
         {
             @NotNull final NBTTagCompound wayPointCompound = new NBTTagCompound();
             BlockPosUtil.write(wayPointCompound, TAG_FREE_POSITIONS, pos);
-            freePositionsTagList.add(wayPointCompound);
+            freePositionsTagList.appendTag(wayPointCompound); // [1.7.10] add -> appendTag
         }
         compound.setTag(TAG_FREE_POSITIONS, freePositionsTagList);
 
@@ -1045,7 +1039,7 @@ public class Colony implements IColony
     @Override
     public void onWorldLoad(@NotNull final World w)
     {
-        if (w.dimension() == dimensionId)
+        if (w.provider.dimensionId == dimensionId) // [1.7.10] w.dimension() -> w.provider.dimensionId
         {
             this.world = w;
             // Register a new event handler
@@ -1195,7 +1189,7 @@ public class Colony implements IColony
     @Override
     public void onWorldTick(@NotNull final TickEvent.WorldTickEvent event)
     {
-        if (event.World != getWorld())
+        if (event.world != getWorld()) // [1.7.10] event.World -> event.world (lowercase)
         {
             /*
              * If the event world is not the colony world ignore. This might happen in interactions with other mods.
@@ -1204,7 +1198,7 @@ public class Colony implements IColony
             return;
         }
 
-        if (!event.World.isRemote && (event.world.getTotalWorldTime() + id) % 20 == 0)
+        if (!event.world.isRemote && (event.world.getTotalWorldTime() + id) % 20 == 0) // [1.7.10] event.World -> event.world
         {
             connectionManager.tick();
         }
@@ -1239,7 +1233,7 @@ public class Colony implements IColony
             {
                 if (count++ == randomPos)
                 {
-                    if (WorldUtil.isBlockLoaded(world, entry.getKey()))
+                    if (WorldUtil.isBlockLoaded(world, entry.getKey()[0], entry.getKey()[2])) // [1.7.10] isBlockLoaded(world, int[]) -> (world, x, z)
                     {
                         final int[] key = entry.getKey();
                         final Block worldBlock = world.getBlock(key[0], key[1], key[2]); // [1.7.10] getBlockState -> getBlock
@@ -1247,7 +1241,7 @@ public class Colony implements IColony
                         if (
                             ((worldBlock != storedBlock && storedBlock != ModBlocks.blockWayPoint)
                                 && worldBlock != ModBlocks.blockConstructionTape)
-                                || (world.isAirBlock(key[0], key[1] - 1, key[2]) && !BlockUtils.isAnySolid(storedBlock))) // [1.7.10] isEmptyBlock/below -> isAirBlock
+                                || (world.isAirBlock(key[0], key[1] - 1, key[2]) && !storedBlock.getMaterial().isSolid())) // [1.7.10] BlockUtils.isAnySolid -> getMaterial().isSolid()
                         {
                             wayPoints.remove(entry.getKey());
                             markDirty();
@@ -1300,20 +1294,19 @@ public class Colony implements IColony
     @Override
     public boolean isCoordInColony(@NotNull final World w, @NotNull final int[] pos)
     {
-        if (w.dimension() != this.dimensionId)
+        if (w.provider.dimensionId != this.dimensionId) // [1.7.10] w.dimension() -> w.provider.dimensionId
         {
             return false;
         }
 
-
-        final Chunk chunk = w.getChunkAt(pos);
+        final Chunk chunk = w.getChunkFromBlockCoords(pos[0], pos[2]); // [1.7.10] getChunkAt(int[]) -> getChunkFromBlockCoords(x,z)
         return ColonyUtils.getOwningColony(chunk) == this.getID();
     }
 
     @Override
     public long getDistanceSquared(@NotNull final int[] pos)
     {
-        return BlockPosUtil.getDistanceSquared2D(center, pos);
+        return BlockPosUtil.getDistanceSquared2D(center[0], center[2], pos[0], pos[2]); // [1.7.10] split int[] args
     }
 
     /**
@@ -1394,7 +1387,7 @@ public class Colony implements IColony
     @NotNull
     public List<EntityPlayer> getImportantMessageEntityPlayers()
     {
-        final Set<Player> playerList = new HashSet<>(getMessagePlayerEntities());
+        final Set<EntityPlayer> playerList = new HashSet<>(getMessagePlayerEntities()); // [1.7.10] Player -> EntityPlayer
 
         for (final EntityPlayerMP player : packageManager.getImportantColonyPlayers())
         {
@@ -1645,7 +1638,7 @@ public class Colony implements IColony
 
             if (notifyPlayerEnteringModEvent.shouldShowNotification())
             {
-                MessageUtils.format(ENTERING_COLONY_MESSAGE_NOTIFY, player.getName()).sendTo(this, true).forManagers();
+                MessageUtils.format(ENTERING_COLONY_MESSAGE_NOTIFY, player.getCommandSenderName()).sendTo(this, true).forManagers(); // [1.7.10] getName -> getCommandSenderName
             }
         }
     }
@@ -1666,7 +1659,7 @@ public class Colony implements IColony
 
             if (notifyPlayerLeavingModEvent.shouldShowNotification())
             {
-                MessageUtils.format(LEAVING_COLONY_MESSAGE_NOTIFY, player.getName()).sendTo(this, true).forManagers();
+                MessageUtils.format(LEAVING_COLONY_MESSAGE_NOTIFY, player.getCommandSenderName()).sendTo(this, true).forManagers(); // [1.7.10] getName -> getCommandSenderName
             }
         }
     }
@@ -1750,7 +1743,7 @@ public class Colony implements IColony
             {
                 if (attackingPlayer.addGuard(IEntityCitizen))
                 {
-                    MessageUtils.format(COLONY_ATTACK_GUARD_GROUP_SIZE_MESSAGE, attackingPlayer.getPlayer().getName(), attackingPlayer.getGuards().size())
+                    MessageUtils.format(COLONY_ATTACK_GUARD_GROUP_SIZE_MESSAGE, attackingPlayer.getPlayer().getCommandSenderName(), attackingPlayer.getGuards().size()) // [1.7.10] getName -> getCommandSenderName
                         .sendTo(this)
                         .forManagers();
                 }
@@ -1765,7 +1758,7 @@ public class Colony implements IColony
                 final AttackingPlayer attackingPlayer = new AttackingPlayer(visitingPlayer);
                 attackingPlayer.addGuard(IEntityCitizen);
                 attackingPlayers.add(attackingPlayer);
-                MessageUtils.format(COLONY_ATTACK_START_MESSAGE, visitingPlayer.getName()).sendTo(this).forManagers();
+                MessageUtils.format(COLONY_ATTACK_START_MESSAGE, visitingPlayer.getCommandSenderName()).sendTo(this).forManagers(); // [1.7.10] getName -> getCommandSenderName
             }
         }
     }
@@ -1862,26 +1855,26 @@ public class Colony implements IColony
     @Override
     public void addLoadedChunk(final long chunkCoord, final Chunk chunk)
     {
-        if (world instanceof ServerLevel
-            && getConfig().getServer().forceLoadColony.get())
+        if (getConfig().getServer().forceLoadColony.get())
         {
+            // [1.7.10] ServerLevel force-loading not available; simplified
             if (this.forceLoadTimer > 0)
             {
-                checkChunkAndRegisterTicket(ChunkCoordIntPair, chunk);
+                checkChunkAndRegisterTicket(chunkCoord, chunk);
             }
             else if (buildingManager.keepChunkColonyLoaded(chunk))
             {
-                this.pendingChunks.add(ChunkCoordIntPair);
+                this.pendingChunks.add(chunkCoord);
             }
         }
-        this.loadedChunks.put(ChunkCoordIntPair, ChunkCoordIntPair);
+        this.loadedChunks.put(chunkCoord, chunkCoord);
     }
 
     @Override
     public void removeLoadedChunk(final long chunkCoord)
     {
-        loadedChunks.remove(ChunkCoordIntPair);
-        pendingToUnloadChunks.remove(ChunkCoordIntPair);
+        loadedChunks.remove(chunkCoord);
+        pendingToUnloadChunks.remove(chunkCoord);
     }
 
     @Override

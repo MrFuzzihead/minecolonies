@@ -51,21 +51,24 @@ public interface IQuestTriggerTemplate
      */
     static boolean matchNbt(final NBTBase nbtTag, final JsonElement matchTag, final int count)
     {
-        if (nbtTag instanceof final NBTTagCompound nbtCompound)
+        // [1.7.10] No pattern-matching instanceof (Java 16+); use regular instanceof + cast
+        if (nbtTag instanceof NBTTagCompound)
         {
-            if (!(matchTag instanceof JsonObject matchObject))
+            final NBTTagCompound nbtCompound = (NBTTagCompound) nbtTag;
+            if (!(matchTag instanceof JsonObject))
             {
                 return false;
             }
+            final JsonObject matchObject = (JsonObject) matchTag;
 
             for (String key : matchObject.keySet())
             {
-                if (!nbtCompound.contains(key))
+                if (!nbtCompound.hasKey(key)) // [1.7.10] contains→hasKey
                 {
                     return false;
                 }
 
-                if (!matchNbt(nbtCompound.get(key), matchObject.get(key)))
+                if (!matchNbt(nbtCompound.getTag(key), matchObject.get(key))) // [1.7.10] get→getTag
                 {
                     return false;
                 }
@@ -73,13 +76,17 @@ public interface IQuestTriggerTemplate
             return true;
         }
 
-        if (nbtTag instanceof NBTTagList nbtList)
+        if (nbtTag instanceof NBTTagList)
         {
+            final NBTTagList nbtList = (NBTTagList) nbtTag;
             // Check if we're trying to match an element in the list.
+            // [1.7.10] NBTTagList is not Iterable; use indexed loop with compound getter
             int matchCount = 0;
-            for (final NBTBase NBTBase : nbtList)
+            for (int i = 0; i < nbtList.tagCount(); i++)
             {
-                if (matchNbt(NBTBase, matchTag))
+                // [1.7.10] No generic get(int); use getCompoundTagAt for compound lists
+                final NBTBase nbtElement = nbtList.getCompoundTagAt(i);
+                if (matchNbt(nbtElement, matchTag))
                 {
                     matchCount++;
                     if (matchCount >= count)
@@ -90,17 +97,19 @@ public interface IQuestTriggerTemplate
             }
 
             // This can also be partial matching (e.g. find 3 elements).
-            if (!(matchTag instanceof JsonArray arrayTag))
+            if (!(matchTag instanceof JsonArray))
             {
                 return false;
             }
+            final JsonArray arrayTag = (JsonArray) matchTag;
 
             for (final JsonElement element: arrayTag)
             {
                 boolean matched = false;
-                for (final NBTBase NBTBase : nbtList)
+                for (int i = 0; i < nbtList.tagCount(); i++)
                 {
-                    if (matchNbt(NBTBase, element))
+                    final NBTBase nbtElement = nbtList.getCompoundTagAt(i);
+                    if (matchNbt(nbtElement, element))
                     {
                         matched = true;
                         break;
@@ -124,16 +133,21 @@ public interface IQuestTriggerTemplate
         // Full equals for string.
         if (nbtTag instanceof NBTTagString && ((JsonPrimitive) matchTag).isString())
         {
-            return nbtTag.getAsString().equals(matchTag.getAsString());
+            // [1.7.10] getAsString()→func_150285_a_() on NBTTagString, but NBTTagString doesn't expose it on NBTBase
+            // Use toString() which includes the string value (with quotes), or cast directly
+            return ((NBTTagString) nbtTag).func_150285_a_().equals(((JsonPrimitive) matchTag).getAsString());
         }
         else if (nbtTag instanceof NBTTagByte && ((JsonPrimitive) matchTag).isBoolean())
         {
-            return (((NBTTagByte) nbtTag).getAsByte() == 0) != matchTag.getAsBoolean();
+            // [1.7.10] getAsByte()→func_150290_f() on NBTTagByte
+            return (((NBTTagByte) nbtTag).func_150290_f() == 0) != matchTag.getAsBoolean();
         }
         // Larger equals for numbers.
-        else if (nbtTag instanceof NumericTag && ((JsonPrimitive) matchTag).isNumber())
+        // [1.7.10] NumericTag→NBTBase.NBTPrimitive
+        else if (nbtTag instanceof NBTBase.NBTPrimitive && ((JsonPrimitive) matchTag).isNumber())
         {
-            return ((NumericTag) nbtTag).getAsDouble() >= matchTag.getAsDouble();
+            // [1.7.10] getAsDouble()→func_150286_g() on NBTPrimitive
+            return ((NBTBase.NBTPrimitive) nbtTag).func_150286_g() >= matchTag.getAsDouble();
         }
         return false;
     }

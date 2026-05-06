@@ -1,15 +1,7 @@
 package com.minecolonies.core.colony.workorders;
-import net.minecraft.util.Direction;
-// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.BoneMealItem;
+// [1.7.10] removed unused 1.21 imports
 
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
-import com.ldtteam.structurize.storage.StructurePacks;
-import com.minecolonies.api.advancements.AdvancementTriggers;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
@@ -238,7 +230,7 @@ public class WorkManager implements IWorkManager
         {
             @NotNull final NBTTagCompound orderCompound = new NBTTagCompound();
             o.write(orderCompound);
-            list.add(orderCompound);
+            list.appendTag(orderCompound);
         }
         compound.setTag(TAG_WORK_ORDERS, list);
         compound.setBoolean(TAG_NEW_SYSTEM, true);
@@ -261,8 +253,8 @@ public class WorkManager implements IWorkManager
         }
 
         //  Work Orders
-        final NBTTagList list = compound.getTagList(TAG_WORK_ORDERS, NBTBase.TAG_COMPOUND);
-        for (int i = 0; i < list.size(); ++i)
+        final NBTTagList list = compound.getTagList(TAG_WORK_ORDERS, 10); // 10 = NBTTagCompound type
+        for (int i = 0; i < list.tagCount(); ++i)
         {
             final NBTTagCompound orderCompound = list.getCompoundTagAt(i);
             @Nullable final IServerWorkOrder o = AbstractWorkOrder.createFromNBT(orderCompound, this);
@@ -307,7 +299,7 @@ public class WorkManager implements IWorkManager
             }
             if (!readingFromNbt && !isWorkOrderWithinColony(order))
             {
-                MessageUtils.format(OUT_OF_COLONY, order.getDisplayName(), order.getLocation().getX(), order.getLocation().getZ()).sendTo(colony).forAllPlayers();
+                MessageUtils.format(OUT_OF_COLONY, order.getDisplayName(), order.getLocation()[0], order.getLocation()[2]).sendTo(colony).forAllPlayers();
                 return;
             }
         }
@@ -323,17 +315,13 @@ public class WorkManager implements IWorkManager
         {
             if (order instanceof WorkOrderBuilding buildingOrder)
             {
-                final IBuilding building = colony.getServerBuildingManager().getBuilding(buildingOrder.getLocation());
-                if (building != null)
-                {
-                    AdvancementUtils.TriggerAdvancementPlayersForColony(colony,
-                            player -> AdvancementTriggers.CREATE_BUILD_REQUEST.trigger(player, building.getBuildingType().getRegistryName().getPath(), World));
-                }
+                // [1.7.10] AdvancementTriggers not available; skipped
+                // AdvancementUtils.TriggerAdvancementPlayersForColony(colony,
+                //   player -> AdvancementTriggers.CREATE_BUILD_REQUEST.trigger(player, ...));
             }
             else if (order instanceof WorkOrderDecoration)
             {
-                AdvancementUtils.TriggerAdvancementPlayersForColony(colony,
-                  player -> AdvancementTriggers.CREATE_BUILD_REQUEST.trigger(player, order.getFileName().replace(String.valueOf(World), ""), World));
+                // [1.7.10] AdvancementTriggers not available; skipped
             }
         }
 
@@ -349,39 +337,8 @@ public class WorkManager implements IWorkManager
      */
     private boolean isWorkOrderWithinColony(final IWorkOrder order)
     {
-        final World world = colony.getWorld();
-        final Blueprint blueprint = StructurePacks.getBlueprint(order.getStructurePack(), order.getStructurePath());
-        final Tuple<int[], int[]> corners
-          = ColonyUtils.calculateCorners(order.getLocation(),
-          world,
-          blueprint,
-          order.getRotation(),
-          order.isMirrored());
-
-        Set<ChunkCoordIntPair> chunks = new HashSet<>();
-        final int minX = Math.min(corners.getA().getX(), corners.getB().getX()) + 1;
-        final int maxX = Math.max(corners.getA().getX(), corners.getB().getX());
-
-        final int minZ = Math.min(corners.getA().getZ(), corners.getB().getZ()) + 1;
-        final int maxZ = Math.max(corners.getA().getZ(), corners.getB().getZ());
-
-        for (int x = minX; x < maxX; x += 16)
-        {
-            for (int z = minZ; z < maxZ; z += 16)
-            {
-                final int chunkX = x >> 4;
-                final int chunkZ = z >> 4;
-                final ChunkCoordIntPair pos = new ChunkCoordIntPair(chunkX, chunkZ);
-                if (!chunks.contains(pos))
-                {
-                    chunks.add(pos);
-                    if (ColonyUtils.getOwningColony(world.getChunk(pos.x, pos.z)) != colony.getID())
-                    {
-                        return false;
-                    }
-                }
-            }
-        }
+        // [1.7.10] StructurePacks.getBlueprint not available; assume within colony
+        // TODO: Implement using available structurize APIs when ported
         return true;
     }
 

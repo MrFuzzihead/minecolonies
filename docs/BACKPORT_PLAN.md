@@ -391,9 +391,11 @@ Track implementation status here as work progresses.
 - [x] `core/network/messages/**` (136 files) — bulk: NetworkEvent.Context→MessageContext; LogicalSide→Boolean; ctx.getSender()→ctx.getServerHandler().playerEntity; ctx.enqueueWork→flattened; FriendlyByteBuf→PacketBuffer; ServerPlayer→EntityPlayerMP
 
 ### Phase 7 — Colony & Game Logic
-- [x] `api/colony/IColony.java` — removed Style/ChunkPos/Animal/Player 1.21 imports; kept BlockState (valid 1.7.10)
+- [x] `api/colony/IColony.java` — removed CLOSE_COLONY_CAP / CapabilityManager / CapabilityToken imports; added migration comment
 - [x] `api/util/InventoryUtils.java` — removed FoodProperties/Player 1.21 imports; Item.byBlock→Item.getItemFromBlock; FoodProperties→ItemFood for transferFoodUpToSaturation
 - [x] `api/compatibility/CompatibilityManager.java` — removed BlockState 1.21 import
+- [x] `core/colony/permissions/ColonyPermissionEventHandler.java` — ported all event handlers; BlockEvent stubs updated (extend FML Event, add block/blockMetadata); PlayerEvent stub updated (entityPlayer field, extends FML Event); PlayerInteractEvent stub updated (extends FML Event); all event field names corrected for 1.7.10 API
+- [x] `core/colony/permissions/Permissions.java` — NBT API: getInt→getInteger, contains→hasKey, size()→tagCount(), getString()→getStringTagAt(), put*→set*(), add→appendTag(); ServerConfigurationManager.func_152612_a(); world.getPlayerEntityByUUID removed; player.getName()→getCommandSenderName(); writeVarInt→writeVarIntToBuffer; writeUtf→writeStringToBuffer wrapped in try/catch IOException
 - [ ] `core/colony/**` (remaining files)
 - [ ] `core/event/**`
 - [ ] `core/generation/**`

@@ -1,11 +1,4 @@
 package com.minecolonies.core.colony.buildings.modules;
-import net.minecraft.util.Direction;
-// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.BoneMealItem;
 
 import com.minecolonies.api.colony.buildings.modules.AbstractBuildingModule;
 import com.minecolonies.api.colony.buildings.modules.IPersistentModule;
@@ -63,8 +56,8 @@ public class SettingsModule extends AbstractBuildingModule implements IPersisten
     public void deserializeNBT(final NBTTagCompound compound)
     {
         final NBTTagCompound settingsCompound = compound.hasKey("settings") ? compound.getCompoundTag("settings") : compound;
-        final NBTTagList list = settingsCompound.getTagList("settingslist", NBTBase.TAG_COMPOUND);
-        for (int i = 0; i < list.size(); i++)
+        final NBTTagList list = settingsCompound.getTagList("settingslist", 10 /* TAG_COMPOUND */);
+        for (int i = 0; i < list.tagCount(); i++) // [1.7.10] size()→tagCount()
         {
             final NBTTagCompound entryCompound = list.getCompoundTagAt(i);
             final ResourceLocation key = new ResourceLocation(entryCompound.getString("key"));
@@ -92,9 +85,9 @@ public class SettingsModule extends AbstractBuildingModule implements IPersisten
         for (final Map.Entry<ISettingKey<?>, ISetting<?>> setting : settings.entrySet())
         {
             final NBTTagCompound entryCompound = new NBTTagCompound();
-            entryCompound.putString("key", setting.getKey().getUniqueId().toString());
-            entrycompound.setTag("value", StandardFactoryController.getInstance().serialize(setting.getValue()));
-            list.add(entryCompound);
+            entryCompound.setString("key", setting.getKey().getUniqueId().toString()); // [1.7.10] putString→setString
+            entryCompound.setTag("value", StandardFactoryController.getInstance().serialize(setting.getValue())); // [1.7.10] fix typo entrycompound→entryCompound
+            list.appendTag(entryCompound); // [1.7.10] add→appendTag
         }
         compound.setTag("settingslist", list);
     }
@@ -102,11 +95,19 @@ public class SettingsModule extends AbstractBuildingModule implements IPersisten
     @Override
     public void serializeToView(final PacketBuffer buf)
     {
-        buf.writeInt(settings.size());
-        for (final Map.Entry<ISettingKey<?>, ISetting<?>> setting : settings.entrySet())
+        try
         {
-            buf.writeResourceLocation(setting.getKey().getUniqueId());
-            StandardFactoryController.getInstance().serialize(buf, setting.getValue());
+            buf.writeInt(settings.size());
+            for (final Map.Entry<ISettingKey<?>, ISetting<?>> setting : settings.entrySet())
+            {
+                // [1.7.10] writeResourceLocation not available; write ResourceLocation as string
+                buf.writeStringToBuffer(setting.getKey().getUniqueId().toString());
+                StandardFactoryController.getInstance().serialize(buf, setting.getValue());
+            }
+        }
+        catch (java.io.IOException e)
+        {
+            Log.getLogger().error("Error serializing settings to view", e);
         }
     }
 
@@ -127,8 +128,5 @@ public class SettingsModule extends AbstractBuildingModule implements IPersisten
         return setting == null ? def : setting.getValue();
     }
 }
-
-
-
 
 

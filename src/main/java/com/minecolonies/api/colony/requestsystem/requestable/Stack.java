@@ -268,12 +268,14 @@ public class Stack implements IConcreteDeliverable
      */
     public static Stack deserialize(final IFactoryController controller, final PacketBuffer buffer)
     {
-        final ItemStack stack = buffer.readItemStackFromBuffer();
+        final ItemStack stack;
+        try { stack = buffer.readItemStackFromBuffer(); } catch (java.io.IOException e) { throw new RuntimeException(e); }
         final boolean matchMeta = buffer.readBoolean();
         final boolean matchNBT = buffer.readBoolean();
         final boolean canBeResolved = buffer.readBoolean();
 
-        final ItemStack result = buffer.readBoolean() ? buffer.readItemStackFromBuffer() : null;
+        final ItemStack result;
+        try { result = buffer.readBoolean() ? buffer.readItemStackFromBuffer() : null; } catch (java.io.IOException e) { throw new RuntimeException(e); }
 
         int count = buffer.readInt();
         int minCount = buffer.readInt();
