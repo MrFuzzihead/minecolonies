@@ -120,13 +120,13 @@ public class RecipeStorageFactory implements IRecipeStorageFactory
         {
             compound.setTag(BLOCK_TAG, NbtUtils.writeBlockState(recipeStorage.getIntermediate().defaultBlockState()));
         }
-        compound.putInt(TAG_GRID, recipeStorage.getGridSize());
+        compound.setInteger(TAG_GRID, recipeStorage.getGridSize());
         compound.setTag(TAG_TOKEN, StandardFactoryController.getInstance().serialize(recipeStorage.getToken()));
         if(recipeStorage.getRecipeSource() != null)
         {
-            compound.putString(SOURCE_TAG, recipeStorage.getRecipeSource().toString());
+            compound.setString(SOURCE_TAG, recipeStorage.getRecipeSource().toString());
         }
-        compound.putString(TYPE_TAG, recipeStorage.getRecipeType().getId().toString());
+        compound.setString(TYPE_TAG, recipeStorage.getRecipeType().getId().toString());
 
         @NotNull final NBTTagList altOutputTagList = new NBTTagList();
         for (@NotNull final ItemStack stack : recipeStorage.getAlternateOutputs())
@@ -148,10 +148,10 @@ public class RecipeStorageFactory implements IRecipeStorageFactory
 
         if(recipeStorage.getLootTable() != null)
         {
-            compound.putString(LOOT_TAG, recipeStorage.getLootTable().toString());
+            compound.setString(LOOT_TAG, recipeStorage.getLootTable().toString());
         }
 
-        compound.putString(TOOL_TAG, recipeStorage.getRequiredTool().getRegistryName().toString());
+        compound.setString(TOOL_TAG, recipeStorage.getRequiredTool().getRegistryName().toString());
 
         return compound;
     }
@@ -171,12 +171,12 @@ public class RecipeStorageFactory implements IRecipeStorageFactory
             }
             else
             {
-                final ItemStorage newItem = new ItemStorage(ItemStack.of(inputTag));
+                final ItemStorage newItem = new ItemStorage(ItemStack.loadItemStackFromNBT(inputTag));
                 input.add(newItem);
             }
         }
 
-        final ItemStack primaryOutput = ItemStack.of(nbt);
+        final ItemStack primaryOutput = ItemStack.loadItemStackFromNBT(nbt);
 
         final Block intermediate = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), nbt.getCompoundTag(BLOCK_TAG)).getBlock();
 
@@ -193,7 +193,7 @@ public class RecipeStorageFactory implements IRecipeStorageFactory
         for (int i = 0; i < altOutputTagList.size(); ++i)
         {
             final NBTTagCompound altOutputTag = altOutputTagList.getCompoundTagAt(i);
-            altOutputs.add(ItemStack.of(altOutputTag));
+            altOutputs.add(ItemStack.loadItemStackFromNBT(altOutputTag));
         }
 
         final NBTTagList secOutputTagList = nbt.getTagList(SECOUTPUT_TAG, NBTBase.TAG_COMPOUND);
@@ -202,7 +202,7 @@ public class RecipeStorageFactory implements IRecipeStorageFactory
         for (int i = 0; i < secOutputTagList.size(); ++i)
         {
             final NBTTagCompound secOutputTag = secOutputTagList.getCompoundTagAt(i);
-            secOutputs.add(ItemStack.of(secOutputTag));
+            secOutputs.add(ItemStack.loadItemStackFromNBT(secOutputTag));
         }
 
         final ResourceLocation lootTable = nbt.contains(LOOT_TAG) ? new ResourceLocation(nbt.getString(LOOT_TAG)) : null;

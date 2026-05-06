@@ -141,7 +141,7 @@ public abstract class AbstractBuildingExtensionModule implements IBuildingExtens
     @Override
     public void deserializeNBT(final @NotNull NBTTagCompound compound)
     {
-        if (compound.contains(TAG_OWNER))
+        if (compound.hasKey(TAG_OWNER))
         {
             buildingId = BlockPosUtil.read(compound, TAG_OWNER);
         }

@@ -61,8 +61,8 @@ public class SettingsFactories
         public NBTTagCompound serialize(@NotNull final IFactoryController controller, @NotNull final T storage)
         {
             final NBTTagCompound compound = new NBTTagCompound();
-            compound.putBoolean(TAG_VALUE, storage.getValue());
-            compound.putBoolean(TAG_DEFAULT, storage.getDefault());
+            compound.setBoolean(TAG_VALUE, storage.getValue());
+            compound.setBoolean(TAG_DEFAULT, storage.getDefault());
             return compound;
         }
 
@@ -134,7 +134,7 @@ public class SettingsFactories
         public NBTTagCompound serialize(@NotNull final IFactoryController controller, @NotNull final StringSetting storage)
         {
             final NBTTagCompound compound = new NBTTagCompound();
-            compound.putInt(TAG_VALUE, storage.getCurrentIndex());
+            compound.setInteger(TAG_VALUE, storage.getCurrentIndex());
 
             final NBTTagList list = new NBTTagList();
             for (final String setting: storage.getSettings())
@@ -255,8 +255,8 @@ public class SettingsFactories
         public NBTTagCompound serialize(@NotNull final IFactoryController controller, @NotNull final BlockSetting storage)
         {
             final NBTTagCompound compound = new NBTTagCompound();
-            compound.putString(TAG_VALUE, ForgeRegistries.ITEMS.getKey(storage.getValue()).toString());
-            compound.putString(TAG_DEF, ForgeRegistries.ITEMS.getKey(storage.getDefault()).toString());
+            compound.setString(TAG_VALUE, ForgeRegistries.ITEMS.getKey(storage.getValue()).toString());
+            compound.setString(TAG_DEF, ForgeRegistries.ITEMS.getKey(storage.getDefault()).toString());
             return compound;
         }
 
@@ -319,8 +319,8 @@ public class SettingsFactories
         public NBTTagCompound serialize(@NotNull final IFactoryController controller, @NotNull final IntSetting storage)
         {
             final NBTTagCompound compound = new NBTTagCompound();
-            compound.putInt(TAG_VALUE, storage.getValue());
-            compound.putInt(TAG_DEFAULT, storage.getDefault());
+            compound.setInteger(TAG_VALUE, storage.getValue());
+            compound.setInteger(TAG_DEFAULT, storage.getDefault());
             return compound;
         }
 
@@ -621,7 +621,7 @@ public class SettingsFactories
             {
                 compound.setTag(TAG_TOKEN, StandardFactoryController.getInstance().serialize(storage.selectedRecipe));
             }
-            compound.putString(TAG_MODULE, storage.craftingModuleId);
+            compound.setString(TAG_MODULE, storage.craftingModuleId);
             return compound;
         }
 

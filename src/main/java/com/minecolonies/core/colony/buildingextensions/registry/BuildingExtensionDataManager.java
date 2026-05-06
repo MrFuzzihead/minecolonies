@@ -103,7 +103,7 @@ public final class BuildingExtensionDataManager
     public static NBTTagCompound extensionToCompound(final @NotNull IBuildingExtension extension)
     {
         final NBTTagCompound compound = new NBTTagCompound();
-        compound.putString(TAG_EXTENSION_NAME, extension.getBuildingExtensionType().getRegistryName().toString());
+        compound.setString(TAG_EXTENSION_NAME, extension.getBuildingExtensionType().getRegistryName().toString());
         BlockPosUtil.write(compound, TAG_EXTENSION_POSITION, extension.getPosition());
         compound.setTag(TAG_EXTENSION_DATA, extension.serializeNBT());
         return compound;

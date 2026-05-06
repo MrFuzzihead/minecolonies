@@ -182,8 +182,8 @@ public class EntityLocation implements ILocation
         {
             final NBTTagCompound compound = new NBTTagCompound();
 
-            compound.putLong(NBT_LSB, request.uuid.getLeastSignificantBits());
-            compound.putLong(NBT_MSB, request.uuid.getMostSignificantBits());
+            compound.setLong(NBT_LSB, request.uuid.getLeastSignificantBits());
+            compound.setLong(NBT_MSB, request.uuid.getMostSignificantBits());
 
             return compound;
         }

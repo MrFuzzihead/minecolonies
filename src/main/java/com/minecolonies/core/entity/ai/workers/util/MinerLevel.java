@@ -147,7 +147,7 @@ public class MinerLevel
     {
 
         this.depth = compound.getInt(TAG_DEPTH);
-        if (compound.contains(TAG_LEVEL_SIGN))
+        if (compound.hasKey(TAG_LEVEL_SIGN))
         {
             this.levelSign = BlockPosUtil.read(compound, TAG_LEVEL_SIGN);
         }
@@ -163,7 +163,7 @@ public class MinerLevel
             this.nodes.put(new Vec2i(node.getX(), node.getZ()), node);
         }
 
-        final boolean hasDoubles = compound.contains(TAG_LADDERX);
+        final boolean hasDoubles = compound.hasKey(TAG_LADDERX);
 
         final int ladderX;
         final int ladderZ;
@@ -347,7 +347,7 @@ public class MinerLevel
      */
     public void write(@NotNull final NBTTagCompound compound)
     {
-        compound.putInt(TAG_DEPTH, depth);
+        compound.setInteger(TAG_DEPTH, depth);
         if (levelSign != null)
         {
             BlockPosUtil.write(compound, TAG_LEVEL_SIGN, levelSign);
@@ -362,8 +362,8 @@ public class MinerLevel
         }
         compound.setTag(TAG_NODES, nodeTagList);
 
-        compound.putInt(TAG_LADDERX, ladderNode.getX());
-        compound.putInt(TAG_LADDERZ, ladderNode.getZ());
+        compound.setInteger(TAG_LADDERX, ladderNode.getX());
+        compound.setInteger(TAG_LADDERZ, ladderNode.getZ());
 
         @NotNull final NBTTagList openNodeTagList = new NBTTagList();
         for (@NotNull final MineNode node : openNodes)

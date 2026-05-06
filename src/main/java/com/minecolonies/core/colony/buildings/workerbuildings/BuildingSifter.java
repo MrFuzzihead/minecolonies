@@ -117,7 +117,7 @@ public class BuildingSifter extends AbstractBuilding
     {
         final NBTTagCompound compound = super.serializeNBT();
 
-        compound.putInt(TAG_CURRENT_DAILY, currentDailyQuantity);
+        compound.setInteger(TAG_CURRENT_DAILY, currentDailyQuantity);
 
         return compound;
     }

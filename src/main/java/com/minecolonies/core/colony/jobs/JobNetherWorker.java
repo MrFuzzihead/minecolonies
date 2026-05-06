@@ -73,7 +73,7 @@ public class JobNetherWorker extends AbstractJobCrafter<EntityAIWorkNether, JobN
         });
         compound.setTag(TAG_PROCESSED, processedList);
 
-        compound.putBoolean(TAG_IN_NETHER, citizenInNether);
+        compound.setBoolean(TAG_IN_NETHER, citizenInNether);
         return compound;
     }
 
@@ -86,18 +86,18 @@ public class JobNetherWorker extends AbstractJobCrafter<EntityAIWorkNether, JobN
         for (int i = 0; i < craftedList.size(); ++i)
         {
             final NBTTagCompound itemCompound = craftedList.getCompoundTagAt(i);
-            craftedResults.add(ItemStack.of(itemCompound));
+            craftedResults.add(ItemStack.loadItemStackFromNBT(itemCompound));
         }
 
         final NBTTagList processedList = compound.getTagList(TAG_PROCESSED, NBTTagCompound.TAG_COMPOUND);
         for (int i = 0; i < processedList.size(); ++i)
         {
             final NBTTagCompound itemCompound = processedList.getCompoundTagAt(i);
-            processedResults.add(ItemStack.of(itemCompound));
+            processedResults.add(ItemStack.loadItemStackFromNBT(itemCompound));
         }
 
 
-        if (compound.contains(TAG_IN_NETHER))
+        if (compound.hasKey(TAG_IN_NETHER))
         {
             citizenInNether = compound.getBoolean(TAG_IN_NETHER);
         }

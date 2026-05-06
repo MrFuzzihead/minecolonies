@@ -109,13 +109,13 @@ public class ItemScanAnalyzer extends AbstractItemWithPosSelector
         final NBTTagCompound compound = itemstack.getOrCreateTag();
 
         int[] firstPos = null;
-        if (compound.contains(FIRST_POS_STRING))
+        if (compound.hasKey(FIRST_POS_STRING))
         {
             firstPos = NbtUtils.readBlockPos(compound.getCompoundTag(FIRST_POS_STRING));
         }
 
         int[] secondPos = null;
-        if (compound.contains(SECOND_POS_STRING))
+        if (compound.hasKey(SECOND_POS_STRING))
         {
             secondPos = NbtUtils.readBlockPos(compound.getCompoundTag(SECOND_POS_STRING));
         }

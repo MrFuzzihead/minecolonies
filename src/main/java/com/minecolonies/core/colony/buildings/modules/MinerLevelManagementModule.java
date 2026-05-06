@@ -65,11 +65,11 @@ public class MinerLevelManagementModule extends AbstractBuildingModule implement
             this.levels.add(new MinerLevel(levelTagList.getCompoundTagAt(i)));
         }
 
-        if (compound.contains(TAG_ACTIVE))
+        if (compound.hasKey(TAG_ACTIVE))
         {
             activeNode = MineNode.createFromNBT(compound.getCompoundTag(TAG_ACTIVE));
         }
-        else if (compound.contains(TAG_OLD))
+        else if (compound.hasKey(TAG_OLD))
         {
             oldNode = MineNode.createFromNBT(compound.getCompoundTag(TAG_OLD));
         }
@@ -78,8 +78,8 @@ public class MinerLevelManagementModule extends AbstractBuildingModule implement
     @Override
     public void serializeNBT(final NBTTagCompound compound)
     {
-        compound.putInt(TAG_STARTING_LEVEL, startingLevelShaft);
-        compound.putInt(TAG_CURRENT_LEVEL, currentLevel);
+        compound.setInteger(TAG_STARTING_LEVEL, startingLevelShaft);
+        compound.setInteger(TAG_CURRENT_LEVEL, currentLevel);
         @NotNull final NBTTagList levelTagList = new NBTTagList();
         for (@NotNull final MinerLevel World : levels)
         {

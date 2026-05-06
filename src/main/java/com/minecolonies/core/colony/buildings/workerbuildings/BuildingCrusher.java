@@ -124,8 +124,8 @@ public class BuildingCrusher extends AbstractBuilding
     public NBTTagCompound serializeNBT()
     {
         final NBTTagCompound compound = super.serializeNBT();
-        compound.putInt(TAG_CURRENT_DAILY, currentDailyQuantity);
-        compound.putBoolean(TAG_CRUSHER_RATIO, oneByOne);
+        compound.setInteger(TAG_CURRENT_DAILY, currentDailyQuantity);
+        compound.setBoolean(TAG_CRUSHER_RATIO, oneByOne);
         return compound;
     }
 

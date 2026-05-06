@@ -62,8 +62,8 @@ public class BuildingResourcesModule extends AbstractBuildingModule implements I
     @Override
     public void serializeNBT(final NBTTagCompound compound)
     {
-        compound.putInt(TAG_TOTAL_STAGES, totalStages);
-        compound.putInt(TAG_CURR_STAGE, currentStage);
+        compound.setInteger(TAG_TOTAL_STAGES, totalStages);
+        compound.setInteger(TAG_CURR_STAGE, currentStage);
     }
 
     /**

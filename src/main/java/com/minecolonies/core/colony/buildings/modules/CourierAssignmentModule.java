@@ -51,7 +51,7 @@ public class CourierAssignmentModule extends AbstractAssignedCitizenModule imple
     {
         super.deserializeNBT(compound);
 
-        if (compound.contains(getModuleSerializationIdentifier()))
+        if (compound.hasKey(getModuleSerializationIdentifier()))
         {
             compound = compound.getCompoundTag(getModuleSerializationIdentifier());
         }
@@ -78,7 +78,7 @@ public class CourierAssignmentModule extends AbstractAssignedCitizenModule imple
             {
                 residentIds[i] = assignedCitizen.get(i).getId();
             }
-            compound.putIntArray(TAG_COURIERS, residentIds);
+            compound.setIntArray(TAG_COURIERS, residentIds);
         }
     }
 

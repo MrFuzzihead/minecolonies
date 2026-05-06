@@ -51,11 +51,11 @@ public class CitizenMournHandler implements ICitizenMournHandler
     @Override
     public void write(final NBTTagCompound compound)
     {
-        compound.putBoolean(TAG_MOURNING, isMourning);
+        compound.setBoolean(TAG_MOURNING, isMourning);
         final NBTTagList deceasedNbt = new NBTTagList();
         for (final String deceased : deceasedCitizens)
         {
-            deceasedNbt.add(NBTTagString.valueOf(deceased));
+            deceasedNbt.add(new NBTTagString(deceased));
         }
         compound.setTag(TAG_DECEASED, deceasedNbt);
     }

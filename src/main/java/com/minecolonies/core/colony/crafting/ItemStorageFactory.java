@@ -66,9 +66,9 @@ public class ItemStorageFactory implements IItemStorageFactory
         @NotNull NBTTagCompound stackTag = new NBTTagCompound();
         storage.getItemStack().save(stackTag);
         compound.setTag(TAG_STACK, stackTag);
-        compound.putInt(TAG_SIZE, storage.getAmount());
-        compound.putBoolean(TAG_SHOULDIGNOREDAMAGE, storage.ignoreDamageValue());
-        compound.putBoolean(TAG_SHOULDIGNORENBT , storage.ignoreNBT());
+        compound.setInteger(TAG_SIZE, storage.getAmount());
+        compound.setBoolean(TAG_SHOULDIGNOREDAMAGE, storage.ignoreDamageValue());
+        compound.setBoolean(TAG_SHOULDIGNORENBT , storage.ignoreNBT());
         return compound;
     }
 
@@ -76,7 +76,7 @@ public class ItemStorageFactory implements IItemStorageFactory
     @Override
     public ItemStorage deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound nbt)
     {
-        final ItemStack stack = ItemStack.of(nbt.getCompoundTag(TAG_STACK));
+        final ItemStack stack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag(TAG_STACK));
         stack.setCount(1);
         final int size = nbt.getInt(TAG_SIZE);
         final boolean ignoreNBT = nbt.getBoolean(TAG_SHOULDIGNORENBT);

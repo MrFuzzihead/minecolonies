@@ -973,10 +973,10 @@ public class RaidManager implements IRaiderManager
     @Override
     public void write(final NBTTagCompound compound)
     {
-        compound.putBoolean(TAG_RAIDABLE, canHaveRaiderEvents());
-        compound.putInt(TAG_NIGHTS_SINCE_LAST_RAID, getNightsSinceLastRaid());
-        compound.putInt(TAG_RAID_DIFFICULTY, raidDifficulty);
-        compound.putInt(TAG_RAID_DELAY, extraDaysToNextRaid);
+        compound.setBoolean(TAG_RAIDABLE, canHaveRaiderEvents());
+        compound.setInteger(TAG_NIGHTS_SINCE_LAST_RAID, getNightsSinceLastRaid());
+        compound.setInteger(TAG_RAID_DIFFICULTY, raidDifficulty);
+        compound.setInteger(TAG_RAID_DELAY, extraDaysToNextRaid);
 
         NBTTagList nbtList = new NBTTagList();
         for (final RaidHistory history : raidHistories)
@@ -989,7 +989,7 @@ public class RaidManager implements IRaiderManager
     @Override
     public void read(final NBTTagCompound compound)
     {
-        if (compound.contains(TAG_RAIDABLE))
+        if (compound.hasKey(TAG_RAIDABLE))
         {
             setCanHaveRaiderEvents(compound.getBoolean(TAG_RAIDABLE));
         }
@@ -998,19 +998,19 @@ public class RaidManager implements IRaiderManager
             setCanHaveRaiderEvents(true);
         }
 
-        if (compound.contains(TAG_NIGHTS_SINCE_LAST_RAID))
+        if (compound.hasKey(TAG_NIGHTS_SINCE_LAST_RAID))
         {
             setNightsSinceLastRaid(compound.getInt(TAG_NIGHTS_SINCE_LAST_RAID));
         }
 
-        if (compound.contains(TAG_RAID_DELAY))
+        if (compound.hasKey(TAG_RAID_DELAY))
         {
             extraDaysToNextRaid = compound.getInt(TAG_RAID_DELAY);
         }
 
         raidDifficulty = Mth.clamp(compound.getInt(TAG_RAID_DIFFICULTY), MIN_RAID_DIFFICULTY, MAX_RAID_DIFFICULTY);
 
-        if (compound.contains(TAG_RAID_HISTORY))
+        if (compound.hasKey(TAG_RAID_HISTORY))
         {
             raidHistories.clear();
             NBTTagList nbtList = compound.getTagList(TAG_RAID_HISTORY, NBTBase.TAG_COMPOUND);

@@ -236,12 +236,12 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
         }
 
         guardPos = NbtUtils.readBlockPos(compound.getCompoundTag(NBT_GUARD));
-        if (compound.contains(NBT_MINE_POS))
+        if (compound.hasKey(NBT_MINE_POS))
         {
             minePos = NbtUtils.readBlockPos(compound.getCompoundTag(NBT_MINE_POS));
         }
 
-        if (compound.contains(NBT_PLAYER_UUID))
+        if (compound.hasKey(NBT_PLAYER_UUID))
         {
             followPlayerUUID = compound.getUUID(NBT_PLAYER_UUID);
         }

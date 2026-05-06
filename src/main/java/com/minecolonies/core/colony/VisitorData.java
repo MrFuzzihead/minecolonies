@@ -66,7 +66,7 @@ public class VisitorData extends CitizenData implements IVisitorData
     {
         super.deserializeNBT(nbtTagCompound);
         sittingPosition = BlockPosUtil.read(nbtTagCompound, TAG_SITTING);
-        recruitCost = ItemStack.of(nbtTagCompound.getCompoundTag(TAG_RECRUIT_COST));
+        recruitCost = ItemStack.loadItemStackFromNBT(nbtTagCompound.getCompoundTag(TAG_RECRUIT_COST));
         recruitCost.setCount(nbtTagCompound.getInt(TAG_RECRUIT_COST_QTY));
     }
 

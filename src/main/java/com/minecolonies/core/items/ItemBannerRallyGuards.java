@@ -132,7 +132,7 @@ public class ItemBannerRallyGuards extends AbstractItemMinecolonies
                     MessageUtils.format(TOOL_RALLY_BANNER_NEEDS_RESEARCH).sendTo(context.getPlayer());
                     return InteractionResult.FAIL;
                 }
-                compound.putBoolean(TAG_IS_ACTIVE, true);
+                compound.setBoolean(TAG_IS_ACTIVE, true);
 
                 final int numGuards =
                   broadcastPlayerToRally(banner, context.getPlayer().getCommandSenderWorld(), new StaticLocation(context.getClickedPos(), context.getLevel().dimension()));
@@ -200,7 +200,7 @@ public class ItemBannerRallyGuards extends AbstractItemMinecolonies
         if (!player.getCommandSenderWorld().isClientSide())
         {
             final NBTTagCompound compound = checkForCompound(item);
-            compound.putBoolean(TAG_IS_ACTIVE, false);
+            compound.setBoolean(TAG_IS_ACTIVE, false);
             broadcastPlayerToRally(item, player.getCommandSenderWorld(), null);
         }
 
@@ -255,18 +255,18 @@ public class ItemBannerRallyGuards extends AbstractItemMinecolonies
         }
         if (guardTowers.isEmpty())
         {
-            compound.putBoolean(TAG_IS_ACTIVE, false);
+            compound.setBoolean(TAG_IS_ACTIVE, false);
             MessageUtils.format(COM_MINECOLONIES_BANNER_RALLY_GUARDS_TOOLTIP_EMPTY).sendTo(playerIn);
         }
         else if (compound.getBoolean(TAG_IS_ACTIVE))
         {
-            compound.putBoolean(TAG_IS_ACTIVE, false);
+            compound.setBoolean(TAG_IS_ACTIVE, false);
             broadcastPlayerToRally(banner, playerIn.getCommandSenderWorld(), null);
             MessageUtils.format(TOOL_RALLY_BANNER_DEACTIVATED).sendTo(playerIn);
         }
         else
         {
-            compound.putBoolean(TAG_IS_ACTIVE, true);
+            compound.setBoolean(TAG_IS_ACTIVE, true);
 
            final IColony colony = getColony(compound, playerIn.World);
            if (colony != null && colony.getPermissions().hasPermission(playerIn, Action.RALLY_GUARDS))
@@ -506,13 +506,13 @@ public class ItemBannerRallyGuards extends AbstractItemMinecolonies
         }
 
         final NBTTagCompound compound = banner.getTag();
-        if (!compound.contains(TAG_RALLIED_GUARDTOWERS))
+        if (!compound.hasKey(TAG_RALLIED_GUARDTOWERS))
         {
-            compound.putBoolean(TAG_IS_ACTIVE, false);
+            compound.setBoolean(TAG_IS_ACTIVE, false);
             @NotNull final NBTTagList guardTowerList = new NBTTagList();
             compound.setTag(TAG_RALLIED_GUARDTOWERS, guardTowerList);
         }
-        else if (compound.contains(TAG_ID))
+        else if (compound.hasKey(TAG_ID))
         {
             compound.remove(TAG_ID);
         }

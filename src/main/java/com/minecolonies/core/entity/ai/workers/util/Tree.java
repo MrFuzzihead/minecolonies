@@ -550,16 +550,16 @@ public class Tree
         tree.slimeTree = compound.getBoolean(TAG_IS_SLIME_TREE);
         tree.dynamicTree = compound.getBoolean(TAG_DYNAMIC_TREE);
 
-        if (compound.contains(TAG_SAPLING))
+        if (compound.hasKey(TAG_SAPLING))
         {
-            tree.sapling = ItemStack.of(compound.getCompoundTag(TAG_SAPLING));
+            tree.sapling = ItemStack.loadItemStackFromNBT(compound.getCompoundTag(TAG_SAPLING));
         }
         else
         {
             tree.isTree = false;
         }
 
-        if (compound.contains(TAG_NETHER_TREE))
+        if (compound.hasKey(TAG_NETHER_TREE))
         {
             tree.netherTree = compound.getBoolean(TAG_NETHER_TREE);
         }
@@ -568,7 +568,7 @@ public class Tree
             tree.netherTree = false;
         }
 
-        if (compound.contains(TAG_LEAVES))
+        if (compound.hasKey(TAG_LEAVES))
         {
             final NBTTagList leavesBin = compound.getTagList(TAG_LEAVES, NBTBase.TAG_COMPOUND);
             for (int i = 0; i < leavesBin.size(); i++)
@@ -993,14 +993,14 @@ public class Tree
 
         BlockPosUtil.write(compound, TAG_TOP_LOG, topLog);
 
-        compound.putBoolean(TAG_IS_SLIME_TREE, slimeTree);
-        compound.putBoolean(TAG_DYNAMIC_TREE, dynamicTree);
+        compound.setBoolean(TAG_IS_SLIME_TREE, slimeTree);
+        compound.setBoolean(TAG_DYNAMIC_TREE, dynamicTree);
 
         NBTTagCompound saplingNBT = new NBTTagCompound();
         sapling.save(saplingNBT);
 
         compound.setTag(TAG_SAPLING, saplingNBT);
-        compound.putBoolean(TAG_NETHER_TREE, netherTree);
+        compound.setBoolean(TAG_NETHER_TREE, netherTree);
 
         @NotNull final NBTTagList leavesBin = new NBTTagList();
         for (@NotNull final int[] pos : leaves)

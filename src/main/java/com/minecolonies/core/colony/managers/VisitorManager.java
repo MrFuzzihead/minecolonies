@@ -143,7 +143,7 @@ public class VisitorManager implements IVisitorManager
     @Override
     public void read(@NotNull final NBTTagCompound compound)
     {
-        if (compound.contains(TAG_VISIT_MANAGER))
+        if (compound.hasKey(TAG_VISIT_MANAGER))
         {
             final NBTTagCompound visitorManagerNBT = compound.getCompoundTag(TAG_VISIT_MANAGER);
             final NBTTagList citizenList = visitorManagerNBT.getTagList(TAG_VISITORS, NBTBase.TAG_COMPOUND);

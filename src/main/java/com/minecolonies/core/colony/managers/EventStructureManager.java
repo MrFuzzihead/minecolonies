@@ -168,7 +168,7 @@ public class EventStructureManager implements IEventStructureManager
     @Override
     public void readFromNBT(@NotNull final NBTTagCompound compound)
     {
-        if (compound.contains(TAG_EVENT_STRUCTURE_MANAGER))
+        if (compound.hasKey(TAG_EVENT_STRUCTURE_MANAGER))
         {
             backupSchematics.clear();
             final NBTTagCompound structureManagerCompound = compound.getCompoundTag(TAG_EVENT_STRUCTURE_MANAGER);

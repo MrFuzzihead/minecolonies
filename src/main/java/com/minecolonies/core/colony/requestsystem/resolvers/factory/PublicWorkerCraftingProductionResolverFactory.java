@@ -55,7 +55,7 @@ public class PublicWorkerCraftingProductionResolverFactory implements IRequestRe
         final NBTTagCompound compound = new NBTTagCompound();
         compound.setTag(NBT_TOKEN, controller.serialize(publicWorkerCraftingProductionResolverFactory.getId()));
         compound.setTag(NBT_LOCATION, controller.serialize(publicWorkerCraftingProductionResolverFactory.getLocation()));
-        compound.putString(NBT_JOB, IJobRegistry.getInstance().getKey(publicWorkerCraftingProductionResolverFactory.getJobEntry()).toString());
+        compound.setString(NBT_JOB, IJobRegistry.getInstance().getKey(publicWorkerCraftingProductionResolverFactory.getJobEntry()).toString());
         return compound;
     }
 

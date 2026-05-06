@@ -507,7 +507,7 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
     public NBTTagCompound serializeNBT()
     {
         NBTTagCompound compound = new NBTTagCompound();
-        compound.putInt(TAG_EVENT_ID, id);
+        compound.setInteger(TAG_EVENT_ID, id);
         BlockPosUtil.write(compound, TAG_SPAWN_POS, spawnPoint);
         NBTTagList campFiresNBT = new NBTTagList();
 
@@ -517,8 +517,8 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
         }
 
         compound.setTag(TAG_CAMPFIRE_LIST, campFiresNBT);
-        compound.putInt(TAG_EVENT_STATUS, status.ordinal());
-        compound.putInt(TAG_DAYS_LEFT, daysToGo);
+        compound.setInteger(TAG_EVENT_STATUS, status.ordinal());
+        compound.setInteger(TAG_DAYS_LEFT, daysToGo);
         horde.writeToNbt(compound);
 
         BlockPosUtil.writePosListToNBT(compound, TAG_WAYPOINT, wayPoints);

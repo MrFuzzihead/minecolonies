@@ -221,7 +221,7 @@ public class RestaurantMenuModule extends AbstractBuildingModule implements IPer
         final NBTTagList minimumStockTagList = compound.getTagList(TAG_MENU, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < minimumStockTagList.size(); i++)
         {
-            final ItemStack itemStack = ItemStack.of(minimumStockTagList.getCompoundTagAt(i));
+            final ItemStack itemStack = ItemStack.loadItemStackFromNBT(minimumStockTagList.getCompoundTagAt(i));
             if (FoodUtils.EDIBLE.test(itemStack))
             {
                 menu.add(new ItemStorage(itemStack));

@@ -59,7 +59,7 @@ public class CitizenDiedEvent extends AbstractCitizenEvent
     public NBTTagCompound serializeNBT()
     {
         NBTTagCompound compound = super.serializeNBT();
-        compound.putString(TAG_DEATH_CAUSE, deathCause);
+        compound.setString(TAG_DEATH_CAUSE, deathCause);
         return compound;
     }
 

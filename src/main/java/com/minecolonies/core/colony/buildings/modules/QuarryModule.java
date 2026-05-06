@@ -77,7 +77,7 @@ public class QuarryModule extends AbstractAssignedCitizenModule implements IAssi
     {
         super.deserializeNBT(compound);
 
-        if (compound.contains(getModuleSerializationIdentifier()))
+        if (compound.hasKey(getModuleSerializationIdentifier()))
         {
             compound = compound.getCompoundTag(getModuleSerializationIdentifier());
         }
@@ -106,9 +106,9 @@ public class QuarryModule extends AbstractAssignedCitizenModule implements IAssi
             {
                 residentIds[i] = assignedCitizen.get(i).getId();
             }
-            compound.putIntArray(TAG_MINERS, residentIds);
+            compound.setIntArray(TAG_MINERS, residentIds);
         }
-        compound.putBoolean(TAG_IS_FINISHED, isFinished);
+        compound.setBoolean(TAG_IS_FINISHED, isFinished);
     }
 
     @Override

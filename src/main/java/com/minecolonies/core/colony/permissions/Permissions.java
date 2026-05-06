@@ -339,7 +339,7 @@ public class Permissions implements IPermissions
     {
         final int version = compound.getInt(TAG_VERSION);
         // Ranks
-        if (compound.contains(TAG_RANKS))
+        if (compound.hasKey(TAG_RANKS))
         {
             ranks.clear();
 
@@ -425,11 +425,11 @@ public class Permissions implements IPermissions
             }
         }
 
-        if (compound.contains(TAG_OWNER))
+        if (compound.hasKey(TAG_OWNER))
         {
             ownerName = compound.getString(TAG_OWNER);
         }
-        if (compound.contains(TAG_OWNER_ID))
+        if (compound.hasKey(TAG_OWNER_ID))
         {
             try
             {
@@ -443,7 +443,7 @@ public class Permissions implements IPermissions
             }
         }
 
-        if (compound.contains(TAG_FULLY_ABANDONED))
+        if (compound.hasKey(TAG_FULLY_ABANDONED))
         {
             fullyAbandoned = compound.getBoolean(TAG_FULLY_ABANDONED);
         }
@@ -605,7 +605,7 @@ public class Permissions implements IPermissions
             {
                 if (Utils.testFlag(rank.getPermissions(), action.getFlag()))
                 {
-                    flagsTagList.add(NBTTagString.valueOf(action.name()));
+                    flagsTagList.add(new NBTTagString(action.name()));
                 }
             }
             permissionscompound.setTag(TAG_FLAGS, flagsTagList);
@@ -617,16 +617,16 @@ public class Permissions implements IPermissions
 
         if (!ownerName.isEmpty())
         {
-            compound.putString(TAG_OWNER, ownerName);
+            compound.setString(TAG_OWNER, ownerName);
         }
         if (ownerUUID != null)
         {
-            compound.putString(TAG_OWNER_ID, ownerUUID.toString());
+            compound.setString(TAG_OWNER_ID, ownerUUID.toString());
         }
 
-        compound.putBoolean(TAG_FULLY_ABANDONED, fullyAbandoned);
+        compound.setBoolean(TAG_FULLY_ABANDONED, fullyAbandoned);
 
-        compound.putInt(TAG_VERSION, permissionsVersion);
+        compound.setInteger(TAG_VERSION, permissionsVersion);
     }
 
     @Override

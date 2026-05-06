@@ -1175,21 +1175,21 @@ public final class StandardRequestFactories
 
         request.addChildren(childTokens);
 
-        if (compound.contains(NBT_PARENT))
+        if (compound.hasKey(NBT_PARENT))
         {
             request.setParent(controller.deserialize(compound.getCompoundTag(NBT_PARENT)));
         }
 
-        if (compound.contains(NBT_RESULT))
+        if (compound.hasKey(NBT_RESULT))
         {
             request.setResult(typeDeserialization.apply(controller, compound.getCompoundTag(NBT_RESULT)));
         }
 
-        if (compound.contains(NBT_DELIVERIES))
+        if (compound.hasKey(NBT_DELIVERIES))
         {
             final ImmutableList.Builder<ItemStack> stackBuilder = ImmutableList.builder();
             final NBTTagList deliveriesList = compound.getTagList(NBT_DELIVERIES, NBTBase.TAG_COMPOUND);
-            NBTUtils.streamCompound(deliveriesList).forEach(itemStackCompound -> stackBuilder.add(ItemStack.of(itemStackCompound)));
+            NBTUtils.streamCompound(deliveriesList).forEach(itemStackCompound -> stackBuilder.add(ItemStack.loadItemStackFromNBT(itemStackCompound)));
 
             request.overrideCurrentDeliveries(stackBuilder.build());
         }

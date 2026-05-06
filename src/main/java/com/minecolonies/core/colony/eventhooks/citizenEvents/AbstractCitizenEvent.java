@@ -68,7 +68,7 @@ public abstract class AbstractCitizenEvent extends AbstractEvent implements ICit
     {
         NBTTagCompound compound = super.serializeNBT();
         BlockPosUtil.write(compound, TAG_EVENT_POS, eventPos);
-        compound.putString(TAG_CITIZEN_NAME, citizenName);
+        compound.setString(TAG_CITIZEN_NAME, citizenName);
         return compound;
     }
 

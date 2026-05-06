@@ -23,7 +23,7 @@ public class LivingBuildingModule extends AbstractAssignedCitizenModule implemen
     public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
-        if (compound.contains(TAG_RESIDENTS))
+        if (compound.hasKey(TAG_RESIDENTS))
         {
             final int[] residentIds = compound.getIntArray(TAG_RESIDENTS);
             for (final int citizenId : residentIds)
@@ -35,7 +35,7 @@ public class LivingBuildingModule extends AbstractAssignedCitizenModule implemen
                 }
             }
         }
-        else if (compound.contains(TAG_LIVING_RESIDENTS))
+        else if (compound.hasKey(TAG_LIVING_RESIDENTS))
         {
             final int[] residentIds = compound.getIntArray(TAG_LIVING_RESIDENTS);
             for (final int citizenId : residentIds)
@@ -60,7 +60,7 @@ public class LivingBuildingModule extends AbstractAssignedCitizenModule implemen
             {
                 residentIds[i] = assignedCitizen.get(i).getId();
             }
-            compound.putIntArray(TAG_LIVING_RESIDENTS, residentIds);
+            compound.setIntArray(TAG_LIVING_RESIDENTS, residentIds);
         }
     }
 

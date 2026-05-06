@@ -87,10 +87,10 @@ public class Horde
      */
     public void writeToNbt(final NBTTagCompound compound)
     {
-        compound.putInt(TAG_NUMBEROFRAIDERS, numberOfRaiders);
-        compound.putInt(TAG_NUMBEROFARCHERS, numberOfArchers);
-        compound.putInt(TAG_NUMBEROFBOSSES, numberOfBosses);
-        compound.putInt(TAG_HORDEINITSIZE, hordeSize);
+        compound.setInteger(TAG_NUMBEROFRAIDERS, numberOfRaiders);
+        compound.setInteger(TAG_NUMBEROFARCHERS, numberOfArchers);
+        compound.setInteger(TAG_NUMBEROFBOSSES, numberOfBosses);
+        compound.setInteger(TAG_HORDEINITSIZE, hordeSize);
     }
 
     /**
@@ -101,7 +101,7 @@ public class Horde
      */
     public static Horde loadFromNbt(final NBTTagCompound compound)
     {
-        if (!compound.contains(TAG_HORDEINITSIZE))
+        if (!compound.hasKey(TAG_HORDEINITSIZE))
         {
             return new Horde(5);
         }

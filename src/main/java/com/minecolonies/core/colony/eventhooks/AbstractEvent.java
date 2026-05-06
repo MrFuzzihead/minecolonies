@@ -34,8 +34,8 @@ public abstract class AbstractEvent implements IColonyEventDescription
     public NBTTagCompound serializeNBT()
     {
         NBTTagCompound compound = new NBTTagCompound();
-        compound.putInt(TAG_DAY, day);
-        compound.putBoolean(TAG_SUMMARIZE, includeInSummary);
+        compound.setInteger(TAG_DAY, day);
+        compound.setBoolean(TAG_SUMMARIZE, includeInSummary);
         return compound;
     }
 

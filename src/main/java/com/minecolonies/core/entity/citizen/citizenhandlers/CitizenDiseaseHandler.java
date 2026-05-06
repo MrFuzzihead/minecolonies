@@ -182,7 +182,7 @@ public class CitizenDiseaseHandler implements ICitizenDiseaseHandler
     @Override
     public void read(final NBTTagCompound compound)
     {
-        if (!compound.contains(TAG_DISEASE, NBTBase.TAG_COMPOUND))
+        if (!compound.hasKey(TAG_DISEASE, NBTBase.TAG_COMPOUND))
         {
             return;
         }

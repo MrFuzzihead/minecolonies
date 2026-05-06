@@ -70,7 +70,7 @@ public class GiveToolMessage extends AbstractBuildingServerMessage<AbstractBuild
         final ItemStack scepter = InventoryUtils.getOrCreateItemAndPutToHotbarAndSelectOrDrop(item, player, item::getDefaultInstance, true);
         final NBTTagCompound compound = scepter.getOrCreateTag();
         BlockPosUtil.write(compound, TAG_POS, building.getID());
-        compound.putInt(TAG_ID, colony.getID());
+        compound.setInteger(TAG_ID, colony.getID());
 
         player.getInventory().setChanged();
     }

@@ -145,7 +145,7 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
 
         // Building extensions (previously fields)
         final NBTTagList extensionsTagList;
-        if (compound.contains(TAG_FIELDS))
+        if (compound.hasKey(TAG_FIELDS))
         {
             extensionsTagList = compound.getTagList(TAG_FIELDS, NBTBase.TAG_COMPOUND);
         }
@@ -183,7 +183,7 @@ public class RegisteredStructureManager implements IRegisteredStructureManager
             }
         }
 
-        if (compound.contains(TAG_LEISURE))
+        if (compound.hasKey(TAG_LEISURE))
         {
             final NBTTagList leisureTagList = compound.getTagList(TAG_LEISURE, NBTBase.TAG_COMPOUND);
             final List<int[]> leisureSitesList = new ArrayList<>();

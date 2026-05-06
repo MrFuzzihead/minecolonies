@@ -68,7 +68,7 @@ public class GraveyardManagementModule extends AbstractBuildingModule implements
     public void deserializeNBT(final NBTTagCompound compound)
     {
         restingCitizen.clear();
-        if (compound.contains(TAG_RIP_CITIZEN_LIST))
+        if (compound.hasKey(TAG_RIP_CITIZEN_LIST))
         {
             final NBTTagList ripCitizen = compound.getTagList(TAG_RIP_CITIZEN_LIST, TAG_STRING);
             for (int i = 0; i < ripCitizen.size(); i++)
@@ -78,7 +78,7 @@ public class GraveyardManagementModule extends AbstractBuildingModule implements
             }
         }
 
-        if (compound.contains(TAG_GRAVE_DATA))
+        if (compound.hasKey(TAG_GRAVE_DATA))
         {
             lastGraveData = new GraveData();
             lastGraveData.read(compound.getCompoundTag(TAG_GRAVE_DATA));
@@ -92,7 +92,7 @@ public class GraveyardManagementModule extends AbstractBuildingModule implements
         @NotNull final NBTTagList ripCitizen = new NBTTagList();
         for (@NotNull final String citizenName : restingCitizen)
         {
-            ripCitizen.add(NBTTagString.valueOf(citizenName));
+            ripCitizen.add(new NBTTagString(citizenName));
         }
         compound.setTag(TAG_RIP_CITIZEN_LIST, ripCitizen);
 

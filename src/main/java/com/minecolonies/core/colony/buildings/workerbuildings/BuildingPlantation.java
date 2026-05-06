@@ -135,7 +135,7 @@ public class BuildingPlantation extends AbstractBuilding
     public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
-        if (compound.contains(TAG_PLANTGROUND))
+        if (compound.hasKey(TAG_PLANTGROUND))
         {
             triggerFieldMigration = true;
         }

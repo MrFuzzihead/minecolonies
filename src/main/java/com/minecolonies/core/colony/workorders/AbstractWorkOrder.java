@@ -649,12 +649,12 @@ public abstract class AbstractWorkOrder implements IBuilderWorkOrder
     public void read(@NotNull final NBTTagCompound compound, final IWorkManager manager)
     {
         id = compound.getInt(TAG_ID);
-        if (compound.contains(TAG_TH_PRIORITY))
+        if (compound.hasKey(TAG_TH_PRIORITY))
         {
             priority = compound.getInt(TAG_TH_PRIORITY);
         }
 
-        if (compound.contains(TAG_CLAIMED_BY))
+        if (compound.hasKey(TAG_CLAIMED_BY))
         {
             final int citizenId = compound.getInt(TAG_CLAIMED_BY);
             if (manager.getColony() != null)
@@ -666,7 +666,7 @@ public abstract class AbstractWorkOrder implements IBuilderWorkOrder
                 }
             }
         }
-        else if (compound.contains(TAG_CLAIMED_BY_BUILDING))
+        else if (compound.hasKey(TAG_CLAIMED_BY_BUILDING))
         {
             claimedBy = BlockPosUtil.read(compound, TAG_CLAIMED_BY_BUILDING);
         }
@@ -684,12 +684,12 @@ public abstract class AbstractWorkOrder implements IBuilderWorkOrder
         cleared = compound.getBoolean(TAG_IS_CLEARED);
         requested = compound.getBoolean(TAG_IS_REQUESTED);
 
-        if (compound.contains(TAG_STAGE))
+        if (compound.hasKey(TAG_STAGE))
         {
             stage = BuildingProgressStage.values()[compound.getInt(TAG_STAGE)];
         }
 
-        if (compound.contains(TAG_BB))
+        if (compound.hasKey(TAG_BB))
         {
             NBTTagCompound NBTBase = (NBTTagCompound) compound.get(TAG_BB);
             box = new AxisAlignedBB(NBTBase.getInt("minx"), NBTBase.getInt("miny"), NBTBase.getInt("minz"), NBTBase.getInt("maxx"), NBTBase.getInt("maxy"), NBTBase.getInt("maxz"));
@@ -704,24 +704,24 @@ public abstract class AbstractWorkOrder implements IBuilderWorkOrder
     @Override
     public void write(@NotNull final NBTTagCompound compound)
     {
-        compound.putInt(TAG_TH_PRIORITY, priority);
-        compound.putString(TAG_TYPE, getMappingName());
-        compound.putInt(TAG_ID, id);
+        compound.setInteger(TAG_TH_PRIORITY, priority);
+        compound.setString(TAG_TYPE, getMappingName());
+        compound.setInteger(TAG_ID, id);
         BlockPosUtil.write(compound, TAG_CLAIMED_BY_BUILDING, claimedBy);
-        compound.putString(TAG_STRUCTURE_PACK, packName);
-        compound.putString(TAG_STRUCTURE_PATH, path);
-        compound.putString(TAG_TRANSLATION_KEY, translationKey);
-        compound.putInt(TAG_WO_TYPE, workOrderType.ordinal());
+        compound.setString(TAG_STRUCTURE_PACK, packName);
+        compound.setString(TAG_STRUCTURE_PATH, path);
+        compound.setString(TAG_TRANSLATION_KEY, translationKey);
+        compound.setInteger(TAG_WO_TYPE, workOrderType.ordinal());
         BlockPosUtil.write(compound, TAG_LOCATION, location);
-        compound.putInt(TAG_ROTATION, rotation);
-        compound.putBoolean(TAG_IS_MIRRORED, isMirrored);
-        compound.putInt(TAG_CURRENT_LEVEL, currentLevel);
-        compound.putInt(TAG_TARGET_LEVEL, targetLevel);
-        compound.putInt(TAG_AMOUNT_OF_RESOURCES, amountOfResources);
-        compound.putString(TAG_ITERATOR, iteratorType);
-        compound.putBoolean(TAG_IS_CLEARED, cleared);
-        compound.putBoolean(TAG_IS_REQUESTED, requested);
-        compound.putInt(TAG_STAGE, stage == null ? 0 : stage.ordinal());
+        compound.setInteger(TAG_ROTATION, rotation);
+        compound.setBoolean(TAG_IS_MIRRORED, isMirrored);
+        compound.setInteger(TAG_CURRENT_LEVEL, currentLevel);
+        compound.setInteger(TAG_TARGET_LEVEL, targetLevel);
+        compound.setInteger(TAG_AMOUNT_OF_RESOURCES, amountOfResources);
+        compound.setString(TAG_ITERATOR, iteratorType);
+        compound.setBoolean(TAG_IS_CLEARED, cleared);
+        compound.setBoolean(TAG_IS_REQUESTED, requested);
+        compound.setInteger(TAG_STAGE, stage == null ? 0 : stage.ordinal());
 
         if (box != Constants.EMPTY_AABB)
         {

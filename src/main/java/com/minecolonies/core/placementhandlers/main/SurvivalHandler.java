@@ -164,7 +164,7 @@ public class SurvivalHandler implements ISurvivalBlueprintHandler
 
                 final ItemStack inventoryStack = slot == -1 ? stack : player.getInventory().getItem(slot);
                 final NBTTagCompound compound = inventoryStack.getTag();
-                if (compound != null && compound.contains(TAG_COLONY_ID) && tempColony != null && tempColony.getID() != compound.getInt(TAG_COLONY_ID))
+                if (compound != null && compound.hasKey(TAG_COLONY_ID) && tempColony != null && tempColony.getID() != compound.getInt(TAG_COLONY_ID))
                 {
                     MessageUtils.format(WRONG_COLONY, compound.getInt(TAG_COLONY_ID)).sendTo(player);
                     SoundUtils.playErrorSound(player, player.blockPosition());
@@ -205,11 +205,11 @@ public class SurvivalHandler implements ISurvivalBlueprintHandler
                 boolean finishedUpgrade = false;
                 if (compound != null)
                 {
-                    if (compound.contains(TAG_OTHER_LEVEL))
+                    if (compound.hasKey(TAG_OTHER_LEVEL))
                     {
                         World = compound.getInt(TAG_OTHER_LEVEL);
                     }
-                    if (compound.contains(TAG_PASTEABLE))
+                    if (compound.hasKey(TAG_PASTEABLE))
                     {
                         String newBlueprintPath = blueprintPath;
                         newBlueprintPath = newBlueprintPath.substring(0, newBlueprintPath.length() - 1);

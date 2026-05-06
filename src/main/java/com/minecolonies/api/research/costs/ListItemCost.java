@@ -99,7 +99,7 @@ public class ListItemCost implements IResearchCost
             return itemCompound;
         }).collect(NBTUtils.toListNBT());
         compound.setTag(TAG_COST_ITEMS, itemList);
-        compound.putInt(TAG_COST_COUNT, this.count);
+        compound.setInteger(TAG_COST_COUNT, this.count);
         return compound;
     }
 }

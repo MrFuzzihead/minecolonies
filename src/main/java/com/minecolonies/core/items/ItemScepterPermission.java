@@ -181,12 +181,12 @@ public class ItemScepterPermission extends AbstractItemMinecolonies implements I
         switch (itemMode)
         {
             case TAG_VALUE_MODE_BLOCK:
-                compound.putString(TAG_ITEM_MODE, TAG_VALUE_MODE_LOCATION);
+                compound.setString(TAG_ITEM_MODE, TAG_VALUE_MODE_LOCATION);
                 MessageUtils.format(TOOL_PERMISSION_SCEPTER_SET_MODE, MessageUtils.format(TOOL_PERMISSION_SCEPTER_MODE_LOCATION).create()).sendTo(playerIn);
                 break;
             case TAG_VALUE_MODE_LOCATION:
             default:
-                compound.putString(TAG_ITEM_MODE, TAG_VALUE_MODE_BLOCK);
+                compound.setString(TAG_ITEM_MODE, TAG_VALUE_MODE_BLOCK);
                 MessageUtils.format(TOOL_PERMISSION_SCEPTER_SET_MODE, MessageUtils.format(TOOL_PERMISSION_SCEPTER_MODE_BLOCK).create()).sendTo(playerIn);
                 break;
         }

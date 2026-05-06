@@ -160,7 +160,7 @@ public class CitizenHappinessHandler implements ICitizenHappinessHandler
     public void read(final NBTTagCompound compound, final boolean persist)
     {
         // Only deserialize for new version. Old can keep the above defaults just fine.
-        if (compound.contains(TAG_NEW_HAPPINESS))
+        if (compound.hasKey(TAG_NEW_HAPPINESS))
         {
             final NBTTagList NBTBase = compound.getTagList(TAG_NEW_HAPPINESS, NBTBase.TAG_COMPOUND);
             for (int i = 0; i < NBTBase.size(); i++)

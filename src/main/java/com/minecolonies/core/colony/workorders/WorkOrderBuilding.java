@@ -235,9 +235,9 @@ public class WorkOrderBuilding extends AbstractWorkOrder
     public void write(@NotNull final NBTTagCompound compound)
     {
         super.write(compound);
-        compound.putString(TAG_CUSTOM_NAME, customName);
-        compound.putString(TAG_CUSTOM_PARENT_NAME, customParentName);
-        compound.putString(TAG_PARENT_TRANSLATION_KEY, parentTranslationKey);
+        compound.setString(TAG_CUSTOM_NAME, customName);
+        compound.setString(TAG_CUSTOM_PARENT_NAME, customParentName);
+        compound.setString(TAG_PARENT_TRANSLATION_KEY, parentTranslationKey);
     }
 
     @Override

@@ -784,7 +784,7 @@ public class Colony implements IColony
         questManager.deserializeNBT(compound.getCompoundTag(TAG_QUEST_MANAGER));
         eventDescManager.deserializeNBT(compound.getCompoundTag(NbtTagConstants.TAG_EVENT_DESC_MANAGER));
 
-        if (compound.contains(TAG_RESEARCH))
+        if (compound.hasKey(TAG_RESEARCH))
         {
             researchManager.readFromNBT(compound.getCompoundTag(TAG_RESEARCH));
             // now that buildings, colonists, and research are loaded, check for new autoStartResearch.
@@ -828,7 +828,7 @@ public class Colony implements IColony
 
         packageManager.setLastContactInHours(compound.getInt(TAG_ABANDONED));
 
-        if (compound.contains(TAG_STYLE))
+        if (compound.hasKey(TAG_STYLE))
         {
             this.pack = BlueprintMapping.getStyleMapping(compound.getString(TAG_STYLE));
         }
@@ -839,7 +839,7 @@ public class Colony implements IColony
 
         raidManager.read(compound);
 
-        if (compound.contains(TAG_AUTO_DELETE))
+        if (compound.hasKey(TAG_AUTO_DELETE))
         {
             this.canColonyBeAutoDeleted = compound.getBoolean(TAG_AUTO_DELETE);
         }
@@ -848,34 +848,34 @@ public class Colony implements IColony
             this.canColonyBeAutoDeleted = true;
         }
 
-        if (compound.contains(TAG_TEAM_COLOR))
+        if (compound.hasKey(TAG_TEAM_COLOR))
         {
             // This read can occur before the world is non-null, due to Minecraft's order of operations for capabilities.
             // As a result, setColonyColor proper must wait until onWorldLoad fires.
             this.colonyTeamColor = EnumChatFormatting.values()[compound.getInt(TAG_TEAM_COLOR)];
         }
 
-        if (compound.contains(TAG_FLAG_PATTERNS))
+        if (compound.hasKey(TAG_FLAG_PATTERNS))
         {
             this.setColonyFlag(compound.getTagList(TAG_FLAG_PATTERNS, Constants.TAG_COMPOUND));
         }
 
         this.requestManager.reset();
-        if (compound.contains(TAG_REQUESTMANAGER))
+        if (compound.hasKey(TAG_REQUESTMANAGER))
         {
             this.requestManager.deserializeNBT(compound.getCompoundTag(TAG_REQUESTMANAGER));
         }
         this.lastOnlineTime = compound.getLong(TAG_LAST_ONLINE);
-        if (compound.contains(TAG_COL_TEXT))
+        if (compound.hasKey(TAG_COL_TEXT))
         {
             this.textureStyle = compound.getString(TAG_COL_TEXT);
         }
-        if (compound.contains(TAG_COL_NAME_STYLE))
+        if (compound.hasKey(TAG_COL_NAME_STYLE))
         {
             this.nameStyle = compound.getString(TAG_COL_NAME_STYLE);
         }
 
-        if (compound.contains(BuildingModules.TOWNHALL_SETTINGS.key) && settingsModule != null)
+        if (compound.hasKey(BuildingModules.TOWNHALL_SETTINGS.key) && settingsModule != null)
         {
             settingsModule.deserializeNBT(compound.getCompoundTag(BuildingModules.TOWNHALL_SETTINGS.key));
         }
@@ -883,12 +883,12 @@ public class Colony implements IColony
         this.day = compound.getInt(COLONY_DAY);
         this.colonyTag = compound;
 
-        if (compound.contains(NbtTagConstants.TAG_TRAVELLING_DATA))
+        if (compound.hasKey(NbtTagConstants.TAG_TRAVELLING_DATA))
         {
             this.travellingManager.deserializeNBT(compound.getCompoundTag(NbtTagConstants.TAG_TRAVELLING_DATA));
         }
 
-        if (compound.contains(NbtTagConstants.TAG_CONNECTION_MANAGER))
+        if (compound.hasKey(NbtTagConstants.TAG_CONNECTION_MANAGER))
         {
             this.connectionManager.deserializeNBT(compound.getCompoundTag(NbtTagConstants.TAG_CONNECTION_MANAGER));
         }
@@ -911,19 +911,19 @@ public class Colony implements IColony
      */
     public NBTTagCompound write(@NotNull final NBTTagCompound compound)
     {
-        compound.putInt(DATA_VERSION_TAG, DATA_VERSION);
+        compound.setInteger(DATA_VERSION_TAG, DATA_VERSION);
 
         //  Core attributes
-        compound.putInt(TAG_ID, id);
-        compound.putString(TAG_DIMENSION, dimensionId.location().toString());
+        compound.setInteger(TAG_ID, id);
+        compound.setString(TAG_DIMENSION, dimensionId.location().toString());
 
         //  Basic data
-        compound.putString(TAG_NAME, name);
+        compound.setString(TAG_NAME, name);
         BlockPosUtil.write(compound, TAG_CENTER, center);
 
-        compound.putLong(TAG_MERCENARY_TIME, mercenaryLastUse);
+        compound.setLong(TAG_MERCENARY_TIME, mercenaryLastUse);
 
-        compound.putInt(TAG_CHILD_TIME, additionalChildTime);
+        compound.setInteger(TAG_CHILD_TIME, additionalChildTime);
 
         // Permissions
         permissions.savePermissions(compound);
@@ -991,16 +991,16 @@ public class Colony implements IColony
         }
         compound.setTag(TAG_FREE_POSITIONS, freePositionsTagList);
 
-        compound.putInt(TAG_ABANDONED, packageManager.getLastContactInHours());
+        compound.setInteger(TAG_ABANDONED, packageManager.getLastContactInHours());
         compound.setTag(TAG_REQUESTMANAGER, getRequestManager().serializeNBT());
-        compound.putString(TAG_PACK, pack);
-        compound.putBoolean(TAG_AUTO_DELETE, canColonyBeAutoDeleted);
-        compound.putInt(TAG_TEAM_COLOR, colonyTeamColor.ordinal());
+        compound.setString(TAG_PACK, pack);
+        compound.setBoolean(TAG_AUTO_DELETE, canColonyBeAutoDeleted);
+        compound.setInteger(TAG_TEAM_COLOR, colonyTeamColor.ordinal());
         compound.setTag(TAG_FLAG_PATTERNS, colonyFlag);
-        compound.putLong(TAG_LAST_ONLINE, lastOnlineTime);
-        compound.putString(TAG_COL_TEXT, textureStyle);
-        compound.putString(TAG_COL_NAME_STYLE, nameStyle);
-        compound.putInt(COLONY_DAY, day);
+        compound.setLong(TAG_LAST_ONLINE, lastOnlineTime);
+        compound.setString(TAG_COL_TEXT, textureStyle);
+        compound.setString(TAG_COL_NAME_STYLE, nameStyle);
+        compound.setInteger(COLONY_DAY, day);
 
         final NBTTagCompound settings = new NBTTagCompound();
         settingsModule.serializeNBT(settings);

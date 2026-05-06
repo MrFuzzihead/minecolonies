@@ -63,7 +63,7 @@ public class JobEnchanter extends AbstractJobCrafter<EntityAIWorkEnchanter, JobE
     public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
-        if (compound.contains(TAG_BUILDING_TO_DRAIN))
+        if (compound.hasKey(TAG_BUILDING_TO_DRAIN))
         {
             this.posToDrainFrom = BlockPosUtil.read(compound, TAG_BUILDING_TO_DRAIN);
         }
@@ -78,7 +78,7 @@ public class JobEnchanter extends AbstractJobCrafter<EntityAIWorkEnchanter, JobE
         {
             BlockPosUtil.write(compound, TAG_BUILDING_TO_DRAIN, posToDrainFrom);
         }
-        compound.putInt(TAG_WAITING_TICKS, this.waitingTicks);
+        compound.setInteger(TAG_WAITING_TICKS, this.waitingTicks);
         return compound;
     }
 

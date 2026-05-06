@@ -151,12 +151,12 @@ public class BuildingNetherWorker extends AbstractBuilding
     public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
-        if (compound.contains(TAG_CURRENT_TRIPS))
+        if (compound.hasKey(TAG_CURRENT_TRIPS))
         {
             this.currentTrips = compound.getInt(TAG_CURRENT_TRIPS);
         }
 
-        if (compound.contains(TAG_CURRENT_DAY))
+        if (compound.hasKey(TAG_CURRENT_DAY))
         {
             this.currentPeriodDay = compound.getInt(TAG_CURRENT_DAY);
         }
@@ -167,8 +167,8 @@ public class BuildingNetherWorker extends AbstractBuilding
     {
         final NBTTagCompound compound = super.serializeNBT();
 
-        compound.putInt(TAG_CURRENT_TRIPS, this.currentTrips);
-        compound.putInt(TAG_CURRENT_DAY, this.currentPeriodDay);
+        compound.setInteger(TAG_CURRENT_TRIPS, this.currentTrips);
+        compound.setInteger(TAG_CURRENT_DAY, this.currentPeriodDay);
 
         return compound;
     }

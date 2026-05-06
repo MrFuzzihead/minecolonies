@@ -57,7 +57,7 @@ public class ItemQuestLog extends AbstractItemMinecolonies
 
         if (entity instanceof TileEntityColonyBuilding buildingEntity)
         {
-            compound.putInt(TAG_COLONY, buildingEntity.getColonyId());
+            compound.setInteger(TAG_COLONY, buildingEntity.getColonyId());
             if (!ctx.getLevel().isClientSide)
             {
                 MessageUtils.format(COM_MINECOLONIES_QUEST_LOG_COLONY_SET, buildingEntity.getColony().getName()).sendTo(ctx.getPlayer());
@@ -121,7 +121,7 @@ public class ItemQuestLog extends AbstractItemMinecolonies
      */
     private static void openWindow(NBTTagCompound compound, World world, Player player)
     {
-        if (compound.contains(TAG_COLONY))
+        if (compound.hasKey(TAG_COLONY))
         {
             final IColonyView colonyView = IColonyManager.getInstance().getColonyView(compound.getInt(TAG_COLONY), world.dimension());
             if (colonyView != null)

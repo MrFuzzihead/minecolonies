@@ -510,9 +510,9 @@ public abstract class AbstractShipRaidEvent implements IColonyRaidEvent, IColony
     public NBTTagCompound serializeNBT()
     {
         NBTTagCompound compound = new NBTTagCompound();
-        compound.putInt(TAG_EVENT_ID, id);
-        compound.putInt(TAG_DAYS_LEFT, daysToGo);
-        compound.putInt(TAG_EVENT_STATUS, status.ordinal());
+        compound.setInteger(TAG_EVENT_ID, id);
+        compound.setInteger(TAG_DAYS_LEFT, daysToGo);
+        compound.setInteger(TAG_EVENT_STATUS, status.ordinal());
 
         @NotNull final NBTTagList spawnerListCompound = new NBTTagList();
         for (@NotNull final int[] entry : spawners)
@@ -523,13 +523,13 @@ public abstract class AbstractShipRaidEvent implements IColonyRaidEvent, IColony
         }
         compound.setTag(TAG_SPAWNERS, spawnerListCompound);
 
-        compound.putInt(TAG_SPAWNER_COUNT, maxSpawners);
+        compound.setInteger(TAG_SPAWNER_COUNT, maxSpawners);
         BlockPosUtil.write(compound, TAG_SPAWN_POS, spawnPoint);
-        compound.putInt(TAG_SHIPSIZE, shipSize.ordinal());
-        compound.putInt(TAG_SHIPROTATION, shipRotation);
+        compound.setInteger(TAG_SHIPSIZE, shipSize.ordinal());
+        compound.setInteger(TAG_SHIPROTATION, shipRotation);
         BlockPosUtil.writePosListToNBT(compound, TAG_WAYPOINT, wayPoints);
-        compound.putInt(TAG_MAX_RAIDER_COUNT, maxRaiderCount);
-        compound.putInt(TAG_RAIDER_THRESHOLD_TRACKER, spawnerThresholdKillTracker);
+        compound.setInteger(TAG_MAX_RAIDER_COUNT, maxRaiderCount);
+        compound.setInteger(TAG_RAIDER_THRESHOLD_TRACKER, spawnerThresholdKillTracker);
         return compound;
     }
 

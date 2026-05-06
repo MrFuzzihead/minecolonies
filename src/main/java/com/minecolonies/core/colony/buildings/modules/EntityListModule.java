@@ -52,7 +52,7 @@ public class EntityListModule extends AbstractBuildingModule implements IEntityL
     @Override
     public void deserializeNBT(NBTTagCompound compound)
     {
-        if (compound.contains(id))
+        if (compound.hasKey(id))
         {
             compound = compound.getCompoundTag(id);
         }
@@ -74,7 +74,7 @@ public class EntityListModule extends AbstractBuildingModule implements IEntityL
         @NotNull final NBTTagList filteredMobs = new NBTTagList();
         for (@NotNull final ResourceLocation EntityCreature : mobsAllowed)
         {
-            filteredMobs.add(NBTTagString.valueOf(EntityCreature.toString()));
+            filteredMobs.add(new NBTTagString(EntityCreature.toString()));
         }
         compound.setTag(TAG_MOBLIST, filteredMobs);
     }

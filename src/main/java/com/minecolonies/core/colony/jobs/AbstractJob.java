@@ -189,13 +189,13 @@ public abstract class AbstractJob<AI extends AbstractAISkeleton<J> & ITickingSta
     {
         final NBTTagCompound compound = new NBTTagCompound();
 
-        compound.putString(TAG_JOB_TYPE, getJobRegistryEntry().getKey().toString());
+        compound.setString(TAG_JOB_TYPE, getJobRegistryEntry().getKey().toString());
         compound.setTag(TAG_ASYNC_REQUESTS,
           getAsyncRequests().stream()
             .filter(token -> getColony().getRequestManager().getRequestForToken(token) != null)
             .map(StandardFactoryController.getInstance()::serialize)
             .collect(NBTUtils.toListNBT()));
-        compound.putInt(TAG_ACTIONS_DONE, actionsDone);
+        compound.setInteger(TAG_ACTIONS_DONE, actionsDone);
 
         if (workBuildingPos != null)
         {
@@ -209,19 +209,19 @@ public abstract class AbstractJob<AI extends AbstractAISkeleton<J> & ITickingSta
     public void deserializeNBT(final NBTTagCompound compound)
     {
         this.asyncRequests.clear();
-        if (compound.contains(TAG_ASYNC_REQUESTS))
+        if (compound.hasKey(TAG_ASYNC_REQUESTS))
         {
             this.asyncRequests.addAll(NBTUtils.streamCompound(compound.getTagList(TAG_ASYNC_REQUESTS, NBTBase.TAG_COMPOUND))
                                         .map(StandardFactoryController.getInstance()::deserialize)
                                         .map(o -> (IToken<?>) o)
                                         .collect(Collectors.toSet()));
         }
-        if (compound.contains(TAG_ACTIONS_DONE))
+        if (compound.hasKey(TAG_ACTIONS_DONE))
         {
             actionsDone = compound.getInt(TAG_ACTIONS_DONE);
         }
 
-        if (compound.contains(TAG_WORK_POS))
+        if (compound.hasKey(TAG_WORK_POS))
         {
             workBuildingPos = BlockPosUtil.read(compound, TAG_WORK_POS);
         }

@@ -62,7 +62,7 @@ public class ItemScepterGuard extends AbstractItemMinecolonies
         }
         final NBTTagCompound compound = scepter.getTag();
 
-        if (compound.contains(TAG_LAST_POS))
+        if (compound.hasKey(TAG_LAST_POS))
         {
             final int[] lastPos = BlockPosUtil.read(compound, TAG_LAST_POS);
             if (lastPos.equals(ctx.getClickedPos()))
@@ -88,7 +88,7 @@ public class ItemScepterGuard extends AbstractItemMinecolonies
     @NotNull
     private static InteractionResult handleItemUsage(final World worldIn, final int[] pos, final NBTTagCompound compound, final Player playerIn, final ItemStack stack)
     {
-        if (!compound.contains(TAG_ID))
+        if (!compound.hasKey(TAG_ID))
         {
             return InteractionResult.FAIL;
         }
@@ -120,7 +120,7 @@ public class ItemScepterGuard extends AbstractItemMinecolonies
         }
         else
         {
-            if (!compound.contains(TAG_LAST_POS))
+            if (!compound.hasKey(TAG_LAST_POS))
             {
                 tower.resetPatrolTargets();
             }

@@ -83,8 +83,8 @@ public class SimpleItemCost implements IResearchCost
     public NBTTagCompound writeToNBT()
     {
         final NBTTagCompound compound = new NBTTagCompound();
-        compound.putString(TAG_COST_ITEM, ForgeRegistries.ITEMS.getKey(this.item).toString());
-        compound.putInt(TAG_COST_COUNT, this.count);
+        compound.setString(TAG_COST_ITEM, ForgeRegistries.ITEMS.getKey(this.item).toString());
+        compound.setInteger(TAG_COST_COUNT, this.count);
         return compound;
     }
 }

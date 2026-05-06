@@ -221,7 +221,7 @@ public class AnimalManager implements IAnimalManager
     public void read(@NotNull final NBTTagCompound compound)
     {
         // If the NBTBase doesn't exist, don't mutate current state.
-        if (!compound.contains(TAG_ANIMAL_MANAGER, NBTBase.TAG_COMPOUND))
+        if (!compound.hasKey(TAG_ANIMAL_MANAGER, NBTBase.TAG_COMPOUND))
         {
             return;
         }

@@ -149,7 +149,7 @@ public class CitizenFoodHandler implements ICitizenFoodHandler
         @NotNull final NBTTagList lastEatenFoodsNBT = new NBTTagList();
         for (final Item foodItem : lastEatenFoods)
         {
-            lastEatenFoodsNBT.add(NBTTagString.valueOf(BuiltInRegistries.ITEM.getKey(foodItem).toString()));
+            lastEatenFoodsNBT.add(new NBTTagString(BuiltInRegistries.ITEM.getKey(foodItem).toString()));
         }
         compound.setTag(TAG_LAST_FOODS, lastEatenFoodsNBT);
     }

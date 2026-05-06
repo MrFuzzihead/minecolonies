@@ -99,7 +99,7 @@ public class MineNode
     public static MineNode createFromNBT(@NotNull final NBTTagCompound compound)
     {
         // for backwards compatibility check if the types are doubles
-        final boolean hasDoubles = compound.contains(TAG_X);
+        final boolean hasDoubles = compound.hasKey(TAG_X);
 
         final int x;
         final int z;
@@ -127,7 +127,7 @@ public class MineNode
         final NodeStatus status = NodeStatus.valueOf(compound.getString(TAG_STATUS));
 
         Vec2i parent = null;
-        if (compound.contains(TAG_PARENTX))
+        if (compound.hasKey(TAG_PARENTX))
         {
             if (hasDoubles)
             {
@@ -150,7 +150,7 @@ public class MineNode
         node.setStyle(style);
         node.setStatus(status);
 
-        if (compound.contains(TAG_ROT))
+        if (compound.hasKey(TAG_ROT))
         {
             node.setRot(compound.getInt(TAG_ROT));
         }
@@ -165,21 +165,21 @@ public class MineNode
      */
     public void write(@NotNull final NBTTagCompound compound)
     {
-        compound.putInt(TAG_X, x);
-        compound.putInt(TAG_Z, z);
+        compound.setInteger(TAG_X, x);
+        compound.setInteger(TAG_Z, z);
 
         if (rot.isPresent())
         {
-            compound.putInt(TAG_ROT, rot.get());
+            compound.setInteger(TAG_ROT, rot.get());
         }
 
-        compound.putString(TAG_STYLE, style.name());
-        compound.putString(TAG_STATUS, status.name());
+        compound.setString(TAG_STYLE, style.name());
+        compound.setString(TAG_STATUS, status.name());
 
         if (parent != null)
         {
-            compound.putInt(TAG_PARENTX, parent.getX());
-            compound.putInt(TAG_PARENTZ, parent.getZ());
+            compound.setInteger(TAG_PARENTX, parent.getX());
+            compound.setInteger(TAG_PARENTZ, parent.getZ());
         }
     }
 

@@ -46,11 +46,11 @@ public class LocalResearchFactory implements ILocalResearchFactory
     public NBTTagCompound serialize(@NotNull final IFactoryController controller, @NotNull final ILocalResearch research)
     {
         final NBTTagCompound compound = new NBTTagCompound();
-        compound.putInt(TAG_STATE, research.getState().ordinal());
-        compound.putString(TAG_ID, research.getId().toString());
-        compound.putString(TAG_BRANCH, research.getBranch().toString());
-        compound.putInt(TAG_PROGRESS, research.getProgress());
-        compound.putInt(TAG_RESEARCH_LVL, research.getDepth());
+        compound.setInteger(TAG_STATE, research.getState().ordinal());
+        compound.setString(TAG_ID, research.getId().toString());
+        compound.setString(TAG_BRANCH, research.getBranch().toString());
+        compound.setInteger(TAG_PROGRESS, research.getProgress());
+        compound.setInteger(TAG_RESEARCH_LVL, research.getDepth());
 
         return compound;
     }

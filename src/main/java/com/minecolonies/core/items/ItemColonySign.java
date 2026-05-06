@@ -85,7 +85,7 @@ public class ItemColonySign extends BlockItem
                     }
 
                     // Attempt Connect two colonies.
-                    if (compound.contains(TAG_COLONY) && compound.getInt(TAG_COLONY) != buildingEntity.getColonyId())
+                    if (compound.hasKey(TAG_COLONY) && compound.getInt(TAG_COLONY) != buildingEntity.getColonyId())
                     {
                         final IColony sourceColony = IColonyManager.getInstance().getColonyByDimension(compound.getInt(TAG_COLONY), ctx.getLevel().dimension());
                         if (sourceColony == null)
@@ -106,7 +106,7 @@ public class ItemColonySign extends BlockItem
 
                     if (buildingEntity.getColony().getPermissions().hasPermission(ctx.getPlayer(), Action.MANAGE_HUTS))
                     {
-                        compound.putInt(TAG_COLONY, buildingEntity.getColonyId());
+                        compound.setInteger(TAG_COLONY, buildingEntity.getColonyId());
                         BlockPosUtil.write(compound, TAG_POS, ctx.getClickedPos());
                         MessageUtils.format(COM_MINECOLONIES_SIGN_COLONY_SET, buildingEntity.getColony().getName()).sendTo(ctx.getPlayer());
                     }
@@ -129,7 +129,7 @@ public class ItemColonySign extends BlockItem
                     }
 
                     // Attempt connect two colonies.
-                    if (compound.contains(TAG_COLONY) && compound.getInt(TAG_COLONY) != signEntity.getColonyId())
+                    if (compound.hasKey(TAG_COLONY) && compound.getInt(TAG_COLONY) != signEntity.getColonyId())
                     {
                         final IColony sourceColony = IColonyManager.getInstance().getColonyByDimension(compound.getInt(TAG_COLONY), ctx.getLevel().dimension());
                         if (sourceColony == null)
@@ -150,7 +150,7 @@ public class ItemColonySign extends BlockItem
 
                     if (colony.getPermissions().hasPermission(ctx.getPlayer(), Action.MANAGE_HUTS))
                     {
-                        compound.putInt(TAG_COLONY, signEntity.getColonyId());
+                        compound.setInteger(TAG_COLONY, signEntity.getColonyId());
                         BlockPosUtil.write(compound, TAG_POS, ctx.getClickedPos());
                         MessageUtils.format(COM_MINECOLONIES_SIGN_COLONY_SET, colony.getName()).sendTo(ctx.getPlayer());
                     }

@@ -132,11 +132,11 @@ public abstract class AbstractItemScroll extends AbstractItemMinecolonies
         final NBTTagCompound compound = checkForCompound(scroll);
         if (te instanceof TileEntityColonyBuilding buildingTe)
         {
-            compound.putInt(TAG_COLONY_ID, buildingTe.getColonyId());
-            compound.putString(TAG_COLONY_DIM, buildingTe.getColony().getWorld().dimension().location().toString());
+            compound.setInteger(TAG_COLONY_ID, buildingTe.getColonyId());
+            compound.setString(TAG_COLONY_DIM, buildingTe.getColony().getWorld().dimension().location().toString());
             BlockPosUtil.write(compound, TAG_BUILDING_POS, ctx.getClickedPos());
             MessageUtils.format(MESSAGE_SCROLL_REGISTERED, buildingTe.getColony().getName()).sendTo(ctx.getPlayer());
-            compound.putString(TAG_CACHED_COLONY_NAME, buildingTe.getColony().getName());
+            compound.setString(TAG_CACHED_COLONY_NAME, buildingTe.getColony().getName());
         }
 
         return InteractionResult.SUCCESS;

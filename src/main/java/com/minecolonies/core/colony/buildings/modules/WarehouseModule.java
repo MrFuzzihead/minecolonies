@@ -38,7 +38,7 @@ public class WarehouseModule extends AbstractBuildingModule implements IPersiste
     @Override
     public void serializeNBT(final NBTTagCompound compound)
     {
-        compound.putInt(TAG_STORAGE, storageUpgrade);
+        compound.setInteger(TAG_STORAGE, storageUpgrade);
     }
 
     @Override

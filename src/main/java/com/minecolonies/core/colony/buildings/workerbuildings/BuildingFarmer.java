@@ -263,15 +263,15 @@ public class BuildingFarmer extends AbstractBuilding
     public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
-        if (compound.contains(TAG_CELL))
+        if (compound.hasKey(TAG_CELL))
         {
             this.cell = compound.getInt(TAG_CELL);
         }
-        if (compound.contains(TAG_WORKING_OFFSET))
+        if (compound.hasKey(TAG_WORKING_OFFSET))
         {
             this.workingOffset = BlockPosUtil.read(compound, TAG_WORKING_OFFSET);
         }
-        if (compound.contains(TAG_PREV_POS))
+        if (compound.hasKey(TAG_PREV_POS))
         {
             this.prevPos = BlockPosUtil.read(compound, TAG_PREV_POS);
         }

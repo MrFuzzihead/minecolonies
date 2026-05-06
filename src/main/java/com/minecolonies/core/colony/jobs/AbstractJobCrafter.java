@@ -111,9 +111,9 @@ public abstract class AbstractJobCrafter<AI extends AbstractEntityAIBasic<J, ? e
     {
         final NBTTagCompound compound = super.serializeNBT();
         compound.setTag(NbtTagConstants.TAG_RS_DMANJOB_DATASTORE, StandardFactoryController.getInstance().serialize(rsDataStoreToken));
-        compound.putInt(NbtTagConstants.TAG_PROGRESS, progress);
-        compound.putInt(NbtTagConstants.TAG_MAX_COUNTER, maxCraftingCount);
-        compound.putInt(NbtTagConstants.TAG_CRAFT_COUNTER, craftCounter);
+        compound.setInteger(NbtTagConstants.TAG_PROGRESS, progress);
+        compound.setInteger(NbtTagConstants.TAG_MAX_COUNTER, maxCraftingCount);
+        compound.setInteger(NbtTagConstants.TAG_CRAFT_COUNTER, craftCounter);
         final NBTTagList items = new NBTTagList();
         for (final Map.Entry<ItemStorage, Integer> item : secondaryOutputs.object2IntEntrySet())
         {
@@ -128,7 +128,7 @@ public abstract class AbstractJobCrafter<AI extends AbstractEntityAIBasic<J, ? e
     {
         super.deserializeNBT(compound);
 
-        if (compound.contains(NbtTagConstants.TAG_RS_DMANJOB_DATASTORE))
+        if (compound.hasKey(NbtTagConstants.TAG_RS_DMANJOB_DATASTORE))
         {
             rsDataStoreToken = StandardFactoryController.getInstance()
                 .deserialize(compound.getCompoundTag(NbtTagConstants.TAG_RS_DMANJOB_DATASTORE));
@@ -138,22 +138,22 @@ public abstract class AbstractJobCrafter<AI extends AbstractEntityAIBasic<J, ? e
             setupRsDataStore();
         }
 
-        if (compound.contains(NbtTagConstants.TAG_PROGRESS))
+        if (compound.hasKey(NbtTagConstants.TAG_PROGRESS))
         {
             this.progress = compound.getInt(NbtTagConstants.TAG_PROGRESS);
         }
 
-        if (compound.contains(NbtTagConstants.TAG_MAX_COUNTER))
+        if (compound.hasKey(NbtTagConstants.TAG_MAX_COUNTER))
         {
             this.progress = compound.getInt(NbtTagConstants.TAG_MAX_COUNTER);
         }
 
-        if (compound.contains(NbtTagConstants.TAG_CRAFT_COUNTER))
+        if (compound.hasKey(NbtTagConstants.TAG_CRAFT_COUNTER))
         {
             this.progress = compound.getInt(NbtTagConstants.TAG_CRAFT_COUNTER);
         }
 
-        if (compound.contains(NbtTagConstants.TAG_SECONDARY_OUTPUTS))
+        if (compound.hasKey(NbtTagConstants.TAG_SECONDARY_OUTPUTS))
         {
             final HashMap<ItemStorage, Integer> newItems = new HashMap<>();
             final NBTTagList list = compound.getTagList(NbtTagConstants.TAG_SECONDARY_OUTPUTS, NBTTagList.TAG_COMPOUND);

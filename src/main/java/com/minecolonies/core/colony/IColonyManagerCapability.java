@@ -174,13 +174,13 @@ public interface IColonyManagerCapability
             {
                 final NBTTagCompound compound = (NBTTagCompound) nbt;
 
-                if (!compound.contains(TAG_COLONIES))
+                if (!compound.hasKey(TAG_COLONIES))
                 {
                     BackUpHelper.loadManagerBackup();
                     return;
                 }
 
-                if (overworld && !compound.contains(TAG_COLONY_MANAGER))
+                if (overworld && !compound.hasKey(TAG_COLONY_MANAGER))
                 {
                     BackUpHelper.loadManagerBackup();
                 }
@@ -217,7 +217,7 @@ public interface IColonyManagerCapability
                     }
                 }
 
-                if (compound.contains(TAG_COLONY_MANAGER) && overworld)
+                if (compound.hasKey(TAG_COLONY_MANAGER) && overworld)
                 {
                     IColonyManager.getInstance().read(compound.getCompoundTag(TAG_COLONY_MANAGER));
                 }

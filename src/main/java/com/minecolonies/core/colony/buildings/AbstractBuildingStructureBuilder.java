@@ -210,13 +210,13 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuilding
     public void deserializeNBT(final NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
-        if (compound.contains(TAG_PROGRESS_POS))
+        if (compound.hasKey(TAG_PROGRESS_POS))
         {
             progressPos = BlockPosUtil.read(compound, TAG_PROGRESS_POS);
             progressStage = BuildingProgressStage.values()[compound.getInt(TAG_PROGRESS_STAGE)];
         }
 
-        if (compound.contains(TAG_FLUIDS_REMOVE))
+        if (compound.hasKey(TAG_FLUIDS_REMOVE))
         {
             fluidsToRemove.clear();
             NBTTagList fluidsToRemove = (NBTTagList) compound.get(TAG_FLUIDS_REMOVE);
@@ -232,7 +232,7 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuilding
             });
         }
 
-        if (compound.contains(TAG_WORK_ORDER))
+        if (compound.hasKey(TAG_WORK_ORDER))
         {
             this.workOrderId = compound.getInt(TAG_WORK_ORDER);
         }
@@ -245,7 +245,7 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuilding
         if (progressPos != null)
         {
             BlockPosUtil.write(compound, TAG_PROGRESS_POS, progressPos);
-            compound.putInt(TAG_PROGRESS_STAGE, progressStage.ordinal());
+            compound.setInteger(TAG_PROGRESS_STAGE, progressStage.ordinal());
         }
 
         final NBTTagList fluidsToRemove = new NBTTagList();
@@ -261,7 +261,7 @@ public abstract class AbstractBuildingStructureBuilder extends AbstractBuilding
 
         if (workOrderId != 0)
         {
-            compound.putInt(TAG_WORK_ORDER, workOrderId);
+            compound.setInteger(TAG_WORK_ORDER, workOrderId);
         }
 
         return compound;

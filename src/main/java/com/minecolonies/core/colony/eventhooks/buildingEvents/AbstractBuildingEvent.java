@@ -60,8 +60,8 @@ public abstract class AbstractBuildingEvent extends AbstractEvent implements IBu
     {
         NBTTagCompound compound = super.serializeNBT();
         BlockPosUtil.write(compound, TAG_EVENT_POS, eventPos);
-        compound.putString(TAG_BUILDING_NAME, buildingName);
-        compound.putInt(TAG_BUILDING_LEVEL, World);
+        compound.setString(TAG_BUILDING_NAME, buildingName);
+        compound.setInteger(TAG_BUILDING_LEVEL, World);
         return compound;
     }
 

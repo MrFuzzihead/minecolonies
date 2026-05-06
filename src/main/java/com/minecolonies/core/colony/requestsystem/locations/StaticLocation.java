@@ -153,8 +153,8 @@ public class StaticLocation implements ILocation
         public NBTTagCompound serialize(@NotNull final IFactoryController controller, @NotNull final StaticLocation request)
         {
             final NBTTagCompound compound = new NBTTagCompound();
-            compound.putLong(NBT_POS, request.getInDimensionLocation().asLong());
-            compound.putString(NBT_DIM, request.getDimension().location().toString());
+            compound.setLong(NBT_POS, request.getInDimensionLocation().asLong());
+            compound.setString(NBT_DIM, request.getDimension().location().toString());
             return compound;
         }
 

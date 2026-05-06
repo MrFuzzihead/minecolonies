@@ -187,9 +187,9 @@ public class BuildingCowboy extends AbstractBuilding
         @Override
         public void serializeNBT(@NotNull NBTTagCompound compound)
         {
-            compound.putInt("milkValue", currentMilk);
-            compound.putInt("stewValue", currentStew);
-            compound.putInt("milkDays", currentMilkDays);
+            compound.setInteger("milkValue", currentMilk);
+            compound.setInteger("stewValue", currentStew);
+            compound.setInteger("milkDays", currentMilkDays);
         }
 
         @Override

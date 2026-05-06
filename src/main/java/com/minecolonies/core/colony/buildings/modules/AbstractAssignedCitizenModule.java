@@ -130,17 +130,17 @@ public abstract class AbstractAssignedCitizenModule extends AbstractBuildingModu
     @Override
     public void serializeNBT(final NBTTagCompound compound)
     {
-        compound.putInt(TAG_HIRING_MODE, this.hiringMode.ordinal());
+        compound.setInteger(TAG_HIRING_MODE, this.hiringMode.ordinal());
     }
 
     @Override
     public void deserializeNBT(final NBTTagCompound compound)
     {
-        if (compound.contains(TAG_ASSIGNED))
+        if (compound.hasKey(TAG_ASSIGNED))
         {
             this.hiringMode = HiringMode.values()[compound.getCompoundTag(TAG_ASSIGNED).getInt(TAG_HIRING_MODE)];
         }
-        else if (compound.contains(getModuleSerializationIdentifier()))
+        else if (compound.hasKey(getModuleSerializationIdentifier()))
         {
             this.hiringMode = HiringMode.values()[compound.getCompoundTag(getModuleSerializationIdentifier()).getInt(TAG_HIRING_MODE)];
         }

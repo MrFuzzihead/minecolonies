@@ -113,8 +113,8 @@ public class FarmField extends AbstractBuildingExtensionModule
     {
         NBTTagCompound compound = super.serializeNBT();
         compound.setTag(TAG_SEED, seed.serializeNBT());
-        compound.putIntArray(TAG_RADIUS, radii);
-        compound.putString(TAG_STAGE, fieldStage.name());
+        compound.setIntArray(TAG_RADIUS, radii);
+        compound.setString(TAG_STAGE, fieldStage.name());
         return compound;
     }
 
@@ -122,7 +122,7 @@ public class FarmField extends AbstractBuildingExtensionModule
     public void deserializeNBT(final @NotNull NBTTagCompound compound)
     {
         super.deserializeNBT(compound);
-        setSeed(ItemStack.of(compound.getCompoundTag(TAG_SEED)));
+        setSeed(ItemStack.loadItemStackFromNBT(compound.getCompoundTag(TAG_SEED)));
         radii = compound.getIntArray(TAG_RADIUS);
         fieldStage = Stage.valueOf(compound.getString(TAG_STAGE));
     }

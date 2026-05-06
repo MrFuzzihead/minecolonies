@@ -104,7 +104,7 @@ public class BuildingBuilder extends AbstractBuildingStructureBuilder
     public NBTTagCompound serializeNBT()
     {
         final NBTTagCompound compound = super.serializeNBT();
-        compound.putBoolean(TAG_PURGED_MOBS, this.purgedMobsToday);
+        compound.setBoolean(TAG_PURGED_MOBS, this.purgedMobsToday);
         return compound;
     }
 

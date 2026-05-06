@@ -82,7 +82,7 @@ public class EnchanterStationsModule extends AbstractBuildingModule implements I
     {
         final NBTTagCompound compound = new NBTTagCompound();
         BlockPosUtil.write(compound, TAG_POS, entry.getKey());
-        compound.putBoolean(TAG_GATHERED_ALREADY, entry.getValue());
+        compound.setBoolean(TAG_GATHERED_ALREADY, entry.getValue());
         return compound;
     }
 

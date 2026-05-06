@@ -62,7 +62,7 @@ public class SettingsModule extends AbstractBuildingModule implements IPersisten
     @Override
     public void deserializeNBT(final NBTTagCompound compound)
     {
-        final NBTTagCompound settingsCompound = compound.contains("settings") ? compound.getCompoundTag("settings") : compound;
+        final NBTTagCompound settingsCompound = compound.hasKey("settings") ? compound.getCompoundTag("settings") : compound;
         final NBTTagList list = settingsCompound.getTagList("settingslist", NBTBase.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++)
         {

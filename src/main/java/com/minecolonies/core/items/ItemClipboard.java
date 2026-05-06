@@ -61,7 +61,7 @@ public class ItemClipboard extends AbstractItemMinecolonies
 
         if (entity instanceof TileEntityColonyBuilding buildingEntity)
         {
-            compound.putInt(TAG_COLONY, buildingEntity.getColonyId());
+            compound.setInteger(TAG_COLONY, buildingEntity.getColonyId());
             if (!ctx.getLevel().isClientSide)
             {
                 MessageUtils.format(COM_MINECOLONIES_CLIPBOARD_COLONY_SET, buildingEntity.getColony().getName()).sendTo(ctx.getPlayer());
@@ -120,14 +120,14 @@ public class ItemClipboard extends AbstractItemMinecolonies
      */
     private static void openWindow(NBTTagCompound compound, World world, Player player)
     {
-        if (compound.contains(TAG_COLONY))
+        if (compound.hasKey(TAG_COLONY))
         {
             final IColonyView colonyView = IColonyManager.getInstance().getColonyView(compound.getInt(TAG_COLONY), world.dimension());
             if (colonyView != null)
             {
                 boolean hide = false;
 
-                if (compound.contains(TAG_HIDEUNIMPORTANT))
+                if (compound.hasKey(TAG_HIDEUNIMPORTANT))
                 {
                     hide = compound.getBoolean(TAG_HIDEUNIMPORTANT);
                 }

@@ -119,7 +119,7 @@ public class DirectPlaceMessage implements IMessage
         if ((colony == null && state.getBlock() == ModBlocks.blockHutTownHall) || (colony != null && colony.getPermissions().hasPermission(player, Action.MANAGE_HUTS)))
         {
             final NBTTagCompound compound = stack.getTag();
-            if (colony != null && compound != null && compound.contains(TAG_COLONY_ID) && colony.getID() != compound.getInt(TAG_COLONY_ID))
+            if (colony != null && compound != null && compound.hasKey(TAG_COLONY_ID) && colony.getID() != compound.getInt(TAG_COLONY_ID))
             {
                 MessageUtils.format(WRONG_COLONY, compound.getInt(TAG_COLONY_ID)).sendTo(player);
                 return;
@@ -141,7 +141,7 @@ public class DirectPlaceMessage implements IMessage
                     ((TileEntityColonyBuilding) tileEntity).setBlueprintPath(fullPath + "/" + blueprint.getFileName().substring(0, blueprint.getFileName().length() - 1) + "1.blueprint");
                     state.getBlock().setPlacedBy(world, pos, state, player, stack);
 
-                    if (compound != null && compound.contains(TAG_OTHER_LEVEL))
+                    if (compound != null && compound.hasKey(TAG_OTHER_LEVEL))
                     {
                         final IBuilding building = colony.getServerBuildingManager().getBuilding(pos);
                         if (building != null)

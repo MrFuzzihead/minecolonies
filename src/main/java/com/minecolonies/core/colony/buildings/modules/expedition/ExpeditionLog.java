@@ -243,9 +243,9 @@ public class ExpeditionLog
      */
     public void serializeNBT(@NotNull final NBTTagCompound compound)
     {
-        compound.putString(TAG_STATUS, this.status.name());
-        compound.putInt(TAG_ID, this.id);
-        compound.putString(TAG_NAME, this.name == null ? "" : this.name);
+        compound.setString(TAG_STATUS, this.status.name());
+        compound.setInteger(TAG_ID, this.id);
+        compound.setString(TAG_NAME, this.name == null ? "" : this.name);
 
         final NBTTagCompound stats = new NBTTagCompound();
         for (final Map.Entry<StatType, Double> entry : this.stats.entrySet())
@@ -305,7 +305,7 @@ public class ExpeditionLog
         final NBTTagList equipment = compound.getTagList(TAG_EQUIPMENT, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < equipment.size(); i++)
         {
-            this.equipment.add(ItemStack.of(equipment.getCompoundTagAt(i)));
+            this.equipment.add(ItemStack.loadItemStackFromNBT(equipment.getCompoundTagAt(i)));
         }
 
         this.mobs.clear();

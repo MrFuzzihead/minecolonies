@@ -233,13 +233,13 @@ public abstract class AbstractCraftingBuildingModule extends AbstractBuildingMod
     @Override
     public void deserializeNBT(NBTTagCompound compound)
     {
-        if (compound.contains(getId()))
+        if (compound.hasKey(getId()))
         {
             compound = compound.getCompoundTag(getId());
         }
 
         NBTTagList recipesTags = new NBTTagList();
-        if (compound.contains(TAG_RECIPES))
+        if (compound.hasKey(TAG_RECIPES))
         {
             recipesTags = compound.getTagList(TAG_RECIPES, NBTBase.TAG_COMPOUND);
         }
@@ -254,7 +254,7 @@ public abstract class AbstractCraftingBuildingModule extends AbstractBuildingMod
             }
         }
 
-        if (compound.contains(TAG_DISABLED_RECIPES))
+        if (compound.hasKey(TAG_DISABLED_RECIPES))
         {
             final NBTTagList disabledRecipeTag = compound.getTagList(TAG_DISABLED_RECIPES, NBTBase.TAG_COMPOUND);
             for (int i = 0; i < disabledRecipeTag.size(); i++)

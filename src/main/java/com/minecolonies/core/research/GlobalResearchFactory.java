@@ -68,19 +68,19 @@ public class GlobalResearchFactory implements IGlobalResearchFactory
         final NBTTagCompound compound = new NBTTagCompound();
         if (research.getParent() != null)
         {
-            compound.putString(TAG_PARENT, research.getParent().toString());
+            compound.setString(TAG_PARENT, research.getParent().toString());
         }
-        compound.putString(TAG_ID, research.getId().toString());
-        compound.putString(TAG_BRANCH, research.getBranch().toString());
-        compound.putString(TAG_NAME, research.getName().getKey());
-        compound.putInt(TAG_RESEARCH_LVL, research.getDepth());
-        compound.putInt(TAG_RESEARCH_SORT, research.getSortOrder());
-        compound.putBoolean(TAG_ONLY_CHILD, research.hasOnlyChild());
-        compound.putString(TAG_SUBTITLE_NAME, research.getSubtitle().getKey());
-        compound.putBoolean(TAG_INSTANT, research.isInstant());
-        compound.putBoolean(TAG_AUTOSTART, research.isAutostart());
-        compound.putBoolean(TAG_IMMUTABLE, research.isImmutable());
-        compound.putBoolean(TAG_HIDDEN, research.isHidden());
+        compound.setString(TAG_ID, research.getId().toString());
+        compound.setString(TAG_BRANCH, research.getBranch().toString());
+        compound.setString(TAG_NAME, research.getName().getKey());
+        compound.setInteger(TAG_RESEARCH_LVL, research.getDepth());
+        compound.setInteger(TAG_RESEARCH_SORT, research.getSortOrder());
+        compound.setBoolean(TAG_ONLY_CHILD, research.hasOnlyChild());
+        compound.setString(TAG_SUBTITLE_NAME, research.getSubtitle().getKey());
+        compound.setBoolean(TAG_INSTANT, research.isInstant());
+        compound.setBoolean(TAG_AUTOSTART, research.isAutostart());
+        compound.setBoolean(TAG_IMMUTABLE, research.isImmutable());
+        compound.setBoolean(TAG_HIDDEN, research.isHidden());
         @NotNull final NBTTagList costTagList = research.getCostList().stream().map(cost ->
         {
             final NBTTagCompound costCompound = new NBTTagCompound();

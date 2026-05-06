@@ -196,7 +196,7 @@ public class StatisticsManager implements IStatisticsManager
     public void readFromNBT(@NotNull final NBTTagCompound compound)
     {
         stats.clear();
-        if (compound.contains(TAG_STAT_MANAGER))
+        if (compound.hasKey(TAG_STAT_MANAGER))
         {
             final NBTTagList statsNbts = compound.getTagList(TAG_STAT_MANAGER, NBTBase.TAG_COMPOUND);
             for (int i = 0; i < statsNbts.size(); i++)

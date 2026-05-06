@@ -75,7 +75,7 @@ public class ItemResourceScroll extends AbstractItemMinecolonies
     private static void openWindow(final NBTTagCompound compound, final Player player)
     {
         final int colonyId = compound.getInt(TAG_COLONY_ID);
-        final int[] builderPos = compound.contains(TAG_BUILDER) ? BlockPosUtil.read(compound, TAG_BUILDER) : null;
+        final int[] builderPos = compound.hasKey(TAG_BUILDER) ? BlockPosUtil.read(compound, TAG_BUILDER) : null;
 
         final IColonyView colonyView = IColonyManager.getInstance().getColonyView(colonyId, Minecraft.getInstance().World.dimension());
         if (colonyView != null)
@@ -84,7 +84,7 @@ public class ItemResourceScroll extends AbstractItemMinecolonies
             if (buildingView instanceof BuildingBuilder.View builderBuildingView)
             {
                 final String currentHash = getWorkOrderHash(buildingView);
-                final String storedHash = compound.contains(TAG_WAREHOUSE_SNAPSHOT_WO_HASH) ? compound.getString(TAG_WAREHOUSE_SNAPSHOT_WO_HASH) : null;
+                final String storedHash = compound.hasKey(TAG_WAREHOUSE_SNAPSHOT_WO_HASH) ? compound.getString(TAG_WAREHOUSE_SNAPSHOT_WO_HASH) : null;
                 final boolean snapshotNeedsUpdate = !Objects.equals(currentHash, storedHash);
 
                 Map<String, Integer> warehouseSnapshot = new HashMap<>();
@@ -96,7 +96,7 @@ public class ItemResourceScroll extends AbstractItemMinecolonies
                 else
                 {
                     // If the hashes are still up-to-date, load the old snapshot data from the NBT, if any exists.
-                    if (compound.contains(TAG_WAREHOUSE_SNAPSHOT))
+                    if (compound.hasKey(TAG_WAREHOUSE_SNAPSHOT))
                     {
                         final NBTTagCompound warehouseSnapshotCompound = compound.getCompoundTag(TAG_WAREHOUSE_SNAPSHOT);
                         warehouseSnapshot = warehouseSnapshotCompound.getAllKeys().stream()
@@ -149,7 +149,7 @@ public class ItemResourceScroll extends AbstractItemMinecolonies
      */
     private static void updateWarehouseSnapshot(final int[] warehousePos, final NBTTagCompound compound, final Player player)
     {
-        if (!compound.contains(TAG_COLONY_ID) || !compound.contains(TAG_BUILDER))
+        if (!compound.hasKey(TAG_COLONY_ID) || !compound.hasKey(TAG_BUILDER))
         {
             MessageUtils.format(COM_MINECOLONIES_SCROLL_NO_COLONY).sendTo(player);
             return;
@@ -264,7 +264,7 @@ public class ItemResourceScroll extends AbstractItemMinecolonies
         {
             if (buildingEntity.getBuilding() instanceof BuildingBuilder)
             {
-                compound.putInt(TAG_COLONY_ID, buildingEntity.getColonyId());
+                compound.setInteger(TAG_COLONY_ID, buildingEntity.getColonyId());
                 BlockPosUtil.write(compound, TAG_BUILDER, buildingEntity.getPosition());
 
                 MessageUtils.format(COM_MINECOLONIES_SCROLL_BUILDING_SET, buildingEntity.getColony().getName()).sendTo(ctx.getPlayer());

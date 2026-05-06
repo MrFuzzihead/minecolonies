@@ -66,7 +66,7 @@ public class ItemListModule extends AbstractBuildingModule implements IItemListM
     @Override
     public void deserializeNBT(NBTTagCompound compound)
     {
-        if (compound.contains(id))
+        if (compound.hasKey(id))
         {
             compound = compound.getCompoundTag(id);
         }
@@ -75,7 +75,7 @@ public class ItemListModule extends AbstractBuildingModule implements IItemListM
             final NBTTagList filterableList = compound.getTagList(TAG_ITEMLIST, NBTBase.TAG_COMPOUND);
             for (int i = 0; i < filterableList.size(); ++i)
             {
-                allowedItems.add(new ItemStorage(ItemStack.of(filterableList.getCompoundTagAt(i))));
+                allowedItems.add(new ItemStorage(ItemStack.loadItemStackFromNBT(filterableList.getCompoundTagAt(i))));
             }
 
         this.itemsAllowed = ImmutableList.copyOf(allowedItems);

@@ -241,7 +241,7 @@ public class WorkManager implements IWorkManager
             list.add(orderCompound);
         }
         compound.setTag(TAG_WORK_ORDERS, list);
-        compound.putBoolean(TAG_NEW_SYSTEM, true);
+        compound.setBoolean(TAG_NEW_SYSTEM, true);
     }
 
     /**
@@ -254,7 +254,7 @@ public class WorkManager implements IWorkManager
     {
         workOrders.clear();
 
-        if (!compound.contains(TAG_NEW_SYSTEM))
+        if (!compound.hasKey(TAG_NEW_SYSTEM))
         {
             // On the new system, we drop all current workorders to avoid any issues.
             return;

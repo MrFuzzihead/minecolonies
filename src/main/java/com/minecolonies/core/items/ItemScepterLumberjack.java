@@ -162,8 +162,8 @@ public class ItemScepterLumberjack extends AbstractItemMinecolonies implements I
     {
         final int colonyId = compound.getInt(TAG_ID);
         final int[] pos = BlockPosUtil.read(compound, TAG_POS);
-        final int[] start = compound.contains(NBT_START_POS) ? BlockPosUtil.read(compound, NBT_START_POS) : null;
-        final int[] end = compound.contains(NBT_END_POS) ? BlockPosUtil.read(compound, NBT_END_POS) : null;
+        final int[] start = compound.hasKey(NBT_START_POS) ? BlockPosUtil.read(compound, NBT_START_POS) : null;
+        final int[] end = compound.hasKey(NBT_END_POS) ? BlockPosUtil.read(compound, NBT_END_POS) : null;
 
         if (world.isClientSide())
         {

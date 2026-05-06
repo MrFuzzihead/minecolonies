@@ -63,7 +63,7 @@ public abstract class BuildingExtensionsModule extends AbstractBuildingModule im
             final NBTTagCompound NBTBase = NBTTagList.getCompoundTagAt(i);
             checkedExtensions.put(IBuildingExtension.ExtensionId.deserializeNBT(NBTBase.getCompoundTag(TAG_ID)), compound.getInt(TAG_DAY));
         }
-        if (compound.contains(TAG_CURRENT_EXTENSION))
+        if (compound.hasKey(TAG_CURRENT_EXTENSION))
         {
             currentExtensionId = IBuildingExtension.ExtensionId.deserializeNBT(compound.getCompoundTag(TAG_CURRENT_EXTENSION));
         }
@@ -72,7 +72,7 @@ public abstract class BuildingExtensionsModule extends AbstractBuildingModule im
     @Override
     public void serializeNBT(final NBTTagCompound compound)
     {
-        compound.putBoolean(TAG_ASSIGN_MANUALLY, shouldAssignManually);
+        compound.setBoolean(TAG_ASSIGN_MANUALLY, shouldAssignManually);
 
         final NBTTagList NBTTagList = new NBTTagList();
         for (final Map.Entry<IBuildingExtension.ExtensionId, Integer> entry : checkedExtensions.entrySet())

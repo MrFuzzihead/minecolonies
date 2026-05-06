@@ -228,7 +228,7 @@ public class EventManager implements IEventManager
     @Override
     public void readFromNBT(@NotNull final NBTTagCompound compound)
     {
-        if (compound.contains(TAG_EVENT_MANAGER))
+        if (compound.hasKey(TAG_EVENT_MANAGER))
         {
             final NBTTagCompound eventManagerNBT = compound.getCompoundTag(TAG_EVENT_MANAGER);
             final NBTTagList eventListNBT = eventManagerNBT.getTagList(TAG_EVENT_LIST, NBTBase.TAG_COMPOUND);

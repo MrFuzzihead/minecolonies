@@ -1388,28 +1388,28 @@ public class CitizenData implements ICitizenData
         @NotNull final NBTTagList avQuestNBT = new NBTTagList();
         for (final ResourceLocation quest : availableQuests)
         {
-            avQuestNBT.add(NBTTagString.valueOf(quest.toString()));
+            avQuestNBT.add(new NBTTagString(quest.toString()));
         }
         nbtTagcompound.setTag(TAG_AV_QUESTS, avQuestNBT);
 
         @NotNull final NBTTagList partQuestNBT = new NBTTagList();
         for (final ResourceLocation quest : participatingQuests)
         {
-            partQuestNBT.add(NBTTagString.valueOf(quest.toString()));
+            partQuestNBT.add(new NBTTagString(quest.toString()));
         }
         nbtTagcompound.setTag(TAG_PART_QUESTS, partQuestNBT);
 
         @NotNull final NBTTagList finishedQuestNBT = new NBTTagList();
         for (final ResourceLocation quest : finishedQuests)
         {
-            finishedQuestNBT.add(NBTTagString.valueOf(quest.toString()));
+            finishedQuestNBT.add(new NBTTagString(quest.toString()));
         }
         nbtTagcompound.setTag(TAG_FINISHED_AV_QUESTS, finishedQuestNBT);
 
         @NotNull final NBTTagList finishedPartQuestNBT = new NBTTagList();
         for (final ResourceLocation quest : finishedQuestParticipation)
         {
-            finishedPartQuestNBT.add(NBTTagString.valueOf(quest.toString()));
+            finishedPartQuestNBT.add(new NBTTagString(quest.toString()));
         }
         nbtTagcompound.setTag(TAG_FINISHED_PART_QUESTS, finishedPartQuestNBT);
 

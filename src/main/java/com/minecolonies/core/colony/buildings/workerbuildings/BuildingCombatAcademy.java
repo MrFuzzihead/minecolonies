@@ -120,8 +120,8 @@ public class BuildingCombatAcademy extends AbstractBuilding
     private static NBTTagCompound writePartnerTupleToNBT(final Map.Entry<Integer, Integer> tuple)
     {
         final NBTTagCompound compound = new NBTTagCompound();
-        compound.putInt(TAG_PARTNER1, tuple.getKey());
-        compound.putInt(TAG_PARTNER2, tuple.getValue());
+        compound.setInteger(TAG_PARTNER1, tuple.getKey());
+        compound.setInteger(TAG_PARTNER2, tuple.getValue());
         return compound;
     }
 
