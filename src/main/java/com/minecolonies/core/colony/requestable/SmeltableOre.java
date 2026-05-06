@@ -62,7 +62,7 @@ public class SmeltableOre implements INonExhaustiveDeliverable
 
         if (!ItemStackUtils.isEmpty(ore.result))
         {
-            compound.setTag(NBT_RESULT, ore.result.serializeNBT());
+            compound.setTag(NBT_RESULT, ore.result.writeToNBT(new NBTTagCompound()));
         }
 
         return compound;

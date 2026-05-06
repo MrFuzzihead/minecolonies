@@ -117,7 +117,8 @@ public abstract class AbstractJobCrafter<AI extends AbstractEntityAIBasic<J, ? e
         final NBTTagList items = new NBTTagList();
         for (final Map.Entry<ItemStorage, Integer> item : secondaryOutputs.object2IntEntrySet())
         {
-            items.add(item.getKey().getItemStack().copyWithCount(item.getValue()).serializeNBT());
+            final ItemStack copy = item.getKey().getItemStack().copy(); copy.stackSize = item.getValue(); // [1.7.10] copyWithCount
+            items.appendTag(copy.writeToNBT(new NBTTagCompound())); // [1.7.10] serializeNBT->writeToNBT, add->appendTag
         }
         compound.setTag(NbtTagConstants.TAG_SECONDARY_OUTPUTS, items);
         return compound;

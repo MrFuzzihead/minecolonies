@@ -57,18 +57,18 @@ public class JobNetherWorker extends AbstractJobCrafter<EntityAIWorkNether, JobN
     @Override
     public NBTTagCompound serializeNBT()
     {
-        final NBTTagCompound compound = super.serializeNBT();
+        final NBTTagCompound compound = super.writeToNBT(new NBTTagCompound());
 
         @NotNull final NBTTagList craftedList = new NBTTagList();
         craftedResults.forEach(item -> {
-            @NotNull final NBTTagCompound itemCompound = item.serializeNBT();
+            @NotNull final NBTTagCompound itemCompound = item.writeToNBT(new NBTTagCompound());
             craftedList.add(itemCompound);
         });
         compound.setTag(TAG_CRAFTED, craftedList);
 
         @NotNull final NBTTagList processedList = new NBTTagList();
         processedResults.forEach(item -> {
-            @NotNull final NBTTagCompound itemCompound = item.serializeNBT();
+            @NotNull final NBTTagCompound itemCompound = item.writeToNBT(new NBTTagCompound());
             processedList.add(itemCompound);
         });
         compound.setTag(TAG_PROCESSED, processedList);

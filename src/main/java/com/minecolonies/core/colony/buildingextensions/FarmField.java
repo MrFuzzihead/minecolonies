@@ -112,7 +112,7 @@ public class FarmField extends AbstractBuildingExtensionModule
     public @NotNull NBTTagCompound serializeNBT()
     {
         NBTTagCompound compound = super.serializeNBT();
-        compound.setTag(TAG_SEED, seed.serializeNBT());
+        compound.setTag(TAG_SEED, seed.writeToNBT(new NBTTagCompound())); // [1.7.10] serializeNBT -> writeToNBT
         compound.setIntArray(TAG_RADIUS, radii);
         compound.setString(TAG_STAGE, fieldStage.name());
         return compound;
