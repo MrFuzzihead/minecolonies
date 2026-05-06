@@ -1,10 +1,13 @@
 package com.minecolonies.core.colony;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.BoneMealItem;
+// [1.7.10] Style removed — no equivalent
+// [1.7.10] Animal removed — EntityAnimal used if needed
+import net.minecraft.util.Direction;
+// [1.7.10] removed: import net.minecraft.core.Direction; (use net.minecraft.util.Direction)
+// [1.7.10] BlockState (1.21) removed — net.minecraft.block.state.BlockState (1.7.10) used
+// [1.7.10] Player removed — EntityPlayer used below
+// [1.7.10] AABB removed — AxisAlignedBB used
+// [1.7.10] RandomSource removed — java.util.Random used
+// [1.7.10] BoneMealItem removed — not used
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -765,59 +768,59 @@ public class Colony implements IColony
         // Permissions
         permissions.loadPermissions(compound);
 
-        citizenManager.read(compound.getCompound(TAG_CITIZEN_MANAGER));
+        citizenManager.read(compound.getCompoundTag(TAG_CITIZEN_MANAGER));
         visitorManager.read(compound);
-        animalManager.read(compound.getCompound(TAG_ANIMAL_MANAGER));
-        buildingManager.read(compound.getCompound(TAG_BUILDING_MANAGER));
+        animalManager.read(compound.getCompoundTag(TAG_ANIMAL_MANAGER));
+        buildingManager.read(compound.getCompoundTag(TAG_BUILDING_MANAGER));
 
         // Recalculate max after citizens and buildings are loaded.
         citizenManager.afterBuildingLoad();
 
-        graveManager.read(compound.getCompound(TAG_GRAVE_MANAGER));
+        graveManager.read(compound.getCompoundTag(TAG_GRAVE_MANAGER));
 
         eventManager.readFromNBT(compound);
         statisticManager.readFromNBT(compound);
 
-        questManager.deserializeNBT(compound.getCompound(TAG_QUEST_MANAGER));
-        eventDescManager.deserializeNBT(compound.getCompound(NbtTagConstants.TAG_EVENT_DESC_MANAGER));
+        questManager.deserializeNBT(compound.getCompoundTag(TAG_QUEST_MANAGER));
+        eventDescManager.deserializeNBT(compound.getCompoundTag(NbtTagConstants.TAG_EVENT_DESC_MANAGER));
 
         if (compound.contains(TAG_RESEARCH))
         {
-            researchManager.readFromNBT(compound.getCompound(TAG_RESEARCH));
+            researchManager.readFromNBT(compound.getCompoundTag(TAG_RESEARCH));
             // now that buildings, colonists, and research are loaded, check for new autoStartResearch.
             // this is mostly for backwards compatibility with older saves, so players do not have to manually start newly added autostart researches that they've unlocked before the update.
             researchManager.checkAutoStartResearch();
         }
 
         //  Workload
-        workManager.read(compound.getCompound(TAG_WORK));
+        workManager.read(compound.getCompoundTag(TAG_WORK));
 
         wayPoints.clear();
         // Waypoints
-        final NBTTagList wayPointTagList = compound.getList(TAG_WAYPOINT, NBTBase.TAG_COMPOUND);
+        final NBTTagList wayPointTagList = compound.getTagList(TAG_WAYPOINT, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < wayPointTagList.size(); ++i)
         {
-            final NBTTagCompound blockAtPos = wayPointTagList.getCompound(i);
+            final NBTTagCompound blockAtPos = wayPointTagList.getCompoundTagAt(i);
             final int[] pos = BlockPosUtil.read(blockAtPos, TAG_WAYPOINT);
-            final int state = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), blockAtPos);
-            wayPoints.put(pos, state);
+            final int blockId = blockAtPos.getInteger(TAG_BLOCK); // [1.7.10] NbtUtils.readBlockState -> getInteger block ID
+            wayPoints.put(pos, blockId);
         }
 
         // Free blocks
         final Set<Block> tempFreeBlocks = new HashSet<>();
-        final NBTTagList freeBlockTagList = compound.getList(TAG_FREE_BLOCKS, NBTBase.TAG_STRING);
+        final NBTTagList freeBlockTagList = compound.getTagList(TAG_FREE_BLOCKS, NBTBase.TAG_STRING);
         for (int i = 0; i < freeBlockTagList.size(); ++i)
         {
-            tempFreeBlocks.add(ForgeRegistries.BLOCKS.getValue(new ResourceLocation(freeBlockTagList.getString(i))));
+            tempFreeBlocks.add(Block.getBlockFromName(freeBlockTagList.getString(i))); // [1.7.10] ForgeRegistries.BLOCKS.getValue -> Block.getBlockFromName
         }
         freeBlocks = ImmutableSet.copyOf(tempFreeBlocks);
 
         final Set<int[]> tempFreePositions = new HashSet<>();
         // Free positions
-        final NBTTagList freePositionTagList = compound.getList(TAG_FREE_POSITIONS, NBTBase.TAG_COMPOUND);
+        final NBTTagList freePositionTagList = compound.getTagList(TAG_FREE_POSITIONS, NBTBase.TAG_COMPOUND);
         for (int i = 0; i < freePositionTagList.size(); ++i)
         {
-            final NBTTagCompound blockTag = freePositionTagList.getCompound(i);
+            final NBTTagCompound blockTag = freePositionTagList.getCompoundTagAt(i);
             final int[] block = BlockPosUtil.read(blockTag, TAG_FREE_POSITIONS);
             tempFreePositions.add(block);
         }
@@ -854,13 +857,13 @@ public class Colony implements IColony
 
         if (compound.contains(TAG_FLAG_PATTERNS))
         {
-            this.setColonyFlag(compound.getList(TAG_FLAG_PATTERNS, Constants.TAG_COMPOUND));
+            this.setColonyFlag(compound.getTagList(TAG_FLAG_PATTERNS, Constants.TAG_COMPOUND));
         }
 
         this.requestManager.reset();
         if (compound.contains(TAG_REQUESTMANAGER))
         {
-            this.requestManager.deserializeNBT(compound.getCompound(TAG_REQUESTMANAGER));
+            this.requestManager.deserializeNBT(compound.getCompoundTag(TAG_REQUESTMANAGER));
         }
         this.lastOnlineTime = compound.getLong(TAG_LAST_ONLINE);
         if (compound.contains(TAG_COL_TEXT))
@@ -874,7 +877,7 @@ public class Colony implements IColony
 
         if (compound.contains(BuildingModules.TOWNHALL_SETTINGS.key) && settingsModule != null)
         {
-            settingsModule.deserializeNBT(compound.getCompound(BuildingModules.TOWNHALL_SETTINGS.key));
+            settingsModule.deserializeNBT(compound.getCompoundTag(BuildingModules.TOWNHALL_SETTINGS.key));
         }
 
         this.day = compound.getInt(COLONY_DAY);
@@ -882,12 +885,12 @@ public class Colony implements IColony
 
         if (compound.contains(NbtTagConstants.TAG_TRAVELLING_DATA))
         {
-            this.travellingManager.deserializeNBT(compound.getCompound(NbtTagConstants.TAG_TRAVELLING_DATA));
+            this.travellingManager.deserializeNBT(compound.getCompoundTag(NbtTagConstants.TAG_TRAVELLING_DATA));
         }
 
         if (compound.contains(NbtTagConstants.TAG_CONNECTION_MANAGER))
         {
-            this.connectionManager.deserializeNBT(compound.getCompound(NbtTagConstants.TAG_CONNECTION_MANAGER));
+            this.connectionManager.deserializeNBT(compound.getCompoundTag(NbtTagConstants.TAG_CONNECTION_MANAGER));
         }
     }
 
@@ -927,56 +930,56 @@ public class Colony implements IColony
 
         final NBTTagCompound buildingCompound = new NBTTagCompound();
         buildingManager.write(buildingCompound);
-        compound.put(TAG_BUILDING_MANAGER, buildingCompound);
+        compound.setTag(TAG_BUILDING_MANAGER, buildingCompound);
 
         final NBTTagCompound citizenCompound = new NBTTagCompound();
         citizenManager.write(citizenCompound);
-        compound.put(TAG_CITIZEN_MANAGER, citizenCompound);
+        compound.setTag(TAG_CITIZEN_MANAGER, citizenCompound);
 
         visitorManager.write(compound);
 
         final NBTTagCompound animalCompound = new NBTTagCompound();
         animalManager.write(animalCompound);
-        compound.put(TAG_ANIMAL_MANAGER, animalCompound);
+        compound.setTag(TAG_ANIMAL_MANAGER, animalCompound);
 
         final NBTTagCompound graveCompound = new NBTTagCompound();
         graveManager.write(graveCompound);
-        compound.put(TAG_GRAVE_MANAGER, graveCompound);
+        compound.setTag(TAG_GRAVE_MANAGER, graveCompound);
 
         //  Workload
         @NotNull final NBTTagCompound workManagerCompound = new NBTTagCompound();
         workManager.write(workManagerCompound);
-        compound.put(TAG_WORK, workManagerCompound);
+        compound.setTag(TAG_WORK, workManagerCompound);
 
         eventManager.writeToNBT(compound);
         statisticManager.writeToNBT(compound);
 
-        compound.put(TAG_QUEST_MANAGER, questManager.serializeNBT());
-        compound.put(NbtTagConstants.TAG_EVENT_DESC_MANAGER, eventDescManager.serializeNBT());
+        compound.setTag(TAG_QUEST_MANAGER, questManager.serializeNBT());
+        compound.setTag(NbtTagConstants.TAG_EVENT_DESC_MANAGER, eventDescManager.serializeNBT());
         raidManager.write(compound);
 
         @NotNull final NBTTagCompound researchManagerCompound = new NBTTagCompound();
         researchManager.writeToNBT(researchManagerCompound);
-        compound.put(TAG_RESEARCH, researchManagerCompound);
+        compound.setTag(TAG_RESEARCH, researchManagerCompound);
 
         // Waypoints
         @NotNull final NBTTagList wayPointTagList = new NBTTagList();
-        for (@NotNull final Map.Entry<int[], int> entry : wayPoints.entrySet())
+        for (@NotNull final Map.Entry<int[], Integer> entry : wayPoints.entrySet()) // [1.7.10] int -> Integer
         {
             @NotNull final NBTTagCompound wayPointCompound = new NBTTagCompound();
             BlockPosUtil.write(wayPointCompound, TAG_WAYPOINT, entry.getKey());
-            wayPointCompound.put(TAG_BLOCK, NbtUtils.writeBlockState(entry.getValue()));
+            wayPointCompound.setInteger(TAG_BLOCK, entry.getValue()); // [1.7.10] NbtUtils.writeBlockState -> setInteger block ID
             wayPointTagList.add(wayPointCompound);
         }
-        compound.put(TAG_WAYPOINT, wayPointTagList);
+        compound.setTag(TAG_WAYPOINT, wayPointTagList);
 
         // Free blocks
         @NotNull final NBTTagList freeBlocksTagList = new NBTTagList();
         for (@NotNull final Block block : freeBlocks)
         {
-            freeBlocksTagList.add(NBTTagString.valueOf(ForgeRegistries.BLOCKS.getKey(block).toString()));
+            freeBlocksTagList.appendTag(new NBTTagString(Block.blockRegistry.getNameForObject(block).toString())); // [1.7.10] ForgeRegistries.BLOCKS.getKey -> Block.blockRegistry.getNameForObject; NBTTagString.valueOf -> new NBTTagString
         }
-        compound.put(TAG_FREE_BLOCKS, freeBlocksTagList);
+        compound.setTag(TAG_FREE_BLOCKS, freeBlocksTagList);
 
         // Free positions
         @NotNull final NBTTagList freePositionsTagList = new NBTTagList();
@@ -986,14 +989,14 @@ public class Colony implements IColony
             BlockPosUtil.write(wayPointCompound, TAG_FREE_POSITIONS, pos);
             freePositionsTagList.add(wayPointCompound);
         }
-        compound.put(TAG_FREE_POSITIONS, freePositionsTagList);
+        compound.setTag(TAG_FREE_POSITIONS, freePositionsTagList);
 
         compound.putInt(TAG_ABANDONED, packageManager.getLastContactInHours());
-        compound.put(TAG_REQUESTMANAGER, getRequestManager().serializeNBT());
+        compound.setTag(TAG_REQUESTMANAGER, getRequestManager().serializeNBT());
         compound.putString(TAG_PACK, pack);
         compound.putBoolean(TAG_AUTO_DELETE, canColonyBeAutoDeleted);
         compound.putInt(TAG_TEAM_COLOR, colonyTeamColor.ordinal());
-        compound.put(TAG_FLAG_PATTERNS, colonyFlag);
+        compound.setTag(TAG_FLAG_PATTERNS, colonyFlag);
         compound.putLong(TAG_LAST_ONLINE, lastOnlineTime);
         compound.putString(TAG_COL_TEXT, textureStyle);
         compound.putString(TAG_COL_NAME_STYLE, nameStyle);
@@ -1001,10 +1004,10 @@ public class Colony implements IColony
 
         final NBTTagCompound settings = new NBTTagCompound();
         settingsModule.serializeNBT(settings);
-        compound.put(BuildingModules.TOWNHALL_SETTINGS.key, settings);
+        compound.setTag(BuildingModules.TOWNHALL_SETTINGS.key, settings);
 
-        compound.put(TAG_TRAVELLING_DATA, travellingManager.serializeNBT());
-        compound.put(TAG_CONNECTION_MANAGER, connectionManager.serializeNBT());
+        compound.setTag(TAG_TRAVELLING_DATA, travellingManager.serializeNBT());
+        compound.setTag(TAG_CONNECTION_MANAGER, connectionManager.serializeNBT());
 
         this.colonyTag = compound;
 
@@ -1201,7 +1204,7 @@ public class Colony implements IColony
             return;
         }
 
-        if (!event.World.isRemote && (event.World.getGameTime() + id) % 20 == 0)
+        if (!event.World.isRemote && (event.world.getTotalWorldTime() + id) % 20 == 0)
         {
             connectionManager.tick();
         }
@@ -1218,7 +1221,7 @@ public class Colony implements IColony
      */
     public static boolean shallUpdate(final World world, final int averageTicks)
     {
-        return world.getGameTime() % (world.random.nextInt(averageTicks * 2) + 1) == 0;
+        return world.getTotalWorldTime() % (world.rand.nextInt(averageTicks * 2) + 1) == 0;
     }
 
     /**
@@ -1230,19 +1233,21 @@ public class Colony implements IColony
     {
         if (!wayPoints.isEmpty() && world != null)
         {
-            final int randomPos = world.random.nextInt(wayPoints.size());
+            final int randomPos = world.rand.nextInt(wayPoints.size()); // [1.7.10] world.random -> world.rand
             int count = 0;
-            for (final Map.Entry<int[], int> entry : wayPoints.entrySet())
+            for (final Map.Entry<int[], Integer> entry : wayPoints.entrySet()) // [1.7.10] int[] -> int[], int -> Integer
             {
                 if (count++ == randomPos)
                 {
                     if (WorldUtil.isBlockLoaded(world, entry.getKey()))
                     {
-                        final Block worldBlock = world.getBlockState(entry.getKey()).getBlock();
+                        final int[] key = entry.getKey();
+                        final Block worldBlock = world.getBlock(key[0], key[1], key[2]); // [1.7.10] getBlockState -> getBlock
+                        final Block storedBlock = Block.getBlockById(entry.getValue()); // [1.7.10] int block ID -> Block
                         if (
-                            ((worldBlock != (entry.getValue().getBlock()) && entry.getValue().getBlock() != ModBlocks.blockWayPoint)
+                            ((worldBlock != storedBlock && storedBlock != ModBlocks.blockWayPoint)
                                 && worldBlock != ModBlocks.blockConstructionTape)
-                                || (world.isEmptyBlock(entry.getKey().below()) && !BlockUtils.isAnySolid(entry.getValue())))
+                                || (world.isAirBlock(key[0], key[1] - 1, key[2]) && !BlockUtils.isAnySolid(storedBlock))) // [1.7.10] isEmptyBlock/below -> isAirBlock
                         {
                             wayPoints.remove(entry.getKey());
                             markDirty();
@@ -1813,7 +1818,7 @@ public class Colony implements IColony
     @Override
     public void usedMercenaries()
     {
-        mercenaryLastUse = world.getGameTime();
+        mercenaryLastUse = world.getTotalWorldTime();
         markDirty();
     }
 
